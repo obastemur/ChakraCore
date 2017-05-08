@@ -9,11 +9,11 @@ namespace Js
     JavascriptWeakSet::JavascriptWeakSet(DynamicType* type)
         : DynamicObject(type),
         keySet(type->GetScriptContext()->GetRecycler())
-    {
+    {TRACE_IT(62283);
     }
 
     bool JavascriptWeakSet::Is(Var aValue)
-    {
+    {TRACE_IT(62284);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_WeakSet;
     }
 
@@ -40,11 +40,11 @@ namespace Js
         JavascriptWeakSet* weakSetObject = nullptr;
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {TRACE_IT(62285);
              weakSetObject = library->CreateWeakSet();
         }
         else
-        {
+        {TRACE_IT(62286);
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakSet"), _u("WeakSet"));
         }
         Assert(weakSetObject != nullptr);
@@ -55,18 +55,18 @@ namespace Js
         RecyclableObject* adder = nullptr;
 
         if (JavascriptConversion::CheckObjectCoercible(iterable, scriptContext))
-        {
+        {TRACE_IT(62287);
             iter = JavascriptOperators::GetIterator(iterable, scriptContext);
             Var adderVar = JavascriptOperators::GetProperty(weakSetObject, PropertyIds::add, scriptContext);
             if (!JavascriptConversion::IsCallable(adderVar))
-            {
+            {TRACE_IT(62288);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
             }
             adder = RecyclableObject::FromVar(adderVar);
         }
 
         if (iter != nullptr)
-        {
+        {TRACE_IT(62289);
             JavascriptOperators::DoIteratorStepAndValue(iter, scriptContext, [&](Var nextItem) {
                 CALL_FUNCTION(adder, CallInfo(CallFlags_Value, 2), weakSetObject, nextItem);
             });
@@ -85,7 +85,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakSet::Is(args[0]))
-        {
+        {TRACE_IT(62290);
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakSet.prototype.add"), _u("WeakSet"));
         }
 
@@ -94,7 +94,7 @@ namespace Js
         Var key = (args.Info.Count > 1) ? args[1] : scriptContext->GetLibrary()->GetUndefined();
 
         if (!JavascriptOperators::IsObject(key) || JavascriptOperators::GetTypeId(key) == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(62291);
             // HostDispatch is not expanded so can't have internal property added to it.
             // TODO: Support HostDispatch as WeakSet key
             JavascriptError::ThrowTypeError(scriptContext, JSERR_WeakMapSetKeyNotAnObject, _u("WeakSet.prototype.add"));
@@ -108,7 +108,7 @@ namespace Js
         //      We want to improve this.
         //
         if(scriptContext->IsTTDRecordOrReplayModeEnabled())
-        {
+        {TRACE_IT(62292);
             scriptContext->TTDContextInfo->TTDWeakReferencePinSet->Add(keyObj);
         }
 #endif
@@ -126,7 +126,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakSet::Is(args[0]))
-        {
+        {TRACE_IT(62293);
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakSet.prototype.delete"), _u("WeakSet"));
         }
 
@@ -136,7 +136,7 @@ namespace Js
         bool didDelete = false;
 
         if (JavascriptOperators::IsObject(key) && JavascriptOperators::GetTypeId(key) != TypeIds_HostDispatch)
-        {
+        {TRACE_IT(62294);
             DynamicObject* keyObj = DynamicObject::FromVar(key);
 
             didDelete = weakSet->Delete(keyObj);
@@ -153,7 +153,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakSet::Is(args[0]))
-        {
+        {TRACE_IT(62295);
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakSet.prototype.has"), _u("WeakSet"));
         }
 
@@ -163,7 +163,7 @@ namespace Js
         bool hasValue = false;
 
         if (JavascriptOperators::IsObject(key) && JavascriptOperators::GetTypeId(key) != TypeIds_HostDispatch)
-        {
+        {TRACE_IT(62296);
             DynamicObject* keyObj = DynamicObject::FromVar(key);
 
             hasValue = weakSet->Has(keyObj);
@@ -173,31 +173,31 @@ namespace Js
     }
 
     void JavascriptWeakSet::Add(DynamicObject* key)
-    {
+    {TRACE_IT(62297);
         keySet.Item(key, true);
     }
 
     bool JavascriptWeakSet::Delete(DynamicObject* key)
-    {
+    {TRACE_IT(62298);
         bool unused = false;
         return keySet.TryGetValueAndRemove(key, &unused);
     }
 
     bool JavascriptWeakSet::Has(DynamicObject* key)
-    {
+    {TRACE_IT(62299);
         bool unused = false;
         return keySet.TryGetValue(key, &unused);
     }
 
     BOOL JavascriptWeakSet::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62300);
         stringBuilder->AppendCppLiteral(_u("WeakSet"));
         return TRUE;
     }
 
 #if ENABLE_TTD
     void JavascriptWeakSet::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {TRACE_IT(62301);
         this->Map([&](DynamicObject* key)
         {
             extractor->MarkVisitVar(key);
@@ -205,12 +205,12 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptWeakSet::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(62302);
         return TTD::NSSnapObjects::SnapObjectType::SnapSetObject;
     }
 
     void JavascriptWeakSet::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(62303);
         TTD::NSSnapObjects::SnapSetInfo* ssi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapSetInfo>();
         uint32 setCountEst = this->Size();
 
@@ -226,12 +226,12 @@ namespace Js
         });
 
         if(ssi->SetSize == 0)
-        {
+        {TRACE_IT(62304);
             ssi->SetValueArray = nullptr;
             alloc.SlabAbortArraySpace<TTD::TTDVar>(setCountEst + 1);
         }
         else
-        {
+        {TRACE_IT(62305);
             alloc.SlabCommitArraySpace<TTD::TTDVar>(ssi->SetSize, setCountEst + 1);
         }
 

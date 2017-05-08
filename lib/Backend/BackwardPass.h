@@ -127,8 +127,8 @@ private:
     bool IsTraceEnabled() const;
 #endif
 
-    bool IsCollectionPass() const { return isCollectionPass; }
-    bool IsPrePass() const { return this->currentPrePassLoop != nullptr; }
+    bool IsCollectionPass() const {TRACE_IT(1101); return isCollectionPass; }
+    bool IsPrePass() const {TRACE_IT(1102); return this->currentPrePassLoop != nullptr; }
 
     void DeleteBlockData(BasicBlock * block);
 
@@ -193,33 +193,33 @@ private:
 
     public:
         FloatSymEquivalenceClass(JitArenaAllocator *const allocator) : bv(allocator), requiresBailOnNotNumber(false)
-        {
+        {TRACE_IT(1103);
         }
 
         BVSparse<JitArenaAllocator> *Bv()
-        {
+        {TRACE_IT(1104);
             return &bv;
         }
 
         bool RequiresBailOnNotNumber() const
-        {
+        {TRACE_IT(1105);
             return requiresBailOnNotNumber;
         }
 
         void Set(const StackSym *const sym)
-        {
+        {TRACE_IT(1106);
             bv.Set(sym->m_id);
             if(sym->m_requiresBailOnNotNumber)
-            {
+            {TRACE_IT(1107);
                 requiresBailOnNotNumber = true;
             }
         }
 
         void Or(const FloatSymEquivalenceClass *const other)
-        {
+        {TRACE_IT(1108);
             bv.Or(&other->bv);
             if(other->requiresBailOnNotNumber)
-            {
+            {TRACE_IT(1109);
                 requiresBailOnNotNumber = true;
             }
         }

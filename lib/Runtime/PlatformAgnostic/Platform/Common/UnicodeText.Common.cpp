@@ -12,29 +12,29 @@ namespace PlatformAgnostic
 namespace UnicodeText
 {
 CharacterTypeFlags GetLegacyCharacterTypeFlags(char16 ch)
-{
+{TRACE_IT(64953);
     Assert(ch >= 128);
 
     const char16 lineSeperatorChar = 0x2028;
     const char16 paraSeperatorChar = 0x2029;
 
     if (ch == lineSeperatorChar || ch == paraSeperatorChar)
-    {
+    {TRACE_IT(64954);
         return LineCharGroup;
     }
 
     CharacterClassificationType charClass = GetLegacyCharacterClassificationType(ch);
 
     if (charClass == CharacterClassificationType::Letter)
-    {
+    {TRACE_IT(64955);
         return LetterCharGroup;
     }
     else if (charClass == CharacterClassificationType::DigitOrPunct)
-    {
+    {TRACE_IT(64956);
         return IdChar;
     }
     else if (charClass == CharacterClassificationType::Whitespace)
-    {
+    {TRACE_IT(64957);
         return SpaceChar;
     }
 
@@ -46,22 +46,22 @@ namespace Internal
 {
 template <typename CharType>
 inline bool isDigit(__in CharType c)
-{
+{TRACE_IT(64958);
     return c >= '0' && c <= '9';
 }
 
 template <typename CharType>
 inline int readNumber(__inout CharType* &str)
-{
+{TRACE_IT(64959);
     int num = 0;
 
     // Count digits on each string
     while (isDigit(*str))
-    {
+    {TRACE_IT(64960);
         int newNum = (num * 10) + (*str - '0');
         Assert(newNum > num);
         if (newNum <= num)
-        {
+        {TRACE_IT(64961);
             return num;
         }
 
@@ -93,17 +93,17 @@ inline int readNumber(__inout CharType* &str)
 ///
 template <typename CharType>
 int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
-{
+{TRACE_IT(64962);
     Assert(p1 != nullptr);
     Assert(p2 != nullptr);
 
     while (*p1 && *p2)
-    {
+    {TRACE_IT(64963);
         bool isDigit1 = isDigit(*p1);
         bool isDigit2 = isDigit(*p2);
 
         if (isDigit1 ^ isDigit2)
-        {
+        {TRACE_IT(64964);
             // If either character exclusively is not a number, compare just the characters
             // since that's enough to sort the string
             CharType c1 = tolower(*p1);
@@ -112,25 +112,25 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             Assert(c1 != c2);
 
             if (c1 < c2)
-            {
+            {TRACE_IT(64965);
                 return -1;
             }
 
             return 1;
         }
         else if (isDigit1 && isDigit2)
-        {
+        {TRACE_IT(64966);
             // Both current characters are digits, so we'll compare the numbers
             int numZero1 = 0, numZero2 = 0;
 
             // Count leading zeroes on each string
             while (*p1 == '0')
-            {
+            {TRACE_IT(64967);
                 p1++; numZero1++;
             }
 
             while (*p2 == '0')
-            {
+            {TRACE_IT(64968);
                 p2++; numZero2++;
             }
 
@@ -138,12 +138,12 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             int num2 = readNumber(p2);
 
             if (num1 != num2)
-            {
+            {TRACE_IT(64969);
                 // If the numbers are unequal, just compare the numbers
                 return (num1 > num2) ? 1 : -1;
             }
             else if (numZero1 != numZero2)
-            {
+            {TRACE_IT(64970);
                 // The numbers are equal but the number of leading zeroes are not
                 // The one with the fewer number of leading zeroes is considered
                 // "larger" (gets sorted earlier)
@@ -152,20 +152,20 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             // else both numbers are the same, keep going
         }
         else
-        {
+        {TRACE_IT(64971);
             // Both characters are not digits - scan till we find a
             // digit in the same position in each string
             while (*p1 && !isDigit(*p1) && *p2 && !isDigit(*p2))
-            {
+            {TRACE_IT(64972);
                 int c1 = tolower(*p1);
                 int c2 = tolower(*p2);
 
                 if (c1 < c2)
-                {
+                {TRACE_IT(64973);
                     return -1;
                 }
                 else if (c1 > c2)
-                {
+                {TRACE_IT(64974);
                     return 1;
                 }
 
@@ -190,11 +190,11 @@ int LogicalStringCompareImpl<char16>(__in const char16* str1, __in const char16*
 // Unnamespaced test code
 #if ENABLE_TEST_PLATFORM_AGNOSTIC
 void LogicalStringCompareTest(const WCHAR* str1, const WCHAR* str2, int expected)
-{
+{TRACE_IT(64975);
     int compareStringResult = CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE | SORT_DIGITSASNUMBERS, str1, -1, str2, -1);
 
     if (compareStringResult == 0)
-    {
+    {TRACE_IT(64976);
         printf("ERROR: CompareStringW failed with error: %d\n", ::GetLastError());
         return;
     }

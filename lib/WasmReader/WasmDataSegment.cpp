@@ -15,18 +15,18 @@ WasmDataSegment::WasmDataSegment(ArenaAllocator * alloc, WasmNode ie, uint32 _so
     m_initExpr(ie),
     m_sourceSize(_source_size),
     m_data(_data)
-{
+{TRACE_IT(68394);
 }
 
 uint32
 WasmDataSegment::GetSourceSize() const
-{
+{TRACE_IT(68395);
     return m_sourceSize;
 }
 
 const byte*
 WasmDataSegment::GetData() const
-{
+{TRACE_IT(68396);
     return m_data;
 }
 

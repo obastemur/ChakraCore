@@ -17,7 +17,7 @@ class BranchReloc
 public:
     BranchReloc(IR::BranchInstr * instr, uint32 branchOffset, uint32 offs)
         : branchInstr(instr), branchOffset(branchOffset), offset(offs), isNotBackEdge(false)
-    { }
+    {TRACE_IT(8255); }
 
 private:
     IR::BranchInstr * branchInstr;
@@ -27,27 +27,27 @@ private:
     uint32            branchOffset;
 public:
     IR::BranchInstr * GetBranchInstr()
-    {
+    {TRACE_IT(8256);
         return this->branchInstr;
     }
 
     uint32 GetOffset() const
-    {
+    {TRACE_IT(8257);
         return this->offset;
     }
 
     uint32 GetBranchOffset() const
-    {
+    {TRACE_IT(8258);
         return this->branchOffset;
     }
 
     bool IsNotBackEdge() const
-    {
+    {TRACE_IT(8259);
         return this->isNotBackEdge;
     }
 
     void SetNotBackEdge()
-    {
+    {TRACE_IT(8260);
         this->isNotBackEdge = true;
     }
 };
@@ -84,7 +84,7 @@ public:
 #endif
     {
         auto loopCount = func->GetJITFunctionBody()->GetLoopCount();
-        if (loopCount > 0) {
+        if (loopCount > 0) {TRACE_IT(8261);
             m_saveLoopImplicitCallFlags = (IR::Opnd**)func->m_alloc->Alloc(sizeof(IR::Opnd*) * loopCount);
 #if DBG
             memset(m_saveLoopImplicitCallFlags, 0, sizeof(IR::Opnd*) * loopCount);
@@ -95,9 +95,9 @@ public:
         func->m_workItem->InitializeReader(&m_jnReader, &m_statementReader, func->m_alloc);
     };
 
-    ~IRBuilder() {
+    ~IRBuilder() {TRACE_IT(8262);
         Assert(m_func->GetJITFunctionBody()->GetLoopCount() == 0 || m_saveLoopImplicitCallFlags);
-        if (m_saveLoopImplicitCallFlags) {
+        if (m_saveLoopImplicitCallFlags) {TRACE_IT(8263);
             m_func->m_alloc->Free(m_saveLoopImplicitCallFlags, sizeof(IR::Opnd*) * m_func->GetJITFunctionBody()->GetLoopCount());
         }
     }
@@ -220,7 +220,7 @@ private:
     IR::Instr *         BuildProfiledSlotLoad(Js::OpCode loadOp, IR::RegOpnd *dstOpnd, IR::SymOpnd *srcOpnd, Js::ProfileId profileId, bool *pUnprofiled);
 
     SymID               GetMappedTemp(Js::RegSlot reg)
-    {
+    {TRACE_IT(8264);
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->tempMap, "Processing non-temp reg without a temp map?");
 
@@ -228,7 +228,7 @@ private:
     }
 
     void                SetMappedTemp(Js::RegSlot reg, SymID tempId)
-    {
+    {TRACE_IT(8265);
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->tempMap, "Processing non-temp reg without a temp map?");
 
@@ -236,7 +236,7 @@ private:
     }
 
     BOOL                GetTempUsed(Js::RegSlot reg)
-    {
+    {TRACE_IT(8266);
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->fbvTempUsed, "Processing non-temp reg without a used BV?");
 
@@ -244,27 +244,27 @@ private:
     }
 
     void                SetTempUsed(Js::RegSlot reg, BOOL used)
-    {
+    {TRACE_IT(8267);
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->fbvTempUsed, "Processing non-temp reg without a used BV?");
 
         if (used)
-        {
+        {TRACE_IT(8268);
             this->fbvTempUsed->Set(reg - this->firstTemp);
         }
         else
-        {
+        {TRACE_IT(8269);
             this->fbvTempUsed->Clear(reg - this->firstTemp);
         }
     }
 
     BOOL                RegIsTemp(Js::RegSlot reg)
-    {
+    {TRACE_IT(8270);
         return reg >= this->firstTemp;
     }
 
     BOOL                RegIsConstant(Js::RegSlot reg)
-    {
+    {TRACE_IT(8271);
         return reg > 0 && reg < m_func->GetJITFunctionBody()->GetConstCount();
     }
 

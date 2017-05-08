@@ -32,7 +32,7 @@ namespace Js {
     ///----------------------------------------------------------------------------
 
     Tick::Tick()
-    {
+    {TRACE_IT(19474);
         m_luTick = 0;
     }
 
@@ -48,7 +48,7 @@ namespace Js {
 
     Tick::Tick(
         uint64 luTick)                      // Tick, in internal units
-    {
+    {TRACE_IT(19475);
         m_luTick = luTick;
     }
 
@@ -65,7 +65,7 @@ namespace Js {
     Tick
     Tick::FromMicroseconds(
         uint64 luTime)                          // Time, in microseconds
-    {
+    {TRACE_IT(19476);
         //
         // Ensure we can convert losslessly.
         //
@@ -96,7 +96,7 @@ namespace Js {
     Tick
     Tick::FromQPC(
         uint64 luTime)                      // Time, in QPC units
-    {
+    {TRACE_IT(19477);
         return Tick(luTime - s_luBegin);
     }
 
@@ -111,7 +111,7 @@ namespace Js {
 
     uint64
     Tick::ToQPC()
-    {
+    {TRACE_IT(19478);
         return (m_luTick + s_luBegin);
     }
 
@@ -128,7 +128,7 @@ namespace Js {
     Tick::operator +(
         TickDelta tdChange                  // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19479);
         return Tick(m_luTick + tdChange.m_lnDelta);
     }
 
@@ -145,7 +145,7 @@ namespace Js {
     Tick::operator -(
         TickDelta tdChange                  // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19480);
         return Tick(m_luTick - tdChange.m_lnDelta);
     }
 
@@ -162,7 +162,7 @@ namespace Js {
     Tick::operator -(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19481);
         return TickDelta(m_luTick - timeOther.m_luTick);
     }
 
@@ -179,7 +179,7 @@ namespace Js {
     Tick::operator ==(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19482);
         return m_luTick == timeOther.m_luTick;
     }
 
@@ -196,7 +196,7 @@ namespace Js {
     Tick::operator !=(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19483);
         return m_luTick != timeOther.m_luTick;
     }
 
@@ -213,7 +213,7 @@ namespace Js {
     Tick::operator <(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19484);
         return m_luTick < timeOther.m_luTick;
     }
 
@@ -230,7 +230,7 @@ namespace Js {
     Tick::operator <=(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19485);
         return m_luTick <= timeOther.m_luTick;
     }
 
@@ -247,7 +247,7 @@ namespace Js {
     Tick::operator >(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19486);
         return m_luTick > timeOther.m_luTick;
     }
 
@@ -264,7 +264,7 @@ namespace Js {
     Tick::operator >=(
         Tick timeOther                      // RHS Tick
         ) const
-    {
+    {TRACE_IT(19487);
         return m_luTick >= timeOther.m_luTick;
     }
 
@@ -286,7 +286,7 @@ namespace Js {
     ///----------------------------------------------------------------------------
 
     TickDelta::TickDelta()
-    {
+    {TRACE_IT(19488);
         m_lnDelta = 0;
     }
 
@@ -303,7 +303,7 @@ namespace Js {
 
     TickDelta::TickDelta(
         int64 lnDelta)
-    {
+    {TRACE_IT(19489);
         m_lnDelta = lnDelta;
     }
 
@@ -319,9 +319,9 @@ namespace Js {
 
     int64
     TickDelta::ToMicroseconds() const
-    {
+    {TRACE_IT(19490);
         if (*this == Infinite())
-        {
+        {TRACE_IT(19491);
             return _I64_MAX;
         }
 
@@ -357,7 +357,7 @@ namespace Js {
     TickDelta
     TickDelta::FromMicroseconds(
         int64 lnTimeDelta)                  // Time delta, in 1/1000^2 sec
-    {
+    {TRACE_IT(19492);
         AssertMsg(lnTimeDelta != _I64_MAX, "Use Infinite() to create an infinite TickDelta");
 
         //
@@ -398,7 +398,7 @@ namespace Js {
     TickDelta
     TickDelta::FromMicroseconds(
         int nTimeDelta)                     // Tick delta, in 1/1000^2 sec
-    {
+    {TRACE_IT(19493);
         AssertMsg(nTimeDelta != _I32_MAX, "Use Infinite() to create an infinite TickDelta");
 
         return FromMicroseconds((int64) nTimeDelta);
@@ -417,7 +417,7 @@ namespace Js {
     TickDelta
     TickDelta::FromMilliseconds(
         int nTimeDelta)                     // Tick delta, in 1/1000^1 sec
-    {
+    {TRACE_IT(19494);
         AssertMsg(nTimeDelta != _I32_MAX, "Use Infinite() to create an infinite TickDelta");
 
         return FromMicroseconds(((int64) nTimeDelta) * ((int64) 1000));
@@ -434,7 +434,7 @@ namespace Js {
 
     TickDelta
     TickDelta::Infinite()
-    {
+    {TRACE_IT(19495);
         return TickDelta(_I64_MAX);
     }
 
@@ -450,7 +450,7 @@ namespace Js {
 
     bool
     TickDelta::IsForward() const
-    {
+    {TRACE_IT(19496);
         return m_lnDelta >= 0;
     }
 
@@ -466,7 +466,7 @@ namespace Js {
 
     bool
     TickDelta::IsBackward() const
-    {
+    {TRACE_IT(19497);
         return m_lnDelta <= 0;
     }
 
@@ -481,7 +481,7 @@ namespace Js {
 
     TickDelta
     TickDelta::Abs(TickDelta tdOther)
-    {
+    {TRACE_IT(19498);
         return TickDelta(tdOther.m_lnDelta < 0 ? -tdOther.m_lnDelta : tdOther.m_lnDelta);
     }
 
@@ -498,7 +498,7 @@ namespace Js {
     TickDelta::operator %(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19499);
         return TickDelta(m_lnDelta % tdOther.m_lnDelta);
     }
 
@@ -515,7 +515,7 @@ namespace Js {
     TickDelta::operator /(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19500);
         return m_lnDelta / tdOther.m_lnDelta;
     }
 
@@ -532,7 +532,7 @@ namespace Js {
     TickDelta::operator +(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19501);
         AssertMsg((*this != Infinite()) && (tdOther != Infinite()),
                 "Can not combine infinite TickDeltas");
 
@@ -552,7 +552,7 @@ namespace Js {
     TickDelta::operator -(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19502);
         AssertMsg((*this != Infinite()) && (tdOther != Infinite()),
                 "Can not combine infinite TickDeltas");
 
@@ -572,7 +572,7 @@ namespace Js {
     TickDelta::operator *(
         int nScale                          // RHS scale
         ) const
-    {
+    {TRACE_IT(19503);
         AssertMsg(*this != Infinite(), "Can not combine infinite TickDeltas");
 
         return TickDelta(m_lnDelta * nScale);
@@ -591,7 +591,7 @@ namespace Js {
     TickDelta::operator *(
         float flScale                       // RHS scale
         ) const
-    {
+    {TRACE_IT(19504);
         AssertMsg(*this != Infinite(), "Can not combine infinite TickDeltas");
 
         return TickDelta((int64) (((double) m_lnDelta) * ((double) flScale)));
@@ -610,7 +610,7 @@ namespace Js {
     TickDelta::operator /(
         int nScale                          // RHS scale
         ) const
-    {
+    {TRACE_IT(19505);
         AssertMsg(*this != Infinite(), "Can not combine infinite TickDeltas");
         AssertMsg(nScale != 0, "Can not scale by 0");
 
@@ -630,7 +630,7 @@ namespace Js {
     TickDelta::operator /(
         float flScale                       // RHS scale
         ) const
-    {
+    {TRACE_IT(19506);
         AssertMsg(*this != Infinite(), "Can not combine infinite TickDeltas");
         AssertMsg(flScale != 0, "Can not scale by 0");
 
@@ -649,7 +649,7 @@ namespace Js {
     TickDelta
     TickDelta::operator +=(
         TickDelta tdOther)                  // RHS TickDelta
-    {
+    {TRACE_IT(19507);
         AssertMsg((*this != Infinite()) && (tdOther != Infinite()),
                 "Can not combine infinite TickDeltas");
 
@@ -670,7 +670,7 @@ namespace Js {
     TickDelta
     TickDelta::operator -=(
         TickDelta tdOther)                  // RHS TickDelta
-    {
+    {TRACE_IT(19508);
         AssertMsg((*this != Infinite()) && (tdOther != Infinite()),
                 "Can not combine infinite TickDeltas");
 
@@ -692,7 +692,7 @@ namespace Js {
     TickDelta::operator ==(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19509);
         return m_lnDelta == tdOther.m_lnDelta;
     }
 
@@ -709,7 +709,7 @@ namespace Js {
     TickDelta::operator !=(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19510);
         return m_lnDelta != tdOther.m_lnDelta;
     }
 
@@ -726,7 +726,7 @@ namespace Js {
     TickDelta::operator <(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19511);
         return m_lnDelta < tdOther.m_lnDelta;
     }
 
@@ -743,7 +743,7 @@ namespace Js {
     TickDelta::operator <=(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19512);
         return m_lnDelta <= tdOther.m_lnDelta;
     }
 
@@ -760,7 +760,7 @@ namespace Js {
     TickDelta::operator >(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19513);
         return m_lnDelta > tdOther.m_lnDelta;
     }
 
@@ -777,11 +777,11 @@ namespace Js {
     TickDelta::operator >=(
         TickDelta tdOther                   // RHS TickDelta
         ) const
-    {
+    {TRACE_IT(19514);
         return m_lnDelta >= tdOther.m_lnDelta;
     }
     void Tick::InitType()
-    {
+    {TRACE_IT(19515);
         /* CheckWin32( */ QueryPerformanceFrequency((LARGE_INTEGER *) &s_luFreq);
         /* CheckWin32( */ QueryPerformanceCounter((LARGE_INTEGER *) &s_luBegin);
 
@@ -796,7 +796,7 @@ namespace Js {
 
         uint64 nSec = _UI64_MAX / s_luFreq;
         if (nSec < 5 * 60)
-        {
+        {TRACE_IT(19516);
 #if FIXTHIS
             PromptInvalid("QueryPerformanceFrequency() will not provide at least 5 minutes");
             return Results::GenericFailure;
@@ -805,7 +805,7 @@ namespace Js {
     }
 
     Tick Tick::Now()
-    {
+    {TRACE_IT(19517);
         // Determine our current time
         uint64 luCurrent = s_luBegin;
         /* Verify( */ QueryPerformanceCounter((LARGE_INTEGER *) &luCurrent);
@@ -820,7 +820,7 @@ namespace Js {
     }
 
     uint64 Tick::ToMicroseconds() const
-    {
+    {TRACE_IT(19518);
         //
         // Convert time in microseconds (1 / 1000^2).  Because of the finite precision and wrap-around,
         // this math depends on where the Tick is.
@@ -829,7 +829,7 @@ namespace Js {
         const uint64 luOneSecUs = (uint64) 1000000;
         const uint64 luSafeTick = _UI64_MAX / luOneSecUs;
         if (m_luTick < luSafeTick)
-        {
+        {TRACE_IT(19519);
             //
             // Small enough to convert directly into microseconds.
             //
@@ -838,7 +838,7 @@ namespace Js {
             return luTick;
         }
         else
-        {
+        {TRACE_IT(19520);
             //
             // Number is too large, so we need to do this is stages.
             // 1. Compute the number of seconds
@@ -856,9 +856,9 @@ namespace Js {
     }
 
     int TickDelta::ToMilliseconds() const
-    {
+    {TRACE_IT(19521);
         if (*this == Infinite())
-        {
+        {TRACE_IT(19522);
             return _I32_MAX;
         }
 
@@ -866,7 +866,7 @@ namespace Js {
 
         int64 lnRound = 500;
         if (nTickUs < 0)
-        {
+        {TRACE_IT(19523);
             lnRound = -500;
         }
 

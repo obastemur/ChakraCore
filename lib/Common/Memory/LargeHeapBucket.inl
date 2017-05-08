@@ -6,7 +6,7 @@
 
 inline char *
 LargeHeapBucket::TryAlloc(Recycler * recycler, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(24629);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     char * memBlock;
@@ -18,23 +18,23 @@ LargeHeapBucket::TryAlloc(Recycler * recycler, size_t sizeCat, ObjectInfoBits at
     //  Otherwise allocate new heap block
 
     if (this->largeBlockList != nullptr)
-    {
+    {TRACE_IT(24630);
         memBlock = this->largeBlockList->Alloc(sizeCat, attributes);
         if (memBlock != nullptr)
-        {
+        {TRACE_IT(24631);
             // Don't need to verify zero fill here since we will do it in LargeHeapBucket::Alloc
             return memBlock;
         }
     }
 
     if (!this->supportFreeList)
-    {
+    {TRACE_IT(24632);
         return nullptr;
     }
 
     memBlock = this->TryAllocFromExplicitFreeList(recycler, sizeCat, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(24633);
         // Don't need to verify zero fill here since we will do it in LargeHeapBucket::Alloc
         return memBlock;
     }
@@ -45,18 +45,18 @@ LargeHeapBucket::TryAlloc(Recycler * recycler, size_t sizeCat, ObjectInfoBits at
 template <ObjectInfoBits attributes, bool nothrow>
 inline char *
 LargeHeapBucket::Alloc(Recycler * recycler, size_t sizeCat)
-{
+{TRACE_IT(24634);
     Assert(!HeapInfo::IsMediumObject(sizeCat) || HeapInfo::GetMediumObjectAlignedSizeNoCheck(sizeCat) == this->sizeCat);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     char * memBlock = TryAlloc(recycler, sizeCat, attributes);
     if (memBlock == nullptr)
-    {
+    {TRACE_IT(24635);
         memBlock = SnailAlloc(recycler, sizeCat, attributes, nothrow);
         Assert(memBlock != nullptr);
     }
     else
-    {
+    {TRACE_IT(24636);
 #ifdef RECYCLER_PAGE_HEAP
         Assert(!IsPageHeapEnabled(attributes));
 #endif
@@ -74,7 +74,7 @@ LargeHeapBucket::Alloc(Recycler * recycler, size_t sizeCat)
 template <class Fn>
 void
 LargeHeapBucket::ForEachLargeHeapBlock(Fn fn)
-{
+{TRACE_IT(24637);
     HeapBlockList::ForEach(fullLargeBlockList, fn);
     HeapBlockList::ForEach(largeBlockList, fn);
 #ifdef RECYCLER_PAGE_HEAP
@@ -92,7 +92,7 @@ LargeHeapBucket::ForEachLargeHeapBlock(Fn fn)
 template <class Fn>
 void
 LargeHeapBucket::ForEachEditingLargeHeapBlock(Fn fn)
-{
+{TRACE_IT(24638);
     HeapBlockList::ForEachEditing(fullLargeBlockList, fn);
     HeapBlockList::ForEachEditing(largeBlockList, fn);
 #ifdef RECYCLER_PAGE_HEAP

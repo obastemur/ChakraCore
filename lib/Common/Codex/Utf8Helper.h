@@ -15,11 +15,11 @@ namespace utf8
     ///
     template <class Allocator>
     HRESULT WideStringToNarrow(_In_ LPCWSTR sourceString, size_t sourceCount, _Out_ LPSTR* destStringPtr, _Out_ size_t* destCount, size_t* allocateCount = nullptr)
-    {
+    {TRACE_IT(18757);
         size_t cchSourceString = sourceCount;
 
         if (cchSourceString >= MAXUINT32)
-        {
+        {TRACE_IT(18758);
             return E_OUTOFMEMORY;
         }
 
@@ -27,13 +27,13 @@ namespace utf8
 
         // Check for overflow- cbDestString should be >= cchSourceString
         if (cbDestString < cchSourceString)
-        {
+        {TRACE_IT(18759);
             return E_OUTOFMEMORY;
         }
 
         utf8char_t* destString = (utf8char_t*)Allocator::allocate(cbDestString);
         if (destString == nullptr)
-        {
+        {TRACE_IT(18760);
             return E_OUTOFMEMORY;
         }
 
@@ -54,28 +54,28 @@ namespace utf8
     ///
     template <class Allocator>
     HRESULT NarrowStringToWide(_In_ LPCSTR sourceString, size_t sourceCount, _Out_ LPWSTR* destStringPtr, _Out_ size_t* destCount, size_t* allocateCount = nullptr)
-    {
+    {TRACE_IT(18761);
         size_t cbSourceString = sourceCount;
         size_t sourceStart = 0;
         size_t cbDestString = (sourceCount + 1) * sizeof(WCHAR);
         if (cbDestString < sourceCount) // overflow ?
-        {
+        {TRACE_IT(18762);
             return E_OUTOFMEMORY;
         }
 
         WCHAR* destString = (WCHAR*)Allocator::allocate(cbDestString);
         if (destString == nullptr)
-        {
+        {TRACE_IT(18763);
             return E_OUTOFMEMORY;
         }
 
         if (allocateCount != nullptr) *allocateCount = cbDestString;
 
         for (; sourceStart < sourceCount; sourceStart++)
-        {
+        {TRACE_IT(18764);
             const char ch = sourceString[sourceStart];
             if ( ! (ch > 0 && ch < 0x0080) )
-            {
+            {TRACE_IT(18765);
                 size_t fallback = sourceStart > 3 ? 3 : sourceStart; // 3 + 1 -> fallback at least 1 unicode char
                 sourceStart -= fallback;
                 break;
@@ -84,13 +84,13 @@ namespace utf8
         }
 
         if (sourceStart == sourceCount)
-        {
+        {TRACE_IT(18766);
             *destCount = sourceCount;
             destString[sourceCount] = WCHAR(0);
             *destStringPtr = destString;
         }
         else
-        {
+        {TRACE_IT(18767);
             LPCUTF8 remSourceString = (LPCUTF8)sourceString + sourceStart;
             WCHAR *remDestString = destString + sourceStart;
 
@@ -113,26 +113,26 @@ namespace utf8
     class malloc_allocator
     {
     public:
-        static void* allocate(size_t size) { return ::malloc(size); }
-        static void free(void* ptr, size_t count) { ::free(ptr); }
+        static void* allocate(size_t size) {TRACE_IT(18768); return ::malloc(size); }
+        static void free(void* ptr, size_t count) {TRACE_IT(18769); ::free(ptr); }
     };
 
     inline HRESULT WideStringToNarrowDynamic(_In_ LPCWSTR sourceString, _Out_ LPSTR* destStringPtr)
-    {
+    {TRACE_IT(18770);
         size_t unused;
         return WideStringToNarrow<malloc_allocator>(
             sourceString, wcslen(sourceString), destStringPtr, &unused);
     }
 
     inline HRESULT NarrowStringToWideDynamic(_In_ LPCSTR sourceString, _Out_ LPWSTR* destStringPtr)
-    {
+    {TRACE_IT(18771);
         size_t unused;
         return NarrowStringToWide<malloc_allocator>(
             sourceString, strlen(sourceString), destStringPtr, &unused);
     }
 
     inline HRESULT NarrowStringToWideDynamicGetLength(_In_ LPCSTR sourceString, _Out_ LPWSTR* destStringPtr, _Out_ size_t* destLength)
-    {
+    {TRACE_IT(18772);
         return NarrowStringToWide<malloc_allocator>(
             sourceString, strlen(sourceString), destStringPtr, destLength);
     }
@@ -153,14 +153,14 @@ namespace utf8
         // Note: Typically caller should pass in Utf8 string length. Following
         // is used as fallback.
         static size_t Length(LPCSTR src)
-        {
+        {TRACE_IT(18773);
             return strnlen(src, INT_MAX);
         }
 
         static HRESULT Convert(
             LPCSTR sourceString, size_t sourceCount,
             LPWSTR* destStringPtr, size_t* destCount, size_t* allocateCount = nullptr)
-        {
+        {TRACE_IT(18774);
             return NarrowStringToWide<Allocator>(
                 sourceString, sourceCount, destStringPtr, destCount, allocateCount);
         }
@@ -173,14 +173,14 @@ namespace utf8
         // Note: Typically caller should pass in WCHAR string length. Following
         // is used as fallback.
         static size_t Length(LPCWSTR src)
-        {
+        {TRACE_IT(18775);
             return wcslen(src);
         }
 
         static HRESULT Convert(
             LPCWSTR sourceString, size_t sourceCount,
             LPSTR* destStringPtr, size_t* destCount, size_t* allocateCount = nullptr)
-        {
+        {TRACE_IT(18776);
             return WideStringToNarrow<Allocator>(
                 sourceString, sourceCount, destStringPtr, destCount, allocateCount);
         }
@@ -198,7 +198,7 @@ namespace utf8
 
     public:
         NarrowWideConverter() : dst()
-        {
+        {TRACE_IT(18777);
             // do nothing
         }
 
@@ -208,9 +208,9 @@ namespace utf8
         }
 
         void Initialize(const SrcType& src, size_t srcCount = -1)
-        {
+        {TRACE_IT(18778);
             if (srcCount == -1)
-            {
+            {TRACE_IT(18779);
                 srcCount = StringConverter::Length(src);
             }
 
@@ -218,27 +218,27 @@ namespace utf8
         }
 
         ~NarrowWideConverter()
-        {
+        {TRACE_IT(18780);
             if (dst)
-            {
+            {TRACE_IT(18781);
                 Allocator::free(dst, allocateCount);
             }
         }
 
         DstType Detach()
-        {
+        {TRACE_IT(18782);
             DstType result = dst;
             dst = DstType();
             return result;
         }
 
         operator DstType()
-        {
+        {TRACE_IT(18783);
             return dst;
         }
 
         size_t Length() const
-        {
+        {TRACE_IT(18784);
             return dstCount;
         }
     };

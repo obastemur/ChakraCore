@@ -51,13 +51,13 @@ namespace Js
         JavascriptProxy(DynamicType * type);
         JavascriptProxy(DynamicType * type, ScriptContext * scriptContext, RecyclableObject* target, RecyclableObject* handler);
         static BOOL Is(Var obj);
-        static JavascriptProxy* FromVar(Var obj) { Assert(Is(obj)); return static_cast<JavascriptProxy*>(obj); }
+        static JavascriptProxy* FromVar(Var obj) {TRACE_IT(61068); Assert(Is(obj)); return static_cast<JavascriptProxy*>(obj); }
 #ifndef IsJsDiag
         RecyclableObject* GetTarget();
         RecyclableObject* GetHandler();
 #else
-        RecyclableObject* GetTarget() { return target; }
-        RecyclableObject* GetHandler() { return handler; }
+        RecyclableObject* GetTarget() {TRACE_IT(61069); return target; }
+        RecyclableObject* GetHandler() {TRACE_IT(61070); return handler; }
 #endif
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryRevocable(RecyclableObject* function, CallInfo callInfo, ...);
@@ -69,7 +69,7 @@ namespace Js
         static BOOL GetOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor* propertyDescriptor);
         static BOOL DefineOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor, bool throwOnError, ScriptContext* scriptContext);
 
-        static DWORD GetOffsetOfTarget() { return offsetof(JavascriptProxy, target); }
+        static DWORD GetOffsetOfTarget() {TRACE_IT(61071); return offsetof(JavascriptProxy, target); }
 
         virtual BOOL HasProperty(PropertyId propertyId) override;
         virtual BOOL HasOwnProperty(PropertyId propertyId) override;
@@ -111,8 +111,8 @@ namespace Js
         virtual BOOL IsEnumerable(PropertyId propertyId) override;
         virtual BOOL IsExtensible() override;
         virtual BOOL PreventExtensions() override;
-        virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor) { }
-        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {};
+        virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor) {TRACE_IT(61072); }
+        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {TRACE_IT(61073);};
         virtual BOOL GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor) override;
         virtual BOOL Seal() override;
         virtual BOOL Freeze() override;
@@ -122,9 +122,9 @@ namespace Js
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override;
         virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) override;
         virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) override;
-        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) { return false; }
-        virtual uint GetSpecialPropertyCount() const { return 0; }
-        virtual PropertyId const * GetSpecialPropertyIds() const { return nullptr; }
+        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) {TRACE_IT(61074); return false; }
+        virtual uint GetSpecialPropertyCount() const {TRACE_IT(61075); return 0; }
+        virtual PropertyId const * GetSpecialPropertyIds() const {TRACE_IT(61076); return nullptr; }
         virtual BOOL HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache = NULL) override;
         // This is used for external object only; should not be called for proxy
         virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) override;
@@ -133,7 +133,7 @@ namespace Js
         virtual Js::JavascriptString* GetClassName(ScriptContext * requestContext) override;
 
 #if DBG
-        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) { Assert(false); return false; };
+        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) {TRACE_IT(61077); Assert(false); return false; };
 #endif
 
         virtual void RemoveFromPrototype(ScriptContext * requestContext) override;
@@ -161,18 +161,18 @@ namespace Js
         template <class Fn>
         void GetOwnPropertyKeysHelper(ScriptContext* scriptContext, RecyclableObject* trapResultArray, uint32 len, JavascriptArray* trapResult,
             JsUtil::BaseDictionary<Js::PropertyId, bool, ArenaAllocator>& targetToTrapResultMap, Fn fn)
-        {
+        {TRACE_IT(61078);
             Var element;
             const PropertyRecord* propertyRecord;
             uint32 trapResultIndex = 0;
             PropertyId propertyId;
             for (uint32 i = 0; i < len; i++)
-            {
+            {TRACE_IT(61079);
                 if (!JavascriptOperators::GetItem(trapResultArray, i, &element, scriptContext))
                     continue;
 
                 if (!(JavascriptString::Is(element) || JavascriptSymbol::Is(element)))
-                {
+                {TRACE_IT(61080);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
                 }
 
@@ -180,14 +180,14 @@ namespace Js
                 propertyId = propertyRecord->GetPropertyId();
 
                 if (!targetToTrapResultMap.ContainsKey(propertyId))
-                {
+                {TRACE_IT(61081);
                     if (propertyId != Constants::NoProperty)
-                    {
+                    {TRACE_IT(61082);
                         targetToTrapResultMap.Add(propertyId, true);
                     }
 
                     if (fn(propertyRecord))
-                    {
+                    {TRACE_IT(61083);
                         trapResult->DirectSetItemAt(trapResultIndex++, element);
                     }
                 }

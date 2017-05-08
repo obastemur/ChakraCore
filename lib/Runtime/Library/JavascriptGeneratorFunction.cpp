@@ -16,7 +16,7 @@ namespace Js
     JavascriptGeneratorFunction::JavascriptGeneratorFunction(DynamicType* type)
         : ScriptFunctionBase(type, &functionInfo),
         scriptFunction(nullptr)
-    {
+    {TRACE_IT(59007);
         // Constructor used during copy on write.
         DebugOnly(VerifyEntryPoint());
     }
@@ -24,32 +24,32 @@ namespace Js
     JavascriptGeneratorFunction::JavascriptGeneratorFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction)
         : ScriptFunctionBase(type, &functionInfo),
         scriptFunction(scriptFunction)
-    {
+    {TRACE_IT(59008);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptGeneratorFunction::JavascriptGeneratorFunction(DynamicType* type, FunctionInfo* functionInfo, GeneratorVirtualScriptFunction* scriptFunction)
         : ScriptFunctionBase(type, functionInfo),
         scriptFunction(scriptFunction)
-    {
+    {TRACE_IT(59009);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptAsyncFunction::JavascriptAsyncFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction)
         : JavascriptGeneratorFunction(type, &functionInfo, scriptFunction)
-    {
+    {TRACE_IT(59010);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptAsyncFunction* JavascriptAsyncFunction::New(ScriptContext* scriptContext, GeneratorVirtualScriptFunction* scriptFunction)
-    {
+    {TRACE_IT(59011);
         return scriptContext->GetLibrary()->CreateAsyncFunction(functionInfo.GetOriginalEntryPoint(), scriptFunction);
     }
 
     bool JavascriptGeneratorFunction::Is(Var var)
-    {
+    {TRACE_IT(59012);
         if (JavascriptFunction::Is(var))
-        {
+        {TRACE_IT(59013);
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptGeneratorFunction>::HasVirtualTable(obj)
@@ -60,16 +60,16 @@ namespace Js
     }
 
     JavascriptGeneratorFunction* JavascriptGeneratorFunction::FromVar(Var var)
-    {
+    {TRACE_IT(59014);
         Assert(JavascriptGeneratorFunction::Is(var) || JavascriptAsyncFunction::Is(var));
 
         return static_cast<JavascriptGeneratorFunction*>(var);
     }
 
     bool JavascriptAsyncFunction::Is(Var var)
-    {
+    {TRACE_IT(59015);
         if (JavascriptFunction::Is(var))
-        {
+        {TRACE_IT(59016);
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptAsyncFunction>::HasVirtualTable(obj)
@@ -80,14 +80,14 @@ namespace Js
     }
 
     JavascriptAsyncFunction* JavascriptAsyncFunction::FromVar(Var var)
-    {
+    {TRACE_IT(59017);
         Assert(JavascriptAsyncFunction::Is(var));
 
         return static_cast<JavascriptAsyncFunction*>(var);
     }
 
     JavascriptGeneratorFunction* JavascriptGeneratorFunction::OP_NewScGenFunc(FrameDisplay *environment, FunctionInfoPtrPtr infoRef)
-    {
+    {TRACE_IT(59018);
         FunctionProxy* functionProxy = (*infoRef)->GetFunctionProxy();
         ScriptContext* scriptContext = functionProxy->GetScriptContext();
 
@@ -165,12 +165,12 @@ namespace Js
             CALL_FUNCTION(executor, CallInfo(CallFlags_Value, 3), library->GetUndefined(), resolve, reject);
         }
         catch (const JavascriptException& err)
-        {
+        {TRACE_IT(59019);
             e = err.GetAndClear();
         }
 
         if (e != nullptr)
-        {
+        {TRACE_IT(59020);
             JavascriptPromise::TryRejectWithExceptionObject(e, reject, scriptContext);
         }
 
@@ -201,54 +201,54 @@ namespace Js
     }
 
     JavascriptString* JavascriptGeneratorFunction::GetDisplayNameImpl() const
-    {
+    {TRACE_IT(59021);
         return scriptFunction->GetDisplayNameImpl();
     }
 
     Var JavascriptGeneratorFunction::GetHomeObj() const
-    {
+    {TRACE_IT(59022);
         return scriptFunction->GetHomeObj();
     }
 
     void JavascriptGeneratorFunction::SetHomeObj(Var homeObj)
-    {
+    {TRACE_IT(59023);
         scriptFunction->SetHomeObj(homeObj);
     }
 
     void JavascriptGeneratorFunction::SetComputedNameVar(Var computedNameVar)
-    {
+    {TRACE_IT(59024);
         scriptFunction->SetComputedNameVar(computedNameVar);
     }
 
     Var JavascriptGeneratorFunction::GetComputedNameVar() const
-    {
+    {TRACE_IT(59025);
         return scriptFunction->GetComputedNameVar();
     }
 
     bool JavascriptGeneratorFunction::IsAnonymousFunction() const
-    {
+    {TRACE_IT(59026);
         return scriptFunction->IsAnonymousFunction();
     }
 
     Var JavascriptGeneratorFunction::GetSourceString() const
-    {
+    {TRACE_IT(59027);
         return scriptFunction->GetSourceString();
     }
 
     Var JavascriptGeneratorFunction::EnsureSourceString()
-    {
+    {TRACE_IT(59028);
         return scriptFunction->EnsureSourceString();
     }
 
     BOOL JavascriptGeneratorFunction::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(59029);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59030);
             return true;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59031);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::HasProperty(propertyId);
         }
@@ -257,15 +257,15 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(59032);
         BOOL result;
         if (GetPropertyBuiltIns(originalInstance, propertyId, value, info, requestContext, &result))
-        {
+        {TRACE_IT(59033);
             return result;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59034);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::GetProperty(originalInstance, propertyId, value, info, requestContext);
         }
@@ -274,20 +274,20 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(59035);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr)
-        {
+        {TRACE_IT(59036);
             BOOL result;
             if (GetPropertyBuiltIns(originalInstance, propertyRecord->GetPropertyId(), value, info, requestContext, &result))
-            {
+            {TRACE_IT(59037);
                 return result;
             }
 
             if (propertyRecord->GetPropertyId() == PropertyIds::caller || propertyRecord->GetPropertyId() == PropertyIds::arguments)
-            {
+            {TRACE_IT(59038);
                 // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
                 return DynamicObject::GetProperty(originalInstance, propertyNameString, value, info, requestContext);
             }
@@ -297,15 +297,15 @@ namespace Js
     }
 
     bool JavascriptGeneratorFunction::GetPropertyBuiltIns(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext, BOOL* result)
-    {
+    {TRACE_IT(59039);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59040);
             // Cannot just call the base GetProperty for `length` because we need
             // to get the length from our private ScriptFunction instead of ourself.
             int len = 0;
             Var varLength;
             if (scriptFunction->GetProperty(scriptFunction, PropertyIds::length, &varLength, NULL, requestContext))
-            {
+            {TRACE_IT(59041);
                 len = JavascriptConversion::ToInt32(varLength, requestContext);
             }
 
@@ -318,20 +318,20 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(59042);
         return JavascriptGeneratorFunction::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptGeneratorFunction::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(59043);
         BOOL result;
         if (SetPropertyBuiltIns(propertyId, value, flags, info, &result))
-        {
+        {TRACE_IT(59044);
             return result;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59045);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::SetProperty(propertyId, value, flags, info);
         }
@@ -340,20 +340,20 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(59046);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr)
-        {
+        {TRACE_IT(59047);
             BOOL result;
             if (SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, flags, info, &result))
-            {
+            {TRACE_IT(59048);
                 return result;
             }
 
             if (propertyRecord->GetPropertyId() == PropertyIds::caller || propertyRecord->GetPropertyId() == PropertyIds::arguments)
-            {
+            {TRACE_IT(59049);
                 // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
                 return DynamicObject::SetProperty(propertyNameString, value, flags, info);
             }
@@ -363,9 +363,9 @@ namespace Js
     }
 
     bool JavascriptGeneratorFunction::SetPropertyBuiltIns(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info, BOOL* result)
-    {
+    {TRACE_IT(59050);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59051);
             JavascriptError::ThrowCantAssignIfStrictMode(flags, this->GetScriptContext());
 
             *result = false;
@@ -376,9 +376,9 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::GetAccessors(PropertyId propertyId, Var *getter, Var *setter, ScriptContext * requestContext)
-    {
+    {TRACE_IT(59052);
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59053);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::GetAccessors(propertyId, getter, setter, requestContext);
         }
@@ -387,9 +387,9 @@ namespace Js
     }
 
     DescriptorFlags JavascriptGeneratorFunction::GetSetter(PropertyId propertyId, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(59054);
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59055);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::GetSetter(propertyId, setterValue, info, requestContext);
         }
@@ -398,12 +398,12 @@ namespace Js
     }
 
     DescriptorFlags JavascriptGeneratorFunction::GetSetter(JavascriptString* propertyNameString, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(59056);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && (propertyRecord->GetPropertyId() == PropertyIds::caller || propertyRecord->GetPropertyId() == PropertyIds::arguments))
-        {
+        {TRACE_IT(59057);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::GetSetter(propertyNameString, setterValue, info, requestContext);
         }
@@ -412,19 +412,19 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(59058);
         return SetProperty(propertyId, value, PropertyOperation_None, info);
     }
 
     BOOL JavascriptGeneratorFunction::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(59059);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59060);
             return false;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59061);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::DeleteProperty(propertyId, flags);
         }
@@ -433,15 +433,15 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(59062);
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::length.Equals(propertyName))
-        {
+        {TRACE_IT(59063);
             return false;
         }
 
         if (BuiltInPropertyRecords::caller.Equals(propertyName) || BuiltInPropertyRecords::arguments.Equals(propertyName))
-        {
+        {TRACE_IT(59064);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::DeleteProperty(propertyNameString, flags);
         }
@@ -450,14 +450,14 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::IsWritable(PropertyId propertyId)
-    {
+    {TRACE_IT(59065);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59066);
             return false;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59067);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::IsWritable(propertyId);
         }
@@ -466,14 +466,14 @@ namespace Js
     }
 
     BOOL JavascriptGeneratorFunction::IsEnumerable(PropertyId propertyId)
-    {
+    {TRACE_IT(59068);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(59069);
             return false;
         }
 
         if (propertyId == PropertyIds::caller || propertyId == PropertyIds::arguments)
-        {
+        {TRACE_IT(59070);
             // JavascriptFunction has special case for caller and arguments; call DynamicObject:: virtual directly to skip that.
             return DynamicObject::IsEnumerable(propertyId);
         }
@@ -483,7 +483,7 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptGeneratorFunction::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(59071);
         //we override this with invalid to make sure it isn't unexpectedly handled by the parent class
         return TTD::NSSnapObjects::SnapObjectType::Invalid;
     }
@@ -494,7 +494,7 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptAsyncFunction::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(59072);
         //we override this with invalid to make sure it isn't unexpectedly handled by the parent class
         return TTD::NSSnapObjects::SnapObjectType::Invalid;
     }
@@ -505,7 +505,7 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType GeneratorVirtualScriptFunction::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(59073);
         //we override this with invalid to make sure it isn't unexpectedly handled by the parent class
         return TTD::NSSnapObjects::SnapObjectType::Invalid;
     }

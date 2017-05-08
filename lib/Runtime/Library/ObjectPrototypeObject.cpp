@@ -7,12 +7,12 @@
 namespace Js
 {
     ObjectPrototypeObject::ObjectPrototypeObject(DynamicType* type) : DynamicObject(type)
-    {
+    {TRACE_IT(62633);
         __proto__Enabled = true; // TODO[ianhall]: Does this still apply if __proto__ is now always enabled? Check with JC
     }
 
     ObjectPrototypeObject * ObjectPrototypeObject::New(Recycler * recycler, DynamicType * type)
-    {
+    {TRACE_IT(62634);
         return NewObject<ObjectPrototypeObject>(recycler, type);
     }
 
@@ -39,7 +39,7 @@ namespace Js
         // 2. ReturnIfAbrupt(O).
         RecyclableObject* object;
         if (args.Info.Count < 1 || !JavascriptConversion::ToObject(arg0, scriptContext, &object))
-        {
+        {TRACE_IT(62635);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Object.prototype.__proto__"));
         }
 
@@ -72,11 +72,11 @@ namespace Js
         // 3. If Type(proto) is neither Object nor Null, return undefined.
         // 4. If Type(O) is not Object, return undefined.
         if (args.Info.Count < 1 || !JavascriptConversion::CheckObjectCoercible(arg0, scriptContext))
-        {
+        {TRACE_IT(62636);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Object.prototype.__proto__"));
         }
         else if (args.Info.Count < 2 || !JavascriptOperators::IsObjectOrNull(args[1]) || !JavascriptOperators::IsObject(arg0))
-        {
+        {TRACE_IT(62637);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -93,10 +93,10 @@ namespace Js
     }
 
     BOOL ObjectPrototypeObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(62638);
         const BOOL result = __super::DeleteProperty(propertyId, flags);
         if (result && propertyId == PropertyIds::__proto__)
-        {
+        {TRACE_IT(62639);
             this->__proto__Enabled = false;
         }
 
@@ -104,12 +104,12 @@ namespace Js
     }
 
     BOOL ObjectPrototypeObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(62640);
         const BOOL result = __super::DeleteProperty(propertyNameString, flags);
 
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (result && BuiltInPropertyRecords::__proto__.Equals(propertyName))
-        {
+        {TRACE_IT(62641);
             this->__proto__Enabled = false;
         }
 
@@ -117,9 +117,9 @@ namespace Js
     }
 
     void ObjectPrototypeObject::PostDefineOwnProperty__proto__(RecyclableObject* obj)
-    {
+    {TRACE_IT(62642);
         if (obj == this)
-        {
+        {TRACE_IT(62643);
             ScriptContext* scriptContext = this->GetScriptContext();
             Var getter, setter;
 
@@ -134,12 +134,12 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType ObjectPrototypeObject::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(62644);
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void ObjectPrototypeObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(62645);
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<void*, TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject>(objData, nullptr);
     }
 #endif

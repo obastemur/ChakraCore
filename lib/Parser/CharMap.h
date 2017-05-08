@@ -22,22 +22,22 @@ namespace UnifiedRegex
 
     public:
         CharMap(V defv)
-        {
+        {TRACE_IT(28699);
             for (int i = 0; i < NumChars; i++)
                 map[i] = defv;
         }
 
         void FreeBody(ArenaAllocator* allocator)
-        {
+        {TRACE_IT(28700);
         }
 
         inline void Set(ArenaAllocator* allocator, Char k, V v)
-        {
+        {TRACE_IT(28701);
             map[CTU(k)] = v;
         }
 
         inline V Get(Char k) const
-        {
+        {TRACE_IT(28702);
             return map[CTU(k)];
         }
     };
@@ -60,40 +60,40 @@ namespace UnifiedRegex
 
     public:
         CharMap(V defv) : defv(defv)
-        {
+        {TRACE_IT(28703);
             for (uint i = 0; i < MaxCharMapLinearChars; i++)
-            {
+            {TRACE_IT(28704);
                 map[i] = 0;
                 lastOcc[i] = defv;
             }
         }
 
         inline void Set(uint numLinearChars, Char const * map, V const * lastOcc)
-        {
+        {TRACE_IT(28705);
             Assert(numLinearChars <= MaxCharMapLinearChars);
             for (uint i = 0; i < numLinearChars; i++)
-            {
+            {TRACE_IT(28706);
                 this->map[i] = CTU(map[i]);
                 this->lastOcc[i] = lastOcc[i];
             }
         }
 
         uint GetChar(uint index) const
-        {
+        {TRACE_IT(28707);
             Assert(index < MaxCharMapLinearChars);
             __analysis_assume(index < MaxCharMapLinearChars);
             return map[index];
         }
 
         V GetLastOcc(uint index) const
-        {
+        {TRACE_IT(28708);
             Assert(index < MaxCharMapLinearChars);
             __analysis_assume(index < MaxCharMapLinearChars);
             return lastOcc[index];
         }
 
         inline V Get(uint inputChar) const
-        {
+        {TRACE_IT(28709);
             if (map[0] == inputChar)
                 return lastOcc[0];
             if (map[1] == inputChar)
@@ -106,7 +106,7 @@ namespace UnifiedRegex
         }
 
         inline V Get(Char k) const
-        {
+        {TRACE_IT(28710);
             return Get(CTU(k));
         }
     };
@@ -128,12 +128,12 @@ namespace UnifiedRegex
         static const int levels = CharWidth / bitsPerLevel;
 
         inline static uint innerIdx(int level, uint v)
-        {
+        {TRACE_IT(28711);
             return (v >> (level * bitsPerLevel)) & mask;
         }
 
         inline static uint leafIdx(uint v)
-        {
+        {TRACE_IT(28712);
             return v & mask;
         }
 
@@ -144,7 +144,7 @@ namespace UnifiedRegex
             virtual V Get(V defv, int level, uint k) const = 0;
 
             static inline Node* For(ArenaAllocator* allocator, int level, V defv)
-            {
+            {TRACE_IT(28713);
                 if (level == 0)
                     return Anew(allocator, Leaf, defv);
                 else
@@ -157,7 +157,7 @@ namespace UnifiedRegex
             Node* children[branchingPerLevel];
 
             Inner()
-            {
+            {TRACE_IT(28714);
                 for (int i = 0; i < branchingPerLevel; i++)
                     children[i] = 0;
             }
@@ -165,9 +165,9 @@ namespace UnifiedRegex
             void FreeSelf(ArenaAllocator* allocator) override
             {
                 for (int i = 0; i < branchingPerLevel; i++)
-                {
+                {TRACE_IT(28715);
                     if (children[i] != 0)
-                    {
+                    {TRACE_IT(28716);
                         children[i]->FreeSelf(allocator);
 #if DBG
                         children[i] = 0;
@@ -182,7 +182,7 @@ namespace UnifiedRegex
                 Assert(level > 0);
                 uint i = innerIdx(level--, k);
                 if (children[i] == 0)
-                {
+                {TRACE_IT(28717);
                     if (v == defv)
                         return;
                     children[i] = Node::For(allocator, level, defv);
@@ -206,7 +206,7 @@ namespace UnifiedRegex
             V values[branchingPerLevel];
 
             Leaf(V defv)
-            {
+            {TRACE_IT(28718);
                 for (int i = 0; i < branchingPerLevel; i++)
                     values[i] = defv;
             }
@@ -238,15 +238,15 @@ namespace UnifiedRegex
         CharMap(V defv)
             : defv(defv)
             , root(0)
-        {
+        {TRACE_IT(28719);
             for (int i = 0; i < directSize; i++)
                 directMap[i] = defv;
         }
 
         void FreeBody(ArenaAllocator* allocator)
-        {
+        {TRACE_IT(28720);
             if (root != 0)
-            {
+            {TRACE_IT(28721);
                 root->FreeSelf(allocator);
 #if DBG
                 root = 0;
@@ -255,17 +255,17 @@ namespace UnifiedRegex
         }
 
         void Set(ArenaAllocator* allocator, Char kc, V v)
-        {
+        {TRACE_IT(28722);
             uint k = CTU(kc);
             if (k < directSize)
-            {
+            {TRACE_IT(28723);
                 isInMap.Set(k);
                 directMap[k] = v;
             }
             else
-            {
+            {TRACE_IT(28724);
                 if (root == 0)
-                {
+                {TRACE_IT(28725);
                     if (v == defv)
                         return;
                     root = Anew(allocator, Inner);
@@ -275,15 +275,15 @@ namespace UnifiedRegex
         }
 
         bool GetNonDirect(uint k, V& lastOcc) const
-        {
+        {TRACE_IT(28726);
             Assert(k >= directSize);
             if (root == nullptr)
-            {
+            {TRACE_IT(28727);
                 return false;
             }
             Node* curr = root;
             for (int level = levels - 1; level > 0; level--)
-            {
+            {TRACE_IT(28728);
                 Inner* inner = (Inner*)curr;
                 uint i = innerIdx(level, k);
                 if (inner->children[i] == 0)
@@ -296,29 +296,29 @@ namespace UnifiedRegex
             return true;
         }
 
-        uint GetDirectMapSize() const { return directSize; }
-        BOOL IsInDirectMap(uint c) const { Assert(c < directSize); return isInMap.Test(c); }
+        uint GetDirectMapSize() const {TRACE_IT(28729); return directSize; }
+        BOOL IsInDirectMap(uint c) const {TRACE_IT(28730); Assert(c < directSize); return isInMap.Test(c); }
         V GetDirectMap(uint c) const
-        {
+        {TRACE_IT(28731);
             Assert(c < directSize);
             __analysis_assume(c < directSize);
             return directMap[c];
         }
         inline V Get(Char kc) const
-        {
+        {TRACE_IT(28732);
             if (CTU(kc) < GetDirectMapSize())
-            {
+            {TRACE_IT(28733);
                 if (!IsInDirectMap(CTU(kc)))
-                {
+                {TRACE_IT(28734);
                     return defv;
                 }
                 return GetDirectMap(CTU(kc));
             }
             else
-            {
+            {TRACE_IT(28735);
                 V lastOcc;
                 if (!GetNonDirect(CTU(kc), lastOcc))
-                {
+                {TRACE_IT(28736);
                     return defv;
                 }
                 return lastOcc;

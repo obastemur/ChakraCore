@@ -64,65 +64,65 @@ class IActiveScriptProfilerCallback
 {
 public:
   HRESULT Initialize(DWORD ctx)
-  {
+  {TRACE_IT(27241);
       return S_OK;
   }
 
   HRESULT Shutdown(HRESULT _)
-  {
+  {TRACE_IT(27242);
       return S_OK;
   }
 
   HRESULT Release()
-  {
+  {TRACE_IT(27243);
       return S_OK;
   }
 
   HRESULT QueryInterface(IActiveScriptProfilerCallback **_)
-  {
+  {TRACE_IT(27244);
       return S_OK;
   }
 
   HRESULT ScriptCompiled(PROFILER_TOKEN scriptId, PROFILER_SCRIPT_TYPE type, IUnknown *ctx)
-  {
+  {TRACE_IT(27245);
       return S_OK;
   }
 
   HRESULT FunctionCompiled(PROFILER_TOKEN functionId, PROFILER_TOKEN scriptId,
       const WCHAR* pwszFunctionName, const WCHAR* pwszFunctionNameHint, IUnknown *ctx)
-  {
+  {TRACE_IT(27246);
       return S_OK;
   }
 
   HRESULT OnFunctionEnter(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId)
-  {
+  {TRACE_IT(27247);
       return S_OK;
   }
 
   HRESULT OnFunctionExit(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId)
-  {
+  {TRACE_IT(27248);
       return S_OK;
   }
 
   // IActiveScriptProfilerCallback2
   HRESULT OnFunctionEnterByName(const WCHAR *functionName, PROFILER_SCRIPT_TYPE _)
-  {
+  {TRACE_IT(27249);
       return S_OK;
   }
 
   HRESULT OnFunctionExitByName(const WCHAR *functionName, PROFILER_SCRIPT_TYPE _)
-  {
+  {TRACE_IT(27250);
       return S_OK;
   }
 
   // IActiveScriptProfilerCallback3
   HRESULT AddRef()
-  {
+  {TRACE_IT(27251);
       return S_OK;
   }
 
   HRESULT SetWebWorkerId(PROFILER_TOKEN _)
-  {
+  {TRACE_IT(27252);
       return S_OK;
   }
 };

@@ -31,7 +31,7 @@ namespace Js
         virtual void Mark(Recycler *recycler) override { AssertMsg(false, "Mark called on object that isn't TrackableObject"); }
 
         ArenaAllocator *GetAllocator()
-        {
+        {TRACE_IT(36901);
             return &allocator;
         }
 

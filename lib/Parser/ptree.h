@@ -118,7 +118,7 @@ struct PnPid
     uint regexPatternIndex;
 
     void SetSymRef(PidRefStack *ref);
-    Symbol **GetSymRef() const { return symRef; }
+    Symbol **GetSymRef() const {TRACE_IT(33332); return symRef; }
     Js::PropertyId PropertyIdFromNameNode() const;
 };
 
@@ -133,7 +133,7 @@ struct PnVar
     BOOLEAN isBlockScopeFncDeclVar;
 
     void InitDeclNode(IdentPtr name, ParseNodePtr initExpr)
-    {
+    {TRACE_IT(33333);
         this->pid = name;
         this->pnodeInit = initExpr;
         this->pnodeNext = nullptr;
@@ -254,39 +254,39 @@ struct PnFnc
 
     static const int32 MaxStackClosureAST = 800000;
 
-    static bool CanBeRedeferred(unsigned int flags) { return !(flags & (kFunctionIsGenerator | kFunctionIsAsync)); }
+    static bool CanBeRedeferred(unsigned int flags) {TRACE_IT(33334); return !(flags & (kFunctionIsGenerator | kFunctionIsAsync)); }
 
 private:
     void SetFlags(uint flags, bool set)
-    {
+    {TRACE_IT(33335);
         if (set)
-        {
+        {TRACE_IT(33336);
             fncFlags |= flags;
         }
         else
-        {
+        {TRACE_IT(33337);
             fncFlags &= ~flags;
         }
     }
 
     bool HasFlags(uint flags) const
-    {
+    {TRACE_IT(33338);
         return (fncFlags & flags) == flags;
     }
 
     bool HasAnyFlags(uint flags) const
-    {
+    {TRACE_IT(33339);
         return (fncFlags & flags) != 0;
     }
 
     bool HasNoFlags(uint flags) const
-    {
+    {TRACE_IT(33340);
         return (fncFlags & flags) == 0;
     }
 
 public:
     void ClearFlags()
-    {
+    {TRACE_IT(33341);
         fncFlags = kFunctionNone;
         canBeDeferred = false;
         fibPreventsDeferral = false;
@@ -299,7 +299,7 @@ public:
     void SetDoesNotEscape(bool set = true) { SetFlags(kFunctionDoesNotEscape, set); }
     void SetHasDefaultArguments(bool set = true) { SetFlags(kFunctionHasDefaultArguments, set); }
     void SetHasHeapArguments(bool set = true) { SetFlags(kFunctionHasHeapArguments, set); }
-    void SetHasAnyWriteToFormals(bool set = true) { SetFlags((uint)kFunctionHasAnyWriteToFormals, set); }
+    void SetHasAnyWriteToFormals(bool set = true) {TRACE_IT(33342); SetFlags((uint)kFunctionHasAnyWriteToFormals, set); }
     void SetHasNonSimpleParameterList(bool set = true) { SetFlags(kFunctionHasNonSimpleParameterList, set); }
     void SetHasNonThisStmt(bool set = true) { SetFlags(kFunctionHasNonThisStmt, set); }
     void SetHasReferenceableBuiltInArguments(bool set = true) { SetFlags(kFunctionHasReferenceableBuiltInArguments, set); }
@@ -324,53 +324,53 @@ public:
     void SetIsModule(bool set = true) { SetFlags(kFunctionIsModule, set); }
     void SetUsesArguments(bool set = true) { SetFlags(kFunctionUsesArguments, set); }
     void SetIsDefaultModuleExport(bool set = true) { SetFlags(kFunctionIsDefaultModuleExport, set); }
-    void SetNestedFuncEscapes(bool set = true) { nestedFuncEscapes = set; }
-    void SetCanBeDeferred(bool set = true) { canBeDeferred = set; }
-    void SetFIBPreventsDeferral(bool set = true) { fibPreventsDeferral = set; }
-    void ResetBodyAndParamScopeMerged() { isBodyAndParamScopeMerged = false; }
+    void SetNestedFuncEscapes(bool set = true) {TRACE_IT(33343); nestedFuncEscapes = set; }
+    void SetCanBeDeferred(bool set = true) {TRACE_IT(33344); canBeDeferred = set; }
+    void SetFIBPreventsDeferral(bool set = true) {TRACE_IT(33345); fibPreventsDeferral = set; }
+    void ResetBodyAndParamScopeMerged() {TRACE_IT(33346); isBodyAndParamScopeMerged = false; }
 
-    bool CallsEval() const { return HasFlags(kFunctionCallsEval); }
-    bool ChildCallsEval() const { return HasFlags(kFunctionChildCallsEval); }
-    bool DoesNotEscape() const { return HasFlags(kFunctionDoesNotEscape); }
-    bool GetArgumentsObjectEscapes() const { return HasFlags(kFunctionHasHeapArguments); }
-    bool GetAsmjsMode() const { return HasFlags(kFunctionAsmjsMode); }
-    bool GetStrictMode() const { return HasFlags(kFunctionStrictMode); }
-    bool HasDefaultArguments() const { return HasFlags(kFunctionHasDefaultArguments); }
-    bool HasHeapArguments() const { return true; /* HasFlags(kFunctionHasHeapArguments); Disabling stack arguments. Always return HeapArguments as True */ }
-    bool HasAnyWriteToFormals() const { return HasFlags((uint)kFunctionHasAnyWriteToFormals); }
-    bool HasOnlyThisStmts() const { return !HasFlags(kFunctionHasNonThisStmt); }
-    bool HasReferenceableBuiltInArguments() const { return HasFlags(kFunctionHasReferenceableBuiltInArguments); }
-    bool HasSuperReference() const { return HasFlags(kFunctionHasSuperReference); }
-    bool HasDirectSuper() const { return HasFlags(kFunctionHasDirectSuper); }
-    bool HasNewTargetReference() const { return HasFlags(kFunctionHasNewTargetReference); }
-    bool HasNonSimpleParameterList() { return HasFlags(kFunctionHasNonSimpleParameterList); }
-    bool HasThisStmt() const { return HasFlags(kFunctionHasThisStmt); }
-    bool HasWithStmt() const { return HasFlags(kFunctionHasWithStmt); }
-    bool IsAccessor() const { return HasFlags(kFunctionIsAccessor); }
-    bool IsAsync() const { return HasFlags(kFunctionIsAsync); }
-    bool IsConstructor() const { return HasNoFlags(kFunctionIsAsync|kFunctionIsLambda|kFunctionIsAccessor);  }
-    bool IsClassConstructor() const { return HasFlags(kFunctionIsClassConstructor); }
-    bool IsBaseClassConstructor() const { return HasFlags(kFunctionIsBaseClassConstructor); }
-    bool IsClassMember() const { return HasFlags(kFunctionIsClassMember); }
-    bool IsDeclaration() const { return HasFlags(kFunctionDeclaration); }
-    bool IsGeneratedDefault() const { return HasFlags(kFunctionIsGeneratedDefault); }
-    bool IsGenerator() const { return HasFlags(kFunctionIsGenerator); }
-    bool IsCoroutine() const { return HasAnyFlags(kFunctionIsGenerator | kFunctionIsAsync); }
-    bool IsLambda() const { return HasFlags(kFunctionIsLambda); }
-    bool IsMethod() const { return HasFlags(kFunctionIsMethod); }
-    bool IsNested() const { return HasFlags(kFunctionNested); }
-    bool IsStaticMember() const { return HasFlags(kFunctionIsStaticMember); }
-    bool IsModule() const { return HasFlags(kFunctionIsModule); }
-    bool NameIsHidden() const { return HasFlags(kFunctionNameIsHidden); }
-    bool UsesArguments() const { return HasFlags(kFunctionUsesArguments); }
-    bool IsDefaultModuleExport() const { return HasFlags(kFunctionIsDefaultModuleExport); }
-    bool NestedFuncEscapes() const { return nestedFuncEscapes; }
-    bool CanBeDeferred() const { return canBeDeferred; }
-    bool FIBPreventsDeferral() const { return fibPreventsDeferral; }
-    bool IsBodyAndParamScopeMerged() { return isBodyAndParamScopeMerged; }
+    bool CallsEval() const {TRACE_IT(33347); return HasFlags(kFunctionCallsEval); }
+    bool ChildCallsEval() const {TRACE_IT(33348); return HasFlags(kFunctionChildCallsEval); }
+    bool DoesNotEscape() const {TRACE_IT(33349); return HasFlags(kFunctionDoesNotEscape); }
+    bool GetArgumentsObjectEscapes() const {TRACE_IT(33350); return HasFlags(kFunctionHasHeapArguments); }
+    bool GetAsmjsMode() const {TRACE_IT(33351); return HasFlags(kFunctionAsmjsMode); }
+    bool GetStrictMode() const {TRACE_IT(33352); return HasFlags(kFunctionStrictMode); }
+    bool HasDefaultArguments() const {TRACE_IT(33353); return HasFlags(kFunctionHasDefaultArguments); }
+    bool HasHeapArguments() const {TRACE_IT(33354); return true; /* HasFlags(kFunctionHasHeapArguments); Disabling stack arguments. Always return HeapArguments as True */ }
+    bool HasAnyWriteToFormals() const {TRACE_IT(33355); return HasFlags((uint)kFunctionHasAnyWriteToFormals); }
+    bool HasOnlyThisStmts() const {TRACE_IT(33356); return !HasFlags(kFunctionHasNonThisStmt); }
+    bool HasReferenceableBuiltInArguments() const {TRACE_IT(33357); return HasFlags(kFunctionHasReferenceableBuiltInArguments); }
+    bool HasSuperReference() const {TRACE_IT(33358); return HasFlags(kFunctionHasSuperReference); }
+    bool HasDirectSuper() const {TRACE_IT(33359); return HasFlags(kFunctionHasDirectSuper); }
+    bool HasNewTargetReference() const {TRACE_IT(33360); return HasFlags(kFunctionHasNewTargetReference); }
+    bool HasNonSimpleParameterList() {TRACE_IT(33361); return HasFlags(kFunctionHasNonSimpleParameterList); }
+    bool HasThisStmt() const {TRACE_IT(33362); return HasFlags(kFunctionHasThisStmt); }
+    bool HasWithStmt() const {TRACE_IT(33363); return HasFlags(kFunctionHasWithStmt); }
+    bool IsAccessor() const {TRACE_IT(33364); return HasFlags(kFunctionIsAccessor); }
+    bool IsAsync() const {TRACE_IT(33365); return HasFlags(kFunctionIsAsync); }
+    bool IsConstructor() const {TRACE_IT(33366); return HasNoFlags(kFunctionIsAsync|kFunctionIsLambda|kFunctionIsAccessor);  }
+    bool IsClassConstructor() const {TRACE_IT(33367); return HasFlags(kFunctionIsClassConstructor); }
+    bool IsBaseClassConstructor() const {TRACE_IT(33368); return HasFlags(kFunctionIsBaseClassConstructor); }
+    bool IsClassMember() const {TRACE_IT(33369); return HasFlags(kFunctionIsClassMember); }
+    bool IsDeclaration() const {TRACE_IT(33370); return HasFlags(kFunctionDeclaration); }
+    bool IsGeneratedDefault() const {TRACE_IT(33371); return HasFlags(kFunctionIsGeneratedDefault); }
+    bool IsGenerator() const {TRACE_IT(33372); return HasFlags(kFunctionIsGenerator); }
+    bool IsCoroutine() const {TRACE_IT(33373); return HasAnyFlags(kFunctionIsGenerator | kFunctionIsAsync); }
+    bool IsLambda() const {TRACE_IT(33374); return HasFlags(kFunctionIsLambda); }
+    bool IsMethod() const {TRACE_IT(33375); return HasFlags(kFunctionIsMethod); }
+    bool IsNested() const {TRACE_IT(33376); return HasFlags(kFunctionNested); }
+    bool IsStaticMember() const {TRACE_IT(33377); return HasFlags(kFunctionIsStaticMember); }
+    bool IsModule() const {TRACE_IT(33378); return HasFlags(kFunctionIsModule); }
+    bool NameIsHidden() const {TRACE_IT(33379); return HasFlags(kFunctionNameIsHidden); }
+    bool UsesArguments() const {TRACE_IT(33380); return HasFlags(kFunctionUsesArguments); }
+    bool IsDefaultModuleExport() const {TRACE_IT(33381); return HasFlags(kFunctionIsDefaultModuleExport); }
+    bool NestedFuncEscapes() const {TRACE_IT(33382); return nestedFuncEscapes; }
+    bool CanBeDeferred() const {TRACE_IT(33383); return canBeDeferred; }
+    bool FIBPreventsDeferral() const {TRACE_IT(33384); return fibPreventsDeferral; }
+    bool IsBodyAndParamScopeMerged() {TRACE_IT(33385); return isBodyAndParamScopeMerged; }
 
     size_t LengthInBytes()
-    {
+    {TRACE_IT(33386);
         return cbLim - cbMin;
     }
 
@@ -380,17 +380,17 @@ public:
     ParseNodePtr GetParamScope() const;
     ParseNodePtr GetBodyScope() const;
     ParseNodePtr GetTopLevelScope() const
-    {
+    {TRACE_IT(33387);
         // Top level scope will be the same for knopProg and knopFncDecl.
         return GetParamScope();
     }
 
     template<typename Fn>
     void MapContainerScopes(Fn fn)
-    {
+    {TRACE_IT(33388);
         fn(this->pnodeScopes->sxBlock.pnodeScopes);
         if (this->pnodeBodyScope != nullptr)
-        {
+        {TRACE_IT(33389);
             fn(this->pnodeBodyScope->sxBlock.pnodeScopes);
         }
     }
@@ -408,8 +408,8 @@ struct PnClass
 
     bool isDefaultModuleExport;
 
-    void SetIsDefaultModuleExport(bool set) { isDefaultModuleExport = set; }
-    bool IsDefaultModuleExport() const { return isDefaultModuleExport; }
+    void SetIsDefaultModuleExport(bool set) {TRACE_IT(33390); isDefaultModuleExport = set; }
+    bool IsDefaultModuleExport() const {TRACE_IT(33391); return isDefaultModuleExport; }
 };
 
 struct PnExportDefault
@@ -480,14 +480,14 @@ struct PnBlock : PnStmt
     BYTE         callsEval:1;
     BYTE         childCallsEval:1;
 
-    void SetCallsEval(bool does) { callsEval = does; }
-    bool GetCallsEval() const { return callsEval; }
+    void SetCallsEval(bool does) {TRACE_IT(33392); callsEval = does; }
+    bool GetCallsEval() const {TRACE_IT(33393); return callsEval; }
 
-    void SetChildCallsEval(bool does) { childCallsEval = does; }
-    bool GetChildCallsEval() const { return childCallsEval; }
+    void SetChildCallsEval(bool does) {TRACE_IT(33394); childCallsEval = does; }
+    bool GetChildCallsEval() const {TRACE_IT(33395); return childCallsEval; }
 
-    void SetEnclosingBlock(ParseNodePtr pnode) { enclosingBlock = pnode; }
-    ParseNodePtr GetEnclosingBlock() const { return enclosingBlock; }
+    void SetEnclosingBlock(ParseNodePtr pnode) {TRACE_IT(33396); enclosingBlock = pnode; }
+    ParseNodePtr GetEnclosingBlock() const {TRACE_IT(33397); return enclosingBlock; }
 
     bool HasBlockScopedContent() const;
 };
@@ -666,17 +666,17 @@ struct ParseNode
     };
 
     IdentPtr name()
-    {
+    {TRACE_IT(33398);
         if (this->nop == knopName || this->nop == knopStr)
-        {
+        {TRACE_IT(33399);
             return this->sxPid.pid;
         }
         else if (this->nop == knopVarDecl)
-        {
+        {TRACE_IT(33400);
             return this->sxVar.pid;
         }
         else if (this->nop == knopConstDecl)
-        {
+        {TRACE_IT(33401);
             return this->sxVar.pid;
         }
         return nullptr;
@@ -685,69 +685,69 @@ struct ParseNode
     static const uint mpnopgrfnop[knopLim];
 
     static uint Grfnop(int nop)
-    {
+    {TRACE_IT(33402);
         Assert(nop < knopLim);
         return nop < knopLim ? mpnopgrfnop[nop] : fnopNone;
     }
 
     BOOL IsStatement()
-    {
+    {TRACE_IT(33403);
         return (nop >= knopList && nop != knopLabel) || ((Grfnop(nop) & fnopAsg) != 0);
     }
 
     uint Grfnop(void)
-    {
+    {TRACE_IT(33404);
         Assert(nop < knopLim);
         return nop < knopLim ? mpnopgrfnop[nop] : fnopNone;
     }
 
     charcount_t LengthInCodepoints() const
-    {
+    {TRACE_IT(33405);
         return (this->ichLim - this->ichMin);
     }
 
     // This node is a function decl node and function has a var declaration named 'arguments',
     bool HasVarArguments() const
-    {
+    {TRACE_IT(33406);
         return ((nop == knopFncDecl) && (grfpn & PNodeFlags::fpnArguments_varDeclaration));
     }
 
     bool CapturesSyms() const
-    {
+    {TRACE_IT(33407);
         return (grfpn & PNodeFlags::fpnCapturesSyms) != 0;
     }
 
     void SetCapturesSyms()
-    {
+    {TRACE_IT(33408);
         grfpn |= PNodeFlags::fpnCapturesSyms;
     }
 
-    bool IsInList() const { return this->isInList; }
-    void SetIsInList() { this->isInList = true; }
+    bool IsInList() const {TRACE_IT(33409); return this->isInList; }
+    void SetIsInList() {TRACE_IT(33410); this->isInList = true; }
 
-    bool IsNotEscapedUse() const { return this->notEscapedUse; }
-    void SetNotEscapedUse() { this->notEscapedUse = true; }
+    bool IsNotEscapedUse() const {TRACE_IT(33411); return this->notEscapedUse; }
+    void SetNotEscapedUse() {TRACE_IT(33412); this->notEscapedUse = true; }
 
-    bool CanFlattenConcatExpr() const { return !!(this->grfpn & PNodeFlags::fpnCanFlattenConcatExpr); }
+    bool CanFlattenConcatExpr() const {TRACE_IT(33413); return !!(this->grfpn & PNodeFlags::fpnCanFlattenConcatExpr); }
 
-    bool IsCallApplyTargetLoad() { return isCallApplyTargetLoad; }
-    void SetIsCallApplyTargetLoad() { isCallApplyTargetLoad = true; }
+    bool IsCallApplyTargetLoad() {TRACE_IT(33414); return isCallApplyTargetLoad; }
+    void SetIsCallApplyTargetLoad() {TRACE_IT(33415); isCallApplyTargetLoad = true; }
 
     bool IsVarLetOrConst() const
-    {
+    {TRACE_IT(33416);
         return this->nop == knopVarDecl || this->nop == knopLetDecl || this->nop == knopConstDecl;
     }
 
     ParseNodePtr GetFormalNext()
-    {
+    {TRACE_IT(33417);
         ParseNodePtr pnodeNext = nullptr;
 
         if (nop == knopParamPattern)
-        {
+        {TRACE_IT(33418);
             pnodeNext = this->sxParamPattern.pnodeNext;
         }
         else
-        {
+        {TRACE_IT(33419);
             Assert(IsVarLetOrConst());
             pnodeNext = this->sxVar.pnodeNext;
         }
@@ -755,7 +755,7 @@ struct ParseNode
     }
 
     bool IsPattern() const
-    {
+    {TRACE_IT(33420);
         return nop == knopObjectPattern || nop == knopArrayPattern;
     }
 

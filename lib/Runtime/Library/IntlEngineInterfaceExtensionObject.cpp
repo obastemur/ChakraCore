@@ -34,7 +34,7 @@ using namespace Windows::Globalization;
 
 #define IfCOMFailIgnoreSilentlyAndReturn(op) \
     if(FAILED(hr=(op))) \
-    { \
+    {TRACE_IT(55555); \
         return; \
     } \
 
@@ -47,18 +47,18 @@ using namespace Windows::Globalization;
 
 #define HandleOOMSOEHR(hr) \
     if (hr == E_OUTOFMEMORY) \
-    { \
+    {TRACE_IT(55556); \
     JavascriptError::ThrowOutOfMemoryError(scriptContext); \
     } \
     else if(hr == VBSERR_OutOfStack) \
-    { \
+    {TRACE_IT(55557); \
     JavascriptError::ThrowStackOverflowError(scriptContext); \
     } \
 
 
 #define IfFailThrowHr(op) \
     if (FAILED(hr=(op))) \
-    { \
+    {TRACE_IT(55558); \
     JavascriptError::MapAndThrowError(scriptContext, hr); \
     } \
 
@@ -127,22 +127,22 @@ namespace Js
     private:
         HSTRING value;
     public:
-        HSTRING *operator&() { Assert(value == nullptr); return &value; }
-        HSTRING operator*() const { Assert(value != nullptr); return value; }
+        HSTRING *operator&() {TRACE_IT(55559); Assert(value == nullptr); return &value; }
+        HSTRING operator*() const {TRACE_IT(55560); Assert(value != nullptr); return value; }
 
         AutoHSTRING()
             : value(nullptr)
-        { }
+        {TRACE_IT(55561); }
 
         ~AutoHSTRING()
-        {
+        {TRACE_IT(55562);
             Clear();
         }
 
         void Clear()
-        {
+        {TRACE_IT(55563);
             if (value != nullptr)
-            {
+            {TRACE_IT(55564);
                 WindowsDeleteString(value);
                 value = nullptr;
             }
@@ -158,10 +158,10 @@ namespace Js
 
         AutoCOMJSObject(IInspectable *object)
             : instance(object)
-        { }
+        {TRACE_IT(55565); }
 
         static AutoCOMJSObject * New(Recycler * recycler, IInspectable *object)
-        {
+        {TRACE_IT(55566);
             return RecyclerNewFinalized(recycler, AutoCOMJSObject, object);
         }
 
@@ -180,7 +180,7 @@ namespace Js
         }
 
         IInspectable *GetInstance()
-        {
+        {TRACE_IT(55567);
             return instance;
         }
     };
@@ -195,7 +195,7 @@ namespace Js
         intlNativeInterfaces(nullptr),
         intlByteCode(nullptr),
         wasInitialized(false)
-    {
+    {TRACE_IT(55568);
     }
 
     NoProfileFunctionInfo IntlEngineInterfaceExtensionObject::EntryInfo::Intl_RaiseAssert(FORCE_NO_WRITE_BARRIER_TAG(IntlEngineInterfaceExtensionObject::EntryIntl_RaiseAssert));
@@ -226,20 +226,20 @@ namespace Js
     NoProfileFunctionInfo IntlEngineInterfaceExtensionObject::EntryInfo::Intl_BuiltIn_CallInstanceFunction(FORCE_NO_WRITE_BARRIER_TAG(IntlEngineInterfaceExtensionObject::EntryIntl_BuiltIn_CallInstanceFunction));
 
     WindowsGlobalizationAdapter* IntlEngineInterfaceExtensionObject::GetWindowsGlobalizationAdapter(_In_ ScriptContext * scriptContext)
-    {
+    {TRACE_IT(55569);
         return scriptContext->GetThreadContext()->GetWindowsGlobalizationAdapter();
     }
 
     void IntlEngineInterfaceExtensionObject::Initialize()
-    {
+    {TRACE_IT(55570);
         if (wasInitialized)
-        {
+        {TRACE_IT(55571);
             return;
         }
         JavascriptLibrary* library = scriptContext->GetLibrary();
         DynamicObject* commonObject = library->GetEngineInterfaceObject()->GetCommonNativeInterfaces();
         if (scriptContext->IsIntlEnabled())
-        {
+        {TRACE_IT(55572);
             Assert(library->GetEngineInterfaceObject() != nullptr);
             this->intlNativeInterfaces = DynamicObject::New(library->GetRecycler(),
                 DynamicType::New(scriptContext, TypeIds_Object, commonObject, nullptr,
@@ -256,7 +256,7 @@ namespace Js
 
 #if DBG
     void IntlEngineInterfaceExtensionObject::DumpByteCode()
-    {
+    {TRACE_IT(55573);
         Output::Print(_u("Dumping Intl Byte Code:"));
         this->EnsureIntlByteCode(scriptContext);
         Js::ByteCodeDumper::DumpRecursively(intlByteCode);
@@ -264,7 +264,7 @@ namespace Js
 #endif
 
     void IntlEngineInterfaceExtensionObject::InitializeIntlNativeInterfaces(DynamicObject* intlNativeInterfaces, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {TRACE_IT(55574);
         typeHandler->Convert(intlNativeInterfaces, mode, 16);
 
         ScriptContext* scriptContext = intlNativeInterfaces->GetScriptContext();
@@ -296,7 +296,7 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::deletePrototypePropertyHelper(ScriptContext* scriptContext, DynamicObject* intlObject, Js::PropertyId objectPropertyId, Js::PropertyId getterFunctionId)
-    {
+    {TRACE_IT(55575);
         DynamicObject *prototypeObject = nullptr;
         DynamicObject *functionObj = nullptr;
         Var propertyValue = nullptr;
@@ -307,13 +307,13 @@ namespace Js
 
         if (!JavascriptOperators::GetProperty(intlObject, objectPropertyId, &propertyValue, scriptContext) ||
             !JavascriptOperators::IsObject(propertyValue))
-        {
+        {TRACE_IT(55576);
             return;
         }
 
         if (!JavascriptOperators::GetProperty(DynamicObject::FromVar(propertyValue), Js::PropertyIds::prototype, &prototypeValue, scriptContext) ||
             !JavascriptOperators::IsObject(prototypeValue))
-        {
+        {TRACE_IT(55577);
             return;
         }
 
@@ -321,7 +321,7 @@ namespace Js
 
         if (!JavascriptOperators::GetProperty(prototypeObject, Js::PropertyIds::resolvedOptions, &resolvedOptionsValue, scriptContext) ||
             !JavascriptOperators::IsObject(resolvedOptionsValue))
-        {
+        {TRACE_IT(55578);
             return;
         }
 
@@ -331,7 +331,7 @@ namespace Js
 
         if (!JavascriptOperators::GetOwnAccessors(prototypeObject, getterFunctionId, &getter, &setter, scriptContext) ||
             !JavascriptOperators::IsObject(getter))
-        {
+        {TRACE_IT(55579);
             return;
         }
 
@@ -341,7 +341,7 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::cleanUpIntl(ScriptContext *scriptContext, DynamicObject* intlObject)
-    {
+    {TRACE_IT(55580);
         this->dateToLocaleString = nullptr;
         this->dateToLocaleTimeString = nullptr;
         this->dateToLocaleDateString = nullptr;
@@ -350,23 +350,23 @@ namespace Js
 
         //Failed to setup Intl; Windows.Globalization.dll is most likely missing.
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::Collator))
-        {
+        {TRACE_IT(55581);
             intlObject->DeleteProperty(Js::PropertyIds::Collator, Js::PropertyOperationFlags::PropertyOperation_None);
         }
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::NumberFormat))
-        {
+        {TRACE_IT(55582);
             intlObject->DeleteProperty(Js::PropertyIds::NumberFormat, Js::PropertyOperationFlags::PropertyOperation_None);
         }
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::DateTimeFormat))
-        {
+        {TRACE_IT(55583);
             intlObject->DeleteProperty(Js::PropertyIds::DateTimeFormat, Js::PropertyOperationFlags::PropertyOperation_None);
         }
     }
 
     void IntlEngineInterfaceExtensionObject::EnsureIntlByteCode(_In_ ScriptContext * scriptContext)
-    {
+    {TRACE_IT(55584);
         if (this->intlByteCode == nullptr)
-        {
+        {TRACE_IT(55585);
             SourceContextInfo * sourceContextInfo = scriptContext->GetSourceContextInfo(Js::Constants::NoHostSourceContext, NULL);
 
             Assert(sourceContextInfo != nullptr);
@@ -384,10 +384,10 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::InjectIntlLibraryCode(_In_ ScriptContext * scriptContext, DynamicObject* intlObject, IntlInitializationType intlInitializationType)
-    {
+    {TRACE_IT(55586);
         JavascriptExceptionObject *pExceptionObject = nullptr;
         WindowsGlobalizationAdapter* globAdapter = GetWindowsGlobalizationAdapter(scriptContext);
-        try {
+        try {TRACE_IT(55587);
             this->EnsureIntlByteCode(scriptContext);
 
             Assert(intlByteCode != nullptr);
@@ -429,7 +429,7 @@ namespace Js
 
             // If we are profiling, we need to register the script to the profiler callback, so the script compiled event will be sent.
             if (scriptContext->IsProfiling())
-            {
+            {TRACE_IT(55588);
                 scriptContext->RegisterScript(function->GetFunctionProxy());
             }
             // Mark we are profiling library code already, so that any initialization library code called here won't be reported to profiler
@@ -453,12 +453,12 @@ namespace Js
             }
         }
         catch (const JavascriptException& err)
-        {
+        {TRACE_IT(55589);
             pExceptionObject = err.GetAndClear();
         }
 
         if (pExceptionObject)
-        {
+        {TRACE_IT(55590);
             if (intlInitializationType == IntlInitializationType::Intl)
             {
                 cleanUpIntl(scriptContext, intlObject);
@@ -466,7 +466,7 @@ namespace Js
 
             if (pExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingOOMErrorObject() ||
                 pExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingSOErrorObject())
-            {
+            {TRACE_IT(55591);
                 // Reset factory objects that are might not have fully initialized
                 globAdapter->ResetCommonFactoryObjects();
                 switch (intlInitializationType) {
@@ -517,7 +517,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55592);
             // IsWellFormedLanguageTage of undefined or non-string is false
             return scriptContext->GetLibrary()->GetFalse();
         }
@@ -532,7 +532,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55593);
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -544,7 +544,7 @@ namespace Js
         AutoHSTRING str;
         HRESULT hr;
         if (FAILED(hr = wga->NormalizeLanguageTag(scriptContext, argString->GetSz(), &str)))
-        {
+        {TRACE_IT(55594);
             HandleOOMSOEHR(hr);
             //If we can't normalize the tag; return undefined.
             return scriptContext->GetLibrary()->GetUndefined();
@@ -560,7 +560,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55595);
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -572,7 +572,7 @@ namespace Js
 
         ResolveLocaleName(argString->GetSz(), resolvedLocaleName, _countof(resolvedLocaleName));
         if (resolvedLocaleName[0] == '\0')
-        {
+        {TRACE_IT(55596);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         return JavascriptString::NewCopySz(resolvedLocaleName, scriptContext);
@@ -584,7 +584,7 @@ namespace Js
         DelayLoadWindowsGlobalization* wgl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55597);
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -595,13 +595,13 @@ namespace Js
         AutoCOMPtr<DateTimeFormatting::IDateTimeFormatter> formatter;
         HRESULT hr;
         if (FAILED(hr = wga->CreateDateTimeFormatter(scriptContext, _u("longdate"), &passedLocale, 1, nullptr, nullptr, &formatter)))
-        {
+        {TRACE_IT(55598);
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         AutoHSTRING locale;
         if (FAILED(hr = wga->GetResolvedLanguage(formatter, &locale)))
-        {
+        {TRACE_IT(55599);
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -617,7 +617,7 @@ namespace Js
         defaultLocale[0] = '\0';
 
         if (GetUserDefaultLocaleName(defaultLocale, _countof(defaultLocale)) == 0 || defaultLocale[0] == '\0')
-        {
+        {TRACE_IT(55600);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -630,7 +630,7 @@ namespace Js
         DelayLoadWindowsGlobalization* wgl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55601);
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -639,13 +639,13 @@ namespace Js
         AutoCOMPtr<ILanguageExtensionSubtags> extensionSubtags;
         HRESULT hr;
         if (FAILED(hr = wga->CreateLanguage(scriptContext, JavascriptString::FromVar(args.Values[1])->GetSz(), &language)))
-        {
+        {TRACE_IT(55602);
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (FAILED(hr = language->QueryInterface(__uuidof(ILanguageExtensionSubtags), reinterpret_cast<void**>(&extensionSubtags))))
-        {
+        {TRACE_IT(55603);
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -656,21 +656,21 @@ namespace Js
         uint32 length;
 
         if (FAILED(hr = wgl->WindowsCreateString(_u("u"), 1, &singletonString)) || FAILED(hr = extensionSubtags->GetExtensionSubtags(*singletonString, &subtags)) || FAILED(subtags->get_Size(&length)))
-        {
+        {TRACE_IT(55604);
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         JavascriptArray *toReturn = scriptContext->GetLibrary()->CreateArray(length);
 
         for (uint32 i = 0; i < length; i++)
-        {
+        {TRACE_IT(55605);
             AutoHSTRING str;
             if (!FAILED(hr = wga->GetItemAt(subtags, i, &str)))
-            {
+            {TRACE_IT(55606);
                 toReturn->SetItem(i, JavascriptString::NewCopySz(wgl->WindowsGetStringRawBuffer(*str, NULL), scriptContext), Js::PropertyOperationFlags::PropertyOperation_None);
             }
             else
-            {
+            {TRACE_IT(55607);
                 HandleOOMSOEHR(hr);
             }
         }
@@ -686,7 +686,7 @@ namespace Js
 
         //The passed object is the hidden state object
         if (args.Info.Count < 2 || !DynamicObject::Is(args.Values[1]))
-        {
+        {TRACE_IT(55608);
             // Call with undefined or non-number is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -698,7 +698,7 @@ namespace Js
 
         //Verify locale is present
         if (!GetTypedPropertyBuiltInFrom(options, __locale, JavascriptString) || (localeJSstr = JavascriptString::FromVar(propertyValue))->GetLength() <= 0)
-        {
+        {TRACE_IT(55609);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -708,16 +708,16 @@ namespace Js
         PCWSTR locale = localeJSstr->GetSz();
         uint16 formatterToUseVal = 0; // number is default, 1 is percent, 2 is currency
         if (GetTypedPropertyBuiltInFrom(options, __formatterToUse, TaggedInt) && (formatterToUseVal = TaggedInt::ToUInt16(propertyValue)) == 1)
-        {
+        {TRACE_IT(55610);
             //Use the percent formatter
             IfFailThrowHr(wga->CreatePercentFormatter(scriptContext, &locale, 1, &numberFormatter));
         }
         else if (formatterToUseVal == 2)
-        {
+        {TRACE_IT(55611);
             //Use the currency formatter
             AutoCOMPtr<NumberFormatting::ICurrencyFormatter> currencyFormatter(nullptr);
             if (!GetTypedPropertyBuiltInFrom(options, __currency, JavascriptString))
-            {
+            {TRACE_IT(55612);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             //API call retrieves a currency formatter, have to query its interface for numberFormatter
@@ -725,16 +725,16 @@ namespace Js
 
             if (GetTypedPropertyBuiltInFrom(options, __currencyDisplayToUse, TaggedInt)) // 0 is for symbol, 1 is for code, 2 is for name.
                                                                                          //Currently name isn't supported; so it will default to code in that case.
-            {
+            {TRACE_IT(55613);
                 AutoCOMPtr<NumberFormatting::ICurrencyFormatter2> currencyFormatter2(nullptr);
                 IfFailThrowHr(currencyFormatter->QueryInterface(__uuidof(NumberFormatting::ICurrencyFormatter2), reinterpret_cast<void**>(&currencyFormatter2)));
 
                 if (TaggedInt::ToUInt16(propertyValue) == 0)
-                {
+                {TRACE_IT(55614);
                     IfFailThrowHr(currencyFormatter2->put_Mode(NumberFormatting::CurrencyFormatterMode::CurrencyFormatterMode_UseSymbol));
                 }
                 else
-                {
+                {TRACE_IT(55615);
                     IfFailThrowHr(currencyFormatter2->put_Mode(NumberFormatting::CurrencyFormatterMode::CurrencyFormatterMode_UseCurrencyCode));
                 }
             }
@@ -742,7 +742,7 @@ namespace Js
             IfFailThrowHr(currencyFormatter->QueryInterface(__uuidof(NumberFormatting::INumberFormatter), reinterpret_cast<void**>(&numberFormatter)));
         }
         else
-        {
+        {TRACE_IT(55616);
             //Use the number formatter (default)
             IfFailThrowHr(wga->CreateNumberFormatter(scriptContext, &locale, 1, &numberFormatter));
         }
@@ -758,11 +758,11 @@ namespace Js
         Assert(numberFormatterOptions);
 
         if (GetTypedPropertyBuiltInFrom(options, __isDecimalPointAlwaysDisplayed, JavascriptBoolean))
-        {
+        {TRACE_IT(55617);
             IfFailThrowHr(numberFormatterOptions->put_IsDecimalPointAlwaysDisplayed((boolean)(JavascriptBoolean::FromVar(propertyValue)->GetValue())));
         }
         if (GetTypedPropertyBuiltInFrom(options, __useGrouping, JavascriptBoolean))
-        {
+        {TRACE_IT(55618);
             IfFailThrowHr(numberFormatterOptions->put_IsGrouped((boolean)(JavascriptBoolean::FromVar(propertyValue)->GetValue())));
         }
 
@@ -781,33 +781,33 @@ namespace Js
         Assert(rounderOptions);
 
         if (HasPropertyBuiltInOn(options, __minimumSignificantDigits) || HasPropertyBuiltInOn(options, __maximumSignificantDigits))
-        {
+        {TRACE_IT(55619);
             uint16 minSignificantDigits = 1, maxSignificantDigits = 21;
             //Do significant digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumSignificantDigits, TaggedInt))
-            {
+            {TRACE_IT(55620);
                 minSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumSignificantDigits, TaggedInt))
-            {
+            {TRACE_IT(55621);
                 maxSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), minSignificantDigits);
             }
             prepareWithSignificantDigits(scriptContext, rounderOptions, numberFormatter, numberFormatterOptions, minSignificantDigits, maxSignificantDigits);
         }
         else
-        {
+        {TRACE_IT(55622);
             uint16 minFractionDigits = 0, maxFractionDigits = 3, minIntegerDigits = 1;
             //Do fraction/integer digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumIntegerDigits, TaggedInt))
-            {
+            {TRACE_IT(55623);
                 minIntegerDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __minimumFractionDigits, TaggedInt))
-            {
+            {TRACE_IT(55624);
                 minFractionDigits = min<uint16>(TaggedInt::ToUInt16(propertyValue), 20);//ToUInt16 will get rid of negatives by making them high
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumFractionDigits, TaggedInt))
-            {
+            {TRACE_IT(55625);
                 maxFractionDigits = max(min<uint16>(TaggedInt::ToUInt16(propertyValue), 20), minFractionDigits);//ToUInt16 will get rid of negatives by making them high
             }
             prepareWithFractionIntegerDigits(scriptContext, rounderOptions, numberFormatterOptions, minFractionDigits, maxFractionDigits + (formatterToUseVal == 1 ? 2 : 0), minIntegerDigits);//extend max fractions for percent
@@ -828,7 +828,7 @@ namespace Js
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
 
         if (args.Info.Count < 3 || !DynamicObject::Is(args.Values[1]) || !JavascriptBoolean::Is(args.Values[2]))
-        {
+        {TRACE_IT(55626);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -851,7 +851,7 @@ namespace Js
 
         AutoHSTRING hDummyCalendar;
         if (clock != nullptr)
-        {
+        {TRACE_IT(55627);
             //Because both calendar and clock are needed to pass into the datetimeformatter constructor (or neither); create a dummy one to get the value of calendar out so clock can be passed in with it.
             AutoCOMPtr<DateTimeFormatting::IDateTimeFormatter> dummyFormatter;
             IfFailThrowHr(wga->CreateDateTimeFormatter(scriptContext, templateString, &locale, 1, nullptr, nullptr, &dummyFormatter));
@@ -891,7 +891,7 @@ namespace Js
         JavascriptArray *patternStrings = scriptContext->GetLibrary()->CreateArray(length);
 
         for (uint32 i = 0; i < length; i++)
-        {
+        {TRACE_IT(55628);
             AutoHSTRING item;
             IfFailThrowHr(wga->GetItemAt(dateResult, i, &item));
             patternStrings->SetItem(i, Js::JavascriptString::NewCopySz(wgl->WindowsGetStringRawBuffer(*item, NULL), scriptContext), PropertyOperation_None);
@@ -903,12 +903,12 @@ namespace Js
         {
             //If timeZone is undefined; then use the standard dateTimeFormatter to format in local time; otherwise use the IDateTimeFormatter2 to format using specified timezone (UTC)
             if (!GetPropertyBuiltInFrom(obj, __timeZone) || JavascriptOperators::IsUndefinedObject(propertyValue))
-            {
+            {TRACE_IT(55629);
                 cachedFormatter->AddRef();
                 obj->SetInternalProperty(Js::InternalPropertyIds::HiddenObject, AutoCOMJSObject::New(scriptContext->GetRecycler(), cachedFormatter), Js::PropertyOperationFlags::PropertyOperation_None, NULL);
             }
             else
-            {
+            {TRACE_IT(55630);
                 AutoCOMPtr<DateTimeFormatting::IDateTimeFormatter2> tzCachedFormatter;
                 IfFailThrowHr(cachedFormatter->QueryInterface(__uuidof(DateTimeFormatting::IDateTimeFormatter2), reinterpret_cast<void**>(&tzCachedFormatter)));
                 tzCachedFormatter->AddRef();
@@ -924,19 +924,19 @@ namespace Js
     DWORD getFlagsForSensitivity(LPCWSTR sensitivity)
     {
         if (wcscmp(sensitivity, _u("base")) == 0)
-        {
+        {TRACE_IT(55631);
             return LINGUISTIC_IGNOREDIACRITIC | LINGUISTIC_IGNORECASE | NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH;
         }
         else if (wcscmp(sensitivity, _u("accent")) == 0)
-        {
+        {TRACE_IT(55632);
             return LINGUISTIC_IGNORECASE | NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH;
         }
         else if (wcscmp(sensitivity, _u("case")) == 0)
-        {
+        {TRACE_IT(55633);
             return  NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH | LINGUISTIC_IGNOREDIACRITIC;
         }
         else if (wcscmp(sensitivity, _u("variant")) == 0)
-        {
+        {TRACE_IT(55634);
             return NORM_LINGUISTIC_CASING;
         }
         return 0;
@@ -953,7 +953,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 7 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2]))
-        {
+        {TRACE_IT(55635);
             // CompareStringEx of undefined or non-strings is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -967,60 +967,60 @@ namespace Js
         defaultLocale[0] = '\0';
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[3], scriptContext))
-        {
+        {TRACE_IT(55636);
             if (!JavascriptString::Is(args.Values[3]))
-            {
+            {TRACE_IT(55637);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             givenLocale = JavascriptString::FromVar(args.Values[3])->GetSz();
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[4], scriptContext))
-        {
+        {TRACE_IT(55638);
             if (!JavascriptString::Is(args.Values[4]))
-            {
+            {TRACE_IT(55639);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             compareFlags |= getFlagsForSensitivity(JavascriptString::FromVar(args.Values[4])->GetSz());
         }
         else
-        {
+        {TRACE_IT(55640);
             compareFlags |= NORM_LINGUISTIC_CASING;
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[5], scriptContext))
-        {
+        {TRACE_IT(55641);
             if (!JavascriptBoolean::Is(args.Values[5]))
-            {
+            {TRACE_IT(55642);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             else if ((boolean)(JavascriptBoolean::FromVar(args.Values[5])->GetValue()))
-            {
+            {TRACE_IT(55643);
                 compareFlags |= NORM_IGNORESYMBOLS;
             }
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[6], scriptContext))
-        {
+        {TRACE_IT(55644);
             if (!JavascriptBoolean::Is(args.Values[6]))
-            {
+            {TRACE_IT(55645);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             else if ((boolean)(JavascriptBoolean::FromVar(args.Values[6])->GetValue()))
-            {
+            {TRACE_IT(55646);
                 compareFlags |= SORT_DIGITSASNUMBERS;
             }
         }
 
         if (givenLocale == nullptr && GetUserDefaultLocaleName(defaultLocale, _countof(defaultLocale)) == 0)
-        {
+        {TRACE_IT(55647);
             JavascriptError::MapAndThrowError(scriptContext, HRESULT_FROM_WIN32(GetLastError()));
         }
 
         int compareResult = 0;
         DWORD lastError = S_OK;
         BEGIN_TEMP_ALLOCATOR(tempAllocator, scriptContext, _u("localeCompare"))
-        {
+        {TRACE_IT(55648);
             using namespace PlatformAgnostic;
             char16 * aLeft = nullptr;
             char16 * aRight = nullptr;
@@ -1028,22 +1028,22 @@ namespace Js
             charcount_t size2 = 0;
             auto canonicalEquivalentForm = UnicodeText::NormalizationForm::C;
             if (!UnicodeText::IsNormalizedString(canonicalEquivalentForm, str1->GetSz(), -1))
-            {
+            {TRACE_IT(55649);
                 aLeft = str1->GetNormalizedString(canonicalEquivalentForm, tempAllocator, size1);
             }
 
             if (!UnicodeText::IsNormalizedString(canonicalEquivalentForm, str2->GetSz(), -1))
-            {
+            {TRACE_IT(55650);
                 aRight = str2->GetNormalizedString(canonicalEquivalentForm, tempAllocator, size2);
             }
 
             if (aLeft == nullptr)
-            {
+            {TRACE_IT(55651);
                 aLeft = const_cast<char16*>(str1->GetSz());
                 size1 = str1->GetLength();
             }
             if (aRight == nullptr)
-            {
+            {TRACE_IT(55652);
                 aRight = const_cast<char16*>(str2->GetSz());
                 size2 = str2->GetLength();
             }
@@ -1053,7 +1053,7 @@ namespace Js
 
             // Get the last error code so that it won't be affected by END_TEMP_ALLOCATOR.
             if (compareResult == 0)
-            {
+            {TRACE_IT(55653);
                 lastError = GetLastError();
             }
         }
@@ -1061,7 +1061,7 @@ namespace Js
 
 
         if (compareResult != 0)//CompareStringEx returns 1, 2, 3 on success;  2 is the strings are equal, 1 is the fist string is lexically less than second, 3 is reverse.
-        {
+        {TRACE_IT(55654);
             return JavascriptNumber::ToVar(compareResult - 2, scriptContext);//Convert 1,2,3 to -1,0,1
         }
 
@@ -1075,7 +1075,7 @@ namespace Js
         HRESULT hr;
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55655);
             // Call with undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetFalse();
         }
@@ -1094,7 +1094,7 @@ namespace Js
     //Helper, this just prepares based on fraction and integer format options
     void IntlEngineInterfaceExtensionObject::prepareWithFractionIntegerDigits(ScriptContext* scriptContext, NumberFormatting::INumberRounderOption* rounderOptions,
         NumberFormatting::INumberFormatterOptions* formatterOptions, uint16 minFractionDigits, uint16 maxFractionDigits, uint16 minIntegerDigits)
-    {
+    {TRACE_IT(55656);
         HRESULT hr;
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         AutoCOMPtr<NumberFormatting::INumberRounder> numberRounder(nullptr);
@@ -1115,7 +1115,7 @@ namespace Js
     //Helper, this just prepares based on significant digits format options
     void IntlEngineInterfaceExtensionObject::prepareWithSignificantDigits(ScriptContext* scriptContext, NumberFormatting::INumberRounderOption* rounderOptions, NumberFormatting::INumberFormatter *numberFormatter,
         NumberFormatting::INumberFormatterOptions* formatterOptions, uint16 minSignificantDigits, uint16 maxSignificantDigits)
-    {
+    {TRACE_IT(55657);
         HRESULT hr;
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         AutoCOMPtr<NumberFormatting::INumberRounder> numberRounder(nullptr);
@@ -1153,7 +1153,7 @@ namespace Js
 
         //First argument is required and must be either a tagged integer or a number; second is also required and is the internal state object
         if (args.Info.Count < 3 || !(TaggedInt::Is(args.Values[1]) || JavascriptNumber::Is(args.Values[1])) || !DynamicObject::Is(args.Values[2]))
-        {
+        {TRACE_IT(55658);
             // Call with undefined or non-number is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -1169,11 +1169,11 @@ namespace Js
         AutoHSTRING result;
         HRESULT hr;
         if (TaggedInt::Is(args.Values[1]))
-        {
+        {TRACE_IT(55659);
             IfFailThrowHr(numberFormatter->FormatInt(TaggedInt::ToInt32(args.Values[1]), &result));
         }
         else
-        {
+        {TRACE_IT(55660);
             IfFailThrowHr(numberFormatter->FormatDouble(JavascriptNumber::GetValue(args.Values[1]), &result));
         }
         PCWSTR strBuf = wsl->WindowsGetStringRawBuffer(*result, NULL);
@@ -1186,22 +1186,22 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 3 || !(TaggedInt::Is(args.Values[1]) || JavascriptNumber::Is(args.Values[1])) || !DynamicObject::Is(args.Values[2]))
-        {
+        {TRACE_IT(55661);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         Windows::Foundation::DateTime winDate;
         HRESULT hr;
         if (TaggedInt::Is(args.Values[1]))
-        {
+        {TRACE_IT(55662);
             hr = Js::DateUtilities::ES5DateToWinRTDate(TaggedInt::ToInt32(args.Values[1]), &(winDate.UniversalTime));
         }
         else
-        {
+        {TRACE_IT(55663);
             hr = Js::DateUtilities::ES5DateToWinRTDate(JavascriptNumber::GetValue(args.Values[1]), &(winDate.UniversalTime));
         }
         if (FAILED(hr))
-        {
+        {TRACE_IT(55664);
             HandleOOMSOEHR(hr);
             // If conversion failed, double value is outside the range of WinRT DateTime
             Js::JavascriptError::ThrowRangeError(scriptContext, JSERR_OutOfDateTimeRange);
@@ -1218,13 +1218,13 @@ namespace Js
 
         //If timeZone is undefined; then use the standard dateTimeFormatter to format in local time; otherwise use the IDateTimeFormatter2 to format using specified timezone (UTC)
         if (!GetPropertyBuiltInFrom(obj, __timeZone) || JavascriptOperators::IsUndefinedObject(propertyValue))
-        {
+        {TRACE_IT(55665);
             DateTimeFormatting::IDateTimeFormatter *formatter = static_cast<DateTimeFormatting::IDateTimeFormatter *>(((AutoCOMJSObject *)hiddenObject)->GetInstance());
             Assert(formatter);
             IfFailThrowHr(formatter->Format(winDate, &result));
         }
         else
-        {
+        {TRACE_IT(55666);
             DateTimeFormatting::IDateTimeFormatter2 *formatter = static_cast<DateTimeFormatting::IDateTimeFormatter2 *>(((AutoCOMJSObject *)hiddenObject)->GetInstance());
             Assert(formatter);
             HSTRING timeZone;
@@ -1263,13 +1263,13 @@ namespace Js
         AutoHSTRING canonicalizedTimeZone;
         boolean isValidTimeZone = GetWindowsGlobalizationAdapter(scriptContext)->ValidateAndCanonicalizeTimeZone(scriptContext, argString->GetSz(), &canonicalizedTimeZone);
         if (isValidTimeZone)
-        {
+        {TRACE_IT(55667);
             DelayLoadWindowsGlobalization* wsl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
             PCWSTR strBuf = wsl->WindowsGetStringRawBuffer(*canonicalizedTimeZone, NULL);
             return Js::JavascriptString::NewCopySz(strBuf, scriptContext);
         }
         else
-        {
+        {TRACE_IT(55668);
             return scriptContext->GetLibrary()->GetUndefined();
         }
     }
@@ -1288,7 +1288,7 @@ namespace Js
 
         HRESULT hr;
         if (FAILED(hr = wga->GetDefaultTimeZoneId(scriptContext, &str)))
-        {
+        {TRACE_IT(55669);
             HandleOOMSOEHR(hr);
             //If we can't get default timeZone, return undefined.
             return scriptContext->GetLibrary()->GetUndefined();
@@ -1353,14 +1353,14 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2 || !DynamicObject::Is(args.Values[1]))
-        {
+        {TRACE_IT(55670);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         DynamicObject* obj = DynamicObject::FromVar(args.Values[1]);
         Var hiddenObject;
         if (!obj->GetInternalProperty(obj, Js::InternalPropertyIds::HiddenObject, &hiddenObject, NULL, scriptContext))
-        {
+        {TRACE_IT(55671);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         return hiddenObject;
@@ -1371,7 +1371,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 3 || !DynamicObject::Is(args.Values[1]) || !DynamicObject::Is(args.Values[2]))
-        {
+        {TRACE_IT(55672);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1379,11 +1379,11 @@ namespace Js
         DynamicObject* value = DynamicObject::FromVar(args.Values[2]);
 
         if (obj->SetInternalProperty(Js::InternalPropertyIds::HiddenObject, value, Js::PropertyOperationFlags::PropertyOperation_None, NULL))
-        {
+        {TRACE_IT(55673);
             return scriptContext->GetLibrary()->GetTrue();
         }
         else
-        {
+        {TRACE_IT(55674);
             return scriptContext->GetLibrary()->GetFalse();
         }
     }
@@ -1396,7 +1396,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 3 || !DynamicObject::Is(args.Values[1]) || !RecyclableObject::Is(args.Values[2]))
-        {
+        {TRACE_IT(55675);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1416,12 +1416,12 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2)
-        {
+        {TRACE_IT(55676);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (DynamicObject::IsAnyArray(args.Values[1]))
-        {
+        {TRACE_IT(55677);
             JavascriptArray* arr = JavascriptArray::FromAnyArray(args.Values[1]);
             return TaggedInt::ToVarUnchecked(arr->GetLength());
         }
@@ -1441,7 +1441,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2 || !JavascriptString::Is(args.Values[1]) || !JavascriptRegExp::Is(args.Values[2]))
-        {
+        {TRACE_IT(55678);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1460,7 +1460,7 @@ namespace Js
 
         Assert(args.Info.Count <= 5);
         if (callInfo.Count < 3 || args.Info.Count > 5 || !JavascriptConversion::IsCallable(args.Values[1]) || !RecyclableObject::Is(args.Values[2]))
-        {
+        {TRACE_IT(55679);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1471,7 +1471,7 @@ namespace Js
         Js::Arguments newArgs(callInfo, newVars);
 
         for (uint i = 0; i<args.Info.Count - 2; ++i)
-        {
+        {TRACE_IT(55680);
             newArgs.Values[i] = args.Values[i + 2];
         }
 

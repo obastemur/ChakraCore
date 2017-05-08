@@ -10,9 +10,9 @@ namespace Js
     SimpleSourceHolder const ISourceHolder::emptySourceHolder(NO_WRITE_BARRIER_TAG(emptyString), 0, true);
 
     ISourceHolder* SimpleSourceHolder::Clone(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(36882);
         if(this == ISourceHolder::GetEmptySourceHolder())
-        {
+        {TRACE_IT(36883);
             return this;
         }
 

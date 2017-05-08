@@ -15,16 +15,16 @@
 const LPCWSTR UCrtC99MathApis::LibraryName = _u("api-ms-win-crt-math-l1-1-0.dll");
 
 void UCrtC99MathApis::Ensure()
-{
+{TRACE_IT(62341);
     if (m_isInit)
-    {
+    {TRACE_IT(62342);
         return;
     }
 
     DelayLoadLibrary::EnsureFromSystemDirOnly();
 
     if (IsAvailable())
-    {
+    {TRACE_IT(62343);
         m_pfnlog2  = (PFNMathFn)GetFunction("log2");
         m_pfnlog1p = (PFNMathFn)GetFunction("log1p");
         m_pfnexpm1 = (PFNMathFn)GetFunction("expm1");
@@ -42,7 +42,7 @@ void UCrtC99MathApis::Ensure()
             m_pfnatanh == nullptr ||
             m_pfntrunc == nullptr ||
             m_pfncbrt == nullptr)
-        {
+        {TRACE_IT(62344);
             // If any of the APIs fail to load then presume the entire module is bogus and free it
             FreeLibrary(m_hModule);
             m_hModule = nullptr;
@@ -80,11 +80,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62345);
             Var arg = args[1];
 
             if (TaggedInt::Is(arg))
-            {
+            {TRACE_IT(62346);
 #if defined(_M_X64_OR_ARM64)
                 __int64 result = ::_abs64(TaggedInt::ToInt32(arg));
 #else
@@ -99,16 +99,16 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62347);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Abs(double x)
-    {
+    {TRACE_IT(62348);
         // ::fabs if linked from UCRT changes FPU ctrl word for NaN input
         if (NumberUtilities::IsNan(x))
-        {
+        {TRACE_IT(62349);
             // canonicalize to 0xFFF8000..., so we can tag correctly on x64.
             return NumberConstants::NaN;
         }
@@ -132,7 +132,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62350);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Acos(x);
@@ -140,13 +140,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62351);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Acos(double x)
-    {
+    {TRACE_IT(62352);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -154,8 +154,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62353);
+            _asm {TRACE_IT(62354);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_acos]
                 movsd result, xmm0
@@ -163,7 +163,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62355);
             result = ::acos(x);
         }
 
@@ -186,7 +186,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62356);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Asin(x);
@@ -194,13 +194,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62357);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Asin(double x)
-    {
+    {TRACE_IT(62358);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -208,8 +208,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62359);
+            _asm {TRACE_IT(62360);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_asin]
                 movsd result, xmm0
@@ -217,7 +217,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62361);
             result = ::asin(x);
         }
 
@@ -240,7 +240,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62362);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Atan(x);
@@ -248,21 +248,21 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62363);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Atan(double x)
-    {
+    {TRACE_IT(62364);
         double result;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62365);
+            _asm {TRACE_IT(62366);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_atan]
                 movsd result, xmm0
@@ -270,7 +270,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62367);
             result = ::atan(x);
         }
 
@@ -293,29 +293,29 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3)
-        {
+        {TRACE_IT(62368);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double y = JavascriptConversion::ToNumber(args[2], scriptContext);
             double result = Math::Atan2(x,y);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62369);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Atan2( double x, double y )
-    {
+    {TRACE_IT(62370);
         double result;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
+        {TRACE_IT(62371);
             _asm
-            {
+            {TRACE_IT(62372);
                 movsd xmm0, x
                 movsd xmm1, y
                 call dword ptr[__libm_sse2_atan2]
@@ -324,7 +324,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62373);
             result = ::atan2(x, y);
         }
         return result;
@@ -349,18 +349,18 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62374);
             Var inputArg = args[1];
 
             if (TaggedInt::Is(inputArg))
-            {
+            {TRACE_IT(62375);
                 return inputArg;
             }
 
             double x = JavascriptConversion::ToNumber(inputArg, scriptContext);
 #if defined(_M_ARM32_OR_ARM64)
             if (Js::JavascriptNumber::IsNan(x))
-            {
+            {TRACE_IT(62376);
                 return scriptContext->GetLibrary()->GetNaN();
             }
 #endif
@@ -368,19 +368,19 @@ namespace Js
 #if (defined(_M_IX86) || defined(_M_X64)) \
     && (__SSE4_1__ || _WIN32) // _mm_ceil_sd needs this
             if (AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {TRACE_IT(62377);
                 __m128d input, output;
                 input = _mm_load_sd(&x);
                 output = _mm_ceil_sd(input, input);
                 int intResult = _mm_cvtsd_si32(output);
 
                 if (TaggedInt::IsOverflow(intResult) || intResult == 0 || intResult == 0x80000000)
-                {
+                {TRACE_IT(62378);
                     double dblResult;
                     _mm_store_sd(&dblResult, output);
 
                     if (intResult == 0 && !JavascriptNumber::IsNegZero(dblResult))
-                    {
+                    {TRACE_IT(62379);
                         return JavascriptNumber::ToVar(0, scriptContext);
                     }
 
@@ -389,29 +389,29 @@ namespace Js
                     return JavascriptNumber::ToVarNoCheck(dblResult, scriptContext);
                 }
                 else
-                {
+                {TRACE_IT(62380);
                     return JavascriptNumber::ToVar(intResult, scriptContext);
                 }
             }
             else
 #endif
-            {
+            {TRACE_IT(62381);
                 double result = ::ceil(x);
 
                 intptr_t intResult = (intptr_t)result;
 
                 if (TaggedInt::IsOverflow(intResult) || JavascriptNumber::IsNegZero(result))
-                {
+                {TRACE_IT(62382);
                     return JavascriptNumber::ToVarNoCheck(result, scriptContext);
                 }
                 else
-                {
+                {TRACE_IT(62383);
                     return JavascriptNumber::ToVar(intResult, scriptContext);
                 }
             }
         }
         else
-        {
+        {TRACE_IT(62384);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -433,7 +433,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62385);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Cos(x);
@@ -441,13 +441,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62386);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Cos(double x)
-    {
+    {TRACE_IT(62387);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -455,8 +455,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62388);
+            _asm {TRACE_IT(62389);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_cos]
                 movsd result, xmm0
@@ -464,7 +464,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62390);
             result = ::cos(x);
         }
 
@@ -486,7 +486,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62391);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Exp(x);
@@ -494,13 +494,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62392);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Exp(double x)
-    {
+    {TRACE_IT(62393);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -508,8 +508,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62394);
+            _asm {TRACE_IT(62395);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_exp]
                 movsd result, xmm0
@@ -517,7 +517,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62396);
             result = ::exp(x);
         }
 
@@ -541,25 +541,25 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62397);
             Var input = args[1];
 
             if (TaggedInt::Is(input))
-            {
+            {TRACE_IT(62398);
                 return input;
             }
 
             double x = JavascriptConversion::ToNumber(input, scriptContext);
 #if defined(_M_ARM32_OR_ARM64)
             if (Js::JavascriptNumber::IsNan(x))
-            {
+            {TRACE_IT(62399);
                 return scriptContext->GetLibrary()->GetNaN();
             }
 #endif
             return Math::FloorDouble(x, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62400);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -567,32 +567,32 @@ namespace Js
 #pragma warning(push)
 #pragma warning(disable:4700)  // // uninitialized local variable 'output' used, for call to _mm_floor_sd
     Var inline Math::FloorDouble(double d, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(62401);
             // xplat-todo: use intrinsics here on linux
 #ifdef _MSC_VER
 #if defined(_M_IX86) || defined(_M_X64)
         if (AutoSystemInfo::Data.SSE4_1Available())
-        {
+        {TRACE_IT(62402);
             __m128d input, output;
 
             int intResult;
 
             input = _mm_load_sd(&d);
             if (d >= 0.0)
-            {
+            {TRACE_IT(62403);
                 output = input;
             }
             else
-            {
+            {TRACE_IT(62404);
                 output = _mm_floor_sd(input, input);
             }
             intResult = _mm_cvttsd_si32(output);
 
             if (TaggedInt::IsOverflow(intResult) || intResult == 0x80000000 || JavascriptNumber::IsNegZero(d))
-            {
+            {TRACE_IT(62405);
                 double dblResult;
                 if (d >= 0.0)
-                {
+                {TRACE_IT(62406);
                     output = _mm_floor_sd(output, input);
                 }
                 _mm_store_sd(&dblResult, output);
@@ -602,7 +602,7 @@ namespace Js
                 return JavascriptNumber::ToVarNoCheck(dblResult, scriptContext);
             }
             else
-            {
+            {TRACE_IT(62407);
                 Assert(intResult == (int)::floor(d));
                 return JavascriptNumber::ToVar(intResult, scriptContext);
             }
@@ -610,25 +610,25 @@ namespace Js
         else
 #endif
 #endif
-        {
+        {TRACE_IT(62408);
             intptr_t intResult;
 
             if (d >= 0.0)
-            {
+            {TRACE_IT(62409);
                 intResult = (intptr_t)d;
             }
             else
-            {
+            {TRACE_IT(62410);
                 d = ::floor(d);
                 intResult = (intptr_t)d;
             }
 
             if (TaggedInt::IsOverflow(intResult) || JavascriptNumber::IsNegZero(d))
-            {
+            {TRACE_IT(62411);
                 return JavascriptNumber::ToVarNoCheck(::floor(d), scriptContext);
             }
             else
-            {
+            {TRACE_IT(62412);
                 return JavascriptNumber::ToVar(intResult, scriptContext);
             }
         }
@@ -650,7 +650,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62413);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Log(x);
@@ -658,13 +658,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62414);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Log(double x)
-    {
+    {TRACE_IT(62415);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -672,8 +672,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62416);
+            _asm {TRACE_IT(62417);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_log]
                 movsd result, xmm0
@@ -681,7 +681,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62418);
             result = ::log(x);
         }
 
@@ -706,38 +706,38 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {TRACE_IT(62419);
             return scriptContext->GetLibrary()->GetNegativeInfinite();
         }
         else if (args.Info.Count == 2)
-        {
+        {TRACE_IT(62420);
             double result = JavascriptConversion::ToNumber(args[1], scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else if (args.Info.Count == 3)
-        {
+        {TRACE_IT(62421);
             if (TaggedInt::Is(args[1]) && TaggedInt::Is(args[2]))
-            {
+            {TRACE_IT(62422);
                 return TaggedInt::ToVarUnchecked(max(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
         double current = JavascriptConversion::ToNumber(args[1], scriptContext);
         if(JavascriptNumber::IsNan(current))
-        {
+        {TRACE_IT(62423);
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         for (uint idxArg = 2; idxArg < args.Info.Count; idxArg++)
-        {
+        {TRACE_IT(62424);
             double compare = JavascriptConversion::ToNumber(args[idxArg], scriptContext);
             if(JavascriptNumber::IsNan(compare))
-            {
+            {TRACE_IT(62425);
                 return scriptContext->GetLibrary()->GetNaN();
             }
             if((JavascriptNumber::IsNegZero(current) && compare == 0) ||
                 current < compare )
-            {
+            {TRACE_IT(62426);
                 current = compare;
             }
         }
@@ -764,38 +764,38 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {TRACE_IT(62427);
             return scriptContext->GetLibrary()->GetPositiveInfinite();
         }
         else if (args.Info.Count == 2)
-        {
+        {TRACE_IT(62428);
             double result = JavascriptConversion::ToNumber(args[1], scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else if (args.Info.Count == 3)
-        {
+        {TRACE_IT(62429);
             if (TaggedInt::Is(args[1]) && TaggedInt::Is(args[2]))
-            {
+            {TRACE_IT(62430);
                 return TaggedInt::ToVarUnchecked(min(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
         double current = JavascriptConversion::ToNumber(args[1], scriptContext);
         if(JavascriptNumber::IsNan(current))
-        {
+        {TRACE_IT(62431);
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         for (uint idxArg = 2; idxArg < args.Info.Count; idxArg++)
-        {
+        {TRACE_IT(62432);
             double compare = JavascriptConversion::ToNumber(args[idxArg], scriptContext);
             if(JavascriptNumber::IsNan(compare))
-            {
+            {TRACE_IT(62433);
                 return scriptContext->GetLibrary()->GetNaN();
             }
             if((JavascriptNumber::IsNegZero(compare) && current == 0) ||
                 current > compare )
-            {
+            {TRACE_IT(62434);
                 current = compare;
             }
         }
@@ -819,45 +819,45 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3)
-        {
+        {TRACE_IT(62435);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double y = JavascriptConversion::ToNumber(args[2], scriptContext);
             double result = Math::Pow( x, y );
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62436);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Pow( double x, double y )
-    {
+    {TRACE_IT(62437);
         double result = 0;
 
 #if defined(_M_IX86) && defined(_WIN32) // TODO: xplat support
         // We can't just use "if (0 == y)" because NaN compares
         // equal to 0 according to our compilers.
         if( 0 == NumberUtilities::LuLoDbl( y ) && 0 == ( NumberUtilities::LuHiDbl( y ) & 0x7FFFFFFF ) )
-        {
+        {TRACE_IT(62438);
             // Result is 1 even if x is NaN.
             result = 1;
         }
         else if( 1.0 == Math::Abs( x ) && !NumberUtilities::IsFinite( y ) )
-        {
+        {TRACE_IT(62439);
             result = JavascriptNumber::NaN;
         }
         else
-        {
+        {TRACE_IT(62440);
             int32 intY;
             // range [-8, 8] is from JavascriptNumber::DirectPowDoubleInt
             if (JavascriptNumber::TryGetInt32Value(y, &intY) && intY >= -8 && intY <= 8)
-            {
+            {TRACE_IT(62441);
                 result = JavascriptNumber::DirectPowDoubleInt(x, intY);
             }
             else if( AutoSystemInfo::Data.SSE2Available() )
-            {
-                _asm {
+            {TRACE_IT(62442);
+                _asm {TRACE_IT(62443);
                     movsd xmm0, x
                     movsd xmm1, y
                     call dword ptr[__libm_sse2_pow]
@@ -865,7 +865,7 @@ namespace Js
                 }
             }
             else
-            {
+            {TRACE_IT(62444);
                 result = ::pow( x, y );
             }
         }
@@ -913,41 +913,41 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62445);
             Var input = args[1];
 
             if (TaggedInt::Is(input))
-            {
+            {TRACE_IT(62446);
                 return input;
             }
 
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             if(JavascriptNumber::IsNan(x))
-            {
+            {TRACE_IT(62447);
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
             // for doubles, if x >= 2^52 or <= -2^52, x must be an integer, and adding 0.5 will overflow the
             // integer to the next one. Therefore, we directly return x.
             if (x == 0.0 || !NumberUtilities::IsFinite(x) || x >= 4503599627370496.0 || x <= -4503599627370496.0)
-            {
+            {TRACE_IT(62448);
                 // 0.0 catches the -0 case...
                 return JavascriptNumber::ToVarNoCheck(x, scriptContext);
             }
 
-            if (x > 0 && x < 0.5) {
+            if (x > 0 && x < 0.5) {TRACE_IT(62449);
                 return JavascriptNumber::ToVarNoCheck((double)Js::JavascriptNumber::k_Zero, scriptContext);
             }
 
             if(x < 0 && x >= -0.5)
-            {
+            {TRACE_IT(62450);
                 return scriptContext->GetLibrary()->GetNegativeZero();
             }
 
             return Math::FloorDouble(x+0.5, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62451);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -968,7 +968,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62452);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Sin(x);
@@ -976,13 +976,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62453);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Sin(double x)
-    {
+    {TRACE_IT(62454);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -990,8 +990,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62455);
+            _asm {TRACE_IT(62456);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_sin]
                 movsd result, xmm0
@@ -999,7 +999,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62457);
             result = ::sin(x);
         }
 
@@ -1022,21 +1022,21 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62458);
             Var arg = args[1];
             double x = JavascriptConversion::ToNumber(arg, scriptContext);
             double result = ::sqrt(x);
             if (TaggedInt::Is(arg))
-            {
+            {TRACE_IT(62459);
                 return JavascriptNumber::ToVarIntCheck(result, scriptContext);
             }
             else
-            {
+            {TRACE_IT(62460);
                 return JavascriptNumber::ToVarNoCheck(result, scriptContext);
             }
         }
         else
-        {
+        {TRACE_IT(62461);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1057,27 +1057,27 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62462);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double result = Math::Tan( x );
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62463);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Tan( double x )
-    {
+    {TRACE_IT(62464);
         double result = 0;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if( AutoSystemInfo::Data.SSE2Available() )
-        {
-            _asm {
+        {TRACE_IT(62465);
+            _asm {TRACE_IT(62466);
                 movsd xmm0, x
                     call dword ptr[__libm_sse2_tan]
                     movsd result, xmm0
@@ -1085,7 +1085,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62467);
             result = ::tan( x );
         }
         return result;
@@ -1108,7 +1108,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log10);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62468);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Log10(x);
@@ -1116,13 +1116,13 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62469);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Log10(double x)
-    {
+    {TRACE_IT(62470);
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -1130,8 +1130,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {TRACE_IT(62471);
+            _asm {TRACE_IT(62472);
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_log10]
                 movsd result, xmm0
@@ -1139,7 +1139,7 @@ namespace Js
         }
         else
 #endif
-        {
+        {TRACE_IT(62473);
             result = ::log10(x);
         }
 
@@ -1162,19 +1162,19 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log2);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62474);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double result = Math::Log2(x, scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62475);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
 
     double Math::Log2(double x, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62476);
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
         return ::log2( x );
 #else
@@ -1203,7 +1203,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log1p);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62477);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1219,7 +1219,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62478);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1240,7 +1240,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_expm1);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62479);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1256,7 +1256,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62480);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1277,7 +1277,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_cosh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62481);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::cosh(x);
@@ -1285,7 +1285,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62482);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1306,7 +1306,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_sinh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62483);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::sinh(x);
@@ -1314,7 +1314,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62484);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1335,7 +1335,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_tanh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62485);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::tanh(x);
@@ -1343,7 +1343,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62486);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1364,7 +1364,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_acosh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62487);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1375,11 +1375,11 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {TRACE_IT(62488);
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->acosh(x), scriptContext);
             }
             else if (x >= 1.0)
-            {
+            {TRACE_IT(62489);
                 // Can be smarter about large values of x, e.g. as x -> Infinity, sqrt(x^2 - 1) -> x
                 // Therefore for large x, log(x+x) is sufficient, but how to decide what a large x is?
                 // Also ln(x+x) = ln 2x = ln 2 + ln x
@@ -1388,13 +1388,13 @@ namespace Js
                 return JavascriptNumber::ToVarNoCheck(result, scriptContext);
             }
             else
-            {
+            {TRACE_IT(62490);
                 return scriptContext->GetLibrary()->GetNaN();
             }
 #endif
         }
         else
-        {
+        {TRACE_IT(62491);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1415,7 +1415,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_asinh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62492);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1426,11 +1426,11 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {TRACE_IT(62493);
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->asinh(x), scriptContext);
             }
             else
-            {
+            {TRACE_IT(62494);
                 double result = JavascriptNumber::IsNegZero(x) ? x :
                     JavascriptNumber::IsPosInf(x) ? JavascriptNumber::POSITIVE_INFINITY :
                     JavascriptNumber::IsNegInf(x) ? JavascriptNumber::NEGATIVE_INFINITY :
@@ -1441,7 +1441,7 @@ namespace Js
 #endif
         }
         else
-        {
+        {TRACE_IT(62495);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1462,7 +1462,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_atanh);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62496);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1473,23 +1473,23 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {TRACE_IT(62497);
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->atanh(x), scriptContext);
             }
             else if (Math::Abs(x) < 1.0)
-            {
+            {TRACE_IT(62498);
                 double result = (JavascriptNumber::IsNegZero(x)) ? x : Math::Log((1.0 + x) / (1.0 - x)) / 2.0;
 
                 return JavascriptNumber::ToVarNoCheck(result, scriptContext);
             }
             else
-            {
+            {TRACE_IT(62499);
                 if (x == -1.0)
-                {
+                {TRACE_IT(62500);
                     return scriptContext->GetLibrary()->GetNegativeInfinite();
                 }
                 else if (x == 1.0)
-                {
+                {TRACE_IT(62501);
                     return scriptContext->GetLibrary()->GetPositiveInfinite();
                 }
 
@@ -1498,7 +1498,7 @@ namespace Js
 #endif
         }
         else
-        {
+        {TRACE_IT(62502);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1528,41 +1528,41 @@ namespace Js
         double result = JavascriptNumber::k_Zero; // If there are no arguments return value is positive zero.
 
         if (args.Info.Count == 2)
-        {
+        {TRACE_IT(62503);
             // Special case for one argument
             double x1 = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             if (JavascriptNumber::IsPosInf(x1) || JavascriptNumber::IsNegInf(x1))
-            {
+            {TRACE_IT(62504);
                 result = JavascriptNumber::POSITIVE_INFINITY;
             }
             else
-            {
+            {TRACE_IT(62505);
                 result = Math::Abs(x1);
             }
         }
         else if (args.Info.Count == 3)
-        {
+        {TRACE_IT(62506);
             // CRT hypot call
             double x1 = JavascriptConversion::ToNumber(args[1], scriptContext);
             double x2 = JavascriptConversion::ToNumber(args[2], scriptContext);
 
             if (JavascriptNumber::IsPosInf(x1) || JavascriptNumber::IsNegInf(x1) ||
                 JavascriptNumber::IsPosInf(x2) || JavascriptNumber::IsNegInf(x2))
-            {
+            {TRACE_IT(62507);
                 result = JavascriptNumber::POSITIVE_INFINITY;
             }
             else if (JavascriptNumber::IsNan(x1) || JavascriptNumber::IsNan(x2))
-            {
+            {TRACE_IT(62508);
                 result = JavascriptNumber::NaN;
             }
             else
-            {
+            {TRACE_IT(62509);
                 result = ::hypot(x1, x2);
             }
         }
         else if (args.Info.Count > 3)
-        {
+        {TRACE_IT(62510);
             // Uncommon case of more than 2 arguments for hypot
             result = Math::HypotHelper(args, scriptContext);
         }
@@ -1571,7 +1571,7 @@ namespace Js
     }
 
     double Math::HypotHelper(Arguments args, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(62511);
         // CRT does not have a multiple version of hypot, so we implement it here ourselves.
         bool foundNaN = false;
         double scale = 0;
@@ -1579,32 +1579,32 @@ namespace Js
 
         //Ignore first argument which is this pointer
         for (uint counter = 1; counter < args.Info.Count; counter++)
-        {
+        {TRACE_IT(62512);
             double doubleVal = JavascriptConversion::ToNumber(args[counter], scriptContext);
 
             if (JavascriptNumber::IsPosInf(doubleVal) || JavascriptNumber::IsNegInf(doubleVal))
-            {
+            {TRACE_IT(62513);
                 return JavascriptNumber::POSITIVE_INFINITY;
             }
 
             if (!foundNaN)
-            {
+            {TRACE_IT(62514);
                 if (JavascriptNumber::IsNan(doubleVal))
-                {
+                {TRACE_IT(62515);
                     //Even though we found NaN, we still need to validate none of the other arguments are +∞ or -∞
                     foundNaN = true;
                 }
                 else
-                {
+                {TRACE_IT(62516);
                     doubleVal = Math::Abs(doubleVal);
                     if (scale < doubleVal)
-                    {
+                    {TRACE_IT(62517);
                         sum = sum * (scale / doubleVal) * (scale / doubleVal) + 1; /* scale/scale === 1*/
                         //change the scale to new max value
                         scale = doubleVal;
                     }
                     else if (scale != 0)
-                    {
+                    {TRACE_IT(62518);
                         sum += (doubleVal / scale) * (doubleVal / scale);
                     }
                 }
@@ -1612,7 +1612,7 @@ namespace Js
         }
 
         if (foundNaN)
-        {
+        {TRACE_IT(62519);
             return JavascriptNumber::NaN;
         }
 
@@ -1635,7 +1635,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_trunc);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62520);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1651,7 +1651,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62521);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1672,24 +1672,24 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_sign);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62522);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             if (JavascriptNumber::IsNan(x))
-            {
+            {TRACE_IT(62523);
                 return scriptContext->GetLibrary()->GetNaN();
             }
             else if (JavascriptNumber::IsNegZero(x))
-            {
+            {TRACE_IT(62524);
                 return scriptContext->GetLibrary()->GetNegativeZero();
             }
             else
-            {
+            {TRACE_IT(62525);
                 return TaggedInt::ToVarUnchecked(x == 0.0 ? 0 : x < 0.0 ? -1 : 1);
             }
         }
         else
-        {
+        {TRACE_IT(62526);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1710,7 +1710,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_cbrt);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62527);
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1719,21 +1719,21 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {TRACE_IT(62528);
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->cbrt(x), scriptContext);
             }
 
             bool isNeg = x < 0.0;
 
             if (isNeg)
-            {
+            {TRACE_IT(62529);
                 x = -x;
             }
 
             double result = (x == 0.0) ? x : Math::Exp(Math::Log(x) / 3.0);
 
             if (isNeg)
-            {
+            {TRACE_IT(62530);
                 result = -result;
             }
 #endif
@@ -1741,7 +1741,7 @@ namespace Js
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62531);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }
@@ -1762,7 +1762,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_imul);
 
         if (args.Info.Count >= 3)
-        {
+        {TRACE_IT(62532);
             int32 x = JavascriptConversion::ToInt32(args[1], scriptContext);
             int32 y = JavascriptConversion::ToInt32(args[2], scriptContext);
 
@@ -1772,7 +1772,7 @@ namespace Js
             return JavascriptNumber::ToVar(result, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62533);
             // The arguments, if left unspecified default to undefined, and ToUint32(undefined) produces +0.
             // Therefore we return +0, not NaN here like the other Math functions.
             return TaggedInt::ToVarUnchecked(0);
@@ -1798,7 +1798,7 @@ namespace Js
         DWORD index;
 
         if (!_BitScanReverse(&index, uint32value))
-        {
+        {TRACE_IT(62534);
             return TaggedInt::ToVarUnchecked(32);
         }
         return TaggedInt::ToVarUnchecked(31 - index);
@@ -1816,13 +1816,13 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_fround);
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(62535);
             float x = (float) JavascriptConversion::ToNumber(args[1], scriptContext);
 
             return JavascriptNumber::ToVarNoCheck((double) x, scriptContext);
         }
         else
-        {
+        {TRACE_IT(62536);
             return scriptContext->GetLibrary()->GetNaN();
         }
     }

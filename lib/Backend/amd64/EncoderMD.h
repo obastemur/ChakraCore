@@ -39,30 +39,30 @@ private:
 
 public:
     void                init(RelocType type, void* ptr, IR::LabelInstr* labelInstr = nullptr)
-    {
+    {TRACE_IT(16233);
         m_type = type;
         m_ptr = ptr;
         m_InlineeOffset = 0;
         m_isShortBr = false;
 
         if (type == RelocTypeLabel)
-        {
+        {TRACE_IT(16234);
             // preserve original PC for labels
             m_origPtr   = (void*)((IR::LabelInstr*)ptr)->GetPC();
             m_nopCount  = 0;
         }
         else
-        {
+        {TRACE_IT(16235);
             m_origPtr = ptr;
             
             if (type == RelocTypeBranch)
-            {
+            {TRACE_IT(16236);
                 Assert(labelInstr);
                 m_labelInstr = labelInstr;
                 m_isShortBr = false;
             }
             else if (type == RelocTypeLabelUse)
-            {
+            {TRACE_IT(16237);
                 Assert(labelInstr);
                 m_labelInstr = labelInstr;
             }
@@ -70,10 +70,10 @@ public:
     }
 
     void                revert()
-    {
+    {TRACE_IT(16238);
         // recover old label PC
         if (isLabel())
-        {
+        {TRACE_IT(16239);
             // recover old label PC and reset alignment nops
             // we keep aligned labels type so we align them on the second attempt.
             setLabelCurrPC(getLabelOrigPC());
@@ -82,83 +82,83 @@ public:
         }
 
         if (m_type == RelocTypeBranch)
-        {
+        {TRACE_IT(16240);
             m_isShortBr = false;
         }
 
         m_ptr = m_origPtr;
     }
 
-    bool                isLabel()           const { return isAlignedLabel() || m_type == RelocTypeLabel; }
-    bool                isAlignedLabel()    const { return m_type == RelocTypeAlignedLabel; }
-    bool                isLongBr()          const { return m_type == RelocTypeBranch && !m_isShortBr; }
-    bool                isShortBr()         const { return m_type == RelocTypeBranch && m_isShortBr; }
-    BYTE*               getBrOpCodeByte()   const { return (BYTE*)m_origPtr - 1;}
+    bool                isLabel()           const {TRACE_IT(16241); return isAlignedLabel() || m_type == RelocTypeLabel; }
+    bool                isAlignedLabel()    const {TRACE_IT(16242); return m_type == RelocTypeAlignedLabel; }
+    bool                isLongBr()          const {TRACE_IT(16243); return m_type == RelocTypeBranch && !m_isShortBr; }
+    bool                isShortBr()         const {TRACE_IT(16244); return m_type == RelocTypeBranch && m_isShortBr; }
+    BYTE*               getBrOpCodeByte()   const {TRACE_IT(16245); return (BYTE*)m_origPtr - 1;}
 
     IR::LabelInstr *    getBrTargetLabel()  const
-    {
+    {TRACE_IT(16246);
         Assert((m_type == RelocTypeBranch || m_type == RelocTypeLabelUse) && m_labelInstr);
         return m_labelInstr;
     }
     IR::LabelInstr *    getLabel()  const
-    {
+    {TRACE_IT(16247);
         Assert(isLabel());
         return (IR::LabelInstr*) m_ptr;
     }
     // get label original PC without shortening/alignment
     BYTE *  getLabelOrigPC()  const
-    {
+    {TRACE_IT(16248);
         Assert(isLabel());
         return ((BYTE*) m_origPtr);
     }
 
     // get label PC after shortening/alignment
     BYTE *  getLabelCurrPC()  const
-    {
+    {TRACE_IT(16249);
         Assert(isLabel());
         return getLabel()->GetPC();
     }
 
     BYTE    getLabelNopCount() const
-    {
+    {TRACE_IT(16250);
         Assert(isAlignedLabel());
         return m_nopCount;
     }
 
     void    setLabelCurrPC(BYTE* pc)
-    {
+    {TRACE_IT(16251);
         Assert(isLabel());
         getLabel()->SetPC(pc);
     }
 
     void    setLabelNopCount(BYTE nopCount)
-    {
+    {TRACE_IT(16252);
         Assert(isAlignedLabel());
         Assert (nopCount >= 0 && nopCount < 16);
         m_nopCount = nopCount;
     }
 
     void                setAsShortBr()
-    {
+    {TRACE_IT(16253);
         Assert(m_type == RelocTypeBranch);
         m_isShortBr = true;
     }
 
     // Validates if the branch is short and its target PC fits in one byte
     bool                validateShortBrTarget() const
-    {
+    {TRACE_IT(16254);
         return isShortBr() &&
             getBrTargetLabel()->GetPC() - ((BYTE*)m_ptr + 1) >= -128 &&
             getBrTargetLabel()->GetPC() - ((BYTE*)m_ptr + 1) <= 127;
     }
 
     uint64 GetInlineOffset()
-    {
+    {TRACE_IT(16255);
         return m_InlineeOffset;
     }
 
     void SetInlineOffset(uint64 offset)
-    {
+    {TRACE_IT(16256);
         m_InlineeOffset = offset;
     }
 };
@@ -178,7 +178,7 @@ typedef JsUtil::List<InlineeFrameRecord*, ArenaAllocator> InlineeFrameRecords;
 class EncoderMD
 {
 public:
-    EncoderMD(Func * func) : m_func(func) {}
+    EncoderMD(Func * func) : m_func(func) {TRACE_IT(16257);}
     ptrdiff_t       Encode(IR::Instr * instr, BYTE *pc, BYTE* beginCodeAddress = nullptr);
     void            Init(Encoder *encoder);
     void            ApplyRelocs(size_t codeBufferAddress, size_t codeSize, uint* bufferCRC, BOOL isBrShorteningSucceeded, bool isFinalBufferValidation = false);
@@ -192,7 +192,7 @@ public:
     static bool     IsOPEQ(IR::Instr *instr);
     static bool     IsSHIFT(IR::Instr *instr);
     static bool     IsMOVEncoding(IR::Instr *instr);
-    RelocList*      GetRelocList() const { return m_relocList; }
+    RelocList*      GetRelocList() const {TRACE_IT(16258); return m_relocList; }
     int             AppendRelocEntry(RelocType type, void *ptr, IR::LabelInstr *label= nullptr);
     int             FixRelocListEntry(uint32 index, int totalBytesSaved, BYTE *buffStart, BYTE* buffEnd);
     void            FixMaps(uint32 brOffset, uint32 bytesSaved, uint32 *inlineeFrameRecordsIndex, uint32 *inlineeFrameMapIndex,  uint32 *pragmaInstToRecordOffsetIndex, uint32 *offsetBuffIndex);

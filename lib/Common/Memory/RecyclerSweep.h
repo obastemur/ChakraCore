@@ -97,13 +97,13 @@ private:
 
     template <typename TBlockType>
     BucketData<TBlockType>& GetBucketData(HeapBucketT<TBlockType> const * bucket)
-    {
+    {TRACE_IT(26560);
         if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-        {
+        {TRACE_IT(26561);
             return this->GetData<TBlockType>().bucketData[bucket->GetBucketIndex()];
         }
         else
-        {
+        {TRACE_IT(26562);
             Assert(TBlockType::HeapBlockAttributes::IsMediumBlock);
             return this->GetData<TBlockType>().bucketData[bucket->GetMediumBucketIndex()];
         }
@@ -119,20 +119,20 @@ private:
     };
 
     template <typename TBlockType> Data<TBlockType>& GetData();
-    template <> Data<SmallLeafHeapBlock>& GetData<SmallLeafHeapBlock>() { return leafData; }
-    template <> Data<SmallNormalHeapBlock>& GetData<SmallNormalHeapBlock>() { return normalData; }
-    template <> Data<SmallFinalizableHeapBlock>& GetData<SmallFinalizableHeapBlock>() { return finalizableData; }
+    template <> Data<SmallLeafHeapBlock>& GetData<SmallLeafHeapBlock>() {TRACE_IT(26563); return leafData; }
+    template <> Data<SmallNormalHeapBlock>& GetData<SmallNormalHeapBlock>() {TRACE_IT(26564); return normalData; }
+    template <> Data<SmallFinalizableHeapBlock>& GetData<SmallFinalizableHeapBlock>() {TRACE_IT(26565); return finalizableData; }
 #ifdef RECYCLER_WRITE_BARRIER
-    template <> Data<SmallNormalWithBarrierHeapBlock>& GetData<SmallNormalWithBarrierHeapBlock>() { return withBarrierData; }
-    template <> Data<SmallFinalizableWithBarrierHeapBlock>& GetData<SmallFinalizableWithBarrierHeapBlock>() { return finalizableWithBarrierData; }
+    template <> Data<SmallNormalWithBarrierHeapBlock>& GetData<SmallNormalWithBarrierHeapBlock>() {TRACE_IT(26566); return withBarrierData; }
+    template <> Data<SmallFinalizableWithBarrierHeapBlock>& GetData<SmallFinalizableWithBarrierHeapBlock>() {TRACE_IT(26567); return finalizableWithBarrierData; }
 #endif
 
-    template <> Data<MediumLeafHeapBlock>& GetData<MediumLeafHeapBlock>() { return mediumLeafData; }
-    template <> Data<MediumNormalHeapBlock>& GetData<MediumNormalHeapBlock>() { return mediumNormalData; }
-    template <> Data<MediumFinalizableHeapBlock>& GetData<MediumFinalizableHeapBlock>() { return mediumFinalizableData; }
+    template <> Data<MediumLeafHeapBlock>& GetData<MediumLeafHeapBlock>() {TRACE_IT(26568); return mediumLeafData; }
+    template <> Data<MediumNormalHeapBlock>& GetData<MediumNormalHeapBlock>() {TRACE_IT(26569); return mediumNormalData; }
+    template <> Data<MediumFinalizableHeapBlock>& GetData<MediumFinalizableHeapBlock>() {TRACE_IT(26570); return mediumFinalizableData; }
 #ifdef RECYCLER_WRITE_BARRIER
-    template <> Data<MediumNormalWithBarrierHeapBlock>& GetData<MediumNormalWithBarrierHeapBlock>() { return mediumWithBarrierData; }
-    template <> Data<MediumFinalizableWithBarrierHeapBlock>& GetData<MediumFinalizableWithBarrierHeapBlock>() { return mediumFinalizableWithBarrierData; }
+    template <> Data<MediumNormalWithBarrierHeapBlock>& GetData<MediumNormalWithBarrierHeapBlock>() {TRACE_IT(26571); return mediumWithBarrierData; }
+    template <> Data<MediumFinalizableWithBarrierHeapBlock>& GetData<MediumFinalizableWithBarrierHeapBlock>() {TRACE_IT(26572); return mediumFinalizableWithBarrierData; }
 #endif
 
 private:
@@ -185,7 +185,7 @@ private:
 template <typename TBlockType>
 TBlockType *&
 RecyclerSweep::GetPendingSweepBlockList(HeapBucketT<TBlockType> const * heapBucket)
-{
+{TRACE_IT(26573);
     return this->GetBucketData<TBlockType>(heapBucket).pendingSweepList;
 }
 #endif
@@ -195,10 +195,10 @@ RecyclerSweep::GetPendingSweepBlockList(HeapBucketT<TBlockType> const * heapBuck
 template <typename TBlockType>
 void
 RecyclerSweep::QueueEmptyHeapBlock(HeapBucketT<TBlockType> const *heapBucket, TBlockType * heapBlock)
-{
+{TRACE_IT(26574);
 #if ENABLE_BACKGROUND_PAGE_FREEING
     if (CONFIG_FLAG(EnableBGFreeZero))
-    {
+    {TRACE_IT(26575);
         auto& bucketData = this->GetBucketData(heapBucket);
         Assert(heapBlock->heapBucket == heapBucket);
 
@@ -206,7 +206,7 @@ RecyclerSweep::QueueEmptyHeapBlock(HeapBucketT<TBlockType> const *heapBucket, TB
 
         TBlockType * list = bucketData.pendingEmptyBlockList;
         if (list == nullptr)
-        {
+        {TRACE_IT(26576);
             Assert(bucketData.pendingEmptyBlockListTail == nullptr);
             bucketData.pendingEmptyBlockListTail = heapBlock;
             this->hasPendingEmptyBlocks = true;
@@ -220,7 +220,7 @@ RecyclerSweep::QueueEmptyHeapBlock(HeapBucketT<TBlockType> const *heapBucket, TB
 template <typename TBlockType>
 void
 RecyclerSweep::TransferPendingEmptyHeapBlocks(HeapBucketT<TBlockType> * heapBucket)
-{
+{TRACE_IT(26577);
     Assert(!this->IsBackground());
     Assert(!heapBucket->IsAllocationStopped());
     RECYCLER_SLOW_CHECK(heapBucket->VerifyHeapBlockCount(false));
@@ -229,7 +229,7 @@ RecyclerSweep::TransferPendingEmptyHeapBlocks(HeapBucketT<TBlockType> * heapBuck
     Assert(bucketData.pendingSweepList == nullptr);
     TBlockType * list = bucketData.pendingEmptyBlockList;
     if (list)
-    {
+    {TRACE_IT(26578);
         TBlockType * tail = bucketData.pendingEmptyBlockListTail;
 #if DBG || defined(RECYCLER_SLOW_CHECK_ENABLED)
         size_t count = 0;
@@ -252,7 +252,7 @@ RecyclerSweep::TransferPendingEmptyHeapBlocks(HeapBucketT<TBlockType> * heapBuck
         RECYCLER_SLOW_CHECK(heapBucket->VerifyHeapBlockCount(false));
     }
     else
-    {
+    {TRACE_IT(26579);
         Assert(bucketData.pendingEmptyBlockListTail == nullptr);
     }
 }
@@ -260,7 +260,7 @@ RecyclerSweep::TransferPendingEmptyHeapBlocks(HeapBucketT<TBlockType> * heapBuck
 template <typename TBlockType>
 void
 RecyclerSweep::SetPendingMergeNewHeapBlockList(TBlockType * heapBlockList)
-{
+{TRACE_IT(26580);
     this->GetData<TBlockType>().pendingMergeNewHeapBlockList = heapBlockList;
 }
 
@@ -268,13 +268,13 @@ RecyclerSweep::SetPendingMergeNewHeapBlockList(TBlockType * heapBlockList)
 template <typename TBlockType>
 TBlockType *
 RecyclerSweep::GetSavedNextAllocableBlockHead(HeapBucketT<TBlockType> const * heapBucket)
-{
+{TRACE_IT(26581);
     return this->GetBucketData(heapBucket).savedNextAllocableBlockHead;
 }
 template <typename TBlockType>
 void
 RecyclerSweep::SaveNextAllocableBlockHead(HeapBucketT<TBlockType> const * heapBucket)
-{
+{TRACE_IT(26582);
     this->GetBucketData(heapBucket).savedNextAllocableBlockHead = heapBucket->nextAllocableBlockHead;
 }
 #endif
@@ -282,7 +282,7 @@ RecyclerSweep::SaveNextAllocableBlockHead(HeapBucketT<TBlockType> const * heapBu
 template < typename TBlockType>
 size_t
 RecyclerSweep::GetHeapBlockCount(HeapBucketT<TBlockType> const * heapBucket)
-{
+{TRACE_IT(26583);
     auto& bucketData = this->GetBucketData(heapBucket);
     return HeapBlockList::Count(bucketData.pendingSweepList)
         + HeapBlockList::Count(bucketData.pendingEmptyBlockList);

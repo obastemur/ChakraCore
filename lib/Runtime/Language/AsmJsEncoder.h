@@ -20,8 +20,8 @@ namespace Js
         };
         struct EncoderRelocLabel
         {
-            EncoderRelocLabel() :labelSeen( false ), relocList( nullptr ){}
-            EncoderRelocLabel(BYTE* _pc) :labelSeen( true ), pc(_pc), relocList( nullptr ){}
+            EncoderRelocLabel() :labelSeen( false ), relocList( nullptr ){TRACE_IT(46221);}
+            EncoderRelocLabel(BYTE* _pc) :labelSeen( true ), pc(_pc), relocList( nullptr ){TRACE_IT(46222);}
             bool labelSeen : 1;
             BYTE* pc;
             EncoderReloc* relocList;
@@ -45,25 +45,25 @@ namespace Js
         void* mTemplateData;
     public:
         void* Encode( FunctionBody* functionBody );
-        void* GetTemplateData() { return mTemplateData; }
-        inline PageAllocator* GetPageAllocator() const{return mPageAllocator;}
-        inline void SetPageAllocator( PageAllocator* val ){mPageAllocator = val;}
-        inline InProcCodeGenAllocators* GetCodeGenAllocator() const{return mForegroundAllocators;}
-        inline void SetCodeGenAllocator( InProcCodeGenAllocators* val ){mForegroundAllocators = val;}
-        FunctionBody* GetFunctionBody() { return mFunctionBody; }
+        void* GetTemplateData() {TRACE_IT(46223); return mTemplateData; }
+        inline PageAllocator* GetPageAllocator() const{TRACE_IT(46224);return mPageAllocator;}
+        inline void SetPageAllocator( PageAllocator* val ){TRACE_IT(46225);mPageAllocator = val;}
+        inline InProcCodeGenAllocators* GetCodeGenAllocator() const{TRACE_IT(46226);return mForegroundAllocators;}
+        inline void SetCodeGenAllocator( InProcCodeGenAllocators* val ){TRACE_IT(46227);mForegroundAllocators = val;}
+        FunctionBody* GetFunctionBody() {TRACE_IT(46228); return mFunctionBody; }
 
     private:
         void ApplyRelocs();
         void AddReloc( const int labelOffset, BYTE* patchAddr );
         uint32 GetEncodeBufferSize(FunctionBody* functionBody);
-        AsmJsFunctionInfo* GetAsmJsFunctionInfo(){ return mFunctionBody->GetAsmJsFunctionInfo(); }
-        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock() { return mFunctionBody->GetAsmJsFunctionInfoWithLock(); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfo(){TRACE_IT(46229); return mFunctionBody->GetAsmJsFunctionInfo(); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock() {TRACE_IT(46230); return mFunctionBody->GetAsmJsFunctionInfoWithLock(); }
         bool ReadOp();
         template<LayoutSize T> void ReadOpTemplate( OpCodeAsmJs op );
 
         template<typename T> int GetOffset() const;
 
-        template<typename T> int CalculateOffset(int stackLocation) { return stackLocation*sizeof(T)+GetOffset<T>(); }
+        template<typename T> int CalculateOffset(int stackLocation) {TRACE_IT(46231); return stackLocation*sizeof(T)+GetOffset<T>(); }
 
 
         void OP_Label( const unaligned OpLayoutEmpty* playout );

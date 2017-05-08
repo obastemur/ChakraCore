@@ -106,11 +106,11 @@ struct _ArrayWriteBarrier
 {
     template <class T>
     static void WriteBarrier(T * address, size_t count)
-    {
+    {TRACE_IT(26404);
 #if defined(RECYCLER_WRITE_BARRIER)
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.StrictWriteBarrierCheck)
-        {
+        {TRACE_IT(26405);
             if (g_verifyIsNotBarrierAddress)
             {
                 g_verifyIsNotBarrierAddress(address, count);
@@ -121,7 +121,7 @@ struct _ArrayWriteBarrier
     }
 
     template <class T>
-    static void WriteBarrierSetVerifyBits(T * address, size_t count) {   }
+    static void WriteBarrierSetVerifyBits(T * address, size_t count) {TRACE_IT(26406);   }
 };
 
 #ifdef RECYCLER_WRITE_BARRIER
@@ -130,13 +130,13 @@ struct _ArrayWriteBarrier<_write_barrier_policy>
 {
     template <class T>
     static void WriteBarrier(T * address, size_t count)
-    {
+    {TRACE_IT(26407);
         RecyclerWriteBarrierManager::WriteBarrier(address, sizeof(T) * count);
     }
 
     template <class T>
     static void WriteBarrierSetVerifyBits(T * address, size_t count)
-    {
+    {TRACE_IT(26408);
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
         Recycler::WBSetBitRange((char*)address, (uint)(sizeof(T) * count / sizeof(void*)));
 #endif
@@ -170,7 +170,7 @@ struct _ArrayItemWriteBarrierPolicy<WriteBarrierPtr<T>[N]>
 //
 template <class T, class PolicyType = T, class Allocator = Recycler>
 void ArrayWriteBarrier(T * address, size_t count)
-{
+{TRACE_IT(26409);
     typedef typename _ArrayItemWriteBarrierPolicy<PolicyType>::Policy ItemPolicy;
     typedef typename AllocatorWriteBarrierPolicy<Allocator, ItemPolicy>::Policy Policy;
     return _ArrayWriteBarrier<Policy>::WriteBarrier(address, count);
@@ -178,7 +178,7 @@ void ArrayWriteBarrier(T * address, size_t count)
 
 template <class T, class PolicyType = T, class Allocator = Recycler>
 void ArrayWriteBarrierVerifyBits(T * address, size_t count)
-{
+{TRACE_IT(26410);
     typedef typename _ArrayItemWriteBarrierPolicy<PolicyType>::Policy ItemPolicy;
     typedef typename AllocatorWriteBarrierPolicy<Allocator, ItemPolicy>::Policy Policy;
     return _ArrayWriteBarrier<Policy>::WriteBarrierSetVerifyBits(address, count);
@@ -200,21 +200,21 @@ void CopyArray(T* dst, size_t dstCount, const T* src, size_t srcCount)
 template <class T, class PolicyType = T, class Allocator = Recycler>
 void CopyArray(WriteBarrierPtr<T>& dst, size_t dstCount,
                const WriteBarrierPtr<T>& src, size_t srcCount)
-{
+{TRACE_IT(26411);
     return CopyArray<T, PolicyType, Allocator>(
         static_cast<T*>(dst), dstCount, static_cast<const T*>(src), srcCount);
 }
 template <class T, class PolicyType = T, class Allocator = Recycler>
 void CopyArray(T* dst, size_t dstCount,
                const WriteBarrierPtr<T>& src, size_t srcCount)
-{
+{TRACE_IT(26412);
     return CopyArray<T, PolicyType, Allocator>(
         dst, dstCount, static_cast<const T*>(src), srcCount);
 }
 template <class T, class PolicyType = T, class Allocator = Recycler>
 void CopyArray(WriteBarrierPtr<T>& dst, size_t dstCount,
                const T* src, size_t srcCount)
-{
+{TRACE_IT(26413);
     return CopyArray<T, PolicyType, Allocator>(
         static_cast<T*>(dst), dstCount, src, srcCount);
 }
@@ -224,7 +224,7 @@ void CopyArray(WriteBarrierPtr<T>& dst, size_t dstCount,
 template <class T, class PolicyType = WriteBarrierPtr<T>, class Allocator = Recycler>
 void CopyArray(WriteBarrierPtr<T>* dst, size_t dstCount,
                T* const * src, size_t srcCount)
-{
+{TRACE_IT(26414);
     CompileAssert(sizeof(WriteBarrierPtr<T>) == sizeof(T*));
     return CopyArray<T*, PolicyType, Allocator>(
         reinterpret_cast<T**>(dst), dstCount, src, srcCount);
@@ -246,13 +246,13 @@ void MoveArray(T* dst, const T* src, size_t count)
 
 template <class T>
 void ClearArray(T* dst, size_t count)
-{
+{TRACE_IT(26415);
     // assigning NULL don't need write barrier, just cast it and null it out
     memset(reinterpret_cast<void*>(dst), 0, sizeof(T) * count);
 }
 template <class T>
 void ClearArray(WriteBarrierPtr<T>& dst, size_t count)
-{
+{TRACE_IT(26416);
     ClearArray(static_cast<T*>(dst), count);
 }
 template <class T, size_t N>
@@ -266,19 +266,19 @@ template <typename T>
 class NoWriteBarrierField
 {
 public:
-    NoWriteBarrierField() : value() {}
-    explicit NoWriteBarrierField(T const& value) : value(value) {}
+    NoWriteBarrierField() : value() {TRACE_IT(26417);}
+    explicit NoWriteBarrierField(T const& value) : value(value) {TRACE_IT(26418);}
 
     // Getters
-    operator T const&() const { return value; }
-    operator T&() { return value; }
+    operator T const&() const {TRACE_IT(26419); return value; }
+    operator T&() {TRACE_IT(26420); return value; }
 
-    T const* operator&() const { return &value; }
-    T* operator&() { return &value; }
+    T const* operator&() const {TRACE_IT(26421); return &value; }
+    T* operator&() {TRACE_IT(26422); return &value; }
 
     // Setters
     NoWriteBarrierField& operator=(T const& value)
-    {
+    {TRACE_IT(26423);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         RecyclerWriteBarrierManager::VerifyIsNotBarrierAddress(this);
 #endif
@@ -294,19 +294,19 @@ template <typename T>
 class NoWriteBarrierPtr
 {
 public:
-    NoWriteBarrierPtr() : value(nullptr) {}
-    NoWriteBarrierPtr(T * value) : value(value) {}
+    NoWriteBarrierPtr() : value(nullptr) {TRACE_IT(26424);}
+    NoWriteBarrierPtr(T * value) : value(value) {TRACE_IT(26425);}
 
     // Getters
-    T * operator->() const { return this->value; }
-    operator T* const & () const { return this->value; }
+    T * operator->() const {TRACE_IT(26426); return this->value; }
+    operator T* const & () const {TRACE_IT(26427); return this->value; }
 
-    T* const * operator&() const { return &value; }
-    T** operator&() { return &value; }
+    T* const * operator&() const {TRACE_IT(26428); return &value; }
+    T** operator&() {TRACE_IT(26429); return &value; }
 
     // Setters
     NoWriteBarrierPtr& operator=(T * value)
-    {
+    {TRACE_IT(26430);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         RecyclerWriteBarrierManager::VerifyIsNotBarrierAddress(this);
 #endif
@@ -324,16 +324,16 @@ public:
     WriteBarrierObjectConstructorTrigger(T* object, Recycler* recycler):
         object((char*) object),
         recycler(recycler)
-    {
+    {TRACE_IT(26431);
     }
 
     ~WriteBarrierObjectConstructorTrigger()
-    {
+    {TRACE_IT(26432);
         // WriteBarrier-TODO: trigger write barrier if the GC is in concurrent mark state
     }
 
     operator T*()
-    {
+    {TRACE_IT(26433);
         return object;
     }
 
@@ -346,8 +346,8 @@ template <typename T>
 class WriteBarrierPtr
 {
 public:
-    WriteBarrierPtr() : ptr(nullptr) {}
-    WriteBarrierPtr(const std::nullptr_t&) : ptr(nullptr) {}
+    WriteBarrierPtr() : ptr(nullptr) { }
+    WriteBarrierPtr(const std::nullptr_t&) : ptr(nullptr) { }
     WriteBarrierPtr(T * ptr)
     {
         // WriteBarrier
@@ -509,23 +509,23 @@ inline void NoWriteBarrierSet(WriteBarrierPtr<T>& dst, const WriteBarrierPtr<T>&
 
 
 template<class T> inline
-const T& min(const T& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
+const T& min(const T& a, const NoWriteBarrierField<T>& b) {TRACE_IT(26460); return a < b ? a : b; }
 
 template<class T> inline
-const T& min(const NoWriteBarrierField<T>& a, const T& b) { return a < b ? a : b; }
+const T& min(const NoWriteBarrierField<T>& a, const T& b) {TRACE_IT(26461); return a < b ? a : b; }
 
 template<class T> inline
-const T& min(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
+const T& min(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) {TRACE_IT(26462); return a < b ? a : b; }
 
 template<class T> inline
-const T& max(const NoWriteBarrierField<T>& a, const T& b) { return a > b ? a : b; }
+const T& max(const NoWriteBarrierField<T>& a, const T& b) {TRACE_IT(26463); return a > b ? a : b; }
 
 // TODO: Add this method back once we figure out why OACR is tripping on it
 template<class T> inline
-const T& max(const T& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
+const T& max(const T& a, const NoWriteBarrierField<T>& b) {TRACE_IT(26464); return a > b ? a : b; }
 
 template<class T> inline
-const T& max(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
+const T& max(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) {TRACE_IT(26465); return a > b ? a : b; }
 
 // QuickSort Array content
 //
@@ -534,7 +534,7 @@ struct _QuickSortImpl
 {
     template<class T, class Comparer>
     static void Sort(T* arr, size_t count, const Comparer& comparer, void* context, size_t elementSize = sizeof(T))
-    {
+    {TRACE_IT(26466);
 #ifndef _WIN32
         JsUtil::QuickSort<Policy, char, Comparer>::Sort((char*)arr, count, elementSize, comparer, context);
 #else
@@ -550,7 +550,7 @@ struct _QuickSortImpl<_write_barrier_policy>
     template<class T, class Comparer>
     static void Sort(T* arr, size_t count, const Comparer& comparer, void* context,
         size_t _ = 1 /* QuickSortSwap does not memcpy when SWB policy is in place*/)
-    {
+    {TRACE_IT(26467);
         // Use custom implementation if policy needs write barrier
         JsUtil::QuickSort<_write_barrier_policy, T, Comparer>::Sort(arr, count, 1, comparer, context);
     }
@@ -559,7 +559,7 @@ struct _QuickSortImpl<_write_barrier_policy>
 
 template<class T, class PolicyType = T, class Allocator = Recycler, class Comparer>
 void qsort_s(T* arr, size_t count, const Comparer& comparer, void* context)
-{
+{TRACE_IT(26468);
     typedef typename _ArrayItemWriteBarrierPolicy<PolicyType>::Policy ItemPolicy;
     typedef typename AllocatorWriteBarrierPolicy<Allocator, ItemPolicy>::Policy Policy;
     _QuickSortImpl<Policy>::Sort(arr, count, comparer, context);
@@ -569,7 +569,7 @@ void qsort_s(T* arr, size_t count, const Comparer& comparer, void* context)
 // on xplat we use our custom qsort_s
 template<class T, class PolicyType = T, class Allocator = Recycler, class Comparer>
 void qsort_s(T* arr, size_t count, size_t size, const Comparer& comparer, void* context)
-{
+{TRACE_IT(26469);
     typedef typename _ArrayItemWriteBarrierPolicy<PolicyType>::Policy ItemPolicy;
     typedef typename AllocatorWriteBarrierPolicy<Allocator, ItemPolicy>::Policy Policy;
     _QuickSortImpl<Policy>::Sort(arr, count, comparer, context, size);
@@ -579,20 +579,20 @@ void qsort_s(T* arr, size_t count, size_t size, const Comparer& comparer, void* 
 template<class T, class Comparer>
 void qsort_s(WriteBarrierPtr<T>* _Base, size_t _NumOfElements, size_t _SizeOfElements,
              const Comparer& comparer, void* _Context)
-{
+{TRACE_IT(26470);
     CompileAssert(false); // Disallow this. Use an overload above.
 }
 
 // Disallow memcpy, memmove of WriteBarrierPtr
 template <typename T>
 void *  __cdecl memmove(_Out_writes_bytes_all_opt_(_Size) WriteBarrierPtr<T> * _Dst, _In_reads_bytes_opt_(_Size) const void * _Src, _In_ size_t _Size)
-{
+{TRACE_IT(26471);
     CompileAssert(false);
 }
 
 template <typename T>
 void* __cdecl memcpy(WriteBarrierPtr<T> *dst, const void *src, size_t count)
-{
+{TRACE_IT(26472);
     CompileAssert(false);
 }
 
@@ -610,7 +610,7 @@ void __stdcall js_memcpy_s(__bcount(sizeInBytes) WriteBarrierPtr<T> *dst, size_t
 
 template <typename T>
 void *  __cdecl memset(_Out_writes_bytes_all_(_Size) WriteBarrierPtr<T> * _Dst, _In_ int _Val, _In_ size_t _Size)
-{
+{TRACE_IT(26473);
     CompileAssert(false);
 }
 
@@ -619,25 +619,25 @@ template <class T>
 class TaggedPointer
 {
 public:
-    operator T*()          const { return GetPointerValue(); }
-    bool operator!= (T* p) const { return GetPointerValue() != p; }
-    bool operator== (T* p) const { return GetPointerValue() == p; }
-    T* operator-> ()       const { return GetPointerValue(); }
+    operator T*()          const {TRACE_IT(26474); return GetPointerValue(); }
+    bool operator!= (T* p) const {TRACE_IT(26475); return GetPointerValue() != p; }
+    bool operator== (T* p) const {TRACE_IT(26476); return GetPointerValue() == p; }
+    T* operator-> ()       const {TRACE_IT(26477); return GetPointerValue(); }
     TaggedPointer<T>& operator= (T* inPtr)
-    {
+    {TRACE_IT(26478);
         SetPointerValue(inPtr);
         return (*this);
     }
     TaggedPointer(T* inPtr) : ptr(inPtr)
-    {
+    {TRACE_IT(26479);
         SetPointerValue(inPtr);
     }
 
-    TaggedPointer() : ptr(NULL) {};
+    TaggedPointer() : ptr(NULL) {TRACE_IT(26480);};
 private:
-    T * GetPointerValue() const { return reinterpret_cast<T*>(reinterpret_cast<ULONG_PTR>(ptr) & ~3); }
+    T * GetPointerValue() const {TRACE_IT(26481); return reinterpret_cast<T*>(reinterpret_cast<ULONG_PTR>(ptr) & ~3); }
     T * SetPointerValue(T* inPtr)
-    {
+    {TRACE_IT(26482);
         AssertMsg((reinterpret_cast<ULONG_PTR>(inPtr) & 3) == 0, "Invalid pointer value, 2 least significant bits must be zero");
         ptr = reinterpret_cast<T*>((reinterpret_cast<ULONG_PTR>(inPtr) | 3));
         return ptr;

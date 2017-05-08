@@ -82,7 +82,7 @@ namespace Js
 
         static const int numberLinesPrependedToAnonymousFunction = 1;
 
-        static DWORD GetFunctionInfoOffset() { return offsetof(JavascriptFunction, functionInfo); }
+        static DWORD GetFunctionInfoOffset() {TRACE_IT(58948); return offsetof(JavascriptFunction, functionInfo); }
 
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var NewInstanceRestrictedMode(RecyclableObject* function, CallInfo callInfo, ...);
@@ -139,7 +139,7 @@ namespace Js
             CompileAssert(offsetof(JavascriptFunction, functionInfo) <= UCHAR_MAX);
             return offsetof(JavascriptFunction, functionInfo);
         }
-        static uint32 GetOffsetOfConstructorCache() { return offsetof(JavascriptFunction, constructorCache); };
+        static uint32 GetOffsetOfConstructorCache() {TRACE_IT(58949); return offsetof(JavascriptFunction, constructorCache); };
 
         static JavascriptString* GetNativeFunctionDisplayString(ScriptContext *scriptContext, JavascriptString *name);
         static JavascriptString* GetLibraryCodeDisplayString(ScriptContext* scriptContext, PCWSTR displayName);
@@ -149,8 +149,8 @@ namespace Js
         template <class StringHelper, class String, class ScriptContext>
         static String GetLibraryCodeDisplayStringCommon(ScriptContext* scriptContext, PCWSTR displayName);
 
-        FunctionInfo * GetFunctionInfo() const { return functionInfo; }
-        void SetFunctionInfo(FunctionInfo *info) { functionInfo = info; }
+        FunctionInfo * GetFunctionInfo() const {TRACE_IT(58950); return functionInfo; }
+        void SetFunctionInfo(FunctionInfo *info) {TRACE_IT(58951); functionInfo = info; }
         FunctionProxy * GetFunctionProxy() const;
         ParseableFunctionInfo * GetParseableFunctionInfo() const;
         DeferDeserializeFunctionInfo * GetDeferDeserializeFunctionInfo() const;
@@ -162,16 +162,16 @@ namespace Js
         bool IsLibraryCode() const;
 
         BOOL IsScriptFunction() const;
-        virtual Var GetSourceString() const { return nullptr; }
+        virtual Var GetSourceString() const {TRACE_IT(58952); return nullptr; }
         virtual Var EnsureSourceString();
-        virtual BOOL IsExternalFunction() { return FALSE; }
-        virtual BOOL IsWinRTFunction() { return FALSE; }
+        virtual BOOL IsExternalFunction() {TRACE_IT(58953); return FALSE; }
+        virtual BOOL IsWinRTFunction() {TRACE_IT(58954); return FALSE; }
         BOOL IsStrictMode() const;
         BOOL IsLambda() const;
         virtual inline BOOL IsConstructor() const;
         bool HasRestrictedProperties() const;
 
-        ConstructorCache* GetConstructorCache() { Assert(this->constructorCache != nullptr); return this->constructorCache; }
+        ConstructorCache* GetConstructorCache() {TRACE_IT(58955); Assert(this->constructorCache != nullptr); return this->constructorCache; }
         ConstructorCache* EnsureValidConstructorCache();
 
         void ResetConstructorCacheToDefault();
@@ -204,8 +204,8 @@ namespace Js
         static BOOL HasInstance(Var funcPrototype, Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache, JavascriptFunction* function);
 
         // This will be overridden for the BoundFunction
-        virtual bool IsBoundFunction() const { return false; }
-        virtual bool IsGeneratorFunction() const { return false; }
+        virtual bool IsBoundFunction() const {TRACE_IT(58956); return false; }
+        virtual bool IsGeneratorFunction() const {TRACE_IT(58957); return false; }
 
         void SetEntryPoint(JavascriptMethod method);
 #if DBG
@@ -235,7 +235,7 @@ namespace Js
             BYTE dstReg = 0;
             uint instrSizeInByte = 0;
             uint64 bufferValue = 0;
-            InstructionData() :isLoad(0), isFloat32(0), isFloat64(0), isSimd(0), isInvalidInstr(0){}
+            InstructionData() :isLoad(0), isFloat32(0), isFloat64(0), isSimd(0), isInvalidInstr(0){TRACE_IT(58958);}
         };
         struct RexByteValue
         {
@@ -245,7 +245,7 @@ namespace Js
             bool isW : 1;
             bool isB : 1;
             uint rexValue;
-            RexByteValue() :isR(0), isX(0), isW(0), isB(0), rexValue(0){}
+            RexByteValue() :isR(0), isX(0), isW(0), isB(0), rexValue(0){TRACE_IT(58959);}
         };
         static InstructionData CheckValidInstr(BYTE* &pc, PEXCEPTION_POINTERS exceptionInfo);
     };
@@ -256,7 +256,7 @@ namespace Js
     //
     template <class StringHelper, class String, class ScriptContext>
     String JavascriptFunction::GetNativeFunctionDisplayStringCommon(ScriptContext* scriptContext, String name)
-    {
+    {TRACE_IT(58960);
         auto library = scriptContext->GetLibrary();
         String sourceString;
         sourceString = library->CreateStringFromCppLiteral(JS_DISPLAY_STRING_FUNCTION_HEADER); //_u("function ")
@@ -267,14 +267,14 @@ namespace Js
 
     template <class StringHelper, class String, class ScriptContext>
     String JavascriptFunction::GetLibraryCodeDisplayStringCommon(ScriptContext* scriptContext, PCWSTR displayName)
-    {
+    {TRACE_IT(58961);
         String sourceString;
         if(wcscmp(displayName, Js::Constants::AnonymousFunction) == 0)
-        {
+        {TRACE_IT(58962);
             sourceString = scriptContext->GetLibrary()->GetFunctionDisplayString();
         }
         else
-        {
+        {TRACE_IT(58963);
             sourceString = GetNativeFunctionDisplayStringCommon<StringHelper>(scriptContext, StringHelper::NewCopySz(displayName, scriptContext));
         }
         return sourceString;

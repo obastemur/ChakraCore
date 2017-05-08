@@ -13,11 +13,11 @@ namespace Js
     ArrayObject::ArrayObject(ArrayObject * instance)
         : DynamicObject(instance),
         length(instance->length)
-    {
+    {TRACE_IT(65305);
     }
 
     void ArrayObject::ThrowItemNotConfigurableError(PropertyId propId /*= Constants::NoProperty*/)
-    {
+    {TRACE_IT(65306);
         ScriptContext* scriptContext = GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_DefineProperty_NotConfigurable,
             propId != Constants::NoProperty ?
@@ -25,26 +25,26 @@ namespace Js
     }
 
     void ArrayObject::VerifySetItemAttributes(PropertyId propId, PropertyAttributes attributes)
-    {
+    {TRACE_IT(65307);
         if (attributes != (PropertyEnumerable | PropertyWritable))
-        {
+        {TRACE_IT(65308);
             ThrowItemNotConfigurableError(propId);
         }
     }
 
     BOOL ArrayObject::SetItemAttributes(uint32 index, PropertyAttributes attributes)
-    {
+    {TRACE_IT(65309);
         VerifySetItemAttributes(Constants::NoProperty, attributes);
         return TRUE;
     }
 
     BOOL ArrayObject::SetItemAccessors(uint32 index, Var getter, Var setter)
-    {
+    {TRACE_IT(65310);
         ThrowItemNotConfigurableError();
     }
 
     BOOL ArrayObject::IsObjectArrayFrozen()
-    {
+    {TRACE_IT(65311);
         return this->IsFrozen();
     }
 } // namespace Js

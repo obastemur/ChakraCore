@@ -14,7 +14,7 @@ HRESULT GenerateByteCode(__in ParseNode *pnode, __in uint32 grfscr, __in Js::Scr
 #if DBG_DUMP
 #define TRACE_BYTECODE(fmt, ...) \
     if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::ByteCodePhase)) \
-    { \
+    {TRACE_IT(38370); \
         Output::Print(fmt, __VA_ARGS__); \
     }
 #else

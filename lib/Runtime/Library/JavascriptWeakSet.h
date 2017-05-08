@@ -44,10 +44,10 @@ namespace Js
 
     public:
         // For diagnostics and heap enum provide size and allow enumeration of key value pairs
-        int Size() { keySet.Clean(); return keySet.Count(); }
+        int Size() {TRACE_IT(62306); keySet.Clean(); return keySet.Count(); }
         template <typename Fn>
         void Map(Fn fn)
-        {
+        {TRACE_IT(62307);
             return keySet.Map([&](DynamicObject* key, bool, const RecyclerWeakReference<DynamicObject>*)
             {
                 fn(key);

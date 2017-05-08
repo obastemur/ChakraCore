@@ -7,47 +7,47 @@
 
 // Include this file got get the default behavior for JsUtil::ExternalApi functions.
 void JsUtil::ExternalApi::RecoverUnusedMemory()
-{
+{TRACE_IT(22452);
 }
 
 bool JsUtil::ExternalApi::RaiseOutOfMemoryIfScriptActive()
-{
+{TRACE_IT(22453);
     return false;
 }
 
 bool JsUtil::ExternalApi::RaiseOnIntOverflow()
-{
+{TRACE_IT(22454);
     return false;
 }
 
 LPWSTR JsUtil::ExternalApi::GetFeatureKeyName()
-{
+{TRACE_IT(22455);
     return _u("");
 }
 
 bool JsUtil::ExternalApi::RaiseStackOverflowIfScriptActive(Js::ScriptContext * scriptContext, PVOID returnAddress)
-{
+{TRACE_IT(22456);
     return false;
 }
 
 ThreadContextId JsUtil::ExternalApi::GetCurrentThreadContextId()
-{
+{TRACE_IT(22457);
     return (ThreadContextId)::GetCurrentThreadId();
 }
 
 #if DBG || defined(EXCEPTION_CHECK)
 BOOL JsUtil::ExternalApi::IsScriptActiveOnCurrentThreadContext()
-{
+{TRACE_IT(22458);
     return false;
 }
 #endif
 
 bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPWSTR buffer, size_t cchBufferSize, __in LPWSTR moduleName)
-{
+{TRACE_IT(22459);
     return false;
 }
 
 void ConfigParserAPI::DisplayInitialOutput(__in LPWSTR moduleName)
-{
+{TRACE_IT(22460);
 }
 

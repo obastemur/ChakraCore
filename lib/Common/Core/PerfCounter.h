@@ -30,8 +30,8 @@ namespace PerfCounter
         void UninitializeSharedMemory(DWORD * data, HANDLE handle);
         bool IsEnabled() const;
     private:
-        Provider& GetProvider() { return provider; }
-        PPERF_COUNTERSET_INSTANCE GetData() { return instanceData; }
+        Provider& GetProvider() {TRACE_IT(20279); return provider; }
+        PPERF_COUNTERSET_INSTANCE GetData() {TRACE_IT(20280); return instanceData; }
 
         Provider& provider;
         GUID const& guid;
@@ -42,7 +42,7 @@ namespace PerfCounter
     class Counter
     {
     public:
-        Counter() : count(NULL) {};
+        Counter() : count(NULL) {TRACE_IT(20281);};
         void Initialize(InstanceBase& instance, DWORD id, DWORD * count);
         void Uninitialize(InstanceBase& instance, DWORD id);
 
@@ -50,7 +50,7 @@ namespace PerfCounter
         Counter& operator-=(size_t value);
         Counter& operator++();
         Counter& operator--();
-        DWORD GetValue() { return *count; }
+        DWORD GetValue() {TRACE_IT(20282); return *count; }
 
     private:
         /* TODO: 64-bit */

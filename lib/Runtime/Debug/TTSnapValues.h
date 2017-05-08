@@ -16,17 +16,17 @@ namespace TTD
     public:
         TTDTimer()
             : m_timer()
-        {
+        {TRACE_IT(45219);
             ;
         }
 
         ~TTDTimer()
-        {
+        {TRACE_IT(45220);
             ;
         }
 
         double Now()
-        {
+        {TRACE_IT(45221);
             return this->m_timer.Now();
         }
     };

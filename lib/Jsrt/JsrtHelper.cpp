@@ -22,29 +22,29 @@
 
 #ifdef CHAKRA_STATIC_LIBRARY
 bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPWSTR buffer, size_t cchBufferSize, __in LPWSTR moduleName)
-{
+{TRACE_IT(28405);
     return false;
 }
 
 void ConfigParserAPI::DisplayInitialOutput(__in LPWSTR moduleName)
-{
+{TRACE_IT(28406);
 }
 
 LPCWSTR JsUtil::ExternalApi::GetFeatureKeyName()
-{
+{TRACE_IT(28407);
     return _u("");
 }
 #endif // CHAKRA_STATIC_LIBRARY
 #endif
 
 JsrtCallbackState::JsrtCallbackState(ThreadContext* currentThreadContext)
-{
+{TRACE_IT(28408);
     if (currentThreadContext == nullptr)
-    {
+    {TRACE_IT(28409);
         originalThreadContext = ThreadContext::GetContextForCurrentThread();
     }
     else
-    {
+    {TRACE_IT(28410);
         originalThreadContext = currentThreadContext;
     }
     originalJsrtContext = JsrtContext::GetCurrent();
@@ -52,38 +52,38 @@ JsrtCallbackState::JsrtCallbackState(ThreadContext* currentThreadContext)
 }
 
 JsrtCallbackState::~JsrtCallbackState()
-{
+{TRACE_IT(28411);
     if (originalJsrtContext != nullptr)
-    {
+    {TRACE_IT(28412);
         if (originalJsrtContext != JsrtContext::GetCurrent())
-        {
+        {TRACE_IT(28413);
             // This shouldn't fail as the context was previously set on the current thread.
             bool isSet = JsrtContext::TrySetCurrent(originalJsrtContext);
             if (!isSet)
-            {
+            {TRACE_IT(28414);
                 Js::Throw::FatalInternalError();
             }
         }
     }
     else
-    {
+    {TRACE_IT(28415);
         bool isSet = ThreadContextTLSEntry::TrySetThreadContext(originalThreadContext);
         if (!isSet)
-        {
+        {TRACE_IT(28416);
             Js::Throw::FatalInternalError();
         }
     }
 }
 
 void JsrtCallbackState::ObjectBeforeCallectCallbackWrapper(JsObjectBeforeCollectCallback callback, void* object, void* callbackState, void* threadContext)
-{
+{TRACE_IT(28417);
     JsrtCallbackState scope(reinterpret_cast<ThreadContext*>(threadContext));
     callback(object, callbackState);
 }
 
 #if !defined(_WIN32) || defined(CHAKRA_STATIC_LIBRARY)
     void ChakraBinaryAutoSystemInfoInit(AutoSystemInfo * autoSystemInfo)
-    {
+    {TRACE_IT(28418);
         autoSystemInfo->buildDateHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__DATE__, _countof(__DATE__));
         autoSystemInfo->buildTimeHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__TIME__, _countof(__TIME__));
     }
@@ -94,13 +94,13 @@ void JsrtCallbackState::ObjectBeforeCallectCallbackWrapper(JsObjectBeforeCollect
     static THREAD_LOCAL bool s_threadWasEntered = false;
 
     _NOINLINE void DISPOSE_CHAKRA_CORE_THREAD(void *_)
-    {
+    {TRACE_IT(28419);
         free(_);
         ThreadBoundThreadContextManager::DestroyContextAndEntryForCurrentThread();
     }
 
     _NOINLINE bool InitializeProcess()
-    {
+    {TRACE_IT(28420);
 #if !defined(_WIN32)
         pthread_key_create(&s_threadLocalDummy, DISPOSE_CHAKRA_CORE_THREAD);
 #endif
@@ -156,14 +156,14 @@ void JsrtCallbackState::ObjectBeforeCallectCallbackWrapper(JsObjectBeforeCollect
     }
 
     _NOINLINE void VALIDATE_ENTER_CURRENT_THREAD()
-    {
+    {TRACE_IT(28421);
         // We do also initialize the process part here
         // This is thread safe by the standard
         // Let's hope compiler doesn't fail
         static bool _has_init = InitializeProcess();
 
         if (!_has_init) // do not assert this.
-        {
+        {TRACE_IT(28422);
             abort();
         }
 

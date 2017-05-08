@@ -14,11 +14,11 @@ namespace Js
         DEFINE_VTABLE_CTOR(JavascriptBoolean, RecyclableObject);
     public:
         JavascriptBoolean(BOOL val, StaticType * type) : RecyclableObject(type), value(val)
-        {
+        {TRACE_IT(58213);
             Assert(type->GetTypeId() == TypeIds_Boolean);
         }
 
-        inline BOOL GetValue() { return value; }
+        inline BOOL GetValue() {TRACE_IT(58214); return value; }
 
         static inline bool Is(Var aValue);
         static inline JavascriptBoolean* FromVar(Var aValue);

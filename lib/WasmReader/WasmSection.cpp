@@ -14,7 +14,7 @@ namespace Wasm
         const char16* name,
         const char* id,
         const uint32 nameLength
-    ): flag(flag), precedent(precedent), name(name), id(id), nameLength(nameLength) {}
+    ): flag(flag), precedent(precedent), name(name), id(id), nameLength(nameLength) {TRACE_IT(68435);}
 
     SectionInfo SectionInfo::All[bSectLimit] = {
 #define WASM_SECTION(name, id, flag, precedent) {flag, bSect ## precedent, static_cast<const char16*>(_u(#name)), static_cast<const char*>(id), sizeof(#name)},

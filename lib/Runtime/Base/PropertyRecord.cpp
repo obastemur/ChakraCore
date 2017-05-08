@@ -12,19 +12,19 @@ namespace Js
     // Constructor for runtime-constructed PropertyRecords
     PropertyRecord::PropertyRecord(DWORD byteCount, bool isNumeric, uint hash, bool isSymbol)
         : pid(Js::Constants::NoProperty), hash(hash), isNumeric(isNumeric), byteCount(byteCount), isBound(false), isSymbol(isSymbol)
-    {
+    {TRACE_IT(35799);
     }
 
     // Constructor for built-in PropertyRecords
     PropertyRecord::PropertyRecord(PropertyId pid, uint hash, bool isNumeric, DWORD byteCount, bool isSymbol)
         : pid(pid), hash(hash), isNumeric(isNumeric), byteCount(byteCount), isBound(true), isSymbol(isSymbol)
-    {
+    {TRACE_IT(35800);
     }
 
     void PropertyRecord::Finalize(bool isShutdown)
-    {
+    {TRACE_IT(35801);
         if (!isShutdown)
-        {
+        {TRACE_IT(35802);
             ThreadContext * tc = ThreadContext::GetContextForCurrentThread();
             Assert(tc);
             Assert(tc->IsActivePropertyId(this->GetPropertyId()));
@@ -39,20 +39,20 @@ namespace Js
     // instead of PropertyId.  It is expected that integer property names will go
     // through a fast path before reaching those APIs.
     bool PropertyRecord::IsPropertyNameNumeric(const char16* str, int length)
-    {
+    {TRACE_IT(35803);
         uint32 unused;
         return IsPropertyNameNumeric(str, length, &unused);
     }
 #endif
 
     bool PropertyRecord::IsPropertyNameNumeric(const char16* str, int length, uint32* intVal)
-    {
+    {TRACE_IT(35804);
         return (Js::JavascriptOperators::TryConvertToUInt32(str, length, intVal) &&
             (*intVal != Js::JavascriptArray::InvalidIndex));
     }
 
     uint32 PropertyRecord::GetNumericValue() const
-    {
+    {TRACE_IT(35805);
         Assert(IsNumeric());
         return *(uint32 *)(this->GetBuffer() + this->GetLength() + 1);
     }
@@ -63,7 +63,7 @@ namespace Js
 #include "InternalPropertyList.h"
 
     const PropertyRecord* InternalPropertyRecords::GetInternalPropertyName(PropertyId propertyId)
-    {
+    {TRACE_IT(35806);
         Assert(IsInternalPropertyId(propertyId));
 
         switch (propertyId)
@@ -79,12 +79,12 @@ namespace Js
 
 
     PropertyAttributes PropertyRecord::DefaultAttributesForPropertyId(PropertyId propertyId, bool __proto__AsDeleted)
-    {
+    {TRACE_IT(35807);
         switch (propertyId)
         {
         case PropertyIds::__proto__:
             if (__proto__AsDeleted)
-            {
+            {TRACE_IT(35808);
                 //
                 // If the property name is __proto__, it could be either [[prototype]] or ignored, or become a local
                 // property depending on later environment and property value. To maintain enumeration order when it
@@ -111,14 +111,14 @@ namespace Js
 namespace JsUtil
 {
     bool NoCaseComparer<Js::CaseInvariantPropertyListWithHashCode*>::Equals(_In_ Js::CaseInvariantPropertyListWithHashCode* list1, JsUtil::CharacterBuffer<WCHAR> const& str)
-    {
+    {TRACE_IT(35809);
         Assert(list1 != nullptr);
 
         const RecyclerWeakReference<Js::PropertyRecord const>* propRecordWeakRef = list1->CompactEnd<true>();
 
         // If the lists are empty post-compaction, thats fine, we'll just remove them later
         if (propRecordWeakRef != nullptr)
-        {
+        {TRACE_IT(35810);
             const Js::PropertyRecord* prop = propRecordWeakRef->Get();
 
             // Since compaction returned this pointer, their strong refs should not be null
@@ -134,18 +134,18 @@ namespace JsUtil
     }
 
     bool NoCaseComparer<Js::CaseInvariantPropertyListWithHashCode*>::Equals(_In_ Js::CaseInvariantPropertyListWithHashCode* list1, _In_ Js::CaseInvariantPropertyListWithHashCode* list2)
-    {
+    {TRACE_IT(35811);
         Assert(list1 != nullptr && list2 != nullptr);
 
         // If the two lists are the same, they're equal
         if (list1 == list2)
-        {
+        {TRACE_IT(35812);
             return true;
         }
 
         // If they don't have the same case invariant hash code, they're not equal
         if (list1->caseInvariantHashCode != list2->caseInvariantHashCode)
-        {
+        {TRACE_IT(35813);
             return false;
         }
 
@@ -154,7 +154,7 @@ namespace JsUtil
         const RecyclerWeakReference<Js::PropertyRecord const>* propRecordWeakRef = list2->CompactEnd<true>();
 
         if (propRecordWeakRef != nullptr)
-        {
+        {TRACE_IT(35814);
             const Js::PropertyRecord* prop = propRecordWeakRef->Get();
 
             // Since compaction returned this pointer, their strong refs should not be null
@@ -169,15 +169,15 @@ namespace JsUtil
     }
 
     uint NoCaseComparer<Js::CaseInvariantPropertyListWithHashCode*>::GetHashCode(_In_ Js::CaseInvariantPropertyListWithHashCode* list)
-    {
+    {TRACE_IT(35815);
         Assert(list != nullptr);
 
         if (list->caseInvariantHashCode == 0)
-        {
+        {TRACE_IT(35816);
             const RecyclerWeakReference<Js::PropertyRecord const>* propRecordWeakRef = list->CompactEnd<true>();
 
             if (propRecordWeakRef != nullptr)
-            {
+            {TRACE_IT(35817);
                 const Js::PropertyRecord* prop = propRecordWeakRef->Get();
 
                 Assert(prop);

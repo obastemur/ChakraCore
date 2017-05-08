@@ -50,7 +50,7 @@ DWORD RecyclerWriteBarrierManager::cardTable[1 * 1024 * 1024];
 
 bool
 X64WriteBarrierCardTableManager::OnThreadInit()
-{
+{TRACE_IT(26622);
     // We page in the card table sections for the current threads stack reservation
     // So any writes to stack allocated vars can also have the write barrier set
 
@@ -89,13 +89,13 @@ X64WriteBarrierCardTableManager::OnThreadInit()
 
 bool
 X64WriteBarrierCardTableManager::OnSegmentAlloc(_In_ char* segmentAddress, size_t numPages)
-{
+{TRACE_IT(26623);
     Assert(_cardTable);
 
     SetCommitState(OnSegmentAlloc);
 
     if (segmentAddress >= AutoSystemInfo::Data.lpMaximumApplicationAddress)
-    {
+    {TRACE_IT(26624);
         Assert(false); // How did this happen?
         SetCommitState(FailedMaxAddressExceeded);
         Js::Throw::FatalInternalError();
@@ -121,16 +121,16 @@ X64WriteBarrierCardTableManager::OnSegmentAlloc(_In_ char* segmentAddress, size_
 
     bool needCommit = false;
     for (BVIndex i = sectionStartIndex; i <= sectionLastIndex; i++)
-    {
+    {TRACE_IT(26625);
         if (!committedSections.Test(i))
-        {
+        {TRACE_IT(26626);
             needCommit = true;
             break;
         }
     }
 
     if (!needCommit)
-    {
+    {TRACE_IT(26627);
         // The pages for this segment have already been committed.
         // We don't need to do anything more, since write barriers can
         // already be set for writes to this segment
@@ -163,7 +163,7 @@ X64WriteBarrierCardTableManager::OnSegmentAlloc(_In_ char* segmentAddress, size_
 
     LPVOID ret = ::VirtualAlloc((LPVOID) sectionStart, commitSize, MEM_COMMIT, PAGE_READWRITE);
     if (!ret)
-    {
+    {TRACE_IT(26628);
         // If this is the error that occurred while trying to commit the page, this likely means
         // that the page we tried to commit is outside out reservation, which means that our reservation
         // was too small. This can happen if Windows increases the maximum process address space size
@@ -177,27 +177,27 @@ X64WriteBarrierCardTableManager::OnSegmentAlloc(_In_ char* segmentAddress, size_
     BVIndex sectionIndex = sectionStartIndex;
 
     try
-    {
+    {TRACE_IT(26629);
 #ifdef EXCEPTION_CHECK
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(ExceptionType_DisableCheck);
 #endif
 
         for (; sectionIndex <= sectionLastIndex; sectionIndex++)
-        {
+        {TRACE_IT(26630);
             committedSections.Set(sectionIndex);
         }
 
         SetCommitState(OnCommitBitSet);
     }
     catch (Js::OutOfMemoryException)
-    {
+    {TRACE_IT(26631);
         SetCommitState(FailedCommitBitSet);
 
         // We ran out of memory allocating a node for the sparse bit vector, so clean up
         // and return false
         // Since setting sectionIndex threw the exception, we don't clear it, we clear until the index before it
         for (BVIndex i = sectionStartIndex; i < sectionIndex; i++)
-        {
+        {TRACE_IT(26632);
             BOOLEAN wasSet = committedSections.TestAndClear(i);
             Assert(wasSet == TRUE);
         }
@@ -213,15 +213,15 @@ X64WriteBarrierCardTableManager::OnSegmentAlloc(_In_ char* segmentAddress, size_
 
 bool
 X64WriteBarrierCardTableManager::OnSegmentFree(_In_ char* segmentAddress, size_t numPages)
-{
+{TRACE_IT(26633);
     Assert(_cardTable);
     return true;
 }
 
 X64WriteBarrierCardTableManager::~X64WriteBarrierCardTableManager()
-{
+{TRACE_IT(26634);
     if (_cardTable != nullptr)
-    {
+    {TRACE_IT(26635);
         BOOL fSuccess = ::VirtualFree(_cardTable, 0, MEM_RELEASE);
         Assert(fSuccess == TRUE);
     }
@@ -229,7 +229,7 @@ X64WriteBarrierCardTableManager::~X64WriteBarrierCardTableManager()
 
 BVIndex
 X64WriteBarrierCardTableManager::GetSectionIndex(void* address)
-{
+{TRACE_IT(26636);
     size_t pageSize = AutoSystemInfo::PageSize;
     size_t sectionSize = (pageSize * pageSize);
 
@@ -239,7 +239,7 @@ X64WriteBarrierCardTableManager::GetSectionIndex(void* address)
 
 BYTE *
 X64WriteBarrierCardTableManager::Initialize()
-{
+{TRACE_IT(26637);
     AutoCriticalSection critSec(&_cardTableInitCriticalSection);
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
@@ -247,7 +247,7 @@ X64WriteBarrierCardTableManager::Initialize()
 #endif
 
     if (_cardTable == nullptr)
-    {
+    {TRACE_IT(26638);
         // We have two sizes for the card table on 64 bit builds
         // On Win8.1 and later, the process address space size is 128 TB, so we reserve 32 GB for the card table
         // On Win7, the max address space size is 192 GB, so we reserve 48 MB for the card table.
@@ -258,11 +258,11 @@ X64WriteBarrierCardTableManager::Initialize()
         // xplat: GetRLimit AS / RSS for ``the maximum size of the process's virtual memory``
         size_t memoryLimit;
         if (!PlatformAgnostic::SystemInfo::GetMaxVirtualMemory(&memoryLimit))
-        {
+        {TRACE_IT(26639);
             memoryLimit = (size_t) AutoSystemInfo::Data.lpMaximumApplicationAddress; // try upper limit
         }
         else
-        {
+        {TRACE_IT(26640);
             // Safest option : Max RSS can be beyond what we can allocate, aim the smaller one
             memoryLimit = min(memoryLimit, (size_t) AutoSystemInfo::Data.lpMaximumApplicationAddress);
         }
@@ -287,19 +287,19 @@ X64WriteBarrierCardTableManager::Initialize()
 
 bool
 RecyclerWriteBarrierManager::OnThreadInit()
-{
+{TRACE_IT(26641);
     return x64CardTableManager.OnThreadInit();
 }
 
 bool
 RecyclerWriteBarrierManager::OnSegmentAlloc(_In_ char* segmentAddress, size_t numPages)
-{
+{TRACE_IT(26642);
     return x64CardTableManager.OnSegmentAlloc(segmentAddress, numPages);
 }
 
 bool
 RecyclerWriteBarrierManager::OnSegmentFree(_In_ char* segmentAddress, size_t numPages)
-{
+{TRACE_IT(26643);
     return x64CardTableManager.OnSegmentFree(segmentAddress, numPages);
 }
 #endif
@@ -310,7 +310,7 @@ RecyclerWriteBarrierManager::OnSegmentFree(_In_ char* segmentAddress, size_t num
 
 void
 RecyclerWriteBarrierManager::WriteBarrier(void * address)
-{
+{TRACE_IT(26644);
 #ifdef RECYCLER_WRITE_BARRIER_BYTE
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     VerifyIsBarrierAddress(address);
@@ -326,7 +326,7 @@ RecyclerWriteBarrierManager::WriteBarrier(void * address)
 #if DBG_DUMP
     // Global to process, use global configuration here
     if (PHASE_VERBOSE_TRACE1(Js::SWBPhase))
-    {
+    {TRACE_IT(26645);
         Output::Print(_u("Writing to 0x%p (CIndex: %u)\n"), address, index);
     }
 #endif
@@ -334,7 +334,7 @@ RecyclerWriteBarrierManager::WriteBarrier(void * address)
 
 void
 RecyclerWriteBarrierManager::WriteBarrier(void * address, size_t bytes)
-{
+{TRACE_IT(26646);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     VerifyIsBarrierAddress(address, bytes);
 #endif
@@ -354,7 +354,7 @@ RecyclerWriteBarrierManager::WriteBarrier(void * address, size_t bytes)
     char * endAddress = (char *)Math::Align((INT_PTR)((char *)address + bytes), s_BytesPerCardBit);
     char * alignedAddress = (char *)Math::Align((INT_PTR)address, s_WriteBarrierPageSize);
     if (alignedAddress > endAddress)
-    {
+    {TRACE_IT(26647);
         uint endAddressShift = (((uint)endAddress) >> s_BitArrayCardTableShift);
         uint endAddressBitMask = 0xFFFFFFFF << endAddressShift;
         bitMask &= ~endAddressBitMask;
@@ -376,23 +376,23 @@ RecyclerWriteBarrierManager::WriteBarrier(void * address, size_t bytes)
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 void
 RecyclerWriteBarrierManager::ToggleBarrier(void * address, size_t bytes, bool enable)
-{
+{TRACE_IT(26648);
     if (CONFIG_FLAG(StrictWriteBarrierCheck))
-    {
+    {TRACE_IT(26649);
         uintptr_t startIndex = GetCardTableIndex(address);
         char * endAddress = (char *)Math::Align<INT_PTR>((INT_PTR)((char *)address + bytes), s_WriteBarrierPageSize);
         uintptr_t endIndex = GetCardTableIndex(endAddress);
         if (enable)
-        {
+        {TRACE_IT(26650);
             for (uintptr_t i = startIndex; i < endIndex; i++)
-            {
+            {TRACE_IT(26651);
                 cardTable[i] |= WRITE_BARRIER_PAGE_BIT;
             }
         }
         else
-        {
+        {TRACE_IT(26652);
             for (uintptr_t i = startIndex; i < endIndex; i++)
-            {
+            {TRACE_IT(26653);
                 cardTable[i] &= ~WRITE_BARRIER_PAGE_BIT;
             }
         }
@@ -403,13 +403,13 @@ RecyclerWriteBarrierManager::ToggleBarrier(void * address, size_t bytes, bool en
 
 bool
 RecyclerWriteBarrierManager::IsBarrierAddress(void * address)
-{
+{TRACE_IT(26654);
     return IsBarrierAddress(GetCardTableIndex(address));
 }
 
 bool
 RecyclerWriteBarrierManager::IsBarrierAddress(uintptr_t index)
-{
+{TRACE_IT(26655);
     return (cardTable[index] & WRITE_BARRIER_PAGE_BIT) == WRITE_BARRIER_PAGE_BIT;
 }
 
@@ -421,11 +421,11 @@ RecyclerWriteBarrierManager::IsBarrierAddress(uintptr_t index)
 
 void
 RecyclerWriteBarrierManager::VerifyIsBarrierAddress(void * address)
-{
+{TRACE_IT(26656);
     if (CONFIG_FLAG(StrictWriteBarrierCheck))
-    {
+    {TRACE_IT(26657);
         if (!IsBarrierAddress(GetCardTableIndex(address)))
-        {
+        {TRACE_IT(26658);
             Js::Throw::FatalInternalError();
         }
     }
@@ -433,17 +433,17 @@ RecyclerWriteBarrierManager::VerifyIsBarrierAddress(void * address)
 
 void
 RecyclerWriteBarrierManager::VerifyIsBarrierAddress(void * address, size_t bytes)
-{
+{TRACE_IT(26659);
     if (CONFIG_FLAG(StrictWriteBarrierCheck))
-    {
+    {TRACE_IT(26660);
         uintptr_t startIndex = GetCardTableIndex(address);
         char * endAddress = (char *)Math::Align<INT_PTR>((INT_PTR)((char *)address + bytes), s_WriteBarrierPageSize);
         uintptr_t endIndex = GetCardTableIndex(endAddress);
         do
-        {
+        {TRACE_IT(26661);
             // no need to check if cardTable is commited or not, if it's not commited it'll AV instead of assertion
             if (!IsBarrierAddress(startIndex))
-            {
+            {TRACE_IT(26662);
                 Js::Throw::FatalInternalError();
             }
         } while (startIndex++ < endIndex);
@@ -452,18 +452,18 @@ RecyclerWriteBarrierManager::VerifyIsBarrierAddress(void * address, size_t bytes
 
 void
 RecyclerWriteBarrierManager::VerifyIsNotBarrierAddress(void * address, size_t bytes)
-{
+{TRACE_IT(26663);
     if (CONFIG_FLAG(StrictWriteBarrierCheck))
-    {
+    {TRACE_IT(26664);
         uintptr_t startIndex = GetCardTableIndex(address);
         char * endAddress = (char *)Math::Align<INT_PTR>((INT_PTR)((char *)address + bytes), s_WriteBarrierPageSize);
         uintptr_t endIndex = GetCardTableIndex(endAddress);
         do
-        {
+        {TRACE_IT(26665);
             if(IsCardTableCommited(startIndex))
-            {
+            {TRACE_IT(26666);
                 if (IsBarrierAddress(startIndex))
-                {
+                {TRACE_IT(26667);
                     Js::Throw::FatalInternalError();
                 }
             }
@@ -474,7 +474,7 @@ RecyclerWriteBarrierManager::VerifyIsNotBarrierAddress(void * address, size_t by
 
 bool
 RecyclerWriteBarrierManager::Initialize()
-{
+{TRACE_IT(26668);
     g_verifyIsNotBarrierAddress = RecyclerWriteBarrierManager::VerifyIsNotBarrierAddress;
     return true;
 }
@@ -482,30 +482,30 @@ RecyclerWriteBarrierManager::Initialize()
 
 uintptr_t
 RecyclerWriteBarrierManager::GetCardTableIndex(void *address)
-{
+{TRACE_IT(26669);
     return ((uintptr_t)address) / s_BytesPerCard;
 }
 
 void
 RecyclerWriteBarrierManager::ResetWriteBarrier(void * address, size_t pageCount)
-{
+{TRACE_IT(26670);
     uintptr_t cardIndex = GetCardTableIndex(address);
 
 #if DBG
     for (size_t i = 0; i < pageCount; i++)
-    {
+    {TRACE_IT(26671);
         if (cardTable[cardIndex + i] & DIRTYBIT)
-        {
+        {TRACE_IT(26672);
             cardTable[cardIndex + i] = WRITE_BARRIER_CLEAR_MARK | (cardTable[cardIndex + i] & ~DIRTYBIT);
         }
     }
 #else
     if (pageCount == 1)
-    {
+    {TRACE_IT(26673);
         cardTable[cardIndex] = WRITE_BARRIER_PAGE_BIT;
     }
     else
-    {
+    {TRACE_IT(26674);
 #ifdef RECYCLER_WRITE_BARRIER_BYTE
         memset(&cardTable[cardIndex], WRITE_BARRIER_PAGE_BIT, pageCount);
 #else
@@ -517,7 +517,7 @@ RecyclerWriteBarrierManager::ResetWriteBarrier(void * address, size_t pageCount)
 #if DBG_DUMP
     // Global to process, use global configuration here
     if (PHASE_VERBOSE_TRACE1(Js::SWBPhase))
-    {
+    {TRACE_IT(26675);
         Output::Print(_u("Resetting %u pages at CIndex: %u\n"), address, pageCount, cardIndex);
     }
 #endif
@@ -529,14 +529,14 @@ BYTE
 DWORD
 #endif
 RecyclerWriteBarrierManager::GetWriteBarrier(void * address)
-{
+{TRACE_IT(26676);
     // TODO: SWB remove after all write barrier annotation, this is in order to test the recycler change
     if (CONFIG_FLAG(WriteBarrierTest))
-    {
+    {TRACE_IT(26677);
         return WRITE_BARRIER_PAGE_BIT | DIRTYBIT;
     }
     else
-    {
+    {TRACE_IT(26678);
         return cardTable[GetCardTableIndex(address)];
     }
 }

@@ -12,11 +12,11 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void CountDomain::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(31899);
         if (upper != CharCountFlag && lower == (CharCount)upper)
             w->Print(_u("[%u]"), lower);
         else
-        {
+        {TRACE_IT(31900);
             w->Print(_u("[%u-"), lower);
             if (upper == CharCountFlag)
                 w->Print(_u("inf]"));
@@ -63,31 +63,31 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Matcher::PushStats(ContStack& contStack, const Char* const input) const
-    {
+    {TRACE_IT(31901);
         if (stats != 0)
-        {
+        {TRACE_IT(31902);
             stats->numPushes++;
             if (contStack.Position() > stats->stackHWM)
                 stats->stackHWM = contStack.Position();
         }
         if (w != 0)
-        {
+        {TRACE_IT(31903);
             w->Print(_u("PUSH "));
             contStack.Top()->Print(w, input);
         }
     }
 
     void Matcher::PopStats(ContStack& contStack, const Char* const input) const
-    {
+    {TRACE_IT(31904);
         if (stats != 0)
             stats->numPops++;
         if (w != 0)
-        {
+        {TRACE_IT(31905);
             const Cont* top = contStack.Top();
             if (top == 0)
                 w->PrintEOL(_u("<empty stack>"));
             else
-            {
+            {TRACE_IT(31906);
                 w->Print(_u("POP "));
                 top->Print(w, input);
             }
@@ -95,16 +95,16 @@ namespace UnifiedRegex
     }
 
     void Matcher::UnPopStats(ContStack& contStack, const Char* const input) const
-    {
+    {TRACE_IT(31907);
         if (stats != 0)
             stats->numPops--;
         if (w != 0)
-        {
+        {TRACE_IT(31908);
             const Cont* top = contStack.Top();
             if (top == 0)
                 w->PrintEOL(_u("<empty stack>"));
             else
-            {
+            {TRACE_IT(31909);
                 w->Print(_u("UNPOP "));
                 top->Print(w, input);
             }
@@ -112,20 +112,20 @@ namespace UnifiedRegex
     }
 
     void Matcher::CompStats() const
-    {
+    {TRACE_IT(31910);
         if (stats != 0)
             stats->numCompares++;
     }
 
     void Matcher::InstStats() const
-    {
+    {TRACE_IT(31911);
         if (stats != 0)
             stats->numInsts++;
     }
 #endif
 
     inline void Matcher::QueryContinue(uint &qcTicks)
-    {
+    {TRACE_IT(31912);
         // See definition of TimePerQc for description of regex QC heuristics
 
         Assert(!(TicksPerQc & TicksPerQc - 1)); // must be a power of 2
@@ -149,14 +149,14 @@ namespace UnifiedRegex
         , AssertionStack &assertionStack
         , uint &qcTicks
         , HardFailMode mode )
-    {
+    {TRACE_IT(31913);
         switch (mode)
         {
         case BacktrackAndLater:
             return Fail(FAIL_PARAMETERS);
         case BacktrackOnly:
             if (Fail(FAIL_PARAMETERS))
-            {
+            {TRACE_IT(31914);
                 // No use trying any more start positions
                 matchStart = inputLength;
                 return true; // STOP EXECUTING
@@ -182,7 +182,7 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::PopAssertion(CharCount &inputOffset, const uint8 *&instPointer, ContStack &contStack, AssertionStack &assertionStack, bool succeeded)
-    {
+    {TRACE_IT(31915);
         AssertionInfo* info = assertionStack.Top();
         Assert(info != 0);
         assertionStack.Pop();
@@ -207,12 +207,12 @@ namespace UnifiedRegex
             ResetInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId);
 
         if (succeeded == begin->isNegation)
-        {
+        {TRACE_IT(31916);
             // Assertion failed
             return false;
         }
         else
-        {
+        {TRACE_IT(31917);
             // Continue with next label but from original input position
             inputOffset = info->startInputOffset;
             instPointer = LabelToInstPointer(begin->nextLabel);
@@ -227,7 +227,7 @@ namespace UnifiedRegex
         const bool reset,
         const Char *const input,
         ContStack &contStack)
-    {
+    {TRACE_IT(31918);
         if(toGroupId >= 0)
             DoSaveInnerGroups(fromGroupId, toGroupId, reset, input, contStack);
     }
@@ -238,7 +238,7 @@ namespace UnifiedRegex
         const bool reset,
         const Char *const input,
         ContStack &contStack)
-    {
+    {TRACE_IT(31919);
         Assert(fromGroupId >= 0);
         Assert(toGroupId >= 0);
         Assert(fromGroupId <= toGroupId);
@@ -246,17 +246,17 @@ namespace UnifiedRegex
         int undefinedRangeFromId = -1;
         int groupId = fromGroupId;
         do
-        {
+        {TRACE_IT(31920);
             GroupInfo *const groupInfo = GroupIdToGroupInfo(groupId);
             if(groupInfo->IsUndefined())
-            {
+            {TRACE_IT(31921);
                 if(undefinedRangeFromId < 0)
                     undefinedRangeFromId = groupId;
                 continue;
             }
 
             if(undefinedRangeFromId >= 0)
-            {
+            {TRACE_IT(31922);
                 Assert(groupId > 0);
                 DoSaveInnerGroups_AllUndefined(undefinedRangeFromId, groupId - 1, input, contStack);
                 undefinedRangeFromId = -1;
@@ -271,7 +271,7 @@ namespace UnifiedRegex
                 groupInfo->Reset();
         } while(++groupId <= toGroupId);
         if(undefinedRangeFromId >= 0)
-        {
+        {TRACE_IT(31923);
             Assert(toGroupId >= 0);
             DoSaveInnerGroups_AllUndefined(undefinedRangeFromId, toGroupId, input, contStack);
         }
@@ -282,7 +282,7 @@ namespace UnifiedRegex
         const int toGroupId,
         const Char *const input,
         ContStack &contStack)
-    {
+    {TRACE_IT(31924);
         if(toGroupId >= 0)
             DoSaveInnerGroups_AllUndefined(fromGroupId, toGroupId, input, contStack);
     }
@@ -292,14 +292,14 @@ namespace UnifiedRegex
         const int toGroupId,
         const Char *const input,
         ContStack &contStack)
-    {
+    {TRACE_IT(31925);
         Assert(fromGroupId >= 0);
         Assert(toGroupId >= 0);
         Assert(fromGroupId <= toGroupId);
 
 #if DBG
         for(int groupId = fromGroupId; groupId <= toGroupId; ++groupId)
-        {
+        {TRACE_IT(31926);
             Assert(GroupIdToGroupInfo(groupId)->IsUndefined());
         }
 #endif
@@ -314,25 +314,25 @@ namespace UnifiedRegex
     }
 
     inline void Matcher::ResetGroup(int groupId)
-    {
+    {TRACE_IT(31927);
         GroupInfo* info = GroupIdToGroupInfo(groupId);
         info->Reset();
     }
 
     inline void Matcher::ResetInnerGroups(int minGroupId, int maxGroupId)
-    {
+    {TRACE_IT(31928);
         for (int i = minGroupId; i <= maxGroupId; i++)
             ResetGroup(i);
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     bool Inst::IsBaselineMode()
-    {
+    {TRACE_IT(31929);
         return Js::Configuration::Global.flags.BaselineMode;
     }
 
     Label Inst::GetPrintLabel(Label label)
-    {
+    {TRACE_IT(31930);
         return IsBaselineMode() ? (Label)0xFFFF : label;
     }
 #endif
@@ -343,7 +343,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void BackupMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31931);
         w->Print(_u("backup: "));
         backup.Print(w);
     }
@@ -351,7 +351,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void CharMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31932);
         w->Print(_u("c: "));
         w->PrintQuotedChar(c);
     }
@@ -359,7 +359,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Char2Mixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31933);
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
         w->Print(_u(", c1: "));
@@ -369,7 +369,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Char3Mixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31934);
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
         w->Print(_u(", c1: "));
@@ -381,7 +381,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Char4Mixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31935);
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
         w->Print(_u(", c1: "));
@@ -395,12 +395,12 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void LiteralMixin::Print(DebugWriter* w, const char16* litbuf, bool isEquivClass) const
-    {
+    {TRACE_IT(31936);
         if (isEquivClass)
-        {
+        {TRACE_IT(31937);
             w->Print(_u("equivLiterals: "));
             for (int i = 0; i < CaseInsensitive::EquivClassSize; i++)
-            {
+            {TRACE_IT(31938);
                 if (i > 0)
                     w->Print(_u(", "));
                 w->Print(_u("\""));
@@ -410,7 +410,7 @@ namespace UnifiedRegex
             }
         }
         else
-        {
+        {TRACE_IT(31939);
             w->Print(_u("literal: "));
             w->PrintQuotedString(litbuf + offset, length);
         }
@@ -422,9 +422,9 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     bool Char2LiteralScannerMixin::Match(Matcher& matcher, const char16* const input, const CharCount inputLength, CharCount& inputOffset) const
-    {
+    {TRACE_IT(31940);
         if (inputLength == 0)
-        {
+        {TRACE_IT(31941);
             return false;
         }
 
@@ -435,22 +435,22 @@ namespace UnifiedRegex
         const char16 * endInput = input + inputLength - 1;
 
         while (currentInput < endInput)
-        {
+        {TRACE_IT(31942);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             while (true)
-            {
+            {TRACE_IT(31943);
                 const uint c1 = Chars<char16>::CTU(currentInput[1]);
                 if (c1 != matchC1)
-                {
+                {TRACE_IT(31944);
                     if (c1 == matchC0)
-                    {
+                    {TRACE_IT(31945);
                         break;
                     }
                     currentInput += 2;
                     if (currentInput >= endInput)
-                    {
+                    {TRACE_IT(31946);
                         return false;
                     }
                     continue;
@@ -461,17 +461,17 @@ namespace UnifiedRegex
                 // Check the first character
                 const uint c0 = Chars<char16>::CTU(*currentInput);
                 if (c0 == matchC0)
-                {
+                {TRACE_IT(31947);
                     inputOffset = (CharCount)(currentInput - input);
                     return true;
                 }
                 if (matchC0 == matchC1)
-                {
+                {TRACE_IT(31948);
                     break;
                 }
                 currentInput +=2;
                 if (currentInput >= endInput)
-                {
+                {TRACE_IT(31949);
                     return false;
                 }
             }
@@ -480,18 +480,18 @@ namespace UnifiedRegex
             // to see if the next character has the second in the pattern
             currentInput++;
             while (currentInput < endInput)
-            {
+            {TRACE_IT(31950);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
                 const uint c1 = Chars<char16>::CTU(currentInput[1]);
                 if (c1 == matchC1)
-                {
+                {TRACE_IT(31951);
                     inputOffset = (CharCount)(currentInput - input);
                     return true;
                 }
                 if (c1 != matchC0)
-                {
+                {TRACE_IT(31952);
                     currentInput += 2;
                     break;
                 }
@@ -503,7 +503,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Char2LiteralScannerMixin::Print(DebugWriter* w, const char16 * litbuf) const
-    {
+    {TRACE_IT(31953);
         Char2Mixin::Print(w, litbuf);
         w->Print(_u(" (with two character literal scanner)"));
     }
@@ -515,14 +515,14 @@ namespace UnifiedRegex
 
     template <typename ScannerT>
     void ScannerMixinT<ScannerT>::FreeBody(ArenaAllocator* rtAllocator)
-    {
+    {TRACE_IT(31954);
         scanner.FreeBody(rtAllocator, length);
     }
 
     template <typename ScannerT>
     inline bool
     ScannerMixinT<ScannerT>::Match(Matcher& matcher, const char16 * const input, const CharCount inputLength, CharCount& inputOffset) const
-    {
+    {TRACE_IT(31955);
         Assert(length <= matcher.program->rep.insts.litbufLen - offset);
         return scanner.template Match<1>
             ( input
@@ -539,7 +539,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <typename ScannerT>
     void ScannerMixinT<ScannerT>::Print(DebugWriter* w, const char16* litbuf, bool isEquivClass) const
-    {
+    {TRACE_IT(31956);
         LiteralMixin::Print(w, litbuf, isEquivClass);
         w->Print(_u(" (with %s scanner)"), ScannerT::GetName());
     }
@@ -555,7 +555,7 @@ namespace UnifiedRegex
 
     template <uint lastPatCharEquivClassSize>
     inline bool EquivScannerMixinT<lastPatCharEquivClassSize>::Match(Matcher& matcher, const char16* const input, const CharCount inputLength, CharCount& inputOffset) const
-    {
+    {TRACE_IT(31957);
         Assert(length * CaseInsensitive::EquivClassSize <= matcher.program->rep.insts.litbufLen - offset);
         CompileAssert(lastPatCharEquivClassSize >= 1 && lastPatCharEquivClassSize <= CaseInsensitive::EquivClassSize);
         return scanner.Match<CaseInsensitive::EquivClassSize, lastPatCharEquivClassSize>
@@ -573,7 +573,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <uint lastPatCharEquivClassSize>
     void EquivScannerMixinT<lastPatCharEquivClassSize>::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31958);
         __super::Print(w, litbuf, true);
         w->Print(_u(" (last char equiv size:%d)"), lastPatCharEquivClassSize);
     }
@@ -588,21 +588,21 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void ScannerInfo::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31959);
         ScannerMixin::Print(w, litbuf, isEquivClass);
     }
 #endif
 
     ScannerInfo* ScannersMixin::Add(Recycler *recycler, Program *program, CharCount offset, CharCount length, bool isEquivClass)
-    {
+    {TRACE_IT(31960);
         Assert(numLiterals < MaxNumSyncLiterals);
         return program->AddScannerForSyncToLiterals(recycler, numLiterals++, offset, length, isEquivClass);
     }
 
     void ScannersMixin::FreeBody(ArenaAllocator* rtAllocator)
-    {
+    {TRACE_IT(31961);
         for (int i = 0; i < numLiterals; i++)
-        {
+        {TRACE_IT(31962);
             infos[i]->FreeBody(rtAllocator);
 #if DBG
             infos[i] = nullptr;
@@ -615,10 +615,10 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void ScannersMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31963);
         w->Print(_u("literals: {"));
         for (int i = 0; i < numLiterals; i++)
-        {
+        {TRACE_IT(31964);
             if (i > 0)
                 w->Print(_u(", "));
             infos[i]->Print(w, litbuf);
@@ -629,14 +629,14 @@ namespace UnifiedRegex
 
     template<bool IsNegation>
     void SetMixin<IsNegation>::FreeBody(ArenaAllocator* rtAllocator)
-    {
+    {TRACE_IT(31965);
         set.FreeBody(rtAllocator);
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
     void SetMixin<IsNegation>::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31966);
         w->Print(_u("set: "));
         if (IsNegation)
             w->Print(_u("not "));
@@ -646,21 +646,21 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void HardFailMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31967);
         w->Print(_u("hardFail: %s"), canHardFail ? _u("true") : _u("false"));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void GroupMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31968);
         w->Print(_u("groupId: %d"), groupId);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void ChompBoundedMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31969);
         w->Print(_u("repeats: "));
         repeats.Print(w);
     }
@@ -668,21 +668,21 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void JumpMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31970);
         w->Print(_u("targetLabel: L%04x"), Inst::GetPrintLabel(targetLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void BodyGroupsMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31971);
         w->Print(_u("minBodyGroupId: %d, maxBodyGroupId: %d"), minBodyGroupId, maxBodyGroupId);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void BeginLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31972);
         w->Print(_u("loopId: %d, repeats: "), loopId);
         repeats.Print(w);
         w->Print(_u(", exitLabel: L%04x, hasOuterLoops: %s, hasInnerNondet: %s"),
@@ -692,35 +692,35 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void RepeatLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31973);
         w->Print(_u("beginLabel: L%04x"), Inst::GetPrintLabel(beginLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void TryMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31974);
         w->Print(_u("failLabel: L%04x"), Inst::GetPrintLabel(failLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void FixedLengthMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31975);
         w->Print(_u("length: %u"), length);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void NoNeedToSaveMixin::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31976);
         w->Print(_u("noNeedToSave: %s"), noNeedToSave ? _u("true") : _u("false"));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void SwitchCase::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(31977);
         w->Print(_u("case "));
         w->PrintQuotedChar(c);
         w->PrintEOL(_u(": Jump(L%04x)"), targetLabel);
@@ -729,12 +729,12 @@ namespace UnifiedRegex
 
     template <int n>
     void SwitchMixin<n>::AddCase(char16 c, Label targetLabel)
-    {
+    {TRACE_IT(31978);
         Assert(numCases < MaxCases);
         int i;
         __analysis_assume(numCases < MaxCases);
         for (i = 0; i < numCases; i++)
-        {
+        {TRACE_IT(31979);
             Assert(cases[i].c != c);
             if (cases[i].c > c)
                 break;
@@ -748,8 +748,8 @@ namespace UnifiedRegex
     }
 
     void UnifiedRegexSwitchMixinForceAllInstantiations()
-    {
-        {
+    {TRACE_IT(31980);
+        {TRACE_IT(31981);
             SwitchMixin<10> x;
             x.AddCase(0, 0);
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -768,7 +768,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <int n>
     void SwitchMixin<n>::Print(DebugWriter* w, const char16* litbuf) const
-    {
+    {TRACE_IT(31982);
         w->EOL();
         w->Indent();
         for (int i = 0; i < numCases; i++)
@@ -782,13 +782,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool FailInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31983);
         return matcher.Fail(FAIL_PARAMETERS);
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int FailInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31984);
         w->PrintEOL(_u("L%04x: Fail()"), label);
         return sizeof(*this);
     }
@@ -799,7 +799,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SuccInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31985);
         GroupInfo* info = matcher.GroupIdToGroupInfo(0);
         info->offset = matchStart;
         info->length = inputOffset - matchStart;
@@ -808,7 +808,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SuccInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31986);
         w->PrintEOL(_u("L%04x: Succ()"), label);
         return sizeof(*this);
     }
@@ -819,14 +819,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool JumpInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31987);
         instPointer = matcher.LabelToInstPointer(targetLabel);
         return false;
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int JumpInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31988);
         w->Print(_u("L%04x: Jump("), label);
         JumpMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -839,7 +839,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool JumpIfNotCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31989);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -852,7 +852,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int JumpIfNotCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31990);
         w->Print(_u("L%04x: JumpIfNotChar("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -867,12 +867,12 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchCharOrJumpInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31991);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && input[inputOffset] == c)
-        {
+        {TRACE_IT(31992);
             inputOffset++;
             instPointer += sizeof(*this);
         }
@@ -883,7 +883,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchCharOrJumpInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31993);
         w->Print(_u("L%04x: MatchCharOrJump("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -899,7 +899,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool JumpIfNotSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31994);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -912,7 +912,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int JumpIfNotSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31995);
         w->Print(_u("L%04x: JumpIfNotSet("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(",  "));
@@ -927,12 +927,12 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchSetOrJumpInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31996);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && set.Get(input[inputOffset]))
-        {
+        {TRACE_IT(31997);
             inputOffset++;
             instPointer += sizeof(*this);
         }
@@ -943,7 +943,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchSetOrJumpInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(31998);
         w->Print(_u("L%04x: MatchSetOrJump("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(",  "));
@@ -958,20 +958,20 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool Switch10Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(31999);
         if (inputOffset >= inputLength)
             return matcher.Fail(FAIL_PARAMETERS);
 #if 0
         int l = 0;
         int h = numCases - 1;
         while (l <= h)
-        {
+        {TRACE_IT(32000);
             int m = (l + h) / 2;
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[m].c == input[inputOffset])
-            {
+            {TRACE_IT(32001);
                 instPointer = matcher.LabelToInstPointer(cases[m].targetLabel);
                 return false;
             }
@@ -983,12 +983,12 @@ namespace UnifiedRegex
 #else
         const int localNumCases = numCases;
         for (int i = 0; i < localNumCases; i++)
-        {
+        {TRACE_IT(32002);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[i].c == input[inputOffset])
-            {
+            {TRACE_IT(32003);
                 instPointer = matcher.LabelToInstPointer(cases[i].targetLabel);
                 return false;
             }
@@ -1003,7 +1003,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int Switch10Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32004);
         w->Print(_u("L%04x: Switch10("), label);
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1016,20 +1016,20 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool Switch20Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32005);
         if (inputOffset >= inputLength)
             return matcher.Fail(FAIL_PARAMETERS);
 #if 0
         int l = 0;
         int h = numCases - 1;
         while (l <= h)
-        {
+        {TRACE_IT(32006);
             int m = (l + h) / 2;
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[m].c == input[inputOffset])
-            {
+            {TRACE_IT(32007);
                 instPointer = matcher.LabelToInstPointer(cases[m].targetLabel);
                 return false;
             }
@@ -1041,12 +1041,12 @@ namespace UnifiedRegex
 #else
         const int localNumCases = numCases;
         for (int i = 0; i < localNumCases; i++)
-        {
+        {TRACE_IT(32008);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[i].c == input[inputOffset])
-            {
+            {TRACE_IT(32009);
                 instPointer = matcher.LabelToInstPointer(cases[i].targetLabel);
                 return false;
             }
@@ -1061,7 +1061,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int Switch20Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32010);
         w->Print(_u("L%04x: Switch20("), label);
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1074,20 +1074,20 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SwitchAndConsume10Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32011);
         if (inputOffset >= inputLength)
             return matcher.Fail(FAIL_PARAMETERS);
 #if 0
         int l = 0;
         int h = numCases - 1;
         while (l <= h)
-        {
+        {TRACE_IT(32012);
             int m = (l + h) / 2;
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[m].c == input[inputOffset])
-            {
+            {TRACE_IT(32013);
                 inputOffset++;
                 instPointer = matcher.LabelToInstPointer(cases[m].targetLabel);
                 return false;
@@ -1100,12 +1100,12 @@ namespace UnifiedRegex
 #else
         const int localNumCases = numCases;
         for (int i = 0; i < localNumCases; i++)
-        {
+        {TRACE_IT(32014);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[i].c == input[inputOffset])
-            {
+            {TRACE_IT(32015);
                 inputOffset++;
                 instPointer = matcher.LabelToInstPointer(cases[i].targetLabel);
                 return false;
@@ -1121,7 +1121,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SwitchAndConsume10Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32016);
         w->Print(_u("L%04x: SwitchAndConsume10("), label);
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1134,20 +1134,20 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SwitchAndConsume20Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32017);
         if (inputOffset >= inputLength)
             return matcher.Fail(FAIL_PARAMETERS);
 #if 0
         int l = 0;
         int h = numCases - 1;
         while (l <= h)
-        {
+        {TRACE_IT(32018);
             int m = (l + h) / 2;
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[m].c == input[inputOffset])
-            {
+            {TRACE_IT(32019);
                 inputOffset++;
                 instPointer = matcher.LabelToInstPointer(cases[m].targetLabel);
                 return false;
@@ -1160,12 +1160,12 @@ namespace UnifiedRegex
 #else
         const int localNumCases = numCases;
         for (int i = 0; i < localNumCases; i++)
-        {
+        {TRACE_IT(32020);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (cases[i].c == input[inputOffset])
-            {
+            {TRACE_IT(32021);
                 inputOffset++;
                 instPointer = matcher.LabelToInstPointer(cases[i].targetLabel);
                 return false;
@@ -1181,7 +1181,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SwitchAndConsume20Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32022);
         w->Print(_u("L%04x: SwitchAndConsume20("), label);
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1194,9 +1194,9 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BOITestInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32023);
         if (inputOffset > 0)
-        {
+        {TRACE_IT(32024);
             if (canHardFail)
                 // Clearly trying to start from later in the input won't help, and we know backtracking can't take us earlier in the input
                 return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
@@ -1209,7 +1209,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BOITestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32025);
         w->Print(_u("L%04x: BOITest("), label);
         HardFailMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1222,9 +1222,9 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool EOITestInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32026);
         if (inputOffset < inputLength)
-        {
+        {TRACE_IT(32027);
             if (canHardFail)
                 // We know backtracking can never take us later in the input, but starting from later in the input could help
                 return matcher.HardFail(HARDFAIL_PARAMETERS(LaterOnly));
@@ -1237,7 +1237,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EOITestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32028);
         w->Print(_u("L%04x: EOITest("), label);
         HardFailMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1250,7 +1250,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BOLTestInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32029);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1263,7 +1263,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BOLTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32030);
         w->PrintEOL(_u("L%04x: BOLTest()"), label);
         return sizeof(*this);
     }
@@ -1274,7 +1274,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool EOLTestInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32031);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1287,7 +1287,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EOLTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32032);
         w->PrintEOL(_u("L%04x: EOLTest()"), label);
         return sizeof(*this);
     }
@@ -1298,7 +1298,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool WordBoundaryTestInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32033);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1313,7 +1313,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int WordBoundaryTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32034);
         w->PrintEOL(_u("L%04x: WordBoundaryTest(isNegation: %s)"), label, isNegation ? _u("true") : _u("false"));
         return sizeof(*this);
     }
@@ -1324,7 +1324,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32035);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1338,7 +1338,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32036);
         w->Print(_u("L%04x: MatchChar("), label);
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1351,7 +1351,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchChar2Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32037);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1365,7 +1365,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchChar2Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32038);
         w->Print(_u("L%04x: MatchChar2("), label);
         Char2Mixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1378,7 +1378,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchChar3Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32039);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1392,7 +1392,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchChar3Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32040);
         w->Print(_u("L%04x: MatchChar3("), label);
         Char3Mixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1405,7 +1405,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchChar4Inst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32041);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1419,7 +1419,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchChar4Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32042);
         w->Print(_u("L%04x: MatchChar4("), label);
         Char4Mixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1433,7 +1433,7 @@ namespace UnifiedRegex
 
     template<bool IsNegation>
     inline bool MatchSetInst<IsNegation>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32043);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1448,7 +1448,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
     int MatchSetInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32044);
         w->Print(_u("L%04x: MatchSet("), label);
         SetMixin<IsNegation>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1461,7 +1461,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchLiteralInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32045);
         Assert(length <= matcher.program->rep.insts.litbufLen - offset);
 
         if (length > inputLength - inputOffset)
@@ -1475,7 +1475,7 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         if (*literalCurr != *inputCurr)
-        {
+        {TRACE_IT(32046);
             inputOffset++;
             return matcher.Fail(FAIL_PARAMETERS);
         }
@@ -1485,12 +1485,12 @@ namespace UnifiedRegex
         inputCurr++;
 
         while (literalCurr < literalEnd)
-        {
+        {TRACE_IT(32047);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (*literalCurr != *inputCurr++)
-            {
+            {TRACE_IT(32048);
                 inputOffset = (CharCount)(inputCurr - input);
                 return matcher.Fail(FAIL_PARAMETERS);
             }
@@ -1504,7 +1504,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchLiteralInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32049);
         w->Print(_u("L%04x: MatchLiteral("), label);
         LiteralMixin::Print(w, litbuf, false);
         w->PrintEOL(_u(")"));
@@ -1517,7 +1517,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchLiteralEquivInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32050);
         if (length > inputLength - inputOffset)
             return matcher.Fail(FAIL_PARAMETERS);
 
@@ -1529,7 +1529,7 @@ namespace UnifiedRegex
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
 
         do
-        {
+        {TRACE_IT(32051);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1537,7 +1537,7 @@ namespace UnifiedRegex
                 && input[inputOffset] != literalBuffer[literalOffset + 1]
                 && input[inputOffset] != literalBuffer[literalOffset + 2]
                 && input[inputOffset] != literalBuffer[literalOffset + 3])
-            {
+            {TRACE_IT(32052);
                 return matcher.Fail(FAIL_PARAMETERS);
             }
             inputOffset++;
@@ -1551,7 +1551,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchLiteralEquivInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32053);
         w->Print(_u("L%04x: MatchLiteralEquiv("), label);
         LiteralMixin::Print(w, litbuf, true);
         w->PrintEOL(_u(")"));
@@ -1564,7 +1564,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchTrieInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32054);
         if (!trie.Match
             ( input
             , inputLength
@@ -1580,13 +1580,13 @@ namespace UnifiedRegex
     }
 
     void MatchTrieInst::FreeBody(ArenaAllocator* rtAllocator)
-    {
+    {TRACE_IT(32055);
         trie.FreeBody(rtAllocator);
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchTrieInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32056);
         w->PrintEOL(_u("L%04x: MatchTrie("), label);
         trie.Print(w);
         w->PrintEOL(_u(")"));
@@ -1599,7 +1599,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool OptMatchCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32057);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1612,7 +1612,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int OptMatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32058);
         w->Print(_u("L%04x: OptMatchChar("), label);
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1625,7 +1625,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool OptMatchSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32059);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -1638,7 +1638,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int OptMatchSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32060);
         w->Print(_u("L%04x: OptMatchSet("), label);
         SetMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1651,13 +1651,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToCharAndContinueInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32061);
         const Char matchC = c;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         while (inputOffset < inputLength && input[inputOffset] != matchC)
-        {
+        {TRACE_IT(32062);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1671,7 +1671,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndContinueInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32063);
         w->Print(_u("L%04x: SyncToCharAndContinue("), label);
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1684,14 +1684,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToChar2SetAndContinueInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32064);
         const Char matchC0 = cs[0];
         const Char matchC1 = cs[1];
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         while (inputOffset < inputLength && input[inputOffset] != matchC0 && input[inputOffset] != matchC1)
-        {
+        {TRACE_IT(32065);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1705,7 +1705,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToChar2SetAndContinueInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32066);
         w->Print(_u("L%04x: SyncToChar2SetAndContinue("), label);
         Char2Mixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1720,14 +1720,14 @@ namespace UnifiedRegex
 
     template<bool IsNegation>
     inline bool SyncToSetAndContinueInst<IsNegation>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32067);
         const RuntimeCharSet<Char>& matchSet = this->set;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
 
         while (inputOffset < inputLength && matchSet.Get(input[inputOffset]) == IsNegation)
-        {
+        {TRACE_IT(32068);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1742,7 +1742,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
     int SyncToSetAndContinueInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32069);
         w->Print(_u("L%04x: SyncToSetAndContinue("), label);
         SetMixin<IsNegation>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1756,7 +1756,7 @@ namespace UnifiedRegex
 
     template <typename ScannerT>
     inline bool SyncToLiteralAndContinueInstT<ScannerT>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32070);
         if (!this->Match(matcher, input, inputLength, inputOffset))
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
@@ -1768,7 +1768,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <typename ScannerT>
     int SyncToLiteralAndContinueInstT<ScannerT>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32071);
         w->Print(_u("L%04x: SyncToLiteralAndContinue("), label);
         ScannerT::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1788,13 +1788,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToCharAndConsumeInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32072);
         const Char matchC = c;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         while (inputOffset < inputLength && input[inputOffset] != matchC)
-        {
+        {TRACE_IT(32073);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1811,7 +1811,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndConsumeInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32074);
         w->Print(_u("L%04x: SyncToCharAndConsume("), label);
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1824,14 +1824,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToChar2SetAndConsumeInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32075);
         const Char matchC0 = cs[0];
         const Char matchC1 = cs[1];
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         while (inputOffset < inputLength && (input[inputOffset] != matchC0 && input[inputOffset] != matchC1))
-        {
+        {TRACE_IT(32076);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1848,7 +1848,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToChar2SetAndConsumeInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32077);
         w->Print(_u("L%04x: SyncToChar2SetAndConsume("), label);
         Char2Mixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1862,13 +1862,13 @@ namespace UnifiedRegex
 
     template<bool IsNegation>
     inline bool SyncToSetAndConsumeInst<IsNegation>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32078);
         const RuntimeCharSet<Char>& matchSet = this->set;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         while (inputOffset < inputLength && matchSet.Get(input[inputOffset]) == IsNegation)
-        {
+        {TRACE_IT(32079);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1886,7 +1886,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
     int SyncToSetAndConsumeInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32080);
         w->Print(_u("L%04x: SyncToSetAndConsume("), label);
         SetMixin<IsNegation>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1900,7 +1900,7 @@ namespace UnifiedRegex
 
     template <typename ScannerT>
     inline bool SyncToLiteralAndConsumeInstT<ScannerT>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32081);
         if (!this->Match(matcher, input, inputLength, inputOffset))
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
@@ -1913,7 +1913,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <typename ScannerT>
     int SyncToLiteralAndConsumeInstT<ScannerT>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32082);
         w->Print(_u("L%04x: SyncToLiteralAndConsume("), label);
         ScannerT::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -1933,13 +1933,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToCharAndBackupInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32083);
         if (backup.lower > inputLength - matchStart)
             // Even match at very end doesn't allow for minimum backup
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
         if(inputOffset < nextSyncInputOffset)
-        {
+        {TRACE_IT(32084);
             // We have not yet reached the offset in the input we last synced to before backing up, so it's unnecessary to sync
             // again since we'll sync to the same point in the input and back up to the same place we are at now
             instPointer += sizeof(*this);
@@ -1952,7 +1952,7 @@ namespace UnifiedRegex
 
         const Char matchC = c;
         while (inputOffset < inputLength && input[inputOffset] != matchC)
-        {
+        {TRACE_IT(32085);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -1965,7 +1965,7 @@ namespace UnifiedRegex
         nextSyncInputOffset = inputOffset + 1;
 
         if (backup.upper != CharCountFlag)
-        {
+        {TRACE_IT(32086);
             // Backup at most by backup.upper for new start
             CharCount maxBackup = inputOffset - matchStart;
             matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
@@ -1980,7 +1980,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndBackupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32087);
         w->Print(_u("L%04x: SyncToCharAndBackup("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -1996,13 +1996,13 @@ namespace UnifiedRegex
 
     template<bool IsNegation>
     inline bool SyncToSetAndBackupInst<IsNegation>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32088);
         if (backup.lower > inputLength - matchStart)
             // Even match at very end doesn't allow for minimum backup
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
         if(inputOffset < nextSyncInputOffset)
-        {
+        {TRACE_IT(32089);
             // We have not yet reached the offset in the input we last synced to before backing up, so it's unnecessary to sync
             // again since we'll sync to the same point in the input and back up to the same place we are at now
             instPointer += sizeof(*this);
@@ -2015,7 +2015,7 @@ namespace UnifiedRegex
 
         const RuntimeCharSet<Char>& matchSet = this->set;
         while (inputOffset < inputLength && matchSet.Get(input[inputOffset]) == IsNegation)
-        {
+        {TRACE_IT(32090);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -2028,7 +2028,7 @@ namespace UnifiedRegex
         nextSyncInputOffset = inputOffset + 1;
 
         if (backup.upper != CharCountFlag)
-        {
+        {TRACE_IT(32091);
             // Backup at most by backup.upper for new start
             CharCount maxBackup = inputOffset - matchStart;
             matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
@@ -2044,7 +2044,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
     int SyncToSetAndBackupInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32092);
         w->Print(_u("L%04x: SyncToSetAndBackup("), label);
         SetMixin<IsNegation>::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2059,13 +2059,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
     template <typename ScannerT>
     inline bool SyncToLiteralAndBackupInstT<ScannerT>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32093);
         if (backup.lower > inputLength - matchStart)
             // Even match at very end doesn't allow for minimum backup
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
         if(inputOffset < nextSyncInputOffset)
-        {
+        {TRACE_IT(32094);
             // We have not yet reached the offset in the input we last synced to before backing up, so it's unnecessary to sync
             // again since we'll sync to the same point in the input and back up to the same place we are at now
             instPointer += sizeof(*this);
@@ -2082,7 +2082,7 @@ namespace UnifiedRegex
         nextSyncInputOffset = inputOffset + 1;
 
         if (backup.upper != CharCountFlag)
-        {
+        {TRACE_IT(32095);
             // Set new start at most backup.upper from start of literal
             CharCount maxBackup = inputOffset - matchStart;
             matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
@@ -2099,7 +2099,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <typename ScannerT>
     int SyncToLiteralAndBackupInstT<ScannerT>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32096);
         w->Print(_u("L%04x: SyncToLiteralAndBackup("), label);
         ScannerT::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2121,13 +2121,13 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool SyncToLiteralsAndBackupInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32097);
         if (backup.lower > inputLength - matchStart)
             // Even match at very end doesn't allow for minimum backup
             return matcher.HardFail(HARDFAIL_PARAMETERS(ImmediateFail));
 
         if(inputOffset < nextSyncInputOffset)
-        {
+        {TRACE_IT(32098);
             // We have not yet reached the offset in the input we last synced to before backing up, so it's unnecessary to sync
             // again since we'll sync to the same point in the input and back up to the same place we are at now
             instPointer += sizeof(*this);
@@ -2142,7 +2142,7 @@ namespace UnifiedRegex
         CharCount bestMatchOffset = 0;
 
         if (matcher.literalNextSyncInputOffsets == nullptr)
-        {
+        {TRACE_IT(32099);
             Assert(numLiterals <= MaxNumSyncLiterals);
             matcher.literalNextSyncInputOffsets =
                 RecyclerNewArrayLeaf(matcher.recycler, CharCount, ScannersMixin::MaxNumSyncLiterals);
@@ -2150,18 +2150,18 @@ namespace UnifiedRegex
         CharCount* literalNextSyncInputOffsets = matcher.literalNextSyncInputOffsets;
 
         if (firstIteration)
-        {
+        {TRACE_IT(32100);
             for (int i = 0; i < numLiterals; i++)
-            {
+            {TRACE_IT(32101);
                 literalNextSyncInputOffsets[i] = inputOffset;
             }
         }
 
         for (int i = 0; i < numLiterals; i++)
-        {
+        {TRACE_IT(32102);
             CharCount thisMatchOffset = literalNextSyncInputOffsets[i];
             if (inputOffset > thisMatchOffset)
-            {
+            {TRACE_IT(32103);
                 thisMatchOffset = inputOffset;
             }
 
@@ -2186,9 +2186,9 @@ namespace UnifiedRegex
                     , matcher.stats
 #endif
                     )))
-            {
+            {TRACE_IT(32104);
                 if (besti < 0 || thisMatchOffset < bestMatchOffset)
-                {
+                {TRACE_IT(32105);
                     besti = i;
                     bestMatchOffset = thisMatchOffset;
                 }
@@ -2196,7 +2196,7 @@ namespace UnifiedRegex
                 literalNextSyncInputOffsets[i] = thisMatchOffset;
             }
             else
-            {
+            {TRACE_IT(32106);
                 literalNextSyncInputOffsets[i] = inputLength;
             }
         }
@@ -2208,7 +2208,7 @@ namespace UnifiedRegex
         nextSyncInputOffset = bestMatchOffset + 1;
 
         if (backup.upper != CharCountFlag)
-        {
+        {TRACE_IT(32107);
             // Set new start at most backup.upper from start of literal
             CharCount maxBackup = bestMatchOffset - matchStart;
             matchStart = bestMatchOffset - min(maxBackup, (CharCount)backup.upper);
@@ -2223,7 +2223,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToLiteralsAndBackupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32108);
         w->Print(_u("L%04x: SyncToLiteralsAndBackup("), label);
         ScannersMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2238,10 +2238,10 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool MatchGroupInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32109);
         GroupInfo* const info = matcher.GroupIdToGroupInfo(groupId);
         if (!info->IsUndefined() && info->length > 0)
-        {
+        {TRACE_IT(32110);
             if (info->length > inputLength - inputOffset)
                 return matcher.Fail(FAIL_PARAMETERS);
 
@@ -2253,16 +2253,16 @@ namespace UnifiedRegex
 
             // This is the only place in the runtime machinery we need to convert characters to their equivalence class
             if (isCaseInsensitiveMatch && isCodePointList)
-            {
-                auto getNextCodePoint = [=](CharCount &offset, CharCount endOffset, codepoint_t &codePoint) {
+            {TRACE_IT(32111);
+                auto getNextCodePoint = [=](CharCount &offset, CharCount endOffset, codepoint_t &codePoint) {TRACE_IT(32112);
                     if (endOffset <= offset)
-                    {
+                    {TRACE_IT(32113);
                         return false;
                     }
 
                     Char lowerPart = input[offset];
                     if (!Js::NumberUtilities::IsSurrogateLowerPart(lowerPart) || offset + 1 == endOffset)
-                    {
+                    {TRACE_IT(32114);
                         codePoint = lowerPart;
                         offset += 1;
                         return true;
@@ -2270,12 +2270,12 @@ namespace UnifiedRegex
 
                     Char upperPart = input[offset + 1];
                     if (!Js::NumberUtilities::IsSurrogateUpperPart(upperPart))
-                    {
+                    {TRACE_IT(32115);
                         codePoint = lowerPart;
                         offset += 1;
                     }
                     else
-                    {
+                    {TRACE_IT(32116);
                         codePoint = Js::NumberUtilities::SurrogatePairAsCodePoint(lowerPart, upperPart);
                         offset += 2;
                     }
@@ -2285,11 +2285,11 @@ namespace UnifiedRegex
 
                 codepoint_t equivs[CaseInsensitive::EquivClassSize];
                 while (true)
-                {
+                {TRACE_IT(32117);
                     codepoint_t groupCodePoint;
                     bool hasGroupCodePoint = getNextCodePoint(groupOffset, groupEndOffset, groupCodePoint);
                     if (!hasGroupCodePoint)
-                    {
+                    {TRACE_IT(32118);
                         break;
                     }
 
@@ -2301,8 +2301,8 @@ namespace UnifiedRegex
 
                     bool doesMatch = false;
                     if (!Js::NumberUtilities::IsInSupplementaryPlane(groupCodePoint))
-                    {
-                        auto toCanonical = [&](codepoint_t c) {
+                    {TRACE_IT(32119);
+                        auto toCanonical = [&](codepoint_t c) {TRACE_IT(32120);
                             return matcher.standardChars->ToCanonical(
                                 CaseInsensitive::MappingSource::CaseFolding,
                                 static_cast<char16>(c));
@@ -2310,7 +2310,7 @@ namespace UnifiedRegex
                         doesMatch = (toCanonical(groupCodePoint) == toCanonical(inputCodePoint));
                     }
                     else
-                    {
+                    {TRACE_IT(32121);
                         uint tblidx = 0;
                         uint acth = 0;
                         CaseInsensitive::RangeToEquivClass(tblidx, groupCodePoint, groupCodePoint, acth, equivs);
@@ -2323,32 +2323,32 @@ namespace UnifiedRegex
                     }
 
                     if (!doesMatch)
-                    {
+                    {TRACE_IT(32122);
                         return matcher.Fail(FAIL_PARAMETERS);
                     }
                 }
             }
             else if (isCaseInsensitiveMatch)
-            {
+            {TRACE_IT(32123);
                 do
-                {
+                {TRACE_IT(32124);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                     matcher.CompStats();
 #endif
-                    auto toCanonical = [&](CharCount &offset) {
+                    auto toCanonical = [&](CharCount &offset) {TRACE_IT(32125);
                         return matcher.standardChars->ToCanonical(CaseInsensitive::MappingSource::UnicodeData, input[offset++]);
                     };
                     if (toCanonical(groupOffset) != toCanonical(inputOffset))
-                    {
+                    {TRACE_IT(32126);
                         return matcher.Fail(FAIL_PARAMETERS);
                     }
                 }
                 while (groupOffset < groupEndOffset);
             }
             else
-            {
+            {TRACE_IT(32127);
                 do
-                {
+                {TRACE_IT(32128);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                     matcher.CompStats();
 #endif
@@ -2366,7 +2366,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32129);
         w->Print(_u("L%04x: MatchGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2379,7 +2379,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginDefineGroupInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32130);
         GroupInfo *const groupInfo = matcher.GroupIdToGroupInfo(groupId);
         Assert(groupInfo->IsUndefined());
         groupInfo->offset = inputOffset;
@@ -2391,7 +2391,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginDefineGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32131);
         w->Print(_u("L%04x: BeginDefineGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2404,7 +2404,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool EndDefineGroupInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32132);
         if (!noNeedToSave)
         {
             // UNDO ACTION: Restore group on backtrack
@@ -2425,7 +2425,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EndDefineGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32133);
         w->Print(_u("L%04x: EndDefineGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2440,7 +2440,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool DefineGroupFixedInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32134);
         if (!noNeedToSave)
         {
             // UNDO ACTION: Restore group on backtrack
@@ -2461,7 +2461,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int DefineGroupFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32135);
         w->Print(_u("L%04x: DefineGroupFixed("), label);
         GroupMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2478,7 +2478,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginLoopInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32136);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
         // If loop has outer loops, the continuation stack may have choicepoints from an earlier "run" of this loop
@@ -2505,7 +2505,7 @@ namespace UnifiedRegex
         //  - if the loop is in an outer loop, they will have been reset by the outer loop's RepeatLoop instruction
 #if DBG
         for (int i = minBodyGroupId; i <= maxBodyGroupId; i++)
-        {
+        {TRACE_IT(32137);
             Assert(matcher.GroupIdToGroupInfo(i)->IsUndefined());
         }
 #endif
@@ -2514,7 +2514,7 @@ namespace UnifiedRegex
         loopInfo->startInputOffset = inputOffset;
 
         if (repeats.lower == 0)
-        {
+        {TRACE_IT(32138);
             if (isGreedy)
             {
                 // CHOICEPOINT: Try one iteration of body, if backtrack continue from here with no iterations
@@ -2522,7 +2522,7 @@ namespace UnifiedRegex
                 instPointer += sizeof(*this);
             }
             else
-            {
+            {TRACE_IT(32139);
                 // CHOICEPOINT: Try no iterations of body, if backtrack do one iteration of body from here
                 Assert(instPointer == (uint8*)this);
                 PUSH(contStack, RepeatLoopCont, matcher.InstPointerToLabel(instPointer), inputOffset);
@@ -2533,7 +2533,7 @@ namespace UnifiedRegex
 #endif
         }
         else
-        {
+        {TRACE_IT(32140);
             // Must match minimum iterations, so continue to loop body
             instPointer += sizeof(*this);
         }
@@ -2543,7 +2543,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32141);
         w->Print(_u("L%04x: BeginLoop("), label);
         BeginLoopMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2558,7 +2558,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32142);
         BeginLoopInst* begin = matcher.L2I(BeginLoop, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
@@ -2574,17 +2574,17 @@ namespace UnifiedRegex
         loopInfo->number++;
 
         if (loopInfo->number < begin->repeats.lower)
-        {
+        {TRACE_IT(32143);
             // Must match another iteration of body.
             loopInfo->startInputOffset = inputOffset;
             if(begin->hasInnerNondet)
-            {
+            {TRACE_IT(32144);
                 // If it backtracks into the loop body of an earlier iteration, it must restore inner groups for that iteration.
                 // Save the inner groups and reset them for the next iteration.
                 matcher.SaveInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId, true, input, contStack);
             }
             else
-            {
+            {TRACE_IT(32145);
                 // If it backtracks, the entire loop will fail, so no need to restore groups. Just reset the inner groups for
                 // the next iteration.
                 matcher.ResetInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId);
@@ -2592,7 +2592,7 @@ namespace UnifiedRegex
             instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(BeginLoopInst));
         }
         else if (inputOffset == loopInfo->startInputOffset && loopInfo->number > begin->repeats.lower)
-        {
+        {TRACE_IT(32146);
             // The minimum number of iterations has been satisfied but the last iteration made no progress.
             //   - With greedy & deterministic body, FAIL so as to undo that iteration and restore group bindings.
             //   - With greedy & non-deterministic body, FAIL so as to try another body alternative
@@ -2602,7 +2602,7 @@ namespace UnifiedRegex
             return matcher.Fail(FAIL_PARAMETERS);
         }
         else if (begin->repeats.upper != CharCountFlag && loopInfo->number >= (CharCount)begin->repeats.upper)
-        {
+        {TRACE_IT(32147);
             // Success: proceed to remainder.
             instPointer = matcher.LabelToInstPointer(begin->exitLabel);
         }
@@ -2633,7 +2633,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32148);
         w->Print(_u("L%04x: RepeatLoop("), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2646,19 +2646,19 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginLoopIfCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32149);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && input[inputOffset] == c)
-        {
+        {TRACE_IT(32150);
             // Commit to at least one iteration of loop
             LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
             // All inner groups must begin reset
 #if DBG
             for (int i = minBodyGroupId; i <= maxBodyGroupId; i++)
-            {
+            {TRACE_IT(32151);
                 Assert(matcher.GroupIdToGroupInfo(i)->IsUndefined());
             }
 #endif
@@ -2676,7 +2676,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32152);
         w->Print(_u("L%04x: BeginLoopIfChar("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2693,19 +2693,19 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginLoopIfSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32153);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && set.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32154);
             // Commit to at least one iteration of loop
             LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
             // All inner groups must be begin reset
 #if DBG
             for (int i = minBodyGroupId; i <= maxBodyGroupId; i++)
-            {
+            {TRACE_IT(32155);
                 Assert(matcher.GroupIdToGroupInfo(i)->IsUndefined());
             }
 #endif
@@ -2725,7 +2725,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32156);
         w->Print(_u("L%04x: BeginLoopIfSet("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2742,7 +2742,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopIfCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32157);
         BeginLoopIfCharInst* begin = matcher.L2I(BeginLoopIfChar, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
@@ -2761,9 +2761,9 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && input[inputOffset] == begin->c)
-        {
+        {TRACE_IT(32158);
             if (begin->repeats.upper != CharCountFlag && loopInfo->number >= (CharCount)begin->repeats.upper)
-            {
+            {TRACE_IT(32159);
                 // If the loop body's first set and the loop's follow set are disjoint, we can just fail here since
                 // we know the next character in the input is in the loop body's first set.
                 return matcher.Fail(FAIL_PARAMETERS);
@@ -2771,13 +2771,13 @@ namespace UnifiedRegex
 
             // Commit to one more iteration
             if(begin->hasInnerNondet)
-            {
+            {TRACE_IT(32160);
                 // If it backtracks into the loop body of an earlier iteration, it must restore inner groups for that iteration.
                 // Save the inner groups and reset them for the next iteration.
                 matcher.SaveInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId, true, input, contStack);
             }
             else
-            {
+            {TRACE_IT(32161);
                 // If it backtracks, the entire loop will fail, so no need to restore groups. Just reset the inner groups for
                 // the next iteration.
                 matcher.ResetInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId);
@@ -2796,7 +2796,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32162);
         w->Print(_u("L%04x: RepeatLoopIfChar(%d, "), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2809,7 +2809,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopIfSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32163);
         BeginLoopIfSetInst* begin = matcher.L2I(BeginLoopIfSet, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
@@ -2828,9 +2828,9 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         if (inputOffset < inputLength && begin->set.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32164);
             if (begin->repeats.upper != CharCountFlag && loopInfo->number >= (CharCount)begin->repeats.upper)
-            {
+            {TRACE_IT(32165);
                 // If the loop body's first set and the loop's follow set are disjoint, we can just fail here since
                 // we know the next character in the input is in the loop body's first set.
                 return matcher.Fail(FAIL_PARAMETERS);
@@ -2838,13 +2838,13 @@ namespace UnifiedRegex
 
             // Commit to one more iteration
             if(begin->hasInnerNondet)
-            {
+            {TRACE_IT(32166);
                 // If it backtracks into the loop body of an earlier iteration, it must restore inner groups for that iteration.
                 // Save the inner groups and reset them for the next iteration.
                 matcher.SaveInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId, true, input, contStack);
             }
             else
-            {
+            {TRACE_IT(32167);
                 // If it backtracks, the entire loop will fail, so no need to restore groups. Just reset the inner groups for
                 // the next iteration.
                 matcher.ResetInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId);
@@ -2863,7 +2863,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32168);
         w->Print(_u("L%04x: RepeatLoopIfSet("), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2876,7 +2876,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginLoopFixedInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32169);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
         // If loop is contained in an outer loop, continuation stack may already have a RewindLoopFixed entry for
@@ -2895,7 +2895,7 @@ namespace UnifiedRegex
         loopInfo->startInputOffset = inputOffset;
 
         if (repeats.lower == 0)
-        {
+        {TRACE_IT(32170);
             // CHOICEPOINT: Try one iteration of body. Failure of body will rewind input to here and resume with follow.
             Assert(instPointer == (uint8*)this);
             PUSH(contStack, RewindLoopFixedCont, matcher.InstPointerToLabel(instPointer), true);
@@ -2911,7 +2911,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32171);
         w->Print(_u("L%04x: BeginLoopFixed("), label);
         BeginLoopMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -2926,22 +2926,22 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopFixedInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32172);
         BeginLoopFixedInst* begin = matcher.L2I(BeginLoopFixed, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
         loopInfo->number++;
 
         if (loopInfo->number < begin->repeats.lower)
-        {
+        {TRACE_IT(32173);
             // Must match another iteration of body. Failure of body signals failure of the entire loop.
             instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(BeginLoopFixedInst));
         }
         else if (begin->repeats.upper != CharCountFlag && loopInfo->number >= (CharCount)begin->repeats.upper)
-        {
+        {TRACE_IT(32174);
             // Matched maximum number of iterations. Continue with follow.
             if (begin->repeats.lower < begin->repeats.upper)
-            {
+            {TRACE_IT(32175);
                 // Failure of follow will try one fewer iterations (subject to repeats.lower).
                 // Since loop body is non-deterministic and does not define groups the rewind continuation must be on top of the stack.
                 Cont *top = contStack.Top();
@@ -2954,7 +2954,7 @@ namespace UnifiedRegex
             instPointer = matcher.LabelToInstPointer(begin->exitLabel);
         }
         else
-        {
+        {TRACE_IT(32176);
             // CHOICEPOINT: Try one more iteration of body. Failure of body will rewind input to here and
             // try follow.
             if (loopInfo->number == begin->repeats.lower)
@@ -2972,7 +2972,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32177);
         w->Print(_u("L%04x: RepeatLoopFixed("), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -2985,7 +2985,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool LoopSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32178);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
         // If loop is contained in an outer loop, continuation stack may already have a RewindLoopFixed entry for
@@ -3014,7 +3014,7 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32179);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -3025,7 +3025,7 @@ namespace UnifiedRegex
         if (loopInfo->number < repeats.lower)
             return matcher.Fail(FAIL_PARAMETERS);
         if (loopInfo->number > repeats.lower)
-        {
+        {TRACE_IT(32180);
             // CHOICEPOINT: If follow fails, try consuming one fewer characters
             Assert(instPointer == (uint8*)this);
             PUSH(contStack, RewindLoopSetCont, matcher.InstPointerToLabel(instPointer));
@@ -3042,7 +3042,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int LoopSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32181);
         w->Print(_u("L%04x: LoopSet(loopId: %d, "), label, loopId);
         repeats.Print(w);
         w->Print(_u(", hasOuterLoops: %s, "), hasOuterLoops ? _u("true") : _u("false"));
@@ -3053,7 +3053,7 @@ namespace UnifiedRegex
 #endif
 
     inline bool LoopSetWithFollowFirstInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32182);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
         // If loop is contained in an outer loop, continuation stack may already have a RewindLoopFixed entry for
@@ -3067,7 +3067,7 @@ namespace UnifiedRegex
         }
 
         if (loopInfo->offsetsOfFollowFirst)
-        {
+        {TRACE_IT(32183);
             loopInfo->offsetsOfFollowFirst->Clear();
         }
         // startInputOffset will stay here for all iterations, and we'll use number of length to figure out
@@ -3086,12 +3086,12 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32184);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
             if (input[inputOffset] == this->followFirst)
-            {
+            {TRACE_IT(32185);
                 loopInfo->EnsureOffsetsOfFollowFirst(matcher);
                 loopInfo->offsetsOfFollowFirst->Add(inputOffset - loopInfo->startInputOffset);
             }
@@ -3102,7 +3102,7 @@ namespace UnifiedRegex
         if (loopInfo->number < repeats.lower)
             return matcher.Fail(FAIL_PARAMETERS);
         if (loopInfo->number > repeats.lower)
-        {
+        {TRACE_IT(32186);
             // CHOICEPOINT: If follow fails, try consuming one fewer characters
             Assert(instPointer == (uint8*)this);
             PUSH(contStack, RewindLoopSetWithFollowFirstCont, matcher.InstPointerToLabel(instPointer));
@@ -3119,7 +3119,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int LoopSetWithFollowFirstInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32187);
         w->Print(_u("L%04x: LoopSet(loopId: %d, followFirst: %c, "), label, loopId, followFirst);
         repeats.Print(w);
         w->Print(_u(", hasOuterLoops: %s, "), hasOuterLoops ? _u("true") : _u("false"));
@@ -3134,7 +3134,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginLoopFixedGroupLastIterationInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32188);
         Assert(matcher.GroupIdToGroupInfo(groupId)->IsUndefined());
 
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
@@ -3164,7 +3164,7 @@ namespace UnifiedRegex
         loopInfo->startInputOffset = inputOffset;
 
         if (repeats.lower == 0)
-        {
+        {TRACE_IT(32189);
             // CHOICEPOINT: Try one iteration of body. Failure of body will rewind input to here and resume with follow.
             Assert(instPointer == (uint8*)this);
             PUSH(contStack, RewindLoopFixedGroupLastIterationCont, matcher.InstPointerToLabel(instPointer), true);
@@ -3180,7 +3180,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopFixedGroupLastIterationInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32190);
         w->Print(_u("L%04x: BeginLoopFixedGroupLastIteration("), label);
         BeginLoopMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3199,22 +3199,22 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopFixedGroupLastIterationInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32191);
         BeginLoopFixedGroupLastIterationInst* begin = matcher.L2I(BeginLoopFixedGroupLastIteration, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
         loopInfo->number++;
 
         if (loopInfo->number < begin->repeats.lower)
-        {
+        {TRACE_IT(32192);
             // Must match another iteration of body. Failure of body signals failure of the entire loop.
             instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(BeginLoopFixedGroupLastIterationInst));
         }
         else if (begin->repeats.upper != CharCountFlag && loopInfo->number >= (CharCount)begin->repeats.upper)
-        {
+        {TRACE_IT(32193);
             // Matched maximum number of iterations. Continue with follow.
             if (begin->repeats.lower < begin->repeats.upper)
-            {
+            {TRACE_IT(32194);
                 // Failure of follow will try one fewer iterations (subject to repeats.lower).
                 // Since loop body is non-deterministic and does not define groups the rewind continuation must be on top of the stack.
                 Cont *top = contStack.Top();
@@ -3233,7 +3233,7 @@ namespace UnifiedRegex
             instPointer = matcher.LabelToInstPointer(begin->exitLabel);
         }
         else
-        {
+        {TRACE_IT(32195);
             // CHOICEPOINT: Try one more iteration of body. Failure of body will rewind input to here and
             // try follow.
             if (loopInfo->number == begin->repeats.lower)
@@ -3251,7 +3251,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopFixedGroupLastIterationInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32196);
         w->Print(_u("L%04x: RepeatLoopFixedGroupLastIteration("), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -3265,7 +3265,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginGreedyLoopNoBacktrackInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32197);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
 
         loopInfo->number = 0;
@@ -3283,7 +3283,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginGreedyLoopNoBacktrackInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32198);
         w->PrintEOL(_u("L%04x: BeginGreedyLoopNoBacktrack(loopId: %d)"), label, loopId);
         return sizeof(*this);
     }
@@ -3294,19 +3294,19 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatGreedyLoopNoBacktrackInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32199);
         BeginGreedyLoopNoBacktrackInst* begin = matcher.L2I(BeginGreedyLoopNoBacktrack, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
         loopInfo->number++;
 
         if (inputOffset == loopInfo->startInputOffset)
-        {
+        {TRACE_IT(32200);
             // No progress
             return matcher.Fail(FAIL_PARAMETERS);
         }
         else
-        {
+        {TRACE_IT(32201);
             // CHOICEPOINT: Try one more iteration of body, if backtrack, continue from here with no more iterations.
             // Since the loop body is deterministic and group free, it wouldn't have left any continuation records.
             // Therefore we can simply update the Resume continuation still on the top of the stack with the current
@@ -3324,7 +3324,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatGreedyLoopNoBacktrackInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32202);
         w->Print(_u("L%04x: RepeatGreedyLoopNoBacktrack("), label);
         RepeatLoopMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -3338,22 +3338,22 @@ namespace UnifiedRegex
 
     template<ChompMode Mode>
     inline bool ChompCharInst<Mode>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32203);
         const Char matchC = c;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if(Mode == ChompMode::Star || (inputOffset < inputLength && input[inputOffset] == matchC))
-        {
+        {TRACE_IT(32204);
             while(true)
-            {
+            {TRACE_IT(32205);
                 if(Mode != ChompMode::Star)
                     ++inputOffset;
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
                 if(inputOffset < inputLength && input[inputOffset] == matchC)
-                {
+                {TRACE_IT(32206);
                     if(Mode == ChompMode::Star)
                         ++inputOffset;
                     continue;
@@ -3371,7 +3371,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<ChompMode Mode>
     int ChompCharInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32207);
         w->Print(_u("L%04x: ChompChar<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -3385,22 +3385,22 @@ namespace UnifiedRegex
 
     template<ChompMode Mode>
     inline bool ChompSetInst<Mode>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32208);
         const RuntimeCharSet<Char>& matchSet = this->set;
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
         if(Mode == ChompMode::Star || (inputOffset < inputLength && matchSet.Get(input[inputOffset])))
-        {
+        {TRACE_IT(32209);
             while(true)
-            {
+            {TRACE_IT(32210);
                 if(Mode != ChompMode::Star)
                     ++inputOffset;
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
                 if(inputOffset < inputLength && matchSet.Get(input[inputOffset]))
-                {
+                {TRACE_IT(32211);
                     if(Mode == ChompMode::Star)
                         ++inputOffset;
                     continue;
@@ -3418,7 +3418,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<ChompMode Mode>
     int ChompSetInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32212);
         w->Print(_u("L%04x: ChompSet<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
         SetMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -3432,7 +3432,7 @@ namespace UnifiedRegex
 
     template<ChompMode Mode>
     inline bool ChompCharGroupInst<Mode>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32213);
         Assert(matcher.GroupIdToGroupInfo(groupId)->IsUndefined());
 
         const CharCount inputStartOffset = inputOffset;
@@ -3441,16 +3441,16 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         if(Mode == ChompMode::Star || (inputOffset < inputLength && input[inputOffset] == matchC))
-        {
+        {TRACE_IT(32214);
             while(true)
-            {
+            {TRACE_IT(32215);
                 if(Mode != ChompMode::Star)
                     ++inputOffset;
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
                 if(inputOffset < inputLength && input[inputOffset] == matchC)
-                {
+                {TRACE_IT(32216);
                     if(Mode == ChompMode::Star)
                         ++inputOffset;
                     continue;
@@ -3481,7 +3481,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<ChompMode Mode>
     int ChompCharGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32217);
         w->Print(_u("L%04x: ChompCharGroup<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3499,7 +3499,7 @@ namespace UnifiedRegex
 
     template<ChompMode Mode>
     inline bool ChompSetGroupInst<Mode>::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32218);
         Assert(matcher.GroupIdToGroupInfo(groupId)->IsUndefined());
 
         const CharCount inputStartOffset = inputOffset;
@@ -3508,16 +3508,16 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         if(Mode == ChompMode::Star || (inputOffset < inputLength && matchSet.Get(input[inputOffset])))
-        {
+        {TRACE_IT(32219);
             while(true)
-            {
+            {TRACE_IT(32220);
                 if(Mode != ChompMode::Star)
                     ++inputOffset;
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
                 if(inputOffset < inputLength && matchSet.Get(input[inputOffset]))
-                {
+                {TRACE_IT(32221);
                     if(Mode == ChompMode::Star)
                         ++inputOffset;
                     continue;
@@ -3548,7 +3548,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<ChompMode Mode>
     int ChompSetGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32222);
         w->Print(_u("L%04x: ChompSetGroup<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3565,7 +3565,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ChompCharBoundedInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32223);
         const Char matchC = c;
         const CharCount loopMatchStart = inputOffset;
         const CharCountOrFlag repeatsUpper = repeats.upper;
@@ -3577,7 +3577,7 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         while (inputOffset < inputEndOffset && input[inputOffset] == matchC)
-        {
+        {TRACE_IT(32224);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -3593,7 +3593,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompCharBoundedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32225);
         w->Print(_u("L%04x: ChompCharBounded("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3608,7 +3608,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ChompSetBoundedInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32226);
         const RuntimeCharSet<Char>& matchSet = this->set;
         const CharCount loopMatchStart = inputOffset;
         const CharCountOrFlag repeatsUpper = repeats.upper;
@@ -3620,7 +3620,7 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32227);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -3636,7 +3636,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompSetBoundedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32228);
         w->Print(_u("L%04x: ChompSetBounded("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3651,7 +3651,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ChompSetBoundedGroupLastCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32229);
         Assert(matcher.GroupIdToGroupInfo(groupId)->IsUndefined());
 
         const RuntimeCharSet<Char>& matchSet = this->set;
@@ -3665,7 +3665,7 @@ namespace UnifiedRegex
         matcher.CompStats();
 #endif
         while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
-        {
+        {TRACE_IT(32230);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.CompStats();
 #endif
@@ -3676,7 +3676,7 @@ namespace UnifiedRegex
             return matcher.Fail(FAIL_PARAMETERS);
 
         if (inputOffset > loopMatchStart)
-        {
+        {TRACE_IT(32231);
             if (!noNeedToSave)
             {
                 PUSH(contStack, ResetGroupCont, groupId);
@@ -3696,7 +3696,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompSetBoundedGroupLastCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32232);
         w->Print(_u("L%04x: ChompSetBoundedGroupLastChar("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3728,7 +3728,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32233);
         w->Print(_u("L%04x: Try("), label);
         TryMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
@@ -3741,7 +3741,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool TryIfCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32234);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -3763,7 +3763,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32235);
         w->Print(_u("L%04x: TryIfChar("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3778,7 +3778,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool TryMatchCharInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32236);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -3801,7 +3801,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryMatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32237);
         w->Print(_u("L%04x: TryMatchChar("), label);
         CharMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3816,7 +3816,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool TryIfSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32238);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -3838,7 +3838,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32239);
         w->Print(_u("L%04x: TryIfSet("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3853,7 +3853,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool TryMatchSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32240);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         matcher.CompStats();
 #endif
@@ -3876,7 +3876,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryMatchSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32241);
         w->Print(_u("L%04x: TryMatchSet("), label);
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
@@ -3891,11 +3891,11 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool BeginAssertionInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32242);
         Assert(instPointer == (uint8*)this);
 
         if (!isNegation)
-        {
+        {TRACE_IT(32243);
             // If the positive assertion binds some groups then on success any RestoreGroup continuations pushed
             // in the assertion body will be cut. Hence if the entire assertion is backtracked over we must restore
             // the current inner group bindings.
@@ -3914,7 +3914,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginAssertionInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32244);
         w->Print(_u("L%04x: BeginAssertion(isNegation: %s, nextLabel: L%04x, "),
             label, isNegation ? _u("true") : _u("false"), GetPrintLabel(nextLabel));
         BodyGroupsMixin::Print(w, litbuf);
@@ -3928,7 +3928,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool EndAssertionInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
-    {
+    {TRACE_IT(32245);
         if (!matcher.PopAssertion(inputOffset, instPointer, contStack, assertionStack, true))
             // Body of negative assertion succeeded, so backtrack
             return matcher.Fail(FAIL_PARAMETERS);
@@ -3939,7 +3939,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EndAssertionInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
+    {TRACE_IT(32246);
         w->PrintEOL(_u("L%04x: EndAssertion()"), label);
         return sizeof(*this);
     }
@@ -3951,26 +3951,26 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void LoopInfo::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(32247);
         w->Print(_u("number: %u, startInputOffset: %u"), number, startInputOffset);
     }
 #endif
 
     void LoopInfo::EnsureOffsetsOfFollowFirst(Matcher& matcher)
-    {
+    {TRACE_IT(32248);
         if (this->offsetsOfFollowFirst == nullptr)
-        {
+        {TRACE_IT(32249);
             this->offsetsOfFollowFirst = JsUtil::List<CharCount, ArenaAllocator>::New(matcher.pattern->library->GetScriptContext()->RegexAllocator());
         }
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void GroupInfo::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32250);
         if (IsUndefined())
             w->Print(_u("<undefined> (%u)"), offset);
         else
-        {
+        {TRACE_IT(32251);
             w->PrintQuotedString(input + offset, (CharCount)length);
             w->Print(_u(" (%u+%u)"), offset, (CharCount)length);
         }
@@ -3979,7 +3979,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void AssertionInfo::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(32252);
         w->PrintEOL(_u("beginLabel: L%04x, startInputOffset: %u, contStackPosition: $llu"), beginLabel, startInputOffset, static_cast<unsigned long long>(contStackPosition));
     }
 #endif
@@ -3989,7 +3989,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ResumeCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32253);
         inputOffset = origInputOffset;
         instPointer = matcher.LabelToInstPointer(origInstLabel);
         return true; // STOP BACKTRACKING
@@ -3997,7 +3997,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ResumeCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32254);
         w->PrintEOL(_u("Resume(origInputOffset: %u, origInstLabel: L%04x)"), origInputOffset, origInstLabel);
         return sizeof(*this);
     }
@@ -4008,19 +4008,19 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline RestoreLoopCont::RestoreLoopCont(int loopId, LoopInfo& origLoopInfo, Matcher& matcher) : Cont(RestoreLoop), loopId(loopId)
-    {
+    {TRACE_IT(32255);
         this->origLoopInfo.number = origLoopInfo.number;
         this->origLoopInfo.startInputOffset = origLoopInfo.startInputOffset;
         this->origLoopInfo.offsetsOfFollowFirst = nullptr;
         if (origLoopInfo.offsetsOfFollowFirst != nullptr)
-        {
+        {TRACE_IT(32256);
             this->origLoopInfo.offsetsOfFollowFirst = JsUtil::List<CharCount, ArenaAllocator>::New(matcher.pattern->library->GetScriptContext()->RegexAllocator());
             this->origLoopInfo.offsetsOfFollowFirst->Copy(origLoopInfo.offsetsOfFollowFirst);
         }
     }
 
     inline bool RestoreLoopCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32257);
         matcher.QueryContinue(qcTicks);
 
         *matcher.LoopIdToLoopInfo(loopId) = origLoopInfo;
@@ -4030,7 +4030,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RestoreLoopCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32258);
         w->Print(_u("RestoreLoop(loopId: %d, "), loopId);
         origLoopInfo.Print(w);
         w->PrintEOL(_u(")"));
@@ -4043,14 +4043,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RestoreGroupCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32259);
         *matcher.GroupIdToGroupInfo(groupId) = origGroupInfo;
         return false; // KEEP BACKTRACKING
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RestoreGroupCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32260);
         w->Print(_u("RestoreGroup(groupId: %d, "), groupId);
         origGroupInfo.Print(w, input);
         w->PrintEOL(_u(")"));
@@ -4063,14 +4063,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ResetGroupCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32261);
         matcher.ResetGroup(groupId);
         return false; // KEEP BACKTRACKING
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ResetGroupCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32262);
         w->PrintEOL(_u("ResetGroup(groupId: %d)"), groupId);
         return sizeof(*this);
     }
@@ -4081,14 +4081,14 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool ResetGroupRangeCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32263);
         matcher.ResetInnerGroups(fromGroupId, toGroupId);
         return false; // KEEP BACKTRACKING
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ResetGroupRangeCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32264);
         w->PrintEOL(_u("ResetGroupRange(fromGroupId: %d, toGroupId: %d)"), fromGroupId, toGroupId);
         return sizeof(*this);
     }
@@ -4099,7 +4099,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RepeatLoopCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32265);
         matcher.QueryContinue(qcTicks);
 
         // Try one more iteration of a non-greedy loop
@@ -4108,13 +4108,13 @@ namespace UnifiedRegex
         loopInfo->startInputOffset = inputOffset = origInputOffset;
         instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(BeginLoopInst));
         if(begin->hasInnerNondet)
-        {
+        {TRACE_IT(32266);
             // If it backtracks into the loop body of an earlier iteration, it must restore inner groups for that iteration.
             // Save the inner groups and reset them for the next iteration.
             matcher.SaveInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId, true, input, contStack);
         }
         else
-        {
+        {TRACE_IT(32267);
             // If it backtracks, the entire loop will fail, so no need to restore groups. Just reset the inner groups for
             // the next iteration.
             matcher.ResetInnerGroups(begin->minBodyGroupId, begin->maxBodyGroupId);
@@ -4124,7 +4124,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32268);
         w->PrintEOL(_u("RepeatLoop(beginLabel: L%04x, origInputOffset: %u)"), beginLabel, origInputOffset);
         return sizeof(*this);
     }
@@ -4135,7 +4135,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool PopAssertionCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32269);
         Assert(!assertionStack.IsEmpty());
         if (matcher.PopAssertion(inputOffset, instPointer, contStack, assertionStack, false))
             // Body of negative assertion failed
@@ -4147,7 +4147,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int PopAssertionCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32270);
         w->PrintEOL(_u("PopAssertion()"));
         return sizeof(*this);
     }
@@ -4158,20 +4158,20 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RewindLoopFixedCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32271);
         matcher.QueryContinue(qcTicks);
 
         BeginLoopFixedInst* begin = matcher.L2I(BeginLoopFixed, beginLabel);
         LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
 
         if (tryingBody)
-        {
+        {TRACE_IT(32272);
             tryingBody = false;
             // loopInfo->number is the number of iterations completed before trying body
             Assert(loopInfo->number >= begin->repeats.lower);
         }
         else
-        {
+        {TRACE_IT(32273);
             // loopInfo->number is the number of iterations completed before trying follow
             Assert(loopInfo->number > begin->repeats.lower);
             // Try follow with one fewer iteration
@@ -4182,7 +4182,7 @@ namespace UnifiedRegex
         inputOffset = loopInfo->startInputOffset + loopInfo->number * begin->length;
 
         if (loopInfo->number > begin->repeats.lower)
-        {
+        {TRACE_IT(32274);
             // Un-pop the continuation ready for next time
             contStack.UnPop<RewindLoopFixedCont>();
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -4197,7 +4197,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RewindLoopFixedCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32275);
         w->PrintEOL(_u("RewindLoopFixed(beginLabel: L%04x, tryingBody: %s)"), beginLabel, tryingBody ? _u("true") : _u("false"));
         return sizeof(*this);
     }
@@ -4208,7 +4208,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RewindLoopSetCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32276);
         matcher.QueryContinue(qcTicks);
 
         LoopSetInst* begin = matcher.L2I(LoopSet, beginLabel);
@@ -4223,7 +4223,7 @@ namespace UnifiedRegex
         inputOffset = loopInfo->startInputOffset + loopInfo->number;
 
         if (loopInfo->number > begin->repeats.lower)
-        {
+        {TRACE_IT(32277);
             // Un-pop the continuation ready for next time
             contStack.UnPop<RewindLoopSetCont>();
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -4238,7 +4238,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RewindLoopSetCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32278);
         w->PrintEOL(_u("RewindLoopSet(beginLabel: L%04x)"), beginLabel);
         return sizeof(*this);
     }
@@ -4249,7 +4249,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RewindLoopSetWithFollowFirstCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32279);
         matcher.QueryContinue(qcTicks);
 
         LoopSetWithFollowFirstInst* begin = matcher.L2I(LoopSetWithFollowFirst, beginLabel);
@@ -4260,31 +4260,31 @@ namespace UnifiedRegex
         // Try follow with fewer iterations
 
         if (loopInfo->offsetsOfFollowFirst == nullptr)
-        {
+        {TRACE_IT(32280);
             if (begin->followFirst != MaxUChar)
-            {
+            {TRACE_IT(32281);
                 // We determined the first character in the follow set at compile time,
                 // but didn't find a single match for it in the last iteration of the loop.
                 // So, there is no benefit in backtracking.
                 loopInfo->number = begin->repeats.lower; // stop backtracking
             }
             else
-            {
+            {TRACE_IT(32282);
                 // We couldn't determine the first character in the follow set at compile time;
                 // fall back to backtracking by one character at a time.
                 loopInfo->number--;
             }
         }
         else
-        {
+        {TRACE_IT(32283);
             if (loopInfo->offsetsOfFollowFirst->Empty())
-            {
+            {TRACE_IT(32284);
                 // We have already backtracked to the first offset where we matched the LoopSet's followFirst;
                 // no point in backtracking more.
                 loopInfo->number = begin->repeats.lower; // stop backtracking
             }
             else
-            {
+            {TRACE_IT(32285);
                 // Backtrack to the previous offset where we matched the LoopSet's followFirst
                 loopInfo->number = loopInfo->offsetsOfFollowFirst->RemoveAtEnd();
             }
@@ -4294,7 +4294,7 @@ namespace UnifiedRegex
         inputOffset = loopInfo->startInputOffset + loopInfo->number;
 
         if (loopInfo->number > begin->repeats.lower)
-        {
+        {TRACE_IT(32286);
             // Un-pop the continuation ready for next time
             contStack.UnPop<RewindLoopSetWithFollowFirstCont>();
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -4309,7 +4309,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RewindLoopSetWithFollowFirstCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32287);
         w->PrintEOL(_u("RewindLoopSetWithFollowFirst(beginLabel: L%04x)"), beginLabel);
         return sizeof(*this);
     }
@@ -4320,7 +4320,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
     inline bool RewindLoopFixedGroupLastIterationCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
-    {
+    {TRACE_IT(32288);
         matcher.QueryContinue(qcTicks);
 
         BeginLoopFixedGroupLastIterationInst* begin = matcher.L2I(BeginLoopFixedGroupLastIteration, beginLabel);
@@ -4328,13 +4328,13 @@ namespace UnifiedRegex
         GroupInfo* groupInfo = matcher.GroupIdToGroupInfo(begin->groupId);
 
         if (tryingBody)
-        {
+        {TRACE_IT(32289);
             tryingBody = false;
             // loopInfo->number is the number of iterations completed before current attempt of body
             Assert(loopInfo->number >= begin->repeats.lower);
         }
         else
-        {
+        {TRACE_IT(32290);
             // loopInfo->number is the number of iterations completed before trying follow
             Assert(loopInfo->number > begin->repeats.lower);
             // Try follow with one fewer iteration
@@ -4345,7 +4345,7 @@ namespace UnifiedRegex
         inputOffset = loopInfo->startInputOffset + loopInfo->number * begin->length;
 
         if (loopInfo->number > 0)
-        {
+        {TRACE_IT(32291);
             // Bind previous iteration's body
             groupInfo->offset = inputOffset - begin->length;
             groupInfo->length = begin->length;
@@ -4354,7 +4354,7 @@ namespace UnifiedRegex
             groupInfo->Reset();
 
         if (loopInfo->number > begin->repeats.lower)
-        {
+        {TRACE_IT(32292);
             // Un-pop the continuation ready for next time
             contStack.UnPop<RewindLoopFixedGroupLastIterationCont>();
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -4369,7 +4369,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RewindLoopFixedGroupLastIterationCont::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32293);
         w->PrintEOL(_u("RewindLoopFixedGroupLastIteration(beginLabel: L%04x, tryingBody: %s)"), beginLabel, tryingBody ? _u("true") : _u("false"));
         return sizeof(*this);
     }
@@ -4381,9 +4381,9 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void ContStack::Print(DebugWriter* w, const Char* const input) const
-    {
+    {TRACE_IT(32294);
         for(Iterator it(*this); it; ++it)
-        {
+        {TRACE_IT(32295);
             w->Print(_u("%4llu: "), static_cast<unsigned long long>(it.Position()));
             it->Print(w, input);
         }
@@ -4392,9 +4392,9 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void AssertionStack::Print(DebugWriter* w, const Matcher* matcher) const
-    {
+    {TRACE_IT(32296);
         for(Iterator it(*this); it; ++it)
-        {
+        {TRACE_IT(32297);
             it->Print(w);
         }
     }
@@ -4418,26 +4418,26 @@ namespace UnifiedRegex
         groupInfos = RecyclerNewArrayLeaf(recycler, GroupInfo, program->numGroups);
 
         if (program->numLoops > 0)
-        {
+        {TRACE_IT(32298);
             loopInfos = RecyclerNewArrayLeafZ(recycler, LoopInfo, program->numLoops);
         }
     }
 
     Matcher *Matcher::New(Js::ScriptContext* scriptContext, RegexPattern* pattern)
-    {
+    {TRACE_IT(32299);
         return RecyclerNew(scriptContext->GetRecycler(), Matcher, scriptContext, pattern);
     }
 
     Matcher *Matcher::CloneToScriptContext(Js::ScriptContext *scriptContext, RegexPattern *pattern)
-    {
+    {TRACE_IT(32300);
         Matcher *result = New(scriptContext, pattern);
         if (groupInfos)
-        {
+        {TRACE_IT(32301);
             size_t size = program->numGroups * sizeof(GroupInfo);
             js_memcpy_s(result->groupInfos, size, groupInfos, size);
         }
         if (loopInfos)
-        {
+        {TRACE_IT(32302);
             size_t size = program->numLoops * sizeof(LoopInfo);
             js_memcpy_s(result->loopInfos, size, loopInfos, size);
         }
@@ -4457,7 +4457,7 @@ namespace UnifiedRegex
 #endif
 
     void Matcher::DoQueryContinue(const uint qcTicks)
-    {
+    {TRACE_IT(32303);
         // See definition of TimePerQc for description of regex QC heuristics
 
         const uint before = previousQcTime;
@@ -4479,7 +4479,7 @@ namespace UnifiedRegex
 
         public:
             AutoCleanup(RegexPattern *const pattern, Matcher *const matcher) : pattern(pattern), matcher(matcher)
-            {
+            {TRACE_IT(32304);
                 Assert(pattern);
                 Assert(matcher);
                 Assert(pattern->rep.unified.matcher == matcher);
@@ -4491,7 +4491,7 @@ namespace UnifiedRegex
             }
 
             ~AutoCleanup()
-            {
+            {TRACE_IT(32305);
                 pattern->rep.unified.matcher = matcher;
 
                 const auto scriptContext = pattern->GetScriptContext();
@@ -4503,7 +4503,7 @@ namespace UnifiedRegex
     }
 
     void Matcher::TraceQueryContinue(const uint now)
-    {
+    {TRACE_IT(32306);
         if(!PHASE_TRACE1(Js::RegexQcPhase))
             return;
 
@@ -4523,11 +4523,11 @@ namespace UnifiedRegex
     }
 
     bool Matcher::Fail(const Char* const input, CharCount &inputOffset, const uint8 *&instPointer, ContStack &contStack, AssertionStack &assertionStack, uint &qcTicks)
-    {
+    {TRACE_IT(32307);
         if (!contStack.IsEmpty())
         {
             if (!RunContStack(input, inputOffset, instPointer, contStack, assertionStack, qcTicks))
-            {
+            {TRACE_IT(32308);
                 return false;
             }
         }
@@ -4538,9 +4538,9 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::RunContStack(const Char* const input, CharCount &inputOffset, const uint8 *&instPointer, ContStack &contStack, AssertionStack &assertionStack, uint &qcTicks)
-    {
+    {TRACE_IT(32309);
         while (true)
-        {
+        {TRACE_IT(32310);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             PopStats(contStack, input);
 #endif
@@ -4578,13 +4578,13 @@ namespace UnifiedRegex
 #endif
 
     inline void Matcher::Run(const Char* const input, const CharCount inputLength, CharCount &matchStart, CharCount &nextSyncInputOffset, ContStack &contStack, AssertionStack &assertionStack, uint &qcTicks, bool firstIteration)
-    {
+    {TRACE_IT(32311);
         CharCount inputOffset = matchStart;
         const uint8 *instPointer = program->rep.insts.insts;
         Assert(instPointer != 0);
 
         while (true)
-        {
+        {TRACE_IT(32312);
             Assert(inputOffset >= matchStart && inputOffset <= inputLength);
             Assert(instPointer >= program->rep.insts.insts && instPointer < program->rep.insts.insts + program->rep.insts.instsLen);
             Assert(((Inst*)instPointer)->tag >= minInstTag && ((Inst*)instPointer)->tag <= maxInstTag);
@@ -4617,14 +4617,14 @@ namespace UnifiedRegex
 
 #if DBG
     void Matcher::ResetLoopInfos()
-    {
+    {TRACE_IT(32313);
         for (int i = 0; i < program->numLoops; i++)
             loopInfos[i].Reset();
     }
 #endif
 
     inline bool Matcher::MatchHere(const Char* const input, const CharCount inputLength, CharCount &matchStart, CharCount &nextSyncInputOffset, ContStack &contStack, AssertionStack &assertionStack, uint &qcTicks, bool firstIteration)
-    {
+    {TRACE_IT(32314);
         // Reset the continuation and assertion stacks ready for fresh run
         // NOTE: We used to do this after the Run, but it's safer to do it here in case unusual control flow exits
         //       the matcher without executing the clears.
@@ -4647,36 +4647,36 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::MatchSingleCharCaseInsensitive(const Char* const input, const CharCount inputLength, CharCount offset, const Char c)
-    {
+    {TRACE_IT(32315);
         CaseInsensitive::MappingSource mappingSource = program->GetCaseMappingSource();
 
         // If sticky flag is present, break since the 1st character didn't match the pattern character
         if ((program->flags & StickyRegexFlag) != 0)
-        {
+        {TRACE_IT(32316);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             CompStats();
 #endif
             if (MatchSingleCharCaseInsensitiveHere(mappingSource, input, offset, c))
-            {
+            {TRACE_IT(32317);
                 GroupInfo* const info = GroupIdToGroupInfo(0);
                 info->offset = offset;
                 info->length = 1;
                 return true;
             }
             else
-            {
+            {TRACE_IT(32318);
                 ResetGroup(0);
                 return false;
             }
         }
 
         while (offset < inputLength)
-        {
+        {TRACE_IT(32319);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             CompStats();
 #endif
             if (MatchSingleCharCaseInsensitiveHere(mappingSource, input, offset, c))
-            {
+            {TRACE_IT(32320);
                 GroupInfo* const info = GroupIdToGroupInfo(0);
                 info->offset = offset;
                 info->length = 1;
@@ -4694,39 +4694,39 @@ namespace UnifiedRegex
         const Char* const input,
         const CharCount offset,
         const Char c)
-    {
+    {TRACE_IT(32321);
         return (standardChars->ToCanonical(mappingSource, input[offset]) == standardChars->ToCanonical(mappingSource, c));
     }
 
     inline bool Matcher::MatchSingleCharCaseSensitive(const Char* const input, const CharCount inputLength, CharCount offset, const Char c)
-    {
+    {TRACE_IT(32322);
         // If sticky flag is present, break since the 1st character didn't match the pattern character
         if ((program->flags & StickyRegexFlag) != 0)
-        {
+        {TRACE_IT(32323);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             CompStats();
 #endif
             if (input[offset] == c)
-            {
+            {TRACE_IT(32324);
                 GroupInfo* const info = GroupIdToGroupInfo(0);
                 info->offset = offset;
                 info->length = 1;
                 return true;
             }
             else
-            {
+            {TRACE_IT(32325);
                 ResetGroup(0);
                 return false;
             }
         }
 
         while (offset < inputLength)
-        {
+        {TRACE_IT(32326);
 #if ENABLE_REGEX_CONFIG_OPTIONS
             CompStats();
 #endif
             if (input[offset] == c)
-            {
+            {TRACE_IT(32327);
                 GroupInfo* const info = GroupIdToGroupInfo(0);
                 info->offset = offset;
                 info->length = 1;
@@ -4740,11 +4740,11 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::MatchBoundedWord(const Char* const input, const CharCount inputLength, CharCount offset)
-    {
+    {TRACE_IT(32328);
         const StandardChars<Char>& stdchrs = *standardChars;
 
         if (offset >= inputLength)
-        {
+        {TRACE_IT(32329);
             ResetGroup(0);
             return false;
         }
@@ -4755,25 +4755,25 @@ namespace UnifiedRegex
 
         if ((offset == 0 && stdchrs.IsWord(input[0])) ||
             (offset > 0 && (!stdchrs.IsWord(input[offset - 1]) && stdchrs.IsWord(input[offset]))))
-        {
+        {TRACE_IT(32330);
             // Already at start of word
         }
         // If sticky flag is present, return false since we are not at the beginning of the word yet
         else if ((program->flags & StickyRegexFlag) == StickyRegexFlag)
-        {
+        {TRACE_IT(32331);
             ResetGroup(0);
             return false;
         }
         else
-        {
+        {TRACE_IT(32332);
             if (stdchrs.IsWord(input[offset]))
-            {
+            {TRACE_IT(32333);
                 // Scan for end of current word
                 while (true)
-                {
+                {TRACE_IT(32334);
                     offset++;
                     if (offset >= inputLength)
-                    {
+                    {TRACE_IT(32335);
                         ResetGroup(0);
                         return false;
                     }
@@ -4787,10 +4787,10 @@ namespace UnifiedRegex
 
             // Scan for start of next word
             while (true)
-            {
+            {TRACE_IT(32336);
                 offset++;
                 if (offset >= inputLength)
-                {
+                {TRACE_IT(32337);
                     ResetGroup(0);
                     return false;
                 }
@@ -4807,7 +4807,7 @@ namespace UnifiedRegex
 
         // Scan for end of word
         do
-        {
+        {TRACE_IT(32338);
             offset++;
 #if ENABLE_REGEX_CONFIG_OPTIONS
             CompStats();
@@ -4820,17 +4820,17 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::MatchLeadingTrailingSpaces(const Char* const input, const CharCount inputLength, CharCount offset)
-    {
+    {TRACE_IT(32339);
         GroupInfo* const info = GroupIdToGroupInfo(0);
         Assert(offset <= inputLength);
         Assert((program->flags & MultilineRegexFlag) == 0);
 
         if (offset >= inputLength)
-        {
+        {TRACE_IT(32340);
             Assert(offset == inputLength);
             if (program->rep.leadingTrailingSpaces.endMinMatch == 0 ||
                 (offset == 0 && program->rep.leadingTrailingSpaces.beginMinMatch == 0))
-            {
+            {TRACE_IT(32341);
                 info->offset = offset;
                 info->length = 0;
                 return true;
@@ -4841,16 +4841,16 @@ namespace UnifiedRegex
 
         const StandardChars<Char> &stdchrs = *standardChars;
         if (offset == 0)
-        {
+        {TRACE_IT(32342);
             while (offset < inputLength && stdchrs.IsWhitespaceOrNewline(input[offset]))
-            {
+            {TRACE_IT(32343);
                 offset++;
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 CompStats();
 #endif
             }
             if (offset >= program->rep.leadingTrailingSpaces.beginMinMatch)
-            {
+            {TRACE_IT(32344);
                 info->offset = 0;
                 info->length = offset;
                 return true;
@@ -4861,7 +4861,7 @@ namespace UnifiedRegex
         const CharCount initOffset = offset;
         offset = inputLength - 1;
         while (offset >= initOffset && stdchrs.IsWhitespaceOrNewline(input[offset]))
-        {
+        {TRACE_IT(32345);
             // This can never underflow since initOffset > 0
             Assert(offset > 0);
             offset--;
@@ -4872,7 +4872,7 @@ namespace UnifiedRegex
         offset++;
         CharCount length = inputLength - offset;
         if (length >= program->rep.leadingTrailingSpaces.endMinMatch)
-        {
+        {TRACE_IT(32346);
             info->offset = offset;
             info->length = length;
             return true;
@@ -4882,7 +4882,7 @@ namespace UnifiedRegex
     }
 
     inline bool Matcher::MatchOctoquad(const Char* const input, const CharCount inputLength, CharCount offset, OctoquadMatcher* matcher)
-    {
+    {TRACE_IT(32347);
         if (matcher->Match
             ( input
             , inputLength
@@ -4891,27 +4891,27 @@ namespace UnifiedRegex
             , stats
 #endif
             ))
-        {
+        {TRACE_IT(32348);
             GroupInfo* const info = GroupIdToGroupInfo(0);
             info->offset = offset;
             info->length = TrigramInfo::PatternLength;
             return true;
         }
         else
-        {
+        {TRACE_IT(32349);
             ResetGroup(0);
             return false;
         }
     }
 
     inline bool Matcher::MatchBOILiteral2(const Char* const input, const CharCount inputLength, CharCount offset, DWORD literal2)
-    {
+    {TRACE_IT(32350);
         if (offset == 0 && inputLength >= 2)
-        {
+        {TRACE_IT(32351);
             CompileAssert(sizeof(Char) == 2);
             const Program * program = this->program;
             if (program->rep.boiLiteral2.literal == *(DWORD *)input)
-            {
+            {TRACE_IT(32352);
                 GroupInfo* const info = GroupIdToGroupInfo(0);
                 info->offset = 0;
                 info->length = 2;
@@ -4932,7 +4932,7 @@ namespace UnifiedRegex
         , DebugWriter* w
 #endif
         )
-    {
+    {TRACE_IT(32353);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         this->stats = stats;
         this->w = w;
@@ -4947,7 +4947,7 @@ namespace UnifiedRegex
         {
         case Program::BOIInstructionsTag:
             if (offset != 0)
-            {
+            {TRACE_IT(32354);
                 groupInfos[0].Reset();
                 res = false;
                 break;
@@ -4963,7 +4963,7 @@ namespace UnifiedRegex
             // fall through
 
         case Program::InstructionsTag:
-            {
+            {TRACE_IT(32355);
                 previousQcTime = 0;
                 uint qcTicks = 0;
 
@@ -4978,7 +4978,7 @@ namespace UnifiedRegex
                 // of the input. For instance: /a*$/.exec("b")
                 bool firstIteration = true;
                 do
-                {
+                {TRACE_IT(32356);
                     // Let there be only one call to MatchHere(), as that call expands the interpreter loop in-place. Having
                     // multiple calls to MatchHere() would bloat the code.
                     res = MatchHere(input, inputLength, offset, nextSyncInputOffset, regexStacks->contStack, regexStacks->assertionStack, qcTicks, firstIteration);
@@ -4990,11 +4990,11 @@ namespace UnifiedRegex
 
         case Program::SingleCharTag:
             if (this->pattern->IsIgnoreCase())
-            {
+            {TRACE_IT(32357);
                 res = MatchSingleCharCaseInsensitive(input, inputLength, offset, prog->rep.singleChar.c);
             }
             else
-            {
+            {TRACE_IT(32358);
                 res = MatchSingleCharCaseSensitive(input, inputLength, offset, prog->rep.singleChar.c);
             }
 
@@ -5032,7 +5032,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Matcher::Print(DebugWriter* w, const Char* const input, const CharCount inputLength, CharCount inputOffset, const uint8* instPointer, ContStack &contStack, AssertionStack &assertionStack) const
-    {
+    {TRACE_IT(32359);
         w->PrintEOL(_u("Matcher {"));
         w->Indent();
         w->Print(_u("program:      "));
@@ -5044,12 +5044,12 @@ namespace UnifiedRegex
         else if (inputLength > 1024)
             w->PrintEOL(_u("<string too large>"));
         else
-        {
+        {TRACE_IT(32360);
             w->PrintEscapedString(input, inputOffset);
             if (inputOffset >= inputLength)
                 w->Print(_u("<<<>>>"));
             else
-            {
+            {TRACE_IT(32361);
                 w->Print(_u("<<<"));
                 w->PrintEscapedChar(input[inputOffset]);
                 w->Print(_u(">>>"));
@@ -5058,13 +5058,13 @@ namespace UnifiedRegex
             w->EOL();
         }
         if (program->tag == Program::BOIInstructionsTag || program->tag == Program::InstructionsTag)
-        {
+        {TRACE_IT(32362);
             w->Print(_u("instPointer: "));
             ((const Inst*)instPointer)->Print(w, InstPointerToLabel(instPointer), program->rep.insts.litbuf);
             w->PrintEOL(_u("groups:"));
             w->Indent();
             for (int i = 0; i < program->numGroups; i++)
-            {
+            {TRACE_IT(32363);
                 w->Print(_u("%d: "), i);
                 groupInfos[i].Print(w, input);
                 w->EOL();
@@ -5073,7 +5073,7 @@ namespace UnifiedRegex
             w->PrintEOL(_u("loops:"));
             w->Indent();
             for (int i = 0; i < program->numLoops; i++)
-            {
+            {TRACE_IT(32364);
                 w->Print(_u("%d: "), i);
                 loopInfos[i].Print(w);
                 w->EOL();
@@ -5104,7 +5104,7 @@ namespace UnifiedRegex
         , flags(flags)
         , numGroups(0)
         , numLoops(0)
-    {
+    {TRACE_IT(32365);
         tag = InstructionsTag;
         rep.insts.insts = nullptr;
         rep.insts.instsLen = 0;
@@ -5114,12 +5114,12 @@ namespace UnifiedRegex
     }
 
     Program *Program::New(Recycler *recycler, RegexFlags flags)
-    {
+    {TRACE_IT(32366);
         return RecyclerNew(recycler, Program, flags);
     }
 
     Field(ScannerInfo *)*Program::CreateScannerArrayForSyncToLiterals(Recycler *const recycler)
-    {
+    {TRACE_IT(32367);
         Assert(tag == InstructionsTag);
         Assert(!rep.insts.scannersForSyncToLiterals);
         Assert(recycler);
@@ -5135,7 +5135,7 @@ namespace UnifiedRegex
         const CharCount offset,
         const CharCount length,
         const bool isEquivClass)
-    {
+    {TRACE_IT(32368);
         Assert(tag == InstructionsTag);
         Assert(rep.insts.scannersForSyncToLiterals);
         Assert(recycler);
@@ -5149,7 +5149,7 @@ namespace UnifiedRegex
     }
 
     void Program::FreeBody(ArenaAllocator* rtAllocator)
-    {
+    {TRACE_IT(32369);
         if(tag != InstructionsTag || !rep.insts.insts)
             return;
 
@@ -5157,12 +5157,12 @@ namespace UnifiedRegex
         const auto instEnd = reinterpret_cast<Inst *>(reinterpret_cast<uint8 *>(inst) + rep.insts.instsLen);
         Assert(inst < instEnd);
         do
-        {
+        {TRACE_IT(32370);
             switch(inst->tag)
             {
 #define MBase(TagName, ClassName) \
                 case Inst::TagName: \
-                { \
+                {TRACE_IT(32371); \
                     const auto actualInst = static_cast<ClassName *>(inst); \
                     actualInst->FreeBody(rtAllocator); \
                     inst = actualInst + 1; \
@@ -5189,7 +5189,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void Program::Print(DebugWriter* w)
-    {
+    {TRACE_IT(32372);
         const bool isBaselineMode = Js::Configuration::Global.flags.BaselineMode;
         w->PrintEOL(_u("Program {"));
         w->Indent();
@@ -5207,11 +5207,11 @@ namespace UnifiedRegex
         {
         case BOIInstructionsTag:
         case InstructionsTag:
-            {
+            {TRACE_IT(32373);
                 w->PrintEOL(_u("instructions: {"));
                 w->Indent();
                 if (tag == BOIInstructionsTag)
-                {
+                {TRACE_IT(32374);
                     w->PrintEOL(_u("       BOITest(hardFail: true)"));
                 }
                 uint8* instsLim = rep.insts.insts + rep.insts.instsLen;

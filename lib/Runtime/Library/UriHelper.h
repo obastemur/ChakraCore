@@ -27,13 +27,13 @@ namespace Js
         // Validate the array of character properties for URI handling. Each entry is a
         // bitwise OR of the flags defined above.
         static void ValidateURIProps(void)
-        {
+        {TRACE_IT(64307);
             static bool fChecked = false;
             if (fChecked)
                 return;
 
             for( int c = 0; c < 128; c++ )
-            {
+            {TRACE_IT(64308);
                 if (isalnum(c))
                     Assert(s_uriProps[c] & URIUnescaped);
                 switch(c)

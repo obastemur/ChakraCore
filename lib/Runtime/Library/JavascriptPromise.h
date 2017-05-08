@@ -140,12 +140,12 @@ namespace Js
     public:
         JavascriptPromiseResolveThenableTaskFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromise* promise, RecyclableObject* thenable, RecyclableObject* thenFunction)
             : RuntimeFunction(type, functionInfo), promise(promise), thenable(thenable), thenFunction(thenFunction)
-        { }
+        {TRACE_IT(60757); }
 
         inline static bool Is(Var var)
-        {
+        {TRACE_IT(60758);
             if (JavascriptFunction::Is(var))
-            {
+            {TRACE_IT(60759);
                 JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
                 return VirtualTableInfo<JavascriptPromiseResolveThenableTaskFunction>::HasVirtualTable(obj)
@@ -156,7 +156,7 @@ namespace Js
         }
 
         inline static JavascriptPromiseResolveThenableTaskFunction* FromVar(Var var)
-        {
+        {TRACE_IT(60760);
             Assert(JavascriptPromiseResolveThenableTaskFunction::Is(var));
 
             return static_cast<JavascriptPromiseResolveThenableTaskFunction*>(var);
@@ -190,12 +190,12 @@ namespace Js
     public:
         JavascriptPromiseReactionTaskFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromiseReaction* reaction, Var argument)
             : RuntimeFunction(type, functionInfo), reaction(reaction), argument(argument)
-        { }
+        {TRACE_IT(60761); }
 
         inline static bool Is(Var var)
-        {
+        {TRACE_IT(60762);
             if (JavascriptFunction::Is(var))
-            {
+            {TRACE_IT(60763);
                 JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
                 return VirtualTableInfo<JavascriptPromiseReactionTaskFunction>::HasVirtualTable(obj)
@@ -206,7 +206,7 @@ namespace Js
         }
 
         inline static JavascriptPromiseReactionTaskFunction* FromVar(Var var)
-        {
+        {TRACE_IT(60764);
             Assert(JavascriptPromiseReactionTaskFunction::Is(var));
 
             return static_cast<JavascriptPromiseReactionTaskFunction*>(var);
@@ -276,7 +276,7 @@ namespace Js
     private:
         JavascriptPromiseCapability(Var promise, Var resolve, Var reject)
             : promise(promise), resolve(resolve), reject(reject)
-        { }
+        {TRACE_IT(60765); }
 
     public:
         static JavascriptPromiseCapability* New(Var promise, Var resolve, Var reject, ScriptContext* scriptContext);
@@ -292,11 +292,11 @@ namespace Js
     public:
         // Finalizable support
         virtual void Finalize(bool isShutdown)
-        {
+        {TRACE_IT(60766);
         }
 
         virtual void Dispose(bool isShutdown)
-        {
+        {TRACE_IT(60767);
         }
 
         virtual void Mark(Recycler *recycler) override
@@ -326,7 +326,7 @@ namespace Js
     private:
         JavascriptPromiseReaction(JavascriptPromiseCapability* capabilities, RecyclableObject* handler)
             : capabilities(capabilities), handler(handler)
-        { }
+        {TRACE_IT(60768); }
 
     public:
         static JavascriptPromiseReaction* New(JavascriptPromiseCapability* capabilities, RecyclableObject* handler, ScriptContext* scriptContext);
@@ -337,11 +337,11 @@ namespace Js
     public:
         // Finalizable support
         virtual void Finalize(bool isShutdown)
-        {
+        {TRACE_IT(60769);
         }
 
         virtual void Dispose(bool isShutdown)
-        {
+        {TRACE_IT(60770);
         }
 
         virtual void Mark(Recycler *recycler) override
@@ -453,8 +453,8 @@ namespace Js
             PromiseStatusCode_HasRejection
         };
 
-        PromiseStatus GetStatus() const { return status; }
-        Var GetResult() const { return result; }
+        PromiseStatus GetStatus() const {TRACE_IT(60771); return status; }
+        Var GetResult() const {TRACE_IT(60772); return result; }
 
     protected:
         Var ResolveHelper(Var resolution, bool isRejecting, ScriptContext* scriptContext);

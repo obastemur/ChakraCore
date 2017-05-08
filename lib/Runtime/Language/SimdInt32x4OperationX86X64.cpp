@@ -11,7 +11,7 @@ namespace Js
 {
     // SIMD.Int32x4 operation wrappers that cover intrinsics for x86/x64 system
     SIMDValue SIMDInt32x4Operation::OpInt32x4(int x, int y, int z, int w)
-    {
+    {TRACE_IT(52396);
         X86SIMDValue x86Result;
         x86Result.m128i_value = _mm_set_epi32(w, z, y, x);
         // Sets the 4 signed 32-bit integer values, note in revised order: starts with W below
@@ -20,7 +20,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpSplat(int x)
-    {
+    {TRACE_IT(52397);
         X86SIMDValue x86Result;
         // set 4 signed 32-bit integers values to input value x
         x86Result.m128i_value = _mm_set1_epi32(x);
@@ -30,7 +30,7 @@ namespace Js
 
     // Conversions
     SIMDValue SIMDInt32x4Operation::OpFromFloat32x4(const SIMDValue& value, bool &throws)
-    {
+    {TRACE_IT(52398);
         X86SIMDValue x86Result = { 0 };
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
         X86SIMDValue temp;
@@ -45,19 +45,19 @@ namespace Js
         mask = _mm_movemask_ps(temp.m128_value);
 
         if (mask)
-        {
+        {TRACE_IT(52399);
             // potential overflow. Do bound checks.
             temp.m128_value = _mm_cmpge_ps(v.m128_value, X86_TWO_31_F4.m128_value);
             mask = _mm_movemask_ps(temp.m128_value);
             if (mask)
-            {
+            {TRACE_IT(52400);
                 throws = true;
                 return X86SIMDValue::ToSIMDValue(x86Result);
             }
             temp.m128_value = _mm_cmplt_ps(v.m128_value, X86_NEG_TWO_31_F4.m128_value);
             mask = _mm_movemask_ps(temp.m128_value);
             if (mask)
-            {
+            {TRACE_IT(52401);
                 throws = true;
                 return X86SIMDValue::ToSIMDValue(x86Result);
             }
@@ -67,7 +67,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpFromFloat64x2(const SIMDValue& value)
-    {
+    {TRACE_IT(52402);
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
 
@@ -80,18 +80,18 @@ namespace Js
 
     // Unary Ops
     SIMDValue SIMDInt32x4Operation::OpAbs(const SIMDValue& value)
-    {
+    {TRACE_IT(52403);
         SIMDValue result;
 
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
         if (AutoSystemInfo::Data.SSE3Available())
-        {
+        {TRACE_IT(52404);
             x86Result.m128i_value = _mm_abs_epi32(v.m128i_value); // only available after SSE3
             result = X86SIMDValue::ToSIMDValue(x86Result);
         }
         else
-        {
+        {TRACE_IT(52405);
             X86SIMDValue  temp, SIGNMASK;
             SIGNMASK.m128i_value = _mm_srai_epi32(v.m128i_value, 31);                // mask = value >> 31
             temp.m128i_value = _mm_xor_si128(v.m128i_value, SIGNMASK.m128i_value);   // temp = value ^ mask
@@ -102,7 +102,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpNeg(const SIMDValue& value)
-    {
+    {TRACE_IT(52406);
         X86SIMDValue x86Result;
 
         X86SIMDValue SIGNMASK, temp;
@@ -117,7 +117,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpNot(const SIMDValue& value)
-    {
+    {TRACE_IT(52407);
         X86SIMDValue x86Result;
 
         X86SIMDValue negativeOnes = { { -1, -1, -1, -1 } };
@@ -128,7 +128,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52408);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -139,7 +139,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52409);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -150,7 +150,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52410);
         SIMDValue result;
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
@@ -173,7 +173,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpAnd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52411);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -184,7 +184,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpOr(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52412);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -195,7 +195,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpXor(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52413);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -206,7 +206,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52414);
         // choose the smaller value of the two parameters, only available after SSE4
         // x86Result.m128i_value = _mm_min_epi32(tmpaValue.m128i_value, tmpbValue.m128i_value);
         // result = X86SIMDValue::ToSIMDValue(x86Result);
@@ -217,7 +217,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52415);
         // choose the larger value of the two parameters, only available after SSE4
         // x86Result.m128i_value = _mm_max_epi32(tmpaValue.m128i_value, tmpbValue.m128i_value); // a ^ b
         // result = X86SIMDValue::ToSIMDValue(x86Result);
@@ -228,7 +228,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52416);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -238,7 +238,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52417);
         SIMDValue tmpResult = SIMDInt32x4Operation::OpGreaterThan(aValue, bValue);
         X86SIMDValue x86Result = X86SIMDValue::ToX86SIMDValue(tmpResult);
 
@@ -249,7 +249,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52418);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -260,7 +260,7 @@ namespace Js
 
 
     SIMDValue SIMDInt32x4Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52419);
         SIMDValue tmpResult = SIMDInt32x4Operation::OpEqual(aValue, bValue);
         X86SIMDValue x86Result = X86SIMDValue::ToX86SIMDValue(tmpResult);
 
@@ -271,7 +271,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52420);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -281,7 +281,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52421);
         SIMDValue tmpResult = SIMDInt32x4Operation::OpLessThan(aValue, bValue);
         X86SIMDValue x86Result = X86SIMDValue::ToX86SIMDValue(tmpResult);
 
@@ -292,7 +292,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpShiftLeftByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52422);
         X86SIMDValue x86Result;
         X86SIMDValue tmpValue = X86SIMDValue::ToX86SIMDValue(value);
         // Shifts the 4 signed 32-bit integers in a left by count bits while shifting in zeros
@@ -302,7 +302,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52423);
         X86SIMDValue x86Result;
         X86SIMDValue tmpValue = X86SIMDValue::ToX86SIMDValue(value);
         // Shifts the 4 signed 32-bit integers right by count bits while shifting in the sign bit
@@ -312,7 +312,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt32x4Operation::OpSelect(const SIMDValue& mV, const SIMDValue& tV, const SIMDValue& fV)
-    {
+    {TRACE_IT(52424);
         X86SIMDValue x86Result;
         X86SIMDValue maskValue  = X86SIMDValue::ToX86SIMDValue(mV);
         X86SIMDValue trueValue  = X86SIMDValue::ToX86SIMDValue(tV);

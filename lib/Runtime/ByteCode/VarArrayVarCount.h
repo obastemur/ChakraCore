@@ -12,7 +12,7 @@ namespace Js
         Var elements[];
 
         VarArrayVarCount(Var count) : count(count)
-        {
+        {TRACE_IT(42097);
         }
 
         void SetCount(uint count);

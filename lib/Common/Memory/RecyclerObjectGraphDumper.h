@@ -44,11 +44,11 @@ public:
 #endif
 
 #ifdef RECYCLER_DUMP_OBJECT_GRAPH
-#define BEGIN_DUMP_OBJECT(recycler, address) { if (recycler->objectGraphDumper != nullptr)  { recycler->objectGraphDumper->BeginDumpObject(address); }
-#define BEGIN_DUMP_OBJECT_ADDRESS(name, address) { if (this->objectGraphDumper != nullptr) { this->objectGraphDumper->BeginDumpObject(name, address); }
-#define DUMP_OBJECT_REFERENCE(recycler, address) if (recycler->objectGraphDumper != nullptr) { recycler->objectGraphDumper->DumpObjectReference(address, false); }
-#define DUMP_OBJECT_REFERENCE_REMARK(recycler, address) if (recycler->objectGraphDumper != nullptr && recycler->IsValidObject(address)) { recycler->objectGraphDumper->DumpObjectReference(address, true); }
-#define END_DUMP_OBJECT(recycler)  if (recycler->objectGraphDumper != nullptr)  { recycler->objectGraphDumper->EndDumpObject(); } }
+#define BEGIN_DUMP_OBJECT(recycler, address) {TRACE_IT(26370); if (recycler->objectGraphDumper != nullptr)  {TRACE_IT(26371); recycler->objectGraphDumper->BeginDumpObject(address); }
+#define BEGIN_DUMP_OBJECT_ADDRESS(name, address) {TRACE_IT(26372); if (this->objectGraphDumper != nullptr) {TRACE_IT(26373); this->objectGraphDumper->BeginDumpObject(name, address); }
+#define DUMP_OBJECT_REFERENCE(recycler, address) if (recycler->objectGraphDumper != nullptr) {TRACE_IT(26374); recycler->objectGraphDumper->DumpObjectReference(address, false); }
+#define DUMP_OBJECT_REFERENCE_REMARK(recycler, address) if (recycler->objectGraphDumper != nullptr && recycler->IsValidObject(address)) {TRACE_IT(26375); recycler->objectGraphDumper->DumpObjectReference(address, true); }
+#define END_DUMP_OBJECT(recycler)  if (recycler->objectGraphDumper != nullptr)  {TRACE_IT(26376); recycler->objectGraphDumper->EndDumpObject(); } }
 #define DUMP_IMPLICIT_ROOT(recycler, address) BEGIN_DUMP_OBJECT(recycler, _u("Implicit Root")); DUMP_OBJECT_REFERENCE(recycler, address); END_DUMP_OBJECT(recycler);
 #else
 #define BEGIN_DUMP_OBJECT(recycler, address)

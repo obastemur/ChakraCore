@@ -5,19 +5,19 @@
 #include "Backend.h"
 
 InliningThreshold::InliningThreshold(uint nonLoadByteCodeCount, bool forLoopBody, bool aggressive) : nonLoadByteCodeCount(nonLoadByteCodeCount)
-{
+{TRACE_IT(9482);
     this->forLoopBody = forLoopBody;
     if (aggressive)
-    {
+    {TRACE_IT(9483);
         SetAggressiveHeuristics();
     }
     else
-    {
+    {TRACE_IT(9484);
         SetHeuristics();
     }
 }
 void InliningThreshold::SetAggressiveHeuristics()
-{
+{TRACE_IT(9485);
     Assert(!this->forLoopBody);
     int limit = CONFIG_FLAG(AggressiveInlineThreshold);
 
@@ -33,25 +33,25 @@ void InliningThreshold::SetAggressiveHeuristics()
 }
 
 void InliningThreshold::Reset()
-{
+{TRACE_IT(9486);
     SetHeuristics();
 }
 
 void InliningThreshold::SetHeuristics()
-{
+{TRACE_IT(9487);
     inlineThreshold = CONFIG_FLAG(InlineThreshold);
     // Inline less aggressively in large functions since the register pressure is likely high.
     // Small functions shouldn't be a problem.
     if (nonLoadByteCodeCount > 800)
-    {
+    {TRACE_IT(9488);
         inlineThreshold -= CONFIG_FLAG(InlineThresholdAdjustCountInLargeFunction);
     }
     else if (nonLoadByteCodeCount > 200)
-    {
+    {TRACE_IT(9489);
         inlineThreshold -= CONFIG_FLAG(InlineThresholdAdjustCountInMediumSizedFunction);
     }
     else if (nonLoadByteCodeCount < 50)
-    {
+    {TRACE_IT(9490);
         inlineThreshold += CONFIG_FLAG(InlineThresholdAdjustCountInSmallFunction);
     }
 
@@ -77,7 +77,7 @@ bool InliningHeuristics::BackendInlineIntoInliner(const FunctionJITTimeInfo * in
                                 uint recursiveInlineDepth,
                                 uint16 constantArguments
                                 )
-{
+{TRACE_IT(9491);
     // We have one piece of additional data in backend, whether  we are outside loop or inside
     // This function decides to inline or not based on that additional data. Most of the filtering is already done by DeciderInlineIntoInliner which is called
     // during work item creation.
@@ -105,7 +105,7 @@ bool InliningHeuristics::BackendInlineIntoInliner(const FunctionJITTimeInfo * in
     if (!PHASE_OFF(Js::InlineRecursivePhase, inliner)
         && inlinee->GetBody()->GetAddr() == inliner->GetJITFunctionBody()->GetAddr()
         && (!inlinee->GetBody()->CanInlineRecursively(recursiveInlineDepth, doBackEndAggressiveInline)))
-    {
+    {TRACE_IT(9492);
         INLINE_TESTTRACE(_u("INLINING: Skip Inline (backend): Recursive inlining\tInlinee: %s (#%s)\tCaller: %s (#%s) \tRoot: %s (#%s) Depth: %d\n"),
             inlinee->GetBody()->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer),
             inliner->GetJITFunctionBody()->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2),
@@ -117,18 +117,18 @@ bool InliningHeuristics::BackendInlineIntoInliner(const FunctionJITTimeInfo * in
     if(PHASE_FORCE(Js::InlinePhase, this->topFunc) ||
         PHASE_FORCE(Js::InlinePhase, inliner) ||
         PHASE_FORCE(Js::InlinePhase, inlinee))
-    {
+    {TRACE_IT(9493);
         return true;
     }
 
     if (PHASE_FORCE(Js::InlineTreePhase, this->topFunc) ||
         PHASE_FORCE(Js::InlineTreePhase, inliner))
-    {
+    {TRACE_IT(9494);
         return true;
     }
 
     if (PHASE_FORCE(Js::InlineAtEveryCallerPhase, inlinee))
-    {
+    {TRACE_IT(9495);
         return true;
     }
 
@@ -136,29 +136,29 @@ bool InliningHeuristics::BackendInlineIntoInliner(const FunctionJITTimeInfo * in
 
     bool doConstantArgumentInlining = (dynamicProfile && dynamicProfile->GetConstantArgInfo(callSiteId) & inlinee->GetBody()->GetArgUsedForBranch()) != 0;
     if (doConstantArgumentInlining && inlinee->GetBody()->GetNonLoadByteCodeCount() <  (uint)threshold.constantArgumentInlineThreshold)
-    {
+    {TRACE_IT(9496);
         return true;
     }
 
 
     if (topFunction->GetWorkItem()->GetJITTimeInfo()->IsAggressiveInliningEnabled())
-    {
+    {TRACE_IT(9497);
         return true;
     }
 
     if (isConstructorCall)
-    {
+    {TRACE_IT(9498);
         return true;
     }
 
 
     if (isCallInsideLoop && IsInlineeLeaf(inlinee))
-    {
+    {TRACE_IT(9499);
         return true;
     }
 
     if (isCallInsideLoop && inlinee->GetBody()->HasLoops() )                            // Don't inline function with loops inside another loop unless it is a leaf
-    {
+    {TRACE_IT(9500);
         INLINE_TESTTRACE(_u("INLINING: Skip Inline (backend): Recursive loop inlining\tInlinee: %s (#%s)\tCaller: %s (#%s) \tRoot: %s (#%s)\n"),
             inlinee->GetBody()->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer),
             inliner->GetJITFunctionBody()->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2),
@@ -168,14 +168,14 @@ bool InliningHeuristics::BackendInlineIntoInliner(const FunctionJITTimeInfo * in
     byte scale = 1;
 
     if (doBackEndAggressiveInline)
-    {
+    {TRACE_IT(9501);
         scale = 2;
     }
 
     if (isCallOutsideLoopInTopFunc &&
         (threshold.outsideLoopInlineThreshold < 0 ||
         inlinee->GetBody()->GetNonLoadByteCodeCount() > (uint)threshold.outsideLoopInlineThreshold * scale))
-    {
+    {TRACE_IT(9502);
         Assert(!isCallInsideLoop);
         INLINE_TESTTRACE(_u("INLINING: Skip Inline (backend): Inlining outside loop doesn't meet OutsideLoopInlineThreshold: %d \tBytecode size: %d\tInlinee: %s (#%s)\tCaller: %s (#%s) \tRoot: %s (#%s)\n"),
             threshold.outsideLoopInlineThreshold,

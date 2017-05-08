@@ -26,22 +26,22 @@ namespace utf8
     const unsigned int mAlignmentMask = 0x3;
 
     inline bool IsAligned(LPCUTF8 pch)
-    {
+    {TRACE_IT(18680);
         return (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
     inline bool IsAligned(LPCOLESTR pch)
-    {
+    {TRACE_IT(18681);
         return (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
     inline bool ShouldFastPath(LPCUTF8 pb, LPCOLESTR pch)
-    {
+    {TRACE_IT(18682);
         return (reinterpret_cast<size_t>(pb) & mAlignmentMask) == 0 && (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
     inline size_t EncodedBytes(char16 prefix)
-    {
+    {TRACE_IT(18683);
          CodexAssert(0 == (prefix & 0xFF00)); // prefix must really be a byte. We use char16 for as a convenience for the API.
 
         // The number of bytes in an UTF8 encoding is determined by the 4 high-order bits of the first byte.
@@ -77,28 +77,28 @@ namespace utf8
     const char16 WCH_UTF16_LOW_LAST    =  char16(0xdfff);
 
     inline BOOL InRange(const char16 ch, const char16 chMin, const char16 chMax)
-    {
+    {TRACE_IT(18684);
         return (unsigned)(ch - chMin) <= (unsigned)(chMax - chMin);
     }
 
     inline BOOL IsValidWideChar(const char16 ch)
-    {
+    {TRACE_IT(18685);
         return (ch < 0xfdd0) || ((ch > 0xfdef) && (ch <= 0xffef)) || ((ch >= 0xfff9) && (ch <= 0xfffd));
     }
 
     inline BOOL IsHighSurrogateChar(char16 ch)
-    {
+    {TRACE_IT(18686);
         return InRange( ch, WCH_UTF16_HIGH_FIRST, WCH_UTF16_HIGH_LAST );
     }
 
     inline BOOL IsLowSurrogateChar(char16 ch)
-    {
+    {TRACE_IT(18687);
         return InRange( ch, WCH_UTF16_LOW_FIRST, WCH_UTF16_LOW_LAST );
     }
 
     _At_(ptr, _In_reads_(end - ptr) _Post_satisfies_(ptr >= _Old_(ptr) - 1 && ptr <= end))
     inline char16 DecodeTail(char16 c1, LPCUTF8& ptr, LPCUTF8 end, DecodeOptions& options)
-    {
+    {TRACE_IT(18688);
         char16 ch = 0;
         BYTE c2, c3, c4;
 
@@ -108,7 +108,7 @@ namespace utf8
             if (c1 < 0x80) return c1;
 
             if ((options & doSecondSurrogatePair) != 0)
-            {
+            {TRACE_IT(18689);
                 // We're in the middle of decoding a surrogate pair from a four-byte utf8 sequence.
                 // The high word has already been returned, but without advancing ptr, which was on byte 1.
                 // ptr was then advanced externally when reading c1, which is byte 1, so ptr is now on byte 2.
@@ -127,7 +127,7 @@ namespace utf8
         case 2:
             // Look for an overlong utf-8 sequence.
             if (ptr >= end)
-            {
+            {TRACE_IT(18690);
                 if ((options & doChunkedEncoding) != 0)
                     // The is a sequence that spans a chunk, push ptr back to the beginning of the sequence.
                     ptr--;
@@ -141,14 +141,14 @@ namespace utf8
                     InRange(c1, 0xC2, 0xDF)
                     && InRange(c2, 0x80, 0xBF)
                 )
-            {
+            {TRACE_IT(18691);
                 ch |= WCHAR(c1 & 0x1f) << 6;     // 0x0080 - 0x07ff
                 ch |= WCHAR(c2 & 0x3f);
                 if (!IsValidWideChar(ch) && ((options & doAllowInvalidWCHARs) == 0))
                     ch = g_chUnknown;
             }
             else
-            {
+            {TRACE_IT(18692);
                 ptr--;
                 ch = g_chUnknown;
             }
@@ -158,7 +158,7 @@ namespace utf8
             // 1110XXXX 10Xxxxxx 10xxxxxx
             // Look for overlong utf-8 sequence.
             if (ptr + 1 >= end)
-            {
+            {TRACE_IT(18693);
                 if ((options & doChunkedEncoding) != 0)
                     // The is a sequence that spans a chunk, push ptr back to the beginning of the sequence.
                     ptr--;
@@ -197,7 +197,7 @@ namespace utf8
                     && InRange(c3, 0x80, 0xBF)
                     )
                 )
-            {
+            {TRACE_IT(18694);
                 ch  = WCHAR(c1 & 0x0f) << 12;    // 0x0800 - 0xffff
                 ch |= WCHAR(c2 & 0x3f) << 6;     // 0x0080 - 0x07ff
                 ch |= WCHAR(c3 & 0x3f);
@@ -206,7 +206,7 @@ namespace utf8
                 ptr += 2;
             }
             else
-            {
+            {TRACE_IT(18695);
                 ch = g_chUnknown;
                 // Windows OS 1713952. Only drop the illegal leading byte
                 // Retry next byte.
@@ -219,7 +219,7 @@ LFourByte:
             // 11110XXX 10XXxxxx 10xxxxxx 10xxxxxx or 11111xxx ....
             // NOTE: 11111xxx is not supported
             if (ptr + 2 >= end)
-            {
+            {TRACE_IT(18696);
                 if ((options & doChunkedEncoding) != 0)
                     // The is a sequence that spans a chunk, push ptr back to the beginning of the sequence.
                     ptr--;
@@ -255,7 +255,7 @@ LFourByte:
                         && InRange(c4, 0x80,0xBF))
                     )
                 )
-            {
+            {TRACE_IT(18697);
                 // Windows OS 1713952. Only drop the illegal leading byte.
                 // Retry next byte.
                 // ptr is already advanced 1.
@@ -264,7 +264,7 @@ LFourByte:
             }
 
             if ((options & doSecondSurrogatePair) == 0)
-            {
+            {TRACE_IT(18698);
                 // Decode high 10 bits of utf-8 20 bit char
                 ch  = WCHAR(c1 & 0x07) << 2;
                 ch |= WCHAR(c2 & 0x30) >> 4;
@@ -283,7 +283,7 @@ LFourByte:
                 //    multi-unit chars, as it should be.
             }
             else
-            {
+            {TRACE_IT(18699);
                 // Decode low 10 bits of utf-8 20 bit char
                 ch = WCHAR(c3 & 0x0f) << 6;     // ch == 0000 00yy yy00 0000
                 ch |= WCHAR(c4 & 0x3f);          // ch == 0000 00yy yyxx xxxx
@@ -300,20 +300,20 @@ LFourByte:
     }
 
     LPUTF8 EncodeFull(char16 ch, __out_ecount(3) LPUTF8 ptr)
-    {
+    {TRACE_IT(18700);
         if( ch < 0x0080 )
-        {
+        {TRACE_IT(18701);
             // One byte
             *ptr++ = static_cast< utf8char_t >(ch);
         }
         else if( ch < 0x0800 )
-        {
+        {TRACE_IT(18702);
             // Two bytes   : 110yyyxx 10xxxxxx
             *ptr++ = static_cast<utf8char_t>(ch >> 6) | 0xc0;
             *ptr++ = static_cast<utf8char_t>(ch & 0x3F) | 0x80;
         }
         else
-        {
+        {TRACE_IT(18703);
             // Three bytes : 1110yyyy 10yyyyxx 10xxxxxx
             *ptr++ = static_cast<utf8char_t>(ch >> 12) | 0xE0;
             *ptr++ = static_cast<utf8char_t>((ch >> 6) & 0x3F) | 0x80;
@@ -325,7 +325,7 @@ LFourByte:
 
     _Use_decl_annotations_
     LPUTF8 EncodeSurrogatePair(char16 surrogateHigh, char16 surrogateLow, LPUTF8 ptr)
-    {
+    {TRACE_IT(18704);
         // A unicode codepoint is encoded into a surrogate pair by doing the following:
         //  subtract 0x10000 from the codepoint
         //  Split the resulting value into the high-ten bits and low-ten bits
@@ -356,14 +356,14 @@ LFourByte:
     }
 
     LPCUTF8 NextCharFull(LPCUTF8 ptr)
-    {
+    {TRACE_IT(18705);
         return ptr + EncodedBytes(*ptr);
     }
 
     LPCUTF8 PrevCharFull(LPCUTF8 ptr, LPCUTF8 start)
-    {
+    {TRACE_IT(18706);
         if (ptr > start)
-        {
+        {TRACE_IT(18707);
             LPCUTF8 current = ptr - 1;
             while (current > start && (*current & 0xC0) == 0x80)
                 current--;
@@ -379,7 +379,7 @@ LFourByte:
     
     _Use_decl_annotations_
     size_t DecodeUnitsInto(char16 *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options)
-    {
+    {TRACE_IT(18708);
         DecodeOptions localOptions = options;
 
         LPCUTF8 p = pbUtf8;
@@ -389,7 +389,7 @@ LFourByte:
 
 LFastPath:
         while (p + 3 < pbEnd)
-        {
+        {TRACE_IT(18709);
             unsigned bytes = *(unsigned *)p;
             if ((bytes & 0x80808080) != 0) goto LSlowPath;
             ((uint32 *)dest)[0] = (char16(bytes) & 0x00FF) | ((char16(bytes) & 0xFF00) << 8);
@@ -400,17 +400,17 @@ LFastPath:
 
 LSlowPath:
         while (p < pbEnd)
-        {
+        {TRACE_IT(18710);
             LPCUTF8 s = p;
             char16 chDest = Decode(p, pbEnd, localOptions);
 
             if (s < p)
-            {
+            {TRACE_IT(18711);
                 // We decoded the character, store it
                 *dest++ = chDest;
             }
             else
-            {
+            {TRACE_IT(18712);
                 // Nothing was converted. This might happen at the end of a buffer with doChunkedEncoding.
                 break;
             }
@@ -425,7 +425,7 @@ LSlowPath:
 
     _Use_decl_annotations_
     size_t DecodeUnitsIntoAndNullTerminate(char16 *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options)
-    {
+    {TRACE_IT(18713);
         size_t result = DecodeUnitsInto(buffer, pbUtf8, pbEnd, options);
         buffer[(int)result] = 0;
         return result;
@@ -433,17 +433,17 @@ LSlowPath:
 
     _Use_decl_annotations_
     size_t DecodeUnitsIntoAndNullTerminateNoAdvance(char16 *buffer, LPCUTF8 pbUtf8, LPCUTF8 pbEnd, DecodeOptions options)
-    {
+    {TRACE_IT(18714);
         return DecodeUnitsIntoAndNullTerminate(buffer, pbUtf8, pbEnd, options);
     }
 
     bool CharsAreEqual(LPCOLESTR pch, LPCUTF8 bch, LPCUTF8 end, DecodeOptions options)
-    {
+    {TRACE_IT(18715);
         DecodeOptions localOptions = options;
         while (bch < end)
-        {
+        {TRACE_IT(18716);
             if (*pch++ != utf8::Decode(bch, end, localOptions))
-            {
+            {TRACE_IT(18717);
                 return false;
             }
         }
@@ -453,7 +453,7 @@ LSlowPath:
     template <bool cesu8Encoding>
     __range(0, cchIn * 3)
     size_t EncodeIntoImpl(__out_ecount(cchIn * 3) LPUTF8 buffer, __in_ecount(cchIn) const char16 *source, charcount_t cchIn)
-    {
+    {TRACE_IT(18718);
         charcount_t cch = cchIn; // SAL analysis gets confused by EncodeTrueUtf8's dest buffer requirement unless we alias cchIn with a local
         LPUTF8 dest = buffer;
 
@@ -461,7 +461,7 @@ LSlowPath:
 
 LFastPath:
         while (cch >= 4)
-        {
+        {TRACE_IT(18719);
             uint32 first = ((const uint32 *)source)[0];
             if ( (first & 0xFF80FF80) != 0) goto LSlowPath;
             uint32 second = ((const uint32 *)source)[1];
@@ -474,17 +474,17 @@ LFastPath:
 
 LSlowPath:
         if (cesu8Encoding)
-        {
+        {TRACE_IT(18720);
             while (cch-- > 0)
-            {
+            {TRACE_IT(18721);
                 dest = Encode(*source++, dest);
                 if (ShouldFastPath(dest, source)) goto LFastPath;
             }
         }
         else
-        {
+        {TRACE_IT(18722);
             while (cch-- > 0)
-            {
+            {TRACE_IT(18723);
                 // We increment the source pointer here since at least one utf16 code unit is read here
                 // If the code unit turns out to be the high surrogate in a surrogate pair, then
                 // EncodeTrueUtf8 will consume the low surrogate code unit too by decrementing cch
@@ -499,13 +499,13 @@ LSlowPath:
 
     __range(0, cch * 3)
         size_t EncodeInto(__out_ecount(cch * 3) LPUTF8 buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
-    {
+    {TRACE_IT(18724);
         return EncodeIntoImpl<true>(buffer, source, cch);
     }
 
     __range(0, cch * 3)
     size_t EncodeIntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
-    {
+    {TRACE_IT(18725);
         size_t result = EncodeInto(buffer, source, cch);
         buffer[result] = 0;
         return result;
@@ -513,7 +513,7 @@ LSlowPath:
 
     __range(0, cch * 3)
         size_t EncodeTrueUtf8IntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
-    {
+    {TRACE_IT(18726);
         size_t result = EncodeIntoImpl<false>(buffer, source, cch);
         buffer[result] = 0;
         return result;
@@ -521,12 +521,12 @@ LSlowPath:
 
     // Convert the character index into a byte index.
     size_t CharacterIndexToByteIndex(__in_ecount(cbLength) LPCUTF8 pch, size_t cbLength, charcount_t cchIndex, DecodeOptions options)
-    {
+    {TRACE_IT(18727);
         return CharacterIndexToByteIndex(pch, cbLength, cchIndex, 0, 0, options);
     }
 
     size_t CharacterIndexToByteIndex(__in_ecount(cbLength) LPCUTF8 pch, size_t cbLength, const charcount_t cchIndex, size_t cbStartIndex, charcount_t cchStartIndex, DecodeOptions options)
-    {
+    {TRACE_IT(18728);
         DecodeOptions localOptions = options;
         LPCUTF8 pchCurrent = pch + cbStartIndex;
         LPCUTF8 pchEnd = pch + cbLength;
@@ -538,10 +538,10 @@ LSlowPath:
 LFastPath:
         // Skip 4 bytes at a time.
         while (pchCurrent < pchEndMinus4 && i > 4)
-        {
+        {TRACE_IT(18729);
             uint32 ch4 = *reinterpret_cast<const uint32 *>(pchCurrent);
             if ((ch4 & 0x80808080) == 0)
-            {
+            {TRACE_IT(18730);
                 pchCurrent += 4;
                 i -= 4;
             }
@@ -562,7 +562,7 @@ LSlowPath:
 
     // Convert byte index into character index
     charcount_t ByteIndexIntoCharacterIndex(__in_ecount(cbIndex) LPCUTF8 pch, size_t cbIndex, DecodeOptions options)
-    {
+    {TRACE_IT(18731);
         DecodeOptions localOptions = options;
         LPCUTF8 pchCurrent = pch;
         LPCUTF8 pchEnd = pch + cbIndex;
@@ -575,10 +575,10 @@ LSlowPath:
 LFastPath:
         // Skip 4 bytes at a time.
         while (pchCurrent < pchEndMinus4)
-        {
+        {TRACE_IT(18732);
             uint32 ch4 = *reinterpret_cast<const uint32 *>(pchCurrent);
             if ((ch4 & 0x80808080) == 0)
-            {
+            {TRACE_IT(18733);
                 pchCurrent += 4;
                 i += 4;
             }
@@ -587,7 +587,7 @@ LFastPath:
 
 LSlowPath:
         while (pchCurrent < pchEnd)
-        {
+        {TRACE_IT(18734);
             LPCUTF8 s = pchCurrent;
             Decode(pchCurrent, pchEnd, localOptions);
             if (s == pchCurrent) break;

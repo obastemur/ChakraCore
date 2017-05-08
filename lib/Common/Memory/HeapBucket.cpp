@@ -8,7 +8,7 @@
 HeapBucket::HeapBucket() :
     heapInfo(nullptr),
     sizeCat(0)
-{
+{TRACE_IT(23897);
 #ifdef RECYCLER_SLOW_CHECK_ENABLED
     heapBlockCount = 0;
     newHeapBlockCount = 0;
@@ -22,13 +22,13 @@ HeapBucket::HeapBucket() :
 
 uint
 HeapBucket::GetBucketIndex() const
-{
+{TRACE_IT(23898);
     return HeapInfo::GetBucketIndex(this->sizeCat);
 }
 
 uint
 HeapBucket::GetMediumBucketIndex() const
-{
+{TRACE_IT(23899);
     return HeapInfo::GetMediumBucketIndex(this->sizeCat);
 }
 
@@ -43,7 +43,7 @@ HeapBucketT<TBlockType>::HeapBucketT() :
     heapBlockList(nullptr),
     explicitFreeList(nullptr),
     lastExplicitFreeListAllocator(nullptr)
-{
+{TRACE_IT(23900);
 #ifdef RECYCLER_PAGE_HEAP
     explicitFreeLockBlockList = nullptr;
 #endif
@@ -56,7 +56,7 @@ HeapBucketT<TBlockType>::HeapBucketT() :
 
 template <typename TBlockType>
 HeapBucketT<TBlockType>::~HeapBucketT()
-{
+{TRACE_IT(23901);
     DeleteHeapBlockList(this->heapBlockList);
     DeleteHeapBlockList(this->fullBlockList);
 
@@ -70,7 +70,7 @@ HeapBucketT<TBlockType>::~HeapBucketT()
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::DeleteHeapBlockList(TBlockType * list, Recycler * recycler)
-{
+{TRACE_IT(23902);
     HeapBlockList::ForEachEditing(list, [recycler](TBlockType * heapBlock)
     {
 #if DBG
@@ -83,7 +83,7 @@ HeapBucketT<TBlockType>::DeleteHeapBlockList(TBlockType * list, Recycler * recyc
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::DeleteEmptyHeapBlockList(TBlockType * list)
-{
+{TRACE_IT(23903);
     HeapBlockList::ForEachEditing(list, [](TBlockType * heapBlock)
     {
         TBlockType::Delete(heapBlock);
@@ -100,7 +100,7 @@ HeapBucketT<TBlockType>::DeleteHeapBlockList(TBlockType * list)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::Initialize(HeapInfo * heapInfo, uint sizeCat)
-{
+{TRACE_IT(23904);
     this->heapInfo = heapInfo;
 #ifdef RECYCLER_PAGE_HEAP
     this->isPageHeapEnabled = heapInfo->IsPageHeapEnabledForBlock<typename TBlockType::HeapBlockAttributes>(sizeCat);
@@ -117,10 +117,10 @@ template <typename TBlockType>
 template <class Fn>
 void
 HeapBucketT<TBlockType>::ForEachAllocator(Fn fn)
-{
+{TRACE_IT(23905);
     TBlockAllocatorType * current = &allocatorHead;
     do
-    {
+    {TRACE_IT(23906);
         fn(current);
         current = current->GetNext();
     }
@@ -130,14 +130,14 @@ HeapBucketT<TBlockType>::ForEachAllocator(Fn fn)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::UpdateAllocators()
-{
+{TRACE_IT(23907);
     ForEachAllocator([](TBlockAllocatorType * allocator) { allocator->UpdateHeapBlock(); });
 }
 
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::ClearAllocators()
-{
+{TRACE_IT(23908);
     ForEachAllocator([](TBlockAllocatorType * allocator) { ClearAllocator(allocator); });
 
 #ifdef RECYCLER_PAGE_HEAP
@@ -148,7 +148,7 @@ HeapBucketT<TBlockType>::ClearAllocators()
     FreeObject* freeObject = this->explicitFreeList;
 
     while (freeObject)
-    {
+    {TRACE_IT(23909);
         HeapBlock* heapBlock = this->GetRecycler()->FindHeapBlock((void*)freeObject);
         Assert(heapBlock != nullptr);
         Assert(!heapBlock->IsLargeHeapBlock());
@@ -166,7 +166,7 @@ HeapBucketT<TBlockType>::ClearAllocators()
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::PrepareSweep()
-{
+{TRACE_IT(23910);
     // CONCURRENT-TODO: Technically, We don't really need to invalidate allocators here,
     // but currently invalidating may update the unallocateCount which is
     // used to calculate the partial heuristics, so it needs to be done
@@ -179,7 +179,7 @@ HeapBucketT<TBlockType>::PrepareSweep()
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::AddAllocator(TBlockAllocatorType * allocator)
-{
+{TRACE_IT(23911);
     Assert(allocator != &this->allocatorHead);
     allocator->Initialize();
     allocator->next = this->allocatorHead.next;
@@ -194,7 +194,7 @@ HeapBucketT<TBlockType>::AddAllocator(TBlockAllocatorType * allocator)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::RemoveAllocator(TBlockAllocatorType * allocator)
-{
+{TRACE_IT(23912);
     Assert(allocator != &this->allocatorHead);
     ClearAllocator(allocator);
 
@@ -202,7 +202,7 @@ HeapBucketT<TBlockType>::RemoveAllocator(TBlockAllocatorType * allocator)
     allocator->prev->next = allocator->next;
 
     if (allocator == this->lastExplicitFreeListAllocator)
-    {
+    {TRACE_IT(23913);
         this->lastExplicitFreeListAllocator = &allocatorHead;
     }
 }
@@ -210,24 +210,24 @@ HeapBucketT<TBlockType>::RemoveAllocator(TBlockAllocatorType * allocator)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::ClearAllocator(TBlockAllocatorType * allocator)
-{
+{TRACE_IT(23914);
     allocator->Clear();
 }
 
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::IntegrateBlock(char * blockAddress, PageSegment * segment, Recycler * recycler)
-{
+{TRACE_IT(23915);
     // Add a new heap block
     TBlockType * heapBlock = GetUnusedHeapBlock();
     if (heapBlock == nullptr)
-    {
+    {TRACE_IT(23916);
         return false;
     }
 
     // TODO: Consider supporting guard pages for this codepath
     if (!heapBlock->SetPage(blockAddress, segment, recycler))
-    {
+    {TRACE_IT(23917);
         FreeHeapBlock(heapBlock);
         return false;
     }
@@ -263,12 +263,12 @@ HeapBucketT<TBlockType>::IntegrateBlock(char * blockAddress, PageSegment * segme
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::AllocatorsAreEmpty() const
-{
+{TRACE_IT(23918);
     TBlockAllocatorType const * current = &allocatorHead;
     do
-    {
+    {TRACE_IT(23919);
         if (current->GetHeapBlock() != nullptr || current->GetExplicitFreeList() != nullptr)
-        {
+        {TRACE_IT(23920);
             return false;
         }
         current = current->GetNext();
@@ -280,7 +280,7 @@ HeapBucketT<TBlockType>::AllocatorsAreEmpty() const
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::HasPendingDisposeHeapBlocks() const
-{
+{TRACE_IT(23921);
 #ifdef RECYCLER_WRITE_BARRIER
     return (IsFinalizableBucket || IsFinalizableWriteBarrierBucket) &&
     ((SmallFinalizableHeapBucketT<typename TBlockType::HeapBlockAttributes> *)this)->pendingDisposeList != nullptr;
@@ -294,13 +294,13 @@ HeapBucketT<TBlockType>::HasPendingDisposeHeapBlocks() const
 template <typename TBlockType>
 size_t
 HeapBucketT<TBlockType>::GetNonEmptyHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(23922);
     size_t currentHeapBlockCount = HeapBlockList::Count(fullBlockList);
     currentHeapBlockCount += HeapBlockList::Count(heapBlockList);
 #if ENABLE_CONCURRENT_GC
     // Recycler can be null if we have OOM in the ctor
     if (this->GetRecycler() && this->GetRecycler()->recyclerSweep != nullptr)
-    {
+    {TRACE_IT(23923);
         currentHeapBlockCount += this->GetRecycler()->recyclerSweep->GetHeapBlockCount(this);
     }
 #endif
@@ -312,7 +312,7 @@ HeapBucketT<TBlockType>::GetNonEmptyHeapBlockCount(bool checkCount) const
 template <typename TBlockType>
 size_t
 HeapBucketT<TBlockType>::GetEmptyHeapBlockCount() const
-{
+{TRACE_IT(23924);
     size_t count = HeapBlockList::Count(this->emptyBlockList);
     RECYCLER_SLOW_CHECK(Assert(count == this->emptyHeapBlockCount));
     return count;
@@ -322,7 +322,7 @@ HeapBucketT<TBlockType>::GetEmptyHeapBlockCount() const
 template <typename TBlockType>
 char *
 HeapBucketT<TBlockType>::TryAlloc(Recycler * recycler, TBlockAllocatorType * allocator, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(23925);
     AUTO_NO_EXCEPTION_REGION;
 
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
@@ -331,20 +331,20 @@ HeapBucketT<TBlockType>::TryAlloc(Recycler * recycler, TBlockAllocatorType * all
 
     TBlockType * heapBlock = this->nextAllocableBlockHead;
     if (heapBlock != nullptr)
-    {
+    {TRACE_IT(23926);
         Assert(!this->IsAllocationStopped());
         this->nextAllocableBlockHead = heapBlock->GetNextBlock();
 
         allocator->Set(heapBlock);
     }
     else if (this->explicitFreeList != nullptr)
-    {
+    {TRACE_IT(23927);
         allocator->SetExplicitFreeList(this->explicitFreeList);
         this->lastExplicitFreeListAllocator = allocator;
         this->explicitFreeList = nullptr;
     }
     else
-    {
+    {TRACE_IT(23928);
         return nullptr;
     }
     // We just found a block we can allocate on
@@ -356,21 +356,21 @@ HeapBucketT<TBlockType>::TryAlloc(Recycler * recycler, TBlockAllocatorType * all
 template <typename TBlockType>
 char *
 HeapBucketT<TBlockType>::TryAllocFromNewHeapBlock(Recycler * recycler, TBlockAllocatorType * allocator, size_t sizeCat, size_t size, ObjectInfoBits attributes)
-{
+{TRACE_IT(23929);
     AUTO_NO_EXCEPTION_REGION;
 
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
 #ifdef RECYCLER_PAGE_HEAP
     if (IsPageHeapEnabled(attributes))
-    {
+    {TRACE_IT(23930);
         return this->PageHeapAlloc(recycler, sizeCat, size, attributes, this->heapInfo->pageHeapMode, true);
     }
 #endif
 
     TBlockType * heapBlock = CreateHeapBlock(recycler);
     if (heapBlock == nullptr)
-    {
+    {TRACE_IT(23931);
         return nullptr;
     }
 
@@ -386,7 +386,7 @@ HeapBucketT<TBlockType>::TryAllocFromNewHeapBlock(Recycler * recycler, TBlockAll
 template <typename TBlockType>
 char *
 HeapBucketT<TBlockType>::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size, ObjectInfoBits attributes, PageHeapMode mode, bool nothrow)
-{
+{TRACE_IT(23932);
     AllocationVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("In PageHeapAlloc [Size: 0x%x, Attributes: 0x%x]\n"), size, attributes);
     return heapInfo->largeObjectBucket.PageHeapAlloc(recycler, sizeCat, size, attributes, mode, nothrow);
 }
@@ -395,7 +395,7 @@ HeapBucketT<TBlockType>::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size
 template <typename TBlockType>
 char *
 HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * allocator, size_t sizeCat, size_t size, ObjectInfoBits attributes, bool nothrow)
-{
+{TRACE_IT(23933);
     AllocationVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("In SnailAlloc [Size: 0x%x, Attributes: 0x%x]\n"), sizeCat, attributes);
 
     Assert(sizeCat == this->sizeCat);
@@ -403,7 +403,7 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
 
     char * memBlock = this->TryAlloc(recycler, allocator, sizeCat, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(23934);
         return memBlock;
     }
 
@@ -417,15 +417,15 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
 
     AllocationVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("TryAlloc failed, forced collection on allocation [Collected: %d]\n"), collected);
     if (!collected)
-    {
+    {TRACE_IT(23935);
 #if ENABLE_CONCURRENT_GC
         // wait for background sweeping finish if there are too many pages allocated during background sweeping
         if (recycler->IsConcurrentSweepExecutingState() && this->heapInfo->uncollectedNewPageCount > (uint)CONFIG_FLAG(NewPagesCapDuringBGSweeping))
-        {
+        {TRACE_IT(23936);
             recycler->FinishConcurrent<ForceFinishCollection>();
             memBlock = this->TryAlloc(recycler, allocator, sizeCat, attributes);
             if (memBlock != nullptr)
-            {
+            {TRACE_IT(23937);
                 return memBlock;
             }
         }
@@ -433,7 +433,7 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
         // We didn't collect, try to add a new heap block
         memBlock = TryAllocFromNewHeapBlock(recycler, allocator, sizeCat, size, attributes);
         if (memBlock != nullptr)
-        {
+        {TRACE_IT(23938);
             return memBlock;
         }
 
@@ -447,7 +447,7 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
     // might have a heap block already, try to allocate from that first
     memBlock = allocator->template SlowAlloc<true /* allow fault injection */>(recycler, sizeCat, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(23939);
         return memBlock;
     }
 
@@ -456,7 +456,7 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
     // do the allocation
     memBlock = this->TryAlloc(recycler, allocator, sizeCat, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(23940);
         return memBlock;
     }
 
@@ -464,14 +464,14 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
     // add a heap block if there are no preallocated memory left.
     memBlock = TryAllocFromNewHeapBlock(recycler, allocator, sizeCat, size, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(23941);
         return memBlock;
     }
 
     AllocationVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("TryAllocFromNewHeapBlock failed- triggering OOM handler"));
 
     if (nothrow == false)
-    {
+    {TRACE_IT(23942);
         // Can't add a heap block, we are out of memory
         // Since we're allowed to throw, throw right here
         recycler->OutOfMemory();
@@ -483,17 +483,17 @@ HeapBucketT<TBlockType>::SnailAlloc(Recycler * recycler, TBlockAllocatorType * a
 template <typename TBlockType>
 TBlockType*
 HeapBucketT<TBlockType>::GetUnusedHeapBlock()
-{
+{TRACE_IT(23943);
     // Add a new heap block
     TBlockType * heapBlock = emptyBlockList;
     if (heapBlock == nullptr)
-    {
+    {TRACE_IT(23944);
         // We couldn't find a reusable heap block
         heapBlock = TBlockType::New(this);
         RECYCLER_SLOW_CHECK(Assert(this->emptyHeapBlockCount == 0));
     }
     else
-    {
+    {TRACE_IT(23945);
         emptyBlockList = heapBlock->GetNextBlock();
         RECYCLER_SLOW_CHECK(this->emptyHeapBlockCount--);
     }
@@ -503,18 +503,18 @@ HeapBucketT<TBlockType>::GetUnusedHeapBlock()
 template <typename TBlockType>
 TBlockType *
 HeapBucketT<TBlockType>::CreateHeapBlock(Recycler * recycler)
-{
+{TRACE_IT(23946);
     FAULTINJECT_MEMORY_NOTHROW(_u("HeapBlock"), sizeof(TBlockType));
 
     // Add a new heap block
     TBlockType * heapBlock = GetUnusedHeapBlock();
     if (heapBlock == nullptr)
-    {
+    {TRACE_IT(23947);
         return nullptr;
     }
 
     if (!heapBlock->ReassignPages(recycler))
-    {
+    {TRACE_IT(23948);
         FreeHeapBlock(heapBlock);
         return nullptr;
     }
@@ -534,7 +534,7 @@ HeapBucketT<TBlockType>::CreateHeapBlock(Recycler * recycler)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::FreeHeapBlock(TBlockType * heapBlock)
-{
+{TRACE_IT(23949);
     heapBlock->Reset();
     heapBlock->SetNextBlock(emptyBlockList);
     emptyBlockList = heapBlock;
@@ -544,7 +544,7 @@ HeapBucketT<TBlockType>::FreeHeapBlock(TBlockType * heapBlock)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::ResetMarks(ResetMarkFlags flags)
-{
+{TRACE_IT(23950);
     RECYCLER_SLOW_CHECK(this->VerifyHeapBlockCount((flags & ResetMarkFlags_Background) != 0));
 
 #if !ENABLE_CONCURRENT_GC
@@ -552,7 +552,7 @@ HeapBucketT<TBlockType>::ResetMarks(ResetMarkFlags flags)
 #endif
 
     if ((flags & ResetMarkFlags_Background) == 0)
-    {
+    {TRACE_IT(23951);
         // The is equivalent to the ClearAllocators in Rescan
         // But since we are not doing concurrent, we need to do it here.
         ClearAllocators();
@@ -561,7 +561,7 @@ HeapBucketT<TBlockType>::ResetMarks(ResetMarkFlags flags)
     // Note, mark bits are now cleared in HeapBlockMap32::ResetMarks, so we don't need to clear them here.
 
     if ((flags & ResetMarkFlags_ScanImplicitRoot) != 0)
-    {
+    {TRACE_IT(23952);
         HeapBlockList::ForEach(fullBlockList, [flags](TBlockType * heapBlock)
         {
             heapBlock->MarkImplicitRoots();
@@ -575,7 +575,7 @@ HeapBucketT<TBlockType>::ResetMarks(ResetMarkFlags flags)
 
 #if DBG
     if ((flags & ResetMarkFlags_Background) == 0)
-    {
+    {TRACE_IT(23953);
         // Verify that if you are in the heapBlockList, before the nextAllocableBlockHead, we have fully allocated from
         // the block already, except if we have cleared from the allocator, or it is still in the allocator
         HeapBlockList::ForEach(heapBlockList, nextAllocableBlockHead, [](TBlockType * heapBlock)
@@ -597,7 +597,7 @@ HeapBucketT<TBlockType>::ResetMarks(ResetMarkFlags flags)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(23954);
     HeapBlockList::ForEach(fullBlockList, [recycler](TBlockType * heapBlock)
     {
         heapBlock->ScanNewImplicitRoots(recycler);
@@ -613,45 +613,45 @@ HeapBucketT<TBlockType>::ScanNewImplicitRoots(Recycler * recycler)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::VerifyBlockConsistencyInList(TBlockType * heapBlock, RecyclerVerifyListConsistencyData& recyclerSweep)
-{
+{TRACE_IT(23955);
     bool* expectFull = nullptr;
     bool* expectDispose = nullptr;
     HeapBlock* nextAllocableBlockHead = nullptr;
 
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(23956);
         expectFull = &recyclerSweep.smallBlockVerifyListConsistencyData.expectFull;
         expectDispose = &recyclerSweep.smallBlockVerifyListConsistencyData.expectDispose;
         nextAllocableBlockHead = recyclerSweep.smallBlockVerifyListConsistencyData.nextAllocableBlockHead;
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(23957);
         expectFull = &recyclerSweep.mediumBlockVerifyListConsistencyData.expectFull;
         expectDispose = &recyclerSweep.mediumBlockVerifyListConsistencyData.expectDispose;
         nextAllocableBlockHead = recyclerSweep.mediumBlockVerifyListConsistencyData.nextAllocableBlockHead;
     }
     else
-    {
+    {TRACE_IT(23958);
         Assert(false);
     }
 
     if (heapBlock == nextAllocableBlockHead)
-    {
+    {TRACE_IT(23959);
         (*expectFull) = false;
     }
     if (heapBlock->IsClearedFromAllocator())
-    {
+    {TRACE_IT(23960);
         Assert(*expectFull && !*expectDispose);
         Assert(heapBlock->HasFreeObject());
         Assert(!heapBlock->HasAnyDisposeObjects());
     }
     else if (*expectDispose)
-    {
+    {TRACE_IT(23961);
         Assert(heapBlock->IsAnyFinalizableBlock() && heapBlock->template AsFinalizableBlock<typename TBlockType::HeapBlockAttributes>()->IsPendingDispose());
         Assert(heapBlock->HasAnyDisposeObjects());
     }
     else
-    {
+    {TRACE_IT(23962);
         Assert(!heapBlock->HasAnyDisposeObjects());
 
         // ExpectFull is a bit of a misnomer if the list in question is the heap block list. It's there to check
@@ -666,27 +666,27 @@ HeapBucketT<TBlockType>::VerifyBlockConsistencyInList(TBlockType * heapBlock, Re
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::VerifyBlockConsistencyInList(TBlockType * heapBlock, RecyclerVerifyListConsistencyData const& recyclerSweep, SweepState state)
-{
+{TRACE_IT(23963);
     bool expectFull = false;
     bool expectDispose = false;
 
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(23964);
         expectFull = recyclerSweep.smallBlockVerifyListConsistencyData.expectFull;
         expectDispose = recyclerSweep.smallBlockVerifyListConsistencyData.expectDispose;
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(23965);
         expectFull = recyclerSweep.mediumBlockVerifyListConsistencyData.expectFull;
         expectDispose = recyclerSweep.mediumBlockVerifyListConsistencyData.expectDispose;
     }
     else
-    {
+    {TRACE_IT(23966);
         Assert(false);
     }
 
     if (heapBlock->IsClearedFromAllocator())
-    {
+    {TRACE_IT(23967);
         // this function is called during sweep and we are recreating the heap block list
         // which would make all the block to be in it's rightful place
         heapBlock->SetIsClearedFromAllocator(false);
@@ -694,7 +694,7 @@ HeapBucketT<TBlockType>::VerifyBlockConsistencyInList(TBlockType * heapBlock, Re
         Assert(SweepStateFull != state);
     }
     else
-    {
+    {TRACE_IT(23968);
         // You can still be full only if you are full before.
         Assert(expectFull || SweepStateFull != state);
     }
@@ -708,14 +708,14 @@ HeapBucketT<TBlockType>::VerifyBlockConsistencyInList(TBlockType * heapBlock, Re
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::DoQueuePendingSweep(Recycler * recycler)
-{
+{TRACE_IT(23969);
     return IsNormalBucket && recycler->inPartialCollectMode;
 }
 
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::DoPartialReuseSweep(Recycler * recycler)
-{
+{TRACE_IT(23970);
     // With leaf, we don't need to do a partial sweep
     // WriteBarrier-TODO: We shouldn't need to do this for write barrier heap buckets either
     return !IsLeafBucket && recycler->inPartialCollectMode;
@@ -725,20 +725,20 @@ HeapBucketT<TBlockType>::DoPartialReuseSweep(Recycler * recycler)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlockType * heapBlockList, bool allocable)
-{
+{TRACE_IT(23971);
 #if DBG
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(23972);
         Assert(recyclerSweep.smallBlockVerifyListConsistencyData.hasSetupVerifyListConsistencyData);
         recyclerSweep.smallBlockVerifyListConsistencyData.hasSetupVerifyListConsistencyData = false;
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(23973);
         Assert(recyclerSweep.mediumBlockVerifyListConsistencyData.hasSetupVerifyListConsistencyData);
         recyclerSweep.mediumBlockVerifyListConsistencyData.hasSetupVerifyListConsistencyData = false;
     }
     else
-    {
+    {TRACE_IT(23974);
         Assert(false);
     }
 #endif
@@ -770,7 +770,7 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
         {
 #if ENABLE_CONCURRENT_GC
         case SweepStatePendingSweep:
-        {
+        {TRACE_IT(23975);
             Assert(IsNormalBucket);
             // blocks that have swept object. Queue up the block for concurrent sweep.
             Assert(queuePendingSweep);
@@ -784,7 +784,7 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
         }
 #endif
         case SweepStatePendingDispose:
-        {
+        {TRACE_IT(23976);
             Assert(!recyclerSweep.IsBackground());
 #ifdef RECYCLER_WRITE_BARRIER
             Assert(IsFinalizableBucket || IsFinalizableWriteBarrierBucket);
@@ -808,7 +808,7 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
             break;
         }
         case SweepStateSwept:
-        {
+        {TRACE_IT(23977);
             Assert(this->nextAllocableBlockHead == nullptr);
             Assert(heapBlock->HasFreeObject());
             heapBlock->SetNextBlock(this->heapBlockList);
@@ -819,19 +819,19 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
             break;
         }
         case SweepStateFull:
-        {
+        {TRACE_IT(23978);
             Assert(!heapBlock->HasFreeObject());
             heapBlock->SetNextBlock(this->fullBlockList);
             this->fullBlockList = heapBlock;
             break;
         }
         case SweepStateEmpty:
-        {
+        {TRACE_IT(23979);
             // the block is empty, just free them
 #ifdef RECYCLER_MEMORY_VERIFY
             // Let's verify it before we free it
             if (recycler->VerifyEnabled())
-            {
+            {TRACE_IT(23980);
                 heapBlock->Verify();
             }
 #endif
@@ -842,7 +842,7 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
             // CONCURRENT-TODO: Finalizable block never have background == true and always be processed
             // in thread, so it will not queue up the pages even if we are doing concurrent GC
             if (recyclerSweep.IsBackground())
-            {
+            {TRACE_IT(23981);
 #ifdef RECYCLER_WRITE_BARRIER
                 Assert(!(IsFinalizableBucket || IsFinalizableWriteBarrierBucket));
 #else
@@ -855,7 +855,7 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
             }
             else
 #endif
-            {
+            {TRACE_IT(23982);
                 // Just free the page in thread (and zero the page)
                 heapBlock->ReleasePagesSweep(recycler);
                 FreeHeapBlock(heapBlock);
@@ -871,19 +871,19 @@ HeapBucketT<TBlockType>::SweepHeapBlockList(RecyclerSweep& recyclerSweep, TBlock
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(23983);
     DebugOnly(TBlockType * savedNextAllocableBlockHead);
     RECYCLER_SLOW_CHECK(this->VerifyHeapBlockCount(recyclerSweep.IsBackground()));
 #if ENABLE_CONCURRENT_GC
     if (recyclerSweep.HasSetupBackgroundSweep())
-    {
+    {TRACE_IT(23984);
         // SetupBackgroundSweep set nextAllocableBlockHead to null already
         Assert(IsAllocationStopped());
         DebugOnly(savedNextAllocableBlockHead = recyclerSweep.GetSavedNextAllocableBlockHead(this));
     }
     else
 #endif
-    {
+    {TRACE_IT(23985);
         Assert(AllocatorsAreEmpty());
         DebugOnly(savedNextAllocableBlockHead = this->nextAllocableBlockHead);
         this->StopAllocationBeforeSweep();
@@ -898,15 +898,15 @@ HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep)
 
 #if DBG
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(23986);
         recyclerSweep.SetupVerifyListConsistencyDataForSmallBlock((SmallHeapBlock*) savedNextAllocableBlockHead, true, false);
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(23987);
         recyclerSweep.SetupVerifyListConsistencyDataForMediumBlock((MediumHeapBlock*) savedNextAllocableBlockHead, true, false);
     }
     else
-    {
+    {TRACE_IT(23988);
         Assert(false);
     }
 #endif
@@ -920,15 +920,15 @@ HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep)
 
 #if DBG
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(23989);
         recyclerSweep.SetupVerifyListConsistencyDataForSmallBlock(nullptr, true, false);
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(23990);
         recyclerSweep.SetupVerifyListConsistencyDataForMediumBlock(nullptr, true, false);
     }
     else
-    {
+    {TRACE_IT(23991);
         Assert(false);
     }
 #endif
@@ -942,7 +942,7 @@ HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::StopAllocationBeforeSweep()
-{
+{TRACE_IT(23992);
     Assert(!this->IsAllocationStopped());
     DebugOnly(this->isAllocationStopped = true);
     this->nextAllocableBlockHead = nullptr;
@@ -951,7 +951,7 @@ HeapBucketT<TBlockType>::StopAllocationBeforeSweep()
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::StartAllocationAfterSweep()
-{
+{TRACE_IT(23993);
     Assert(this->IsAllocationStopped());
     DebugOnly(this->isAllocationStopped = false);
     this->nextAllocableBlockHead = this->heapBlockList;
@@ -962,9 +962,9 @@ HeapBucketT<TBlockType>::StartAllocationAfterSweep()
 template <typename TBlockType>
 bool
 HeapBucketT<TBlockType>::IsAllocationStopped() const
-{
+{TRACE_IT(23994);
     if (this->isAllocationStopped)
-    {
+    {TRACE_IT(23995);
         Assert(this->nextAllocableBlockHead == nullptr);
         return true;
     }
@@ -975,7 +975,7 @@ HeapBucketT<TBlockType>::IsAllocationStopped() const
 template <typename TBlockType>
 uint
 HeapBucketT<TBlockType>::Rescan(Recycler * recycler, RescanFlags flags)
-{
+{TRACE_IT(23996);
 #if ENABLE_CONCURRENT_GC
     RECYCLER_SLOW_CHECK(this->VerifyHeapBlockCount(!!recycler->IsConcurrentMarkState()));
 #else
@@ -987,7 +987,7 @@ HeapBucketT<TBlockType>::Rescan(Recycler * recycler, RescanFlags flags)
     // If we do rescan in thread, we will need to prepare sweep here.
     // However, if we are in the rescan for OOM, we have already done it, so no need to do it again
     if (!recycler->IsConcurrentMarkState() && !recycler->inEndMarkOnLowMemory)
-    {
+    {TRACE_IT(23997);
         this->PrepareSweep();
     }
 #endif
@@ -1000,7 +1000,7 @@ HeapBucketT<TBlockType>::Rescan(Recycler * recycler, RescanFlags flags)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::MergeNewHeapBlock(TBlockType * heapBlock)
-{
+{TRACE_IT(23998);
     Assert(heapBlock->GetObjectSize() == this->sizeCat);
     heapBlock->SetNextBlock(this->heapBlockList);
     this->heapBlockList = heapBlock;
@@ -1011,7 +1011,7 @@ HeapBucketT<TBlockType>::MergeNewHeapBlock(TBlockType * heapBlock)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::SetupBackgroundSweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(23999);
     // Don't allocate from existing block temporary when concurrent sweeping
 
     // Currently Rescan clear allocators, if we remove the uncollectedAllocBytes there, we can
@@ -1028,17 +1028,17 @@ HeapBucketT<TBlockType>::SetupBackgroundSweep(RecyclerSweep& recyclerSweep)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::AppendAllocableHeapBlockList(TBlockType * list)
-{
+{TRACE_IT(24000);
     // Add the list to the end of the current list
     TBlockType * currentHeapBlockList = this->heapBlockList;
     if (currentHeapBlockList == nullptr)
-    {
+    {TRACE_IT(24001);
         // There weren't any heap block list before, just move the list over and start allocate from it
         this->heapBlockList = list;
         this->nextAllocableBlockHead = list;
     }
     else
-    {
+    {TRACE_IT(24002);
         // Find the last block and append the pendingSwpetList
         TBlockType * tail = HeapBlockList::Tail(currentHeapBlockList);
         Assert(tail != nullptr);
@@ -1047,7 +1047,7 @@ HeapBucketT<TBlockType>::AppendAllocableHeapBlockList(TBlockType * list)
         // If we are not currently allocating from the existing heapBlockList,
         // that means fill all the exiting one already, we should start with what we just appended.
         if (this->nextAllocableBlockHead == nullptr)
-        {
+        {TRACE_IT(24003);
             this->nextAllocableBlockHead = list;
         }
     }
@@ -1056,7 +1056,7 @@ HeapBucketT<TBlockType>::AppendAllocableHeapBlockList(TBlockType * list)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24004);
     UpdateAllocators();
     HeapBucket::EnumerateObjects(fullBlockList, infoBits, CallBackFunction);
     HeapBucket::EnumerateObjects(heapBlockList, infoBits, CallBackFunction);
@@ -1066,11 +1066,11 @@ HeapBucketT<TBlockType>::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBa
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::VerifyHeapBlockCount(bool background)
-{
+{TRACE_IT(24005);
     // TODO-REFACTOR: GetNonEmptyHeapBlockCount really should be virtual
     static_cast<typename SmallHeapBlockType<TBlockType::RequiredAttributes, typename TBlockType::HeapBlockAttributes>::BucketType *>(this)->GetNonEmptyHeapBlockCount(true);
     if (!background)
-    {
+    {TRACE_IT(24006);
         this->GetEmptyHeapBlockCount();
     }
 }
@@ -1078,7 +1078,7 @@ HeapBucketT<TBlockType>::VerifyHeapBlockCount(bool background)
 template <typename TBlockType>
 size_t
 HeapBucketT<TBlockType>::Check(bool checkCount)
-{
+{TRACE_IT(24007);
     Assert(this->GetRecycler()->recyclerSweep == nullptr);
     UpdateAllocators();
     size_t smallHeapBlockCount = HeapInfo::Check(true, false, this->fullBlockList);
@@ -1093,21 +1093,21 @@ HeapBucketT<TBlockType>::Check(bool checkCount)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::AggregateBucketStats(HeapBucketStats& stats)
-{
+{TRACE_IT(24008);
     auto allocatorHead = &this->allocatorHead;
     auto allocatorCurr = allocatorHead;
 
     do
-    {
+    {TRACE_IT(24009);
         TBlockType* allocatorHeapBlock = allocatorCurr->GetHeapBlock();
         if (allocatorHeapBlock)
-        {
+        {TRACE_IT(24010);
             allocatorHeapBlock->AggregateBlockStats(stats, true, allocatorCurr->freeObjectList, allocatorCurr->endAddress != 0);
         }
         allocatorCurr = allocatorCurr->GetNext();
     } while (allocatorCurr != allocatorHead);
 
-    auto blockStatsAggregator = [&stats](TBlockType* heapBlock) {
+    auto blockStatsAggregator = [&stats](TBlockType* heapBlock) {TRACE_IT(24011);
         heapBlock->AggregateBlockStats(stats);
     };
 
@@ -1121,21 +1121,21 @@ HeapBucketT<TBlockType>::AggregateBucketStats(HeapBucketStats& stats)
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::Verify()
-{
+{TRACE_IT(24012);
     UpdateAllocators();
 #if DBG
     RecyclerVerifyListConsistencyData recyclerVerifyListConsistencyData;
 
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(24013);
         recyclerVerifyListConsistencyData.smallBlockVerifyListConsistencyData.SetupVerifyListConsistencyData((SmallHeapBlock*) nullptr, true, false);
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(24014);
         recyclerVerifyListConsistencyData.mediumBlockVerifyListConsistencyData.SetupVerifyListConsistencyData((MediumHeapBlock*) nullptr, true, false);
     }
     else
-    {
+    {TRACE_IT(24015);
         Assert(false);
     }
 #endif
@@ -1148,15 +1148,15 @@ HeapBucketT<TBlockType>::Verify()
 
 #if DBG
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(24016);
         recyclerVerifyListConsistencyData.smallBlockVerifyListConsistencyData.SetupVerifyListConsistencyData((SmallHeapBlock*) this->nextAllocableBlockHead, true, false);
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(24017);
         recyclerVerifyListConsistencyData.mediumBlockVerifyListConsistencyData.SetupVerifyListConsistencyData((MediumHeapBlock*) this->nextAllocableBlockHead, true, false);
     }
     else
-    {
+    {TRACE_IT(24018);
         Assert(false);
     }
 #endif
@@ -1168,17 +1168,17 @@ HeapBucketT<TBlockType>::Verify()
         this->ForEachAllocator([heapBlock, &bumpAllocateAddress](TBlockAllocatorType * allocator)
         {
             if (allocator->GetHeapBlock() == heapBlock && allocator->GetEndAddress() != nullptr)
-            {
+            {TRACE_IT(24019);
                 Assert(bumpAllocateAddress == nullptr);
                 bumpAllocateAddress = (char *)allocator->GetFreeObjectList();
             }
         });
         if (bumpAllocateAddress != nullptr)
-        {
+        {TRACE_IT(24020);
             heapBlock->VerifyBumpAllocated(bumpAllocateAddress);
         }
         else
-        {
+        {TRACE_IT(24021);
             heapBlock->Verify(false);
         }
     });
@@ -1189,7 +1189,7 @@ HeapBucketT<TBlockType>::Verify()
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::VerifyMark()
-{
+{TRACE_IT(24022);
     HeapBlockList::ForEach(this->fullBlockList, [](TBlockType * heapBlock)
     {
         heapBlock->VerifyMark();
@@ -1205,7 +1205,7 @@ HeapBucketT<TBlockType>::VerifyMark()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::Initialize(HeapInfo * heapInfo, uint sizeCat)
-{
+{TRACE_IT(24023);
     heapBucket.Initialize(heapInfo, sizeCat);
     leafHeapBucket.Initialize(heapInfo, sizeCat);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1218,7 +1218,7 @@ HeapBucketGroup<TBlockAttributes>::Initialize(HeapInfo * heapInfo, uint sizeCat)
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::ResetMarks(ResetMarkFlags flags)
-{
+{TRACE_IT(24024);
     heapBucket.ResetMarks(flags);
     leafHeapBucket.ResetMarks(flags);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1234,7 +1234,7 @@ HeapBucketGroup<TBlockAttributes>::ResetMarks(ResetMarkFlags flags)
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::ScanInitialImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24025);
     heapBucket.ScanInitialImplicitRoots(recycler);
     // Don't need to scan implicit roots on leaf heap bucket
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1247,7 +1247,7 @@ HeapBucketGroup<TBlockAttributes>::ScanInitialImplicitRoots(Recycler * recycler)
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24026);
     heapBucket.ScanNewImplicitRoots(recycler);
     // Need to scan new implicit roots on leaf heap bucket
     leafHeapBucket.ScanNewImplicitRoots(recycler);
@@ -1261,7 +1261,7 @@ HeapBucketGroup<TBlockAttributes>::ScanNewImplicitRoots(Recycler * recycler)
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24027);
     heapBucket.Sweep(recyclerSweep);
     leafHeapBucket.Sweep(recyclerSweep);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1274,7 +1274,7 @@ HeapBucketGroup<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep)
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::SweepFinalizableObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24028);
     finalizableHeapBucket.Sweep(recyclerSweep);
 #ifdef RECYCLER_WRITE_BARRIER
     smallFinalizableWithBarrierHeapBucket.Sweep(recyclerSweep);
@@ -1284,7 +1284,7 @@ HeapBucketGroup<TBlockAttributes>::SweepFinalizableObjects(RecyclerSweep& recycl
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::DisposeObjects()
-{
+{TRACE_IT(24029);
     finalizableHeapBucket.DisposeObjects();
 #ifdef RECYCLER_WRITE_BARRIER
     smallFinalizableWithBarrierHeapBucket.DisposeObjects();
@@ -1294,7 +1294,7 @@ HeapBucketGroup<TBlockAttributes>::DisposeObjects()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::TransferDisposedObjects()
-{
+{TRACE_IT(24030);
     finalizableHeapBucket.TransferDisposedObjects();
 #ifdef RECYCLER_WRITE_BARRIER
     smallFinalizableWithBarrierHeapBucket.TransferDisposedObjects();
@@ -1304,7 +1304,7 @@ HeapBucketGroup<TBlockAttributes>::TransferDisposedObjects()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24031);
     heapBucket.EnumerateObjects(infoBits, CallBackFunction);
     leafHeapBucket.EnumerateObjects(infoBits, CallBackFunction);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1317,7 +1317,7 @@ HeapBucketGroup<TBlockAttributes>::EnumerateObjects(ObjectInfoBits infoBits, voi
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::FinalizeAllObjects()
-{
+{TRACE_IT(24032);
     finalizableHeapBucket.FinalizeAllObjects();
 #ifdef RECYCLER_WRITE_BARRIER
     smallFinalizableWithBarrierHeapBucket.FinalizeAllObjects();
@@ -1327,7 +1327,7 @@ HeapBucketGroup<TBlockAttributes>::FinalizeAllObjects()
 template <class TBlockAttributes>
 uint
 HeapBucketGroup<TBlockAttributes>::Rescan(Recycler * recycler, RescanFlags flags)
-{
+{TRACE_IT(24033);
     return heapBucket.Rescan(recycler, flags) +
         leafHeapBucket.Rescan(recycler, flags) +
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1341,7 +1341,7 @@ HeapBucketGroup<TBlockAttributes>::Rescan(Recycler * recycler, RescanFlags flags
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::PrepareSweep()
-{
+{TRACE_IT(24034);
     heapBucket.PrepareSweep();
     leafHeapBucket.PrepareSweep();
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1354,7 +1354,7 @@ HeapBucketGroup<TBlockAttributes>::PrepareSweep()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::SetupBackgroundSweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24035);
     heapBucket.SetupBackgroundSweep(recyclerSweep);
     leafHeapBucket.SetupBackgroundSweep(recyclerSweep);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1366,7 +1366,7 @@ HeapBucketGroup<TBlockAttributes>::SetupBackgroundSweep(RecyclerSweep& recyclerS
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::SweepPartialReusePages(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24036);
     // Leaf heap bucket are always reused for allocation and can be done on the concurrent thread
     // WriteBarrier-TODO: Do the same for write barrier buckets
     heapBucket.SweepPartialReusePages(recyclerSweep);
@@ -1380,7 +1380,7 @@ HeapBucketGroup<TBlockAttributes>::SweepPartialReusePages(RecyclerSweep& recycle
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::FinishPartialCollect(RecyclerSweep * recyclerSweep)
-{
+{TRACE_IT(24037);
     heapBucket.FinishPartialCollect(recyclerSweep);
 #ifdef RECYCLER_WRITE_BARRIER
     smallNormalWithBarrierHeapBucket.FinishPartialCollect(recyclerSweep);
@@ -1400,7 +1400,7 @@ HeapBucketGroup<TBlockAttributes>::FinishPartialCollect(RecyclerSweep * recycler
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::SweepPendingObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24038);
     // For leaf buckets, we can always reuse the page as we don't need to rescan them for partial GC
     // It should have been swept immediately during Sweep
     // WriteBarrier-TODO: Do the same for write barrier buckets
@@ -1418,7 +1418,7 @@ HeapBucketGroup<TBlockAttributes>::SweepPendingObjects(RecyclerSweep& recyclerSw
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::TransferPendingEmptyHeapBlocks(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24039);
     recyclerSweep.TransferPendingEmptyHeapBlocks(&heapBucket);
     recyclerSweep.TransferPendingEmptyHeapBlocks(&leafHeapBucket);
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1433,7 +1433,7 @@ HeapBucketGroup<TBlockAttributes>::TransferPendingEmptyHeapBlocks(RecyclerSweep&
 template <class TBlockAttributes>
 size_t
 HeapBucketGroup<TBlockAttributes>::GetNonEmptyHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(24040);
     return heapBucket.GetNonEmptyHeapBlockCount(checkCount) +
         finalizableHeapBucket.GetNonEmptyHeapBlockCount(checkCount) +
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1446,7 +1446,7 @@ HeapBucketGroup<TBlockAttributes>::GetNonEmptyHeapBlockCount(bool checkCount) co
 template <class TBlockAttributes>
 size_t
 HeapBucketGroup<TBlockAttributes>::GetEmptyHeapBlockCount() const
-{
+{TRACE_IT(24041);
     return heapBucket.GetEmptyHeapBlockCount() +
         finalizableHeapBucket.GetEmptyHeapBlockCount() +
 #ifdef RECYCLER_WRITE_BARRIER
@@ -1461,7 +1461,7 @@ HeapBucketGroup<TBlockAttributes>::GetEmptyHeapBlockCount() const
 template <class TBlockAttributes>
 size_t
 HeapBucketGroup<TBlockAttributes>::Check()
-{
+{TRACE_IT(24042);
     return heapBucket.Check() + finalizableHeapBucket.Check() + leafHeapBucket.Check()
 #ifdef RECYCLER_WRITE_BARRIER
         + smallNormalWithBarrierHeapBucket.Check() + smallFinalizableWithBarrierHeapBucket.Check()
@@ -1473,7 +1473,7 @@ HeapBucketGroup<TBlockAttributes>::Check()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::Verify()
-{
+{TRACE_IT(24043);
     heapBucket.Verify();
     finalizableHeapBucket.Verify();
     leafHeapBucket.Verify();
@@ -1487,7 +1487,7 @@ HeapBucketGroup<TBlockAttributes>::Verify()
 template <class TBlockAttributes>
 void
 HeapBucketGroup<TBlockAttributes>::VerifyMark()
-{
+{TRACE_IT(24044);
     heapBucket.VerifyMark();
     finalizableHeapBucket.VerifyMark();
     leafHeapBucket.VerifyMark();
@@ -1502,7 +1502,7 @@ HeapBucketGroup<TBlockAttributes>::VerifyMark()
 template <class TBlockAttributes>
 bool
 HeapBucketGroup<TBlockAttributes>::AllocatorsAreEmpty()
-{
+{TRACE_IT(24045);
     return heapBucket.AllocatorsAreEmpty()
         && finalizableHeapBucket.AllocatorsAreEmpty()
         && leafHeapBucket.AllocatorsAreEmpty()

@@ -21,7 +21,7 @@ Func *CurrentFunc;
 ///----------------------------------------------------------------------------
 
 void dump(IR::Instr *instr)
-{
+{TRACE_IT(1656);
     instr->Dump();
 }
 
@@ -32,7 +32,7 @@ void dump(IR::Instr *instr)
 ///----------------------------------------------------------------------------
 
 void dump(IR::Instr *instr, int window)
-{
+{TRACE_IT(1657);
     instr->Dump(window);
 }
 
@@ -43,7 +43,7 @@ void dump(IR::Instr *instr, int window)
 ///----------------------------------------------------------------------------
 
 void dump()
-{
+{TRACE_IT(1658);
     CurrentFunc->Dump();
 }
 

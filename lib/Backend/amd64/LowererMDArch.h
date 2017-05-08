@@ -33,16 +33,16 @@ private:
     class XPlatRegArgList
     {
     public:
-        XPlatRegArgList() { Reset(); }
+        XPlatRegArgList() {TRACE_IT(16597); Reset(); }
         inline void Reset()
-        {
+        {TRACE_IT(16598);
             for (int i = 0; i <= XmmArgRegsCount; i++) args[i] = TyMachPtr;
         }
 
-        inline bool IsFloat(uint16 position) { return args[position] == TyFloat64; }
+        inline bool IsFloat(uint16 position) {TRACE_IT(16599); return args[position] == TyFloat64; }
 
         void SetFloat(uint16 regPosition)
-        {
+        {TRACE_IT(16600);
             Assert(regPosition != 0 && regPosition <= XmmArgRegsCount);
             args[regPosition] = TyFloat64;
         }
@@ -57,16 +57,16 @@ public:
 
     LowererMDArch(Func* function):
         m_func(function)
-    { }
+    {TRACE_IT(16601); }
 
     void                Init(LowererMD * lowererMD);
     void                FinalLower();
     void                FlipHelperCallArgsOrder()
-    {
+    {TRACE_IT(16602);
         int left  = 0;
         int right = helperCallArgsCount - 1;
         while (left < right)
-        {
+        {TRACE_IT(16603);
             IR::Opnd *tempOpnd = helperCallArgs[left];
             helperCallArgs[left] = helperCallArgs[right];
             helperCallArgs[right] = tempOpnd;
@@ -77,7 +77,7 @@ public:
     }
 
     static  bool        IsLegalMemLoc(IR::MemRefOpnd *opnd)
-    {
+    {TRACE_IT(16604);
         return Math::FitsInDWord((size_t)opnd->GetMemLoc());
     }
 
@@ -148,8 +148,8 @@ public:
     IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr);
     void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr);
 
-    int                 GetHelperArgsCount() { return this->helperCallArgsCount; }
-    void                ResetHelperArgsCount() { this->helperCallArgsCount = 0; }
+    int                 GetHelperArgsCount() {TRACE_IT(16605); return this->helperCallArgsCount; }
+    void                ResetHelperArgsCount() {TRACE_IT(16606); this->helperCallArgsCount = 0; }
 
     void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd);
     IR::Instr *         LowerEHRegionReturn(IR::Instr * insertBeforeInstr, IR::Opnd * targetOpnd);

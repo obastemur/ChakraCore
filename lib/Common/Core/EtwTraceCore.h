@@ -10,21 +10,21 @@
 #ifdef NTBUILD
 #define GCETW(e, args)                          \
     if (IsMemProtectMode())                     \
-    {                                           \
+    {TRACE_IT(20033);                                           \
         PAIR(EventWriteMEMPROTECT_ ## e, args); \
     }                                           \
     else                                        \
-    {                                           \
+    {TRACE_IT(20034);                                           \
         PAIR(EventWriteJSCRIPT_ ## e, args);    \
     }
 
 #define GCETW_INTERNAL(e, args)                 \
     if (IsMemProtectMode())                     \
-    {                                           \
+    {TRACE_IT(20035);                                           \
         PAIR(EventWriteMEMPROTECT_ ## e, args); \
     }                                           \
     else                                        \
-    {                                           \
+    {TRACE_IT(20036);                                           \
         PAIR(EventWriteJSCRIPT_ ## e, args);    \
     }
 

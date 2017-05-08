@@ -16,7 +16,7 @@
 namespace Js
 {
     GlobalObject * GlobalObject::New(ScriptContext * scriptContext)
-    {
+    {TRACE_IT(55311);
         SimpleDictionaryTypeHandler* globalTypeHandler = SimpleDictionaryTypeHandler::New(
             scriptContext->GetRecycler(), InitialCapacity, InlineSlotCapacity, sizeof(Js::GlobalObject));
 
@@ -37,11 +37,11 @@ namespace Js
         secureDirectHostObject(nullptr),
         EvalHelper(&GlobalObject::DefaultEvalHelper),
         reservedProperties(nullptr)
-    {
+    {TRACE_IT(55312);
     }
 
     void GlobalObject::Initialize(ScriptContext * scriptContext)
-    {
+    {TRACE_IT(55313);
         Assert(type->javascriptLibrary == nullptr);
         JavascriptLibrary* localLibrary = RecyclerNewFinalized(scriptContext->GetRecycler(), JavascriptLibrary, this);
         scriptContext->SetLibrary(localLibrary);
@@ -52,7 +52,7 @@ namespace Js
     }
 
     bool GlobalObject::Is(Var aValue)
-    {
+    {TRACE_IT(55314);
         return RecyclableObject::Is(aValue) && (RecyclableObject::FromVar(aValue)->GetTypeId() == TypeIds_GlobalObject);
     }
 
@@ -63,7 +63,7 @@ namespace Js
     }
 
     HRESULT GlobalObject::SetDirectHostObject(RecyclableObject* hostObject, RecyclableObject* secureDirectHostObject)
-    {
+    {TRACE_IT(55315);
         HRESULT hr = S_OK;
 
         BEGIN_TRANSLATE_OOM_TO_HRESULT_NESTED
@@ -79,12 +79,12 @@ namespace Js
     }
 
     RecyclableObject* GlobalObject::GetDirectHostObject()
-    {
+    {TRACE_IT(55316);
         return this->directHostObject;
     }
 
     RecyclableObject* GlobalObject::GetSecureDirectHostObject()
-    {
+    {TRACE_IT(55317);
         return this->secureDirectHostObject;
     }
 
@@ -92,22 +92,22 @@ namespace Js
     // In a non-hosted environment, the global object (this) is returned.
     // In a hosted environment, the host object is returned.
     Var GlobalObject::ToThis()
-    {
+    {TRACE_IT(55318);
         Var ret;
 
         // In fast DOM, we need to give user the secure version of host object
         if (secureDirectHostObject)
-        {
+        {TRACE_IT(55319);
             ret = secureDirectHostObject;
         }
         else if (hostObject)
-        {
+        {TRACE_IT(55320);
             // If the global object has the host object, use that as "this"
             ret = hostObject->GetHostDispatchVar();
             Assert(ret);
         }
         else
-        {
+        {TRACE_IT(55321);
             // Otherwise just use the global object
             ret = this;
         }
@@ -116,13 +116,13 @@ namespace Js
     }
 
     BOOL GlobalObject::ReserveGlobalProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(55322);
         if (DynamicObject::HasProperty(propertyId))
-        {
+        {TRACE_IT(55323);
             return false;
         }
         if (reservedProperties == nullptr)
-        {
+        {TRACE_IT(55324);
             Recycler* recycler = this->GetScriptContext()->GetRecycler();
             reservedProperties = RecyclerNew(recycler, ReservedPropertiesHashSet, recycler, 3);
         }
@@ -131,7 +131,7 @@ namespace Js
     }
 
     BOOL GlobalObject::IsReservedGlobalProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(55325);
         return reservedProperties != nullptr && reservedProperties->Contains(propertyId);
     }
 
@@ -150,7 +150,7 @@ namespace Js
         size_t sourceLength = 0;
 
         if (Js::JavascriptString::Is(codeVar))
-        {
+        {TRACE_IT(55326);
             codeStringVar = (Js::JavascriptString *)codeVar;
             source = codeStringVar->GetString();
             sourceLength = codeStringVar->GetLength();
@@ -181,7 +181,7 @@ namespace Js
 
     // TODO remove when refactor
     Js::PropertyId GlobalObject::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
-    {
+    {TRACE_IT(55327);
         Js::PropertyRecord const *propertyRecord;
         scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
         Js::PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -191,10 +191,10 @@ namespace Js
 
     // TODO remove when refactor
     void GlobalObject::SetProperty(Js::DynamicObject *obj, const char16 *propertyName, Js::Var value)
-    {
+    {TRACE_IT(55328);
         const size_t len = wcslen(propertyName);
         if (!(len > 0))
-        {
+        {TRACE_IT(55329);
             return;
         }
 
@@ -204,9 +204,9 @@ namespace Js
 
     // TODO remove when refactor
     void GlobalObject::SetProperty(Js::DynamicObject *obj, Js::PropertyId id, Js::Var value)
-    {
+    {TRACE_IT(55330);
         if (value == NULL)
-        {
+        {TRACE_IT(55331);
             return;
         }
 
@@ -216,7 +216,7 @@ namespace Js
     Var GlobalObject::FunctionInfoObjectBuilder(ScriptContext *scriptContext, const char16 *file,
         const char16 *function, ULONG lineNum, ULONG colNum,
         uint functionId, Js::Utf8SourceInfo *utf8SrcInfo, Js::Var source)
-    {
+    {TRACE_IT(55332);
         Js::DynamicObject *fnInfoObj = scriptContext->GetLibrary()->CreateObject();
 
         // create javascript objects for properties
@@ -258,7 +258,7 @@ namespace Js
         for (scriptContext = threadContext->GetScriptContextList();
             scriptContext;
             scriptContext = scriptContext->next)
-        {
+        {TRACE_IT(55333);
             if (scriptContext->IsClosed()) continue;
 
             //
@@ -269,7 +269,7 @@ namespace Js
             {
                 Js::Utf8SourceInfo *sourceInfo = sourceInfoWeakRef->Get();
                 if (sourceInfo == nullptr || sourceInfo->GetIsLibraryCode()) // library code has no source, skip
-                {
+                {TRACE_IT(55334);
                     return;
                 }
 
@@ -279,7 +279,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55335);
             Output::Print(_u(">> There are %d total functions\n"), fnCount);
             Output::Flush();
         }
@@ -294,7 +294,7 @@ namespace Js
         for (scriptContext = threadContext->GetScriptContextList();
             scriptContext;
             scriptContext = scriptContext->next)
-        {
+        {TRACE_IT(55336);
             if (scriptContext->IsClosed()) continue;
             // if (scriptContext == originalScriptContext) continue;  // uncomment to ignore the originalScriptContext
 
@@ -303,7 +303,7 @@ namespace Js
             {
                 Js::Utf8SourceInfo *sourceInfo = sourceInfoWeakRef->Get();
                 if (sourceInfo == nullptr || sourceInfo->GetIsLibraryCode()) // library code has no source, skip
-                {
+                {TRACE_IT(55337);
                     return;
                 }
 
@@ -316,7 +316,7 @@ namespace Js
                 char16 filenameBuffer[128];  // hold dynamically built filename
                 char16 const *srcFileUrl = NULL;
                 if (!srcContextInfo->IsDynamic())
-                {
+                {TRACE_IT(55338);
                     Assert(srcContextInfo->url != NULL);
                     srcFileUrl = srcContextInfo->url;
                 }
@@ -336,7 +336,7 @@ namespace Js
                     uint funcId = functionBody->GetLocalFunctionId();
                     Js::Utf8SourceInfo *utf8SrcInfo = functionBody->GetUtf8SourceInfo();
                     if (utf8SrcInfo == nullptr)
-                    {
+                    {TRACE_IT(55339);
                         return;
                     }
 
@@ -358,7 +358,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55340);
             Output::Print(_u(">> Returning from functionList()\n"));
             Output::Flush();
         }
@@ -374,7 +374,7 @@ namespace Js
     {
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55341);
             Output::Print(_u(">> Entering rejitFunction()\n"));
             Output::Flush();
         }
@@ -390,7 +390,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55342);
             Output::Print(_u("jsVarUtf8SourceInfo: %d (0x%08X)\n"), jsVarUtf8SourceInfo, jsVarUtf8SourceInfo);
             Output::Print(_u("jsVarFunctionId: %d (0x%08X)\n"), jsVarFunctionId, jsVarFunctionId);
         }
@@ -403,11 +403,11 @@ namespace Js
 
         // extract value of jsVarUtf8SourceInfo
         if (Js::TaggedInt::Is(jsVarUtf8SourceInfo))
-        {
+        {TRACE_IT(55343);
             utf8SourceInfoNumber = (int32)TaggedInt::ToInt64(jsVarUtf8SourceInfo); // REVIEW: just truncate?
         }
         else if (Js::JavascriptNumber::Is(jsVarUtf8SourceInfo))
-        {
+        {TRACE_IT(55344);
             jsUtf8SourceInfoNumber = (Js::JavascriptNumber *)jsVarUtf8SourceInfo;
             utf8SourceInfoNumber = (int32)JavascriptNumber::GetValue(jsUtf8SourceInfoNumber);    // REVIEW: just truncate?
         }
@@ -419,11 +419,11 @@ namespace Js
 
         // extract value of jsVarFunctionId
         if (Js::TaggedInt::Is(jsVarFunctionId))
-        {
+        {TRACE_IT(55345);
             functionIdNumber = (int32)TaggedInt::ToInt64(jsVarFunctionId); // REVIEW: just truncate?
         }
         else if (Js::JavascriptNumber::Is(jsVarFunctionId))
-        {
+        {TRACE_IT(55346);
             jsFunctionIdNumber = (Js::JavascriptNumber *)jsVarFunctionId;
             functionIdNumber = (int32)JavascriptNumber::GetValue(jsFunctionIdNumber); // REVIEW: just truncate?
         }
@@ -435,7 +435,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55347);
             Output::Print(_u("utf8SourceInfoNumber (value): %d (0x%08X)\n"), utf8SourceInfoNumber, utf8SourceInfoNumber);
             Output::Print(_u("jsVarFunctionId (value): %d (0x%08X)\n"), functionIdNumber, functionIdNumber);
             Output::Print(_u(">> Executing rejitFunction(%d, %d)\n"), utf8SourceInfoNumber, functionIdNumber);
@@ -449,7 +449,7 @@ namespace Js
 
         Js::Utf8SourceInfo *sourceInfo = (Js::Utf8SourceInfo *)(utf8SourceInfoNumber);
         if (sourceInfo == NULL)
-        {
+        {TRACE_IT(55348);
             return NULL;
         }
 
@@ -463,7 +463,7 @@ namespace Js
         NativeCodeGenerator *nativeCodeGenerator = scriptContext->GetNativeCodeGenerator();
 
         if (!functionBody || !functionBody->GetByteCode())
-        {
+        {TRACE_IT(55349);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -475,7 +475,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(55350);
             Output::Print(_u("rejitFunction - retVal: 0x%08X\n"), retVal);
             Output::Flush();
         }
@@ -486,7 +486,7 @@ namespace Js
 
 #endif /* IR_VIEWER */
     Var GlobalObject::EntryEvalHelper(ScriptContext* scriptContext, RecyclableObject* function, CallInfo callInfo, Js::Arguments& args)
-    {
+    {TRACE_IT(55351);
         FrameDisplay* environment = (FrameDisplay*)&NullFrameDisplay;
         ModuleID moduleID = kmodGlobal;
         BOOL strictMode = FALSE;
@@ -494,13 +494,13 @@ namespace Js
         BOOL isIndirect = FALSE;
 
         if (Js::CallInfo::isDirectEvalCall(args.Info.Flags))
-        {
+        {TRACE_IT(55352);
             // This was recognized as an eval call at compile time. The last one or two args are internal to us.
             // Argcount will be one of the following when called from global code
             //  - eval("...")     : argcount 3 : this, evalString, frameDisplay
             //  - eval.call("..."): argcount 2 : this(which is string) , frameDisplay
             if (args.Info.Count >= 2)
-            {
+            {TRACE_IT(55353);
                 environment = (FrameDisplay*)(args[args.Info.Count - 1]);
 
                 // Check for a module root passed from the caller. If it's there, use its module ID to compile the eval.
@@ -513,7 +513,7 @@ namespace Js
                 strictMode = environment->GetStrictMode();
 
                 if (args.Info.Count >= 3 && JavascriptOperators::GetTypeId(args[args.Info.Count - 2]) == TypeIds_ModuleRoot)
-                {
+                {TRACE_IT(55354);
                     moduleID = ((Js::ModuleRoot*)(RecyclableObject::FromVar(args[args.Info.Count - 2])))->GetModuleID();
                     args.Info.Count--;
                 }
@@ -521,7 +521,7 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(55355);
             // This must be an indirect "eval" call that we didn't detect at compile time.
             // Pass null as the environment, which will force all lookups in the eval code
             // to use the root for the current module.
@@ -564,7 +564,7 @@ namespace Js
 
     Var GlobalObject::VEval(JavascriptLibrary* library, FrameDisplay* environment, ModuleID moduleID, bool strictMode, bool isIndirect,
         Arguments& args, bool isLibraryCode, bool registerDocument, uint32 additionalGrfscr)
-    {
+    {TRACE_IT(55356);
         Assert(library);
         ScriptContext* scriptContext = library->GetScriptContext();
 
@@ -576,13 +576,13 @@ namespace Js
         Var varThis = library->GetUndefined();
 
         if (argCount < 2)
-        {
+        {TRACE_IT(55357);
             return library->GetUndefined();
         }
 
         Var evalArg = args[1];
         if (!JavascriptString::Is(evalArg))
-        {
+        {TRACE_IT(55358);
             // "If x is not a string value, return x."
             return evalArg;
         }
@@ -597,11 +597,11 @@ namespace Js
         charcount_t sourceLen = argString->GetLength();
         FastEvalMapString key(sourceString, sourceLen, moduleID, strictMode, isLibraryCode);
         if (!scriptContext->IsInEvalMap(key, isIndirect, &pfuncScript))
-        {
+        {TRACE_IT(55359);
             uint32 grfscr = additionalGrfscr | fscrReturnExpression | fscrEval | fscrEvalCode | fscrGlobalCode;
 
             if (isLibraryCode)
-            {
+            {TRACE_IT(55360);
                 grfscr |= fscrIsLibraryCode;
             }
 
@@ -612,7 +612,7 @@ namespace Js
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
             Js::Utf8SourceInfo* utf8SourceInfo = pfuncScript->GetFunctionBody()->GetUtf8SourceInfo();
             if (scriptContext->IsScriptContextInDebugMode() && !utf8SourceInfo->GetIsLibraryCode() && !utf8SourceInfo->IsInDebugMode())
-            {
+            {TRACE_IT(55361);
                 // Identifying if any non library function escaped for not being in debug mode.
                 Throw::FatalInternalError();
             }
@@ -620,7 +620,7 @@ namespace Js
 
 #if ENABLE_TTD
             if(!scriptContext->IsTTDRecordOrReplayModeEnabled())
-            {
+            {TRACE_IT(55362);
                 scriptContext->AddToEvalMap(key, isIndirect, pfuncScript);
             }
 #else
@@ -630,10 +630,10 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         else
-        {
+        {TRACE_IT(55363);
             Js::Utf8SourceInfo* utf8SourceInfo = pfuncScript->GetFunctionBody()->GetUtf8SourceInfo();
             if (scriptContext->IsScriptContextInDebugMode() && !utf8SourceInfo->GetIsLibraryCode() && !utf8SourceInfo->IsInDebugMode())
-            {
+            {TRACE_IT(55364);
                 // Identifying if any non library function escaped for not being in debug mode.
                 Throw::FatalInternalError();
             }
@@ -645,20 +645,20 @@ namespace Js
         //TODO: We may (probably?) want to use the debugger source rundown functionality here instead
         //
         if(!isLibraryCode && (scriptContext->IsTTDRecordModeEnabled() || scriptContext->ShouldPerformReplayAction()))
-        {
+        {TRACE_IT(55365);
             //Make sure we have the body and text information available
             FunctionBody* globalBody = TTD::JsSupport::ForceAndGetFunctionBody(pfuncScript->GetParseableFunctionInfo());
             if(!scriptContext->TTDContextInfo->IsBodyAlreadyLoadedAtTopLevel(globalBody))
-            {
+            {TRACE_IT(55366);
                 uint64 bodyIdCtr = 0;
 
                 if(scriptContext->IsTTDRecordModeEnabled())
-                {
+                {TRACE_IT(55367);
                     const TTD::NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* tbfi = scriptContext->GetThreadContext()->TTDLog->AddEvalFunction(globalBody, moduleID, sourceString, sourceLen, additionalGrfscr, registerDocument, isIndirect, strictMode);
 
                     //We always want to register the top-level load but we don't always need to log the event
                     if(scriptContext->ShouldPerformRecordAction())
-                    {
+                    {TRACE_IT(55368);
                         scriptContext->GetThreadContext()->TTDLog->RecordTopLevelCodeAction(tbfi->TopLevelBase.TopLevelBodyCtr);
                     }
 
@@ -666,7 +666,7 @@ namespace Js
                 }
 
                 if(scriptContext->ShouldPerformReplayAction())
-                {
+                {TRACE_IT(55369);
                     bodyIdCtr = scriptContext->GetThreadContext()->TTDLog->ReplayTopLevelCodeAction();
                 }
 
@@ -678,34 +678,34 @@ namespace Js
 #endif
 
         //We shouldn't be serializing eval functions; unless with -ForceSerialized flag
-        if (CONFIG_FLAG(ForceSerialized)) {
+        if (CONFIG_FLAG(ForceSerialized)) {TRACE_IT(55370);
             pfuncScript->GetFunctionProxy()->EnsureDeserialized();
         }
 
         if (pfuncScript->GetFunctionBody()->GetHasThis())
-        {
+        {TRACE_IT(55371);
             // The eval expression refers to "this"
             if (args.Info.Flags & CallFlags_ExtraArg)
-            {
+            {TRACE_IT(55372);
                 JavascriptFunction* pfuncCaller;
                 JavascriptStackWalker::GetCaller(&pfuncCaller, scriptContext);
                 // If we are non-hidden call to eval then look for the "this" object in the frame display if the caller is a lambda else get "this" from the caller's frame.
 
                 FunctionInfo* functionInfo = pfuncCaller->GetFunctionInfo();
                 if (functionInfo != nullptr && (functionInfo->IsLambda() || functionInfo->IsClassConstructor()))
-                {
+                {TRACE_IT(55373);
                     Var defaultInstance = (moduleID == kmodGlobal) ? JavascriptOperators::OP_LdRoot(scriptContext)->ToThis() : (Var)JavascriptOperators::GetModuleRoot(moduleID, scriptContext);
                     varThis = JavascriptOperators::OP_GetThisScoped(environment, defaultInstance, scriptContext);
                     UpdateThisForEval(varThis, moduleID, scriptContext, strictMode);
                 }
                 else
-                {
+                {TRACE_IT(55374);
                     JavascriptStackWalker::GetThis(&varThis, moduleID, scriptContext);
                     UpdateThisForEval(varThis, moduleID, scriptContext, strictMode);
                 }
             }
             else
-            {
+            {TRACE_IT(55375);
                 // The expression, which refers to "this", is evaluated by an indirect eval.
                 // Set "this" to the current module root.
                 varThis = JavascriptOperators::OP_GetThis(scriptContext->GetLibrary()->GetUndefined(), moduleID, scriptContext);
@@ -713,10 +713,10 @@ namespace Js
         }
 
         if (pfuncScript->HasSuperReference())
-        {
+        {TRACE_IT(55376);
             // Indirect evals cannot have a super reference.
             if (!(args.Info.Flags & CallFlags_ExtraArg))
-            {
+            {TRACE_IT(55377);
                 JavascriptError::ThrowSyntaxError(scriptContext, ERRSuperInIndirectEval, _u("super"));
             }
         }
@@ -725,27 +725,27 @@ namespace Js
     }
 
     void GlobalObject::UpdateThisForEval(Var &varThis, ModuleID moduleID, ScriptContext *scriptContext, BOOL strictMode)
-    {
+    {TRACE_IT(55378);
         if (strictMode)
-        {
+        {TRACE_IT(55379);
             varThis = JavascriptOperators::OP_StrictGetThis(varThis, scriptContext);
         }
         else
-        {
+        {TRACE_IT(55380);
             varThis = JavascriptOperators::OP_GetThisNoFastPath(varThis, moduleID, scriptContext);
         }
     }
 
 
     Var GlobalObject::ExecuteEvalParsedFunction(ScriptFunction *pfuncScript, FrameDisplay* environment, Var &varThis)
-    {
+    {TRACE_IT(55381);
         Assert(pfuncScript != nullptr);
 
         pfuncScript->SetEnvironment(environment);
         //This function is supposed to be deserialized
         Assert(pfuncScript->GetFunctionBody());
         if (pfuncScript->GetFunctionBody()->GetFuncEscapes())
-        {
+        {TRACE_IT(55382);
             // Executing the eval causes the scope chain to escape.
             pfuncScript->InvalidateCachedScopeChain();
         }
@@ -756,7 +756,7 @@ namespace Js
 
 #ifdef ENABLE_SCRIPT_PROFILING
     ScriptFunction* GlobalObject::ProfileModeEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {TRACE_IT(55383);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
@@ -769,7 +769,7 @@ namespace Js
                                     proxy->GetDebugNumberSet(debugStringBuffer), pEvalFunction->GetEntryPoint(), proxy->IsDeferred());
 
         if (proxy->IsDeferred())
-        {
+        {TRACE_IT(55384);
             // This could happen if the top level function is marked as deferred, we need to parse this to generate the script compile information (RegisterScript depends on that)
             Js::JavascriptFunction::DeferredParse(&pEvalFunction);
             proxy = pEvalFunction->GetFunctionProxy();
@@ -782,7 +782,7 @@ namespace Js
 #endif
 
     void GlobalObject::ValidateSyntax(ScriptContext* scriptContext, const char16 *source, int sourceLength, bool isGenerator, bool isAsync, void (Parser::*validateSyntax)())
-    {
+    {TRACE_IT(55385);
         Assert(sourceLength >= 0);
 
         HRESULT hr = S_OK;
@@ -808,18 +808,18 @@ namespace Js
         END_LEAVE_SCRIPT_INTERNAL(scriptContext);
 
         if (FAILED(hr))
-        {
+        {TRACE_IT(55386);
             if (hr == E_OUTOFMEMORY)
-            {
+            {TRACE_IT(55387);
                 JavascriptError::ThrowOutOfMemoryError(scriptContext);
             }
             if (hr == VBSERR_OutOfStack)
-            {
+            {TRACE_IT(55388);
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
         }
         if (!SUCCEEDED(hrParser))
-        {
+        {TRACE_IT(55389);
             hrParser = SCRIPT_E_RECORDED;
             EXCEPINFO ei;
             se.GetError(&hrParser, &ei);
@@ -843,11 +843,11 @@ namespace Js
     }
 
     ScriptFunction* GlobalObject::DefaultEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {TRACE_IT(55390);
         Assert(sourceLength >= 0);
         AnalysisAssert(scriptContext);
         if (scriptContext->GetThreadContext()->EvalDisabled())
-        {
+        {TRACE_IT(55391);
             throw Js::EvalDisabledException();
         }
 
@@ -892,7 +892,7 @@ namespace Js
             SourceContextInfo * sourceContextInfo = pSrcInfo->sourceContextInfo;
             ULONG deferParseThreshold = Parser::GetDeferralThreshold(sourceContextInfo->IsSourceProfileLoaded());
             if ((ULONG)sourceLength > deferParseThreshold && !PHASE_OFF1(Phase::DeferParsePhase))
-            {
+            {TRACE_IT(55392);
                 // Defer function bodies declared inside large dynamic blocks.
                 grfscr |= fscrDeferFncParse;
             }
@@ -905,7 +905,7 @@ namespace Js
             sourceInfo->SetParseFlags(grfscr);
 
             if (SUCCEEDED(hrParser) && parseTree)
-            {
+            {TRACE_IT(55393);
                 // This keeps function bodies generated by the byte code alive till we return
                 Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
 
@@ -917,7 +917,7 @@ namespace Js
                 if (isIndirect &&
                     !strictMode &&
                     !parseTree->sxFnc.GetStrictMode())
-                {
+                {TRACE_IT(55394);
                     grfscr &= ~fscrEval;
                 }
                 hrCodeGen = GenerateByteCode(parseTree, grfscr, scriptContext, &funcBody, sourceIndex, forceNoNative, &parser, &se);
@@ -936,11 +936,11 @@ namespace Js
         THROW_KNOWN_HRESULT_EXCEPTIONS(hr, scriptContext);
 
         if (!SUCCEEDED(hrParser))
-        {
+        {TRACE_IT(55395);
             JavascriptError::ThrowParserError(scriptContext, hrParser, &se);
         }
         else if (!SUCCEEDED(hrCodeGen))
-        {
+        {TRACE_IT(55396);
             Assert(hrCodeGen == SCRIPT_E_RECORDED);
             hrCodeGen = se.ei.scode;
             /*
@@ -949,11 +949,11 @@ namespace Js
              */
             se.Free();
             if (hrCodeGen == VBSERR_OutOfStack)
-            {
+            {TRACE_IT(55397);
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
             else if (hrCodeGen == JSERR_AsmJsCompileError)
-            {
+            {TRACE_IT(55398);
                 // if asm.js compilation succeeded, retry with asm.js disabled
                 grfscr |= fscrNoAsmJs;
                 return DefaultEvalHelper(scriptContext, source, sourceLength, moduleID, grfscr, pszTitle, registerDocument, isIndirect, strictMode);
@@ -961,7 +961,7 @@ namespace Js
             JavascriptError::MapAndThrowError(scriptContext, hrCodeGen);
         }
         else
-        {
+        {TRACE_IT(55399);
 
             Assert(funcBody != nullptr);
             funcBody->SetDisplayName(pszTitle);
@@ -971,11 +971,11 @@ namespace Js
 
             // If not library code then let's find the parent, we may need to register this source if any exception happens later
             if ((grfscr & fscrIsLibraryCode) == 0)
-            {
+            {TRACE_IT(55400);
                 // For parented eval get the caller's utf8SourceInfo
                 JavascriptFunction* pfuncCaller;
                 if (JavascriptStackWalker::GetCaller(&pfuncCaller, scriptContext) && pfuncCaller && pfuncCaller->IsScriptFunction())
-                {
+                {TRACE_IT(55401);
                     FunctionBody* parentFuncBody = pfuncCaller->GetFunctionBody();
                     Utf8SourceInfo* parentUtf8SourceInfo = parentFuncBody->GetUtf8SourceInfo();
                     Utf8SourceInfo* utf8SourceInfo = funcBody->GetUtf8SourceInfo();
@@ -984,7 +984,7 @@ namespace Js
             }
 
             if (registerDocument)
-            {
+            {TRACE_IT(55402);
                 funcBody->RegisterFuncToDiag(scriptContext, pszTitle);
                 funcBody = funcBody->GetParseableFunctionInfo(); // RegisterFunction may parse and update function body
             }
@@ -1001,13 +1001,13 @@ namespace Js
     Var GlobalObject::IRDumpEvalHelper(ScriptContext* scriptContext, const char16 *source,
         int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle,
         BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {TRACE_IT(55403);
         // TODO (t-doilij) clean up this function, specifically used for IR dump (don't execute bytecode; potentially dangerous)
 
         Assert(sourceLength >= 0);
 
         if (scriptContext->GetThreadContext()->EvalDisabled())
-        {
+        {TRACE_IT(55404);
             throw Js::EvalDisabledException();
         }
 
@@ -1057,7 +1057,7 @@ namespace Js
             sourceInfo->SetParseFlags(grfscr);
 
             if (SUCCEEDED(hrParser) && parseTree)
-            {
+            {TRACE_IT(55405);
                 // This keeps function bodies generated by the byte code alive till we return
                 Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
 
@@ -1082,7 +1082,7 @@ namespace Js
         THROW_KNOWN_HRESULT_EXCEPTIONS(hr);
 
         if (!SUCCEEDED(hrParser))
-        {
+        {TRACE_IT(55406);
             hrParser = SCRIPT_E_RECORDED;
             EXCEPINFO ei;
             se.GetError(&hrParser, &ei);
@@ -1104,7 +1104,7 @@ namespace Js
             JavascriptError::MapAndThrowError(scriptContext, ei.scode, errorType, &ei);
         }
         else if (!SUCCEEDED(hrCodeGen))
-        {
+        {TRACE_IT(55407);
             Assert(hrCodeGen == SCRIPT_E_RECORDED);
             hrCodeGen = se.ei.scode;
             /*
@@ -1113,13 +1113,13 @@ namespace Js
              */
             se.Free();
             if (hrCodeGen == VBSERR_OutOfStack)
-            {
+            {TRACE_IT(55408);
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
             JavascriptError::MapAndThrowError(scriptContext, hrCodeGen);
         }
         else
-        {
+        {TRACE_IT(55409);
             Assert(funcBody != nullptr);
             funcBody->SetDisplayName(pszTitle);
 
@@ -1127,7 +1127,7 @@ namespace Js
             funcBody->SetIsTopLevel(true);
 
             if (registerDocument)
-            {
+            {TRACE_IT(55410);
                 funcBody->RegisterFuncToDiag(scriptContext, pszTitle);
                 funcBody = funcBody->GetParseableFunctionInfo(); // RegisterFunction may parse and update function body
             }
@@ -1136,7 +1136,7 @@ namespace Js
             Js::FunctionBody *functionBody = funcBody->GetFunctionBody(); // funcBody is ParseableFunctionInfo
 
             if (!functionBody || !functionBody->GetByteCode())
-            {
+            {TRACE_IT(55411);
                 return scriptContext->GetLibrary()->GetUndefined();
             }
 
@@ -1162,7 +1162,7 @@ namespace Js
 
 
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(55412);
             // We're really converting "undefined" here, but "undefined" produces
             // NaN, so just return that directly.
             return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
@@ -1173,19 +1173,19 @@ namespace Js
         if (((args.Info.Count == 2) ||
             (TaggedInt::Is(args[2]) && TaggedInt::ToInt32(args[2]) == 10) ||
             (JavascriptNumber::Is(args[2]) && JavascriptNumber::GetValue(args[2]) == 10)))
-        {
+        {TRACE_IT(55413);
             if (TaggedInt::Is(args[1]))
-            {
+            {TRACE_IT(55414);
                 return args[1];
             }
             if (JavascriptNumber::Is(args[1]))
-            {
+            {TRACE_IT(55415);
                 double value = JavascriptNumber::GetValue(args[1]);
 
                 // make sure we are in the ranges that don't have exponential notation.
                 double absValue = Math::Abs(value);
                 if (absValue < 1.0e21 && absValue >= 1e-5)
-                {
+                {TRACE_IT(55416);
                     double result;
 #pragma prefast(suppress:6031, "We don't care about the fraction part")
                     ::modf(value, &result);
@@ -1196,21 +1196,21 @@ namespace Js
 
         // convert input to a string
         if (JavascriptString::Is(args[1]))
-        {
+        {TRACE_IT(55417);
             str = JavascriptString::FromVar(args[1]);
         }
         else
-        {
+        {TRACE_IT(55418);
             str = JavascriptConversion::ToString(args[1], scriptContext);
         }
 
         if(args.Info.Count > 2)
-        {
+        {TRACE_IT(55419);
             // retrieve the radix
             // TODO : verify for ES5 : radix is 10 when undefined or 0, except when it starts with 0x when it is 16.
             radix = JavascriptConversion::ToInt32(args[2], scriptContext);
             if(radix < 0 || radix == 1 || radix > 36)
-            {
+            {TRACE_IT(55420);
                 //illegal, return NaN
                 return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
             }
@@ -1234,7 +1234,7 @@ namespace Js
         JavascriptString *str;
 
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(55421);
             // We're really converting "undefined" here, but "undefined" produces
             // NaN, so just return that directly.
             return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
@@ -1242,11 +1242,11 @@ namespace Js
 
         // Short cut for numbers
         if (TaggedInt::Is(args[1]))
-        {
+        {TRACE_IT(55422);
             return args[1];
         }
         if(JavascriptNumber::Is_NoTaggedIntCheck(args[1]))
-        {
+        {TRACE_IT(55423);
             // If the value is negative zero, return positive zero. Since the parameter type is string, -0 would first be
             // converted to the string "0", then parsed to result in positive zero.
             return
@@ -1257,11 +1257,11 @@ namespace Js
 
         // convert input to a string
         if (JavascriptString::Is(args[1]))
-        {
+        {TRACE_IT(55424);
             str = JavascriptString::FromVar(args[1]);
         }
         else
-        {
+        {TRACE_IT(55425);
             str = JavascriptConversion::ToString(args[1], scriptContext);
         }
 
@@ -1286,7 +1286,7 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
 
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(55426);
             return scriptContext->GetLibrary()->GetTrue();
         }
         return JavascriptBoolean::ToVar(
@@ -1305,7 +1305,7 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(55427);
             return scriptContext->GetLibrary()->GetFalse();
         }
         return JavascriptBoolean::ToVar(
@@ -1401,7 +1401,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {TRACE_IT(55428);
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
 
@@ -1417,11 +1417,11 @@ namespace Js
         pchSrc = const_cast<char16 *>(src->GetString());
         pchLim = pchSrc + src->GetLength();
         while (pchSrc < pchLim)
-        {
+        {TRACE_IT(55429);
             chw = *pchSrc++;
 
             if (0 != (chw & 0xFF00))
-            {
+            {TRACE_IT(55430);
                 bs->AppendChars(_u("%u"));
                 bs->AppendChars(static_cast<char16>(_rgchHex[(chw >> 12) & 0x0F]));
                 bs->AppendChars(static_cast<char16>(_rgchHex[(chw >> 8) & 0x0F]));
@@ -1429,14 +1429,14 @@ namespace Js
                 bs->AppendChars(static_cast<char16>(_rgchHex[chw & 0x0F]));
             }
             else if (_grfbitEscape[chw >> 3] & (1 << (chw & 7)))
-            {
+            {TRACE_IT(55431);
                 // Escape the byte.
                 bs->AppendChars(_u('%'));
                 bs->AppendChars(static_cast<char16>(_rgchHex[chw >> 4]));
                 bs->AppendChars(static_cast<char16>(_rgchHex[chw & 0x0F]));
             }
             else
-            {
+            {TRACE_IT(55432);
                 bs->AppendChars(chw);
             }
         }
@@ -1457,7 +1457,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {TRACE_IT(55433);
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
 
@@ -1474,9 +1474,9 @@ namespace Js
         pchSrc = const_cast<char16 *>(src->GetString());
         pchLim = pchSrc + src->GetLength();
         while (pchSrc < pchLim)
-        {
+        {TRACE_IT(55434);
             if ('%' != (chT = *pchSrc++))
-            {
+            {TRACE_IT(55435);
                 bs->AppendChars(chT);
                 continue;
             }
@@ -1484,7 +1484,7 @@ namespace Js
             pchMin = pchSrc;
             chT = *pchSrc++;
             if ('u' != chT)
-            {
+            {TRACE_IT(55436);
                 chw = 0;
                 goto LTwoHexDigits;
             }
@@ -1515,7 +1515,7 @@ LTwoHexDigits:
             else if ((chT -= 'A' - '0') <= 5 || (chT -= 'a' - 'A') <= 5)
                 chw += chT + 10;
             else
-            {
+            {TRACE_IT(55437);
 LHexError:
                 pchSrc = pchMin;
                 chw = '%';
@@ -1529,7 +1529,7 @@ LHexError:
 
 #if DBG
     void DebugClearStack()
-    {
+    {TRACE_IT(55438);
         char buffer[1024];
         memset(buffer, 0, sizeof(buffer));
     }
@@ -1541,7 +1541,7 @@ LHexError:
 
 #if DBG_DUMP
         if (Js::Configuration::Global.flags.TraceWin8Allocations)
-        {
+        {TRACE_IT(55439);
             Output::Print(_u("MemoryTrace: GlobalObject::EntryCollectGarbage Invoke\n"));
             Output::Flush();
         }
@@ -1561,7 +1561,7 @@ LHexError:
             && scriptContext->GetConfig()->GetHostType() != HostType::HostTypeWebview
 #endif
             )
-        {
+        {TRACE_IT(55440);
             // We expose the CollectGarbage API with flag for compat reasons.
             // If CollectGarbage key is not enabled, and if the HostType is neither
             // HostType::HostTypeApplication nor HostType::HostTypeWebview,
@@ -1571,14 +1571,14 @@ LHexError:
 
         Recycler* recycler = scriptContext->GetRecycler();
         if (recycler)
-        {
+        {TRACE_IT(55441);
 #if DBG && defined(RECYCLER_DUMP_OBJECT_GRAPH)
             ARGUMENTS(args, callInfo);
             if (args.Info.Count > 1)
-            {
+            {TRACE_IT(55442);
                 double value = JavascriptConversion::ToNumber(args[1], function->GetScriptContext());
                 if (value == 1.0)
-                {
+                {TRACE_IT(55443);
                     recycler->dumpObjectOnceOnCollect = true;
                 }
             }
@@ -1592,7 +1592,7 @@ LHexError:
 #endif
 
         if (Js::Configuration::Global.flags.TraceWin8Allocations)
-        {
+        {TRACE_IT(55444);
             Output::Print(_u("MemoryTrace: GlobalObject::EntryCollectGarbage Exit\n"));
             Output::Flush();
         }
@@ -1614,17 +1614,17 @@ LHexError:
         bool doPrint = (args.Info.Count == 3) && Js::JavascriptBoolean::Is(args[2]) && (Js::JavascriptBoolean::FromVar(args[2])->GetValue());
 
         if(function->GetScriptContext()->ShouldPerformReplayAction())
-        {
+        {TRACE_IT(55445);
             function->GetScriptContext()->GetThreadContext()->TTDLog->ReplayTelemetryLogEvent(jsString);
         }
 
         if(function->GetScriptContext()->ShouldPerformRecordAction())
-        {
+        {TRACE_IT(55446);
             function->GetScriptContext()->GetThreadContext()->TTDLog->RecordTelemetryLogEvent(jsString, doPrint);
         }
 
         if(doPrint)
-        {
+        {TRACE_IT(55447);
             //
             //TODO: the host should give us a print callback which we can use here
             //
@@ -1642,11 +1642,11 @@ LHexError:
         ARGUMENTS(args, callInfo);
 
         if(function->GetScriptContext()->ShouldPerformRecordOrReplayAction())
-        {
+        {TRACE_IT(55448);
             return function->GetScriptContext()->GetLibrary()->GetTrue();
         }
         else
-        {
+        {TRACE_IT(55449);
             return function->GetScriptContext()->GetLibrary()->GetFalse();
         }
     }
@@ -1660,19 +1660,19 @@ LHexError:
         Js::JavascriptLibrary* jslib = function->GetScriptContext()->GetLibrary();
 
         if(args.Info.Count != 2 || !Js::JavascriptString::Is(args[1]))
-        {
+        {TRACE_IT(55450);
             return jslib->GetFalse();
         }
 
         if(function->GetScriptContext()->ShouldPerformReplayAction())
-        {
+        {TRACE_IT(55451);
             function->GetScriptContext()->GetThreadContext()->TTDLog->ReplayEmitLogEvent();
 
             return jslib->GetTrue();
         }
 
         if(function->GetScriptContext()->ShouldPerformRecordAction())
-        {
+        {TRACE_IT(55452);
             Js::JavascriptString* jsString = Js::JavascriptString::FromVar(args[1]);
             function->GetScriptContext()->GetThreadContext()->TTDLog->RecordEmitLogEvent(jsString);
 
@@ -1686,9 +1686,9 @@ LHexError:
     //Pattern match is unique to RuntimeObject. Only leading and trailing * are implemented
     //Example: *pat*tern* actually matches all the strings having pat*tern as substring.
     BOOL GlobalObject::MatchPatternHelper(JavascriptString *propertyName, JavascriptString *pattern, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(55453);
         if (nullptr == propertyName || nullptr == pattern)
-        {
+        {TRACE_IT(55454);
             return FALSE;
         }
 
@@ -1698,7 +1698,7 @@ LHexError:
         BOOL    bEnd;
 
         if (0 == patternLength)
-        {
+        {TRACE_IT(55455);
             return TRUE; // empty pattern matches all
         }
 
@@ -1707,12 +1707,12 @@ LHexError:
 
         //deal with the stars
         if (bStart || bEnd)
-        {
+        {TRACE_IT(55456);
             JavascriptString *subPattern;
             int idxStart = bStart? 1: 0;
             int idxEnd   = bEnd? (patternLength - 1): patternLength;
             if (idxEnd <= idxStart)
-            {
+            {TRACE_IT(55457);
                 return TRUE; //scenario double star **
             }
 
@@ -1722,24 +1722,24 @@ LHexError:
             uint index = JavascriptString::strstr(propertyName, subPattern, false);
 
             if (index == (uint)-1)
-            {
+            {TRACE_IT(55458);
                 return FALSE;
             }
             if (FALSE == bStart)
-            {
+            {TRACE_IT(55459);
                 return index == 0; //begin at the same place;
             }
             else if (FALSE == bEnd)
-            {
+            {TRACE_IT(55460);
                 return (index + patternLength - 1) == (nameLength);
             }
             return TRUE;
         }
         else
-        {
+        {TRACE_IT(55461);
             //full match
             if (0 == JavascriptString::strcmp(propertyName, pattern))
-            {
+            {TRACE_IT(55462);
                 return TRUE;
             }
         }
@@ -1748,34 +1748,34 @@ LHexError:
     }
 
     BOOL GlobalObject::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(55463);
         return DynamicObject::HasProperty(propertyId) ||
             (this->directHostObject && JavascriptOperators::HasProperty(this->directHostObject, propertyId)) ||
             (this->hostObject && JavascriptOperators::HasProperty(this->hostObject, propertyId));
     }
 
     BOOL GlobalObject::HasRootProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(55464);
         return __super::HasRootProperty(propertyId) ||
             (this->directHostObject && JavascriptOperators::HasProperty(this->directHostObject, propertyId)) ||
             (this->hostObject && JavascriptOperators::HasProperty(this->hostObject, propertyId));
     }
 
     BOOL GlobalObject::HasOwnProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(55465);
         return DynamicObject::HasProperty(propertyId) ||
             (this->directHostObject && this->directHostObject->HasProperty(propertyId));
     }
 
     BOOL GlobalObject::HasOwnPropertyNoHostObject(PropertyId propertyId)
-    {
+    {TRACE_IT(55466);
         return DynamicObject::HasProperty(propertyId);
     }
 
     BOOL GlobalObject::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55467);
         if (DynamicObject::GetProperty(originalInstance, propertyId, value, info, requestContext))
-        {
+        {TRACE_IT(55468);
             return TRUE;
         }
         return (this->directHostObject && JavascriptOperators::GetProperty(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1783,16 +1783,16 @@ LHexError:
     }
 
     BOOL GlobalObject::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55469);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::GetProperty(originalInstance, propertyRecord->GetPropertyId(), value, info, requestContext);
     }
 
     BOOL GlobalObject::GetRootProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55470);
         if (__super::GetRootProperty(originalInstance, propertyId, value, info, requestContext))
-        {
+        {TRACE_IT(55471);
             return TRUE;
         }
         return (this->directHostObject && JavascriptOperators::GetProperty(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1800,17 +1800,17 @@ LHexError:
     }
 
     BOOL GlobalObject::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {TRACE_IT(55472);
         if (DynamicObject::GetAccessors(propertyId, getter, setter, requestContext))
-        {
+        {TRACE_IT(55473);
             return TRUE;
         }
         if (this->directHostObject)
-        {
+        {TRACE_IT(55474);
             return this->directHostObject->GetAccessors(propertyId, getter, setter, requestContext);
         }
         else if (this->hostObject)
-        {
+        {TRACE_IT(55475);
             return this->hostObject->GetAccessors(propertyId, getter, setter, requestContext);
         }
         return FALSE;
@@ -1818,9 +1818,9 @@ LHexError:
 
     BOOL GlobalObject::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(55476);
         if (DynamicObject::GetPropertyReference(originalInstance, propertyId, value, info, requestContext))
-        {
+        {TRACE_IT(55477);
             return true;
         }
         return (this->directHostObject && JavascriptOperators::GetPropertyReference(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1829,9 +1829,9 @@ LHexError:
 
     BOOL GlobalObject::GetRootPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(55478);
         if (__super::GetRootPropertyReference(originalInstance, propertyId, value, info, requestContext))
-        {
+        {TRACE_IT(55479);
             return true;
         }
         return (this->directHostObject && JavascriptOperators::GetPropertyReference(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1839,7 +1839,7 @@ LHexError:
     }
 
     BOOL GlobalObject::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(55480);
         // var x = 10; variables declared with "var" at global scope
         // These cannot be deleted
         // In ES5 they are enumerable.
@@ -1850,7 +1850,7 @@ LHexError:
     }
 
     BOOL GlobalObject::InitPropertyScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(55481);
         // var x = 10; variables declared with "var" inside "eval"
         // These CAN be deleted
         // in ES5 they are enumerable.
@@ -1860,13 +1860,13 @@ LHexError:
     }
 
     BOOL GlobalObject::InitFuncScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(55482);
         // Var binding of functions declared in eval are elided when conflicting
         // with global scope let/const variables, so do not actually set the
         // property if it exists and is a let/const variable.
         bool noRedecl = false;
         if (!GetTypeHandler()->HasRootProperty(this, propertyId, &noRedecl) || !noRedecl)
-        {
+        {TRACE_IT(55483);
             //
             // var x = 10; variables declared with "var" inside "eval"
             // These CAN be deleted
@@ -1880,7 +1880,7 @@ LHexError:
     }
 
     BOOL GlobalObject::SetExistingProperty(PropertyId propertyId, Var value, PropertyValueInfo* info, BOOL *setAttempted)
-    {
+    {TRACE_IT(55484);
         BOOL hasOwnProperty = DynamicObject::HasProperty(propertyId);
         BOOL hasProperty = JavascriptOperators::HasProperty(this->GetPrototype(), propertyId);
         *setAttempted = TRUE;
@@ -1889,12 +1889,12 @@ LHexError:
             !hasOwnProperty &&
             !hasProperty &&
             this->directHostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55485);
             // directHostObject->HasProperty returns true for things in global collections, however, they are not able to be set.
             // When we call SetProperty we'll return FALSE which means fall back to GlobalObject::SetProperty and shadow our collection
             // object rather than failing the set altogether. See bug Windows Out Of Band Releases 1144780 and linked bugs for details.
             if (this->directHostObject->SetProperty(propertyId, value, PropertyOperation_None, info))
-            {
+            {TRACE_IT(55486);
                 return TRUE;
             }
         }
@@ -1904,12 +1904,12 @@ LHexError:
                 !hasOwnProperty &&
                 !hasProperty &&
                 this->hostObject->HasProperty(propertyId))
-            {
+            {TRACE_IT(55487);
                 return this->hostObject->SetProperty(propertyId, value, PropertyOperation_None, NULL);
             }
 
         if (hasOwnProperty || hasProperty)
-        {
+        {TRACE_IT(55488);
             return DynamicObject::SetProperty(propertyId, value, PropertyOperation_None, info);
         }
 
@@ -1918,7 +1918,7 @@ LHexError:
     }
 
     BOOL GlobalObject::SetExistingRootProperty(PropertyId propertyId, Var value, PropertyValueInfo* info, BOOL *setAttempted)
-    {
+    {TRACE_IT(55489);
         BOOL hasOwnProperty = __super::HasRootProperty(propertyId);
         BOOL hasProperty = JavascriptOperators::HasProperty(this->GetPrototype(), propertyId);
         *setAttempted = TRUE;
@@ -1927,12 +1927,12 @@ LHexError:
             !hasOwnProperty &&
             !hasProperty &&
             this->directHostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55490);
             // directHostObject->HasProperty returns true for things in global collections, however, they are not able to be set.
             // When we call SetProperty we'll return FALSE which means fall back to GlobalObject::SetProperty and shadow our collection
             // object rather than failing the set altogether. See bug Windows Out Of Band Releases 1144780 and linked bugs for details.
             if (this->directHostObject->SetProperty(propertyId, value, PropertyOperation_None, info))
-            {
+            {TRACE_IT(55491);
                 return TRUE;
             }
         }
@@ -1942,12 +1942,12 @@ LHexError:
                 !hasOwnProperty &&
                 !hasProperty &&
                 this->hostObject->HasProperty(propertyId))
-            {
+            {TRACE_IT(55492);
                 return this->hostObject->SetProperty(propertyId, value, PropertyOperation_None, NULL);
             }
 
         if (hasOwnProperty || hasProperty)
-        {
+        {TRACE_IT(55493);
             return __super::SetRootProperty(propertyId, value, PropertyOperation_None, info);
         }
 
@@ -1956,12 +1956,12 @@ LHexError:
     }
 
     BOOL GlobalObject::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(55494);
         Assert(!(flags & PropertyOperation_Root));
 
         BOOL setAttempted = TRUE;
         if (this->SetExistingProperty(propertyId, value, info, &setAttempted))
-        {
+        {TRACE_IT(55495);
             return TRUE;
         }
 
@@ -1971,7 +1971,7 @@ LHexError:
         // In those scenarios, we should be setting the property with default attributes
         //
         if (setAttempted)
-        {
+        {TRACE_IT(55496);
             return FALSE;
         }
 
@@ -1995,19 +1995,19 @@ LHexError:
     }
 
     BOOL GlobalObject::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(55497);
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
     }
 
     BOOL GlobalObject::SetRootProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(55498);
         Assert(flags & PropertyOperation_Root);
 
         BOOL setAttempted = TRUE;
         if (this->SetExistingRootProperty(propertyId, value, info, &setAttempted))
-        {
+        {TRACE_IT(55499);
             return TRUE;
         }
 
@@ -2017,14 +2017,14 @@ LHexError:
         // In those scenarios, we should be setting the property with default attributes
         //
         if (setAttempted)
-        {
+        {TRACE_IT(55500);
             return FALSE;
         }
 
         if (flags & PropertyOperation_StrictMode)
-        {
+        {TRACE_IT(55501);
             if (!GetScriptContext()->GetThreadContext()->RecordImplicitException())
-            {
+            {TRACE_IT(55502);
                 return FALSE;
             }
             JavascriptError::ThrowReferenceError(GetScriptContext(), JSERR_RefErrorUndefVariable);
@@ -2044,34 +2044,34 @@ LHexError:
     }
 
     BOOL GlobalObject::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55503);
         if (DynamicObject::SetAccessors(propertyId, getter, setter, flags))
-        {
+        {TRACE_IT(55504);
             return TRUE;
         }
         if (this->directHostObject)
-        {
+        {TRACE_IT(55505);
             return this->directHostObject->SetAccessors(propertyId, getter, setter, flags);
         }
         if (this->hostObject)
-        {
+        {TRACE_IT(55506);
             return this->hostObject->SetAccessors(propertyId, getter, setter, flags);
         }
         return TRUE;
     }
 
     DescriptorFlags GlobalObject::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55507);
         DescriptorFlags flags = DynamicObject::GetSetter(propertyId, setterValue, info, requestContext);
         if (flags == None)
-        {
+        {TRACE_IT(55508);
             if (this->directHostObject)
-            {
+            {TRACE_IT(55509);
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->directHostObject, propertyId, setterValue, &flags, info, requestContext);
             }
             else if (this->hostObject)
-            {
+            {TRACE_IT(55510);
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->hostObject, propertyId, setterValue, &flags, info, requestContext);
             }
         }
@@ -2080,24 +2080,24 @@ LHexError:
     }
 
     DescriptorFlags GlobalObject::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55511);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::GetSetter(propertyRecord->GetPropertyId(), setterValue, info, requestContext);
     }
 
     DescriptorFlags GlobalObject::GetRootSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55512);
         DescriptorFlags flags = __super::GetRootSetter(propertyId, setterValue, info, requestContext);
         if (flags == None)
-        {
+        {TRACE_IT(55513);
             if (this->directHostObject)
-            {
+            {TRACE_IT(55514);
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->directHostObject, propertyId, setterValue, &flags, info, requestContext);
             }
             else if (this->hostObject)
-            {
+            {TRACE_IT(55515);
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->hostObject, propertyId, setterValue, &flags, info, requestContext);
             }
         }
@@ -2106,17 +2106,17 @@ LHexError:
     }
 
     DescriptorFlags GlobalObject::GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55516);
         DescriptorFlags flags = DynamicObject::GetItemSetter(index, setterValue, requestContext);
         if (flags == None)
-        {
+        {TRACE_IT(55517);
             if (this->directHostObject)
-            {
+            {TRACE_IT(55518);
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(this->directHostObject, index, setterValue, &flags, requestContext);
             }
             else if (this->hostObject)
-            {
+            {TRACE_IT(55519);
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(this->hostObject, index, setterValue, &flags, requestContext);
             }
         }
@@ -2125,17 +2125,17 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55520);
         if (__super::HasProperty(propertyId))
-        {
+        {TRACE_IT(55521);
             return __super::DeleteProperty(propertyId, flags);
         }
         else if (this->directHostObject && this->directHostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55522);
             return this->directHostObject->DeleteProperty(propertyId, flags);
         }
         else if (this->hostObject && this->hostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55523);
             return this->hostObject->DeleteProperty(propertyId, flags);
         }
 
@@ -2144,10 +2144,10 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55524);
         PropertyRecord const *propertyRecord = nullptr;
         if (JavascriptOperators::ShouldTryDeleteProperty(this, propertyNameString, &propertyRecord))
-        {
+        {TRACE_IT(55525);
             Assert(propertyRecord);
             return DeleteProperty(propertyRecord->GetPropertyId(), flags);
         }
@@ -2156,17 +2156,17 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteRootProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55526);
         if (__super::HasRootProperty(propertyId))
-        {
+        {TRACE_IT(55527);
             return __super::DeleteRootProperty(propertyId, flags);
         }
         else if (this->directHostObject && this->directHostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55528);
             return this->directHostObject->DeleteProperty(propertyId, flags);
         }
         else if (this->hostObject && this->hostObject->HasProperty(propertyId))
-        {
+        {TRACE_IT(55529);
             return this->hostObject->DeleteProperty(propertyId, flags);
         }
 
@@ -2175,22 +2175,22 @@ LHexError:
     }
 
     BOOL GlobalObject::HasItem(uint32 index)
-    {
+    {TRACE_IT(55530);
         return DynamicObject::HasItem(index)
             || (this->directHostObject && JavascriptOperators::HasItem(this->directHostObject, index))
             || (this->hostObject && JavascriptOperators::HasItem(this->hostObject, index));
     }
 
     BOOL GlobalObject::HasOwnItem(uint32 index)
-    {
+    {TRACE_IT(55531);
         return DynamicObject::HasItem(index)
             || (this->directHostObject && this->directHostObject->HasItem(index));
     }
 
     BOOL GlobalObject::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55532);
         if (DynamicObject::GetItemReference(originalInstance, index, value, requestContext))
-        {
+        {TRACE_IT(55533);
             return TRUE;
         }
         return (this->directHostObject && this->directHostObject->GetItemReference(originalInstance, index, value, requestContext)) ||
@@ -2198,15 +2198,15 @@ LHexError:
     }
 
     BOOL GlobalObject::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55534);
         BOOL result = DynamicObject::SetItem(index, value, flags);
         return result;
     }
 
     BOOL GlobalObject::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55535);
         if (DynamicObject::GetItem(originalInstance, index, value, requestContext))
-        {
+        {TRACE_IT(55536);
             return TRUE;
         }
 
@@ -2215,49 +2215,49 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteItem(uint32 index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(55537);
         if (DynamicObject::DeleteItem(index, flags))
-        {
+        {TRACE_IT(55538);
             return TRUE;
         }
 
         if (this->directHostObject)
-        {
+        {TRACE_IT(55539);
             return this->directHostObject->DeleteItem(index, flags);
         }
 
         if (this->hostObject)
-        {
+        {TRACE_IT(55540);
             return this->hostObject->DeleteItem(index, flags);
         }
         return FALSE;
     }
 
     BOOL GlobalObject::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55541);
         stringBuilder->AppendCppLiteral(_u("{...}"));
         return TRUE;
     }
 
     BOOL GlobalObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(55542);
         stringBuilder->AppendCppLiteral(_u("Object, (Global)"));
         return TRUE;
     }
 
     BOOL GlobalObject::StrictEquals(__in Js::Var other, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(55543);
         if (this == other)
-        {
+        {TRACE_IT(55544);
             *value = TRUE;
             return TRUE;
         }
         else if (this->directHostObject)
-        {
+        {TRACE_IT(55545);
             return this->directHostObject->StrictEquals(other, value, requestContext);
         }
         else if (this->hostObject)
-        {
+        {TRACE_IT(55546);
             return this->hostObject->StrictEquals(other, value, requestContext);
         }
         *value = FALSE;
@@ -2265,18 +2265,18 @@ LHexError:
     }
 
     BOOL GlobalObject::Equals(__in Js::Var other, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(55547);
         if (this == other)
-        {
+        {TRACE_IT(55548);
             *value = TRUE;
             return TRUE;
         }
         else if (this->directHostObject)
-        {
+        {TRACE_IT(55549);
             return this->directHostObject->Equals(other, value, requestContext);
         }
         else if (this->hostObject)
-        {
+        {TRACE_IT(55550);
             return this->hostObject->Equals(other, value, requestContext);
         }
 
@@ -2286,12 +2286,12 @@ LHexError:
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType GlobalObject::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(55551);
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void GlobalObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(55552);
         //
         //TODO: we assume that the global object is always set right (e.g., ignore the directHostObject and secureDirectHostObject values) we need to verify that this is ok and/or what to do about it
         //

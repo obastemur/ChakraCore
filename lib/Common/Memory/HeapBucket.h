@@ -15,7 +15,7 @@ template <class TBlockAttributes>
 class GenericRecyclerVerifyListConsistencyData
 {
 public:
-    GenericRecyclerVerifyListConsistencyData() {};
+    GenericRecyclerVerifyListConsistencyData() {TRACE_IT(24046);};
 
     // Temporary data for Sweep list consistency checks
     bool expectFull;
@@ -25,7 +25,7 @@ public:
 
     template <typename TBlockAttributes>
     void SetupVerifyListConsistencyData(SmallHeapBlockT<TBlockAttributes>* block, bool expectFull, bool expectDispose)
-    {
+    {TRACE_IT(24047);
         this->nextAllocableBlockHead = block;
         this->expectFull = expectFull;
         this->expectDispose = expectDispose;
@@ -36,9 +36,9 @@ public:
 class RecyclerVerifyListConsistencyData
 {
 public:
-    RecyclerVerifyListConsistencyData() {};
+    RecyclerVerifyListConsistencyData() {TRACE_IT(24048);};
     void SetupVerifyListConsistencyDataForSmallBlock(SmallHeapBlock* block, bool expectFull, bool expectDispose)
-    {
+    {TRACE_IT(24049);
         this->smallBlockVerifyListConsistencyData.nextAllocableBlockHead = block;
         this->smallBlockVerifyListConsistencyData.expectFull = expectFull;
         this->smallBlockVerifyListConsistencyData.expectDispose = expectDispose;
@@ -46,7 +46,7 @@ public:
     }
 
     void SetupVerifyListConsistencyDataForMediumBlock(MediumHeapBlock* block, bool expectFull, bool expectDispose)
-    {
+    {TRACE_IT(24050);
         this->mediumBlockVerifyListConsistencyData.nextAllocableBlockHead = block;
         this->mediumBlockVerifyListConsistencyData.expectFull = expectFull;
         this->mediumBlockVerifyListConsistencyData.expectDispose = expectDispose;
@@ -85,7 +85,7 @@ protected:
     bool isPageHeapEnabled;
 public:
     inline bool IsPageHeapEnabled(ObjectInfoBits attributes) const
-    {
+    {TRACE_IT(24051);
         // LargeHeapBlock does not support TrackBit today
         return isPageHeapEnabled && ((attributes & ClientTrackableObjectBits) == 0);
     }
@@ -151,9 +151,9 @@ public:
     friend class ::ScriptMemoryDumper;
 #endif
 
-    TBlockAllocatorType * GetAllocator() { return &allocatorHead;}
+    TBlockAllocatorType * GetAllocator() {TRACE_IT(24052); return &allocatorHead;}
 
-    static unsigned int GetAllocatorHeadOffset() { return offsetof(HeapBucketT<TBlockType>, allocatorHead); }
+    static unsigned int GetAllocatorHeadOffset() {TRACE_IT(24053); return offsetof(HeapBucketT<TBlockType>, allocatorHead); }
 
 protected:
     static bool const IsLeafBucket = TBlockType::RequiredAttributes == LeafBit;
@@ -258,7 +258,7 @@ protected:
 template <typename TBlockType>
 void
 HeapBucket::EnumerateObjects(TBlockType * heapBlockList, ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24054);
     HeapBlockList::ForEach(heapBlockList, [=](TBlockType * heapBlock)
     {
         heapBlock->EnumerateObjects(infoBits, CallBackFunction);
@@ -270,7 +270,7 @@ template <typename TBlockType>
 template <typename Fn>
 void
 HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep, Fn sweepFn)
-{
+{TRACE_IT(24055);
     this->SweepBucket(recyclerSweep);
 
     // Continue to sweep other list from derived class
@@ -279,7 +279,7 @@ HeapBucketT<TBlockType>::SweepBucket(RecyclerSweep& recyclerSweep, Fn sweepFn)
 #if ENABLE_PARTIAL_GC
     if (!this->DoPartialReuseSweep(recyclerSweep.GetRecycler()))
 #endif
-    {
+    {TRACE_IT(24056);
 #if ENABLE_CONCURRENT_GC
         // We should only queue up pending sweep if we are doing partial collect
         Assert(recyclerSweep.GetPendingSweepBlockList(this) == nullptr);

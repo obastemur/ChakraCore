@@ -27,14 +27,14 @@ namespace Js
 
         // Wrapper methods with Asserts to ensure that we aren't trying to access unmapped source
         utf8char_t const * GetMappedSource()
-        {
+        {TRACE_IT(28529);
             AssertMsg(mappedSource != nullptr, "Our mapped source is nullptr, isSourceMapped (Assert above) should be false.");
             AssertMsg(scriptUnloadCallback != nullptr, "scriptUnloadCallback is null, this means that this object has been finalized.");
             return mappedSource;
         };
 
         size_t GetMappedSourceLength()
-        {
+        {TRACE_IT(28530);
             AssertMsg(mappedSource != nullptr, "Our mapped source is nullptr, isSourceMapped (Assert above) should be false.");
             AssertMsg(scriptUnloadCallback != nullptr, "scriptUnloadCallback is null, this means that this object has been finalized.");
             return mappedSourceByteLength;
@@ -56,7 +56,7 @@ namespace Js
 #endif
             mappedSourceByteLength(0),
             mappedSource(nullptr)
-        {
+        {TRACE_IT(28531);
             AssertMsg(scriptLoadCallback != nullptr, "script load callback given is null.");
             AssertMsg(scriptUnloadCallback != nullptr, "script unload callback given is null.");
         };
@@ -68,7 +68,7 @@ namespace Js
 
         // Following two methods do not attempt any source mapping
         LPCUTF8 GetSourceUnchecked()
-        {
+        {TRACE_IT(28532);
             return this->GetMappedSource();
         }
 

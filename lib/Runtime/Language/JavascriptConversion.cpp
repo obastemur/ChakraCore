@@ -20,10 +20,10 @@ namespace Js
     // This allows the caller to provide more context in the error message without having to unnecessarily
     // construct the message string before knowing whether or not the object is coercible.
     BOOL JavascriptConversion::CheckObjectCoercible(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49531);
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {TRACE_IT(49532);
             return FALSE;
         }
         return TRUE;
@@ -32,9 +32,9 @@ namespace Js
     //ES5 9.11  Undefined, Null, Boolean, Number, String - return false
     //If Object has a [[Call]] internal method, then return true, otherwise return false
     bool JavascriptConversion::IsCallable(Var aValue)
-    {
+    {TRACE_IT(49533);
         if (!RecyclableObject::Is(aValue))
-        {
+        {TRACE_IT(49534);
             return false;
         }
         JavascriptMethod entryPoint = RecyclableObject::FromVar(aValue)->GetEntryPoint();
@@ -58,18 +58,18 @@ namespace Js
     //----------------------------------------------------------------------------
     template<bool zero>
     bool JavascriptConversion::SameValueCommon(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(49535);
         TypeId leftType = JavascriptOperators::GetTypeId(aLeft);
         TypeId rightType = JavascriptOperators::GetTypeId(aRight);
 
         //Check for undefined and null type;
         if (leftType == TypeIds_Undefined )
-        {
+        {TRACE_IT(49536);
             return rightType == TypeIds_Undefined;
         }
 
         if (leftType == TypeIds_Null)
-        {
+        {TRACE_IT(49537);
             return rightType == TypeIds_Null;
         }
 
@@ -87,13 +87,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {TRACE_IT(49538);
                 int leftValue = TaggedInt::ToInt32(aLeft);
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
                 }
             case TypeIds_UInt64Number:
-                {
+                {TRACE_IT(49539);
                 int leftValue = TaggedInt::ToInt32(aLeft);
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
@@ -104,7 +104,7 @@ namespace Js
             switch (rightType)
             {
             case TypeIds_Integer:
-                {
+                {TRACE_IT(49540);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 int rightValue = TaggedInt::ToInt32(aRight);
                 return leftValue == rightValue;
@@ -114,13 +114,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {TRACE_IT(49541);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
                 }
             case TypeIds_UInt64Number:
-                {
+                {TRACE_IT(49542);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return ((unsigned __int64)leftValue == rightValue);
@@ -131,7 +131,7 @@ namespace Js
             switch (rightType)
             {
             case TypeIds_Integer:
-                {
+                {TRACE_IT(49543);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = TaggedInt::ToInt32(aRight);
                 return (leftValue == (unsigned __int64)rightValue);
@@ -141,13 +141,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {TRACE_IT(49544);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return (leftValue == (unsigned __int64)rightValue);
                 }
             case TypeIds_UInt64Number:
-                {
+                {TRACE_IT(49545);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
@@ -174,17 +174,17 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
 CommonNumber:
                 if (JavascriptNumber::IsNan(dblLeft) && JavascriptNumber::IsNan(dblRight))
-                {
+                {TRACE_IT(49546);
                     return true;
                 }
 
                 if (zero)
-                {
+                {TRACE_IT(49547);
                     // SameValueZero(+0,-0) returns true;
                     return dblLeft == dblRight;
                 }
                 else
-                {
+                {TRACE_IT(49548);
                     // SameValue(+0,-0) returns false;
                     return (NumberUtilities::LuLoDbl(dblLeft) == NumberUtilities::LuLoDbl(dblRight) &&
                         NumberUtilities::LuHiDbl(dblLeft) == NumberUtilities::LuHiDbl(dblRight));
@@ -209,7 +209,7 @@ CommonNumber:
             switch (rightType)
             {
             case TypeIds_Symbol:
-                {
+                {TRACE_IT(49549);
                     JavascriptSymbol* leftSymbol = JavascriptSymbol::FromVar(aLeft);
                     JavascriptSymbol* rightSymbol = JavascriptSymbol::FromVar(aRight);
                     return leftSymbol->GetValue() == rightSymbol->GetValue();
@@ -251,7 +251,7 @@ CommonNumber:
     //              Return TRUE.
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::ToObject(Var aValue, ScriptContext* scriptContext, RecyclableObject** object)
-    {
+    {TRACE_IT(49550);
         Assert(object);
 
         switch (JavascriptOperators::GetTypeId(aValue))
@@ -266,15 +266,15 @@ CommonNumber:
                 return TRUE;
 
             default:
-            {
+            {TRACE_IT(49551);
 #ifdef ENABLE_SIMDJS
                 if (SIMDUtils::IsSimdType(aValue))
-                {
+                {TRACE_IT(49552);
                     *object = scriptContext->GetLibrary()->CreateSIMDObject(aValue, JavascriptOperators::GetTypeId(aValue));
                 }
                 else
 #endif
-                {
+                {TRACE_IT(49553);
                     *object = RecyclableObject::FromVar(aValue)->ToObject(scriptContext);
                 }
                 return TRUE;
@@ -287,26 +287,26 @@ CommonNumber:
     // Implementation of ES6 7.1.14
     //----------------------------------------------------------------------------
     void JavascriptConversion::ToPropertyKey(Var argument, ScriptContext* scriptContext, const PropertyRecord** propertyRecord)
-    {
+    {TRACE_IT(49554);
         Var key = JavascriptConversion::ToPrimitive(argument, JavascriptHint::HintString, scriptContext);
 
         if (JavascriptSymbol::Is(key))
-        {
+        {TRACE_IT(49555);
             // If we are looking up a property keyed by a symbol, we already have the PropertyId in the symbol
             *propertyRecord = JavascriptSymbol::FromVar(key)->GetValue();
         }
         else
-        {
+        {TRACE_IT(49556);
             // For all other types, convert the key into a string and use that as the property name
             JavascriptString * propName = JavascriptConversion::ToString(key, scriptContext);
 
             if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(propName))
-            {
+            {TRACE_IT(49557);
                 PropertyString * propertyString = (PropertyString *)propName;
                 *propertyRecord = propertyString->GetPropertyRecord();
             }
             else
-            {
+            {TRACE_IT(49558);
                 scriptContext->GetOrAddPropertyRecord(propName->GetString(), propName->GetLength(), propertyRecord);
             }
         }
@@ -329,7 +329,7 @@ CommonNumber:
     //              for all native ECMAScript objects (8.12.9).
     //----------------------------------------------------------------------------
     Var JavascriptConversion::ToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {TRACE_IT(49559);
         switch (JavascriptOperators::GetTypeId(aValue))
         {
         case TypeIds_Undefined:
@@ -342,21 +342,21 @@ CommonNumber:
             return aValue;
 
         case TypeIds_VariantDate:
-            {
+            {TRACE_IT(49560);
                 Var result = nullptr;
                 if (JavascriptVariantDate::FromVar(aValue)->ToPrimitive(hint, &result, requestContext) != TRUE)
-                {
+                {TRACE_IT(49561);
                     result = nullptr;
                 }
                 return result;
             }
 
         case TypeIds_StringObject:
-            {
+            {TRACE_IT(49562);
                 JavascriptStringObject * stringObject = JavascriptStringObject::FromVar(aValue);
 
                 if (stringObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & (hint == JavascriptHint::HintString ? SideEffects_ToString : SideEffects_ValueOf))
-                {
+                {TRACE_IT(49563);
                     return MethodCallToPrimitive(aValue, hint, requestContext);
                 }
 
@@ -364,21 +364,21 @@ CommonNumber:
             }
 
         case TypeIds_NumberObject:
-            {
+            {TRACE_IT(49564);
                 JavascriptNumberObject * numberObject = JavascriptNumberObject::FromVar(aValue);
 
                 if (hint == JavascriptHint::HintString)
-                {
+                {TRACE_IT(49565);
                     if (numberObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ToString)
-                    {
+                    {TRACE_IT(49566);
                         return MethodCallToPrimitive(aValue, hint, requestContext);
                     }
                     return JavascriptNumber::ToStringRadix10(numberObject->GetValue(), requestContext);
                 }
                 else
-                {
+                {TRACE_IT(49567);
                     if (numberObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ValueOf)
-                    {
+                    {TRACE_IT(49568);
                         return MethodCallToPrimitive(aValue, hint, requestContext);
                     }
                     return CrossSite::MarshalVar(requestContext, numberObject->Unwrap());
@@ -387,7 +387,7 @@ CommonNumber:
 
 
         case TypeIds_SymbolObject:
-            {
+            {TRACE_IT(49569);
                 JavascriptSymbolObject* symbolObject = JavascriptSymbolObject::FromVar(aValue);
 
                 return requestContext->GetLibrary()->CreateSymbol(symbolObject->GetValue());
@@ -395,12 +395,12 @@ CommonNumber:
 
         case TypeIds_Date:
         case TypeIds_WinRTDate:
-            {
+            {TRACE_IT(49570);
                 JavascriptDate* dateObject = JavascriptDate::FromVar(aValue);
                 if(hint == JavascriptHint::HintNumber)
-                {
+                {TRACE_IT(49571);
                     if (dateObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ValueOf)
-                    {
+                    {TRACE_IT(49572);
                         // if no Method exists this function falls back to OrdinaryToPrimitive
                         // if IsES6ToPrimitiveEnabled flag is off we also fall back to OrdinaryToPrimitive
                         return MethodCallToPrimitive(aValue, hint, requestContext);
@@ -408,9 +408,9 @@ CommonNumber:
                     return JavascriptNumber::ToVarNoCheck(dateObject->GetTime(), requestContext);
                 }
                 else
-                {
+                {TRACE_IT(49573);
                     if (dateObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ToString)
-                    {
+                    {TRACE_IT(49574);
                         // if no Method exists this function falls back to OrdinaryToPrimitive
                         // if IsES6ToPrimitiveEnabled flag is off we also fall back to OrdinaryToPrimitive
                         return MethodCallToPrimitive(aValue, hint, requestContext);
@@ -428,12 +428,12 @@ CommonNumber:
         default:
 #ifdef ENABLE_SIMDJS
             if (SIMDUtils::IsSimdType(aValue))
-            {
+            {TRACE_IT(49575);
                 return aValue;
             }
             else
 #endif
-            {
+            {TRACE_IT(49576);
                 // if no Method exists this function falls back to OrdinaryToPrimitive
                 // if IsES6ToPrimitiveEnabled flag is off we also fall back to OrdinaryToPrimitive
                 return MethodCallToPrimitive(aValue, hint, requestContext);
@@ -450,16 +450,16 @@ CommonNumber:
     //5. Return n.
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::CanonicalNumericIndexString(Var aValue, double *indexValue, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(49577);
         AssertMsg(JavascriptString::Is(aValue), "CanonicalNumericIndexString expects only string");
         if (JavascriptString::IsNegZero(JavascriptString::FromVar(aValue)))
-        {
+        {TRACE_IT(49578);
             *indexValue = -0;
             return TRUE;
         }
         Var indexNumberValue = JavascriptOperators::ToNumber(aValue, scriptContext);
         if (JavascriptString::Equals(JavascriptConversion::ToString(indexNumberValue, scriptContext), aValue))
-        {
+        {TRACE_IT(49579);
             *indexValue = JavascriptNumber::GetValue(indexNumberValue);
             return TRUE;
         }
@@ -467,7 +467,7 @@ CommonNumber:
     }
 
     Var JavascriptConversion::MethodCallToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {TRACE_IT(49580);
         Var result = nullptr;
         RecyclableObject *const recyclableObject = RecyclableObject::FromVar(aValue);
         ScriptContext *const scriptContext = recyclableObject->GetScriptContext();
@@ -486,11 +486,11 @@ CommonNumber:
         if (!(requestContext->GetConfig()->IsES6ToPrimitiveEnabled()
             && JavascriptOperators::GetPropertyReference(recyclableObject, PropertyIds::_symbolToPrimitive, &varMethod, requestContext)
             && !JavascriptOperators::IsUndefinedOrNull(varMethod)))
-        {
+        {TRACE_IT(49581);
             return OrdinaryToPrimitive(aValue, hint, requestContext);
         }
         if (!JavascriptFunction::Is(varMethod))
-        {
+        {TRACE_IT(49582);
             // Don't error if we disabled implicit calls
             JavascriptError::TryThrowTypeError(scriptContext, requestContext, JSERR_Property_NeedFunction, requestContext->GetPropertyName(PropertyIds::_symbolToPrimitive)->GetBuffer());
             return requestContext->GetLibrary()->GetNull();
@@ -501,21 +501,21 @@ CommonNumber:
         JavascriptString* hintString = nullptr;
 
         if (hint == JavascriptHint::HintString)
-        {
+        {TRACE_IT(49583);
             hintString = requestContext->GetLibrary()->CreateStringFromCppLiteral(_u("string"));
         }
         else if (hint == JavascriptHint::HintNumber)
-        {
+        {TRACE_IT(49584);
             hintString = requestContext->GetLibrary()->CreateStringFromCppLiteral(_u("number"));
         }
         else
-        {
+        {TRACE_IT(49585);
             hintString = requestContext->GetLibrary()->CreateStringFromCppLiteral(_u("default"));
         }
 
         // If exoticToPrim is not undefined, then
         if (nullptr != exoticToPrim)
-        {
+        {TRACE_IT(49586);
             ThreadContext * threadContext = requestContext->GetThreadContext();
             result = threadContext->ExecuteImplicitCall(exoticToPrim, ImplicitCall_ToPrimitive, [=]()->Js::Var
             {
@@ -527,7 +527,7 @@ CommonNumber:
             });
 
             if (!result)
-            {
+            {TRACE_IT(49587);
                 // There was an implicit call and implicit calls are disabled. This would typically cause a bailout.
                 Assert(threadContext->IsDisableImplicitCall());
                 return requestContext->GetLibrary()->GetNull();
@@ -537,12 +537,12 @@ CommonNumber:
         }
         // If result is an ECMAScript language value and Type(result) is not Object, then return result.
         if (TaggedInt::Is(result) || !JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(result)))
-        {
+        {TRACE_IT(49588);
             return result;
         }
         // Else, throw a TypeError exception.
         else
-        {
+        {TRACE_IT(49589);
             // Don't error if we disabled implicit calls
             JavascriptError::TryThrowTypeError(scriptContext, requestContext, JSERR_FunctionArgument_Invalid, _u("[Symbol.toPrimitive]"));
             return requestContext->GetLibrary()->GetNull();
@@ -550,11 +550,11 @@ CommonNumber:
     }
 
     Var JavascriptConversion::OrdinaryToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {TRACE_IT(49590);
         Var result;
         RecyclableObject *const recyclableObject = RecyclableObject::FromVar(aValue);
         if (!recyclableObject->ToPrimitive(hint, &result, requestContext))
-        {
+        {TRACE_IT(49591);
             ScriptContext *const scriptContext = recyclableObject->GetScriptContext();
 
             int32 hCode;
@@ -578,9 +578,9 @@ CommonNumber:
     }
 
     JavascriptString *JavascriptConversion::CoerseString(Var aValue, ScriptContext* scriptContext, const char16* apiNameForErrorMsg)
-    {
+    {TRACE_IT(49592);
         if (!JavascriptConversion::CheckObjectCoercible(aValue, scriptContext))
-        {
+        {TRACE_IT(49593);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, apiNameForErrorMsg);
         }
 
@@ -607,12 +607,12 @@ CommonNumber:
     // 2. Return ToString(primValue).
     //----------------------------------------------------------------------------
     JavascriptString *JavascriptConversion::ToString(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49594);
         Assert(scriptContext->GetThreadContext()->IsScriptActive());
 
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49595);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Undefined:
@@ -631,27 +631,27 @@ CommonNumber:
                 return JavascriptNumber::ToStringRadix10(JavascriptNumber::GetValue(aValue), scriptContext);
 
             case TypeIds_Int64Number:
-                {
+                {TRACE_IT(49596);
                     __int64 value = JavascriptInt64Number::FromVar(aValue)->GetValue();
                     if (!TaggedInt::IsOverflow(value))
-                    {
+                    {TRACE_IT(49597);
                         return scriptContext->GetIntegerString((int)value);
                     }
                     else
-                    {
+                    {TRACE_IT(49598);
                         return JavascriptInt64Number::ToString(aValue, scriptContext);
                     }
                 }
 
             case TypeIds_UInt64Number:
-                {
+                {TRACE_IT(49599);
                     unsigned __int64 value = JavascriptUInt64Number::FromVar(aValue)->GetValue();
                     if (!TaggedInt::IsOverflow(value))
-                    {
+                    {TRACE_IT(49600);
                         return scriptContext->GetIntegerString((uint)value);
                     }
                     else
-                    {
+                    {TRACE_IT(49601);
                         return JavascriptUInt64Number::ToString(aValue, scriptContext);
                     }
                 }
@@ -679,11 +679,11 @@ CommonNumber:
             case TypeIds_SIMDUint16x8:
             case TypeIds_SIMDUint32x4:
             case TypeIds_SIMDFloat32x4:
-            {
+            {TRACE_IT(49602);
                 Assert(aValue);
                 RecyclableObject *obj = nullptr;
                 if (!JavascriptConversion::ToObject(aValue, scriptContext, &obj))
-                {
+                {TRACE_IT(49603);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, _u("SIMDType.toString"));
                 }
                 JavascriptSIMDObject* simdObject = static_cast<JavascriptSIMDObject*>(obj);
@@ -696,7 +696,7 @@ CommonNumber:
                 // fall through
 
             default:
-                {
+                {TRACE_IT(49604);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToString");
                     if(fPrimitiveOnly)
                     {
@@ -711,7 +711,7 @@ CommonNumber:
     }
 
     JavascriptString *JavascriptConversion::ToLocaleString(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49605);
         switch (JavascriptOperators::GetTypeId(aValue))
         {
         case TypeIds_Undefined:
@@ -746,20 +746,20 @@ CommonNumber:
             return JavascriptSymbol::FromVar(aValue)->ToString(scriptContext);
 
         default:
-            {
+            {TRACE_IT(49606);
                 RecyclableObject* object = RecyclableObject::FromVar(aValue);
                 Var value = JavascriptOperators::GetProperty(object, PropertyIds::toLocaleString, scriptContext, NULL);
 
                 if (JavascriptConversion::IsCallable(value))
-                {
+                {TRACE_IT(49607);
                     RecyclableObject* toLocaleStringFunction = RecyclableObject::FromVar(value);
                     Var aResult = CALL_FUNCTION(toLocaleStringFunction, CallInfo(1), aValue);
                     if (JavascriptString::Is(aResult))
-                    {
+                    {TRACE_IT(49608);
                         return JavascriptString::FromVar(aResult);
                     }
                     else
-                    {
+                    {TRACE_IT(49609);
                         return JavascriptConversion::ToString(aResult, scriptContext);
                     }
                 }
@@ -786,7 +786,7 @@ CommonNumber:
     // Falsy Object 'false'
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::ToBoolean_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49610);
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         AssertMsg(RecyclableObject::Is(aValue), "Should be handled already");
 
@@ -807,26 +807,26 @@ CommonNumber:
 
 #if !FLOATVAR
         case TypeIds_Number:
-            {
+            {TRACE_IT(49611);
                 double value = JavascriptNumber::GetValue(aValue);
                 return (!JavascriptNumber::IsNan(value)) && (!JavascriptNumber::IsZero(value));
             }
 #endif
 
         case TypeIds_Int64Number:
-            {
+            {TRACE_IT(49612);
                 __int64 value = JavascriptInt64Number::FromVar(aValue)->GetValue();
                 return value != 0;
             }
 
         case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(49613);
                 unsigned __int64 value = JavascriptUInt64Number::FromVar(aValue)->GetValue();
                 return value != 0;
             }
 
         case TypeIds_String:
-            {
+            {TRACE_IT(49614);
                 JavascriptString * pstValue = JavascriptString::FromVar(aValue);
                 return pstValue->GetLength() > 0;
             }
@@ -843,7 +843,7 @@ CommonNumber:
         case TypeIds_SIMDUint32x4:
         case TypeIds_SIMDUint16x8:
         case TypeIds_SIMDUint8x16:
-        {
+        {TRACE_IT(49615);
             return true;
         }
 #endif
@@ -859,12 +859,12 @@ CommonNumber:
     }
 
     void JavascriptConversion::ToFloat_Helper(Var aValue, float *pResult, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49616);
         *pResult = (float)ToNumber_Full(aValue, scriptContext);
     }
 
     void JavascriptConversion::ToNumber_Helper(Var aValue, double *pResult, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49617);
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         *pResult = ToNumber_Full(aValue, scriptContext);
     }
@@ -872,18 +872,18 @@ CommonNumber:
     // Used for the JIT's float type specialization
     // Convert aValue to double, but only allow primitives.  Return false otherwise.
     BOOL JavascriptConversion::ToNumber_FromPrimitive(Var aValue, double *pResult, BOOL allowUndefined, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49618);
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         Assert(!TaggedNumber::Is(aValue));
         RecyclableObject *obj = RecyclableObject::FromVar(aValue);
 
         // NOTE: Don't allow strings, otherwise JIT's float type specialization has to worry about concats
         if (obj->GetTypeId() >= TypeIds_String)
-        {
+        {TRACE_IT(49619);
             return false;
         }
         if (!allowUndefined && obj->GetTypeId() == TypeIds_Undefined)
-        {
+        {TRACE_IT(49620);
             return false;
         }
 
@@ -904,12 +904,12 @@ CommonNumber:
     // Symbol:    TypeError
     //----------------------------------------------------------------------------
     double JavascriptConversion::ToNumber_Full(Var aValue,ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49621);
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49622);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Symbol:
@@ -959,10 +959,10 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {TRACE_IT(49623);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger");
                     if(fPrimitiveOnly)
-                    {
+                    {TRACE_IT(49624);
                         JavascriptError::ThrowError(scriptContext, VBSERR_OLENoPropOrMethod);
                     }
                     fPrimitiveOnly = true;
@@ -976,12 +976,12 @@ CommonNumber:
     // second part of the ToInteger() implementation.(ES5.0: S9.4).
     //----------------------------------------------------------------------------
     double JavascriptConversion::ToInteger_Full(Var aValue,ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49625);
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49626);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Symbol:
@@ -1028,7 +1028,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {TRACE_IT(49627);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger");
                     if(fPrimitiveOnly)
                     {
@@ -1043,12 +1043,12 @@ CommonNumber:
     }
 
     double JavascriptConversion::ToInteger(double val)
-    {
+    {TRACE_IT(49628);
         if(JavascriptNumber::IsNan(val))
             return 0;
         if(JavascriptNumber::IsPosInf(val) || JavascriptNumber::IsNegInf(val) ||
             JavascriptNumber::IsZero(val))
-        {
+        {TRACE_IT(49629);
             return val;
         }
 
@@ -1060,7 +1060,7 @@ CommonNumber:
     // (ES3.0: S9.5).
     //----------------------------------------------------------------------------
     int32 JavascriptConversion::ToInt32_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49630);
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
 
@@ -1071,7 +1071,7 @@ CommonNumber:
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
 
         if (typeId == TypeIds_Number)
-        {
+        {TRACE_IT(49631);
             return JavascriptMath::ToInt32Core(JavascriptNumber::GetValue(aValue));
         }
 
@@ -1101,10 +1101,10 @@ CommonNumber:
             return JavascriptMath::ToInt32Core((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
         case TypeIds_String:
-        {
+        {TRACE_IT(49632);
             double result;
             if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-            {
+            {TRACE_IT(49633);
                 return JavascriptMath::ToInt32Core(result);
             }
             // If the string isn't a valid number, ToDouble returns NaN, and ToInt32 of that is 0
@@ -1163,10 +1163,10 @@ CommonNumber:
             return JavascriptMath::ToInt32Core((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
         case TypeIds_String:
-        {
+        {TRACE_IT(49634);
             double result;
             if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-            {
+            {TRACE_IT(49635);
                 return ToInt32(result);
             }
             // If the string isn't a valid number, ToDouble returns NaN, and ToInt32 of that is 0
@@ -1184,11 +1184,11 @@ CommonNumber:
 
     // a strict version of ToInt32 conversion that returns false for non int32 values like, inf, NaN, undef
     BOOL JavascriptConversion::ToInt32Finite(Var aValue, ScriptContext* scriptContext, int32* result)
-    {
+    {TRACE_IT(49636);
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49637);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Symbol:
@@ -1245,7 +1245,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {TRACE_IT(49638);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger32");
                     if(fPrimitiveOnly)
                     {
@@ -1260,25 +1260,25 @@ CommonNumber:
     }
 
     int32 JavascriptConversion::ToInt32(double T1)
-    {
+    {TRACE_IT(49639);
         return JavascriptMath::ToInt32Core(T1);
     }
 
     __int64 JavascriptConversion::ToInt64(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49640);
         switch (JavascriptOperators::GetTypeId(aValue))
         {
         case TypeIds_Integer:
-            {
+            {TRACE_IT(49641);
                 return TaggedInt::ToInt32(aValue);
             }
         case TypeIds_Int64Number:
-            {
+            {TRACE_IT(49642);
             JavascriptInt64Number* int64Number = JavascriptInt64Number::FromVar(aValue);
             return int64Number->GetValue();
             }
         case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(49643);
             JavascriptUInt64Number* uint64Number = JavascriptUInt64Number::FromVar(aValue);
             return (__int64)uint64Number->GetValue();
             }
@@ -1290,20 +1290,20 @@ CommonNumber:
     }
 
     unsigned __int64 JavascriptConversion::ToUInt64(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49644);
         switch (JavascriptOperators::GetTypeId(aValue))
         {
         case TypeIds_Integer:
-            {
+            {TRACE_IT(49645);
                 return (unsigned __int64)TaggedInt::ToInt32(aValue);
             }
         case TypeIds_Int64Number:
-            {
+            {TRACE_IT(49646);
             JavascriptInt64Number* int64Number = JavascriptInt64Number::FromVar(aValue);
             return (unsigned __int64)int64Number->GetValue();
             }
         case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(49647);
             JavascriptUInt64Number* uint64Number = JavascriptUInt64Number::FromVar(aValue);
             return uint64Number->GetValue();
             }
@@ -1315,14 +1315,14 @@ CommonNumber:
     }
 
     BOOL JavascriptConversion::ToInt32Finite(double value, int32* result)
-    {
+    {TRACE_IT(49648);
         if((!NumberUtilities::IsFinite(value)) || JavascriptNumber::IsNan(value))
-        {
+        {TRACE_IT(49649);
             *result = 0;
             return false;
         }
         else
-        {
+        {TRACE_IT(49650);
             *result = JavascriptMath::ToInt32Core(value);
             return true;
         }
@@ -1332,12 +1332,12 @@ CommonNumber:
     // (ES3.0: S9.6).
     //----------------------------------------------------------------------------
     uint32 JavascriptConversion::ToUInt32_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49651);
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49652);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Symbol:
@@ -1367,10 +1367,10 @@ CommonNumber:
                 return JavascriptMath::ToUInt32((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
             case TypeIds_String:
-            {
+            {TRACE_IT(49653);
                 double result;
                 if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-                {
+                {TRACE_IT(49654);
                     return JavascriptMath::ToUInt32(result);
                 }
                 // If the string isn't a valid number, ToDouble returns NaN, and ToUInt32 of that is 0
@@ -1396,7 +1396,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {TRACE_IT(49655);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToUInt32");
                     if(fPrimitiveOnly)
                     {
@@ -1411,7 +1411,7 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::ToUInt32(double T1)
-    {
+    {TRACE_IT(49656);
         // Same as doing ToInt32 and reinterpret the bits as uint32
         return (uint32)JavascriptMath::ToInt32Core(T1);
     }
@@ -1421,12 +1421,12 @@ CommonNumber:
     // (ES3.0: S9.6).
     //----------------------------------------------------------------------------
     uint16 JavascriptConversion::ToUInt16_Full(IN  Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49657);
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {TRACE_IT(49658);
             switch (JavascriptOperators::GetTypeId(aValue))
             {
             case TypeIds_Symbol:
@@ -1456,10 +1456,10 @@ CommonNumber:
                 return ToUInt16((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
             case TypeIds_String:
-            {
+            {TRACE_IT(49659);
                 double result;
                 if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-                {
+                {TRACE_IT(49660);
                     return ToUInt16(result);
                 }
                 // If the string isn't a valid number, ToDouble is NaN, and ToUInt16 of that is 0
@@ -1485,7 +1485,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {TRACE_IT(49661);
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToUIn16");
                     if(fPrimitiveOnly)
                     {
@@ -1500,7 +1500,7 @@ CommonNumber:
     }
 
     inline uint16 JavascriptConversion::ToUInt16(double T1)
-    {
+    {TRACE_IT(49662);
         //
         // VC does the right thing here, if we first convert to uint32 and then to uint16
         // Spec says mod should be done.
@@ -1520,36 +1520,36 @@ CommonNumber:
     }
 
     JavascriptString * JavascriptConversion::ToPrimitiveString(Var aValue, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(49663);
         return ToString(ToPrimitive(aValue, JavascriptHint::None, scriptContext), scriptContext);
     }
 
     double JavascriptConversion::LongToDouble(__int64 aValue)
-    {
+    {TRACE_IT(49664);
         return static_cast<double>(aValue);
     }
 
     double JavascriptConversion::ULongToDouble(unsigned __int64 aValue)
-    {
+    {TRACE_IT(49665);
         return static_cast<double>(aValue);
     }
 
     float JavascriptConversion::LongToFloat(__int64 aValue)
-    {
+    {TRACE_IT(49666);
         return static_cast<float>(aValue);
     }
 
     float JavascriptConversion::ULongToFloat (unsigned __int64 aValue)
-    {
+    {TRACE_IT(49667);
         return static_cast<float>(aValue);
     }
 
     int32 JavascriptConversion::F32TOI32(float src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49668);
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo31, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegTwoTo31,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessOrEqual<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {TRACE_IT(49669);
             return (int32)src;
         }
 
@@ -1557,11 +1557,11 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::F32TOU32(float src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49670);
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo32, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegOne,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessThan<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {TRACE_IT(49671);
             return (uint32)src;
         }
 
@@ -1569,11 +1569,11 @@ CommonNumber:
     }
 
     int32 JavascriptConversion::F64TOI32(double src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49672);
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo31, NumberConstants::k_NegZero, NumberConstants::k_NegTwoTo31,
             &Wasm::WasmMath::LessOrEqual<uint64>, &Wasm::WasmMath::LessOrEqual<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {TRACE_IT(49673);
             return (int32)src;
         }
 
@@ -1581,11 +1581,11 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::F64TOU32(double src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49674);
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo32, NumberConstants::k_NegZero, NumberConstants::k_NegOne,
             &Wasm::WasmMath::LessOrEqual<uint64>, &Wasm::WasmMath::LessThan<uint64>>(src)
             && !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {TRACE_IT(49675);
             return (uint32)src;
         }
 
@@ -1593,11 +1593,11 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::F32TOI64(float src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49676);
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo63, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegTwoTo63,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessOrEqual<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {TRACE_IT(49677);
             return (int64)src;
         }
 
@@ -1605,11 +1605,11 @@ CommonNumber:
     }
 
     uint64 JavascriptConversion::F32TOU64(float src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49678);
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo64, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegOne,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessThan<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {TRACE_IT(49679);
             return (uint64)src;
         }
 
@@ -1617,11 +1617,11 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::F64TOI64(double src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49680);
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo63, NumberConstants::k_NegZero, NumberConstants::k_NegTwoTo63,
             &Wasm::WasmMath::LessThan<uint64>, &Wasm::WasmMath::LessOrEqual<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {TRACE_IT(49681);
             return (int64)src;
         }
 
@@ -1629,11 +1629,11 @@ CommonNumber:
     }
 
     uint64 JavascriptConversion::F64TOU64(double src, ScriptContext * ctx)
-    {
+    {TRACE_IT(49682);
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo64, NumberConstants::k_NegZero, NumberConstants::k_NegOne,
             &Wasm::WasmMath::LessThan<uint64>, &Wasm::WasmMath::LessThan<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {TRACE_IT(49683);
             return (uint64)src;
         }
 
@@ -1641,9 +1641,9 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::ToLength(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(49684);
         if (TaggedInt::Is(aValue))
-        {
+        {TRACE_IT(49685);
             int64 length = TaggedInt::ToInt64(aValue);
             return (length < 0) ? 0 : length;
         }
@@ -1651,11 +1651,11 @@ CommonNumber:
         double length = JavascriptConversion::ToInteger(aValue, scriptContext);
 
         if (length < 0.0 || JavascriptNumber::IsNegZero(length))
-        {
+        {TRACE_IT(49686);
             length = 0.0;
         }
         else if (length > Math::MAX_SAFE_INTEGER)
-        {
+        {TRACE_IT(49687);
             length = Math::MAX_SAFE_INTEGER;
         }
 

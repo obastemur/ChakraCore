@@ -13,7 +13,7 @@ namespace DateTime
 {
 
     double HiResTimer::GetSystemTime()
-    {
+    {TRACE_IT(65169);
         SYSTEMTIME stTime;
         ::GetSystemTime(&stTime);
         return Js::DateUtilities::TimeFromSt(&stTime);
@@ -22,29 +22,29 @@ namespace DateTime
     // determine if the system time is being adjusted every tick to gradually
     // bring it inline with a time server.
     static double GetAdjustFactor()
-    {
+    {TRACE_IT(65170);
         DWORD dwTimeAdjustment = 0;
         DWORD dwTimeIncrement = 0;
         BOOL fAdjustmentDisabled = FALSE;
         BOOL fSuccess = GetSystemTimeAdjustment(&dwTimeAdjustment, &dwTimeIncrement, &fAdjustmentDisabled);
         if (!fSuccess || fAdjustmentDisabled)
-        {
+        {TRACE_IT(65171);
             return 1;
         }
         return ((double)dwTimeAdjustment) / ((double)dwTimeIncrement);
     }
 
     double HiResTimer::Now()
-    {
+    {TRACE_IT(65172);
         if(!data.fHiResAvailable)
-        {
+        {TRACE_IT(65173);
             return GetSystemTime();
         }
 
         if(!data.fInit)
-        {
+        {TRACE_IT(65174);
             if (!QueryPerformanceFrequency((LARGE_INTEGER *) &(data.freq)))
-            {
+            {TRACE_IT(65175);
                 data.fHiResAvailable = false;
                 return GetSystemTime();
             }
@@ -58,7 +58,7 @@ namespace DateTime
         // try better resolution time using perf counters
         uint64 count;
         if( !QueryPerformanceCounter((LARGE_INTEGER *) &count))
-        {
+        {TRACE_IT(65176);
             data.fHiResAvailable = false;
             return GetSystemTime();
         }
@@ -68,13 +68,13 @@ namespace DateTime
         // there is a base time and count set.
         if (!data.fReset
             && (count >= data.baseMsCount)) // Make sure we don't regress
-        {
+        {TRACE_IT(65177);
             double elapsed = ((double)(count - data.baseMsCount)) * 1000 / data.freq;
 
             // if the system time is being adjusted every tick, adjust the
             // precise time delta accordingly.
             if (data.dAdjustFactor != 1)
-            {
+            {TRACE_IT(65178);
                 elapsed = elapsed * data.dAdjustFactor;
             }
 
@@ -82,7 +82,7 @@ namespace DateTime
 
             if (fabs(preciseTime - time) < 25 // the time computed via perf counter is off by 25ms
                 && preciseTime >= data.dLastTime)  // the time computed via perf counter is running backwards
-            {
+            {TRACE_IT(65179);
                 data.dLastTime = preciseTime;
                 return data.dLastTime;
             }
@@ -95,11 +95,11 @@ namespace DateTime
 
         double dSinceLast = time - data.dLastTime;
         if (dSinceLast < -3000) // if new time is significantly behind (3s), use it:
-        {                       // the clock may have been set backwards.
+        {TRACE_IT(65180);                       // the clock may have been set backwards.
             data.dLastTime = time;
         }
         else
-        {
+        {TRACE_IT(65181);
             data.dLastTime = max(data.dLastTime, time); // otherwise, make sure we don't regress the time.
         }
 

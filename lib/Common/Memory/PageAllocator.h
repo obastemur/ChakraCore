@@ -21,7 +21,7 @@ typedef void* FunctionTableHandle;
 
 #define GUARD_PAGE_TRACE(...) \
     if (Js::Configuration::Global.flags.PrintGuardPageBounds) \
-{ \
+{TRACE_IT(25067); \
     Output::Print(__VA_ARGS__); \
 }
 
@@ -36,18 +36,18 @@ typedef void* FunctionTableHandle;
 
 #define PAGE_ALLOC_TRACE_EX(verbose, stats, format, ...)                \
     if (this->pageAllocatorFlagTable.Trace.IsEnabled(Js::PageAllocatorPhase)) \
-    { \
+    {TRACE_IT(25068); \
         if (!verbose || this->pageAllocatorFlagTable.Verbose) \
-        {   \
+        {TRACE_IT(25069);   \
             Output::Print(_u("%p : %p> PageAllocator(%p): "), GetCurrentThreadContextId(), ::GetCurrentThreadId(), this); \
             if (debugName != nullptr) \
-            { \
+            {TRACE_IT(25070); \
                 Output::Print(_u("[%s] "), this->debugName); \
             } \
             Output::Print(format, ##__VA_ARGS__);         \
             Output::Print(_u("\n")); \
             if (stats && this->pageAllocatorFlagTable.Stats.IsEnabled(Js::PageAllocatorPhase)) \
-            { \
+            {TRACE_IT(25071); \
                 this->DumpStats();         \
             }  \
             Output::Flush(); \
@@ -79,7 +79,7 @@ struct SecondaryAllocation
     BYTE* address;   // address of the allocation by the secondary allocator
 
     SecondaryAllocation() : address(nullptr)
-    {
+    {TRACE_IT(25072);
     }
 };
 
@@ -111,7 +111,7 @@ public:
     virtual void Release(const SecondaryAllocation& allocation) = 0;
     virtual void Delete() = 0;
     virtual bool CanAllocate() = 0;
-    virtual ~SecondaryAllocator() {};
+    virtual ~SecondaryAllocator() {TRACE_IT(25073);};
 };
 
 class PageAllocatorBaseCommon;
@@ -123,7 +123,7 @@ protected:
 
 public:
     SegmentBaseCommon(PageAllocatorBaseCommon* allocator);
-    virtual ~SegmentBaseCommon() {}
+    virtual ~SegmentBaseCommon() {TRACE_IT(25074);}
     bool IsInPreReservedHeapPageAllocator() const;
 };
 
@@ -140,22 +140,22 @@ public:
     SegmentBase(PageAllocatorBase<TVirtualAlloc> * allocator, DECLSPEC_GUARD_OVERFLOW size_t pageCount, bool enableWriteBarrier);
     virtual ~SegmentBase();
 
-    size_t GetPageCount() const { return segmentPageCount; }
+    size_t GetPageCount() const {TRACE_IT(25075); return segmentPageCount; }
 
     // Some pages are reserved upfront for secondary allocations
     // which are done by a secondary allocator as opposed to the PageAllocator
-    size_t GetAvailablePageCount() const { return segmentPageCount - secondaryAllocPageCount; }
+    size_t GetAvailablePageCount() const {TRACE_IT(25076); return segmentPageCount - secondaryAllocPageCount; }
 
-    char* GetSecondaryAllocStartAddress() const { return (this->address + GetAvailablePageCount() * AutoSystemInfo::PageSize); }
-    uint GetSecondaryAllocSize() const { return this->secondaryAllocPageCount * AutoSystemInfo::PageSize; }
+    char* GetSecondaryAllocStartAddress() const {TRACE_IT(25077); return (this->address + GetAvailablePageCount() * AutoSystemInfo::PageSize); }
+    uint GetSecondaryAllocSize() const {TRACE_IT(25078); return this->secondaryAllocPageCount * AutoSystemInfo::PageSize; }
 
-    char* GetAddress() const { return address; }
-    char* GetEndAddress() const { return GetSecondaryAllocStartAddress(); }
+    char* GetAddress() const {TRACE_IT(25079); return address; }
+    char* GetEndAddress() const {TRACE_IT(25080); return GetSecondaryAllocStartAddress(); }
 
-    bool CanAllocSecondary() { Assert(secondaryAllocator); return secondaryAllocator->CanAllocate(); }
+    bool CanAllocSecondary() {TRACE_IT(25081); Assert(secondaryAllocator); return secondaryAllocator->CanAllocate(); }
 
     PageAllocatorBase<TVirtualAlloc>* GetAllocator() const
-    {
+    {TRACE_IT(25082);
         return static_cast<PageAllocatorBase<TVirtualAlloc>*>(allocator);
     }
 
@@ -163,32 +163,32 @@ public:
 
 #if DBG
     virtual bool IsPageSegment() const
-    {
+    {TRACE_IT(25083);
         return false;
     }
 #endif
 
     bool IsInSegment(void* address) const
-    {
+    {TRACE_IT(25084);
         void* start = static_cast<void*>(GetAddress());
         void* end = static_cast<void*>(GetEndAddress());
         return (address >= start && address < end);
     }
 
     bool IsInCustomHeapAllocator() const
-    {
+    {TRACE_IT(25085);
         return this->GetAllocator()->type == PageAllocatorType::PageAllocatorType_CustomHeap;
     }
 
-    SecondaryAllocator* GetSecondaryAllocator() { return secondaryAllocator; }
+    SecondaryAllocator* GetSecondaryAllocator() {TRACE_IT(25086); return secondaryAllocator; }
 
 #if defined(_M_X64_OR_ARM64) && defined(RECYCLER_WRITE_BARRIER)
     bool IsWriteBarrierAllowed()
-    {
+    {TRACE_IT(25087);
         return isWriteBarrierAllowed;
     }
     bool IsWriteBarrierEnabled()
-    {
+    {TRACE_IT(25088);
         return this->isWriteBarrierEnabled;
     }
 #endif
@@ -239,7 +239,7 @@ public:
     typedef BVStatic<MaxPageCount> PageBitVector;
 
     uint GetAvailablePageCount() const
-    {
+    {TRACE_IT(25089);
         size_t availablePageCount = Base::GetAvailablePageCount();
         Assert(availablePageCount < MAXUINT32);
         return static_cast<uint>(availablePageCount);
@@ -249,8 +249,8 @@ public:
 #ifdef PAGEALLOCATOR_PROTECT_FREEPAGE
     bool Initialize(DWORD allocFlags, bool excludeGuardPages);
 #endif
-    uint GetFreePageCount() const { return freePageCount; }
-    uint GetDecommitPageCount() const { return decommitPageCount; }
+    uint GetFreePageCount() const {TRACE_IT(25090); return freePageCount; }
+    uint GetDecommitPageCount() const {TRACE_IT(25091); return decommitPageCount; }
 
     static bool IsAllocationPageAligned(__in char* address, size_t pageCount, uint *nextIndex = nullptr);
 
@@ -287,7 +287,7 @@ public:
     size_t DecommitFreePages(size_t pageToDecommit);
 
     bool IsEmpty() const
-    {
+    {TRACE_IT(25092);
         return this->freePageCount == this->GetAvailablePageCount();
     }
 
@@ -296,23 +296,23 @@ public:
     // However, if secondary allocations cannot be made from it - it's considered full nonetheless
     //
     bool IsFull() const
-    {
+    {TRACE_IT(25093);
         return (this->freePageCount == 0 && !ShouldBeInDecommittedList()) ||
             (this->secondaryAllocator != nullptr && !this->secondaryAllocator->CanAllocate());
     }
 
     bool IsAllDecommitted() const
-    {
+    {TRACE_IT(25094);
         return this->GetAvailablePageCount() == this->decommitPageCount;
     }
 
     bool ShouldBeInDecommittedList() const
-    {
+    {TRACE_IT(25095);
         return this->decommitPageCount != 0;
     }
 
     bool IsFreeOrDecommitted(void* address, uint pageCount) const
-    {
+    {TRACE_IT(25096);
         Assert(this->IsInSegment(address));
 
         uint base = GetBitRangeBase(address);
@@ -320,7 +320,7 @@ public:
     }
 
     bool IsFreeOrDecommitted(void* address) const
-    {
+    {TRACE_IT(25097);
         Assert(this->IsInSegment(address));
 
         uint base = GetBitRangeBase(address);
@@ -328,7 +328,7 @@ public:
     }
 
     PageBitVector GetUnAllocatedPages() const
-    {
+    {TRACE_IT(25098);
         PageBitVector unallocPages = freePages;
         unallocPages.Or(&decommitPages);
         return unallocPages;
@@ -346,7 +346,7 @@ public:
 //---------- Private members ---------------/
 private:
     uint GetBitRangeBase(void* address) const
-    {
+    {TRACE_IT(25099);
         uint base = ((uint)(((char *)address) - this->address)) / AutoSystemInfo::PageSize;
         return base;
     }
@@ -369,10 +369,10 @@ class HeapPageAllocator;
 class PageAllocation
 {
 public:
-    char * GetAddress() const { return ((char *)this) + sizeof(PageAllocation); }
-    size_t GetSize() const { return pageCount * AutoSystemInfo::PageSize - sizeof(PageAllocation); }
-    size_t GetPageCount() const { return pageCount; }
-    void* GetSegment() const { return segment; }
+    char * GetAddress() const {TRACE_IT(25100); return ((char *)this) + sizeof(PageAllocation); }
+    size_t GetSize() const {TRACE_IT(25101); return pageCount * AutoSystemInfo::PageSize - sizeof(PageAllocation); }
+    size_t GetPageCount() const {TRACE_IT(25102); return pageCount; }
+    void* GetSegment() const {TRACE_IT(25103); return segment; }
 
 private:
     size_t pageCount;
@@ -391,38 +391,38 @@ class MemoryOperationLastError
 {
 public:
     static void RecordLastError()
-    {
+    {TRACE_IT(25104);
 #if ENABLE_OOP_NATIVE_CODEGEN
         if (MemOpLastError == 0)
-        {
+        {TRACE_IT(25105);
             MemOpLastError = GetLastError();
         }
 #endif
     }
     static void RecordLastErrorAndThrow()
-    {
+    {TRACE_IT(25106);
 #if ENABLE_OOP_NATIVE_CODEGEN
         if (MemOpLastError == 0)
-        {
+        {TRACE_IT(25107);
             MemOpLastError = GetLastError();
             AssertOrFailFast(false);
         }
 #endif
     }
     static void CheckProcessAndThrowFatalError(HANDLE hProcess)
-    {
+    {TRACE_IT(25108);
         DWORD lastError = GetLastError();
 #if ENABLE_OOP_NATIVE_CODEGEN
         if (MemOpLastError == 0)
-        {
+        {TRACE_IT(25109);
             MemOpLastError = lastError;
         }
 #endif
         if (lastError != 0)
-        {
+        {TRACE_IT(25110);
             DWORD exitCode = STILL_ACTIVE;
             if (!GetExitCodeProcess(hProcess, &exitCode) || exitCode == STILL_ACTIVE)
-            {
+            {TRACE_IT(25111);
                 // REVIEW: In OOP JIT, target process is still alive but the memory operation failed
                 // we should fail fast(terminate) the runtime process, fail fast here in server process
                 // is to capture bug might exist in CustomHeap implementation.
@@ -436,13 +436,13 @@ public:
 
     }
     static void ClearLastError()
-    {
+    {TRACE_IT(25112);
 #if ENABLE_OOP_NATIVE_CODEGEN
         MemOpLastError = 0;
 #endif
     }
     static DWORD GetLastError()
-    {
+    {TRACE_IT(25113);
 #if ENABLE_OOP_NATIVE_CODEGEN
         return MemOpLastError;
 #else
@@ -471,7 +471,7 @@ public:
     template<typename TVirtualAlloc>
     static AllocatorType GetAllocatorType();
 
-    AllocatorType GetAllocatorType() const { return this->allocatorType; }
+    AllocatorType GetAllocatorType() const {TRACE_IT(25114); return this->allocatorType; }
 
 protected:
     void* virtualAllocator;
@@ -481,14 +481,14 @@ public:
     PageAllocatorBaseCommon() :
         virtualAllocator(nullptr),
         allocatorType(AllocatorType::VirtualAlloc)
-    {}
-    virtual ~PageAllocatorBaseCommon() {}
+    {TRACE_IT(25115);}
+    virtual ~PageAllocatorBaseCommon() {TRACE_IT(25116);}
 };
-template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<VirtualAllocWrapper>() { return AllocatorType::VirtualAlloc; };
-template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<PreReservedVirtualAllocWrapper>() { return AllocatorType::PreReservedVirtualAlloc; };
+template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<VirtualAllocWrapper>() {TRACE_IT(25117); return AllocatorType::VirtualAlloc; };
+template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<PreReservedVirtualAllocWrapper>() {TRACE_IT(25118); return AllocatorType::PreReservedVirtualAlloc; };
 #if ENABLE_OOP_NATIVE_CODEGEN
-template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<SectionAllocWrapper>() { return AllocatorType::SectionAlloc; };
-template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<PreReservedSectionAllocWrapper>() { return AllocatorType::PreReservedSectionAlloc; };
+template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<SectionAllocWrapper>() {TRACE_IT(25119); return AllocatorType::SectionAlloc; };
+template<> inline PageAllocatorBaseCommon::AllocatorType PageAllocatorBaseCommon::GetAllocatorType<PreReservedSectionAllocWrapper>() {TRACE_IT(25120); return AllocatorType::PreReservedSectionAlloc; };
 #endif
 
 /*
@@ -557,14 +557,14 @@ public:
         }
 
         FreePageEntry* PopFreePageEntry()
-        {
+        {TRACE_IT(25121);
 #if SUPPORT_WIN32_SLIST
             return (FreePageEntry *)::InterlockedPopEntrySList(&bgFreePageList);
 #else
             AutoCriticalSection autoCS(&backgroundPageQueueCriticalSection);
             FreePageEntry* head = bgFreePageList;
             if (head)
-            {
+            {TRACE_IT(25122);
                 bgFreePageList = bgFreePageList->Next;
             }
             return head;
@@ -572,7 +572,7 @@ public:
         }
 
         void PushFreePageEntry(FreePageEntry* entry)
-        {
+        {TRACE_IT(25123);
 #if SUPPORT_WIN32_SLIST
             ::InterlockedPushEntrySList(&bgFreePageList, entry);
 #else
@@ -604,14 +604,14 @@ public:
         }
 
         FreePageEntry* PopZeroPageEntry()
-        {
+        {TRACE_IT(25124);
 #if SUPPORT_WIN32_SLIST
             return (FreePageEntry *)::InterlockedPopEntrySList(&pendingZeroPageList);
 #else
             AutoCriticalSection autoCS(&this->backgroundPageQueueCriticalSection);
             FreePageEntry* head = pendingZeroPageList;
             if (head)
-            {
+            {TRACE_IT(25125);
                 pendingZeroPageList = pendingZeroPageList->Next;
             }
             return head;
@@ -619,7 +619,7 @@ public:
         }
 
         void PushZeroPageEntry(FreePageEntry* entry)
-        {
+        {TRACE_IT(25126);
 #if SUPPORT_WIN32_SLIST
             ::InterlockedPushEntrySList(&pendingZeroPageList, entry);
 #else
@@ -630,7 +630,7 @@ public:
         }
 
         USHORT QueryDepth()
-        {
+        {TRACE_IT(25127);
 #if SUPPORT_WIN32_SLIST
             return QueryDepthSList(&pendingZeroPageList);
 #else
@@ -638,7 +638,7 @@ public:
             FreePageEntry* head = pendingZeroPageList;
             size_t count = 0;
             while (head)
-            {
+            {TRACE_IT(25128);
                 head = head->Next;
                 count++;
             }
@@ -670,10 +670,10 @@ public:
 
     virtual ~PageAllocatorBase();
 
-    bool IsClosed() const { return isClosed; }
-    void Close() { Assert(!isClosed); isClosed = true; }
+    bool IsClosed() const {TRACE_IT(25129); return isClosed; }
+    void Close() {TRACE_IT(25130); Assert(!isClosed); isClosed = true; }
 
-    AllocationPolicyManager * GetAllocationPolicyManager() { return policyManager; }
+    AllocationPolicyManager * GetAllocationPolicyManager() {TRACE_IT(25131); return policyManager; }
 
     uint GetMaxAllocPageCount();
 
@@ -714,43 +714,43 @@ public:
     void FlushBackgroundPages();
 #endif
 
-    bool DisableAllocationOutOfMemory() const { return disableAllocationOutOfMemory; }
-    void ResetDisableAllocationOutOfMemory() { disableAllocationOutOfMemory = false; }
+    bool DisableAllocationOutOfMemory() const {TRACE_IT(25132); return disableAllocationOutOfMemory; }
+    void ResetDisableAllocationOutOfMemory() {TRACE_IT(25133); disableAllocationOutOfMemory = false; }
 
 #ifdef RECYCLER_MEMORY_VERIFY
-    void EnableVerify() { verifyEnabled = true; }
+    void EnableVerify() {TRACE_IT(25134); verifyEnabled = true; }
 #endif
 #if defined(RECYCLER_NO_PAGE_REUSE) || defined(ARENA_MEMORY_VERIFY)
-    void ReenablePageReuse() { Assert(disablePageReuse); disablePageReuse = false; }
-    bool DisablePageReuse() { bool wasDisablePageReuse = disablePageReuse; disablePageReuse = true; return wasDisablePageReuse; }
+    void ReenablePageReuse() {TRACE_IT(25135); Assert(disablePageReuse); disablePageReuse = false; }
+    bool DisablePageReuse() {TRACE_IT(25136); bool wasDisablePageReuse = disablePageReuse; disablePageReuse = true; return wasDisablePageReuse; }
 #endif
 
 #if DBG
 #if ENABLE_BACKGROUND_PAGE_ZEROING
     bool HasZeroQueuedPages() const;
 #endif
-    virtual void SetDisableThreadAccessCheck() { disableThreadAccessCheck = true;}
-    virtual void SetEnableThreadAccessCheck() { disableThreadAccessCheck = false; }
+    virtual void SetDisableThreadAccessCheck() {TRACE_IT(25137); disableThreadAccessCheck = true;}
+    virtual void SetEnableThreadAccessCheck() {TRACE_IT(25138); disableThreadAccessCheck = false; }
 
-    virtual bool IsIdleDecommitPageAllocator() const { return false; }
-    virtual bool HasMultiThreadAccess() const { return false; }
+    virtual bool IsIdleDecommitPageAllocator() const {TRACE_IT(25139); return false; }
+    virtual bool HasMultiThreadAccess() const {TRACE_IT(25140); return false; }
     bool ValidThreadAccess()
-    {
+    {TRACE_IT(25141);
         DWORD currentThreadId = ::GetCurrentThreadId();
         return disableThreadAccessCheck ||
             (this->concurrentThreadId == -1 && this->threadContextHandle == NULL) ||  // JIT thread after close
             (this->concurrentThreadId != -1 && this->concurrentThreadId == currentThreadId) ||
             this->threadContextHandle == GetCurrentThreadContextId();
     }
-    virtual void UpdateThreadContextHandle(ThreadContextId updatedThreadContextHandle) { threadContextHandle = updatedThreadContextHandle; }
-    void SetConcurrentThreadId(DWORD threadId) { this->concurrentThreadId = threadId; }
-    void ClearConcurrentThreadId() { this->concurrentThreadId = (DWORD)-1; }
-    DWORD GetConcurrentThreadId() { return this->concurrentThreadId;  }
-    DWORD HasConcurrentThreadId() { return this->concurrentThreadId != -1; }
+    virtual void UpdateThreadContextHandle(ThreadContextId updatedThreadContextHandle) {TRACE_IT(25142); threadContextHandle = updatedThreadContextHandle; }
+    void SetConcurrentThreadId(DWORD threadId) {TRACE_IT(25143); this->concurrentThreadId = threadId; }
+    void ClearConcurrentThreadId() {TRACE_IT(25144); this->concurrentThreadId = (DWORD)-1; }
+    DWORD GetConcurrentThreadId() {TRACE_IT(25145); return this->concurrentThreadId;  }
+    DWORD HasConcurrentThreadId() {TRACE_IT(25146); return this->concurrentThreadId != -1; }
 #endif
 
     bool IsWriteWatchEnabled()
-    {
+    {TRACE_IT(25147);
         return (allocFlags & MEM_WRITE_WATCH) == MEM_WRITE_WATCH;
     }
 
@@ -787,7 +787,7 @@ protected:
     void FillFreePages(__in void * address, uint pageCount);
 
     bool IsPageSegment(TSegment* segment)
-    {
+    {TRACE_IT(25148);
         return segment->GetAvailablePageCount() <= maxAllocPageCount;
     }
 
@@ -810,9 +810,9 @@ protected:
     bool HasZeroPageQueue() const;
 #endif
 
-    bool ZeroPages() const { return zeroPages; }
+    bool ZeroPages() const {TRACE_IT(25149); return zeroPages; }
 #if ENABLE_BACKGROUND_PAGE_ZEROING
-    bool QueueZeroPages() const { return queueZeroPages; }
+    bool QueueZeroPages() const {TRACE_IT(25150); return queueZeroPages; }
 #endif
 
 #if ENABLE_BACKGROUND_PAGE_FREEING
@@ -869,7 +869,7 @@ protected:
     void ClearMinFreePageCount();
     void AddFreePageCount(uint pageCount);
 
-    static uint GetFreePageLimit() { return 0; }
+    static uint GetFreePageLimit() {TRACE_IT(25151); return 0; }
 
 #if DBG
     size_t debugMinFreePageCount;
@@ -892,7 +892,7 @@ protected:
 
 protected:
     virtual bool CreateSecondaryAllocator(TSegment* segment, bool committed, SecondaryAllocator** allocator)
-    {
+    {TRACE_IT(25152);
         *allocator = nullptr;
         return true;
     }
@@ -902,7 +902,7 @@ protected:
 
     HANDLE processHandle;
 private:
-    uint GetSecondaryAllocPageCount() const { return this->secondaryAllocPageCount; }
+    uint GetSecondaryAllocPageCount() const {TRACE_IT(25153); return this->secondaryAllocPageCount; }
     void IntegrateSegments(DListBase<TPageSegment>& segmentList, uint segmentCount, size_t pageCount);
 #if ENABLE_BACKGROUND_PAGE_FREEING
     void QueuePages(void * address, uint pageCount, TPageSegment * pageSegment);
@@ -924,27 +924,27 @@ private:
 
 #ifdef PERF_COUNTERS
     PerfCounter::Counter& GetReservedSizeCounter() const
-    {
+    {TRACE_IT(25154);
         return PerfCounter::PageAllocatorCounterSet::GetReservedSizeCounter(type);
     }
     PerfCounter::Counter& GetCommittedSizeCounter() const
-    {
+    {TRACE_IT(25155);
         return PerfCounter::PageAllocatorCounterSet::GetCommittedSizeCounter(type);
     }
     PerfCounter::Counter& GetUsedSizeCounter() const
-    {
+    {TRACE_IT(25156);
         return PerfCounter::PageAllocatorCounterSet::GetUsedSizeCounter(type);
     }
     PerfCounter::Counter& GetTotalReservedSizeCounter() const
-    {
+    {TRACE_IT(25157);
         return PerfCounter::PageAllocatorCounterSet::GetTotalReservedSizeCounter();
     }
     PerfCounter::Counter& GetTotalCommittedSizeCounter() const
-    {
+    {TRACE_IT(25158);
         return PerfCounter::PageAllocatorCounterSet::GetTotalCommittedSizeCounter();
     }
     PerfCounter::Counter& GetTotalUsedSizeCounter() const
-    {
+    {TRACE_IT(25159);
         return PerfCounter::PageAllocatorCounterSet::GetTotalUsedSizeCounter();
     }
 #endif
@@ -958,14 +958,14 @@ private:
     void SubNumberOfSegments(size_t segmentCount);
 
     bool RequestAlloc(size_t byteCount)
-    {
+    {TRACE_IT(25160);
         if (disableAllocationOutOfMemory)
-        {
+        {TRACE_IT(25161);
             return false;
         }
 
         if (policyManager != nullptr)
-        {
+        {TRACE_IT(25162);
             return policyManager->RequestAlloc(byteCount);
         }
 
@@ -973,17 +973,17 @@ private:
     }
 
     void ReportExternalAlloc(size_t byteCount)
-    {
+    {TRACE_IT(25163);
         if (policyManager != nullptr)
-        {
+        {TRACE_IT(25164);
             policyManager->RequestAlloc(byteCount, true);
         }
     }
 
     void ReportFree(size_t byteCount)
-    {
+    {TRACE_IT(25165);
         if (policyManager != nullptr)
-        {
+        {TRACE_IT(25166);
             policyManager->ReportFree(byteCount);
         }
     }
@@ -1006,14 +1006,14 @@ protected:
     void LogDecommitPages(size_t pageCount);
 
     void ReportFailure(size_t byteCount)
-    {
+    {TRACE_IT(25167);
         if (this->stopAllocationOnOutOfMemory)
-        {
+        {TRACE_IT(25168);
             this->disableAllocationOutOfMemory = true;
         }
 
         if (policyManager != nullptr)
-        {
+        {TRACE_IT(25169);
             policyManager->ReportFailure(byteCount);
         }
     }
@@ -1036,7 +1036,7 @@ public:
     void ReleaseDecommitted(void * address, size_t pageCount, __in void * segment);
     bool IsAddressFromAllocator(__in void* address);
 
-    bool AllocXdata() { return allocXdata; }
+    bool AllocXdata() {TRACE_IT(25170); return allocXdata; }
 private:
     bool         allocXdata;
     void         ReleaseDecommittedSegment(__in SegmentBase<TVirtualAlloc>* segment);

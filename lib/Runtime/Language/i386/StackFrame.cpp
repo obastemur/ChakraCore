@@ -12,7 +12,7 @@ namespace Js
 
 bool
 X86StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
-{
+{TRACE_IT(54058);
     this->frame = (void **)frame;
 
     this->stackCheckCodeHeight =
@@ -25,7 +25,7 @@ X86StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
 
 bool
 X86StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext)
-{
+{TRACE_IT(54059);
     void ** framePtr;
     __asm
     {
@@ -39,9 +39,9 @@ X86StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* sc
         : stackCheckCodeHeightNotThreadBound;
 
     while (Next())
-    {
+    {TRACE_IT(54060);
         if (this->codeAddr == returnAddress)
-        {
+        {TRACE_IT(54061);
             return true;
         }
     }
@@ -50,7 +50,7 @@ X86StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* sc
 
 bool
 X86StackFrame::Next()
-{
+{TRACE_IT(54062);
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     this->codeAddr = this->GetReturnAddress();
     this->frame = (void **)this->frame[0];
@@ -59,14 +59,14 @@ X86StackFrame::Next()
 
 bool
 X86StackFrame::SkipToFrame(void * frameAddress)
-{
+{TRACE_IT(54063);
     this->frame = (void **)frameAddress;
     return Next();
 }
 
 bool
 X86StackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{TRACE_IT(54064);
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 

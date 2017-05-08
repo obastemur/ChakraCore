@@ -34,7 +34,7 @@ public:
         liveSimd128B4Syms(nullptr), liveSimd128B8Syms(nullptr), liveSimd128B16Syms(nullptr),
         liveSimd128D2Syms(nullptr), branchConditionOpnd(nullptr),
         stackLiteralBailOutInfoCount(0), stackLiteralBailOutInfo(nullptr)
-    {
+    {TRACE_IT(1425);
         Assert(bailOutOffset != Js::Constants::NoByteCodeOffset);
 #ifdef _M_IX86
         outParamFrameAdjustArgSlot = nullptr;
@@ -60,7 +60,7 @@ public:
 #endif
 
     static bool IsBailOutOnImplicitCalls(IR::BailOutKind kind)
-    {
+    {TRACE_IT(1426);
         const IR::BailOutKind kindMinusBits = kind & ~IR::BailOutKindBits;
         return kindMinusBits == IR::BailOutOnImplicitCalls ||
             kindMinusBits == IR::BailOutOnImplicitCallsPreOp;
@@ -143,13 +143,13 @@ public:
 
     template<class Fn>
     void IterateArgOutSyms(Fn callback)
-    {
+    {TRACE_IT(1427);
         uint argOutIndex = 0;
         for(uint i = 0; i < this->startCallCount; i++)
-        {
+        {TRACE_IT(1428);
             uint outParamCount = this->GetStartCallOutParamCount(i);
             for(uint j = 0; j < outParamCount; j++)
-            {
+            {TRACE_IT(1429);
                 StackSym* sym = this->argOutSyms[argOutIndex];
                 if(sym)
                 {
@@ -174,8 +174,8 @@ public:
 
     static Js::Var BailOutForElidedYield(void * framePointer);
 
-    static size_t GetOffsetOfPolymorphicCacheIndex() { return offsetof(BailOutRecord, polymorphicCacheIndex); }
-    static size_t GetOffsetOfBailOutKind() { return offsetof(BailOutRecord, bailOutKind); }
+    static size_t GetOffsetOfPolymorphicCacheIndex() {TRACE_IT(1430); return offsetof(BailOutRecord, polymorphicCacheIndex); }
+    static size_t GetOffsetOfBailOutKind() {TRACE_IT(1431); return offsetof(BailOutRecord, bailOutKind); }
 
     static bool IsArgumentsObject(uint32 offset);
     static uint32 GetArgumentsObjectOffset();
@@ -192,7 +192,7 @@ public:
 #ifdef _M_IX86
         // special handling for startCallOutParamCounts and outParamOffsets, becuase it points to middle of the allocation
         if (argOutOffsetInfo)
-        {
+        {TRACE_IT(1432);
             uint* startCallArgRestoreAdjustCountsStart = startCallArgRestoreAdjustCounts - argOutOffsetInfo->startCallIndex;
             NativeCodeData::AddFixupEntry(startCallArgRestoreAdjustCounts, startCallArgRestoreAdjustCountsStart, &this->startCallArgRestoreAdjustCounts, this, chunkList);
         }
@@ -210,10 +210,10 @@ public:
     template <typename Fn>
     void MapStartCallParamCounts(Fn fn);
 
-    void SetBailOutKind(IR::BailOutKind bailOutKind) { this->bailOutKind = bailOutKind; }
-    uint32 GetBailOutOffset() { return bailOutOffset; }
+    void SetBailOutKind(IR::BailOutKind bailOutKind) {TRACE_IT(1433); this->bailOutKind = bailOutKind; }
+    uint32 GetBailOutOffset() {TRACE_IT(1434); return bailOutOffset; }
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-    Js::OpCode GetBailOutOpCode() { return bailOutOpcode; }
+    Js::OpCode GetBailOutOpCode() {TRACE_IT(1435); return bailOutOpcode; }
 #endif
     template <typename Fn>
     void MapArgOutOffsets(Fn fn);
@@ -224,7 +224,7 @@ public:
         Branch = 1,
         Shared = 2
     };
-    BailoutRecordType GetType() { return type; }
+    BailoutRecordType GetType() {TRACE_IT(1436); return type; }
 protected:
     struct BailOutReturnValue
     {
@@ -397,16 +397,16 @@ public:
     Js::FunctionBody* functionBody; // function body in which the bailout originally was before possible hoisting
 
     SharedBailOutRecord(uint32 bailOutOffset, uint bailOutCacheIndex, IR::BailOutKind kind, Func *bailOutFunc);
-    static size_t GetOffsetOfFunctionBody() { return offsetof(SharedBailOutRecord, functionBody); }
+    static size_t GetOffsetOfFunctionBody() {TRACE_IT(1437); return offsetof(SharedBailOutRecord, functionBody); }
 };
 
 template <typename Fn>
 inline void BailOutRecord::MapStartCallParamCounts(Fn fn)
-{
+{TRACE_IT(1438);
     if (this->argOutOffsetInfo)
-    {
+    {TRACE_IT(1439);
         for (uint i = 0; i < this->argOutOffsetInfo->startCallCount; i++)
-        {
+        {TRACE_IT(1440);
             fn(this->argOutOffsetInfo->startCallOutParamCounts[i]);
         }
     }
@@ -414,19 +414,19 @@ inline void BailOutRecord::MapStartCallParamCounts(Fn fn)
 
 template <typename Fn>
 inline void BailOutRecord::MapArgOutOffsets(Fn fn)
-{
+{TRACE_IT(1441);
     uint outParamSlot = 0;
     uint argOutSlotOffset = 0;
 
     if (this->argOutOffsetInfo)
-    {
+    {TRACE_IT(1442);
         for (uint i = 0; i < this->argOutOffsetInfo->startCallCount; i++)
-        {
+        {TRACE_IT(1443);
             uint startCallOutParamCount = this->argOutOffsetInfo->startCallOutParamCounts[i];
             argOutSlotOffset += 1; // skip pointer to self which is pushed by OP_StartCall
 
             for (uint j = 0; j < startCallOutParamCount; j++, outParamSlot++, argOutSlotOffset++)
-            {
+            {TRACE_IT(1444);
                 if (this->argOutOffsetInfo->outParamOffsets[outParamSlot] != 0)
                 {
                     fn(argOutSlotOffset, this->argOutOffsetInfo->outParamOffsets[outParamSlot]);
@@ -482,18 +482,18 @@ struct GlobalBailOutRecordDataTable
 
     template<class Fn>
     void IterateGlobalBailOutRecordTableRows(uint32 bailOutRecordId, Fn callback)
-    {
+    {TRACE_IT(1445);
         // Visit all the rows that have this bailout ID in their range.
         for (uint i = 0; i < this->length; i++)
-        {
+        {TRACE_IT(1446);
             if (bailOutRecordId > globalBailOutRecordDataRows[i].end)
-            {
+            {TRACE_IT(1447);
                 // Not in range.
                 continue;
             }
 
             if (globalBailOutRecordDataRows[i].start > bailOutRecordId)
-            {
+            {TRACE_IT(1448);
                 // Not in range, and we know there are no more in range (since the table is sorted by "start").
                 return;
             }
@@ -505,18 +505,18 @@ struct GlobalBailOutRecordDataTable
 
     template<class Fn>
     void VisitGlobalBailOutRecordTableRowsAtFirstBailOut(uint32 bailOutRecordId, Fn callback)
-    {
+    {TRACE_IT(1449);
         // Visit all the rows that have this bailout ID as the start of their range.
         // (I.e., visit each row once in a walk of the whole function)
         for (uint i = 0; i < this->length; i++)
-        {
+        {TRACE_IT(1450);
             if (bailOutRecordId == globalBailOutRecordDataRows[i].start)
-            {
+            {TRACE_IT(1451);
                 // Matching start ID: take action.
                 callback(&globalBailOutRecordDataRows[i]);
             }
             else if (globalBailOutRecordDataRows[i].start > bailOutRecordId)
-            {
+            {TRACE_IT(1452);
                 // We know there are no more in range (since the table is sorted by "start").
                 return;
             }
@@ -529,53 +529,53 @@ struct GlobalBailOutRecordDataTable
     }
 };
 #if DBG
-template<> inline void NativeCodeData::AllocatorT<BailOutRecord::StackLiteralBailOutRecord>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {}
-template<> inline void NativeCodeData::AllocatorT<Js::EquivalentPropertyEntry>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {}
-template<> inline void NativeCodeData::AllocatorT<GlobalBailOutRecordDataRow>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {}
+template<> inline void NativeCodeData::AllocatorT<BailOutRecord::StackLiteralBailOutRecord>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {TRACE_IT(1453);}
+template<> inline void NativeCodeData::AllocatorT<Js::EquivalentPropertyEntry>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {TRACE_IT(1454);}
+template<> inline void NativeCodeData::AllocatorT<GlobalBailOutRecordDataRow>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList) {TRACE_IT(1455);}
 #else
 template<>
 inline char*
 NativeCodeData::AllocatorT<BailOutRecord::StackLiteralBailOutRecord>::Alloc(size_t requestedBytes)
-{
+{TRACE_IT(1456);
     return __super::Alloc(requestedBytes);
 }
 template<>
 inline char*
 NativeCodeData::AllocatorT<BailOutRecord::StackLiteralBailOutRecord>::AllocZero(size_t requestedBytes)
-{
+{TRACE_IT(1457);
     return __super::AllocZero(requestedBytes);
 }
 
 template<>
 inline char*
 NativeCodeData::AllocatorT<Js::EquivalentPropertyEntry>::Alloc(size_t requestedBytes)
-{
+{TRACE_IT(1458);
     return __super::Alloc(requestedBytes);
 }
 template<>
 inline char*
 NativeCodeData::AllocatorT<Js::EquivalentPropertyEntry>::AllocZero(size_t requestedBytes)
-{
+{TRACE_IT(1459);
     return __super::AllocZero(requestedBytes);
 }
 
 template<>
 inline char*
 NativeCodeData::AllocatorT<GlobalBailOutRecordDataRow>::Alloc(size_t requestedBytes)
-{
+{TRACE_IT(1460);
     return __super::Alloc(requestedBytes);
 }
 template<>
 inline char*
 NativeCodeData::AllocatorT<GlobalBailOutRecordDataRow>::AllocZero(size_t requestedBytes)
-{
+{TRACE_IT(1461);
     return __super::AllocZero(requestedBytes);
 }
 #endif
 
 template<>
 inline void NativeCodeData::AllocatorT<GlobalBailOutRecordDataTable*>::Fixup(void* pThis, NativeCodeData::DataChunk* chunkList)
-{
+{TRACE_IT(1462);
     // for every pointer needs to update the table
     NativeCodeData::AddFixupEntryForPointerArray(pThis, chunkList);
 }

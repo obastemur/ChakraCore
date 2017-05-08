@@ -25,7 +25,7 @@ public:
     size_t Print();
     template<typename Fn>void Map(Fn fn);   // The Fn is expected to be: void Fn(void*).
     ULONG Capture(ULONG framesToSkip);
-    ULONG GetRequestedFrameCount() { return this->requestedFramesToCapture; }
+    ULONG GetRequestedFrameCount() {TRACE_IT(20517); return this->requestedFramesToCapture; }
     template <typename TAllocator>
     void Delete(TAllocator * alloc);
 private:
@@ -43,13 +43,13 @@ private:
 template <typename TAllocator>
 StackBackTrace *
 StackBackTrace::Capture(TAllocator * alloc, ULONG framesToSkip, ULONG framesToCapture)
-{
+{TRACE_IT(20518);
     return AllocatorNewPlusZ(TAllocator, alloc, sizeof(PVOID) * framesToCapture, StackBackTrace, framesToSkip, framesToCapture);
 }
 
 template <typename TAllocator>
 StackBackTrace* StackBackTrace::Create(TAllocator * alloc, ULONG framesToCaptureLater)
-{
+{TRACE_IT(20519);
     return AllocatorNewPlusZ(TAllocator, alloc, sizeof(PVOID)* framesToCaptureLater, StackBackTrace, framesToCaptureLater);
 }
 
@@ -61,9 +61,9 @@ void StackBackTrace::Delete(TAllocator * alloc)
 
 template <typename Fn>
 void StackBackTrace::Map(Fn fn)
-{
+{TRACE_IT(20520);
     for (ULONG i = 0; i < this->framesCount; ++i)
-    {
+    {TRACE_IT(20521);
         fn(this->stackBackTrace[i]);
     }
 }
@@ -73,16 +73,16 @@ class StackBackTraceNode
 public:
     template <typename TAllocator>
     static void Prepend(TAllocator * allocator, StackBackTraceNode *& head, StackBackTrace * stackBackTrace)
-    {
+    {TRACE_IT(20522);
         head = AllocatorNew(TAllocator, allocator, StackBackTraceNode, stackBackTrace, head);
     }
 
     template <typename TAllocator>
     static void DeleteAll(TAllocator * allocator, StackBackTraceNode *& head)
-    {
+    {TRACE_IT(20523);
         StackBackTraceNode * curr = head;
         while (curr != nullptr)
-        {
+        {TRACE_IT(20524);
             StackBackTraceNode * next = curr->next;
             curr->stackBackTrace->Delete(allocator);
             AllocatorDelete(TAllocator, allocator, curr);
@@ -92,14 +92,14 @@ public:
     }
 
     static void PrintAll(StackBackTraceNode * head)
-    {
+    {TRACE_IT(20525);
         // We want to print them tail first because that is the first stack trace we added
 
         // Reverse the list
         StackBackTraceNode * curr = head;
         StackBackTraceNode * prev = nullptr;
         while (curr != nullptr)
-        {
+        {TRACE_IT(20526);
             StackBackTraceNode * next = curr->next;
             curr->next = prev;
             prev = curr;
@@ -110,7 +110,7 @@ public:
         curr = prev;
         prev = nullptr;
         while (curr != nullptr)
-        {
+        {TRACE_IT(20527);
             curr->stackBackTrace->Print();
             StackBackTraceNode * next = curr->next;
             curr->next = prev;
@@ -121,7 +121,7 @@ public:
         Assert(prev == head);
     }
 private:
-    StackBackTraceNode(StackBackTrace * stackBackTrace, StackBackTraceNode * next) : stackBackTrace(stackBackTrace), next(next) {};
+    StackBackTraceNode(StackBackTrace * stackBackTrace, StackBackTraceNode * next) : stackBackTrace(stackBackTrace), next(next) {TRACE_IT(20528);};
     StackBackTrace * stackBackTrace;
     StackBackTraceNode * next;
 };
@@ -141,7 +141,7 @@ template <class T, LONG count, bool useStatic>
 struct _TraceRingBuffer
 {
     T* buf;
-    _TraceRingBuffer() { buf = HeapNewArray(T, count); }
+    _TraceRingBuffer() {TRACE_IT(20529); buf = HeapNewArray(T, count); }
     ~_TraceRingBuffer() { HeapDeleteArray(count, buf); }
 };
 template <class T, LONG count>
@@ -209,13 +209,13 @@ protected:
 
 public:
     TraceRing()
-    {
+    {TRACE_IT(20530);
         cur = (uint)-1;
     }
 
     template <class HeaderFunc>
     void Capture(const HeaderFunc& writeHeader)
-    {
+    {TRACE_IT(20531);
         LONG i = InterlockedIncrement(&cur);
         if (i >= COUNT)
         {
@@ -234,7 +234,7 @@ public:
     }
 
     void Capture(const Header& header)
-    {
+    {TRACE_IT(20532);
         Capture([&](Header* h)
         {
             *h = header;
@@ -243,7 +243,7 @@ public:
 
     // Capture a trace (no header data, stack only)
     void Capture()
-    {
+    {TRACE_IT(20533);
         Capture([&](Header* h) { });
     }
 };

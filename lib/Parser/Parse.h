@@ -110,7 +110,7 @@ private:
     template <OpCode nop> static int GetNodeSize();
 
     template <OpCode nop> static ParseNodePtr StaticAllocNode(ArenaAllocator * alloc)
-    {
+    {TRACE_IT(30913);
         ParseNodePtr pnode = (ParseNodePtr)alloc->Alloc(GetNodeSize<nop>());
         Assert(pnode != nullptr);
         return pnode;
@@ -125,20 +125,20 @@ public:
 #endif
     ~Parser(void);
 
-    Js::ScriptContext* GetScriptContext() const { return m_scriptContext; }
-    void ClearScriptContext() { m_scriptContext = nullptr; }
+    Js::ScriptContext* GetScriptContext() const {TRACE_IT(30914); return m_scriptContext; }
+    void ClearScriptContext() {TRACE_IT(30915); m_scriptContext = nullptr; }
 
-    bool IsBackgroundParser() const { return m_isInBackground; }
-    bool IsDoingFastScan() const { return m_doingFastScan; }
+    bool IsBackgroundParser() const {TRACE_IT(30916); return m_isInBackground; }
+    bool IsDoingFastScan() const {TRACE_IT(30917); return m_doingFastScan; }
 
     static IdentPtr PidFromNode(ParseNodePtr pnode);
 
     ParseNode* CopyPnode(ParseNode* pnode);
 
-    ArenaAllocator *GetAllocator() { return &m_nodeAllocator;}
+    ArenaAllocator *GetAllocator() {TRACE_IT(30918); return &m_nodeAllocator;}
 
-    size_t GetSourceLength() { return m_length; }
-    size_t GetOriginalSourceLength() { return m_originalLength; }
+    size_t GetSourceLength() {TRACE_IT(30919); return m_length; }
+    size_t GetOriginalSourceLength() {TRACE_IT(30920); return m_originalLength; }
     static ULONG GetDeferralThreshold(bool isProfileLoaded);
     BOOL DeferredParse(Js::LocalFunctionId functionId);
     BOOL IsDeferredFnc();
@@ -241,7 +241,7 @@ public:
     // create nodes using arena allocator; used by AST transformation
     template <OpCode nop>
     static ParseNodePtr StaticCreateNodeT(ArenaAllocator* alloc, charcount_t ichMin = 0, charcount_t ichLim = 0)
-    {
+    {TRACE_IT(30921);
         ParseNodePtr pnode = StaticAllocNode<nop>(alloc);
         InitNode(nop,pnode);
         // default - may be changed
@@ -263,11 +263,11 @@ public:
     ParseNodePtr CreateTempNode(ParseNode* initExpr);
     ParseNodePtr CreateTempRef(ParseNode* tempNode);
 
-    ParseNodePtr CreateNode(OpCode nop) { return CreateNode(nop, m_pscan? m_pscan->IchMinTok() : 0); }
+    ParseNodePtr CreateNode(OpCode nop) {TRACE_IT(30922); return CreateNode(nop, m_pscan? m_pscan->IchMinTok() : 0); }
     ParseNodePtr CreateDeclNode(OpCode nop, IdentPtr pid, SymbolType symbolType, bool errorOnRedecl = true, bool *isRedecl = nullptr);
     Symbol*      AddDeclForPid(ParseNodePtr pnode, IdentPtr pid, SymbolType symbolType, bool errorOnRedecl, bool *isRedecl = nullptr);
     ParseNodePtr CreateNameNode(IdentPtr pid)
-    {
+    {TRACE_IT(30923);
         ParseNodePtr pnode = CreateNode(knopName);
         pnode->sxPid.pid = pid;
         pnode->sxPid.sym=NULL;
@@ -275,7 +275,7 @@ public:
         return pnode;
     }
     ParseNodePtr CreateBlockNode(PnodeBlockType blockType = PnodeBlockType::Regular)
-    {
+    {TRACE_IT(30924);
         ParseNodePtr pnode = CreateNode(knopBlock);
         InitBlockNode(pnode, m_nextBlockId++, blockType);
         return pnode;
@@ -325,7 +325,7 @@ public:
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     LPCWSTR GetParseType() const
-    {
+    {TRACE_IT(30925);
         switch(m_parseType)
         {
             case ParseType_Upfront:
@@ -342,7 +342,7 @@ public:
 
     void CaptureContext(ParseContext *parseContext) const;
     void RestoreContext(ParseContext *const parseContext);
-    int GetLastBlockId() const { Assert(m_nextBlockId > 0); return m_nextBlockId - 1; }
+    int GetLastBlockId() const {TRACE_IT(30926); Assert(m_nextBlockId > 0); return m_nextBlockId - 1; }
 
 private:
     template <OpCode nop> ParseNodePtr CreateNodeWithScanner();
@@ -448,9 +448,9 @@ private:
     ParseNode *GetCurrentNonLambdaFunctionNode();
 
     bool IsNodeAllowedInCurrentDeferralState(OpCode op) 
-    {
+    {TRACE_IT(30927);
         if (!this->m_deferringAST)
-        {
+        {TRACE_IT(30928);
             return true;
         }
         switch(op)
@@ -468,16 +468,16 @@ private:
         }
     }
 
-    bool NextTokenConfirmsLetDecl() const { return m_token.tk == tkID || m_token.tk == tkLBrack || m_token.tk == tkLCurly || m_token.IsReservedWord(); }
-    bool NextTokenIsPropertyNameStart() const { return m_token.tk == tkID || m_token.tk == tkStrCon || m_token.tk == tkIntCon || m_token.tk == tkFltCon || m_token.tk == tkLBrack || m_token.IsReservedWord(); }
+    bool NextTokenConfirmsLetDecl() const {TRACE_IT(30929); return m_token.tk == tkID || m_token.tk == tkLBrack || m_token.tk == tkLCurly || m_token.IsReservedWord(); }
+    bool NextTokenIsPropertyNameStart() const {TRACE_IT(30930); return m_token.tk == tkID || m_token.tk == tkStrCon || m_token.tk == tkIntCon || m_token.tk == tkFltCon || m_token.tk == tkLBrack || m_token.IsReservedWord(); }
 
     template<bool buildAST>
     void PushStmt(StmtNest *pStmt, ParseNodePtr pnode, OpCode op, ParseNodePtr pnodeLab, LabelId* pLabelIdList)
-    {
+    {TRACE_IT(30931);
         AssertMem(pStmt);
 
         if (buildAST)
-        {
+        {TRACE_IT(30932);
             AssertNodeMem(pnode);
             AssertNodeMemN(pnodeLab);
 
@@ -488,7 +488,7 @@ private:
             pStmt->pnodeLab = pnodeLab;
         }
         else
-        {
+        {TRACE_IT(30933);
             // Assign to pnodeStmt rather than op so that we initialize the whole field.
             pStmt->pnodeStmt = 0;
             pStmt->isDeferred = true;
@@ -509,15 +509,15 @@ private:
     ParseNodePtr PnodeLabel(IdentPtr pid, ParseNodePtr pnodeLabels);
 
     void MarkEvalCaller()
-    {
+    {TRACE_IT(30934);
         if (this->GetCurrentFunctionNode())
-        {
+        {TRACE_IT(30935);
             ParseNodePtr pnodeFunc = GetCurrentFunctionNode();
             pnodeFunc->sxFnc.SetCallsEval(true);
         }
         ParseNode *pnodeBlock = GetCurrentBlock();
         if (pnodeBlock != NULL)
-        {
+        {TRACE_IT(30936);
             pnodeBlock->sxBlock.SetCallsEval(true);
             PushDynamicBlock();
         }
@@ -568,33 +568,33 @@ protected:
     void MarkIdentifierReferenceIsModuleExport(IdentPtr localName);
 
 public:
-    WellKnownPropertyPids* names(){ return &wellKnownPropertyPids; }
+    WellKnownPropertyPids* names(){TRACE_IT(30937); return &wellKnownPropertyPids; }
 
     IdentPtr CreatePid(__in_ecount(len) LPCOLESTR name, charcount_t len)
-    {
+    {TRACE_IT(30938);
         return m_phtbl->PidHashNameLen(name, len);
     }
 
     bool KnownIdent(__in_ecount(len) LPCOLESTR name, charcount_t len)
-    {
+    {TRACE_IT(30939);
         return m_phtbl->Contains(name, len);
     }
 
     template <typename THandler>
     static void ForEachItemRefInList(ParseNodePtr *list, THandler handler)
-    {
+    {TRACE_IT(30940);
         ParseNodePtr *current = list;
         while (current != nullptr && (*current) != nullptr)
-        {
+        {TRACE_IT(30941);
             if ((*current)->nop == knopList)
-            {
+            {TRACE_IT(30942);
                 handler(&(*current)->sxBin.pnode1);
 
                 // Advance to the next node
                 current = &(*current)->sxBin.pnode2;
             }
             else
-            {
+            {TRACE_IT(30943);
                 // The last node
                 handler(current);
                 current = nullptr;
@@ -613,14 +613,14 @@ public:
 
     template <class THandler>
     static void MapBindIdentifierFromElement(ParseNodePtr elementNode, THandler handler)
-    {
+    {TRACE_IT(30944);
         ParseNodePtr bindIdentNode = elementNode;
         if (bindIdentNode->nop == knopAsg)
-        {
+        {TRACE_IT(30945);
             bindIdentNode = bindIdentNode->sxBin.pnode1;
         }
         else if (bindIdentNode->nop == knopEllipsis)
-        {
+        {TRACE_IT(30946);
             bindIdentNode = bindIdentNode->sxUni.pnode1;
         }
 
@@ -629,32 +629,32 @@ public:
             MapBindIdentifier(bindIdentNode, handler);
         }
         else if (bindIdentNode->IsVarLetOrConst())
-        {
+        {TRACE_IT(30947);
             handler(bindIdentNode);
         }
         else
-        {
+        {TRACE_IT(30948);
             AssertMsg(bindIdentNode->nop == knopEmpty, "Invalid bind identifier");
         }
     }
 
     template <class THandler>
     static void MapBindIdentifier(ParseNodePtr patternNode, THandler handler)
-    {
+    {TRACE_IT(30949);
         if (patternNode->nop == knopAsg)
-        {
+        {TRACE_IT(30950);
             patternNode = patternNode->sxBin.pnode1;
         }
 
         Assert(patternNode->IsPattern());
         if (patternNode->nop == knopArrayPattern)
-        {
+        {TRACE_IT(30951);
             ForEachItemInList(patternNode->sxArrLit.pnode1, [&](ParseNodePtr item) {
                 MapBindIdentifierFromElement(item, handler);
             });
         }
         else
-        {
+        {TRACE_IT(30952);
             ForEachItemInList(patternNode->sxUni.pnode1, [&](ParseNodePtr item) {
                 Assert(item->nop == knopObjectPatternMember);
                 MapBindIdentifierFromElement(item->sxBin.pnode2, handler);
@@ -672,7 +672,7 @@ private:
 
         IdentToken()
             : tk(tkNone), pid(NULL)
-        {
+        {TRACE_IT(30953);
         }
     };
 
@@ -868,14 +868,14 @@ private:
     BOOL NodeIsIdent(ParseNodePtr pnode, IdentPtr pid);
     BOOL NodeIsEvalName(ParseNodePtr pnode);
     BOOL IsJSONValid(ParseNodePtr pnodeExpr)
-    {
+    {TRACE_IT(30954);
         OpCode jnop = (knopNeg == pnodeExpr->nop) ? pnodeExpr->sxUni.pnode1->nop : pnodeExpr->nop;
         if (knopNeg == pnodeExpr->nop)
-        {
+        {TRACE_IT(30955);
             return (knopInt == jnop ||  knopFlt == jnop);
         }
         else
-        {
+        {TRACE_IT(30956);
             return (knopInt == jnop ||  knopFlt == jnop ||
                 knopStr == jnop ||  knopNull == jnop ||
                 knopTrue == jnop || knopFalse == jnop ||
@@ -897,9 +897,9 @@ private:
     void AppendToList(ParseNodePtr * node, ParseNodePtr nodeToAppend);
 
     bool IsES6DestructuringEnabled() const;
-    bool IsPossiblePatternStart() const { return m_token.tk == tkLCurly || m_token.tk == tkLBrack; }
+    bool IsPossiblePatternStart() const {TRACE_IT(30957); return m_token.tk == tkLCurly || m_token.tk == tkLBrack; }
     bool IsPostFixOperators() const
-    {
+    {TRACE_IT(30958);
         return m_token.tk == tkLParen ||
             m_token.tk == tkLBrack ||
             m_token.tk == tkDot ||
@@ -956,14 +956,14 @@ public:
     bool IsStrictMode() const;
     BOOL ExpectingExternalSource();
 
-    IdentPtr GetArgumentsPid() const { return wellKnownPropertyPids.arguments; }
-    IdentPtr GetEvalPid() const { return wellKnownPropertyPids.eval; }
-    IdentPtr GetTargetPid() const { return wellKnownPropertyPids.target; }
-    BackgroundParseItem *GetCurrBackgroundParseItem() const { return currBackgroundParseItem; }
-    void SetCurrBackgroundParseItem(BackgroundParseItem *item) { currBackgroundParseItem = item; }
+    IdentPtr GetArgumentsPid() const {TRACE_IT(30959); return wellKnownPropertyPids.arguments; }
+    IdentPtr GetEvalPid() const {TRACE_IT(30960); return wellKnownPropertyPids.eval; }
+    IdentPtr GetTargetPid() const {TRACE_IT(30961); return wellKnownPropertyPids.target; }
+    BackgroundParseItem *GetCurrBackgroundParseItem() const {TRACE_IT(30962); return currBackgroundParseItem; }
+    void SetCurrBackgroundParseItem(BackgroundParseItem *item) {TRACE_IT(30963); currBackgroundParseItem = item; }
 
     void Release()
-    {
+    {TRACE_IT(30964);
         RELEASEPTR(m_pscan);
         RELEASEPTR(m_phtbl);
     }
@@ -986,26 +986,26 @@ private:
     void AddToNodeListEscapedUse(ParseNode ** ppnodeList, ParseNode *** pppnodeLast, ParseNode * pnodeAdd);
 
     void ChkCurTokNoScan(int tk, int wErr)
-    {
+    {TRACE_IT(30965);
         if (m_token.tk != tk)
-        {
+        {TRACE_IT(30966);
             Error(wErr);
         }
     }
 
     void ChkCurTok(int tk, int wErr)
-    {
+    {TRACE_IT(30967);
         if (m_token.tk != tk)
-        {
+        {TRACE_IT(30968);
             Error(wErr);
         }
         else
-        {
+        {TRACE_IT(30969);
             m_pscan->Scan();
         }
     }
     void ChkNxtTok(int tk, int wErr)
-    {
+    {TRACE_IT(30970);
         m_pscan->Scan();
         ChkCurTok(tk, wErr);
     }
@@ -1055,28 +1055,28 @@ private:
     public:
         AutoTempForcePid(Scanner_t* scanner, bool forcePid)
             : m_scanner(scanner), m_forcePid(forcePid)
-        {
+        {TRACE_IT(30971);
             if (forcePid)
-            {
+            {TRACE_IT(30972);
                 m_oldScannerDeferredParseFlags = scanner->SetDeferredParse(FALSE);
             }
         }
 
         ~AutoTempForcePid()
-        {
+        {TRACE_IT(30973);
             if (m_forcePid)
-            {
+            {TRACE_IT(30974);
                 m_scanner->SetDeferredParseFlags(m_oldScannerDeferredParseFlags);
             }
         }
     };
 
 public:
-    charcount_t GetSourceIchLim() { return m_sourceLim; }
+    charcount_t GetSourceIchLim() {TRACE_IT(30975); return m_sourceLim; }
     static BOOL NodeEqualsName(ParseNodePtr pnode, LPCOLESTR sz, uint32 cch);
 
 };
 
 #define PTNODE(nop,sn,pc,nk,ok,json) \
-    template<> inline int Parser::GetNodeSize<nop>() { return kcbPn##nk; }
+    template<> inline int Parser::GetNodeSize<nop>() {TRACE_IT(30976); return kcbPn##nk; }
 #include "ptlist.h"

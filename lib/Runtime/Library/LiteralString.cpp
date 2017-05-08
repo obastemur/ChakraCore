@@ -9,12 +9,12 @@ namespace Js
     DEFINE_RECYCLER_TRACKER_PERF_COUNTER(LiteralString);
 
     LiteralString::LiteralString(StaticType * type) : JavascriptString(type)
-    {
+    {TRACE_IT(62308);
     }
 
     LiteralString::LiteralString(StaticType * type, const char16* content, charcount_t charLength) :
         JavascriptString(type, charLength, content)
-    {
+    {TRACE_IT(62309);
 #if defined(DBG) && defined(_M_IX86)
         // Make sure content isn't on the stack by comparing to stack bounds in TIB
         AssertMsg(!ThreadContext::IsOnStack((void*)content),
@@ -32,19 +32,19 @@ namespace Js
     }
 
     LiteralString* LiteralString::New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler)
-    {
+    {TRACE_IT(62310);
         return RecyclerNew(recycler, LiteralString, type, content, charLength);
     }
 
     LiteralString* LiteralString::CreateEmptyString(StaticType* type)
-    {
+    {TRACE_IT(62311);
         return RecyclerNew(type->GetScriptContext()->GetRecycler(), LiteralString, type, _u(""), 0);
     }
 
 
     ArenaLiteralString::ArenaLiteralString(StaticType * type, const char16* content, charcount_t charLength) :
       JavascriptString(type, charLength, content)
-    {
+    {TRACE_IT(62312);
 #if defined(DBG) && defined(_M_IX86)
         // Make sure content isn't on the stack by comparing to stack bounds in TIB
         AssertMsg(!ThreadContext::IsOnStack((void*)content),
@@ -60,17 +60,17 @@ namespace Js
     }
 
     ArenaLiteralString* ArenaLiteralString::New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler)
-    {
+    {TRACE_IT(62313);
         return RecyclerNew(recycler, ArenaLiteralString, type, content, charLength);
     }
 
     ArenaLiteralString* ArenaLiteralString::New(StaticType* type, const char16* content, charcount_t charLength, ArenaAllocator* arena)
-    {
+    {TRACE_IT(62314);
         return Anew(arena, ArenaLiteralString, type, content, charLength);
     }
 
     RecyclableObject * ArenaLiteralString::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(62315);
         return JavascriptString::NewCopyBuffer(this->GetSz(), this->GetLength(), requestContext);
     }
 } // namespace Js

@@ -16,7 +16,7 @@ namespace Js
     {
         ResolvedObject() : propId(Js::Constants::NoProperty), scriptContext(nullptr), address(nullptr),
             objectDisplay(nullptr), obj(nullptr), originalObj(nullptr), isConst(false), name(nullptr)
-        {}
+        {TRACE_IT(42903);}
 
         PropertyId              propId;
         ScriptContext           *scriptContext;
@@ -41,9 +41,9 @@ namespace Js
     {
     public:
         virtual BOOL Set(Var updateObject) = 0;
-        virtual BOOL IsWritable() { return !IsInDeadZone(); }
-        virtual Var GetValue(BOOL fUpdated) { return nullptr; }
-        virtual BOOL IsInDeadZone() const { return FALSE; };
+        virtual BOOL IsWritable() {TRACE_IT(42904); return !IsInDeadZone(); }
+        virtual Var GetValue(BOOL fUpdated) {TRACE_IT(42905); return nullptr; }
+        virtual BOOL IsInDeadZone() const {TRACE_IT(42906); return FALSE; };
     };
 
     class IDiagObjectModelWalkerBase
@@ -57,7 +57,7 @@ namespace Js
 
         virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject) = 0;
 
-        virtual IDiagObjectAddress *FindPropertyAddress(PropertyId propId, bool& isConst) { return nullptr;}
+        virtual IDiagObjectAddress *FindPropertyAddress(PropertyId propId, bool& isConst) {TRACE_IT(42907); return nullptr;}
     };
 
     enum DiagObjectModelDisplayType
@@ -79,17 +79,17 @@ namespace Js
         virtual BOOL HasChildren() = 0;
         virtual BOOL Set(Var updateObject) = 0;
         virtual DBGPROP_ATTRIB_FLAGS GetTypeAttribute() = 0;
-        virtual BOOL SetDefaultTypeAttribute(DBGPROP_ATTRIB_FLAGS attributes) { return FALSE; };
+        virtual BOOL SetDefaultTypeAttribute(DBGPROP_ATTRIB_FLAGS attributes) {TRACE_IT(42908); return FALSE; };
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() = 0;
-        virtual BOOL IsLocalsAsRoot() { return FALSE; }
-        virtual Var GetVarValue(BOOL fUpdated) { return nullptr; }
-        virtual IDiagObjectAddress * GetDiagAddress() { return nullptr; }
+        virtual BOOL IsLocalsAsRoot() {TRACE_IT(42909); return FALSE; }
+        virtual Var GetVarValue(BOOL fUpdated) {TRACE_IT(42910); return nullptr; }
+        virtual IDiagObjectAddress * GetDiagAddress() {TRACE_IT(42911); return nullptr; }
         virtual DiagObjectModelDisplayType GetType() = 0;
-        virtual bool IsFake() { return (this->GetTypeAttribute() & DBGPROP_ATTRIB_VALUE_IS_FAKE) == DBGPROP_ATTRIB_VALUE_IS_FAKE; }
+        virtual bool IsFake() {TRACE_IT(42912); return (this->GetTypeAttribute() & DBGPROP_ATTRIB_VALUE_IS_FAKE) == DBGPROP_ATTRIB_VALUE_IS_FAKE; }
         virtual bool IsLiteralProperty() const = 0;
-        virtual bool IsSymbolProperty() { return false; }
+        virtual bool IsSymbolProperty() {TRACE_IT(42913); return false; }
 
-        virtual ~IDiagObjectModelDisplay() { /* Dummy */ }
+        virtual ~IDiagObjectModelDisplay() {TRACE_IT(42914); /* Dummy */ }
     };
 
     //
@@ -121,11 +121,11 @@ namespace Js
         Var         aVar;
         DWORD       flags; // DebuggerPropertyDisplayInfoFlags.
         DebuggerPropertyDisplayInfo(PropertyId _propId, Var _aVar, DWORD _flags) : propId(_propId), aVar(_aVar), flags(_flags)
-        {}
+        {TRACE_IT(42915);}
 
-        bool IsUnscoped() const { return (flags & DebuggerPropertyDisplayInfoFlags_Unscope) != 0; }
-        bool IsConst() const { return (flags & DebuggerPropertyDisplayInfoFlags_Const) != 0; }
-        bool IsInDeadZone() const { return (flags & DebuggerPropertyDisplayInfoFlags_InDeadZone) != 0; }
+        bool IsUnscoped() const {TRACE_IT(42916); return (flags & DebuggerPropertyDisplayInfoFlags_Unscope) != 0; }
+        bool IsConst() const {TRACE_IT(42917); return (flags & DebuggerPropertyDisplayInfoFlags_Const) != 0; }
+        bool IsInDeadZone() const {TRACE_IT(42918); return (flags & DebuggerPropertyDisplayInfoFlags_InDeadZone) != 0; }
     };
 
     enum UIGroupType
@@ -174,12 +174,12 @@ namespace Js
 
         VariableWalkerBase(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType, bool allowLexicalThis, bool allowSuperReference = false)
             : pFrame(_pFrame), instance(_instance), pMembersList(nullptr), groupType(_groupType), allowLexicalThis(allowLexicalThis), allowSuperReference(allowSuperReference)
-        {
+        {TRACE_IT(42919);
         }
 
         // Defined virtual function, should be extended by type of variable scope.
-        virtual void PopulateMembers() { };
-        virtual IDiagObjectAddress * GetObjectAddress(int index) { return nullptr; }
+        virtual void PopulateMembers() {TRACE_IT(42920); };
+        virtual IDiagObjectAddress * GetObjectAddress(int index) {TRACE_IT(42921); return nullptr; }
         virtual Var GetVarObjectAt(int index);
         virtual bool IsConstAt(int index);
 
@@ -203,8 +203,8 @@ namespace Js
         static uint GetBreakMutationBreakpointsCount(DiagStackFrame* frame);
 #endif
 
-        bool IsInGroup() const { return (groupType != UIGroupType::UIGroupType_None && groupType != UIGroupType::UIGroupType_Param && groupType != UIGroupType::UIGroupType_InnerScope); }
-        bool IsWalkerForCurrentFrame() const { return groupType == UIGroupType::UIGroupType_None || groupType == UIGroupType_Param; }
+        bool IsInGroup() const {TRACE_IT(42922); return (groupType != UIGroupType::UIGroupType_None && groupType != UIGroupType::UIGroupType_Param && groupType != UIGroupType::UIGroupType_InnerScope); }
+        bool IsWalkerForCurrentFrame() const {TRACE_IT(42923); return groupType == UIGroupType::UIGroupType_None || groupType == UIGroupType_Param; }
         DebuggerScope * GetScopeWhenHaltAtFormals();
         static bool IsInParamScope(DebuggerScope* scope, DiagStackFrame* pFrame);
 
@@ -213,7 +213,7 @@ namespace Js
         DebuggerPropertyDisplayInfo* AllocateNewPropertyDisplayInfo(PropertyId propertyId, Var value, bool isConst, bool isInDeadZone);
 
     protected:
-        int GetMemberCount() { return pMembersList ? pMembersList->Count() : 0; }
+        int GetMemberCount() {TRACE_IT(42924); return pMembersList ? pMembersList->Count() : 0; }
 
         bool IsPropertyValid(PropertyId propertyId, RegSlot location, bool *isPropertyInDebuggerScope, bool* isConst, bool* isInDeadZone) const;
     };
@@ -227,7 +227,7 @@ namespace Js
     public:
         RegSlotVariablesWalker(DiagStackFrame* _pFrame, DebuggerScope *_debuggerScope, UIGroupType _groupType, bool allowSuperReference = false)
             : VariableWalkerBase(_pFrame, nullptr, _groupType, /* allowLexicalThis */ false, allowSuperReference), debuggerScope(_debuggerScope)
-        {
+        {TRACE_IT(42925);
         }
 
         virtual void PopulateMembers() override;
@@ -243,12 +243,12 @@ namespace Js
     class SlotArrayVariablesWalker : public VariableWalkerBase
     {
     public:
-        SlotArrayVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType, bool allowLexicalThis, bool allowSuperReference = false) : VariableWalkerBase(_pFrame, _instance, _groupType, allowLexicalThis, allowSuperReference) {}
+        SlotArrayVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType, bool allowLexicalThis, bool allowSuperReference = false) : VariableWalkerBase(_pFrame, _instance, _groupType, allowLexicalThis, allowSuperReference) {TRACE_IT(42926);}
 
         virtual void PopulateMembers() override;
         virtual IDiagObjectAddress * GetObjectAddress(int index) override;
 
-        ScopeSlots GetSlotArray() {
+        ScopeSlots GetSlotArray() {TRACE_IT(42927);
             Var *slotArray = (Var *) instance;
             Assert(slotArray != nullptr);
             return ScopeSlots(slotArray);
@@ -258,7 +258,7 @@ namespace Js
     class ObjectVariablesWalker : public VariableWalkerBase
     {
     public:
-        ObjectVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType, bool allowLexicalThis, bool allowSuperReference = false) : VariableWalkerBase(_pFrame, _instance, _groupType, allowLexicalThis, allowSuperReference) {}
+        ObjectVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType, bool allowLexicalThis, bool allowSuperReference = false) : VariableWalkerBase(_pFrame, _instance, _groupType, allowLexicalThis, allowSuperReference) {TRACE_IT(42928);}
 
         virtual void PopulateMembers() override;
         virtual IDiagObjectAddress * GetObjectAddress(int index) override;
@@ -270,7 +270,7 @@ namespace Js
     class RootObjectVariablesWalker : public ObjectVariablesWalker
     {
     public:
-        RootObjectVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType) : ObjectVariablesWalker(_pFrame, _instance, _groupType, /* allowLexicalThis */ false) {}
+        RootObjectVariablesWalker(DiagStackFrame* _pFrame, Var _instance, UIGroupType _groupType) : ObjectVariablesWalker(_pFrame, _instance, _groupType, /* allowLexicalThis */ false) {TRACE_IT(42929);}
 
         virtual void PopulateMembers() override;
     };
@@ -288,7 +288,7 @@ namespace Js
     public:
         DiagScopeVariablesWalker(DiagStackFrame* _pFrame, Var _instance, bool _enumWithScopeAlso)
             : VariableWalkerBase(_pFrame, _instance, UIGroupType_InnerScope, /* allowLexicalThis */ false), pDiagScopeObjects(nullptr), diagScopeVarCount(0), scopeIsInitialized(false), enumWithScopeAlso(_enumWithScopeAlso)
-        {}
+        {TRACE_IT(42930);}
 
         DiagScopeVariablesWalker(DiagStackFrame* _pFrame, Var _instance, IDiagObjectModelWalkerBase* innerWalker);
 
@@ -325,7 +325,7 @@ namespace Js
         BOOL GetScopeObject(int i, ResolvedObject* pResolvedObject);
         BOOL GetGlobalsObject(ResolvedObject* pResolvedObject);
 
-        virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject) {return FALSE; }
+        virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject) {TRACE_IT(42931);return FALSE; }
 
         static DWORD GetCurrentFramesLocalsType(DiagStackFrame* frame);
         static DebuggerScope * GetScopeWhenHaltAtFormals(DiagStackFrame* frame);
@@ -338,23 +338,23 @@ namespace Js
 
         template <typename FnProcessResolvedObject>
         DynamicObject* CreateAndPopulateActivationObject(ScriptContext* scriptContext, FnProcessResolvedObject processResolvedObjectFn)
-        {
+        {TRACE_IT(42932);
             Assert(scriptContext);
             Js::DynamicObject* activeScopeObject = nullptr;
             uint32 count = this->GetChildrenCount();
             if (count > 0)
-            {
+            {TRACE_IT(42933);
                 activeScopeObject = scriptContext->GetLibrary()->CreateActivationObject();
                 for (uint32 i = 0; i < count; i++)
-                {
+                {TRACE_IT(42934);
                     Js::ResolvedObject resolveObject;
                     if (this->Get(i, &resolveObject) && resolveObject.propId != Js::Constants::NoProperty)
-                    {
+                    {TRACE_IT(42935);
                         if (!activeScopeObject->HasOwnProperty(resolveObject.propId))
-                        {
+                        {TRACE_IT(42936);
                             OUTPUT_TRACE(Js::ConsoleScopePhase, _u("Adding '%s' property to activeScopeObject\n"), resolveObject.scriptContext->GetPropertyName(resolveObject.propId)->GetBuffer());
                             if (resolveObject.IsInDeadZone())
-                            {
+                            {TRACE_IT(42937);
                                 PropertyOperationFlags flags = static_cast<PropertyOperationFlags>(PropertyOperation_SpecialValue | PropertyOperation_AllowUndecl);
                                 PropertyAttributes attributes = resolveObject.isConst ? PropertyConstDefaults : PropertyLetDefaults;
                                 resolveObject.obj = scriptContext->GetLibrary()->GetUndeclBlockVar();
@@ -364,7 +364,7 @@ namespace Js
                                         attributes, nullptr, flags);
                             }
                             else
-                            {
+                            {TRACE_IT(42938);
                                 activeScopeObject->SetPropertyWithAttributes(
                                     resolveObject.propId,
                                     JavascriptOperators::BoxStackInstance(resolveObject.obj, scriptContext), //The value escapes, box if necessary.
@@ -379,9 +379,9 @@ namespace Js
             return activeScopeObject;
         }
         BOOL CreateArgumentsObject(ResolvedObject* pResolvedObject);
-        bool HasUserNotDefinedArguments() const { return hasUserNotDefinedArguments; }
+        bool HasUserNotDefinedArguments() const {TRACE_IT(42939); return hasUserNotDefinedArguments; }
     private:
-        bool ShouldMakeGroups() const { return frameWalkerFlags & FW_MakeGroups; }
+        bool ShouldMakeGroups() const {TRACE_IT(42940); return frameWalkerFlags & FW_MakeGroups; }
         bool ShouldInsertFakeArguments();
         void ExpandArgumentsObject(IDiagObjectModelDisplay * argumentsDisplay);
         BOOL GetGroupObject(Js::UIGroupType uiGroupType, int i, ResolvedObject* pResolvedObject);
@@ -401,9 +401,9 @@ namespace Js
         virtual BOOL Set(Var updateObject) override;
         virtual DBGPROP_ATTRIB_FLAGS GetTypeAttribute() override;
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() override;
-        virtual BOOL IsLocalsAsRoot() { return TRUE; }
-        virtual DiagObjectModelDisplayType GetType() { return DiagObjectModelDisplayType_LocalsDisplay; }
-        virtual bool IsLiteralProperty() const { return false; }
+        virtual BOOL IsLocalsAsRoot() {TRACE_IT(42941); return TRUE; }
+        virtual DiagObjectModelDisplayType GetType() {TRACE_IT(42942); return DiagObjectModelDisplayType_LocalsDisplay; }
+        virtual bool IsLiteralProperty() const {TRACE_IT(42943); return false; }
     };
 
     //
@@ -448,7 +448,7 @@ namespace Js
 
         CatchScopeWalker(DiagStackFrame* _pFrame, DebuggerScope* _debuggerScope)
             : pFrame(_pFrame), debuggerScope(_debuggerScope)
-        {
+        {TRACE_IT(42944);
         }
 
         /// IDiagObjectModelWalkerBase
@@ -487,7 +487,7 @@ namespace Js
         virtual BOOL Get(int i, ResolvedObject* pResolvedObject) override;
         virtual uint32 GetChildrenCount() override;
 
-        virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject)  { return FALSE; };
+        virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject)  {TRACE_IT(42945); return FALSE; };
         virtual IDiagObjectAddress *FindPropertyAddress(PropertyId propertyId, bool& isConst) override;
 
         static Var GetObject(RecyclableObject* originalInstance, RecyclableObject* instance, PropertyId propertyId, ScriptContext* scriptContext);
@@ -533,7 +533,7 @@ namespace Js
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() override;
         virtual Var GetVarValue(BOOL fUpdated) override;
         virtual IDiagObjectAddress * GetDiagAddress() override { return pObjAddress; }
-        virtual DiagObjectModelDisplayType GetType() { return DiagObjectModelDisplayType_RecyclableObjectDisplay; }
+        virtual DiagObjectModelDisplayType GetType() {TRACE_IT(42946); return DiagObjectModelDisplayType_RecyclableObjectDisplay; }
         virtual bool IsLiteralProperty() const;
         virtual bool IsSymbolProperty() override;
 
@@ -581,7 +581,7 @@ namespace Js
         uint32 GetItemCount(Js::JavascriptArray* arrayObj);
 
         // ES5Array will extend this.
-        virtual uint32 GetNextDescriptor(uint32 currentDescriptor) { return Js::JavascriptArray::InvalidIndex; }
+        virtual uint32 GetNextDescriptor(uint32 currentDescriptor) {TRACE_IT(42947); return Js::JavascriptArray::InvalidIndex; }
 
         LPCWSTR GetIndexName(uint32 index, StringBuilder<ArenaAllocator>* stringBuilder);
 
@@ -589,7 +589,7 @@ namespace Js
 
     public:
         RecyclableArrayWalker(ScriptContext* pContext, Var slot, Var originalInstance);
-        void SetOnlyWalkOwnProperties(bool set) { fOnlyOwnProperties = set; }
+        void SetOnlyWalkOwnProperties(bool set) {TRACE_IT(42948); fOnlyOwnProperties = set; }
 
         virtual BOOL Get(int i, ResolvedObject* pResolvedObject) override;
         virtual uint32 GetChildrenCount() override;
@@ -755,8 +755,8 @@ namespace Js
     template <typename TData>
     struct RecyclableCollectionObjectWalkerPropertyData
     {
-        RecyclableCollectionObjectWalkerPropertyData():key(nullptr), value(nullptr) { }
-        RecyclableCollectionObjectWalkerPropertyData(Var key, Var value):key(key), value(value) { }
+        RecyclableCollectionObjectWalkerPropertyData():key(nullptr), value(nullptr) {TRACE_IT(42949); }
+        RecyclableCollectionObjectWalkerPropertyData(Var key, Var value):key(key), value(value) {TRACE_IT(42950); }
         Var key;
         Var value;
     };
@@ -764,16 +764,16 @@ namespace Js
     template<>
     struct RecyclableCollectionObjectWalkerPropertyData<JavascriptSet>
     {
-        RecyclableCollectionObjectWalkerPropertyData():value(nullptr) { }
-        RecyclableCollectionObjectWalkerPropertyData(Var value):value(value) { }
+        RecyclableCollectionObjectWalkerPropertyData():value(nullptr) {TRACE_IT(42951); }
+        RecyclableCollectionObjectWalkerPropertyData(Var value):value(value) {TRACE_IT(42952); }
         Var value;
     };
 
     template<>
     struct RecyclableCollectionObjectWalkerPropertyData<JavascriptWeakSet>
     {
-        RecyclableCollectionObjectWalkerPropertyData():value(nullptr) { }
-        RecyclableCollectionObjectWalkerPropertyData(Var value):value(value) { }
+        RecyclableCollectionObjectWalkerPropertyData():value(nullptr) {TRACE_IT(42953); }
+        RecyclableCollectionObjectWalkerPropertyData(Var value):value(value) {TRACE_IT(42954); }
         Var value;
     };
 
@@ -790,7 +790,7 @@ namespace Js
         void GetChildren();
 
     public:
-        RecyclableCollectionObjectWalker(ScriptContext* scriptContext, Var instance):scriptContext(scriptContext), instance(instance), propertyList(nullptr) { }
+        RecyclableCollectionObjectWalker(ScriptContext* scriptContext, Var instance):scriptContext(scriptContext), instance(instance), propertyList(nullptr) {TRACE_IT(42955); }
         virtual BOOL GetGroupObject(ResolvedObject* pResolvedObject) override;
         virtual BOOL Get(int i, ResolvedObject* pResolvedObject) override;
         virtual uint32 GetChildrenCount() override;
@@ -809,7 +809,7 @@ namespace Js
         RecyclableCollectionObjectWalker<TData>* walker;
 
     public:
-        RecyclableCollectionObjectDisplay(ScriptContext* scriptContext, const char16* name, RecyclableCollectionObjectWalker<TData>* walker) : scriptContext(scriptContext), name(name), walker(walker) { }
+        RecyclableCollectionObjectDisplay(ScriptContext* scriptContext, const char16* name, RecyclableCollectionObjectWalker<TData>* walker) : scriptContext(scriptContext), name(name), walker(walker) {TRACE_IT(42956); }
 
         virtual LPCWSTR Name() override { return name; }
         virtual LPCWSTR Type() override { return _u(""); }
@@ -821,8 +821,8 @@ namespace Js
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() override;
         virtual Var GetVarValue(BOOL fUpdated) override { return nullptr; }
         virtual IDiagObjectAddress * GetDiagAddress() override { return nullptr; }
-        virtual DiagObjectModelDisplayType GetType() { return DiagObjectModelDisplayType_RecyclableCollectionObjectDisplay; }
-        virtual bool IsLiteralProperty() const { return false; }
+        virtual DiagObjectModelDisplayType GetType() {TRACE_IT(42957); return DiagObjectModelDisplayType_RecyclableCollectionObjectDisplay; }
+        virtual bool IsLiteralProperty() const {TRACE_IT(42958); return false; }
     };
 
     class RecyclableKeyValueDisplay : public IDiagObjectModelDisplay
@@ -833,7 +833,7 @@ namespace Js
         const char16* name;
 
     public:
-        RecyclableKeyValueDisplay(ScriptContext* scriptContext, Var key, Var value, const char16* name) : scriptContext(scriptContext), key(key), value(value), name(name) { }
+        RecyclableKeyValueDisplay(ScriptContext* scriptContext, Var key, Var value, const char16* name) : scriptContext(scriptContext), key(key), value(value), name(name) {TRACE_IT(42959); }
 
         virtual LPCWSTR Name() override { return name; }
         virtual LPCWSTR Type() override { return _u(""); }
@@ -842,8 +842,8 @@ namespace Js
         virtual BOOL Set(Var updateObject) override { return FALSE; }
         virtual DBGPROP_ATTRIB_FLAGS GetTypeAttribute() override { return DBGPROP_ATTRIB_VALUE_IS_EXPANDABLE | DBGPROP_ATTRIB_VALUE_IS_FAKE | DBGPROP_ATTRIB_VALUE_READONLY; }
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() override;
-        virtual DiagObjectModelDisplayType GetType() { return DiagObjectModelDisplayType_RecyclableKeyValueDisplay; }
-        virtual bool IsLiteralProperty() const { return false; }
+        virtual DiagObjectModelDisplayType GetType() {TRACE_IT(42960); return DiagObjectModelDisplayType_RecyclableKeyValueDisplay; }
+        virtual bool IsLiteralProperty() const {TRACE_IT(42961); return false; }
     };
 
     class RecyclableKeyValueWalker : public IDiagObjectModelWalkerBase
@@ -853,7 +853,7 @@ namespace Js
         Var value;
 
     public:
-        RecyclableKeyValueWalker(ScriptContext* scriptContext, Var key, Var value):scriptContext(scriptContext), key(key), value(value) { }
+        RecyclableKeyValueWalker(ScriptContext* scriptContext, Var key, Var value):scriptContext(scriptContext), key(key), value(value) {TRACE_IT(42962); }
 
         virtual BOOL Get(int i, ResolvedObject* pResolvedObject) override;
         // Children count is 2 for 'key' and 'value'
@@ -996,7 +996,7 @@ namespace Js
     class RecyclableSimdObjectWalker : public RecyclableObjectWalker
     {
     public:
-        RecyclableSimdObjectWalker(ScriptContext* pContext, Var instance) : RecyclableObjectWalker(pContext, instance) { }
+        RecyclableSimdObjectWalker(ScriptContext* pContext, Var instance) : RecyclableObjectWalker(pContext, instance) {TRACE_IT(42963); }
 
         virtual BOOL Get(int i, ResolvedObject* pResolvedObject) override;
 
@@ -1021,14 +1021,14 @@ namespace Js
     class RecyclableSimdObjectDisplay : public RecyclableObjectDisplay
     {
     public:
-        RecyclableSimdObjectDisplay(ResolvedObject* resolvedObject) : RecyclableObjectDisplay(resolvedObject) {};
+        RecyclableSimdObjectDisplay(ResolvedObject* resolvedObject) : RecyclableObjectDisplay(resolvedObject) {TRACE_IT(42964);};
 
         virtual LPCWSTR Type() override;
         virtual LPCWSTR Value(int radix) override;
         virtual BOOL HasChildren() override { return TRUE; }
         virtual WeakArenaReference<IDiagObjectModelWalkerBase>* CreateWalker() override;
         virtual DBGPROP_ATTRIB_FLAGS GetTypeAttribute() override { return DBGPROP_ATTRIB_VALUE_IS_EXPANDABLE | DBGPROP_ATTRIB_VALUE_IS_FAKE | DBGPROP_ATTRIB_VALUE_READONLY; }
-        virtual DiagObjectModelDisplayType GetType() { return DiagObjectModelDisplayType_RecyclableSimdDisplay; }
+        virtual DiagObjectModelDisplayType GetType() {TRACE_IT(42965); return DiagObjectModelDisplayType_RecyclableSimdDisplay; }
     };
 
     // For SIMD concrete display: specify SIMD type and concrete simd walker

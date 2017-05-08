@@ -11,6 +11,6 @@ namespace Js
         JavascriptEnumerator(scriptContext),
         arrayObject(arrayObject),
         flags(flags)
-    {
+    {TRACE_IT(58157);
     }
 }

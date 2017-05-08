@@ -16,7 +16,7 @@ ScriptMemoryDumper::ScriptMemoryDumper(Js::ScriptContext* scriptContext)
 
 
 void ScriptMemoryDumper::Init()
-{
+{TRACE_IT(36861);
     pageCountId = scriptContext->GetOrAddPropertyIdTracked(_u("pageCount"));
     objectSizeId = scriptContext->GetOrAddPropertyIdTracked(_u("objectSize"));
     freeObjectCountId = scriptContext->GetOrAddPropertyIdTracked(_u("freeObjectCount"));
@@ -32,12 +32,12 @@ void ScriptMemoryDumper::Init()
 
 // Export script related memory to javascript object containing related information.
 Js::Var ScriptMemoryDumper::Dump()
-{
+{TRACE_IT(36862);
     Recycler* recycler = scriptContext->GetRecycler();
     HeapInfo* heapInfo = recycler->GetAutoHeap();
 
     for (uint32 i = 0 ; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(36863);
         ResetCurrentStats();
         size_t sizeCat = (i + 1) * HeapConstants::ObjectGranularity;
         DumpHeapBucket(i, &heapInfo->GetBucket<LeafBit>(sizeCat));
@@ -49,7 +49,7 @@ Js::Var ScriptMemoryDumper::Dump()
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint32 i = 0 ; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(36864);
         ResetCurrentStats();
         size_t sizeCat = HeapConstants::MaxSmallObjectSize + ((i + 1) * HeapConstants::ObjectGranularity);
 
@@ -75,10 +75,10 @@ Js::Var ScriptMemoryDumper::Dump()
 
 template <typename TBlockType>
 void ScriptMemoryDumper::DumpHeapBucket(uint index, HeapBucketT<TBlockType>* heapBucket)
-{
+{TRACE_IT(36865);
     SmallHeapBlockAllocator<TBlockType> * currentAllocator = heapBucket->GetAllocator();
     do
-    {
+    {TRACE_IT(36866);
         DumpSmallHeapBlock(currentAllocator->GetHeapBlock());
         currentAllocator = currentAllocator->GetNext();
     }
@@ -105,7 +105,7 @@ void ScriptMemoryDumper::DumpHeapBucket(uint index, SmallFinalizableHeapBucketT<
 
 template <class TBlockAttributes>
 void ScriptMemoryDumper::DumpSmallHeapBlockList(SmallHeapBlockT<TBlockAttributes>* heapBlockHead)
-{
+{TRACE_IT(36867);
     HeapBlockList::ForEach(heapBlockHead, [this](SmallHeapBlockT<TBlockAttributes> * heapBlock)
     {
         DumpSmallHeapBlock(heapBlock);
@@ -114,19 +114,19 @@ void ScriptMemoryDumper::DumpSmallHeapBlockList(SmallHeapBlockT<TBlockAttributes
 
 template <class TBlockAttributes>
 void ScriptMemoryDumper::DumpSmallHeapBlock(SmallHeapBlockT<TBlockAttributes>* heapBlock)
-{
+{TRACE_IT(36868);
     if (heapBlock == nullptr)
         return;
 
     if (current.objectSize == 0)
-    {
+    {TRACE_IT(36869);
         current.objectSize = heapBlock->objectSize;
     }
     Assert(current.objectSize == heapBlock->GetObjectSize());
     current.freeObjectCount = heapBlock->freeCount;
     current.activeObjectCount += heapBlock->objectCount - heapBlock->freeCount;
     if (heapBlock->IsAnyFinalizableBlock())
-    {
+    {TRACE_IT(36870);
         current.finalizeCount += heapBlock->template AsFinalizableBlock<TBlockAttributes>()->finalizeCount;
     }
     current.pageCount += heapBlock->GetPageCount();
@@ -135,7 +135,7 @@ void ScriptMemoryDumper::DumpSmallHeapBlock(SmallHeapBlockT<TBlockAttributes>* h
 }
 
 void ScriptMemoryDumper::DumpLargeHeapBlockList(LargeHeapBlock* heapBlockHead)
-{
+{TRACE_IT(36871);
     HeapBlockList::ForEach(heapBlockHead, [this](LargeHeapBlock * heapBlock)
     {
         DumpLargeHeapBlock(heapBlock);
@@ -143,7 +143,7 @@ void ScriptMemoryDumper::DumpLargeHeapBlockList(LargeHeapBlock* heapBlockHead)
 }
 
 void ScriptMemoryDumper::DumpLargeBucket(LargeHeapBucket* heapBucket)
-{
+{TRACE_IT(36872);
     DumpLargeHeapBlockList(heapBucket->fullLargeBlockList);
     DumpLargeHeapBlockList(heapBucket->largeBlockList);
 #ifdef RECYCLER_PAGE_HEAP
@@ -160,7 +160,7 @@ void ScriptMemoryDumper::DumpLargeBucket(LargeHeapBucket* heapBucket)
 
 struct LargeObjectHeader;
 void ScriptMemoryDumper::DumpLargeHeapBlock(LargeHeapBlock* heapBlock)
-{
+{TRACE_IT(36873);
     if (heapBlock == nullptr)
         return;
 
@@ -169,10 +169,10 @@ void ScriptMemoryDumper::DumpLargeHeapBlock(LargeHeapBlock* heapBlock)
     current.totalByteCount += heapBlock->GetPageCount() * AutoSystemInfo::PageSize;
 
     for (uint32 i = 0; i < heapBlock->allocCount; i++)
-    {
+    {TRACE_IT(36874);
         Memory::LargeObjectHeader* heapHeader = heapBlock->GetHeader(i);
         if (heapHeader != nullptr)
-        {
+        {TRACE_IT(36875);
             current.activeObjectCount++;
             current.activeObjectByteSize += heapHeader->objectSize;
         }
@@ -185,7 +185,7 @@ inline void ScriptMemoryDumper::ResetCurrentStats()
 }
 
 inline void ScriptMemoryDumper::MergeCurrentStats()
-{
+{TRACE_IT(36876);
     total.pageCount += current.pageCount;
     total.activeObjectCount += current.activeObjectCount;
     total.activeObjectByteSize += current.activeObjectByteSize;
@@ -195,28 +195,28 @@ inline void ScriptMemoryDumper::MergeCurrentStats()
 }
 
 void ScriptMemoryDumper::SaveCurrentAtIndex(uint32 index)
-{
+{TRACE_IT(36877);
     Js::DynamicObject* currentBucket = scriptContext->GetLibrary()->CreateObject();
     FillObjectWithStats(currentBucket, current);
     dumpObject->SetItem(index, currentBucket, Js::PropertyOperation_None);
 }
 
 void ScriptMemoryDumper::SaveCurrentAsLargeBlock()
-{
+{TRACE_IT(36878);
     Js::DynamicObject* largeObjectStat = scriptContext->GetLibrary()->CreateObject();
     FillObjectWithStats(largeObjectStat, current);
     dumpObject->SetProperty(largeObjectsId, largeObjectStat, Js::PropertyOperation_None, NULL);
 }
 
 void ScriptMemoryDumper::SaveSummary()
-{
+{TRACE_IT(36879);
     Js::DynamicObject* summaryStat = scriptContext->GetLibrary()->CreateObject();
     FillObjectWithStats(summaryStat, total);
     dumpObject->SetProperty(summaryId, summaryStat, Js::PropertyOperation_None, NULL);
 }
 
 void ScriptMemoryDumper::FillObjectWithStats(Js::DynamicObject* dynamicObject, HeapStats stats)
-{
+{TRACE_IT(36880);
     dynamicObject->SetProperty(pageCountId, Js::JavascriptUInt64Number::ToVar(stats.pageCount, scriptContext),  Js::PropertyOperation_None, NULL);
     dynamicObject->SetProperty(objectSizeId, Js::JavascriptNumber::New(stats.objectSize, scriptContext),  Js::PropertyOperation_None, NULL);
     dynamicObject->SetProperty(freeObjectCountId, Js::JavascriptNumber::New(stats.freeObjectCount, scriptContext),  Js::PropertyOperation_None, NULL);

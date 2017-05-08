@@ -40,7 +40,7 @@ public:
 
     LargeHeapBlock* AddLargeHeapBlock(DECLSPEC_GUARD_OVERFLOW size_t size, bool nothrow);
 
-    bool SupportFreeList() { return supportFreeList; }
+    bool SupportFreeList() {TRACE_IT(24628); return supportFreeList; }
 
     template <ObjectInfoBits attributes, bool nothrow>
     char* Alloc(Recycler * recycler, size_t sizeCat);

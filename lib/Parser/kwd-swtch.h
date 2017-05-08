@@ -8,12 +8,12 @@
 
     case 'a':
         if (identifyKwds)
-        {
+        {TRACE_IT(33030);
             switch (p[0]) {
             case 'w':
-                if (p[1] == 'a' && p[2] == 'i' && p[3] == 't' && !IsIdContinueNext(p+4, last)) {
+                if (p[1] == 'a' && p[2] == 'i' && p[3] == 't' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33031);
                     p += 4;
-                    if (this->m_fAwaitIsKeyword || this->m_fIsModuleCode) {
+                    if (this->m_fAwaitIsKeyword || this->m_fIsModuleCode) {TRACE_IT(33032);
                         token = tkAWAIT;
                         goto LReserved;
                     }
@@ -21,7 +21,7 @@
                 }
                 break;
             case 'r':
-                if (p[1] == 'g' && p[2] == 'u' && p[3] == 'm' && p[4] == 'e' && p[5] == 'n' && p[6] == 't' && p[7] == 's' && !IsIdContinueNext(p+8, last)) {
+                if (p[1] == 'g' && p[2] == 'u' && p[3] == 'm' && p[4] == 'e' && p[5] == 'n' && p[6] == 't' && p[7] == 's' && !IsIdContinueNext(p+8, last)) {TRACE_IT(33033);
                     p += 8;
                     goto LArguments;
                 }
@@ -31,8 +31,8 @@
         goto LIdentifier;
     case 'b':
         if (identifyKwds)
-        {
-            if (p[0] == 'r' && p[1] == 'e' && p[2] == 'a' && p[3] == 'k' && !IsIdContinueNext(p+4, last)) {
+        {TRACE_IT(33034);
+            if (p[0] == 'r' && p[1] == 'e' && p[2] == 'a' && p[3] == 'k' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33035);
                 p += 4;
                 token = tkBREAK;
                 goto LReserved;
@@ -41,19 +41,19 @@
         goto LIdentifier;
     case 'c':
         if (identifyKwds)
-        {
+        {TRACE_IT(33036);
             switch (p[0]) {
             case 'a':
                 switch (p[1]) {
                 case 's':
-                    if (p[2] == 'e' && !IsIdContinueNext(p+3, last)) {
+                    if (p[2] == 'e' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33037);
                         p += 3;
                         token = tkCASE;
                         goto LReserved;
                     }
                     break;
                 case 't':
-                    if (p[2] == 'c' && p[3] == 'h' && !IsIdContinueNext(p+4, last)) {
+                    if (p[2] == 'c' && p[3] == 'h' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33038);
                         p += 4;
                         token = tkCATCH;
                         goto LReserved;
@@ -62,17 +62,17 @@
                 }
                 break;
             case 'o':
-                if (p[1] == 'n') {
+                if (p[1] == 'n') {TRACE_IT(33039);
                     switch (p[2]) {
                     case 't':
-                        if (p[3] == 'i' && p[4] == 'n' && p[5] == 'u' && p[6] == 'e' && !IsIdContinueNext(p+7, last)) {
+                        if (p[3] == 'i' && p[4] == 'n' && p[5] == 'u' && p[6] == 'e' && !IsIdContinueNext(p+7, last)) {TRACE_IT(33040);
                             p += 7;
                             token = tkCONTINUE;
                             goto LReserved;
                         }
                         break;
                     case 's':
-                        if (p[3] == 't' && !IsIdContinueNext(p+4, last)) {
+                        if (p[3] == 't' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33041);
                             p += 4;
                             token = tkCONST;
                             goto LReserved;
@@ -82,7 +82,7 @@
                 }
                 break;
             case 'l':
-                if (p[1] == 'a' && p[2] == 's' && p[3] == 's' && !IsIdContinueNext(p+4, last)) {
+                if (p[1] == 'a' && p[2] == 's' && p[3] == 's' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33042);
                     p += 4;
                     token = tkCLASS;
                     goto LReserved;
@@ -93,26 +93,26 @@
         goto LIdentifier;
     case 'd':
         if (identifyKwds)
-        {
+        {TRACE_IT(33043);
             switch (p[0]) {
             case 'e':
                 switch (p[1]) {
                 case 'b':
-                    if (p[2] == 'u' && p[3] == 'g' && p[4] == 'g' && p[5] == 'e' && p[6] == 'r' && !IsIdContinueNext(p+7, last)) {
+                    if (p[2] == 'u' && p[3] == 'g' && p[4] == 'g' && p[5] == 'e' && p[6] == 'r' && !IsIdContinueNext(p+7, last)) {TRACE_IT(33044);
                         p += 7;
                         token = tkDEBUGGER;
                         goto LReserved;
                     }
                     break;
                 case 'f':
-                    if (p[2] == 'a' && p[3] == 'u' && p[4] == 'l' && p[5] == 't' && !IsIdContinueNext(p+6, last)) {
+                    if (p[2] == 'a' && p[3] == 'u' && p[4] == 'l' && p[5] == 't' && !IsIdContinueNext(p+6, last)) {TRACE_IT(33045);
                         p += 6;
                         token = tkDEFAULT;
                         goto LReserved;
                     }
                     break;
                 case 'l':
-                    if (p[2] == 'e' && p[3] == 't' && p[4] == 'e' && !IsIdContinueNext(p+5, last)) {
+                    if (p[2] == 'e' && p[3] == 't' && p[4] == 'e' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33046);
                         p += 5;
                         token = tkDELETE;
                         goto LReserved;
@@ -121,7 +121,7 @@
                 }
                 break;
             case 'o':
-                if (!IsIdContinueNext(p+1, last)) {
+                if (!IsIdContinueNext(p+1, last)) {TRACE_IT(33047);
                     p += 1;
                     token = tkDO;
                     goto LReserved;
@@ -132,10 +132,10 @@
         goto LIdentifier;
     case 'e':
         if (identifyKwds)
-        {
+        {TRACE_IT(33048);
             switch (p[0]) {
             case 'l':
-                if (p[1] == 's' && p[2] == 'e' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 's' && p[2] == 'e' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33049);
                     p += 3;
                     token = tkELSE;
                     goto LReserved;
@@ -144,14 +144,14 @@
             case 'x':
                 switch (p[1]) {
                 case 'p':
-                    if (p[2] == 'o' && p[3] == 'r' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {
+                    if (p[2] == 'o' && p[3] == 'r' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33050);
                         p += 5;
                         token = tkEXPORT;
                         goto LReserved;
                     }
                     break;
                 case 't':
-                    if (p[2] == 'e' && p[3] == 'n' && p[4] == 'd' && p[5] == 's' && !IsIdContinueNext(p+6, last)) {
+                    if (p[2] == 'e' && p[3] == 'n' && p[4] == 'd' && p[5] == 's' && !IsIdContinueNext(p+6, last)) {TRACE_IT(33051);
                         p += 6;
                         token = tkEXTENDS;
                         goto LReserved;
@@ -160,14 +160,14 @@
                 }
                 break;
             case 'n':
-                if (p[1] == 'u' && p[2] == 'm' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 'u' && p[2] == 'm' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33052);
                     p += 3;
                     token = tkENUM;
                     goto LReserved;
                 }
                 break;
             case 'v':
-                if (p[1] == 'a' && p[2] == 'l' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 'a' && p[2] == 'l' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33053);
                     p += 3;
                     goto LEval;
                 }
@@ -177,31 +177,31 @@
         goto LIdentifier;
     case 'f':
         if (identifyKwds)
-        {
+        {TRACE_IT(33054);
             switch (p[0]) {
             case 'a':
-                if (p[1] == 'l' && p[2] == 's' && p[3] == 'e' && !IsIdContinueNext(p+4, last)) {
+                if (p[1] == 'l' && p[2] == 's' && p[3] == 'e' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33055);
                     p += 4;
                     token = tkFALSE;
                     goto LReserved;
                 }
                 break;
             case 'i':
-                if (p[1] == 'n' && p[2] == 'a' && p[3] == 'l' && p[4] == 'l' && p[5] == 'y' && !IsIdContinueNext(p+6, last)) {
+                if (p[1] == 'n' && p[2] == 'a' && p[3] == 'l' && p[4] == 'l' && p[5] == 'y' && !IsIdContinueNext(p+6, last)) {TRACE_IT(33056);
                     p += 6;
                     token = tkFINALLY;
                     goto LReserved;
                 }
                 break;
             case 'o':
-                if (p[1] == 'r' && !IsIdContinueNext(p+2, last)) {
+                if (p[1] == 'r' && !IsIdContinueNext(p+2, last)) {TRACE_IT(33057);
                     p += 2;
                     token = tkFOR;
                     goto LReserved;
                 }
                 break;
             case 'u':
-                if (p[1] == 'n' && p[2] == 'c' && p[3] == 't' && p[4] == 'i' && p[5] == 'o' && p[6] == 'n' && !IsIdContinueNext(p+7, last)) {
+                if (p[1] == 'n' && p[2] == 'c' && p[3] == 't' && p[4] == 'i' && p[5] == 'o' && p[6] == 'n' && !IsIdContinueNext(p+7, last)) {TRACE_IT(33058);
                     p += 7;
                     token = tkFUNCTION;
                     goto LReserved;
@@ -212,10 +212,10 @@
         goto LIdentifier;
     case 'i':
         if (identifyKwds)
-        {
+        {TRACE_IT(33059);
             switch (p[0]) {
             case 'f':
-                if (!IsIdContinueNext(p+1, last)) {
+                if (!IsIdContinueNext(p+1, last)) {TRACE_IT(33060);
                     p += 1;
                     token = tkIF;
                     goto LReserved;
@@ -224,16 +224,16 @@
             case 'n':
                 switch (p[1]) {
                 case 's':
-                    if (p[2] == 't' && p[3] == 'a' && p[4] == 'n' && p[5] == 'c' && p[6] == 'e' && p[7] == 'o' && p[8] == 'f' && !IsIdContinueNext(p+9, last)) {
+                    if (p[2] == 't' && p[3] == 'a' && p[4] == 'n' && p[5] == 'c' && p[6] == 'e' && p[7] == 'o' && p[8] == 'f' && !IsIdContinueNext(p+9, last)) {TRACE_IT(33061);
                         p += 9;
                         token = tkINSTANCEOF;
                         goto LReserved;
                     }
                     break;
                 case 't':
-                    if (p[2] == 'e' && p[3] == 'r' && p[4] == 'f' && p[5] == 'a' && p[6] == 'c' && p[7] == 'e' && !IsIdContinueNext(p+8, last)) {
+                    if (p[2] == 'e' && p[3] == 'r' && p[4] == 'f' && p[5] == 'a' && p[6] == 'c' && p[7] == 'e' && !IsIdContinueNext(p+8, last)) {TRACE_IT(33062);
                         p += 8;
-                        if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                        if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33063);
                             token = tkINTERFACE;
                             goto LReserved;
                         }
@@ -241,26 +241,26 @@
                     }
                     break;
                 }
-                if (!IsIdContinueNext(p+1,last)) {
+                if (!IsIdContinueNext(p+1,last)) {TRACE_IT(33064);
                     p += 1;
                     token = tkIN;
                     goto LReserved;
                 }
                 break;
             case 'm':
-                if (p[1] == 'p') {
+                if (p[1] == 'p') {TRACE_IT(33065);
                     switch (p[2]) {
                     case 'o':
-                        if (p[3] == 'r' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {
+                        if (p[3] == 'r' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33066);
                             p += 5;
                             token = tkIMPORT;
                             goto LReserved;
                         }
                         break;
                     case 'l':
-                        if (p[3] == 'e' && p[4] == 'm' && p[5] == 'e' && p[6] == 'n' && p[7] == 't' && p[8] == 's' && !IsIdContinueNext(p+9, last)) {
+                        if (p[3] == 'e' && p[4] == 'm' && p[5] == 'e' && p[6] == 'n' && p[7] == 't' && p[8] == 's' && !IsIdContinueNext(p+9, last)) {TRACE_IT(33067);
                             p += 9;
-                            if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                            if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33068);
                                 token = tkIMPLEMENTS;
                                 goto LReserved;
                             }
@@ -275,17 +275,17 @@
         goto LIdentifier;
     case 'n':
         if (identifyKwds)
-        {
+        {TRACE_IT(33069);
             switch (p[0]) {
             case 'e':
-                if (p[1] == 'w' && !IsIdContinueNext(p+2, last)) {
+                if (p[1] == 'w' && !IsIdContinueNext(p+2, last)) {TRACE_IT(33070);
                     p += 2;
                     token = tkNEW;
                     goto LReserved;
                 }
                 break;
             case 'u':
-                if (p[1] == 'l' && p[2] == 'l' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 'l' && p[2] == 'l' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33071);
                     p += 3;
                     token = tkNULL;
                     goto LReserved;
@@ -296,8 +296,8 @@
         goto LIdentifier;
     case 'r':
         if (identifyKwds)
-        {
-            if (p[0] == 'e' && p[1] == 't' && p[2] == 'u' && p[3] == 'r' && p[4] == 'n' && !IsIdContinueNext(p+5, last)) {
+        {TRACE_IT(33072);
+            if (p[0] == 'e' && p[1] == 't' && p[2] == 'u' && p[3] == 'r' && p[4] == 'n' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33073);
                 p += 5;
                 token = tkRETURN;
                 goto LReserved;
@@ -306,26 +306,26 @@
         goto LIdentifier;
     case 's':
         if (identifyKwds)
-        {
+        {TRACE_IT(33074);
             switch (p[0]) {
             case 'w':
-                if (p[1] == 'i' && p[2] == 't' && p[3] == 'c' && p[4] == 'h' && !IsIdContinueNext(p+5, last)) {
+                if (p[1] == 'i' && p[2] == 't' && p[3] == 'c' && p[4] == 'h' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33075);
                     p += 5;
                     token = tkSWITCH;
                     goto LReserved;
                 }
                 break;
             case 'u':
-                if (p[1] == 'p' && p[2] == 'e' && p[3] == 'r' && !IsIdContinueNext(p+4, last)) {
+                if (p[1] == 'p' && p[2] == 'e' && p[3] == 'r' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33076);
                     p += 4;
                     token = tkSUPER;
                     goto LReserved;
                 }
                 break;
             case 't':
-                if (p[1] == 'a' && p[2] == 't' && p[3] == 'i' && p[4] == 'c' && !IsIdContinueNext(p+5, last)) {
+                if (p[1] == 'a' && p[2] == 't' && p[3] == 'i' && p[4] == 'c' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33077);
                     p += 5;
-                    if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                    if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33078);
                         token = tkSTATIC;
                         goto LReserved;
                     }
@@ -337,19 +337,19 @@
         goto LIdentifier;
     case 't':
         if (identifyKwds)
-        {
+        {TRACE_IT(33079);
             switch (p[0]) {
             case 'h':
                 switch (p[1]) {
                 case 'i':
-                    if (p[2] == 's' && !IsIdContinueNext(p+3, last)) {
+                    if (p[2] == 's' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33080);
                         p += 3;
                         token = tkTHIS;
                         goto LReserved;
                     }
                     break;
                 case 'r':
-                    if (p[2] == 'o' && p[3] == 'w' && !IsIdContinueNext(p+4, last)) {
+                    if (p[2] == 'o' && p[3] == 'w' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33081);
                         p += 4;
                         token = tkTHROW;
                         goto LReserved;
@@ -360,14 +360,14 @@
             case 'r':
                 switch (p[1]) {
                 case 'u':
-                    if (p[2] == 'e' && !IsIdContinueNext(p+3, last)) {
+                    if (p[2] == 'e' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33082);
                         p += 3;
                         token = tkTRUE;
                         goto LReserved;
                     }
                     break;
                 case 'y':
-                    if (!IsIdContinueNext(p+2, last)) {
+                    if (!IsIdContinueNext(p+2, last)) {TRACE_IT(33083);
                         p += 2;
                         token = tkTRY;
                         goto LReserved;
@@ -376,14 +376,14 @@
                 }
                 break;
             case 'y':
-                if (p[1] == 'p' && p[2] == 'e' && p[3] == 'o' && p[4] == 'f' && !IsIdContinueNext(p+5, last)) {
+                if (p[1] == 'p' && p[2] == 'e' && p[3] == 'o' && p[4] == 'f' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33084);
                     p += 5;
                     token = tkTYPEOF;
                     goto LReserved;
                 }
                 break;
             case 'a':
-                if (p[1] == 'r' && p[2] == 'g' && p[3] == 'e' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {
+                if (p[1] == 'r' && p[2] == 'g' && p[3] == 'e' && p[4] == 't' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33085);
                     p += 5;
                     goto LTarget;
                 }
@@ -393,17 +393,17 @@
         goto LIdentifier;
     case 'v':
         if (identifyKwds)
-        {
+        {TRACE_IT(33086);
             switch (p[0]) {
             case 'a':
-                if (p[1] == 'r' && !IsIdContinueNext(p+2, last)) {
+                if (p[1] == 'r' && !IsIdContinueNext(p+2, last)) {TRACE_IT(33087);
                     p += 2;
                     token = tkVAR;
                     goto LReserved;
                 }
                 break;
             case 'o':
-                if (p[1] == 'i' && p[2] == 'd' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 'i' && p[2] == 'd' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33088);
                     p += 3;
                     token = tkVOID;
                     goto LReserved;
@@ -414,17 +414,17 @@
         goto LIdentifier;
     case 'w':
         if (identifyKwds)
-        {
+        {TRACE_IT(33089);
             switch (p[0]) {
             case 'h':
-                if (p[1] == 'i' && p[2] == 'l' && p[3] == 'e' && !IsIdContinueNext(p+4, last)) {
+                if (p[1] == 'i' && p[2] == 'l' && p[3] == 'e' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33090);
                     p += 4;
                     token = tkWHILE;
                     goto LReserved;
                 }
                 break;
             case 'i':
-                if (p[1] == 't' && p[2] == 'h' && !IsIdContinueNext(p+3, last)) {
+                if (p[1] == 't' && p[2] == 'h' && !IsIdContinueNext(p+3, last)) {TRACE_IT(33091);
                     p += 3;
                     token = tkWITH;
                     goto LReserved;
@@ -435,10 +435,10 @@
         goto LIdentifier;
     case 'y':
         if (identifyKwds)
-        {
-            if (p[0] == 'i' && p[1] == 'e' && p[2] == 'l' && p[3] == 'd' && !IsIdContinueNext(p+4, last)) {
+        {TRACE_IT(33092);
+            if (p[0] == 'i' && p[1] == 'e' && p[2] == 'l' && p[3] == 'd' && !IsIdContinueNext(p+4, last)) {TRACE_IT(33093);
                 p += 4;
-                if (this->m_fYieldIsKeyword || !this->m_parser || this->m_parser->IsStrictMode()) {
+                if (this->m_fYieldIsKeyword || !this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33094);
                     token = tkYIELD;
                     goto LReserved;
                 }
@@ -448,10 +448,10 @@
         goto LIdentifier;
     case 'l':
         if (identifyKwds)
-        {
-            if (p[0] == 'e' && p[1] == 't' && !IsIdContinueNext(p+2, last)) {
+        {TRACE_IT(33095);
+            if (p[0] == 'e' && p[1] == 't' && !IsIdContinueNext(p+2, last)) {TRACE_IT(33096);
                 p += 2;
-                if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33097);
                     token = tkLET;
                     goto LReserved;
                 }
@@ -461,12 +461,12 @@
         goto LIdentifier;
     case 'p':
         if (identifyKwds)
-        {
+        {TRACE_IT(33098);
             switch (p[0]) {
             case 'a':
-                if (p[1] == 'c' && p[2] == 'k' && p[3] == 'a' && p[4] == 'g' && p[5] == 'e' && !IsIdContinueNext(p+6, last)) {
+                if (p[1] == 'c' && p[2] == 'k' && p[3] == 'a' && p[4] == 'g' && p[5] == 'e' && !IsIdContinueNext(p+6, last)) {TRACE_IT(33099);
                     p += 6;
-                    if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                    if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33100);
                         token = tkPACKAGE;
                         goto LReserved;
                     }
@@ -476,9 +476,9 @@
             case 'r':
                 switch (p[1]) {
                 case 'i':
-                    if (p[2] == 'v' && p[3] == 'a' && p[4] == 't' && p[5] == 'e' && !IsIdContinueNext(p+6, last)) {
+                    if (p[2] == 'v' && p[3] == 'a' && p[4] == 't' && p[5] == 'e' && !IsIdContinueNext(p+6, last)) {TRACE_IT(33101);
                         p += 6;
-                        if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                        if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33102);
                             token = tkPRIVATE;
                             goto LReserved;
                         }
@@ -486,9 +486,9 @@
                     }
                     break;
                 case 'o':
-                    if (p[2] == 't' && p[3] == 'e' && p[4] == 'c' && p[5] == 't' && p[6] == 'e' && p[7] == 'd' && !IsIdContinueNext(p+8, last)) {
+                    if (p[2] == 't' && p[3] == 'e' && p[4] == 'c' && p[5] == 't' && p[6] == 'e' && p[7] == 'd' && !IsIdContinueNext(p+8, last)) {TRACE_IT(33103);
                         p += 8;
-                        if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                        if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33104);
                             token = tkPROTECTED;
                             goto LReserved;
                         }
@@ -498,9 +498,9 @@
                 }
                 break;
             case 'u':
-                if (p[1] == 'b' && p[2] == 'l' && p[3] == 'i' && p[4] == 'c' && !IsIdContinueNext(p+5, last)) {
+                if (p[1] == 'b' && p[2] == 'l' && p[3] == 'i' && p[4] == 'c' && !IsIdContinueNext(p+5, last)) {TRACE_IT(33105);
                     p += 5;
-                    if (!this->m_parser || this->m_parser->IsStrictMode()) {
+                    if (!this->m_parser || this->m_parser->IsStrictMode()) {TRACE_IT(33106);
                         token = tkPUBLIC;
                         goto LReserved;
                     }

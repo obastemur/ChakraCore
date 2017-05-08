@@ -14,13 +14,13 @@
 
 template<int chunkSize>
 void regex::ImmutableStringBuilder<chunkSize>::AppendInt32(int32 value)
-{
+{TRACE_IT(21560);
     WCHAR buffer[11]; // -2,147,483,648 w.o ',' + \0
     HRESULT hr = S_OK;
     hr = StringCchPrintfW(buffer, _countof(buffer), _u("%d"), value);
     AssertMsg(SUCCEEDED(hr), "StringCchPrintfW");
     if (FAILED(hr) )
-    {
+    {TRACE_IT(21561);
         Js::Throw::OutOfMemory();
     }
 
@@ -30,13 +30,13 @@ void regex::ImmutableStringBuilder<chunkSize>::AppendInt32(int32 value)
 
 template<int chunkSize>
 void regex::ImmutableStringBuilder<chunkSize>::AppendUInt64(uint64 value)
-{
+{TRACE_IT(21562);
     WCHAR buffer[21]; // 18,446,744,073,709,551,615 w.o ',' + \0
     HRESULT hr = S_OK;
     hr = StringCchPrintfW(buffer, _countof(buffer), _u("%llu"), value);
     AssertMsg(SUCCEEDED(hr), "StringCchPrintfW");
     if (FAILED(hr) )
-    {
+    {TRACE_IT(21563);
         Js::Throw::OutOfMemory();
     }
 
@@ -46,7 +46,7 @@ void regex::ImmutableStringBuilder<chunkSize>::AppendUInt64(uint64 value)
 
 template<int chunkSize>
 void regex::ImmutableStringBuilder<chunkSize>::AppendWithCopy(_In_z_ LPCWSTR str)
-{
+{TRACE_IT(21564);
     AssertMsg(str != nullptr, "str != nullptr");
     size_t strLength = wcslen(str) + 1; // include null-terminated
 

@@ -5,7 +5,7 @@
 #include "CommonCorePch.h"
 
 void __stdcall js_memcpy_s(__bcount(sizeInBytes) void *dst, size_t sizeInBytes, __in_bcount(count) const void *src, size_t count)
-{
+{TRACE_IT(19607);
     Assert((count) <= (sizeInBytes));
     if ((count) <= (sizeInBytes))
         memcpy((dst), (src), (count));
@@ -14,11 +14,11 @@ void __stdcall js_memcpy_s(__bcount(sizeInBytes) void *dst, size_t sizeInBytes, 
 }
 
 void __stdcall js_wmemcpy_s(__ecount(sizeInWords) char16 *dst, size_t sizeInWords, __in_ecount(count) const char16 *src, size_t count)
-{
+{TRACE_IT(19608);
     //Multiplication Overflow check
     Assert(count <= sizeInWords && count <= SIZE_MAX/sizeof(char16));
     if(!(count <= sizeInWords && count <= SIZE_MAX/sizeof(char16)))
-    {
+    {TRACE_IT(19609);
         Js::Throw::FatalInternalError();
     }
 
@@ -28,9 +28,9 @@ void __stdcall js_wmemcpy_s(__ecount(sizeInWords) char16 *dst, size_t sizeInWord
 #if defined(_M_IX86) || defined(_M_X64)
 
 void __stdcall js_memset_zero_nontemporal(__bcount(sizeInBytes) void *dst, size_t sizeInBytes)
-{
+{TRACE_IT(19610);
     if ((sizeInBytes % sizeof(__m128i)) == 0)
-    {
+    {TRACE_IT(19611);
         size_t writeBytes = 0;
         __m128i simdZero = _mm_setzero_si128();
         for (__m128i * p = (__m128i *)dst; writeBytes < sizeInBytes; p += 1, writeBytes += sizeof(__m128i))

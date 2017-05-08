@@ -27,29 +27,29 @@ namespace Js
 
         Var MoveAndGetNextFromEnumerator(PropertyId& propertyId, PropertyAttributes* attributes);
     public:
-        JavascriptStaticEnumerator() { Clear(EnumeratorFlags::None, nullptr); }
+        JavascriptStaticEnumerator() {TRACE_IT(66359); Clear(EnumeratorFlags::None, nullptr); }
         bool Initialize(JavascriptEnumerator * prefixEnumerator, ArrayObject * arrayToEnumerate, DynamicObject* objectToEnumerate, EnumeratorFlags flags, ScriptContext * requestContext, ForInCache * forInCache);
         bool IsNullEnumerator() const;
         bool CanUseJITFastPath() const;
-        ScriptContext * GetScriptContext() const { return propertyEnumerator.GetScriptContext(); }
-        EnumeratorFlags GetFlags() const { return propertyEnumerator.GetFlags(); }
+        ScriptContext * GetScriptContext() const {TRACE_IT(66360); return propertyEnumerator.GetScriptContext(); }
+        EnumeratorFlags GetFlags() const {TRACE_IT(66361); return propertyEnumerator.GetFlags(); }
 
         void Clear(EnumeratorFlags flags, ScriptContext * requestContext);
         void Reset();
         uint32 GetCurrentItemIndex();
         Var MoveAndGetNext(PropertyId& propertyId, PropertyAttributes* attributes = nullptr);
 
-        static uint32 GetOffsetOfCurrentEnumerator() { return offsetof(JavascriptStaticEnumerator, currentEnumerator); }
-        static uint32 GetOffsetOfPrefixEnumerator() { return offsetof(JavascriptStaticEnumerator, prefixEnumerator); }
-        static uint32 GetOffsetOfArrayEnumerator() { return offsetof(JavascriptStaticEnumerator, arrayEnumerator); }
-        static uint32 GetOffsetOfScriptContext() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfScriptContext(); }
-        static uint32 GetOffsetOfInitialType() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfInitialType(); }
-        static uint32 GetOffsetOfObject() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfObject(); }
-        static uint32 GetOffsetOfObjectIndex() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfObjectIndex(); }
-        static uint32 GetOffsetOfInitialPropertyCount() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfInitialPropertyCount(); }
-        static uint32 GetOffsetOfEnumeratedCount() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfEnumeratedCount(); }
-        static uint32 GetOffsetOfCachedData() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfCachedData(); }
-        static uint32 GetOffsetOfFlags() { return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfFlags(); }
+        static uint32 GetOffsetOfCurrentEnumerator() {TRACE_IT(66362); return offsetof(JavascriptStaticEnumerator, currentEnumerator); }
+        static uint32 GetOffsetOfPrefixEnumerator() {TRACE_IT(66363); return offsetof(JavascriptStaticEnumerator, prefixEnumerator); }
+        static uint32 GetOffsetOfArrayEnumerator() {TRACE_IT(66364); return offsetof(JavascriptStaticEnumerator, arrayEnumerator); }
+        static uint32 GetOffsetOfScriptContext() {TRACE_IT(66365); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfScriptContext(); }
+        static uint32 GetOffsetOfInitialType() {TRACE_IT(66366); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfInitialType(); }
+        static uint32 GetOffsetOfObject() {TRACE_IT(66367); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfObject(); }
+        static uint32 GetOffsetOfObjectIndex() {TRACE_IT(66368); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfObjectIndex(); }
+        static uint32 GetOffsetOfInitialPropertyCount() {TRACE_IT(66369); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfInitialPropertyCount(); }
+        static uint32 GetOffsetOfEnumeratedCount() {TRACE_IT(66370); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfEnumeratedCount(); }
+        static uint32 GetOffsetOfCachedData() {TRACE_IT(66371); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfCachedData(); }
+        static uint32 GetOffsetOfFlags() {TRACE_IT(66372); return offsetof(JavascriptStaticEnumerator, propertyEnumerator) + DynamicObjectPropertyEnumerator::GetOffsetOfFlags(); }
 
 
     };

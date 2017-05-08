@@ -29,8 +29,8 @@ namespace Js
             Js::SmallSpanSequence * statementMap,
             TStatementMapList* fullstatementMap);
 
-        inline bool AtStatementBoundary(ByteCodeReader * reader) { return m_nextStatementBoundary == reader->GetIP(); }
+        inline bool AtStatementBoundary(ByteCodeReader * reader) {TRACE_IT(41985); return m_nextStatementBoundary == reader->GetIP(); }
         inline uint32 MoveNextStatementBoundary();
-        inline uint32 GetStatementIndex() const { return m_statementIndex; }
+        inline uint32 GetStatementIndex() const {TRACE_IT(41986); return m_statementIndex; }
     };
 } // namespace Js

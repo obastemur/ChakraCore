@@ -9,16 +9,16 @@
 
 void
 ForcedMemoryConstraint::Apply()
-{
+{TRACE_IT(23231);
     if (Js::Configuration::Global.flags.IsEnabled(Js::ForceFragmentAddressSpaceFlag))
-    {
+    {TRACE_IT(23232);
         FragmentAddressSpace(Js::Configuration::Global.flags.ForceFragmentAddressSpace);
     }
 }
 
 #pragma prefast(suppress:6262, "Where this function is call should have ample of stack space")
 void ForcedMemoryConstraint::FragmentAddressSpace(size_t usableSize)
-{
+{TRACE_IT(23233);
     // AMD64 address space is too big
 #if !defined(_M_X64_OR_ARM64)
     uint const allocationGranularity = 64 * 1024;     // 64 KB
@@ -33,16 +33,16 @@ void ForcedMemoryConstraint::FragmentAddressSpace(size_t usableSize)
 
     // Reserve the reset the address space
     for (uint i = 1; i < _countof(address); i++)
-    {
+    {TRACE_IT(23234);
         address[i] = ::VirtualAlloc((LPVOID)(i * allocationGranularity), allocationGranularity, MEM_RESERVE, PAGE_NOACCESS);
     }
 
     // fragment
     int j = _countof(address) - 2;
     do
-    {
+    {TRACE_IT(23235);
         if (address[j + 1] == nullptr)
-        {
+        {TRACE_IT(23236);
              j--;
              continue;
         }

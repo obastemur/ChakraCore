@@ -25,21 +25,21 @@ namespace Js
 #define TYPEOF_ERROR_HANDLER_CATCH(scriptContext, var) \
     } \
     catch (const JavascriptException& err) \
-    { \
+    {TRACE_IT(51538); \
         JavascriptExceptionObject* exceptionObject = err.GetAndClear(); \
         Js::Var errorObject = exceptionObject->GetThrownObject(nullptr); \
         if (errorObject != nullptr && Js::JavascriptError::Is(errorObject)) \
-        { \
+        {TRACE_IT(51539); \
             HRESULT hr = Js::JavascriptError::GetRuntimeError(Js::RecyclableObject::FromVar(errorObject), nullptr); \
             if (JavascriptError::GetErrorNumberFromResourceID(JSERR_Property_CannotGet_NullOrUndefined) == (int32)hr \
                 || JavascriptError::GetErrorNumberFromResourceID(JSERR_UseBeforeDeclaration) == (int32)hr) \
-            { \
+            {TRACE_IT(51540); \
                 if (scriptContext->IsScriptContextInDebugMode()) \
-                { \
+                {TRACE_IT(51541); \
                     JavascriptExceptionOperators::ThrowExceptionObject(exceptionObject, scriptContext, true); \
                 } \
                 else \
-                { \
+                {TRACE_IT(51542); \
                     JavascriptExceptionOperators::DoThrow(exceptionObject, scriptContext); \
                 } \
             } \
@@ -49,12 +49,12 @@ namespace Js
 #define TYPEOF_ERROR_HANDLER_THROW(scriptContext, var) \
     } \
     if (scriptContext->IsUndeclBlockVar(var)) \
-    { \
+    {TRACE_IT(51543); \
         JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration); \
     }
 
 #define BEGIN_TYPEOF_ERROR_HANDLER(scriptContext)  \
-    try { \
+    try {TRACE_IT(51544); \
     Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext); \
     class AutoCleanup \
     { \
@@ -62,16 +62,16 @@ namespace Js
         ScriptContext *const scriptContext; \
     public: \
         AutoCleanup(ScriptContext *const scriptContext) : scriptContext(scriptContext) \
-        { \
+        {TRACE_IT(51545); \
             if (scriptContext->IsScriptContextInDebugMode()) \
-            { \
+            {TRACE_IT(51546); \
                 scriptContext->GetDebugContext()->GetProbeContainer()->SetThrowIsInternal(true); \
             } \
         } \
         ~AutoCleanup() \
-        { \
+        {TRACE_IT(51547); \
             if (scriptContext->IsScriptContextInDebugMode()) \
-            { \
+            {TRACE_IT(51548); \
                 scriptContext->GetDebugContext()->GetProbeContainer()->SetThrowIsInternal(false); \
             } \
         } \

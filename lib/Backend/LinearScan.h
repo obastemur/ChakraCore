@@ -36,7 +36,7 @@ public:
     JsUtil::List<Func*, JitArenaAllocator>     inlineeStack;
 
     LoweredBasicBlock(JitArenaAllocator* allocator) : inlineeFrameLifetimes(allocator), inlineeStack(allocator), inlineeFrameSyms(allocator)
-    {
+    {TRACE_IT(10804);
     }
 
     static LoweredBasicBlock* New(JitArenaAllocator * allocator);
@@ -103,7 +103,7 @@ public:
         lastLabel(NULL), numInt32Regs(0), numFloatRegs(0), stackPackInUseLiveRanges(NULL), stackSlotsFreeList(NULL),
         totalOpHelperFullVisitedLength(0), curLoop(NULL), currentBlock(nullptr), currentRegion(nullptr), m_bailOutRecordCount(0),
         globalBailOutRecordTables(nullptr), lastUpdatedRowIndices(nullptr)
-    {
+    {TRACE_IT(10805);
     }
 
     void                RegAlloc();
@@ -155,8 +155,8 @@ private:
     bool                NeedsWriteThrough(StackSym * sym);
     bool                NeedsWriteThroughForEH(StackSym * sym);
 
-    bool                IsInLoop() { return this->loopNest != 0; }
-    bool                IsInHelperBlock() const { return this->currentOpHelperBlock != NULL; }
+    bool                IsInLoop() {TRACE_IT(10806); return this->loopNest != 0; }
+    bool                IsInHelperBlock() const {TRACE_IT(10807); return this->currentOpHelperBlock != NULL; }
     uint                HelperBlockStartInstrNumber() const;
     uint                HelperBlockEndInstrNumber() const;
     void                CheckOpHelper(IR::Instr * instr);

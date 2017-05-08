@@ -20,12 +20,12 @@ namespace JSON
             ::Js::ScriptContext* sc, const char16* current, ArenaAllocator* allocator);
 
         void Finalizer();
-        char16* GetCurrentString() { return currentString; } 
-        uint GetCurrentStringLen() { return currentIndex; }
-        uint GetScanPosition() { return uint(currentChar - inputText); }
+        char16* GetCurrentString() {TRACE_IT(55949); return currentString; } 
+        uint GetCurrentStringLen() {TRACE_IT(55950); return currentIndex; }
+        uint GetScanPosition() {TRACE_IT(55951); return uint(currentChar - inputText); }
 
         void __declspec(noreturn) ThrowSyntaxError(int wErr)
-        {
+        {TRACE_IT(55952);
             char16 scanPos[16];
             ::_itow_s(GetScanPosition(), scanPos, _countof(scanPos) / sizeof(char16), 10);
             Js::JavascriptError::ThrowSyntaxError(scriptContext, wErr, scanPos);
@@ -39,8 +39,8 @@ namespace JSON
             uint m_rangeStart;
             uint m_rangeLength;
             char16 m_char;
-            RangeCharacterPair() {}
-            RangeCharacterPair(uint rangeStart, uint rangeLength, char16 ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {}
+            RangeCharacterPair() {TRACE_IT(55953);}
+            RangeCharacterPair(uint rangeStart, uint rangeLength, char16 ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {TRACE_IT(55954);}
         };
 
         typedef JsUtil::List<RangeCharacterPair, ArenaAllocator> RangeCharacterPairList;
@@ -54,12 +54,12 @@ namespace JSON
         RangeCharacterPairList* GetCurrentRangeCharacterPairList(void);
 
         inline char16 ReadNextChar(void)
-        {
+        {TRACE_IT(55955);
             return *currentChar++;
         }
 
         inline char16 PeekNextChar(void)
-        {
+        {TRACE_IT(55956);
             return *currentChar;
         }
 

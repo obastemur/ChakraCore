@@ -26,12 +26,12 @@ namespace Js {
         // address.
         JavascriptException(Field(JavascriptExceptionObject*)* addressOfException)
             : addressOfException(addressOfException)
-        {
+        {TRACE_IT(22524);
             Assert(addressOfException && *addressOfException);
         }
 
         JavascriptExceptionObject* GetAndClear() const
-        {
+        {TRACE_IT(22525);
             Assert(*addressOfException);
 
             JavascriptExceptionObject* exceptionObject = *addressOfException;

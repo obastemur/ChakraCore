@@ -29,7 +29,7 @@ public:
     bool IsEquivalent(const WasmSignature* sig) const;
     static WasmSignature * FromIDL(WasmSignatureIDL* sig);
 
-    static uint GetOffsetOfShortSig() { return offsetof(WasmSignature, m_shortSig); }
+    static uint GetOffsetOfShortSig() {TRACE_IT(68462); return offsetof(WasmSignature, m_shortSig); }
 
     void Dump();
 private:

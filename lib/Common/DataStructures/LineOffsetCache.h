@@ -32,11 +32,11 @@ namespace JsUtil
             charcount_t &inOutLineCharOffset,
             charcount_t &inOutByteOffset,
             charcount_t characterOffset)
-        {
+        {TRACE_IT(21760);
             int lastLine = 0;
 
             while (FindNextLine(sourceStartCharacter, sourceEndCharacter, inOutLineCharOffset, inOutByteOffset, characterOffset))
-            {
+            {TRACE_IT(21761);
                 lastLine++;
             }
 
@@ -62,21 +62,21 @@ namespace JsUtil
             __in int numberOfLines) :
             allocator(allocator),
             isCacheBuilt(false)
-        {
+        {TRACE_IT(21762);
             this->lineOffsetCacheList = LineOffsetCacheReadOnlyList::New(allocator, (LineOffsetCacheItem *)lines, numberOfLines);
         }
 
         ~LineOffsetCache()
-        {
+        {TRACE_IT(21763);
             if (this->lineOffsetCacheList != nullptr)
-            {
+            {TRACE_IT(21764);
                 this->lineOffsetCacheList->Delete();
             }
         }
 
         // outLineCharOffset - The character offset of the start of the line returned
         int GetLineForCharacterOffset(charcount_t characterOffset, charcount_t *outLineCharOffset, charcount_t *outByteOffset)
-        {
+        {TRACE_IT(21765);
             Assert(this->lineOffsetCacheList->Count() > 0);
 
             // The list is sorted, so binary search to find the line info.
@@ -87,9 +87,9 @@ namespace JsUtil
             {
                 int offsetRange = characterOffset - item.characterOffset;
                 if (offsetRange >= 0)
-                {
+                {TRACE_IT(21766);
                     if (offsetRange < minRange)
-                    {
+                    {TRACE_IT(21767);
                         // There are potentially many lines with starting offsets greater than the one we're searching
                         // for.  As a result, we should track which index we've encountered so far that is the closest
                         // to the offset we're looking for without going under.  This will find the line that contains
@@ -102,7 +102,7 @@ namespace JsUtil
                     return -1;
                 }
                 else
-                {
+                {TRACE_IT(21768);
                     // Search higher to get into a range that is greater than the offset.
                     return 1;
                 }
@@ -114,16 +114,16 @@ namespace JsUtil
             });
 
             if (closestIndex >= 0)
-            {
+            {TRACE_IT(21769);
                 LineOffsetCacheItem lastItem = this->lineOffsetCacheList->Item(closestIndex);
 
                 if (outLineCharOffset != nullptr)
-                {
+                {TRACE_IT(21770);
                     *outLineCharOffset = lastItem.characterOffset;
                 }
 
                 if (outByteOffset != nullptr)
-                {
+                {TRACE_IT(21771);
                     *outByteOffset = lastItem.byteOffset;
                 }
             }
@@ -132,13 +132,13 @@ namespace JsUtil
         }
 
         charcount_t GetCharacterOffsetForLine(charcount_t line, charcount_t *outByteOffset) const
-        {
+        {TRACE_IT(21772);
             AssertMsg(line < this->GetLineCount(), "Invalid line value passed in.");
 
             LineOffsetCacheItem item = this->lineOffsetCacheList->Item(line);
 
             if (outByteOffset != nullptr)
-            {
+            {TRACE_IT(21773);
                 *outByteOffset = item.byteOffset;
             }
 
@@ -146,26 +146,26 @@ namespace JsUtil
         }
 
         uint32 GetLineCount() const
-        {
+        {TRACE_IT(21774);
             AssertMsg(this->lineOffsetCacheList != nullptr, "The list was either not set from the ByteCode or not created.");
             return this->lineOffsetCacheList->Count();
         }
 
         const LineOffsetCacheItem* GetItems()
-        {
+        {TRACE_IT(21775);
             return this->lineOffsetCacheList->GetBuffer();
         }
 
     private:
 
         static bool FindNextLine(_In_z_ LPCUTF8 &currentSourcePosition, _In_z_ LPCUTF8 sourceEndCharacter, charcount_t &inOutCharacterOffset, charcount_t &inOutByteOffset, charcount_t maxCharacterOffset = UINT32_MAX)
-        {
+        {TRACE_IT(21776);
             charcount_t currentCharacterOffset = inOutCharacterOffset;
             charcount_t currentByteOffset = inOutByteOffset;
             utf8::DecodeOptions options = utf8::doAllowThreeByteSurrogates;
 
             while (currentSourcePosition < sourceEndCharacter)
-            {
+            {TRACE_IT(21777);
                 LPCUTF8 previousCharacter = currentSourcePosition;
 
                 // Decode from UTF8 to wide char.  Note that Decode will advance the current character by 1 at least.
@@ -178,7 +178,7 @@ namespace JsUtil
                     // Check if the next character is a '\n'.  If so, consume that character as well
                     // (consider as one line).
                     if (*currentSourcePosition == '\n')
-                    {
+                    {TRACE_IT(21778);
                         ++currentSourcePosition;
                         ++currentCharacterOffset;
                     }
@@ -200,13 +200,13 @@ namespace JsUtil
                 currentByteOffset += static_cast<int>(currentSourcePosition - previousCharacter);
 
                 if (wasLineEncountered)
-                {
+                {TRACE_IT(21779);
                     inOutCharacterOffset = currentCharacterOffset;
                     inOutByteOffset = currentByteOffset;
                     return true;
                 }
                 else if (currentCharacterOffset >= maxCharacterOffset)
-                {
+                {TRACE_IT(21780);
                     return false;
                 }
             }
@@ -229,7 +229,7 @@ namespace JsUtil
             this->AddLine(list, startingCharacterOffset, startingByteOffset);
 
             while (FindNextLine(sourceStartCharacter, sourceEndCharacter, startingCharacterOffset, startingByteOffset))
-            {
+            {TRACE_IT(21781);
                 this->AddLine(list, startingCharacterOffset, startingByteOffset);
             }
 
@@ -238,7 +238,7 @@ namespace JsUtil
 
         // Tracks a new line offset in the cache.
         void AddLine(_In_ LineOffsetCacheList *list, int characterOffset, int byteOffset)
-        {
+        {TRACE_IT(21782);
             AssertMsg(characterOffset >= 0, "The character offset is invalid.");
             AssertMsg(byteOffset >= 0, "The byte offset is invalid.");
 
@@ -250,7 +250,7 @@ namespace JsUtil
 
 #if DBG
             if (list->Count() > 1)
-            {
+            {TRACE_IT(21783);
                 // Ensure that the list remains sorted during insertion.
                 LineOffsetCacheItem previousItem = list->Item(list->Count() - 2);
                 AssertMsg(item.characterOffset > previousItem.characterOffset, "The character offsets must be inserted in increasing order per line.");

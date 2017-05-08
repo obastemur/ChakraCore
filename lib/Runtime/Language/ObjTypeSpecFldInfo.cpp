@@ -13,9 +13,9 @@ namespace Js
 {
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, InlineCache* cache, uint cacheId, EntryPointInfo *entryPoint,
         FunctionBody* const topFunctionBody, FunctionBody *const functionBody, FieldAccessStatsPtr inlineCacheStats)
-    {
+    {TRACE_IT(51902);
         if (cache->IsEmpty())
-        {
+        {TRACE_IT(51903);
             return nullptr;
         }
 
@@ -30,23 +30,23 @@ namespace Js
         bool isAccessor = localCache.IsAccessor();
         bool isGetter = localCache.IsGetterAccessor();
         if (isLocal)
-        {
+        {TRACE_IT(51904);
             type = TypeWithoutAuxSlotTag(localCache.u.local.type);
             if (localCache.u.local.typeWithoutProperty)
-            {
+            {TRACE_IT(51905);
                 typeWithoutProperty = TypeWithoutAuxSlotTag(localCache.u.local.typeWithoutProperty);
             }
             propertyOwnerType = type;
         }
         else if (isProto)
-        {
+        {TRACE_IT(51906);
             type = TypeWithoutAuxSlotTag(localCache.u.proto.type);
             propertyOwnerType = localCache.u.proto.prototypeObject->GetType();
         }
         else
-        {
+        {TRACE_IT(51907);
             if (PHASE_OFF(Js::FixAccessorPropsPhase, functionBody))
-            {
+            {TRACE_IT(51908);
                 return nullptr;
             }
 
@@ -73,14 +73,14 @@ namespace Js
         // The type pointers must be untagged so that the types cannot be collected during JIT.
 
         if (isLocal)
-        {
+        {TRACE_IT(51909);
             slotIndex = localCache.u.local.slotIndex;
             if (type != localCache.u.local.type)
-            {
+            {TRACE_IT(51910);
                 usesAuxSlot = true;
             }
             if (typeWithoutProperty)
-            {
+            {TRACE_IT(51911);
                 Assert(entryPoint->GetJitTransferData() != nullptr);
                 entryPoint->GetJitTransferData()->AddJitTimeTypeRef(typeWithoutProperty, recycler);
 
@@ -91,31 +91,31 @@ namespace Js
             }
         }
         else if (isProto)
-        {
+        {TRACE_IT(51912);
             prototypeObject = localCache.u.proto.prototypeObject;
             slotIndex = localCache.u.proto.slotIndex;
             if (type != localCache.u.proto.type)
-            {
+            {TRACE_IT(51913);
                 usesAuxSlot = true;
                 fieldValue = prototypeObject->GetAuxSlot(slotIndex);
             }
             else
-            {
+            {TRACE_IT(51914);
                 fieldValue = prototypeObject->GetInlineSlot(slotIndex);
             }
             isMissing = localCache.u.proto.isMissing;
             propertyGuard = entryPoint->RegisterSharedPropertyGuard(propertyId, scriptContext);
         }
         else
-        {
+        {TRACE_IT(51915);
             slotIndex = localCache.u.accessor.slotIndex;
             if (type != localCache.u.accessor.type)
-            {
+            {TRACE_IT(51916);
                 usesAuxSlot = true;
                 fieldValue = localCache.u.accessor.object->GetAuxSlot(slotIndex);
             }
             else
-            {
+            {TRACE_IT(51917);
                 fieldValue = localCache.u.accessor.object->GetInlineSlot(slotIndex);
             }
         }
@@ -128,19 +128,19 @@ namespace Js
         bool allFixedPhaseOFF = PHASE_OFF(Js::FixedMethodsPhase, topFunctionBody) & PHASE_OFF(Js::UseFixedDataPropsPhase, topFunctionBody);
 
         if (!allFixedPhaseOFF)
-        {
+        {TRACE_IT(51918);
             Assert(propertyOwnerType != nullptr);
             if (Js::DynamicType::Is(propertyOwnerType->GetTypeId()))
-            {
+            {TRACE_IT(51919);
                 Js::DynamicTypeHandler* propertyOwnerTypeHandler = ((Js::DynamicType*)propertyOwnerType)->GetTypeHandler();
                 Js::PropertyRecord const * const fixedPropertyRecord = functionBody->GetScriptContext()->GetPropertyName(propertyId);
                 Var fixedProperty = nullptr;
                 Js::JavascriptFunction* functionObject = nullptr;
 
                 if (isLocal || isProto)
-                {
+                {TRACE_IT(51920);
                     if (typeWithoutProperty == nullptr)
-                    {
+                    {TRACE_IT(51921);
                         // Since we don't know if this cache is used for LdMethodFld, we may fix up (use as fixed) too
                         // aggressively here, if we load a function that we don't actually call.  This happens in the case
                         // of constructors (e.g. Object.defineProperty or Object.create).
@@ -152,20 +152,20 @@ namespace Js
                     }
                 }
                 else
-                {
+                {TRACE_IT(51922);
                     propertyOwnerTypeHandler->TryUseFixedAccessor(fixedPropertyRecord, &fixedProperty, (Js::FixedPropertyKind)(Js::FixedPropertyKind::FixedAccessorProperty), isGetter, scriptContext);
                 }
 
                 if (fixedProperty != nullptr && propertyGuard == nullptr)
-                {
+                {TRACE_IT(51923);
                     propertyGuard = entryPoint->RegisterSharedPropertyGuard(propertyId, scriptContext);
                 }
 
                 if (fixedProperty != nullptr && Js::JavascriptFunction::Is(fixedProperty))
-                {
+                {TRACE_IT(51924);
                     functionObject = (Js::JavascriptFunction *)fixedProperty;
                     if (PHASE_VERBOSE_TRACE(Js::FixedMethodsPhase, functionBody))
-                    {
+                    {TRACE_IT(51925);
                         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -179,7 +179,7 @@ namespace Js
                     }
 
                     if (PHASE_VERBOSE_TESTTRACE(Js::FixedMethodsPhase, functionBody))
-                    {
+                    {TRACE_IT(51926);
                         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -199,7 +199,7 @@ namespace Js
 
                     ConstructorCache* runtimeConstructorCache = functionObject->GetConstructorCache();
                     if (runtimeConstructorCache->IsSetUpForJit() && runtimeConstructorCache->GetScriptContext() == scriptContext)
-                    {
+                    {TRACE_IT(51927);
                         FunctionInfo* functionInfo = functionObject->GetFunctionInfo();
                         Assert(functionInfo != nullptr);
                         Assert((functionInfo->GetAttributes() & FunctionInfo::ErrorOnNew) == 0);
@@ -207,16 +207,16 @@ namespace Js
                         Assert(!runtimeConstructorCache->IsDefault());
 
                         if (runtimeConstructorCache->IsNormal())
-                        {
+                        {TRACE_IT(51928);
                             Assert(runtimeConstructorCache->GetType()->GetIsShared());
                             // If we populated the cache with initial type before calling the constructor, but then didn't end up updating the cache
                             // after the constructor and shrinking (and locking) the inline slot capacity, we must lock it now.  In that case it is
                             // also possible that the inline slot capacity was shrunk since we originally cached it, so we must update it also.
 #if DBG_DUMP
                             if (!runtimeConstructorCache->GetType()->GetTypeHandler()->GetIsInlineSlotCapacityLocked())
-                            {
+                            {TRACE_IT(51929);
                                 if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                                {
+                                {TRACE_IT(51930);
                                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                                     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -238,7 +238,7 @@ namespace Js
                         ctorCache = RecyclerNew(recycler, JITTimeConstructorCache, functionObject, runtimeConstructorCache);
 
                         if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                        {
+                        {TRACE_IT(51931);
                             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                             char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -251,11 +251,11 @@ namespace Js
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(51932);
                         if (!runtimeConstructorCache->IsDefault())
-                        {
+                        {TRACE_IT(51933);
                             if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                            {
+                            {TRACE_IT(51934);
                                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                                 char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -279,7 +279,7 @@ namespace Js
                 }
 
                 if (fixedProperty != nullptr)
-                {
+                {TRACE_IT(51935);
                     Assert(fieldValue == nullptr || fieldValue == fixedProperty);
                     fieldValue = fixedProperty;
                     isFieldValueFixed = true;
@@ -301,7 +301,7 @@ namespace Js
         if ((!PHASE_OFF(Js::EquivObjTypeSpecByDefaultPhase, topFunctionBody) ||
             PHASE_STRESS(Js::EquivObjTypeSpecPhase, topFunctionBody))
             && !PHASE_OFF(Js::EquivObjTypeSpecPhase, topFunctionBody))
-        {
+        {TRACE_IT(51936);
             Assert(topFunctionBody->HasDynamicProfileInfo());
             auto profileData = topFunctionBody->GetAnyDynamicProfileInfo();
             // We only support equivalent fixed fields on loads from prototype, and no equivalence on missing properties
@@ -309,22 +309,22 @@ namespace Js
         }
 
         if (isFieldValueFixed)
-        {
+        {TRACE_IT(51937);
             // Fixed field checks allow us to assume a specific type ID, but the assumption is only
             // valid if we lock the type. Otherwise, the type ID may change out from under us without
             // evolving the type.
             if (DynamicType::Is(type->GetTypeId()))
-            {
+            {TRACE_IT(51938);
                 DynamicType *dynamicType = static_cast<DynamicType*>(type);
                 if (!dynamicType->GetIsLocked())
-                {
+                {TRACE_IT(51939);
                     dynamicType->LockType();
                 }
             }
         }
 
         if (forcePoly)
-        {
+        {TRACE_IT(51940);
             uint16 typeCount = 1;
             RecyclerJITTypeHolder* types = RecyclerNewArray(recycler, RecyclerJITTypeHolder, typeCount);
             types[0].t = RecyclerNew(recycler, JITType);
@@ -336,7 +336,7 @@ namespace Js
                 prototypeObject, propertyGuard, ctorCache, fixedFieldInfoArray, 1);
 
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {TRACE_IT(51941);
                 const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                 Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type set: 0x%p\n"),
                     id, propertyRecord->GetBuffer(), propertyId, slotIndex, type);
@@ -344,13 +344,13 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(51942);
             info = RecyclerNew(recycler, ObjTypeSpecFldInfo,
                 id, type->GetTypeId(), typeWithoutProperty, usesAuxSlot, isProto, isAccessor, isFieldValueFixed, keepFieldValue, isBuiltIn, slotIndex, propertyId,
                 prototypeObject, propertyGuard, ctorCache, fixedFieldInfoArray);
 
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {TRACE_IT(51943);
                 const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                 Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type: 0x%p\n"),
                     id, propertyRecord->GetBuffer(), propertyId, slotIndex, type);
@@ -363,10 +363,10 @@ namespace Js
 
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, PolymorphicInlineCache* cache, uint cacheId, EntryPointInfo *entryPoint,
         FunctionBody* const topFunctionBody, FunctionBody *const functionBody, FieldAccessStatsPtr inlineCacheStats)
-    {
+    {TRACE_IT(51944);
 
 #ifdef FIELD_ACCESS_STATS
-#define IncInlineCacheCount(counter) if (inlineCacheStats) { inlineCacheStats->counter++; }
+#define IncInlineCacheCount(counter) if (inlineCacheStats) {TRACE_IT(51945); inlineCacheStats->counter++; }
 #else
 #define IncInlineCacheCount(counter)
 #endif
@@ -377,9 +377,9 @@ namespace Js
         bool gatherDataForInlining = cache->GetCloneForJitTimeUse() && functionBody->PolyInliningUsingFixedMethodsAllowedByConfigFlags(topFunctionBody);
 
         if (PHASE_OFF(Js::EquivObjTypeSpecPhase, topFunctionBody) || profileData->IsEquivalentObjTypeSpecDisabled())
-        {
+        {TRACE_IT(51946);
             if (!gatherDataForInlining)
-            {
+            {TRACE_IT(51947);
                 return nullptr;
             }
         }
@@ -404,14 +404,14 @@ namespace Js
 
         uint16 typeCount = 0;
         for (uint16 i = 0; (areEquivalent || stress || gatherDataForInlining) && i < polyCacheSize; i++)
-        {
+        {TRACE_IT(51948);
             InlineCache& inlineCache = inlineCaches[i];
             if (inlineCache.IsEmpty()) continue;
 
             if (firstNonEmptyCacheIndex == UINT16_MAX)
-            {
+            {TRACE_IT(51949);
                 if (inlineCache.IsLocal())
-                {
+                {TRACE_IT(51950);
                     typeId = TypeWithoutAuxSlotTag(inlineCache.u.local.type)->GetTypeId();
                     usesAuxSlot = TypeHasAuxSlotTag(inlineCache.u.local.type);
                     slotIndex = inlineCache.u.local.slotIndex;
@@ -424,7 +424,7 @@ namespace Js
                 // Missing properties by definition do not exist on the proto chain, so in the end we could have an EquivalentObjTypeSpec cache hit on a
                 // property that once was missing, but has since been added. (See OS Bugs 280582).
                 else if (inlineCache.IsProto() && !inlineCache.u.proto.isMissing)
-                {
+                {TRACE_IT(51951);
                     isProto = true;
                     typeId = TypeWithoutAuxSlotTag(inlineCache.u.proto.type)->GetTypeId();
                     usesAuxSlot = TypeHasAuxSlotTag(inlineCache.u.proto.type);
@@ -432,9 +432,9 @@ namespace Js
                     prototypeObject = inlineCache.u.proto.prototypeObject;
                 }
                 else
-                {
+                {TRACE_IT(51952);
                     if (!PHASE_OFF(Js::FixAccessorPropsPhase, functionBody))
-                    {
+                    {TRACE_IT(51953);
                         isAccessor = true;
                         isGetterAccessor = inlineCache.IsGetterAccessor();
                         isAccessorOnProto = inlineCache.u.accessor.isOnProto;
@@ -444,7 +444,7 @@ namespace Js
                         slotIndex = inlineCache.u.accessor.slotIndex;
                     }
                     else
-                    {
+                    {TRACE_IT(51954);
                         areEquivalent = false;
                         areStressEquivalent = false;
                     }
@@ -453,31 +453,31 @@ namespace Js
 
                 // If we're stressing equivalent object type spec then let's keep trying to find a cache that we could use.
                 if (!stress || areStressEquivalent)
-                {
+                {TRACE_IT(51955);
                     firstNonEmptyCacheIndex = i;
                 }
             }
             else
-            {
+            {TRACE_IT(51956);
                 if (inlineCache.IsLocal())
-                {
+                {TRACE_IT(51957);
                     if (isProto || isAccessor || inlineCache.u.local.typeWithoutProperty != nullptr || slotIndex != inlineCache.u.local.slotIndex ||
                         typeId != TypeWithoutAuxSlotTag(inlineCache.u.local.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.local.type))
-                    {
+                    {TRACE_IT(51958);
                         areEquivalent = false;
                     }
                     gatherDataForInlining = false;
                 }
                 else if (inlineCache.IsProto())
-                {
+                {TRACE_IT(51959);
                     if (!isProto || isAccessor || prototypeObject != inlineCache.u.proto.prototypeObject || slotIndex != inlineCache.u.proto.slotIndex ||
                         typeId != TypeWithoutAuxSlotTag(inlineCache.u.proto.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.proto.type))
-                    {
+                    {TRACE_IT(51960);
                         areEquivalent = false;
                     }
                 }
                 else
-                {
+                {TRACE_IT(51961);
                     // Supporting equivalent obj type spec only for those polymorphic accessor property operations for which
                     // 1. the property is on the same prototype, and
                     // 2. the types are equivalent.
@@ -485,7 +485,7 @@ namespace Js
                     // This is done to keep the equivalence check helper as-is
                     if (!isAccessor || isGetterAccessor != inlineCache.IsGetterAccessor() || !isAccessorOnProto || !inlineCache.u.accessor.isOnProto || accessorOwnerObject != inlineCache.u.accessor.object ||
                         slotIndex != inlineCache.u.accessor.slotIndex || typeId != TypeWithoutAuxSlotTag(inlineCache.u.accessor.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.accessor.type))
-                    {
+                    {TRACE_IT(51962);
                         areEquivalent = false;
                     }
                     gatherDataForInlining = false;
@@ -495,23 +495,23 @@ namespace Js
         }
 
         if (firstNonEmptyCacheIndex == UINT16_MAX)
-        {
+        {TRACE_IT(51963);
             IncInlineCacheCount(emptyPolyInlineCacheCount);
             return nullptr;
         }
 
         if (cache->GetIgnoreForEquivalentObjTypeSpec())
-        {
+        {TRACE_IT(51964);
             areEquivalent = areStressEquivalent = false;
         }
 
         gatherDataForInlining = gatherDataForInlining && (typeCount <= 4); // Only support 4-way (max) polymorphic inlining
         if (!areEquivalent && !areStressEquivalent)
-        {
+        {TRACE_IT(51965);
             IncInlineCacheCount(nonEquivPolyInlineCacheCount);
             cache->SetIgnoreForEquivalentObjTypeSpec(true);
             if (!gatherDataForInlining)
-            {
+            {TRACE_IT(51966);
                 return nullptr;
             }
         }
@@ -522,7 +522,7 @@ namespace Js
 
         // If we're stressing equivalent object type spec and the types are not equivalent, let's grab the first one only.
         if (stress && (areEquivalent != areStressEquivalent))
-        {
+        {TRACE_IT(51967);
             polyCacheSize = firstNonEmptyCacheIndex + 1;
         }
 
@@ -539,14 +539,14 @@ namespace Js
         // Since all types in the polymorphic cache share the same prototype, it's enough to grab the fixed function from the prototype object.
         Var fixedProperty = nullptr;
         if ((isProto || isAccessorOnProto) && (areEquivalent || areStressEquivalent))
-        {
+        {TRACE_IT(51968);
             const Js::PropertyRecord* propertyRecord = scriptContext->GetPropertyName(functionBody->GetPropertyIdFromCacheId(cacheId));
             if (isProto)
-            {
+            {TRACE_IT(51969);
                 prototypeObject->GetDynamicType()->GetTypeHandler()->TryUseFixedProperty(propertyRecord, &fixedProperty, (Js::FixedPropertyKind)(Js::FixedPropertyKind::FixedMethodProperty | Js::FixedPropertyKind::FixedDataProperty), scriptContext);
             }
             else if (isAccessorOnProto)
-            {
+            {TRACE_IT(51970);
                 accessorOwnerObject->GetDynamicType()->GetTypeHandler()->TryUseFixedAccessor(propertyRecord, &fixedProperty, Js::FixedPropertyKind::FixedAccessorProperty, isGetterAccessor, scriptContext);
             }
 
@@ -562,7 +562,7 @@ namespace Js
         uint16 typeNumber = 0;
         Js::JavascriptFunction* fixedFunctionObject = nullptr;
         for (uint16 i = firstNonEmptyCacheIndex; i < polyCacheSize; i++)
-        {
+        {TRACE_IT(51971);
             InlineCache& inlineCache = inlineCaches[i];
             if (inlineCache.IsEmpty()) continue;
 
@@ -571,17 +571,17 @@ namespace Js
                 TypeWithoutAuxSlotTag(inlineCache.u.accessor.type);
 
             if (gatherDataForInlining)
-            {
+            {TRACE_IT(51972);
                 inlineCache.TryGetFixedMethodFromCache(functionBody, cacheId, &fixedFunctionObject);
                 if (!fixedFunctionObject || !fixedFunctionObject->GetFunctionInfo()->HasBody())
-                {
+                {TRACE_IT(51973);
                     if (!(areEquivalent || areStressEquivalent))
-                    {
+                    {TRACE_IT(51974);
                         // If we reach here only because we are gathering data for inlining, and one of the Inline Caches doesn't have a fixedfunction object, return.
                         return nullptr;
                     }
                     else
-                    {
+                    {TRACE_IT(51975);
                         // If one of the inline caches doesn't have a fixed function object, abort gathering inlining data.
                         gatherDataForInlining = false;
                         typeNumber++;
@@ -601,12 +601,12 @@ namespace Js
         }
 
         if (isAccessor && gatherDataForInlining)
-        {
+        {TRACE_IT(51976);
             Assert(fixedFunctionCount <= 1);
         }
 
         if (stress && (areEquivalent != areStressEquivalent))
-        {
+        {TRACE_IT(51977);
             typeCount = 1;
         }
 
@@ -617,13 +617,13 @@ namespace Js
 
         FixedFieldInfo* fixedFieldInfoArray;
         if (gatherDataForInlining)
-        {
+        {TRACE_IT(51978);
             fixedFieldInfoArray = RecyclerNewArrayZ(recycler, FixedFieldInfo, fixedFunctionCount);
             CopyArray<FixedFieldInfo, Field(Var)>(
                 fixedFieldInfoArray, fixedFunctionCount, localFixedFieldInfoArray, fixedFunctionCount);
         }
         else
-        {
+        {TRACE_IT(51979);
             fixedFieldInfoArray = RecyclerNewArrayZ(recycler, FixedFieldInfo, 1);
             CopyArray<FixedFieldInfo, Field(Var)>(fixedFieldInfoArray, 1, localFixedFieldInfoArray, 1);
         }
@@ -642,21 +642,21 @@ namespace Js
         auto jitTransferData = entryPoint->GetJitTransferData();
         Assert(jitTransferData != nullptr);
         if (areEquivalent || areStressEquivalent)
-        {
+        {TRACE_IT(51980);
             RecyclerJITTypeHolder* types = RecyclerNewArray(recycler, RecyclerJITTypeHolder, typeCount);
             for (uint16 i = 0; i < typeCount; i++)
-            {
+            {TRACE_IT(51981);
                 jitTransferData->AddJitTimeTypeRef(localTypes[i], recycler);
                 if (hasFixedValue)
-                {
+                {TRACE_IT(51982);
                     // Fixed field checks allow us to assume a specific type ID, but the assumption is only
                     // valid if we lock the type. Otherwise, the type ID may change out from under us without
                     // evolving the type.
                     if (DynamicType::Is(localTypes[i]->GetTypeId()))
-                    {
+                    {TRACE_IT(51983);
                         DynamicType *dynamicType = static_cast<DynamicType*>(localTypes[i]);
                         if (!dynamicType->GetIsLocked())
-                        {
+                        {TRACE_IT(51984);
                             dynamicType->LockType();
                         }
                     }
@@ -674,16 +674,16 @@ namespace Js
             prototypeObject, propertyGuard, nullptr, fixedFieldInfoArray, fixedFunctionCount/*, nullptr, nullptr, nullptr*/);
 
         if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-        {
+        {TRACE_IT(51985);
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {TRACE_IT(51986);
                 if (typeSet)
-                {
+                {TRACE_IT(51987);
                     const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                     Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type set: "),
                         id, propertyRecord->GetBuffer(), propertyId, slotIndex);
                     for (uint16 ti = 0; ti < typeCount - 1; ti++)
-                    {
+                    {TRACE_IT(51988);
                         Output::Print(_u("0x%p, "), typeSet->GetType(ti));
                     }
                     Output::Print(_u("0x%p\n"), typeSet->GetType(typeCount - 1));
@@ -698,7 +698,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunction() const
-    {
+    {TRACE_IT(51989);
         Assert(HasFixedValue());
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         Assert(this->fixedFieldInfoArray[0].fieldValue != nullptr && Js::JavascriptFunction::Is(this->fixedFieldInfoArray[0].fieldValue));
@@ -707,7 +707,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunction(uint i) const
-    {
+    {TRACE_IT(51990);
         Assert(HasFixedValue());
         Assert(IsPoly());
         Assert(this->fixedFieldInfoArray[i].fieldValue != nullptr && Js::JavascriptFunction::Is(this->fixedFieldInfoArray[i].fieldValue));
@@ -716,7 +716,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFunction() const
-    {
+    {TRACE_IT(51991);
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         Assert(this->fixedFieldInfoArray[0].fieldValue != nullptr && JavascriptFunction::Is(this->fixedFieldInfoArray[0].fieldValue));
 
@@ -724,7 +724,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFunctionIfAvailable() const
-    {
+    {TRACE_IT(51992);
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
 
         if (PHASE_OFF1(ObjTypeSpecPhase)) return nullptr; // TODO: (lei)remove this after obj type spec for OOPJIT implemented
@@ -734,14 +734,14 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunctionIfAvailable() const
-    {
+    {TRACE_IT(51993);
         Assert(HasFixedValue());
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         return GetFieldValueAsFunctionIfAvailable();
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunctionIfAvailable(uint i) const
-    {
+    {TRACE_IT(51994);
         Assert(HasFixedValue());
         Assert(IsPoly());
         return this->fixedFieldInfoArray[i].fieldValue != nullptr && JavascriptFunction::Is(this->fixedFieldInfoArray[i].fieldValue) ?
@@ -749,13 +749,13 @@ namespace Js
     }
 
     JITTypeHolder ObjTypeSpecFldInfo::GetFirstEquivalentType() const
-    {
+    {TRACE_IT(51995);
         Assert(IsObjTypeSpecCandidate() && this->typeSet);
         return this->typeSet->GetFirstType();
     }
 
     Js::Var ObjTypeSpecFldInfo::GetFieldValueAsFixedDataIfAvailable() const
-    {
+    {TRACE_IT(51996);
         Assert(HasFixedValue() && this->fixedFieldCount == 1);
 
         if (PHASE_OFF1(ObjTypeSpecPhase)) return nullptr; // TODO: (lei)remove this after obj type spec for OOPJIT implemented
@@ -765,7 +765,7 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     const char16* ObjTypeSpecFldInfo::GetCacheLayoutString() const
-    {
+    {TRACE_IT(51997);
         return IsLoadedFromProto() ? _u("proto") : UsesAccessor() ? _u("flags") : _u("local");
     }
 #endif
@@ -779,13 +779,13 @@ namespace Js
     }
 
     void ObjTypeSpecFldInfoArray::EnsureArray(Recycler *const recycler, FunctionBody *const functionBody)
-    {
+    {TRACE_IT(51998);
         Assert(recycler != nullptr);
         Assert(functionBody != nullptr);
         Assert(functionBody->GetInlineCacheCount() != 0);
 
         if (this->infoArray)
-        {
+        {TRACE_IT(51999);
             Assert(functionBody->GetInlineCacheCount() == this->infoCount);
             return;
         }
@@ -797,7 +797,7 @@ namespace Js
     }
 
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfoArray::GetInfo(FunctionBody *const functionBody, const uint index) const
-    {
+    {TRACE_IT(52000);
         Assert(functionBody);
         Assert(this->infoArray == nullptr || functionBody->GetInlineCacheCount() == this->infoCount);
         Assert(index < functionBody->GetInlineCacheCount());
@@ -806,7 +806,7 @@ namespace Js
 
     void ObjTypeSpecFldInfoArray::SetInfo(Recycler *const recycler, FunctionBody *const functionBody,
         const uint index, ObjTypeSpecFldInfo* info)
-    {
+    {TRACE_IT(52001);
         Assert(recycler);
         Assert(functionBody);
         Assert(this->infoArray == nullptr || functionBody->GetInlineCacheCount() == this->infoCount);
@@ -818,7 +818,7 @@ namespace Js
     }
 
     void ObjTypeSpecFldInfoArray::Reset()
-    {
+    {TRACE_IT(52002);
         this->infoArray = nullptr;
 #if DBG
         this->infoCount = 0;

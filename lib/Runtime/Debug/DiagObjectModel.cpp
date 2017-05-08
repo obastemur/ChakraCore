@@ -36,17 +36,17 @@ namespace Js
 #define PENDING_MUTATION_VALUE_MAX_NAME   255
 
     ArenaAllocator *GetArenaFromContext(ScriptContext *scriptContext)
-    {
+    {TRACE_IT(42303);
         Assert(scriptContext);
         return scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena()->Arena();
     }
 
     template <class T>
     WeakArenaReference<IDiagObjectModelWalkerBase>* CreateAWalker(ScriptContext * scriptContext, Var instance, Var originalInstance)
-    {
+    {TRACE_IT(42304);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42305);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), T, scriptContext, instance, originalInstance);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>,pRefArena, pOMWalker);
         }
@@ -57,7 +57,7 @@ namespace Js
 
 
     WeakArenaReference<IDiagObjectModelDisplay>* ResolvedObject::GetObjectDisplay()
-    {
+    {TRACE_IT(42306);
         AssertMsg(typeId != TypeIds_HostDispatch, "Bad usage of ResolvedObject::GetObjectDisplay");
 
         IDiagObjectModelDisplay* pOMDisplay = (this->objectDisplay != nullptr) ? this->objectDisplay : CreateDisplay();
@@ -67,20 +67,20 @@ namespace Js
     }
 
     IDiagObjectModelDisplay * ResolvedObject::CreateDisplay()
-    {
+    {TRACE_IT(42307);
         IDiagObjectModelDisplay* pOMDisplay = nullptr;
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
 
         if (Js::TypedArrayBase::Is(obj))
-        {
+        {TRACE_IT(42308);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableTypedArrayDisplay, this);
         }
         else if (Js::ES5Array::Is(obj))
-        {
+        {TRACE_IT(42309);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableES5ArrayDisplay, this);
         }
         else if (Js::JavascriptArray::Is(obj))
-        {
+        {TRACE_IT(42310);
             // DisableJIT-TODO: Review- is this correct?
 #if ENABLE_COPYONACCESS_ARRAY
             // Make sure any NativeIntArrays are converted
@@ -90,53 +90,53 @@ namespace Js
         }
 #ifdef ENABLE_SIMDJS
         else if (Js::JavascriptSIMDInt32x4::Is(obj))
-        {
+        {TRACE_IT(42311);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdInt32x4ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDFloat32x4::Is(obj))
-        {
+        {TRACE_IT(42312);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdFloat32x4ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDInt8x16::Is(obj))
-        {
+        {TRACE_IT(42313);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdInt8x16ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDInt16x8::Is(obj))
-        {
+        {TRACE_IT(42314);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdInt16x8ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDBool32x4::Is(obj))
-        {
+        {TRACE_IT(42315);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdBool32x4ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDBool8x16::Is(obj))
-        {
+        {TRACE_IT(42316);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdBool8x16ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDBool16x8::Is(obj))
-        {
+        {TRACE_IT(42317);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdBool16x8ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDUint32x4::Is(obj))
-        {
+        {TRACE_IT(42318);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdUint32x4ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDUint8x16::Is(obj))
-        {
+        {TRACE_IT(42319);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdUint8x16ObjectDisplay, this);
         }
         else if (Js::JavascriptSIMDUint16x8::Is(obj))
-        {
+        {TRACE_IT(42320);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableSimdUint16x8ObjectDisplay, this);
         }
 #endif
         else
-        {
+        {TRACE_IT(42321);
             pOMDisplay = Anew(pRefArena->Arena(), RecyclableObjectDisplay, this);
         }
 
         if (this->isConst || this->propId == Js::PropertyIds::_superReferenceSymbol || this->propId == Js::PropertyIds::_superCtorReferenceSymbol)
-        {
+        {TRACE_IT(42322);
             pOMDisplay->SetDefaultTypeAttribute(DBGPROP_ATTRIB_VALUE_READONLY);
         }
 
@@ -144,7 +144,7 @@ namespace Js
     }
 
     bool ResolvedObject::IsInDeadZone() const
-    {
+    {TRACE_IT(42323);
         Assert(scriptContext);
         return this->obj == scriptContext->GetLibrary()->GetDebuggerDeadZoneBlockVariableString();
     }
@@ -155,26 +155,26 @@ namespace Js
 
     LocalsDisplay::LocalsDisplay(DiagStackFrame* _frame)
         : pFrame(_frame)
-    {
+    {TRACE_IT(42324);
     }
 
     LPCWSTR LocalsDisplay::Name()
-    {
+    {TRACE_IT(42325);
         return _u("Locals");
     }
 
     LPCWSTR LocalsDisplay::Type()
-    {
+    {TRACE_IT(42326);
         return _u("");
     }
 
     LPCWSTR LocalsDisplay::Value(int radix)
-    {
+    {TRACE_IT(42327);
         return _u("Locals");
     }
 
     BOOL LocalsDisplay::HasChildren()
-    {
+    {TRACE_IT(42328);
         Js::JavascriptFunction* func = pFrame->GetJavascriptFunction();
 
         FunctionBody* function = func->GetFunctionBody();
@@ -182,21 +182,21 @@ namespace Js
     }
 
     DBGPROP_ATTRIB_FLAGS LocalsDisplay::GetTypeAttribute()
-    {
+    {TRACE_IT(42329);
         return DBGPROP_ATTRIB_NO_ATTRIB;
     }
 
     BOOL LocalsDisplay::Set(Var updateObject)
-    {
+    {TRACE_IT(42330);
         // This is the hidden root object for Locals it doesn't get updated.
         return FALSE;
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* LocalsDisplay::CreateWalker()
-    {
+    {TRACE_IT(42331);
         ReferencedArenaAdapter* pRefArena = pFrame->GetScriptContext()->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42332);
             IDiagObjectModelWalkerBase * pOMWalker = nullptr;
 
             IGNORE_STACKWALK_EXCEPTION(scriptContext);
@@ -211,23 +211,23 @@ namespace Js
 
     /*static*/
     BOOL VariableWalkerBase::GetExceptionObject(int &index, DiagStackFrame* frame, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42333);
         Assert(pResolvedObject);
         Assert(pResolvedObject->scriptContext);
         Assert(frame);
         Assert(index >= 0);
 
         if (HasExceptionObject(frame))
-        {
+        {TRACE_IT(42334);
             if (index == 0)
-            {
+            {TRACE_IT(42335);
                 pResolvedObject->name          = _u("{exception}");
                 pResolvedObject->typeId        = TypeIds_Error;
                 pResolvedObject->address       = nullptr;
                 pResolvedObject->obj           = pResolvedObject->scriptContext->GetDebugContext()->GetProbeContainer()->GetExceptionObject();
 
                 if (pResolvedObject->obj == nullptr)
-                {
+                {TRACE_IT(42336);
                     Assert(false);
                     pResolvedObject->obj = pResolvedObject->scriptContext->GetLibrary()->GetUndefined();
                 }
@@ -243,7 +243,7 @@ namespace Js
 
     /*static*/
     bool VariableWalkerBase::HasExceptionObject(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42337);
         Assert(frame);
         Assert(frame->GetScriptContext());
 
@@ -252,7 +252,7 @@ namespace Js
 
     /*static*/
     void VariableWalkerBase::GetReturnedValueResolvedObject(ReturnedValue * returnValue, DiagStackFrame* frame, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42338);
         DBGPROP_ATTRIB_FLAGS defaultAttributes = DBGPROP_ATTRIB_VALUE_IS_RETURN_VALUE | DBGPROP_ATTRIB_VALUE_IS_FAKE;
         WCHAR * finalName = AnewArray(GetArenaFromContext(pResolvedObject->scriptContext), WCHAR, RETURN_VALUE_MAX_NAME);
         if (returnValue->isValueOfReturnStatement)
@@ -262,13 +262,13 @@ namespace Js
             pResolvedObject->address = Anew(frame->GetArena(), LocalObjectAddressForRegSlot, frame, Js::FunctionBody::ReturnValueRegSlot, pResolvedObject->obj);
         }
         else
-        {
+        {TRACE_IT(42339);
             if (returnValue->calledFunction->IsScriptFunction())
             {
                 swprintf_s(finalName, RETURN_VALUE_MAX_NAME, _u("[%s returned]"), returnValue->calledFunction->GetFunctionBody()->GetDisplayName());
             }
             else
-            {
+            {TRACE_IT(42340);
                 Js::JavascriptString *builtInName = returnValue->calledFunction->GetDisplayName();
                 swprintf_s(finalName, RETURN_VALUE_MAX_NAME, _u("[%s returned]"), builtInName->GetSz());
             }
@@ -287,7 +287,7 @@ namespace Js
 
     /*static*/
     BOOL VariableWalkerBase::GetReturnedValue(int &index, DiagStackFrame* frame, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42341);
         Assert(pResolvedObject);
         Assert(pResolvedObject->scriptContext);
         Assert(frame);
@@ -295,9 +295,9 @@ namespace Js
         ReturnedValueList *returnedValueList = frame->GetScriptContext()->GetDebugContext()->GetProbeContainer()->GetReturnedValueList();
 
         if (returnedValueList != nullptr && returnedValueList->Count() > 0 && frame->IsTopFrame())
-        {
+        {TRACE_IT(42342);
             if (index < returnedValueList->Count())
-            {
+            {TRACE_IT(42343);
                 ReturnedValue * returnValue = returnedValueList->Item(index);
                 VariableWalkerBase::GetReturnedValueResolvedObject(returnValue, frame, pResolvedObject);
                 return TRUE;
@@ -312,7 +312,7 @@ namespace Js
 
     /*static*/
     int  VariableWalkerBase::GetReturnedValueCount(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42344);
         Assert(frame);
         Assert(frame->GetScriptContext());
 
@@ -322,7 +322,7 @@ namespace Js
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
     BOOL VariableWalkerBase::GetBreakMutationBreakpointValue(int &index, DiagStackFrame* frame, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42345);
         Assert(pResolvedObject);
         Assert(pResolvedObject->scriptContext);
         Assert(frame);
@@ -331,9 +331,9 @@ namespace Js
         Js::MutationBreakpoint *mutationBreakpoint = frame->GetScriptContext()->GetDebugContext()->GetProbeContainer()->GetDebugManager()->GetActiveMutationBreakpoint();
 
         if (mutationBreakpoint != nullptr)
-        {
+        {TRACE_IT(42346);
             if (index == 0)
-            {
+            {TRACE_IT(42347);
                 pResolvedObject->name = _u("[Pending Mutation]");
                 pResolvedObject->typeId = TypeIds_Object;
                 pResolvedObject->address = nullptr;
@@ -350,7 +350,7 @@ namespace Js
     }
 
     uint  VariableWalkerBase::GetBreakMutationBreakpointsCount(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42348);
         Assert(frame);
         Assert(frame->GetScriptContext());
 
@@ -365,22 +365,22 @@ namespace Js
         pResolvedObject->scriptContext    = pFrame->GetScriptContext();
 
         if (i < 0)
-        {
+        {TRACE_IT(42349);
             return FALSE;
         }
 
         if (GetMemberCount() > i)
-        {
+        {TRACE_IT(42350);
             pResolvedObject->propId           = pMembersList->Item(i)->propId;
             Assert(pResolvedObject->propId != Js::Constants::NoProperty);
             Assert(!Js::IsInternalPropertyId(pResolvedObject->propId));
 
             if (pResolvedObject->propId == Js::PropertyIds::_superReferenceSymbol || pResolvedObject->propId == Js::PropertyIds::_superCtorReferenceSymbol)
-            {
+            {TRACE_IT(42351);
                 pResolvedObject->name         = _u("super");
             }
             else
-            {
+            {TRACE_IT(42352);
                 const Js::PropertyRecord* propertyRecord = pResolvedObject->scriptContext->GetPropertyName(pResolvedObject->propId);
                 pResolvedObject->name         = propertyRecord->GetBuffer();
             }
@@ -402,13 +402,13 @@ namespace Js
     }
 
     Var VariableWalkerBase::GetVarObjectAt(int index)
-    {
+    {TRACE_IT(42353);
         Assert(index < pMembersList->Count());
         return pMembersList->Item(index)->aVar;
     }
 
     bool VariableWalkerBase::IsConstAt(int index)
-    {
+    {TRACE_IT(42354);
         Assert(index < pMembersList->Count());
         DebuggerPropertyDisplayInfo* displayInfo = pMembersList->Item(index);
 
@@ -417,13 +417,13 @@ namespace Js
     }
 
     uint32 VariableWalkerBase::GetChildrenCount()
-    {
+    {TRACE_IT(42355);
         PopulateMembers();
         return GetMemberCount();
     }
 
     BOOL VariableWalkerBase::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42356);
         if (!IsInGroup()) return FALSE;
 
         Assert(pResolvedObject);
@@ -438,11 +438,11 @@ namespace Js
         Assert(arena);
 
         if (groupType == UIGroupType_Scope)
-        {
+        {TRACE_IT(42357);
             pResolvedObject->objectDisplay = Anew(arena, ScopeVariablesGroupDisplay, this, pResolvedObject);
         }
         else
-        {
+        {TRACE_IT(42358);
             pResolvedObject->objectDisplay = Anew(arena, GlobalsScopeVariablesGroupDisplay, this, pResolvedObject);
         }
 
@@ -450,16 +450,16 @@ namespace Js
     }
 
     IDiagObjectAddress *VariableWalkerBase::FindPropertyAddress(PropertyId propId, bool& isConst)
-    {
+    {TRACE_IT(42359);
         PopulateMembers();
         if (pMembersList)
-        {
+        {TRACE_IT(42360);
             for (int i = 0; i < pMembersList->Count(); i++)
-            {
+            {TRACE_IT(42361);
                 DebuggerPropertyDisplayInfo *pair = pMembersList->Item(i);
                 Assert(pair);
                 if (pair->propId == propId)
-                {
+                {TRACE_IT(42362);
                     isConst = pair->IsConst();
                     return GetObjectAddress(i);
                 }
@@ -475,7 +475,7 @@ namespace Js
     // 3. It is a let/const property in scope and is not in a dead zone (assuming isInDeadZone is nullptr).
     // (Determines if the given property is currently in block scope and not in a dead zone.)
     bool VariableWalkerBase::IsPropertyValid(PropertyId propertyId, RegSlot location, bool *isPropertyInDebuggerScope, bool* isConst, bool* isInDeadZone) const
-    {
+    {TRACE_IT(42363);
         Assert(isPropertyInDebuggerScope);
         Assert(isConst);
         *isPropertyInDebuggerScope = false;
@@ -485,17 +485,17 @@ namespace Js
 
 
         if (!allowLexicalThis && (propertyId == Js::PropertyIds::_lexicalThisSlotSymbol || propertyId == Js::PropertyIds::_lexicalNewTargetSymbol))
-        {
+        {TRACE_IT(42364);
             return false;
         }
 
         if (!allowSuperReference && (propertyId == Js::PropertyIds::_superReferenceSymbol || propertyId == Js::PropertyIds::_superCtorReferenceSymbol))
-        {
+        {TRACE_IT(42365);
             return false;
         }
 
         if (Js::IsInternalPropertyId(propertyId))
-        {
+        {TRACE_IT(42366);
             return false;
         }
 
@@ -503,7 +503,7 @@ namespace Js
         Js::FunctionBody *pFBody = pFrame->GetJavascriptFunction()->GetFunctionBody();
 
         if (pFBody && pFBody->GetScopeObjectChain())
-        {
+        {TRACE_IT(42367);
             int offset = GetAdjustedByteCodeOffset();
 
             if (pFBody->GetScopeObjectChain()->TryGetDebuggerScopePropertyInfo(
@@ -513,7 +513,7 @@ namespace Js
                 isPropertyInDebuggerScope,
                 isConst,
                 isInDeadZone))
-            {
+            {TRACE_IT(42368);
                 return true;
             }
         }
@@ -523,14 +523,14 @@ namespace Js
     }
 
     int VariableWalkerBase::GetAdjustedByteCodeOffset() const
-    {
+    {TRACE_IT(42369);
         return LocalsWalker::GetAdjustedByteCodeOffset(pFrame);
     }
 
     DebuggerScope * VariableWalkerBase::GetScopeWhenHaltAtFormals()
-    {
+    {TRACE_IT(42370);
         if (IsWalkerForCurrentFrame())
-        {
+        {TRACE_IT(42371);
             return LocalsWalker::GetScopeWhenHaltAtFormals(pFrame);
         }
 
@@ -538,13 +538,13 @@ namespace Js
     }
 
     bool VariableWalkerBase::IsInParamScope(DebuggerScope* scope, DiagStackFrame* pFrame)
-    {
+    {TRACE_IT(42372);
         return scope != nullptr && scope->GetEnd() > LocalsWalker::GetAdjustedByteCodeOffset(pFrame);
     }
 
     // Allocates and returns a property display info.
     DebuggerPropertyDisplayInfo* VariableWalkerBase::AllocateNewPropertyDisplayInfo(PropertyId propertyId, Var value, bool isConst, bool isInDeadZone)
-    {
+    {TRACE_IT(42373);
         Assert(pFrame);
         Assert(value);
         Assert(isInDeadZone || !pFrame->GetScriptContext()->IsUndeclBlockVar(value));
@@ -556,7 +556,7 @@ namespace Js
         ArenaAllocator *arena = pFrame->GetArena();
 
         if (isInDeadZone)
-        {
+        {TRACE_IT(42374);
             value = pFrame->GetScriptContext()->GetLibrary()->GetDebuggerDeadZoneBlockVariableString();
         }
 
@@ -566,26 +566,26 @@ namespace Js
     /// Slot array
 
     void SlotArrayVariablesWalker::PopulateMembers()
-    {
+    {TRACE_IT(42375);
         if (pMembersList == nullptr && instance != nullptr)
-        {
+        {TRACE_IT(42376);
             ArenaAllocator *arena = pFrame->GetArena();
             ScopeSlots slotArray = GetSlotArray();
 
             if (slotArray.IsFunctionScopeSlotArray())
-            {
+            {TRACE_IT(42377);
                 DebuggerScope *formalScope = GetScopeWhenHaltAtFormals();
                 bool isInParamScope = IsInParamScope(formalScope, pFrame);
                 Js::FunctionBody *pFBody = slotArray.GetFunctionInfo()->GetFunctionBody();
 
                 if (this->groupType & UIGroupType_Param)
-                {
+                {TRACE_IT(42378);
                     Assert(formalScope != nullptr && pFBody->paramScopeSlotArraySize > 0);
                     uint slotArrayCount = pFBody->paramScopeSlotArraySize;
                     pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(arena, slotArrayCount);
 
                     for (uint32 i = 0; i < slotArrayCount; i++)
-                    {
+                    {TRACE_IT(42379);
                         Js::DebuggerScopeProperty scopeProperty = formalScope->scopeProperties->Item(i);
 
                         Var value = slotArray.Get(i);
@@ -602,24 +602,24 @@ namespace Js
                     }
                 }
                 else if (pFBody->GetPropertyIdsForScopeSlotArray() != nullptr)
-                {
+                {TRACE_IT(42380);
                     uint slotArrayCount = slotArray.GetCount();
                     pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(arena, slotArrayCount);
 
                     for (uint32 i = 0; i < slotArrayCount; i++)
-                    {
+                    {TRACE_IT(42381);
                         Js::PropertyId propertyId = pFBody->GetPropertyIdsForScopeSlotArray()[i];
                         bool isConst = false;
                         bool isPropertyInDebuggerScope = false;
                         bool isInDeadZone = false;
                         if (propertyId != Js::Constants::NoProperty && IsPropertyValid(propertyId, i, &isPropertyInDebuggerScope, &isConst, &isInDeadZone))
-                        {
+                        {TRACE_IT(42382);
                             if (!isInParamScope || formalScope->HasProperty(propertyId))
-                            {
+                            {TRACE_IT(42383);
                                 Var value = slotArray.Get(i);
 
                                 if (pFrame->GetScriptContext()->IsUndeclBlockVar(value))
-                                {
+                                {TRACE_IT(42384);
                                     isInDeadZone = true;
                                 }
 
@@ -637,13 +637,13 @@ namespace Js
                 }
             }
             else
-            {
+            {TRACE_IT(42385);
                 DebuggerScope* debuggerScope = slotArray.GetDebuggerScope();
 
                 AssertMsg(debuggerScope, "Slot array debugger scope is missing but should be created.");
                 pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(arena);
                 if (debuggerScope->HasProperties())
-                {
+                {TRACE_IT(42386);
                     debuggerScope->scopeProperties->Map([&] (int i, Js::DebuggerScopeProperty& scopeProperty)
                     {
                         Var value = slotArray.Get(scopeProperty.location);
@@ -651,7 +651,7 @@ namespace Js
                         bool isInDeadZone = false;
 
                         if (pFrame->GetScriptContext()->IsUndeclBlockVar(value))
-                        {
+                        {TRACE_IT(42387);
                             isInDeadZone = true;
                         }
 
@@ -670,7 +670,7 @@ namespace Js
     }
 
     IDiagObjectAddress * SlotArrayVariablesWalker::GetObjectAddress(int index)
-    {
+    {TRACE_IT(42388);
         Assert(index < pMembersList->Count());
         ScopeSlots slotArray = GetSlotArray();
         return Anew(pFrame->GetArena(), LocalObjectAddressForSlot, slotArray, index, pMembersList->Item(index)->aVar);
@@ -679,9 +679,9 @@ namespace Js
     // Regslot
 
     void RegSlotVariablesWalker::PopulateMembers()
-    {
+    {TRACE_IT(42389);
         if (pMembersList == nullptr)
-        {
+        {TRACE_IT(42390);
             Js::FunctionBody *pFBody = pFrame->GetJavascriptFunction()->GetFunctionBody();
             ArenaAllocator *arena = pFrame->GetArena();
 
@@ -691,12 +691,12 @@ namespace Js
 
             // this container can be nullptr if there is no locals in current function.
             if (propIdContainer != nullptr)
-            {
+            {TRACE_IT(42391);
                 RegSlot limit = propIdContainer->formalsUpperBound == Js::Constants::NoRegister ? Js::Constants::NoRegister : pFBody->MapRegSlot(propIdContainer->formalsUpperBound);
 
                 pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(arena);
                 for (uint i = 0; i < propIdContainer->length; i++)
-                {
+                {TRACE_IT(42392);
                     Js::PropertyId propertyId;
                     RegSlot reg;
                     propIdContainer->FetchItemAt(i, pFBody, &propertyId, &reg);
@@ -705,16 +705,16 @@ namespace Js
                     bool isInDeadZone = false;
 
                     if (this->debuggerScope)
-                    {
+                    {TRACE_IT(42393);
                         DebuggerScopeProperty debuggerScopeProperty;
                         if (this->debuggerScope->TryGetValidProperty(propertyId, reg, GetAdjustedByteCodeOffset(), &debuggerScopeProperty, &isInDeadZone))
-                        {
+                        {TRACE_IT(42394);
                             isConst = debuggerScopeProperty.IsConst();
                             shouldInsert = true;
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(42395);
                         bool isPropertyInDebuggerScope = false;
                         shouldInsert = IsPropertyValid(propertyId, reg, &isPropertyInDebuggerScope, &isConst, &isInDeadZone) && !isPropertyInDebuggerScope;
                     }
@@ -722,39 +722,39 @@ namespace Js
                     if (shouldInsert)
                     {
                         if (IsInParamScope(formalScope, pFrame))
-                        {
+                        {TRACE_IT(42396);
                             if (limit != Js::Constants::NoRegister)
-                            {
+                            {TRACE_IT(42397);
                                 shouldInsert = reg <= limit;
                             }
                             else
-                            {
+                            {TRACE_IT(42398);
                                 shouldInsert = formalScope->HasProperty(propertyId);
                             }
                         }
                         else if (!pFBody->IsParamAndBodyScopeMerged() && formalScope->HasProperty(propertyId))
-                        {
+                        {TRACE_IT(42399);
                             DebuggerScopeProperty prop;
                             prop.flags = DebuggerScopePropertyFlags_None;
                             prop.propId = 0;
                             formalScope->TryGetProperty(propertyId, reg, &prop);
                             if (prop.flags & DebuggerScopePropertyFlags_HasDuplicateInBody)
-                            {
+                            {TRACE_IT(42400);
                                 shouldInsert = false;
                             }
                         }
                     }
 
                     if (shouldInsert)
-                    {
+                    {TRACE_IT(42401);
                         Var value = pFrame->GetRegValue(reg);
 
                         // If the user didn't supply an arguments object, a fake one will
                         // be created when evaluating LocalsWalker::ShouldInsertFakeArguments().
                         if (!(propertyId == PropertyIds::arguments && value == nullptr))
-                        {
+                        {TRACE_IT(42402);
                             if (pFrame->GetScriptContext()->IsUndeclBlockVar(value))
-                            {
+                            {TRACE_IT(42403);
                                 isInDeadZone = true;
                             }
 
@@ -774,7 +774,7 @@ namespace Js
     }
 
     Var RegSlotVariablesWalker::GetVarObjectAndRegAt(int index, RegSlot* reg /*= nullptr*/)
-    {
+    {TRACE_IT(42404);
         Assert(index < pMembersList->Count());
 
         Var returnedVar = nullptr;
@@ -782,19 +782,19 @@ namespace Js
 
         DebuggerPropertyDisplayInfo* displayInfo = pMembersList->Item(index);
         if (displayInfo->IsInDeadZone())
-        {
+        {TRACE_IT(42405);
             // The uninitialized string is already set in the var for the dead zone display.
             Assert(JavascriptString::Is(displayInfo->aVar));
             returnedVar = displayInfo->aVar;
         }
         else
-        {
+        {TRACE_IT(42406);
             returnedReg = ::Math::PointerCastToIntegral<RegSlot>(displayInfo->aVar);
             returnedVar = pFrame->GetRegValue(returnedReg);
         }
 
         if (reg != nullptr)
-        {
+        {TRACE_IT(42407);
             *reg = returnedReg;
         }
 
@@ -803,12 +803,12 @@ namespace Js
     }
 
     Var RegSlotVariablesWalker::GetVarObjectAt(int index)
-    {
+    {TRACE_IT(42408);
         return GetVarObjectAndRegAt(index);
     }
 
     IDiagObjectAddress * RegSlotVariablesWalker::GetObjectAddress(int index)
-    {
+    {TRACE_IT(42409);
         RegSlot reg = Js::Constants::NoRegister;
         Var obj = GetVarObjectAndRegAt(index, &reg);
 
@@ -818,9 +818,9 @@ namespace Js
     // For an activation object.
 
     void ObjectVariablesWalker::PopulateMembers()
-    {
+    {TRACE_IT(42410);
         if (pMembersList == nullptr && instance != nullptr)
-        {
+        {TRACE_IT(42411);
             ScriptContext * scriptContext = pFrame->GetScriptContext();
             ArenaAllocator *arena = GetArenaFromContext(scriptContext);
 
@@ -837,14 +837,14 @@ namespace Js
     }
 
     void ObjectVariablesWalker::AddObjectProperties(int count, Js::RecyclableObject* object)
-    {
+    {TRACE_IT(42412);
         ScriptContext * scriptContext = pFrame->GetScriptContext();
 
         DebuggerScope *formalScope = LocalsWalker::GetScopeWhenHaltAtFormals(pFrame);
 
         // For the scopes and locals only enumerable properties will be shown.
         for (int i = 0; i < count; i++)
-        {
+        {TRACE_IT(42413);
             Js::PropertyId propertyId = object->GetPropertyId((PropertyIndex)i);
 
             bool isConst = false;
@@ -853,15 +853,15 @@ namespace Js
             if (propertyId != Js::Constants::NoProperty
                 && IsPropertyValid(propertyId, Js::Constants::NoRegister, &isPropertyInDebuggerScope, &isConst, &isInDeadZone)
                 && object->IsEnumerable(propertyId))
-            {
+            {TRACE_IT(42414);
                 Var itemObj = RecyclableObjectWalker::GetObject(object, object, propertyId, scriptContext);
                 if (itemObj == nullptr)
-                {
+                {TRACE_IT(42415);
                     itemObj = scriptContext->GetLibrary()->GetUndefined();
                 }
 
                 if (IsInParamScope(formalScope, pFrame) && pFrame->GetScriptContext()->IsUndeclBlockVar(itemObj))
-                {
+                {TRACE_IT(42416);
                     itemObj = scriptContext->GetLibrary()->GetUndefined();
                 }
 
@@ -880,7 +880,7 @@ namespace Js
     }
 
     IDiagObjectAddress * ObjectVariablesWalker::GetObjectAddress(int index)
-    {
+    {TRACE_IT(42417);
         Assert(index < pMembersList->Count());
 
         DebuggerPropertyDisplayInfo* info = pMembersList->Item(index);
@@ -890,9 +890,9 @@ namespace Js
     // For root access on the Global object (adds let/const variables before properties)
 
     void RootObjectVariablesWalker::PopulateMembers()
-    {
+    {TRACE_IT(42418);
         if (pMembersList == nullptr && instance != nullptr)
-        {
+        {TRACE_IT(42419);
             ScriptContext * scriptContext = pFrame->GetScriptContext();
             ArenaAllocator *arena = GetArenaFromContext(scriptContext);
 
@@ -907,7 +907,7 @@ namespace Js
             // global properties of the same name.
             object->MapLetConstGlobals([&](const PropertyRecord* propertyRecord, Var value, bool isConst) {
                 if (!scriptContext->IsUndeclBlockVar(value))
-                {
+                {TRACE_IT(42420);
                     // Let/const are always enumerable and valid
                     DebuggerPropertyDisplayInfo *info = AllocateNewPropertyDisplayInfo(propertyRecord->GetPropertyId(), value, isConst, false /*isInDeadZone*/);
                     pMembersList->Add(info);
@@ -922,7 +922,7 @@ namespace Js
 
     DiagScopeVariablesWalker::DiagScopeVariablesWalker(DiagStackFrame* _pFrame, Var _instance, IDiagObjectModelWalkerBase* innerWalker)
         : VariableWalkerBase(_pFrame, _instance, UIGroupType_InnerScope, /* allowLexicalThis */ false)
-    {
+    {TRACE_IT(42421);
         ScriptContext * scriptContext = _pFrame->GetScriptContext();
         ArenaAllocator *arena = GetArenaFromContext(scriptContext);
         pDiagScopeObjects = JsUtil::List<IDiagObjectModelWalkerBase *, ArenaAllocator>::New(arena);
@@ -932,16 +932,16 @@ namespace Js
     }
 
     uint32 DiagScopeVariablesWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42422);
         if (scopeIsInitialized)
-        {
+        {TRACE_IT(42423);
             return diagScopeVarCount;
         }
         Assert(pFrame);
         Js::FunctionBody *pFBody = pFrame->GetJavascriptFunction()->GetFunctionBody();
 
         if (pFBody->GetScopeObjectChain())
-        {
+        {TRACE_IT(42424);
             int bytecodeOffset = GetAdjustedByteCodeOffset();
             ScriptContext * scriptContext = pFrame->GetScriptContext();
             ArenaAllocator *arena = GetArenaFromContext(scriptContext);
@@ -953,19 +953,19 @@ namespace Js
             // Go the reverse way so that we find the innermost scope first;
             Js::ScopeObjectChain * pScopeObjectChain = pFBody->GetScopeObjectChain();
             for (int i = pScopeObjectChain->pScopeChain->Count() - 1 ; i >= 0; i--)
-            {
+            {TRACE_IT(42425);
                 Js::DebuggerScope *debuggerScope = pScopeObjectChain->pScopeChain->Item(i);
                 bool isScopeInRange = debuggerScope->IsOffsetInScope(bytecodeOffset);
                 if (isScopeInRange
                     && !debuggerScope->IsParamScope()
                     && (debuggerScope->IsOwnScope() || (debuggerScope->scopeType == DiagBlockScopeDirect && debuggerScope->HasProperties())))
-                {
+                {TRACE_IT(42426);
                     switch (debuggerScope->scopeType)
                     {
                     case DiagWithScope:
-                        {
+                        {TRACE_IT(42427);
                             if (enumWithScopeAlso)
-                            {
+                            {TRACE_IT(42428);
                                 RecyclableObjectWalker* recylableObjectWalker = Anew(arena, RecyclableObjectWalker, scriptContext,
                                     (Var)pFrame->GetRegValue(debuggerScope->GetLocation(), true));
                                 pDiagScopeObjects->Add(recylableObjectWalker);
@@ -975,7 +975,7 @@ namespace Js
                         break;
                     case DiagCatchScopeDirect:
                     case DiagCatchScopeInObject:
-                        {
+                        {TRACE_IT(42429);
                             CatchScopeWalker* catchScopeWalker = Anew(arena, CatchScopeWalker, pFrame, debuggerScope);
                             pDiagScopeObjects->Add(catchScopeWalker);
                             diagScopeVarCount += catchScopeWalker->GetChildrenCount();
@@ -983,7 +983,7 @@ namespace Js
                         break;
                     case DiagCatchScopeInSlot:
                     case DiagBlockScopeInSlot:
-                        {
+                        {TRACE_IT(42430);
                             SlotArrayVariablesWalker* blockScopeWalker = Anew(arena, SlotArrayVariablesWalker, pFrame,
                                 (Var)pFrame->GetInnerScopeFromRegSlot(debuggerScope->GetLocation()), UIGroupType_InnerScope, /* allowLexicalThis */ false);
                             pDiagScopeObjects->Add(blockScopeWalker);
@@ -991,14 +991,14 @@ namespace Js
                         }
                         break;
                     case DiagBlockScopeDirect:
-                        {
+                        {TRACE_IT(42431);
                             RegSlotVariablesWalker *pObjWalker = Anew(arena, RegSlotVariablesWalker, pFrame, debuggerScope, UIGroupType_InnerScope);
                             pDiagScopeObjects->Add(pObjWalker);
                             diagScopeVarCount += pObjWalker->GetChildrenCount();
                         }
                         break;
                     case DiagBlockScopeInObject:
-                        {
+                        {TRACE_IT(42432);
                             ObjectVariablesWalker* objectVariablesWalker = Anew(arena, ObjectVariablesWalker, pFrame, pFrame->GetInnerScopeFromRegSlot(debuggerScope->GetLocation()), UIGroupType_InnerScope, /* allowLexicalThis */ false);
                             pDiagScopeObjects->Add(objectVariablesWalker);
                             diagScopeVarCount += objectVariablesWalker->GetChildrenCount();
@@ -1015,14 +1015,14 @@ namespace Js
     }
 
     BOOL DiagScopeVariablesWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42433);
         if (i >= 0 && i < (int)diagScopeVarCount)
-        {
+        {TRACE_IT(42434);
             for (int j = 0; j < pDiagScopeObjects->Count(); j++)
-            {
+            {TRACE_IT(42435);
                 IDiagObjectModelWalkerBase *pObjWalker = pDiagScopeObjects->Item(j);
                 if (i < (int)pObjWalker->GetChildrenCount())
-                {
+                {TRACE_IT(42436);
                     return pObjWalker->Get(i, pResolvedObject);
                 }
                 i -= (int)pObjWalker->GetChildrenCount();
@@ -1034,22 +1034,22 @@ namespace Js
     }
 
     IDiagObjectAddress * DiagScopeVariablesWalker::FindPropertyAddress(PropertyId propId, bool& isConst)
-    {
+    {TRACE_IT(42437);
         IDiagObjectAddress * address = nullptr;
 
         // Ensure that children are fetched.
         GetChildrenCount();
 
         if (pDiagScopeObjects)
-        {
+        {TRACE_IT(42438);
             for (int j = 0; j < pDiagScopeObjects->Count(); j++)
-            {
+            {TRACE_IT(42439);
                 IDiagObjectModelWalkerBase *pObjWalker = pDiagScopeObjects->Item(j);
                 Assert(pObjWalker);
 
                 address = pObjWalker->FindPropertyAddress(propId, isConst);
                 if (address != nullptr)
-                {
+                {TRACE_IT(42440);
                     break;
                 }
             }
@@ -1062,10 +1062,10 @@ namespace Js
 
     LocalsWalker::LocalsWalker(DiagStackFrame* _frame, DWORD _frameWalkerFlags)
         :  pFrame(_frame), frameWalkerFlags(_frameWalkerFlags), pVarWalkers(nullptr), totalLocalsCount(0), hasUserNotDefinedArguments(false)
-    {
+    {TRACE_IT(42441);
         Js::FunctionBody *pFBody = pFrame->GetJavascriptFunction()->GetFunctionBody();
         if (pFBody && !pFBody->GetUtf8SourceInfo()->GetIsLibraryCode())
-        {
+        {TRACE_IT(42442);
             // Allocate the container of all walkers.
             ArenaAllocator *arena = pFrame->GetArena();
             pVarWalkers = JsUtil::List<VariableWalkerBase *, ArenaAllocator>::New(arena);
@@ -1079,7 +1079,7 @@ namespace Js
 
             // Add the catch/with/block expression scope objects.
             if (pFBody->GetScopeObjectChain())
-            {
+            {TRACE_IT(42443);
                 pVarWalkers->Add(Anew(arena, DiagScopeVariablesWalker, pFrame, nullptr, !!(frameWalkerFlags & FrameWalkerFlags::FW_EnumWithScopeAlso)));
             }
 
@@ -1087,7 +1087,7 @@ namespace Js
             bool shouldAddGlobalItemsDirectly = pFBody->GetIsGlobalFunc() && !pFBody->IsEval();
             bool dontAddGlobalsDirectly = (frameWalkerFlags & FrameWalkerFlags::FW_DontAddGlobalsDirectly) == FrameWalkerFlags::FW_DontAddGlobalsDirectly;
             if (shouldAddGlobalItemsDirectly && !dontAddGlobalsDirectly)
-            {
+            {TRACE_IT(42444);
                 // Global properties will be enumerated using RootObjectVariablesWalker
                 pVarWalkers->Add(Anew(arena, RootObjectVariablesWalker, pFrame, pFrame->GetRootObject(), UIGroupType_None));
             }
@@ -1097,66 +1097,66 @@ namespace Js
 
             // If we are in the formal scope of a split scoped function then we can skip checking the body scope
             if (!VariableWalkerBase::IsInParamScope(formalScope, pFrame) || pFBody->IsParamAndBodyScopeMerged())
-            {
+            {TRACE_IT(42445);
                 VariableWalkerBase *pVarWalker = nullptr;
 
                 // More than one localsType can occur in the scope
                 if (localsType & FramesLocalType::LocalType_InObject)
-                {
+                {TRACE_IT(42446);
                     Assert(scopeCount > 0);
                     pVarWalker = Anew(arena, ObjectVariablesWalker, pFrame, pDisplay->GetItem(nextStartIndex), UIGroupType_None, !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowLexicalThis), !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowSuperReference));
                     nextStartIndex++;
                 }
                 else if (localsType & FramesLocalType::LocalType_InSlot)
-                {
+                {TRACE_IT(42447);
                     Assert(scopeCount > 0);
                     pVarWalker = Anew(arena, SlotArrayVariablesWalker, pFrame, (Js::Var *)pDisplay->GetItem(nextStartIndex), UIGroupType_None, !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowLexicalThis), !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowSuperReference));
                     nextStartIndex++;
                 }
                 else if (scopeCount > 0 && pFBody->GetFrameDisplayRegister() != 0 && pFBody->IsParamAndBodyScopeMerged())
-                {
+                {TRACE_IT(42448);
                     Assert((Var)pDisplay->GetItem(0) == pFrame->GetScriptContext()->GetLibrary()->GetNull());
                     nextStartIndex++;
                 }
 
                 if (pVarWalker)
-                {
+                {TRACE_IT(42449);
                     pVarWalkers->Add(pVarWalker);
                 }
             }
 
             // If we are halted at formal place, and param and body scopes are splitted we need to make use of formal debugger scope to to determine the locals type.
             if (formalScope != nullptr && !pFBody->IsParamAndBodyScopeMerged())
-            {
+            {TRACE_IT(42450);
                 if (pFBody->GetPropertyIdOnRegSlotsContainer() && pFBody->GetPropertyIdOnRegSlotsContainer()->formalsUpperBound != Js::Constants::NoRegister)
-                {
+                {TRACE_IT(42451);
                     localsType |= FramesLocalType::LocalType_Reg;
                 }
 
                 Assert(scopeCount > 0);
                 if (formalScope->scopeType == Js::DiagParamScopeInObject)
-                {
+                {TRACE_IT(42452);
                     // Need to add the param scope frame display as a separate walker as the ObjectVariablesWalker directly uses the socpe object to retrieve properties
                     pVarWalkers->Add(Anew(arena, ObjectVariablesWalker, pFrame, pDisplay->GetItem(nextStartIndex), UIGroupType_Param, !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowLexicalThis), !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowSuperReference)));
                 }
                 else
-                {
+                {TRACE_IT(42453);
                     pVarWalkers->Add(Anew(arena, SlotArrayVariablesWalker, pFrame, (Js::Var *)pDisplay->GetItem(nextStartIndex), UIGroupType_Param, !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowLexicalThis), !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowSuperReference)));
                 }
                 nextStartIndex++;
             }
 
             if (localsType & FramesLocalType::LocalType_Reg)
-            {
+            {TRACE_IT(42454);
                 pVarWalkers->Add(Anew(arena, RegSlotVariablesWalker, pFrame, nullptr /*not debugger scope*/, UIGroupType_None, !!(frameWalkerFlags & FrameWalkerFlags::FW_AllowSuperReference)));
             }
 
             const Js::Var nullVar = pFrame->GetScriptContext()->GetLibrary()->GetNull();
             for (uint i = nextStartIndex; i < (uint)scopeCount; i++)
-            {
+            {TRACE_IT(42455);
                 Var currentScopeObject = pDisplay->GetItem(i);
                 if (currentScopeObject != nullptr && currentScopeObject != nullVar) // Skip nullptr (dummy scope)
-                {
+                {TRACE_IT(42456);
                     ScopeType scopeType = FrameDisplay::GetScopeType(currentScopeObject);
                     switch(scopeType)
                     {
@@ -1168,7 +1168,7 @@ namespace Js
                         break;
                     case ScopeType_WithScope:
                         if( (frameWalkerFlags & FrameWalkerFlags::FW_EnumWithScopeAlso) == FrameWalkerFlags::FW_EnumWithScopeAlso)
-                        {
+                        {TRACE_IT(42457);
                             RecyclableObjectWalker* withScopeWalker = Anew(arena, RecyclableObjectWalker, pFrame->GetScriptContext(), currentScopeObject);
                             pVarWalkers->Add(Anew(arena, DiagScopeVariablesWalker, pFrame, currentScopeObject, withScopeWalker));
                         }
@@ -1181,14 +1181,14 @@ namespace Js
 
             // No need to add global properties if this is a global function, as it is already done above.
             if (!shouldAddGlobalItemsDirectly && !dontAddGlobalsDirectly)
-            {
+            {TRACE_IT(42458);
                 pVarWalkers->Add(Anew(arena, RootObjectVariablesWalker, pFrame, pFrame->GetRootObject(),  UIGroupType_Globals));
             }
         }
     }
 
     BOOL LocalsWalker::CreateArgumentsObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42459);
         Assert(pResolvedObject);
         Assert(pResolvedObject->scriptContext);
 
@@ -1203,7 +1203,7 @@ namespace Js
 
         pResolvedObject->obj = pFrame->GetArgumentsObject();
         if (pResolvedObject->obj == nullptr)
-        {
+        {TRACE_IT(42460);
             pResolvedObject->obj = pFrame->CreateHeapArguments();
             Assert(pResolvedObject->obj);
 
@@ -1222,55 +1222,55 @@ namespace Js
     }
 
     BOOL LocalsWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42461);
         if (i >= (int)totalLocalsCount)
-        {
+        {TRACE_IT(42462);
             return FALSE;
         }
 
         pResolvedObject->scriptContext = pFrame->GetScriptContext();
 
         if (VariableWalkerBase::GetExceptionObject(i, pFrame, pResolvedObject))
-        {
+        {TRACE_IT(42463);
             return TRUE;
         }
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
         // Pending mutation display should be before any return value
         if (VariableWalkerBase::GetBreakMutationBreakpointValue(i, pFrame, pResolvedObject))
-        {
+        {TRACE_IT(42464);
             return TRUE;
         }
 #endif
 
         if (VariableWalkerBase::GetReturnedValue(i, pFrame, pResolvedObject))
-        {
+        {TRACE_IT(42465);
             return TRUE;
         }
 
         if (hasUserNotDefinedArguments)
-        {
+        {TRACE_IT(42466);
             if (i == 0)
-            {
+            {TRACE_IT(42467);
                 return CreateArgumentsObject(pResolvedObject);
             }
             i--;
         }
 
         if (!pVarWalkers || pVarWalkers->Count() == 0)
-        {
+        {TRACE_IT(42468);
             return FALSE;
         }
 
         // In the case of not making groups, all variables will be arranged
         // as one int32 list in the locals window.
         if (!ShouldMakeGroups())
-        {
+        {TRACE_IT(42469);
             for (int j = 0; j < pVarWalkers->Count(); j++)
-            {
+            {TRACE_IT(42470);
                 int count = pVarWalkers->Item(j)->GetChildrenCount();
                 if (i < count)
-                {
+                {TRACE_IT(42471);
                     return pVarWalkers->Item(j)->Get(i, pResolvedObject);
                 }
                 i-= count;
@@ -1293,21 +1293,21 @@ namespace Js
         // [3-4] - Scope slot array vars.
         // [5-8] - Global vars (stored on the global object as properties).
         for (int j = 0; j < pVarWalkers->Count(); ++j)
-        {
+        {TRACE_IT(42472);
             VariableWalkerBase *variableWalker = pVarWalkers->Item(j);
             if (!variableWalker->IsInGroup())
-            {
+            {TRACE_IT(42473);
                 int count = variableWalker->GetChildrenCount();
 
                 if (i < count)
-                {
+                {TRACE_IT(42474);
                     return variableWalker->Get(i, pResolvedObject);
                 }
                 i-= count;
                 startScopeIndex++;
             }
             else
-            {
+            {TRACE_IT(42475);
                 // We've finished with all walkers for the current locals level so
                 // break out in order to handle the groups.
                 break;
@@ -1321,12 +1321,12 @@ namespace Js
     }
 
     bool LocalsWalker::ShouldInsertFakeArguments()
-    {
+    {TRACE_IT(42476);
         JavascriptFunction* func = pFrame->GetJavascriptFunction();
         if (func->IsScriptFunction()
             && !func->GetFunctionBody()->GetUtf8SourceInfo()->GetIsLibraryCode()
             && !func->GetFunctionBody()->GetIsGlobalFunc())
-        {
+        {TRACE_IT(42477);
             bool isConst = false;
             hasUserNotDefinedArguments  = (nullptr == FindPropertyAddress(PropertyIds::arguments, false /*walkers on the current frame*/, isConst));
         }
@@ -1334,20 +1334,20 @@ namespace Js
     }
 
     uint32 LocalsWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42478);
         if (totalLocalsCount == 0)
-        {
+        {TRACE_IT(42479);
             if (pVarWalkers)
-            {
+            {TRACE_IT(42480);
                 int groupWalkersStartIndex = 0;
                 for (int i = 0; i < pVarWalkers->Count(); i++)
-                {
+                {TRACE_IT(42481);
                     VariableWalkerBase* variableWalker = pVarWalkers->Item(i);
 
                     // In the case of making groups, we want to include any variables that aren't
                     // part of a group as part of the local variable count.
                     if (!ShouldMakeGroups() || !variableWalker->IsInGroup())
-                    {
+                    {TRACE_IT(42482);
                         ++groupWalkersStartIndex;
                         totalLocalsCount += variableWalker->GetChildrenCount();
                     }
@@ -1359,7 +1359,7 @@ namespace Js
             }
 
             if (VariableWalkerBase::HasExceptionObject(pFrame))
-            {
+            {TRACE_IT(42483);
                 totalLocalsCount++;
             }
 
@@ -1370,7 +1370,7 @@ namespace Js
 
             // Check if needed to add fake arguments.
             if (ShouldInsertFakeArguments())
-            {
+            {TRACE_IT(42484);
                 // In this case we need to create arguments object explicitly.
                 totalLocalsCount++;
             }
@@ -1379,18 +1379,18 @@ namespace Js
     }
 
     uint32 LocalsWalker::GetLocalVariablesCount()
-    {
+    {TRACE_IT(42485);
         uint32 localsCount = 0;
         if (pVarWalkers)
-        {
+        {TRACE_IT(42486);
             for (int i = 0; i < pVarWalkers->Count(); i++)
-            {
+            {TRACE_IT(42487);
                 VariableWalkerBase* variableWalker = pVarWalkers->Item(i);
 
                 // In the case of making groups, we want to include any variables that aren't
                 // part of a group as part of the local variable count.
                 if (!ShouldMakeGroups() || !variableWalker->IsInGroup())
-                {
+                {TRACE_IT(42488);
                     localsCount += variableWalker->GetChildrenCount();
                 }
             }
@@ -1399,28 +1399,28 @@ namespace Js
     }
 
     BOOL LocalsWalker::GetLocal(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42489);
         if (!pVarWalkers || pVarWalkers->Count() == 0)
-        {
+        {TRACE_IT(42490);
             return FALSE;
         }
 
         for (int j = 0; j < pVarWalkers->Count(); ++j)
-        {
+        {TRACE_IT(42491);
             VariableWalkerBase *variableWalker = pVarWalkers->Item(j);
 
             if (!ShouldMakeGroups() || !variableWalker->IsInGroup())
-            {
+            {TRACE_IT(42492);
                 int count = variableWalker->GetChildrenCount();
 
                 if (i < count)
-                {
+                {TRACE_IT(42493);
                     return variableWalker->Get(i, pResolvedObject);
                 }
                 i -= count;
             }
             else
-            {
+            {TRACE_IT(42494);
                 // We've finished with all walkers for the current locals level so
                 // break out in order to handle the groups.
                 break;
@@ -1431,19 +1431,19 @@ namespace Js
     }
 
     BOOL LocalsWalker::GetGroupObject(Js::UIGroupType uiGroupType, int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42495);
         if (pVarWalkers)
-        {
+        {TRACE_IT(42496);
             int scopeCount = 0;
             for (int j = 0; j < pVarWalkers->Count(); j++)
-            {
+            {TRACE_IT(42497);
                 VariableWalkerBase* variableWalker = pVarWalkers->Item(j);
 
                 if (variableWalker->groupType == uiGroupType)
-                {
+                {TRACE_IT(42498);
                     scopeCount++;
                     if (i < scopeCount)
-                    {
+                    {TRACE_IT(42499);
                         return variableWalker->GetGroupObject(pResolvedObject);
                     }
                 }
@@ -1453,28 +1453,28 @@ namespace Js
     }
 
     BOOL LocalsWalker::GetScopeObject(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42500);
         return this->GetGroupObject(Js::UIGroupType::UIGroupType_Scope, i, pResolvedObject);
     }
 
     BOOL LocalsWalker::GetGlobalsObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42501);
         int i = 0;
         return this->GetGroupObject(Js::UIGroupType::UIGroupType_Globals, i, pResolvedObject);
     }
 
     /*static*/
     DebuggerScope * LocalsWalker::GetScopeWhenHaltAtFormals(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42502);
         Js::ScopeObjectChain * scopeObjectChain = frame->GetJavascriptFunction()->GetFunctionBody()->GetScopeObjectChain();
 
         if (scopeObjectChain != nullptr && scopeObjectChain->pScopeChain != nullptr)
-        {
+        {TRACE_IT(42503);
             for (int i = 0; i < scopeObjectChain->pScopeChain->Count(); i++)
-            {
+            {TRACE_IT(42504);
                 Js::DebuggerScope * scope = scopeObjectChain->pScopeChain->Item(i);
                 if (scope->IsParamScope())
-                {
+                {TRACE_IT(42505);
                     return scope;
                 }
             }
@@ -1499,10 +1499,10 @@ namespace Js
     //     }
     //     foo(); // <-- Byte code offset is now here, so we need to -1 to get back in the block scope.
     int LocalsWalker::GetAdjustedByteCodeOffset(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42506);
         int offset = frame->GetByteCodeOffset();
         if (!frame->IsTopFrame() && frame->IsInterpreterFrame())
-        {
+        {TRACE_IT(42507);
             // Native frames are already adjusted so just need to adjust interpreted
             // frames that are not the top frame.
             --offset;
@@ -1513,7 +1513,7 @@ namespace Js
 
     /*static*/
     DWORD LocalsWalker::GetCurrentFramesLocalsType(DiagStackFrame* frame)
-    {
+    {TRACE_IT(42508);
         Assert(frame);
 
         FunctionBody *pFBody = frame->GetJavascriptFunction()->GetFunctionBody();
@@ -1522,23 +1522,23 @@ namespace Js
         DWORD localType = FramesLocalType::LocalType_None;
 
         if (pFBody->GetFrameDisplayRegister() != 0)
-        {
+        {TRACE_IT(42509);
             if (pFBody->GetObjectRegister() != 0)
-            {
+            {TRACE_IT(42510);
                 // current scope is activation object
                 localType = FramesLocalType::LocalType_InObject;
             }
             else
-            {
+            {TRACE_IT(42511);
                 if (pFBody->scopeSlotArraySize > 0)
-                {
+                {TRACE_IT(42512);
                     localType = FramesLocalType::LocalType_InSlot;
                 }
             }
         }
 
         if (pFBody->GetPropertyIdOnRegSlotsContainer() && pFBody->GetPropertyIdOnRegSlotsContainer()->length > 0)
-        {
+        {TRACE_IT(42513);
            localType |= FramesLocalType::LocalType_Reg;
         }
 
@@ -1546,36 +1546,36 @@ namespace Js
     }
 
     IDiagObjectAddress * LocalsWalker::FindPropertyAddress(PropertyId propId, bool& isConst)
-    {
+    {TRACE_IT(42514);
         return FindPropertyAddress(propId, true, isConst);
     }
 
     IDiagObjectAddress * LocalsWalker::FindPropertyAddress(PropertyId propId, bool enumerateGroups, bool& isConst)
-    {
+    {TRACE_IT(42515);
         isConst = false;
         if (propId == PropertyIds::arguments && hasUserNotDefinedArguments)
-        {
+        {TRACE_IT(42516);
             ResolvedObject resolveObject;
             resolveObject.scriptContext = pFrame->GetScriptContext();
             if (CreateArgumentsObject(&resolveObject))
-            {
+            {TRACE_IT(42517);
                 return resolveObject.address;
             }
         }
 
         if (pVarWalkers)
-        {
+        {TRACE_IT(42518);
             for (int i = 0; i < pVarWalkers->Count(); i++)
-            {
+            {TRACE_IT(42519);
                 VariableWalkerBase *pVarWalker = pVarWalkers->Item(i);
                 if (!enumerateGroups && !pVarWalker->IsWalkerForCurrentFrame())
-                {
+                {TRACE_IT(42520);
                     continue;
                 }
 
                 IDiagObjectAddress *address = pVarWalkers->Item(i)->FindPropertyAddress(propId, isConst);
                 if (address != nullptr)
-                {
+                {TRACE_IT(42521);
                     return address;
                 }
             }
@@ -1585,7 +1585,7 @@ namespace Js
     }
 
     void LocalsWalker::ExpandArgumentsObject(IDiagObjectModelDisplay * argumentsDisplay)
-    {
+    {TRACE_IT(42522);
         Assert(argumentsDisplay != nullptr);
 
         WeakArenaReference<Js::IDiagObjectModelWalkerBase>* argumentsObjectWalkerRef = argumentsDisplay->CreateWalker();
@@ -1595,7 +1595,7 @@ namespace Js
         int count = (int)walker->GetChildrenCount();
         Js::ResolvedObject tempResolvedObj;
         for (int i = 0; i < count; i++)
-        {
+        {TRACE_IT(42523);
             walker->Get(i, &tempResolvedObj);
         }
         argumentsObjectWalkerRef->ReleaseStrongReference();
@@ -1610,11 +1610,11 @@ namespace Js
         : slotArray(_pSlotArray),
           slotIndex(_slotIndex),
           value(_value)
-    {
+    {TRACE_IT(42524);
     }
 
     BOOL LocalObjectAddressForSlot::Set(Var updateObject)
-    {
+    {TRACE_IT(42525);
         if (IsInDeadZone())
         {
             AssertMsg(FALSE, "Should not be able to set the value of a slot in a dead zone.");
@@ -1626,12 +1626,12 @@ namespace Js
     }
 
     Var LocalObjectAddressForSlot::GetValue(BOOL fUpdated)
-    {
+    {TRACE_IT(42526);
         if (!fUpdated || IsInDeadZone())
-        {
+        {TRACE_IT(42527);
 #if DBG
             if (IsInDeadZone())
-            {
+            {TRACE_IT(42528);
                 // If we're in a dead zone, the value will be the
                 // [Uninitialized block variable] string.
                 Assert(JavascriptString::Is(value));
@@ -1645,10 +1645,10 @@ namespace Js
     }
 
     BOOL LocalObjectAddressForSlot::IsInDeadZone() const
-    {
+    {TRACE_IT(42529);
         Var value = slotArray.Get(slotIndex);
         if (!RecyclableObject::Is(value))
-        {
+        {TRACE_IT(42530);
             return FALSE;
         }
 
@@ -1665,16 +1665,16 @@ namespace Js
         : pFrame(_pFrame),
           regSlot(_regSlot),
           value(_value)
-    {
+    {TRACE_IT(42531);
     }
 
     BOOL LocalObjectAddressForRegSlot::IsInDeadZone() const
-    {
+    {TRACE_IT(42532);
         return regSlot == Js::Constants::NoRegister;
     }
 
     BOOL LocalObjectAddressForRegSlot::Set(Var updateObject)
-    {
+    {TRACE_IT(42533);
         Assert(pFrame);
 
         if (IsInDeadZone())
@@ -1689,12 +1689,12 @@ namespace Js
     }
 
     Var LocalObjectAddressForRegSlot::GetValue(BOOL fUpdated)
-    {
+    {TRACE_IT(42534);
         if (!fUpdated || IsInDeadZone())
-        {
+        {TRACE_IT(42535);
 #if DBG
             if (IsInDeadZone())
-            {
+            {TRACE_IT(42536);
                 // If we're in a dead zone, the value will be the
                 // [Uninitialized block variable] string.
                 Assert(JavascriptString::Is(value));
@@ -1712,7 +1712,7 @@ namespace Js
     // CatchScopeWalker
 
     BOOL CatchScopeWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42537);
         Assert(pResolvedObject);
 
         Assert(pFrame);
@@ -1738,12 +1738,12 @@ namespace Js
     }
 
     uint32 CatchScopeWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42538);
         return debuggerScope->scopeProperties->Count();
     }
 
     void CatchScopeWalker::FetchValueAndAddress(DebuggerScopeProperty &scopeProperty, _Out_opt_ Var *pValue, _Out_opt_ IDiagObjectAddress ** ppAddress)
-    {
+    {TRACE_IT(42539);
         Assert(pValue != nullptr || ppAddress != nullptr);
 
         ArenaAllocator* arena = pFrame->GetArena();
@@ -1752,25 +1752,25 @@ namespace Js
 
         ScriptContext* scriptContext = pFrame->GetScriptContext();
         if (debuggerScope->scopeType == Js::DiagCatchScopeInObject)
-        {
+        {TRACE_IT(42540);
             Var obj = pFrame->GetInnerScopeFromRegSlot(debuggerScope->GetLocation());
             Assert(RecyclableObject::Is(obj));
 
             outValue = RecyclableObjectWalker::GetObject(RecyclableObject::FromVar(obj), RecyclableObject::FromVar(obj), scopeProperty.propId, scriptContext);
             bool isInDeadZone = scriptContext->IsUndeclBlockVar(outValue);
             if (isInDeadZone)
-            {
+            {TRACE_IT(42541);
                 outValue = scriptContext->GetLibrary()->GetDebuggerDeadZoneBlockVariableString();
 
             }
             pAddress = Anew(arena, RecyclableObjectAddress, obj, scopeProperty.propId, outValue, isInDeadZone);
         }
         else
-        {
+        {TRACE_IT(42542);
             outValue = pFrame->GetRegValue(scopeProperty.location);
             bool isInDeadZone = scriptContext->IsUndeclBlockVar(outValue);
             if (isInDeadZone)
-            {
+            {TRACE_IT(42543);
                 outValue = scriptContext->GetLibrary()->GetDebuggerDeadZoneBlockVariableString();
 
             }
@@ -1778,25 +1778,25 @@ namespace Js
         }
 
         if (pValue)
-        {
+        {TRACE_IT(42544);
             *pValue = outValue;
         }
 
         if (ppAddress)
-        {
+        {TRACE_IT(42545);
             *ppAddress = pAddress;
         }
     }
 
     IDiagObjectAddress *CatchScopeWalker::FindPropertyAddress(PropertyId _propId, bool& isConst)
-    {
+    {TRACE_IT(42546);
         isConst = false;
         IDiagObjectAddress * address = nullptr;
         auto properties = debuggerScope->scopeProperties;
         for (int i = 0; i < properties->Count(); i++)
-        {
+        {TRACE_IT(42547);
             if (properties->Item(i).propId == _propId)
-            {
+            {TRACE_IT(42548);
                 FetchValueAndAddress(properties->Item(i), nullptr, &address);
                 break;
             }
@@ -1813,19 +1813,19 @@ namespace Js
           propId(_propId),
           value(_value),
           isInDeadZone(_isInDeadZone)
-    {
+    {TRACE_IT(42549);
         parentObj = ((RecyclableObject*)parentObj)->GetThisObjectOrUnWrap();
     }
 
     BOOL RecyclableObjectAddress::IsInDeadZone() const
-    {
+    {TRACE_IT(42550);
         return isInDeadZone;
     }
 
     BOOL RecyclableObjectAddress::Set(Var updateObject)
-    {
+    {TRACE_IT(42551);
         if (Js::RecyclableObject::Is(parentObj))
-        {
+        {TRACE_IT(42552);
             Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(parentObj);
 
             ScriptContext* requestContext = obj->GetScriptContext(); //TODO: real requestContext
@@ -1835,9 +1835,9 @@ namespace Js
     }
 
     BOOL RecyclableObjectAddress::IsWritable()
-    {
+    {TRACE_IT(42553);
         if (Js::RecyclableObject::Is(parentObj))
-        {
+        {TRACE_IT(42554);
             Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(parentObj);
 
             return obj->IsWritable(propId);
@@ -1847,14 +1847,14 @@ namespace Js
     }
 
     Var RecyclableObjectAddress::GetValue(BOOL fUpdated)
-    {
+    {TRACE_IT(42555);
         if (!fUpdated)
-        {
+        {TRACE_IT(42556);
             return value;
         }
 
         if (Js::RecyclableObject::Is(parentObj))
-        {
+        {TRACE_IT(42557);
             Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(parentObj);
 
             ScriptContext* requestContext = obj->GetScriptContext();
@@ -1864,13 +1864,13 @@ namespace Js
             bool suppressGetterForTTDebug = requestContext->GetThreadContext()->IsRuntimeInTTDMode() && requestContext->GetThreadContext()->TTDLog->ShouldDoGetterInvocationSupression();
             TTD::TTModeStackAutoPopper suppressModeAutoPopper(requestContext->GetThreadContext()->TTDLog);
             if(suppressGetterForTTDebug)
-            {
+            {TRACE_IT(42558);
                 suppressModeAutoPopper.PushModeAndSetToAutoPop(TTD::TTDMode::DebuggerSuppressGetter);
             }
 #endif
 
             if (Js::JavascriptOperators::GetProperty(obj, propId, &objValue, requestContext))
-            {
+            {TRACE_IT(42559);
                 return objValue;
             }
         }
@@ -1890,33 +1890,33 @@ namespace Js
           pObjAddress(resolvedObject->address),
           defaultAttributes(defaultAttributes),
           propertyId(resolvedObject->propId)
-    {
+    {TRACE_IT(42560);
     }
 
     bool RecyclableObjectDisplay::IsLiteralProperty() const
-    {
+    {TRACE_IT(42561);
         Assert(this->scriptContext);
 
         if (this->propertyId != Constants::NoProperty)
-        {
+        {TRACE_IT(42562);
             Js::PropertyRecord const * propertyRecord = this->scriptContext->GetThreadContext()->GetPropertyName(this->propertyId);
             const WCHAR* startOfPropertyName = propertyRecord->GetBuffer();
             const WCHAR* endOfIdentifier = this->scriptContext->GetCharClassifier()->SkipIdentifier((LPCOLESTR)propertyRecord->GetBuffer());
             return (charcount_t)(endOfIdentifier - startOfPropertyName) == propertyRecord->GetLength();
         }
         else
-        {
+        {TRACE_IT(42563);
             return true;
         }
     }
 
 
     bool RecyclableObjectDisplay::IsSymbolProperty()
-    {
+    {TRACE_IT(42564);
         Assert(this->scriptContext);
 
         if (this->propertyId != Constants::NoProperty)
-        {
+        {TRACE_IT(42565);
             Js::PropertyRecord const * propertyRecord = this->scriptContext->GetThreadContext()->GetPropertyName(this->propertyId);
             return propertyRecord->IsSymbol();
         }
@@ -1925,20 +1925,20 @@ namespace Js
     }
 
     LPCWSTR RecyclableObjectDisplay::Name()
-    {
+    {TRACE_IT(42566);
         return name;
     }
 
     LPCWSTR RecyclableObjectDisplay::Type()
-    {
+    {TRACE_IT(42567);
         LPCWSTR typeStr;
 
         if(Js::TaggedInt::Is(instance) || Js::JavascriptNumber::Is(instance))
-        {
+        {TRACE_IT(42568);
             typeStr = _u("Number");
         }
         else
-        {
+        {TRACE_IT(42569);
             Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(instance);
 
             StringBuilder<ArenaAllocator>* builder = scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
@@ -1950,18 +1950,18 @@ namespace Js
             Var value = nullptr;
             TypeId typeId = obj->GetTypeId();
             if (typeId == TypeIds_Object && GetPropertyWithScriptEnter(obj, obj, PropertyIds::constructor, &value, scriptContext))
-            {
+            {TRACE_IT(42570);
                 builder->AppendCppLiteral(_u("Object"));
                 if (Js::JavascriptFunction::Is(value))
-                {
+                {TRACE_IT(42571);
                     Js::JavascriptFunction *pfunction = Js::JavascriptFunction::FromVar(value);
                     // For an odd chance that the constructor wasn't called to create the object.
                     Js::ParseableFunctionInfo *pFuncBody = pfunction->GetFunctionProxy() != nullptr ? pfunction->GetFunctionProxy()->EnsureDeserialized() : nullptr;
                     if (pFuncBody)
-                    {
+                    {TRACE_IT(42572);
                         const char16* pDisplayName = pFuncBody->GetDisplayName();
                         if (pDisplayName)
-                        {
+                        {TRACE_IT(42573);
                             builder->AppendCppLiteral(_u(", ("));
                             builder->AppendSz(pDisplayName);
                             builder->Append(_u(')'));
@@ -1971,11 +1971,11 @@ namespace Js
                 typeStr = builder->Detach();
             }
             else if (obj->GetDiagTypeString(builder, scriptContext))
-            {
+            {TRACE_IT(42574);
                 typeStr = builder->Detach();
             }
             else
-            {
+            {TRACE_IT(42575);
                 typeStr = _u("Undefined");
             }
         }
@@ -1984,16 +1984,16 @@ namespace Js
     }
 
     Var RecyclableObjectDisplay::GetVarValue(BOOL fUpdated)
-    {
+    {TRACE_IT(42576);
         if (pObjAddress)
-        {
+        {TRACE_IT(42577);
             return pObjAddress->GetValue(fUpdated);
         }
         return instance;
     }
 
     LPCWSTR RecyclableObjectDisplay::Value(int radix)
-    {
+    {TRACE_IT(42578);
         LPCWSTR valueStr = _u("");
 
         if(Js::TaggedInt::Is(instance)
@@ -2001,26 +2001,26 @@ namespace Js
             || Js::JavascriptNumberObject::Is(instance)
             || Js::JavascriptOperators::GetTypeId(instance) == TypeIds_Int64Number
             || Js::JavascriptOperators::GetTypeId(instance) == TypeIds_UInt64Number)
-        {
+        {TRACE_IT(42579);
             double value;
             if (Js::TaggedInt::Is(instance))
-            {
+            {TRACE_IT(42580);
                 value = TaggedInt::ToDouble(instance);
             }
             else if (Js::JavascriptNumber::Is(instance))
-            {
+            {TRACE_IT(42581);
                 value = Js::JavascriptNumber::GetValue(instance);
             }
             else if (Js::JavascriptOperators::GetTypeId(instance) == TypeIds_Int64Number)
-            {
+            {TRACE_IT(42582);
                 value = (double)JavascriptInt64Number::FromVar(instance)->GetValue();
             }
             else if (Js::JavascriptOperators::GetTypeId(instance) == TypeIds_UInt64Number)
-            {
+            {TRACE_IT(42583);
                 value = (double)JavascriptUInt64Number::FromVar(instance)->GetValue();
             }
             else
-            {
+            {TRACE_IT(42584);
                 Js::JavascriptNumberObject* numobj = Js::JavascriptNumberObject::FromVar(instance);
                 value = numobj->GetValue();
             }
@@ -2030,23 +2030,23 @@ namespace Js
             bool isZero = JavascriptNumber::IsZero(value - (double)l);
 
             if (radix == 10 || !isZero)
-            {
+            {TRACE_IT(42585);
                 if (Js::JavascriptNumber::IsNegZero(value))
-                {
+                {TRACE_IT(42586);
                     // In debugger, we wanted to show negative zero explicitly
                     valueStr = _u("-0");
                 }
                 else
-                {
+                {TRACE_IT(42587);
                     valueStr = Js::JavascriptNumber::ToStringRadix10(value, scriptContext)->GetSz();
                 }
             }
             else if (radix >= 2 && radix <= 36)
-            {
+            {TRACE_IT(42588);
                 if (radix == 16)
-                {
+                {TRACE_IT(42589);
                     if (value < 0)
-                    {
+                    {TRACE_IT(42590);
                         // On the tools side we show unsigned value.
                         uint32 ul = static_cast<uint32>(static_cast<int32>(value)); // ARM: casting negative value to uint32 gives 0
                         value = (double)ul;
@@ -2055,24 +2055,24 @@ namespace Js
                                                             Js::JavascriptNumber::ToStringRadixHelper(value, radix, scriptContext))->GetSz();
                 }
                 else
-                {
+                {TRACE_IT(42591);
                     valueStr = Js::JavascriptNumber::ToStringRadixHelper(value, radix, scriptContext)->GetSz();
                 }
             }
         }
         else
-        {
+        {TRACE_IT(42592);
             Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(instance);
 
             StringBuilder<ArenaAllocator>* builder = scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
             builder->Reset();
 
             if (obj->GetDiagValueString(builder, scriptContext))
-            {
+            {TRACE_IT(42593);
                 valueStr = builder->Detach();
             }
             else
-            {
+            {TRACE_IT(42594);
                 valueStr = _u("undefined");
             }
         }
@@ -2081,35 +2081,35 @@ namespace Js
     }
 
     BOOL RecyclableObjectDisplay::HasChildren()
-    {
+    {TRACE_IT(42595);
         if (Js::RecyclableObject::Is(instance))
-        {
+        {TRACE_IT(42596);
             Js::RecyclableObject* object = Js::RecyclableObject::FromVar(instance);
 
             if (JavascriptOperators::IsObject(object))
-            {
+            {TRACE_IT(42597);
                 if (JavascriptOperators::GetTypeId(object) == TypeIds_HostDispatch)
-                {
+                {TRACE_IT(42598);
                     return TRUE;
                 }
 
                 try
-                {
+                {TRACE_IT(42599);
                     auto funcPtr = [&]()
                     {
                         IGNORE_STACKWALK_EXCEPTION(scriptContext);
                         if (object->CanHaveInterceptors())
-                        {
+                        {TRACE_IT(42600);
                             Js::ForInObjectEnumerator enumerator(object, object->GetScriptContext(), /* enumSymbols */ true);
                             Js::PropertyId propertyId;
                             if (enumerator.MoveAndGetNext(propertyId))
-                            {
+                            {TRACE_IT(42601);
                                 enumerator.Clear();
                                 return TRUE;
                             }
                         }
                         else if (object->GetPropertyCount() > 0 || (JavascriptOperators::GetTypeId(object->GetPrototype()) != TypeIds_Null))
-                        {
+                        {TRACE_IT(42602);
                             return TRUE;
                         }
 
@@ -2121,27 +2121,27 @@ namespace Js
                     if (!scriptContext->GetThreadContext()->IsScriptActive())
                     {
                         BEGIN_JS_RUNTIME_CALL_EX(scriptContext, false)
-                        {
+                        {TRACE_IT(42603);
                             autoFuncReturn = funcPtr();
                         }
                         END_JS_RUNTIME_CALL(scriptContext);
                     }
                     else
-                    {
+                    {TRACE_IT(42604);
                         autoFuncReturn = funcPtr();
                     }
 
                     if (autoFuncReturn == TRUE)
-                    {
+                    {TRACE_IT(42605);
                         return TRUE;
                     }
                 }
                 catch (const JavascriptException& err)
-                {
+                {TRACE_IT(42606);
                     // The For in enumerator can throw an exception and we will use the error object as a child in that case.
                     Var error = err.GetAndClear()->GetThrownObject(scriptContext);
                     if (error != nullptr && Js::JavascriptError::Is(error))
-                    {
+                    {TRACE_IT(42607);
                         return TRUE;
                     }
                     return FALSE;
@@ -2153,31 +2153,31 @@ namespace Js
     }
 
     BOOL RecyclableObjectDisplay::Set(Var updateObject)
-    {
+    {TRACE_IT(42608);
         if (pObjAddress)
-        {
+        {TRACE_IT(42609);
             return pObjAddress->Set(updateObject);
         }
         return FALSE;
     }
 
     DBGPROP_ATTRIB_FLAGS RecyclableObjectDisplay::GetTypeAttribute()
-    {
+    {TRACE_IT(42610);
         DBGPROP_ATTRIB_FLAGS flag = defaultAttributes;
 
         if (Js::RecyclableObject::Is(instance))
-        {
+        {TRACE_IT(42611);
             if (instance == scriptContext->GetLibrary()->GetDebuggerDeadZoneBlockVariableString())
-            {
+            {TRACE_IT(42612);
                 flag |= DBGPROP_ATTRIB_VALUE_IS_INVALID;
             }
             else if (JavascriptOperators::GetTypeId(instance) == TypeIds_Function)
-            {
+            {TRACE_IT(42613);
                 flag |= DBGPROP_ATTRIB_VALUE_IS_METHOD;
             }
             else if (JavascriptOperators::GetTypeId(instance) == TypeIds_String
                 || JavascriptOperators::GetTypeId(instance) == TypeIds_StringObject)
-            {
+            {TRACE_IT(42614);
                 flag |= DBGPROP_ATTRIB_VALUE_IS_RAW_STRING;
             }
         }
@@ -2185,7 +2185,7 @@ namespace Js
         auto checkWriteableFunction = [&]()
         {
             if (pObjAddress && !pObjAddress->IsWritable())
-            {
+            {TRACE_IT(42615);
                 flag |= DBGPROP_ATTRIB_VALUE_READONLY;
             }
         };
@@ -2193,14 +2193,14 @@ namespace Js
         if (!scriptContext->GetThreadContext()->IsScriptActive())
         {
             BEGIN_JS_RUNTIME_CALL_EX(scriptContext, false);
-            {
+            {TRACE_IT(42616);
                 IGNORE_STACKWALK_EXCEPTION(scriptContext);
                 checkWriteableFunction();
             }
             END_JS_RUNTIME_CALL(scriptContext);
         }
         else
-        {
+        {TRACE_IT(42617);
             checkWriteableFunction();
         }
         // TODO : need to identify Events explicitly for fastDOM
@@ -2211,14 +2211,14 @@ namespace Js
 
     /* static */
     BOOL RecyclableObjectDisplay::GetPropertyWithScriptEnter(RecyclableObject* originalInstance, RecyclableObject* instance, PropertyId propertyId, Var* value, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(42618);
         BOOL retValue = FALSE;
 
 #if ENABLE_TTD
         bool suppressGetterForTTDebug = scriptContext->GetThreadContext()->IsRuntimeInTTDMode() && scriptContext->GetThreadContext()->TTDLog->ShouldDoGetterInvocationSupression();
         TTD::TTModeStackAutoPopper suppressModeAutoPopper(scriptContext->GetThreadContext()->TTDLog);
         if(suppressGetterForTTDebug)
-        {
+        {TRACE_IT(42619);
             suppressModeAutoPopper.PushModeAndSetToAutoPop(TTD::TTDMode::DebuggerSuppressGetter);
         }
 #endif
@@ -2226,14 +2226,14 @@ namespace Js
         if(!scriptContext->GetThreadContext()->IsScriptActive())
         {
             BEGIN_JS_RUNTIME_CALL_EX(scriptContext, false)
-            {
+            {TRACE_IT(42620);
                 IGNORE_STACKWALK_EXCEPTION(scriptContext);
                 retValue = Js::JavascriptOperators::GetProperty(originalInstance, instance, propertyId, value, scriptContext);
             }
             END_JS_RUNTIME_CALL(scriptContext);
         }
         else
-        {
+        {TRACE_IT(42621);
             retValue = Js::JavascriptOperators::GetProperty(originalInstance, instance, propertyId, value, scriptContext);
         }
 
@@ -2242,17 +2242,17 @@ namespace Js
 
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableObjectDisplay::CreateWalker()
-    {
+    {TRACE_IT(42622);
         return CreateAWalker<RecyclableObjectWalker>(scriptContext, instance, originalInstance);
     }
 
     StringBuilder<ArenaAllocator>* RecyclableObjectDisplay::GetStringBuilder()
-    {
+    {TRACE_IT(42623);
         return scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
     }
 
     PropertyId RecyclableObjectDisplay::GetPropertyId() const
-    {
+    {TRACE_IT(42624);
         return this->propertyId;
     }
 
@@ -2266,7 +2266,7 @@ namespace Js
         pMembersList(nullptr),
         innerArrayObjectWalker(nullptr),
         fakeGroupObjectWalkerList(nullptr)
-    {
+    {TRACE_IT(42625);
     }
 
     RecyclableObjectWalker::RecyclableObjectWalker(ScriptContext* _scriptContext, Var _slot, Var _originalInstance)
@@ -2276,7 +2276,7 @@ namespace Js
           pMembersList(nullptr),
           innerArrayObjectWalker(nullptr),
           fakeGroupObjectWalkerList(nullptr)
-    {
+    {TRACE_IT(42626);
     }
 
     BOOL RecyclableObjectWalker::Get(int index, ResolvedObject* pResolvedObject)
@@ -2287,7 +2287,7 @@ namespace Js
         int arrayItemCount = innerArrayObjectWalker ? innerArrayObjectWalker->GetChildrenCount() : 0;
 
         if (index < 0 || !pMembersList || index >= (pMembersList->Count() + arrayItemCount + fakeObjCount))
-        {
+        {TRACE_IT(42627);
             return FALSE;
         }
 
@@ -2295,7 +2295,7 @@ namespace Js
 
         // First the virtual groups
         if (index < fakeObjCount)
-        {
+        {TRACE_IT(42628);
             Assert(fakeGroupObjectWalkerList);
             return fakeGroupObjectWalkerList->Item(index)->GetGroupObject(pResolvedObject);
         }
@@ -2303,13 +2303,13 @@ namespace Js
         index -= fakeObjCount;
 
         if (index < nonArrayElementCount)
-        {
+        {TRACE_IT(42629);
             Assert(Js::RecyclableObject::Is(instance));
 
             pResolvedObject->propId = pMembersList->Item(index)->propId;
 
             if (pResolvedObject->propId == Js::Constants::NoProperty || Js::IsInternalPropertyId(pResolvedObject->propId))
-            {
+            {TRACE_IT(42630);
                 Assert(FALSE);
                 return FALSE;
             }
@@ -2339,7 +2339,7 @@ namespace Js
         index -= nonArrayElementCount;
 
         if (index < arrayItemCount)
-        {
+        {TRACE_IT(42631);
             Assert(innerArrayObjectWalker);
             return innerArrayObjectWalker->Get(index, pResolvedObject);
         }
@@ -2349,26 +2349,26 @@ namespace Js
     }
 
     void RecyclableObjectWalker::EnsureFakeGroupObjectWalkerList()
-    {
+    {TRACE_IT(42632);
         if (fakeGroupObjectWalkerList == nullptr)
-        {
+        {TRACE_IT(42633);
             ArenaAllocator *arena = GetArenaFromContext(scriptContext);
             fakeGroupObjectWalkerList = JsUtil::List<IDiagObjectModelWalkerBase *, ArenaAllocator>::New(arena);
         }
     }
 
     IDiagObjectAddress *RecyclableObjectWalker::FindPropertyAddress(PropertyId propertyId, bool& isConst)
-    {
+    {TRACE_IT(42634);
         GetChildrenCount(); // Ensure to populate members
 
         if (pMembersList != nullptr)
-        {
+        {TRACE_IT(42635);
             for (int i = 0; i < pMembersList->Count(); i++)
-            {
+            {TRACE_IT(42636);
                 DebuggerPropertyDisplayInfo *pair = pMembersList->Item(i);
                 Assert(pair);
                 if (pair->propId == propertyId)
-                {
+                {TRACE_IT(42637);
                     isConst = pair->IsConst();
                     return Anew(GetArenaFromContext(scriptContext),
                         RecyclableObjectAddress,
@@ -2383,14 +2383,14 @@ namespace Js
         // Following is for "with object" scope lookup. We may have members in [Methods] group or prototype chain that need to
         // be exposed to expression evaluation.
         if (fakeGroupObjectWalkerList != nullptr)
-        {
+        {TRACE_IT(42638);
             // WARNING: Following depends on [Methods] group being before [prototype] group. We need to check local [Methods] group
             // first for local properties before going to prototype chain.
             for (int i = 0; i < fakeGroupObjectWalkerList->Count(); i++)
-            {
+            {TRACE_IT(42639);
                 IDiagObjectAddress* address = fakeGroupObjectWalkerList->Item(i)->FindPropertyAddress(propertyId, isConst);
                 if (address != nullptr)
-                {
+                {TRACE_IT(42640);
                     return address;
                 }
             }
@@ -2400,9 +2400,9 @@ namespace Js
     }
 
     uint32 RecyclableObjectWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42641);
         if (pMembersList == nullptr)
-        {
+        {TRACE_IT(42642);
             ArenaAllocator *arena = GetArenaFromContext(scriptContext);
 
             pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(arena);
@@ -2410,44 +2410,44 @@ namespace Js
             RecyclableMethodsGroupWalker *pMethodsGroupWalker = nullptr;
 
             if (Js::RecyclableObject::Is(instance))
-            {
+            {TRACE_IT(42643);
                 Js::RecyclableObject* object = Js::RecyclableObject::FromVar(instance);
                 // If we are walking a prototype, we'll use its instance for property names enumeration, but originalInstance to get values
                 Js::RecyclableObject* originalObject = (originalInstance != nullptr) ? Js::RecyclableObject::FromVar(originalInstance) : object;
                 const Js::TypeId typeId = JavascriptOperators::GetTypeId(instance);
 
                 if (JavascriptOperators::IsObject(object))
-                {
+                {TRACE_IT(42644);
                     if (object->CanHaveInterceptors() || JavascriptOperators::GetTypeId(object) == TypeIds_Proxy)
-                    {
+                    {TRACE_IT(42645);
                         try
-                        {
+                        {TRACE_IT(42646);
                             ScriptContext * objectContext = object->GetScriptContext();
                             JavascriptStaticEnumerator enumerator;
                             if (object->GetEnumerator(&enumerator, EnumeratorFlags::EnumNonEnumerable | EnumeratorFlags::EnumSymbols, objectContext))
-                            {
+                            {TRACE_IT(42647);
                                 Js::PropertyId propertyId;
                                 Var obj;
 
                                 while ((obj = enumerator.MoveAndGetNext(propertyId)) != nullptr)
-                                {
+                                {TRACE_IT(42648);
                                     if (!JavascriptString::Is(obj))
-                                    {
+                                    {TRACE_IT(42649);
                                         continue;
                                     }
 
                                     if (propertyId == Constants::NoProperty)
-                                    {
+                                    {TRACE_IT(42650);
                                         JavascriptString *pString = JavascriptString::FromVar(obj);
                                         if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(pString))
-                                        {
+                                        {TRACE_IT(42651);
                                             // If we have a property string, it is assumed that the propertyId is being
                                             // kept alive with the object
                                             PropertyString * propertyString = (PropertyString *)pString;
                                             propertyId = propertyString->GetPropertyRecord()->GetPropertyId();
                                         }
                                         else
-                                        {
+                                        {TRACE_IT(42652);
                                             const PropertyRecord* propertyRecord;
                                             objectContext->GetOrAddPropertyRecord(pString->GetSz(), pString->GetLength(), &propertyRecord);
                                             propertyId = propertyRecord->GetPropertyId();
@@ -2470,17 +2470,17 @@ namespace Js
                             }
                         }
                         catch (const JavascriptException& err)
-                        {
+                        {TRACE_IT(42653);
                             Var error = err.GetAndClear()->GetThrownObject(scriptContext);
                             if (error != nullptr && Js::JavascriptError::Is(error))
-                            {
+                            {TRACE_IT(42654);
                                 Js::PropertyId propertyId = scriptContext->GetOrAddPropertyIdTracked(_u("{error}"));
                                 InsertItem(propertyId, false /*isConst*/, false /*isUnscoped*/, error, &pMethodsGroupWalker);
                             }
                         }
 
                         if (typeId == TypeIds_Proxy)
-                        {
+                        {TRACE_IT(42655);
                             // Provide [Proxy] group object
                             EnsureFakeGroupObjectWalkerList();
 
@@ -2490,7 +2490,7 @@ namespace Js
                         }
                         // If current object has internal proto object then provide [prototype] group object.
                         if (JavascriptOperators::GetTypeId(object->GetPrototype()) != TypeIds_Null)
-                        {
+                        {TRACE_IT(42656);
                             // Has [prototype] object.
                             EnsureFakeGroupObjectWalkerList();
 
@@ -2499,10 +2499,10 @@ namespace Js
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(42657);
                         RecyclableObject* wrapperObject = nullptr;
                         if (JavascriptOperators::GetTypeId(object) == TypeIds_WithScopeObject)
-                        {
+                        {TRACE_IT(42658);
                             wrapperObject = object;
                             object = object->GetThisObjectOrUnWrap();
                         }
@@ -2510,11 +2510,11 @@ namespace Js
                         int count = object->GetPropertyCount();
 
                         for (int i = 0; i < count; i++)
-                        {
+                        {TRACE_IT(42659);
                             Js::PropertyId propertyId = object->GetPropertyId((PropertyIndex)i);
                             bool isUnscoped = false;
                             if (wrapperObject && JavascriptOperators::IsPropertyUnscopable(object, propertyId))
-                            {
+                            {TRACE_IT(42660);
                                 isUnscoped = true;
                             }
                             if (propertyId != Js::Constants::NoProperty && !Js::IsInternalPropertyId(propertyId))
@@ -2524,30 +2524,30 @@ namespace Js
                         }
 
                         if (CONFIG_FLAG(EnumerateSpecialPropertiesInDebugger))
-                        {
+                        {TRACE_IT(42661);
                             count = object->GetSpecialPropertyCount();
                             PropertyId const * specialPropertyIds = object->GetSpecialPropertyIds();
                             for (int i = 0; i < count; i++)
-                            {
+                            {TRACE_IT(42662);
                                 Js::PropertyId propertyId = specialPropertyIds[i];
                                 bool isUnscoped = false;
                                 if (wrapperObject && JavascriptOperators::IsPropertyUnscopable(object, propertyId))
-                                {
+                                {TRACE_IT(42663);
                                     isUnscoped = true;
                                 }
                                 if (propertyId != Js::Constants::NoProperty)
-                                {
+                                {TRACE_IT(42664);
                                     bool isConst = true;
                                     if (propertyId == PropertyIds::length && Js::JavascriptArray::Is(object))
-                                    {
+                                    {TRACE_IT(42665);
                                         // For JavascriptArrays, we allow resetting the length special property.
                                         isConst = false;
                                     }
 
-                                    auto containsPredicate = [&](Js::DebuggerPropertyDisplayInfo* info) { return info->propId == propertyId; };
+                                    auto containsPredicate = [&](Js::DebuggerPropertyDisplayInfo* info) {TRACE_IT(42666); return info->propId == propertyId; };
                                     if (Js::BoundFunction::Is(object)
                                         && this->pMembersList->Any(containsPredicate))
-                                    {
+                                    {TRACE_IT(42667);
                                         // Bound functions can already contain their special properties,
                                         // so we need to check for that (caller and arguments).  This occurs
                                         // when JavascriptFunction::EntryBind() is called.  Arguments can similarly
@@ -2561,20 +2561,20 @@ namespace Js
                                 }
                             }
                             if (Js::JavascriptFunction::Is(object))
-                            {
+                            {TRACE_IT(42668);
                                 // We need to special-case RegExp constructor here because it has some special properties (above) and some
                                 // special enumerable properties which should all show up in the debugger.
                                 JavascriptRegExpConstructor* regExp = scriptContext->GetLibrary()->GetRegExpConstructor();
 
                                 if (regExp == object)
-                                {
+                                {TRACE_IT(42669);
                                     bool isUnscoped = false;
                                     bool isConst = true;
                                     count = regExp->GetSpecialEnumerablePropertyCount();
                                     PropertyId const * specialEnumerablePropertyIds = regExp->GetSpecialEnumerablePropertyIds();
 
                                     for (int i = 0; i < count; i++)
-                                    {
+                                    {TRACE_IT(42670);
                                         Js::PropertyId propertyId = specialEnumerablePropertyIds[i];
 
                                         InsertItem(originalObject, object, propertyId, isConst, isUnscoped, &pMethodsGroupWalker);
@@ -2590,7 +2590,7 @@ namespace Js
 
                         // If current object has internal proto object then provide [prototype] group object.
                         if (JavascriptOperators::GetTypeId(object->GetPrototype()) != TypeIds_Null)
-                        {
+                        {TRACE_IT(42671);
                             // Has [prototype] object.
                             EnsureFakeGroupObjectWalkerList();
 
@@ -2601,19 +2601,19 @@ namespace Js
 
                     // If the object contains array indices.
                     if (typeId == TypeIds_Arguments)
-                    {
+                    {TRACE_IT(42672);
                         // Create ArgumentsArray walker for an arguments object
 
                         Js::ArgumentsObject * argObj = static_cast<Js::ArgumentsObject*>(instance);
                         Assert(argObj);
 
                         if (argObj->GetNumberOfArguments() > 0 || argObj->HasNonEmptyObjectArray())
-                        {
+                        {TRACE_IT(42673);
                             innerArrayObjectWalker = Anew(arena, RecyclableArgumentsArrayWalker, scriptContext, (Var)instance, originalInstance);
                         }
                     }
                     else if (typeId == TypeIds_Map)
-                    {
+                    {TRACE_IT(42674);
                         // Provide [Map] group object.
                         EnsureFakeGroupObjectWalkerList();
 
@@ -2622,7 +2622,7 @@ namespace Js
                         fakeGroupObjectWalkerList->Add(pMapWalker);
                     }
                     else if (typeId == TypeIds_Set)
-                    {
+                    {TRACE_IT(42675);
                         // Provide [Set] group object.
                         EnsureFakeGroupObjectWalkerList();
 
@@ -2631,7 +2631,7 @@ namespace Js
                         fakeGroupObjectWalkerList->Add(pSetWalker);
                     }
                     else if (typeId == TypeIds_WeakMap)
-                    {
+                    {TRACE_IT(42676);
                         // Provide [WeakMap] group object.
                         EnsureFakeGroupObjectWalkerList();
 
@@ -2640,7 +2640,7 @@ namespace Js
                         fakeGroupObjectWalkerList->Add(pWeakMapWalker);
                     }
                     else if (typeId == TypeIds_WeakSet)
-                    {
+                    {TRACE_IT(42677);
                         // Provide [WeakSet] group object.
                         EnsureFakeGroupObjectWalkerList();
 
@@ -2649,7 +2649,7 @@ namespace Js
                         fakeGroupObjectWalkerList->Add(pWeakSetWalker);
                     }
                     else if (typeId == TypeIds_Promise)
-                    {
+                    {TRACE_IT(42678);
                         // Provide [Promise] group object.
                         EnsureFakeGroupObjectWalkerList();
 
@@ -2658,21 +2658,21 @@ namespace Js
                         fakeGroupObjectWalkerList->Add(pPromiseWalker);
                     }
                     else if (Js::DynamicType::Is(typeId))
-                    {
+                    {TRACE_IT(42679);
                         DynamicObject *const dynamicObject = Js::DynamicObject::FromVar(instance);
                         if (dynamicObject->HasNonEmptyObjectArray())
-                        {
+                        {TRACE_IT(42680);
                             ArrayObject* objectArray = dynamicObject->GetObjectArray();
                             if (Js::ES5Array::Is(objectArray))
-                            {
+                            {TRACE_IT(42681);
                                 innerArrayObjectWalker = Anew(arena, RecyclableES5ArrayWalker, scriptContext, objectArray, originalInstance);
                             }
                             else if (Js::JavascriptArray::Is(objectArray))
-                            {
+                            {TRACE_IT(42682);
                                 innerArrayObjectWalker = Anew(arena, RecyclableArrayWalker, scriptContext, objectArray, originalInstance);
                             }
                             else
-                            {
+                            {TRACE_IT(42683);
                                 innerArrayObjectWalker = Anew(arena, RecyclableTypedArrayWalker, scriptContext, objectArray, originalInstance);
                             }
 
@@ -2683,14 +2683,14 @@ namespace Js
             }
             // Sort the members of the methods group
             if (pMethodsGroupWalker)
-            {
+            {TRACE_IT(42684);
                 pMethodsGroupWalker->Sort();
             }
 
             // Sort current pMembersList.
             HostDebugContext* hostDebugContext = scriptContext->GetDebugContext()->GetHostDebugContext();
             if (hostDebugContext != nullptr)
-            {
+            {TRACE_IT(42685);
                 hostDebugContext->SortMembersList(pMembersList, scriptContext);
             }
         }
@@ -2711,7 +2711,7 @@ namespace Js
         bool isUnscoped,
         Js::RecyclableMethodsGroupWalker **ppMethodsGroupWalker,
         bool shouldPinProperty /* = false*/)
-    {
+    {TRACE_IT(42686);
         Assert(pOriginalObject);
         Assert(pObject);
         Assert(propertyId);
@@ -2734,20 +2734,20 @@ namespace Js
         Var itemObj,
         Js:: RecyclableMethodsGroupWalker **ppMethodsGroupWalker,
         bool shouldPinProperty /* = false*/)
-    {
+    {TRACE_IT(42687);
         Assert(propertyId);
         Assert(ppMethodsGroupWalker);
 
         if (itemObj == nullptr)
-        {
+        {TRACE_IT(42688);
             itemObj = scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (shouldPinProperty)
-        {
+        {TRACE_IT(42689);
             const Js::PropertyRecord * propertyRecord = scriptContext->GetPropertyName(propertyId);
             if (propertyRecord)
-            {
+            {TRACE_IT(42690);
                 // Pin this record so that it will not go away till we are done with this break.
                 scriptContext->GetDebugContext()->GetProbeContainer()->PinPropertyRecord(propertyRecord);
             }
@@ -2756,18 +2756,18 @@ namespace Js
         ArenaAllocator *arena = GetArenaFromContext(scriptContext);
 
         if (JavascriptOperators::GetTypeId(itemObj) == TypeIds_Function)
-        {
+        {TRACE_IT(42691);
             if (scriptContext->GetThreadContext()->GetDebugManager()->IsLocalsDisplayFlagsSet(Js::DebugManager::LocalsDisplayFlags::LocalsDisplayFlags_NoGroupMethods))
-            {
+            {TRACE_IT(42692);
                 DebuggerPropertyDisplayInfo *info = Anew(arena, DebuggerPropertyDisplayInfo, propertyId, itemObj, DebuggerPropertyDisplayInfoFlags_Const);
                 pMembersList->Add(info);
             }
             else
-            {
+            {TRACE_IT(42693);
                 EnsureFakeGroupObjectWalkerList();
 
                 if (*ppMethodsGroupWalker == nullptr)
-                {
+                {TRACE_IT(42694);
                     *ppMethodsGroupWalker = Anew(arena, RecyclableMethodsGroupWalker, scriptContext, instance);
                     fakeGroupObjectWalkerList->Add(*ppMethodsGroupWalker);
                 }
@@ -2776,7 +2776,7 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(42695);
             DWORD flags = DebuggerPropertyDisplayInfoFlags_None;
             flags |= isConst ? DebuggerPropertyDisplayInfoFlags_Const : 0;
             flags |= isUnscoped ? DebuggerPropertyDisplayInfoFlags_Unscope : 0;
@@ -2789,23 +2789,23 @@ namespace Js
 
     /*static*/
     Var RecyclableObjectWalker::GetObject(RecyclableObject* originalInstance, RecyclableObject* instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(42696);
         Assert(instance);
         Assert(!Js::IsInternalPropertyId(propertyId));
 
         Var obj = nullptr;
         try
-        {
+        {TRACE_IT(42697);
             if (!RecyclableObjectDisplay::GetPropertyWithScriptEnter(originalInstance, instance, propertyId, &obj, scriptContext))
-            {
+            {TRACE_IT(42698);
                 return instance->GetScriptContext()->GetMissingPropertyResult();
             }
         }
         catch(const JavascriptException& err)
-        {
+        {TRACE_IT(42699);
             Var error = err.GetAndClear()->GetThrownObject(instance->GetScriptContext());
             if (error != nullptr && Js::JavascriptError::Is(error))
-            {
+            {TRACE_IT(42700);
                 obj = error;
             }
         }
@@ -2821,13 +2821,13 @@ namespace Js
     RecyclableArrayAddress::RecyclableArrayAddress(Var _parentArray, unsigned int _index)
         : parentArray(_parentArray),
           index(_index)
-    {
+    {TRACE_IT(42701);
     }
 
     BOOL RecyclableArrayAddress::Set(Var updateObject)
-    {
+    {TRACE_IT(42702);
         if (Js::JavascriptArray::Is(parentArray))
-        {
+        {TRACE_IT(42703);
             Js::JavascriptArray* jsArray = Js::JavascriptArray::FromVar(parentArray);
             return jsArray->SetItem(index, updateObject, PropertyOperation_None);
         }
@@ -2840,14 +2840,14 @@ namespace Js
 
     RecyclableArrayDisplay::RecyclableArrayDisplay(ResolvedObject* resolvedObject)
         : RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42704);
     }
 
     BOOL RecyclableArrayDisplay::HasChildrenInternal(Js::JavascriptArray* arrayObj)
-    {
+    {TRACE_IT(42705);
         Assert(arrayObj);
         if (JavascriptOperators::GetTypeId(arrayObj->GetPrototype()) != TypeIds_Null)
-        {
+        {TRACE_IT(42706);
             return TRUE;
         }
 
@@ -2857,12 +2857,12 @@ namespace Js
 
 
     BOOL RecyclableArrayDisplay::HasChildren()
-    {
+    {TRACE_IT(42707);
         if (Js::JavascriptArray::Is(instance))
-        {
+        {TRACE_IT(42708);
             Js::JavascriptArray* arrayObj = Js::JavascriptArray::FromVar(instance);
             if (HasChildrenInternal(arrayObj))
-            {
+            {TRACE_IT(42709);
                 return TRUE;
             }
         }
@@ -2870,7 +2870,7 @@ namespace Js
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableArrayDisplay::CreateWalker()
-    {
+    {TRACE_IT(42710);
         return CreateAWalker<RecyclableArrayWalker>(scriptContext, instance, originalInstance);
     }
 
@@ -2880,9 +2880,9 @@ namespace Js
 
 
     uint32 RecyclableArrayWalker::GetItemCount(Js::JavascriptArray* arrayObj)
-    {
+    {TRACE_IT(42711);
         if (pAbsoluteIndexList == nullptr)
-        {
+        {TRACE_IT(42712);
             Assert(arrayObj);
 
             pAbsoluteIndexList = JsUtil::List<uint32, ArenaAllocator>::New(GetArenaFromContext(scriptContext));
@@ -2893,20 +2893,20 @@ namespace Js
             uint32 absIndex = Js::JavascriptArray::InvalidIndex;
 
             do
-            {
+            {TRACE_IT(42713);
                 if (absIndex == dataIndex)
-                {
+                {TRACE_IT(42714);
                     dataIndex = arrayObj->GetNextIndex(dataIndex);
                 }
                 if (absIndex == descriptorIndex)
-                {
+                {TRACE_IT(42715);
                     descriptorIndex = GetNextDescriptor(descriptorIndex);
                 }
 
                 absIndex = min(dataIndex, descriptorIndex);
 
                 if (absIndex == Js::JavascriptArray::InvalidIndex || absIndex >= arrayObj->GetLength())
-                {
+                {TRACE_IT(42716);
                     break;
                 }
 
@@ -2919,7 +2919,7 @@ namespace Js
     }
 
     BOOL RecyclableArrayWalker::FetchItemAtIndex(Js::JavascriptArray* arrayObj, uint32 index, Var * value)
-    {
+    {TRACE_IT(42717);
         Assert(arrayObj);
         Assert(value);
 
@@ -2927,16 +2927,16 @@ namespace Js
     }
 
     Var RecyclableArrayWalker::FetchItemAt(Js::JavascriptArray* arrayObj, uint32 index)
-    {
+    {TRACE_IT(42718);
         Assert(arrayObj);
         return arrayObj->DirectGetItem(index);
     }
 
     LPCWSTR RecyclableArrayWalker::GetIndexName(uint32 index, StringBuilder<ArenaAllocator>* stringBuilder)
-    {
+    {TRACE_IT(42719);
         stringBuilder->Append(_u('['));
         if (stringBuilder->AppendUint64(index) != 0)
-        {
+        {TRACE_IT(42720);
             return _u("[.]");
         }
         stringBuilder->Append(_u(']'));
@@ -2948,11 +2948,11 @@ namespace Js
           pAbsoluteIndexList(nullptr),
           fOnlyOwnProperties(false),
           RecyclableObjectWalker(scriptContext,instance,originalInstance)
-    {
+    {TRACE_IT(42721);
     }
 
     BOOL RecyclableArrayWalker::GetResolvedObject(Js::JavascriptArray* arrayObj, int index, ResolvedObject* pResolvedObject, uint32 * pabsIndex)
-    {
+    {TRACE_IT(42722);
         Assert(arrayObj);
         Assert(pResolvedObject);
         Assert(pAbsoluteIndexList);
@@ -2970,7 +2970,7 @@ namespace Js
         builder->Reset();
         pResolvedObject->name = GetIndexName(absIndex, builder);
         if (pabsIndex)
-        {
+        {TRACE_IT(42723);
             *pabsIndex = absIndex;
         }
 
@@ -2982,17 +2982,17 @@ namespace Js
         AssertMsg(pResolvedObject, "Bad usage of RecyclableArrayWalker::Get");
 
         if (Js::JavascriptArray::Is(instance) || Js::ES5Array::Is(instance))
-        {
+        {TRACE_IT(42724);
             Js::JavascriptArray* arrayObj = GetArrayObject();
 
             int nonArrayElementCount = (!fOnlyOwnProperties ? RecyclableObjectWalker::GetChildrenCount() : 0);
 
             if (i < nonArrayElementCount)
-            {
+            {TRACE_IT(42725);
                 return RecyclableObjectWalker::Get(i, pResolvedObject);
             }
             else
-            {
+            {TRACE_IT(42726);
                 i -= nonArrayElementCount;
                 uint32 absIndex; // Absolute index
                 GetResolvedObject(arrayObj, i, pResolvedObject, &absIndex);
@@ -3009,7 +3009,7 @@ namespace Js
     }
 
     Js::JavascriptArray* RecyclableArrayWalker::GetArrayObject()
-    {
+    {TRACE_IT(42727);
         Assert(Js::JavascriptArray::Is(instance) || Js::ES5Array::Is(instance));
         return  Js::ES5Array::Is(instance) ?
                     static_cast<Js::JavascriptArray *>(RecyclableObject::FromVar(instance)) :
@@ -3017,9 +3017,9 @@ namespace Js
     }
 
     uint32 RecyclableArrayWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42728);
         if (Js::JavascriptArray::Is(instance) || Js::ES5Array::Is(instance))
-        {
+        {TRACE_IT(42729);
             uint32 count = (!fOnlyOwnProperties ? RecyclableObjectWalker::GetChildrenCount() : 0);
 
             Js::JavascriptArray* arrayObj = GetArrayObject();
@@ -3031,7 +3031,7 @@ namespace Js
     }
 
     StringBuilder<ArenaAllocator>* RecyclableArrayWalker::GetBuilder()
-    {
+    {TRACE_IT(42730);
         return scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
     }
 
@@ -3041,13 +3041,13 @@ namespace Js
     RecyclableArgumentsArrayAddress::RecyclableArgumentsArrayAddress(Var _parentArray, unsigned int _index)
         : parentArray(_parentArray),
           index(_index)
-    {
+    {TRACE_IT(42731);
     }
 
     BOOL RecyclableArgumentsArrayAddress::Set(Var updateObject)
-    {
+    {TRACE_IT(42732);
         if (Js::ArgumentsObject::Is(parentArray))
-        {
+        {TRACE_IT(42733);
             Js::ArgumentsObject* argObj = static_cast<Js::ArgumentsObject*>(parentArray);
             return argObj->SetItem(index, updateObject, PropertyOperation_None);
         }
@@ -3061,20 +3061,20 @@ namespace Js
 
     RecyclableArgumentsObjectDisplay::RecyclableArgumentsObjectDisplay(ResolvedObject* resolvedObject, LocalsWalker *localsWalker)
         : RecyclableObjectDisplay(resolvedObject), pLocalsWalker(localsWalker)
-    {
+    {TRACE_IT(42734);
     }
 
     BOOL RecyclableArgumentsObjectDisplay::HasChildren()
-    {
+    {TRACE_IT(42735);
         // It must have children otherwise object itself was not created in first place.
         return TRUE;
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableArgumentsObjectDisplay::CreateWalker()
-    {
+    {TRACE_IT(42736);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42737);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), RecyclableArgumentsObjectWalker, scriptContext, instance, pLocalsWalker);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>,pRefArena, pOMWalker);
         }
@@ -3086,16 +3086,16 @@ namespace Js
 
     RecyclableArgumentsObjectWalker::RecyclableArgumentsObjectWalker(ScriptContext* pContext, Var _instance, LocalsWalker * localsWalker)
         : RecyclableObjectWalker(pContext, _instance), pLocalsWalker(localsWalker)
-    {
+    {TRACE_IT(42738);
     }
 
     uint32 RecyclableArgumentsObjectWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42739);
         if (innerArrayObjectWalker == nullptr)
-        {
+        {TRACE_IT(42740);
             uint32 count = RecyclableObjectWalker::GetChildrenCount();
             if (innerArrayObjectWalker != nullptr)
-            {
+            {TRACE_IT(42741);
                 RecyclableArgumentsArrayWalker *pWalker = static_cast<RecyclableArgumentsArrayWalker *> (innerArrayObjectWalker);
                 pWalker->FetchFormalsAddress(pLocalsWalker);
             }
@@ -3111,13 +3111,13 @@ namespace Js
 
     RecyclableArgumentsArrayWalker::RecyclableArgumentsArrayWalker(ScriptContext* _scriptContext, Var _instance, Var _originalInstance)
         : RecyclableArrayWalker(_scriptContext, _instance, _originalInstance), pFormalsList(nullptr)
-    {
+    {TRACE_IT(42742);
     }
 
     uint32 RecyclableArgumentsArrayWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42743);
         if (pMembersList == nullptr)
-        {
+        {TRACE_IT(42744);
             Assert(Js::ArgumentsObject::Is(instance));
             Js::ArgumentsObject * argObj = static_cast<Js::ArgumentsObject*>(instance);
 
@@ -3127,15 +3127,15 @@ namespace Js
             uint32 totalCount = argObj->GetNumberOfArguments();
             Js::ArrayObject * objectArray = argObj->GetObjectArray();
             if (objectArray != nullptr && objectArray->GetLength() > totalCount)
-            {
+            {TRACE_IT(42745);
                 totalCount = objectArray->GetLength();
             }
 
             for (uint32 index = 0; index < totalCount; index++)
-            {
+            {TRACE_IT(42746);
                 Var itemObj;
                 if (argObj->GetItem(argObj, index, &itemObj, scriptContext))
-                {
+                {TRACE_IT(42747);
                     DebuggerPropertyDisplayInfo *info = Anew(GetArenaFromContext(scriptContext), DebuggerPropertyDisplayInfo, index, itemObj, DebuggerPropertyDisplayInfoFlags_None);
                     Assert(info);
                     pMembersList->Add(info);
@@ -3147,7 +3147,7 @@ namespace Js
     }
 
     void RecyclableArgumentsArrayWalker::FetchFormalsAddress(LocalsWalker * localsWalker)
-    {
+    {TRACE_IT(42748);
         Assert(localsWalker);
         Assert(localsWalker->pFrame);
         Js::FunctionBody *pFBody = localsWalker->pFrame->GetJavascriptFunction()->GetFunctionBody();
@@ -3155,17 +3155,17 @@ namespace Js
 
         PropertyIdOnRegSlotsContainer * container = pFBody->GetPropertyIdOnRegSlotsContainer();
         if (container &&  container->propertyIdsForFormalArgs)
-        {
+        {TRACE_IT(42749);
             for (uint32 i = 0; i < container->propertyIdsForFormalArgs->count; i++)
-            {
+            {TRACE_IT(42750);
                 if (container->propertyIdsForFormalArgs->elements[i] != Js::Constants::NoRegister)
-                {
+                {TRACE_IT(42751);
                     bool isConst = false;
                     IDiagObjectAddress * address = localsWalker->FindPropertyAddress(container->propertyIdsForFormalArgs->elements[i], false, isConst);
                     if (address)
-                    {
+                    {TRACE_IT(42752);
                         if (pFormalsList == nullptr)
-                        {
+                        {TRACE_IT(42753);
                             pFormalsList = JsUtil::List<IDiagObjectAddress *, ArenaAllocator>::New(GetArenaFromContext(scriptContext));
                         }
 
@@ -3184,29 +3184,29 @@ namespace Js
         Assert(Js::ArgumentsObject::Is(instance));
 
         if (pMembersList && i < pMembersList->Count())
-        {
+        {TRACE_IT(42754);
             Assert(pMembersList->Item(i) != nullptr);
 
             pResolvedObject->address = nullptr;
             if (pFormalsList && i < pFormalsList->Count())
-            {
+            {TRACE_IT(42755);
                 pResolvedObject->address = pFormalsList->Item(i);
                 pResolvedObject->obj = pResolvedObject->address->GetValue(FALSE);
                 if (pResolvedObject->obj == nullptr)
-                {
+                {TRACE_IT(42756);
                     // Temp workaround till the arguments (In jit code) work is ready.
                     Assert(Js::Configuration::Global.EnableJitInDebugMode());
                     pResolvedObject->obj = pMembersList->Item(i)->aVar;
                 }
                 else if (pResolvedObject->obj != pMembersList->Item(i)->aVar)
-                {
+                {TRACE_IT(42757);
                     // We set the formals value in the object itself, so that expression evaluation can reflect them correctly
                     Js::HeapArgumentsObject* argObj = static_cast<Js::HeapArgumentsObject*>(instance);
                     JavascriptOperators::SetItem(instance, argObj, (uint32)pMembersList->Item(i)->propId, pResolvedObject->obj, scriptContext, PropertyOperation_None);
                 }
             }
             else
-            {
+            {TRACE_IT(42758);
                 pResolvedObject->obj = pMembersList->Item(i)->aVar;
             }
             Assert(pResolvedObject->obj);
@@ -3220,7 +3220,7 @@ namespace Js
             pResolvedObject->name = GetIndexName(pMembersList->Item(i)->propId, builder);
 
             if (pResolvedObject->typeId != TypeIds_HostDispatch && pResolvedObject->address == nullptr)
-            {
+            {TRACE_IT(42759);
                 pResolvedObject->address = Anew(GetArenaFromContext(scriptContext),
                     RecyclableArgumentsArrayAddress,
                     instance,
@@ -3238,13 +3238,13 @@ namespace Js
 
     RecyclableTypedArrayAddress::RecyclableTypedArrayAddress(Var _parentArray, unsigned int _index)
         : RecyclableArrayAddress(_parentArray, _index)
-    {
+    {TRACE_IT(42760);
     }
 
     BOOL RecyclableTypedArrayAddress::Set(Var updateObject)
-    {
+    {TRACE_IT(42761);
         if (Js::TypedArrayBase::Is(parentArray))
-        {
+        {TRACE_IT(42762);
             Js::TypedArrayBase* typedArrayObj = Js::TypedArrayBase::FromVar(parentArray);
             return typedArrayObj->SetItem(index, updateObject, PropertyOperation_None);
         }
@@ -3258,16 +3258,16 @@ namespace Js
 
     RecyclableTypedArrayDisplay::RecyclableTypedArrayDisplay(ResolvedObject* resolvedObject)
         : RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42763);
     }
 
     BOOL RecyclableTypedArrayDisplay::HasChildren()
-    {
+    {TRACE_IT(42764);
         if (Js::TypedArrayBase::Is(instance))
-        {
+        {TRACE_IT(42765);
             Js::TypedArrayBase* typedArrayObj = Js::TypedArrayBase::FromVar(instance);
             if (typedArrayObj->GetLength() > 0)
-            {
+            {TRACE_IT(42766);
                 return TRUE;
             }
         }
@@ -3275,7 +3275,7 @@ namespace Js
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableTypedArrayDisplay::CreateWalker()
-    {
+    {TRACE_IT(42767);
         return CreateAWalker<RecyclableTypedArrayWalker>(scriptContext, instance, originalInstance);
     }
 
@@ -3284,13 +3284,13 @@ namespace Js
 
     RecyclableTypedArrayWalker::RecyclableTypedArrayWalker(ScriptContext* _scriptContext, Var _instance, Var _originalInstance)
         : RecyclableArrayWalker(_scriptContext, _instance, _originalInstance)
-    {
+    {TRACE_IT(42768);
     }
 
     uint32 RecyclableTypedArrayWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42769);
         if (!indexedItemCount)
-        {
+        {TRACE_IT(42770);
             Assert(Js::TypedArrayBase::Is(instance));
 
             Js::TypedArrayBase * typedArrayObj = Js::TypedArrayBase::FromVar(instance);
@@ -3312,11 +3312,11 @@ namespace Js
         int nonArrayElementCount = (!fOnlyOwnProperties ? RecyclableObjectWalker::GetChildrenCount() : 0);
 
         if (i < nonArrayElementCount)
-        {
+        {TRACE_IT(42771);
             return RecyclableObjectWalker::Get(i, pResolvedObject);
         }
         else
-        {
+        {TRACE_IT(42772);
             i -= nonArrayElementCount;
             pResolvedObject->scriptContext = scriptContext;
             pResolvedObject->obj = typedArrayObj->DirectGetItem(i);
@@ -3344,13 +3344,13 @@ namespace Js
 
     RecyclableES5ArrayAddress::RecyclableES5ArrayAddress(Var _parentArray, unsigned int _index)
         : RecyclableArrayAddress(_parentArray, _index)
-    {
+    {TRACE_IT(42773);
     }
 
     BOOL RecyclableES5ArrayAddress::Set(Var updateObject)
-    {
+    {TRACE_IT(42774);
         if (Js::ES5Array::Is(parentArray))
-        {
+        {TRACE_IT(42775);
             Js::ES5Array* arrayObj = Js::ES5Array::FromVar(parentArray);
             return arrayObj->SetItem(index, updateObject, PropertyOperation_None);
         }
@@ -3364,16 +3364,16 @@ namespace Js
 
     RecyclableES5ArrayDisplay::RecyclableES5ArrayDisplay(ResolvedObject* resolvedObject)
         : RecyclableArrayDisplay(resolvedObject)
-    {
+    {TRACE_IT(42776);
     }
 
     BOOL RecyclableES5ArrayDisplay::HasChildren()
-    {
+    {TRACE_IT(42777);
         if (Js::ES5Array::Is(instance))
-        {
+        {TRACE_IT(42778);
             Js::JavascriptArray* arrayObj = static_cast<Js::JavascriptArray *>(RecyclableObject::FromVar(instance));
             if (HasChildrenInternal(arrayObj))
-            {
+            {TRACE_IT(42779);
                 return TRUE;
             }
         }
@@ -3381,7 +3381,7 @@ namespace Js
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableES5ArrayDisplay::CreateWalker()
-    {
+    {TRACE_IT(42780);
         return CreateAWalker<RecyclableES5ArrayWalker>(scriptContext, instance, originalInstance);
     }
 
@@ -3390,11 +3390,11 @@ namespace Js
 
     RecyclableES5ArrayWalker::RecyclableES5ArrayWalker(ScriptContext* _scriptContext, Var _instance, Var _originalInstance)
         : RecyclableArrayWalker(_scriptContext, _instance, _originalInstance)
-    {
+    {TRACE_IT(42781);
     }
 
     uint32 RecyclableES5ArrayWalker::GetNextDescriptor(uint32 currentDescriptor)
-    {
+    {TRACE_IT(42782);
         Js::ES5Array *es5Array = static_cast<Js::ES5Array *>(RecyclableObject::FromVar(instance));
         IndexPropertyDescriptor* descriptor = nullptr;
         void * descriptorValidationToken = nullptr;
@@ -3403,7 +3403,7 @@ namespace Js
 
 
     BOOL RecyclableES5ArrayWalker::FetchItemAtIndex(Js::JavascriptArray* arrayObj, uint32 index, Var *value)
-    {
+    {TRACE_IT(42783);
         Assert(arrayObj);
         Assert(value);
 
@@ -3411,11 +3411,11 @@ namespace Js
     }
 
     Var RecyclableES5ArrayWalker::FetchItemAt(Js::JavascriptArray* arrayObj, uint32 index)
-    {
+    {TRACE_IT(42784);
         Assert(arrayObj);
         Var value = nullptr;
         if (FetchItemAtIndex(arrayObj, index, &value))
-        {
+        {TRACE_IT(42785);
             return value;
         }
         return nullptr;
@@ -3426,22 +3426,22 @@ namespace Js
 
     RecyclableProtoObjectWalker::RecyclableProtoObjectWalker(ScriptContext* pContext, Var instance, Var originalInstance)
         : RecyclableObjectWalker(pContext, instance)
-    {
+    {TRACE_IT(42786);
         this->originalInstance = originalInstance;
     }
 
     BOOL RecyclableProtoObjectWalker::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42787);
         Assert(pResolvedObject);
 
         DBGPROP_ATTRIB_FLAGS defaultAttributes = DBGPROP_ATTRIB_NO_ATTRIB;
         if (scriptContext->GetLibrary()->GetObjectPrototypeObject()->is__proto__Enabled())
-        {
+        {TRACE_IT(42788);
             pResolvedObject->name           = _u("__proto__");
             pResolvedObject->propId         = PropertyIds::__proto__;
         }
         else
-        {
+        {TRACE_IT(42789);
             pResolvedObject->name           = _u("[prototype]");
             pResolvedObject->propId         = Constants::NoProperty; // This property will not be editable.
             defaultAttributes               = DBGPROP_ATTRIB_VALUE_IS_FAKE;
@@ -3472,7 +3472,7 @@ namespace Js
     }
 
     IDiagObjectAddress* RecyclableProtoObjectWalker::FindPropertyAddress(PropertyId propId, bool& isConst)
-    {
+    {TRACE_IT(42790);
         ResolvedObject resolvedProto;
         GetGroupObject(&resolvedProto);
 
@@ -3481,15 +3481,15 @@ namespace Js
             WeakArenaReference<Js::IDiagObjectModelWalkerBase> * walkerRef;
             IDiagObjectModelWalkerBase * walker;
 
-            AutoCleanup() : walkerRef(nullptr), walker(nullptr) {};
+            AutoCleanup() : walkerRef(nullptr), walker(nullptr) {TRACE_IT(42791);};
             ~AutoCleanup()
-            {
+            {TRACE_IT(42792);
                 if (walker)
-                {
+                {TRACE_IT(42793);
                     walkerRef->ReleaseStrongReference();
                 }
                 if (walkerRef)
-                {
+                {TRACE_IT(42794);
                     HeapDelete(walkerRef);
                 }
             }
@@ -3505,20 +3505,20 @@ namespace Js
 
     RecyclableProtoObjectAddress::RecyclableProtoObjectAddress(Var _parentObj, Js::PropertyId _propId, Js::Var _value)
         : RecyclableObjectAddress(_parentObj, _propId, _value, false /*isInDeadZone*/)
-    {
+    {TRACE_IT(42795);
     }
 
     //--------------------------
     // RecyclableCollectionObjectWalker
     template <typename TData> const char16* RecyclableCollectionObjectWalker<TData>::Name() { static_assert(false, _u("Must use specialization")); }
-    template <> const char16* RecyclableCollectionObjectWalker<JavascriptMap>::Name() { return _u("[Map]"); }
-    template <> const char16* RecyclableCollectionObjectWalker<JavascriptSet>::Name() { return _u("[Set]"); }
-    template <> const char16* RecyclableCollectionObjectWalker<JavascriptWeakMap>::Name() { return _u("[WeakMap]"); }
-    template <> const char16* RecyclableCollectionObjectWalker<JavascriptWeakSet>::Name() { return _u("[WeakSet]"); }
+    template <> const char16* RecyclableCollectionObjectWalker<JavascriptMap>::Name() {TRACE_IT(42796); return _u("[Map]"); }
+    template <> const char16* RecyclableCollectionObjectWalker<JavascriptSet>::Name() {TRACE_IT(42797); return _u("[Set]"); }
+    template <> const char16* RecyclableCollectionObjectWalker<JavascriptWeakMap>::Name() {TRACE_IT(42798); return _u("[WeakMap]"); }
+    template <> const char16* RecyclableCollectionObjectWalker<JavascriptWeakSet>::Name() {TRACE_IT(42799); return _u("[WeakSet]"); }
 
     template <typename TData>
     BOOL RecyclableCollectionObjectWalker<TData>::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42800);
         pResolvedObject->name = Name();
         pResolvedObject->propId = Constants::NoProperty;
         pResolvedObject->obj = instance;
@@ -3534,7 +3534,7 @@ namespace Js
 
     template <typename TData>
     BOOL RecyclableCollectionObjectWalker<TData>::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42801);
         auto builder = scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
         builder->Reset();
         builder->AppendUint64(i);
@@ -3552,7 +3552,7 @@ namespace Js
 
     template <typename TData>
     IDiagObjectModelDisplay* RecyclableCollectionObjectWalker<TData>::CreateTDataDisplay(ResolvedObject* resolvedObject, int i)
-    {
+    {TRACE_IT(42802);
         Var key = propertyList->Item(i).key;
         Var value = propertyList->Item(i).value;
         return Anew(GetArenaFromContext(scriptContext), RecyclableKeyValueDisplay, resolvedObject->scriptContext, key, value, resolvedObject->name);
@@ -3560,7 +3560,7 @@ namespace Js
 
     template <>
     IDiagObjectModelDisplay* RecyclableCollectionObjectWalker<JavascriptSet>::CreateTDataDisplay(ResolvedObject* resolvedObject, int i)
-    {
+    {TRACE_IT(42803);
         resolvedObject->obj = propertyList->Item(i).value;
         IDiagObjectModelDisplay* display = resolvedObject->CreateDisplay();
         display->SetDefaultTypeAttribute(DBGPROP_ATTRIB_VALUE_READONLY | DBGPROP_ATTRIB_VALUE_IS_FAKE);
@@ -3569,7 +3569,7 @@ namespace Js
 
     template <>
     IDiagObjectModelDisplay* RecyclableCollectionObjectWalker<JavascriptWeakSet>::CreateTDataDisplay(ResolvedObject* resolvedObject, int i)
-    {
+    {TRACE_IT(42804);
         resolvedObject->obj = propertyList->Item(i).value;
         IDiagObjectModelDisplay* display = resolvedObject->CreateDisplay();
         display->SetDefaultTypeAttribute(DBGPROP_ATTRIB_VALUE_READONLY | DBGPROP_ATTRIB_VALUE_IS_FAKE);
@@ -3578,10 +3578,10 @@ namespace Js
 
     template <typename TData>
     uint32 RecyclableCollectionObjectWalker<TData>::GetChildrenCount()
-    {
+    {TRACE_IT(42805);
         TData* data = TData::FromVar(instance);
         if (data->Size() > 0 && propertyList == nullptr)
-        {
+        {TRACE_IT(42806);
             propertyList = JsUtil::List<RecyclableCollectionObjectWalkerPropertyData<TData>, ArenaAllocator>::New(GetArenaFromContext(scriptContext));
             GetChildren();
         }
@@ -3591,11 +3591,11 @@ namespace Js
 
     template <>
     void RecyclableCollectionObjectWalker<JavascriptMap>::GetChildren()
-    {
+    {TRACE_IT(42807);
         JavascriptMap* data = JavascriptMap::FromVar(instance);
         auto iterator = data->GetIterator();
         while (iterator.Next())
-        {
+        {TRACE_IT(42808);
             Var key = iterator.Current().Key();
             Var value = iterator.Current().Value();
             propertyList->Add(RecyclableCollectionObjectWalkerPropertyData<JavascriptMap>(key, value));
@@ -3604,11 +3604,11 @@ namespace Js
 
     template <>
     void RecyclableCollectionObjectWalker<JavascriptSet>::GetChildren()
-    {
+    {TRACE_IT(42809);
         JavascriptSet* data = JavascriptSet::FromVar(instance);
         auto iterator = data->GetIterator();
         while (iterator.Next())
-        {
+        {TRACE_IT(42810);
             Var value = iterator.Current();
             propertyList->Add(RecyclableCollectionObjectWalkerPropertyData<JavascriptSet>(value));
         }
@@ -3616,7 +3616,7 @@ namespace Js
 
     template <>
     void RecyclableCollectionObjectWalker<JavascriptWeakMap>::GetChildren()
-    {
+    {TRACE_IT(42811);
         JavascriptWeakMap* data = JavascriptWeakMap::FromVar(instance);
         data->Map([&](Var key, Var value)
         {
@@ -3626,7 +3626,7 @@ namespace Js
 
     template <>
     void RecyclableCollectionObjectWalker<JavascriptWeakSet>::GetChildren()
-    {
+    {TRACE_IT(42812);
         JavascriptWeakSet* data = JavascriptWeakSet::FromVar(instance);
         data->Map([&](Var value)
         {
@@ -3638,7 +3638,7 @@ namespace Js
     // RecyclableCollectionObjectDisplay
     template <typename TData>
     LPCWSTR RecyclableCollectionObjectDisplay<TData>::Value(int radix)
-    {
+    {TRACE_IT(42813);
         StringBuilder<ArenaAllocator>* builder = scriptContext->GetThreadContext()->GetDebugManager()->pCurrentInterpreterLocation->stringBuilder;
         builder->Reset();
 
@@ -3650,12 +3650,12 @@ namespace Js
 
     template <typename TData>
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableCollectionObjectDisplay<TData>::CreateWalker()
-    {
+    {TRACE_IT(42814);
         if (walker)
-        {
+        {TRACE_IT(42815);
             ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
             if (pRefArena)
-            {
+            {TRACE_IT(42816);
                 return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, walker);
             }
         }
@@ -3665,10 +3665,10 @@ namespace Js
     //--------------------------
     // RecyclableKeyValueDisplay
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableKeyValueDisplay::CreateWalker()
-    {
+    {TRACE_IT(42817);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42818);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), RecyclableKeyValueWalker, scriptContext, key, value);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, pOMWalker);
         }
@@ -3676,7 +3676,7 @@ namespace Js
     }
 
     LPCWSTR RecyclableKeyValueDisplay::Value(int radix)
-    {
+    {TRACE_IT(42819);
         ResolvedObject ro;
         ro.scriptContext = scriptContext;
 
@@ -3706,19 +3706,19 @@ namespace Js
     //--------------------------
     // RecyclableKeyValueWalker
     BOOL RecyclableKeyValueWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42820);
         if (i == 0)
-        {
+        {TRACE_IT(42821);
             pResolvedObject->name = _u("key");
             pResolvedObject->obj = key;
         }
         else if (i == 1)
-        {
+        {TRACE_IT(42822);
             pResolvedObject->name = _u("value");
             pResolvedObject->obj = value;
         }
         else
-        {
+        {TRACE_IT(42823);
             Assert(false);
             return FALSE;
         }
@@ -3738,14 +3738,14 @@ namespace Js
 
     RecyclableProxyObjectDisplay::RecyclableProxyObjectDisplay(ResolvedObject* resolvedObject)
         : RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42824);
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableProxyObjectDisplay::CreateWalker()
-    {
+    {TRACE_IT(42825);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42826);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), RecyclableProxyObjectWalker, scriptContext, instance);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, pOMWalker);
         }
@@ -3757,11 +3757,11 @@ namespace Js
 
     RecyclableProxyObjectWalker::RecyclableProxyObjectWalker(ScriptContext* pContext, Var _instance)
         : RecyclableObjectWalker(pContext, _instance)
-    {
+    {TRACE_IT(42827);
     }
 
     BOOL RecyclableProxyObjectWalker::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42828);
         pResolvedObject->name = _u("[Proxy]");
         pResolvedObject->propId = Constants::NoProperty;
         pResolvedObject->obj = instance;
@@ -3775,24 +3775,24 @@ namespace Js
     }
 
     BOOL RecyclableProxyObjectWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42829);
         JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
         if (proxy->GetTarget() == nullptr || proxy->GetHandler() == nullptr)
-        {
+        {TRACE_IT(42830);
             return FALSE;
         }
         if (i == 0)
-        {
+        {TRACE_IT(42831);
             pResolvedObject->name = _u("[target]");
             pResolvedObject->obj = proxy->GetTarget();
         }
         else if (i == 1)
-        {
+        {TRACE_IT(42832);
             pResolvedObject->name = _u("[handler]");
             pResolvedObject->obj = proxy->GetHandler();
         }
         else
-        {
+        {TRACE_IT(42833);
             Assert(false);
             return FALSE;
         }
@@ -3817,14 +3817,14 @@ namespace Js
 
     RecyclablePromiseObjectDisplay::RecyclablePromiseObjectDisplay(ResolvedObject* resolvedObject)
         : RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42834);
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclablePromiseObjectDisplay::CreateWalker()
-    {
+    {TRACE_IT(42835);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42836);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), RecyclablePromiseObjectWalker, scriptContext, instance);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, pOMWalker);
         }
@@ -3836,11 +3836,11 @@ namespace Js
 
     RecyclablePromiseObjectWalker::RecyclablePromiseObjectWalker(ScriptContext* pContext, Var _instance)
         : RecyclableObjectWalker(pContext, _instance)
-    {
+    {TRACE_IT(42837);
     }
 
     BOOL RecyclablePromiseObjectWalker::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42838);
         pResolvedObject->name = _u("[Promise]");
         pResolvedObject->propId = Constants::NoProperty;
         pResolvedObject->obj = instance;
@@ -3854,11 +3854,11 @@ namespace Js
     }
 
     BOOL RecyclablePromiseObjectWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42839);
         JavascriptPromise* promise = JavascriptPromise::FromVar(instance);
 
         if (i == 0)
-        {
+        {TRACE_IT(42840);
             pResolvedObject->name = _u("[status]");
 
             switch (promise->GetStatus())
@@ -3881,13 +3881,13 @@ namespace Js
             }
         }
         else if (i == 1)
-        {
+        {TRACE_IT(42841);
             pResolvedObject->name = _u("[value]");
             Var result = promise->GetResult();
             pResolvedObject->obj = result != nullptr ? result : scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
         else
-        {
+        {TRACE_IT(42842);
             Assert(false);
             return FALSE;
         }
@@ -3906,13 +3906,13 @@ namespace Js
     // RecyclableMethodsGroupWalker
     RecyclableMethodsGroupWalker::RecyclableMethodsGroupWalker(ScriptContext* scriptContext, Var instance)
         : RecyclableObjectWalker(scriptContext,instance)
-    {
+    {TRACE_IT(42843);
     }
 
     void RecyclableMethodsGroupWalker::AddItem(Js::PropertyId propertyId, Var obj)
-    {
+    {TRACE_IT(42844);
         if (pMembersList == nullptr)
-        {
+        {TRACE_IT(42845);
             pMembersList = JsUtil::List<DebuggerPropertyDisplayInfo *, ArenaAllocator>::New(GetArenaFromContext(scriptContext));
         }
 
@@ -3924,7 +3924,7 @@ namespace Js
     }
 
     uint32 RecyclableMethodsGroupWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42846);
         return pMembersList ? pMembersList->Count() : 0;
     }
 
@@ -3936,7 +3936,7 @@ namespace Js
     }
 
     BOOL RecyclableMethodsGroupWalker::GetGroupObject(ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42847);
         Assert(pResolvedObject);
 
         // This is fake [Methods] object.
@@ -3952,10 +3952,10 @@ namespace Js
     }
 
     void RecyclableMethodsGroupWalker::Sort()
-    {
+    {TRACE_IT(42848);
         HostDebugContext* hostDebugContext = this->scriptContext->GetDebugContext()->GetHostDebugContext();
         if (hostDebugContext != nullptr)
-        {
+        {TRACE_IT(42849);
             hostDebugContext->SortMembersList(pMembersList, scriptContext);
         }
     }
@@ -3963,36 +3963,36 @@ namespace Js
     RecyclableMethodsGroupDisplay::RecyclableMethodsGroupDisplay(RecyclableMethodsGroupWalker *_methodGroupWalker, ResolvedObject* resolvedObject)
         : methodGroupWalker(_methodGroupWalker),
           RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42850);
     }
 
     LPCWSTR RecyclableMethodsGroupDisplay::Type()
-    {
+    {TRACE_IT(42851);
         return _u("");
     }
 
     LPCWSTR RecyclableMethodsGroupDisplay::Value(int radix)
-    {
+    {TRACE_IT(42852);
         return _u("{...}");
     }
 
     BOOL RecyclableMethodsGroupDisplay::HasChildren()
-    {
+    {TRACE_IT(42853);
         return methodGroupWalker ? TRUE : FALSE;
     }
 
     DBGPROP_ATTRIB_FLAGS RecyclableMethodsGroupDisplay::GetTypeAttribute()
-    {
+    {TRACE_IT(42854);
         return DBGPROP_ATTRIB_VALUE_READONLY | DBGPROP_ATTRIB_VALUE_IS_FAKE | DBGPROP_ATTRIB_VALUE_IS_METHOD | DBGPROP_ATTRIB_VALUE_IS_EXPANDABLE;
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableMethodsGroupDisplay::CreateWalker()
-    {
+    {TRACE_IT(42855);
         if (methodGroupWalker)
-        {
+        {TRACE_IT(42856);
             ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
             if (pRefArena)
-            {
+            {TRACE_IT(42857);
                 return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, methodGroupWalker);
             }
         }
@@ -4003,40 +4003,40 @@ namespace Js
     ScopeVariablesGroupDisplay::ScopeVariablesGroupDisplay(VariableWalkerBase *walker, ResolvedObject* resolvedObject)
         : scopeGroupWalker(walker),
           RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42858);
     }
 
     LPCWSTR ScopeVariablesGroupDisplay::Type()
-    {
+    {TRACE_IT(42859);
         return _u("");
     }
 
     LPCWSTR ScopeVariablesGroupDisplay::Value(int radix)
-    {
+    {TRACE_IT(42860);
         if (ActivationObject::Is(instance))
-        {
+        {TRACE_IT(42861);
             // The scope is defined by the activation object.
             Js::RecyclableObject *object = Js::RecyclableObject::FromVar(instance);
             try
-            {
+            {TRACE_IT(42862);
                 // Trying to find out the JavascriptFunction from the scope.
                 Var value = nullptr;
                 if (object->GetTypeId() == TypeIds_ActivationObject && GetPropertyWithScriptEnter(object, object, PropertyIds::arguments, &value, scriptContext))
-                {
+                {TRACE_IT(42863);
                     if (Js::RecyclableObject::Is(value))
-                    {
+                    {TRACE_IT(42864);
                         Js::RecyclableObject *argObject = Js::RecyclableObject::FromVar(value);
                         Var calleeFunc = nullptr;
                         if (GetPropertyWithScriptEnter(argObject, argObject, PropertyIds::callee, &calleeFunc, scriptContext) && Js::JavascriptFunction::Is(calleeFunc))
-                        {
+                        {TRACE_IT(42865);
                             Js::JavascriptFunction *calleeFunction = Js::JavascriptFunction::FromVar(calleeFunc);
                             Js::FunctionBody *pFuncBody = calleeFunction->GetFunctionBody();
 
                             if (pFuncBody)
-                            {
+                            {TRACE_IT(42866);
                                 const char16* pDisplayName = pFuncBody->GetDisplayName();
                                 if (pDisplayName)
-                                {
+                                {TRACE_IT(42867);
                                     StringBuilder<ArenaAllocator>* builder = GetStringBuilder();
                                     builder->Reset();
                                     builder->AppendSz(pDisplayName);
@@ -4048,24 +4048,24 @@ namespace Js
                 }
             }
             catch(const JavascriptException& err)
-            {
+            {TRACE_IT(42868);
                 err.GetAndClear();  // discard exception object
             }
 
             return _u("");
         }
         else
-        {
+        {TRACE_IT(42869);
             // The scope is defined by a slot array object so grab the function body out to get the function name.
             ScopeSlots slotArray = ScopeSlots(reinterpret_cast<Var*>(instance));
 
             if(slotArray.IsFunctionScopeSlotArray())
-            {
+            {TRACE_IT(42870);
                 Js::FunctionBody *functionBody = slotArray.GetFunctionInfo()->GetFunctionBody();
                 return functionBody->GetDisplayName();
             }
             else
-            {
+            {TRACE_IT(42871);
                 // handling for block/catch scope
                 return _u("");
             }
@@ -4073,22 +4073,22 @@ namespace Js
     }
 
     BOOL ScopeVariablesGroupDisplay::HasChildren()
-    {
+    {TRACE_IT(42872);
         return scopeGroupWalker ? TRUE : FALSE;
     }
 
     DBGPROP_ATTRIB_FLAGS ScopeVariablesGroupDisplay::GetTypeAttribute()
-    {
+    {TRACE_IT(42873);
         return DBGPROP_ATTRIB_VALUE_READONLY | DBGPROP_ATTRIB_VALUE_IS_FAKE | DBGPROP_ATTRIB_VALUE_IS_EXPANDABLE;
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* ScopeVariablesGroupDisplay::CreateWalker()
-    {
+    {TRACE_IT(42874);
         if (scopeGroupWalker)
-        {
+        {TRACE_IT(42875);
             ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
             if (pRefArena)
-            {
+            {TRACE_IT(42876);
                 return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, scopeGroupWalker);
             }
         }
@@ -4098,36 +4098,36 @@ namespace Js
     GlobalsScopeVariablesGroupDisplay::GlobalsScopeVariablesGroupDisplay(VariableWalkerBase *walker, ResolvedObject* resolvedObject)
         : globalsGroupWalker(walker),
           RecyclableObjectDisplay(resolvedObject)
-    {
+    {TRACE_IT(42877);
     }
 
     LPCWSTR GlobalsScopeVariablesGroupDisplay::Type()
-    {
+    {TRACE_IT(42878);
         return _u("");
     }
 
     LPCWSTR GlobalsScopeVariablesGroupDisplay::Value(int radix)
-    {
+    {TRACE_IT(42879);
         return _u("");
     }
 
     BOOL GlobalsScopeVariablesGroupDisplay::HasChildren()
-    {
+    {TRACE_IT(42880);
         return globalsGroupWalker ? globalsGroupWalker->GetChildrenCount() > 0 : FALSE;
     }
 
     DBGPROP_ATTRIB_FLAGS GlobalsScopeVariablesGroupDisplay::GetTypeAttribute()
-    {
+    {TRACE_IT(42881);
         return DBGPROP_ATTRIB_VALUE_READONLY | DBGPROP_ATTRIB_VALUE_IS_FAKE | (HasChildren() ? DBGPROP_ATTRIB_VALUE_IS_EXPANDABLE : 0);
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* GlobalsScopeVariablesGroupDisplay::CreateWalker()
-    {
+    {TRACE_IT(42882);
         if (globalsGroupWalker)
-        {
+        {TRACE_IT(42883);
             ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
             if (pRefArena)
-            {
+            {TRACE_IT(42884);
                 return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, globalsGroupWalker);
             }
         }
@@ -4136,15 +4136,15 @@ namespace Js
 #ifdef ENABLE_MUTATION_BREAKPOINT
     PendingMutationBreakpointDisplay::PendingMutationBreakpointDisplay(ResolvedObject* resolvedObject, MutationType _mutationType)
         : RecyclableObjectDisplay(resolvedObject), mutationType(_mutationType)
-    {
+    {TRACE_IT(42885);
         AssertMsg(_mutationType > MutationTypeNone && _mutationType < MutationTypeAll, "Invalid mutationType value passed to PendingMutationBreakpointDisplay");
     }
 
     WeakArenaReference<IDiagObjectModelWalkerBase>* PendingMutationBreakpointDisplay::CreateWalker()
-    {
+    {TRACE_IT(42886);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42887);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), PendingMutationBreakpointWalker, scriptContext, instance, this->mutationType);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, pOMWalker);
         }
@@ -4152,7 +4152,7 @@ namespace Js
     }
 
     uint32 PendingMutationBreakpointWalker::GetChildrenCount()
-    {
+    {TRACE_IT(42888);
         switch (this->mutationType)
         {
         case MutationTypeUpdate:
@@ -4168,18 +4168,18 @@ namespace Js
 
     PendingMutationBreakpointWalker::PendingMutationBreakpointWalker(ScriptContext* pContext, Var _instance, MutationType mutationType)
         : RecyclableObjectWalker(pContext, _instance)
-    {
+    {TRACE_IT(42889);
         this->mutationType = mutationType;
     }
 
     BOOL PendingMutationBreakpointWalker::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42890);
         Js::MutationBreakpoint *mutationBreakpoint = scriptContext->GetDebugContext()->GetProbeContainer()->GetDebugManager()->GetActiveMutationBreakpoint();
         Assert(mutationBreakpoint);
         if (mutationBreakpoint != nullptr)
-        {
+        {TRACE_IT(42891);
             if (i == 0)
-            {
+            {TRACE_IT(42892);
                 // <Property Name> [Adding] : New Value
                 // <Property Name> [Changing] : Old Value
                 // <Property Name> [Deleting] : Old Value
@@ -4187,27 +4187,27 @@ namespace Js
                 swprintf_s(displayName, PENDING_MUTATION_VALUE_MAX_NAME, _u("%s [%s]"), mutationBreakpoint->GetBreakPropertyName(), Js::MutationBreakpoint::GetBreakMutationTypeName(mutationType));
                 pResolvedObject->name = displayName;
                 if (mutationType == MutationTypeUpdate || mutationType == MutationTypeDelete)
-                {
+                {TRACE_IT(42893);
                     // Old/Current value
                     PropertyId breakPId = mutationBreakpoint->GetBreakPropertyId();
                     pResolvedObject->propId = breakPId;
                     pResolvedObject->obj = JavascriptOperators::OP_GetProperty(mutationBreakpoint->GetMutationObjectVar(), breakPId, scriptContext);
                 }
                 else
-                {
+                {TRACE_IT(42894);
                     // New Value
                     pResolvedObject->obj = mutationBreakpoint->GetBreakNewValueVar();
                     pResolvedObject->propId = Constants::NoProperty;
                 }
             }
             else if ((i == 1) && (mutationType == MutationTypeUpdate))
-            {
+            {TRACE_IT(42895);
                 pResolvedObject->name = _u("[New Value]");
                 pResolvedObject->obj = mutationBreakpoint->GetBreakNewValueVar();
                 pResolvedObject->propId = Constants::NoProperty;
             }
             else if (((i == 1) && (mutationType != MutationTypeUpdate)) || (i == 2))
-            {
+            {TRACE_IT(42896);
                 WCHAR * displayName = AnewArray(GetArenaFromContext(scriptContext), WCHAR, PENDING_MUTATION_VALUE_MAX_NAME);
                 swprintf_s(displayName, PENDING_MUTATION_VALUE_MAX_NAME, _u("[Property container %s]"), mutationBreakpoint->GetParentPropertyName());
                 pResolvedObject->name = displayName;
@@ -4215,7 +4215,7 @@ namespace Js
                 pResolvedObject->propId = mutationBreakpoint->GetParentPropertyId();
             }
             else
-            {
+            {TRACE_IT(42897);
                 Assert(false);
                 return FALSE;
             }
@@ -4237,7 +4237,7 @@ namespace Js
 
     template <typename simdType, uint elementCount>
     BOOL RecyclableSimdObjectWalker<simdType, elementCount>::Get(int i, ResolvedObject* pResolvedObject)
-    {
+    {TRACE_IT(42898);
         Assert(elementCount == 4 || elementCount == 8 || elementCount == 16); // SIMD types such as int32x4, int8x16, int16x8
         Assert(i >= 0 && i <= elementCount);
 
@@ -4303,7 +4303,7 @@ namespace Js
 
     template <typename simdType, typename simdWalker>
     LPCWSTR RecyclableSimdObjectDisplay<simdType, simdWalker>::Type()
-    {
+    {TRACE_IT(42899);
         TypeId simdTypeId = JavascriptOperators::GetTypeId(instance);
 
         switch (simdTypeId)
@@ -4336,7 +4336,7 @@ namespace Js
 
     template <typename simdType, typename simdWalker>
     LPCWSTR RecyclableSimdObjectDisplay<simdType, simdWalker>::Value(int radix)
-    {
+    {TRACE_IT(42900);
         StringBuilder<ArenaAllocator>* builder = GetStringBuilder();
         builder->Reset();
 
@@ -4354,10 +4354,10 @@ namespace Js
 
     template <typename simdType, typename simdWalker>
     WeakArenaReference<IDiagObjectModelWalkerBase>* RecyclableSimdObjectDisplay<simdType, simdWalker>::CreateWalker()
-    {
+    {TRACE_IT(42901);
         ReferencedArenaAdapter* pRefArena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena();
         if (pRefArena)
-        {
+        {TRACE_IT(42902);
             IDiagObjectModelWalkerBase* pOMWalker = Anew(pRefArena->Arena(), simdWalker, scriptContext, instance);
             return HeapNew(WeakArenaReference<IDiagObjectModelWalkerBase>, pRefArena, pOMWalker);
         }

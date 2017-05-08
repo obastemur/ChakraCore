@@ -7,7 +7,7 @@
 template <class TBlockType>
 SmallFinalizableHeapBucketBaseT<TBlockType>::SmallFinalizableHeapBucketBaseT() :
     pendingDisposeList(nullptr)
-{
+{TRACE_IT(26896);
 #if DBG || defined(RECYCLER_SLOW_CHECK_ENABLED)
     tempPendingDisposeList = nullptr;
 #endif
@@ -15,7 +15,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::SmallFinalizableHeapBucketBaseT() :
 
 template <class TBlockType>
 SmallFinalizableHeapBucketBaseT<TBlockType>::~SmallFinalizableHeapBucketBaseT()
-{
+{TRACE_IT(26897);
     Assert(this->AllocatorsAreEmpty());
     this->DeleteHeapBlockList(this->pendingDisposeList);
     Assert(this->tempPendingDisposeList == nullptr);
@@ -24,7 +24,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::~SmallFinalizableHeapBucketBaseT()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::FinalizeAllObjects()
-{
+{TRACE_IT(26898);
     // Finalize all objects on shutdown.
 
     // Clear allocators to update the information on the heapblock
@@ -45,7 +45,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::FinalizeAllObjects()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::FinalizeHeapBlockList(TBlockType * list)
-{
+{TRACE_IT(26899);
     HeapBlockList::ForEach(list, [](TBlockType * heapBlock)
     {
         heapBlock->FinalizeAllObjects();
@@ -56,7 +56,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::FinalizeHeapBlockList(TBlockType * 
 template <class TBlockType>
 size_t
 SmallFinalizableHeapBucketBaseT<TBlockType>::GetNonEmptyHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(26900);
     size_t currentHeapBlockCount =  __super::GetNonEmptyHeapBlockCount(false)
         + HeapBlockList::Count(pendingDisposeList)
         + HeapBlockList::Count(tempPendingDisposeList);
@@ -68,11 +68,11 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::GetNonEmptyHeapBlockCount(bool chec
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::ResetMarks(ResetMarkFlags flags)
-{
+{TRACE_IT(26901);
     __super::ResetMarks(flags);
 
     if ((flags & ResetMarkFlags_ScanImplicitRoot) != 0)
-    {
+    {TRACE_IT(26902);
         HeapBlockList::ForEach(this->pendingDisposeList, [flags](TBlockType * heapBlock)
         {
             heapBlock->MarkImplicitRoots();
@@ -84,7 +84,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::ResetMarks(ResetMarkFlags flags)
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::AggregateBucketStats(HeapBucketStats& stats)
-{
+{TRACE_IT(26903);
     __super::AggregateBucketStats(stats);
 
     HeapBlockList::ForEach(pendingDisposeList, [&stats](TBlockType* heapBlock) {
@@ -96,7 +96,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::AggregateBucketStats(HeapBucketStat
 template<class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::Sweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(26904);
     Assert(!recyclerSweep.IsBackground());
 
 #if DBG || defined(RECYCLER_SLOW_CHECK_ENABLED)
@@ -111,15 +111,15 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::Sweep(RecyclerSweep& recyclerSweep)
     {
 #if DBG
         if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-        {
+        {TRACE_IT(26905);
             recyclerSweep.SetupVerifyListConsistencyDataForSmallBlock(nullptr, false, true);
         }
         else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-        {
+        {TRACE_IT(26906);
             recyclerSweep.SetupVerifyListConsistencyDataForMediumBlock(nullptr, false, true);
         }
         else
-        {
+        {TRACE_IT(26907);
             Assert(false);
         }
 #endif
@@ -138,7 +138,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::Sweep(RecyclerSweep& recyclerSweep)
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::DisposeObjects()
-{
+{TRACE_IT(26908);
     HeapBlockList::ForEach(this->pendingDisposeList, [](TBlockType * heapBlock)
     {
         Assert(heapBlock->HasAnyDisposeObjects());
@@ -149,11 +149,11 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::DisposeObjects()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::TransferDisposedObjects()
-{
+{TRACE_IT(26909);
     Assert(!this->IsAllocationStopped());
     TBlockType * currentPendingDisposeList = this->pendingDisposeList;
     if (currentPendingDisposeList != nullptr)
-    {
+    {TRACE_IT(26910);
         this->pendingDisposeList = nullptr;
 
         HeapBlockList::ForEach(currentPendingDisposeList, [=](TBlockType * heapBlock)
@@ -176,7 +176,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::TransferDisposedObjects()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::EnumerateObjects(ObjectInfoBits infoBits, void(*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(26911);
     __super::EnumerateObjects(infoBits, CallBackFunction);
     HeapBucket::EnumerateObjects(this->pendingDisposeList, infoBits, CallBackFunction);
 }
@@ -185,7 +185,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::EnumerateObjects(ObjectInfoBits inf
 template <class TBlockType>
 size_t
 SmallFinalizableHeapBucketBaseT<TBlockType>::Check()
-{
+{TRACE_IT(26912);
     size_t smallHeapBlockCount = __super::Check(false) + HeapInfo::Check(false, true, this->pendingDisposeList);
     Assert(this->heapBlockCount == smallHeapBlockCount);
     return smallHeapBlockCount;
@@ -196,21 +196,21 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::Check()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::Verify()
-{
+{TRACE_IT(26913);
     BaseT::Verify();
 
 #if DBG
     RecyclerVerifyListConsistencyData recyclerVerifyListConsistencyData;
     if (TBlockType::HeapBlockAttributes::IsSmallBlock)
-    {
+    {TRACE_IT(26914);
         recyclerVerifyListConsistencyData.SetupVerifyListConsistencyDataForSmallBlock(nullptr, false, true);
     }
     else if (TBlockType::HeapBlockAttributes::IsMediumBlock)
-    {
+    {TRACE_IT(26915);
         recyclerVerifyListConsistencyData.SetupVerifyListConsistencyDataForMediumBlock(nullptr, false, true);
     }
     else
-    {
+    {TRACE_IT(26916);
         Assert(false);
     }
 
@@ -228,7 +228,7 @@ SmallFinalizableHeapBucketBaseT<TBlockType>::Verify()
 template <class TBlockType>
 void
 SmallFinalizableHeapBucketBaseT<TBlockType>::VerifyMark()
-{
+{TRACE_IT(26917);
     __super::VerifyMark();
     HeapBlockList::ForEach(this->pendingDisposeList, [](TBlockType * heapBlock)
     {

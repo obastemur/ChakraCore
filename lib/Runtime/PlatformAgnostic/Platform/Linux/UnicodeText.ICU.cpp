@@ -36,7 +36,7 @@ namespace PlatformAgnostic
 #ifdef HAS_REAL_ICU
         // Helper ICU conversion facilities
         static const Normalizer2* TranslateToICUNormalizer(NormalizationForm normalizationForm)
-        {
+        {TRACE_IT(65044);
             UErrorCode errorCode = U_ZERO_ERROR;
             const Normalizer2* normalizer;
 
@@ -75,14 +75,14 @@ namespace PlatformAgnostic
         // If the string is not null terminated, the behavior is undefined (likely hang)
         //
         static bool IsUtf16StringValid(const UChar* str, size_t length, size_t* invalidIndex)
-        {
+        {TRACE_IT(65045);
             Assert(invalidIndex != nullptr);
             *invalidIndex = -1;
 
             size_t i = 0;
 
             for (;;)
-            {
+            {TRACE_IT(65046);
                 // Iterate through the UTF16-LE string
                 // If we are at the end of the null terminated string, return true
                 // since the string is valid
@@ -92,17 +92,17 @@ namespace PlatformAgnostic
                 UChar32 c;
                 U16_NEXT(str, i, length, c);
                 if (c == 0)
-                {
+                {TRACE_IT(65047);
                     return true;
                 }
                 if (U_IS_SURROGATE(c))
-                {
+                {TRACE_IT(65048);
                     if (U16_IS_LEAD(c))
-                    {
+                    {TRACE_IT(65049);
                         *invalidIndex = i;
                     }
                     else
-                    {
+                    {TRACE_IT(65050);
                         Assert(i > 0);
                         *invalidIndex = i - 1;
                     }
@@ -111,14 +111,14 @@ namespace PlatformAgnostic
                 }
 
                 if (i >= length)
-                {
+                {TRACE_IT(65051);
                     return true;
                 }
             }
         }
 
         static ApiError TranslateUErrorCode(UErrorCode icuError)
-        {
+        {TRACE_IT(65052);
 #if DBG
             g_lastErrorCode = icuError;
 #endif
@@ -141,7 +141,7 @@ namespace PlatformAgnostic
 
         // Linux ICU implementation of platform-agnostic Unicode interface
         int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65053);
             // Assert pointers
             Assert(sourceString != nullptr);
             Assert(destString != nullptr || destLength == 0);
@@ -160,7 +160,7 @@ namespace PlatformAgnostic
             // is passed in, not in the estimation case
             size_t invalidIndex = 0;
             if (destString != nullptr && !IsUtf16StringValid((const UChar*) sourceString, sourceLength, &invalidIndex))
-            {
+            {TRACE_IT(65054);
                 *pErrorOut = InvalidUnicodeText;
                 return -1 * invalidIndex; // mimicking the behavior of Win32 NormalizeString
             }
@@ -174,7 +174,7 @@ namespace PlatformAgnostic
             const UnicodeString destUniStr = normalizer->normalize(sourceUniStr, errorCode);
 
             if (U_FAILURE(errorCode))
-            {
+            {TRACE_IT(65055);
                 *pErrorOut = TranslateUErrorCode(errorCode);
             }
 
@@ -182,14 +182,14 @@ namespace PlatformAgnostic
             // that destUniStr causes
             int32_t normalizedStringLength = destUniStr.length();
             if (destLength == 0 && normalizedStringLength >= 0)
-            {
+            {TRACE_IT(65056);
                 *pErrorOut = ApiError::InsufficientBuffer;
                 return normalizedStringLength;
             }
 
             destUniStr.extract((UChar*) destString, destLength, errorCode);
             if (U_FAILURE(errorCode))
-            {
+            {TRACE_IT(65057);
                 *pErrorOut = TranslateUErrorCode(errorCode);
                 return -1;
             }
@@ -198,13 +198,13 @@ namespace PlatformAgnostic
         }
 
         bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength)
-        {
+        {TRACE_IT(65058);
             Assert(testString != nullptr);
             UErrorCode errorCode = U_ZERO_ERROR;
 
             size_t length = static_cast<size_t>(testStringLength);
             if (testStringLength < 0)
-            {
+            {TRACE_IT(65059);
                 length = u_strlen((const UChar*) testString);
             }
 
@@ -212,7 +212,7 @@ namespace PlatformAgnostic
             // is a malformed utf16 string. Maintain the same behavior here.
             size_t invalidIndex = 0;
             if (!IsUtf16StringValid((const UChar*) testString, length, &invalidIndex))
-            {
+            {TRACE_IT(65060);
                 return false;
             }
 
@@ -227,34 +227,34 @@ namespace PlatformAgnostic
         }
 
         bool IsWhitespace(codepoint_t ch)
-        {
+        {TRACE_IT(65061);
             return u_isUWhiteSpace(ch) == 1;
         }
 
         int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65062);
             int32_t resultStringLength = 0;
             UErrorCode errorCode = U_ZERO_ERROR;
 
             static_assert(sizeof(UChar) == sizeof(char16), "Unexpected char type from ICU, function might have to be updated");
             if (caseFlags == CaseFlagsUpper)
-            {
+            {TRACE_IT(65063);
                 resultStringLength = u_strToUpper((UChar*) destString, destLength,
                     (UChar*) sourceString, sourceLength, NULL, &errorCode);
             }
             else if (caseFlags == CaseFlagsLower)
-            {
+            {TRACE_IT(65064);
                 resultStringLength = u_strToLower((UChar*) destString, destLength,
                     (UChar*) sourceString, sourceLength, NULL, &errorCode);
             }
             else
-            {
+            {TRACE_IT(65065);
                 Assert(false);
             }
 
             if (U_FAILURE(errorCode) &&
                 !(destLength == 0 && errorCode == U_BUFFER_OVERFLOW_ERROR))
-            {
+            {TRACE_IT(65066);
                 *pErrorOut = TranslateUErrorCode(errorCode);
                 return -1;
             }
@@ -266,9 +266,9 @@ namespace PlatformAgnostic
 #else
 
         bool IsWhitespace(codepoint_t ch)
-        {
+        {TRACE_IT(65067);
             if (ch > 127)
-            {
+            {TRACE_IT(65068);
                 return (ch == 160)   || // 0xA0
                        (ch == 12288) || // IDEOGRAPHIC_SPACE
                        (ch == 65279);   // 0xFEFF
@@ -278,7 +278,7 @@ namespace PlatformAgnostic
             return asc == ' ' || asc == '\n' || asc == '\t' || asc == '\r';
         }
 
-        bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength) {
+        bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength) {TRACE_IT(65069);
             // TODO: implement this
             return true;
         }
@@ -291,23 +291,23 @@ namespace PlatformAgnostic
     return len;
 
         int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65070);
             // TODO: implement this
             EMPTY_COPY
         }
 
         int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65071);
             // TODO: implement this
             EMPTY_COPY
         }
 #endif
 
         bool IsIdStart(codepoint_t ch)
-        {
+        {TRACE_IT(65072);
 #ifdef HAS_REAL_ICU
             if (u_isIDStart(ch))
-            {
+            {TRACE_IT(65073);
                 return true;
             }
 #endif
@@ -326,10 +326,10 @@ namespace PlatformAgnostic
         }
 
         bool IsIdContinue(codepoint_t ch)
-        {
+        {TRACE_IT(65074);
 #ifdef HAS_REAL_ICU
             if (u_hasBinaryProperty(ch, UCHAR_ID_CONTINUE) == 1)
-            {
+            {TRACE_IT(65075);
                 return true;
             }
 #endif
@@ -356,23 +356,23 @@ namespace PlatformAgnostic
         }
 
         uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, char16* stringToChange, uint32 bufferLength)
-        {
+        {TRACE_IT(65076);
 #ifndef HAS_REAL_ICU
             // ASCII only
             typedef int (*CaseFlipper)(int);
             CaseFlipper flipper;
             if (caseFlags == CaseFlagsUpper)
-            {
+            {TRACE_IT(65077);
                 flipper = toupper;
             }
             else
-            {
+            {TRACE_IT(65078);
                 flipper = tolower;
             }
             for(uint32 i = 0; i < bufferLength; i++)
-            {
+            {TRACE_IT(65079);
                 if (stringToChange[i] > 0 && stringToChange[i] < 127)
-                {
+                {TRACE_IT(65080);
                     char ch = (char)stringToChange[i];
                     stringToChange[i] = flipper(ch);
                 }
@@ -384,7 +384,7 @@ namespace PlatformAgnostic
             ApiError error = NoError;
 
             if (bufferLength == 0 || stringToChange == nullptr)
-            {
+            {TRACE_IT(65081);
                 return 0;
             }
 
@@ -398,12 +398,12 @@ namespace PlatformAgnostic
         }
 
         int LogicalStringCompare(const char16* string1, const char16* string2)
-        {
+        {TRACE_IT(65082);
             return PlatformAgnostic::UnicodeText::Internal::LogicalStringCompareImpl<char16>(string1, string2);
         }
 
         bool IsExternalUnicodeLibraryAvailable()
-        {
+        {TRACE_IT(65083);
 #if defined(HAS_REAL_ICU)
             // Since we're using the ICU here, this is trivially true
             return true;
@@ -413,30 +413,30 @@ namespace PlatformAgnostic
         }
 
         UnicodeGeneralCategoryClass GetGeneralCategoryClass(codepoint_t ch)
-        {
+        {TRACE_IT(65084);
 #ifndef HAS_REAL_ICU
             if (IS_CHAR(ch))
-            {
+            {TRACE_IT(65085);
                 return UnicodeGeneralCategoryClass::CategoryClassLetter;
             }
 
             if (IS_NUMBER(ch))
-            {
+            {TRACE_IT(65086);
                 return UnicodeGeneralCategoryClass::CategoryClassDigit;
             }
 
             if (ch == 8232) // U+2028
-            {
+            {TRACE_IT(65087);
                 return UnicodeGeneralCategoryClass::CategoryClassLineSeparator;
             }
 
             if (ch == 8233) // U+2029
-            {
+            {TRACE_IT(65088);
                 return UnicodeGeneralCategoryClass::CategoryClassParagraphSeparator;
             }
 
             if (IsWhitespace(ch))
-            {
+            {TRACE_IT(65089);
                 return UnicodeGeneralCategoryClass::CategoryClassSpaceSeparator;
             }
             // todo-xplat: implement the others ?
@@ -449,42 +449,42 @@ namespace PlatformAgnostic
                 charType == U_MODIFIER_LETTER ||
                 charType == U_OTHER_LETTER ||
                 charType == U_LETTER_NUMBER)
-            {
+            {TRACE_IT(65090);
                 return UnicodeGeneralCategoryClass::CategoryClassLetter;
             }
 
             if (charType == U_DECIMAL_DIGIT_NUMBER)
-            {
+            {TRACE_IT(65091);
                 return UnicodeGeneralCategoryClass::CategoryClassDigit;
             }
 
             if (charType == U_LINE_SEPARATOR)
-            {
+            {TRACE_IT(65092);
                 return UnicodeGeneralCategoryClass::CategoryClassLineSeparator;
             }
 
             if (charType == U_PARAGRAPH_SEPARATOR)
-            {
+            {TRACE_IT(65093);
                 return UnicodeGeneralCategoryClass::CategoryClassParagraphSeparator;
             }
 
             if (charType == U_SPACE_SEPARATOR)
-            {
+            {TRACE_IT(65094);
                 return UnicodeGeneralCategoryClass::CategoryClassSpaceSeparator;
             }
 
             if (charType == U_COMBINING_SPACING_MARK)
-            {
+            {TRACE_IT(65095);
                 return UnicodeGeneralCategoryClass::CategoryClassSpacingCombiningMark;
             }
 
             if (charType == U_NON_SPACING_MARK)
-            {
+            {TRACE_IT(65096);
                 return UnicodeGeneralCategoryClass::CategoryClassNonSpacingMark;
             }
 
             if (charType == U_CONNECTOR_PUNCTUATION)
-            {
+            {TRACE_IT(65097);
                 return UnicodeGeneralCategoryClass::CategoryClassConnectorPunctuation;
             }
 #endif
@@ -495,17 +495,17 @@ namespace PlatformAgnostic
         // has a dependency on it. So this actually is different between
         // Windows and Linux
         CharacterClassificationType GetLegacyCharacterClassificationType(char16 character)
-        {
+        {TRACE_IT(65098);
 #ifdef HAS_REAL_ICU
             auto charTypeMask = U_GET_GC_MASK(character);
 
             if ((charTypeMask & U_GC_L_MASK) != 0)
-            {
+            {TRACE_IT(65099);
                 return CharacterClassificationType::Letter;
             }
 
             if ((charTypeMask & (U_GC_ND_MASK | U_GC_P_MASK)) != 0)
-            {
+            {TRACE_IT(65100);
                 return CharacterClassificationType::DigitOrPunct;
             }
 
@@ -517,7 +517,7 @@ namespace PlatformAgnostic
             if ((charTypeMask & U_GC_ZS_MASK) != 0 ||
                 character == 0xFEFF ||
                 character == 0xFFFE)
-            {
+            {TRACE_IT(65101);
                 return CharacterClassificationType::Whitespace;
             }
 #endif

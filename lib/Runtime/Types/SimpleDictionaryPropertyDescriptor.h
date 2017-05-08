@@ -12,15 +12,15 @@ namespace Js
     public:
         SimpleDictionaryPropertyDescriptor() :
             propertyIndex(NoSlots), Attributes(PropertyDynamicTypeDefaults),
-            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) { }
+            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) {TRACE_IT(67011); }
 
         SimpleDictionaryPropertyDescriptor(TPropertyIndex inPropertyIndex) :
             propertyIndex(inPropertyIndex), Attributes(PropertyDynamicTypeDefaults),
-            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) { }
+            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) {TRACE_IT(67012); }
 
         SimpleDictionaryPropertyDescriptor(TPropertyIndex inPropertyIndex, PropertyAttributes attributes) :
             propertyIndex(inPropertyIndex), Attributes(attributes),
-            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) { }
+            preventFalseReference(true), isInitialized(false), isFixed(false), usedAsFixed(false) {TRACE_IT(67013); }
 
         // SimpleDictionaryPropertyDescriptor is allocated by a dictionary along with the PropertyRecord
         // so it can not allocate as leaf, tag the lower bit to prevent false reference
@@ -33,7 +33,7 @@ namespace Js
         TPropertyIndex propertyIndex;
 
         bool HasNonLetConstGlobal() const
-        {
+        {TRACE_IT(67014);
             return (this->Attributes & PropertyLetConstGlobal) == 0;
         }
 
@@ -49,7 +49,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(67015);
             this->value = 0;
         }
     };

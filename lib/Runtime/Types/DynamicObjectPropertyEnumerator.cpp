@@ -7,23 +7,23 @@
 namespace Js
 {
     bool DynamicObjectPropertyEnumerator::GetEnumNonEnumerable() const
-    {
+    {TRACE_IT(65981);
         return !!(flags & EnumeratorFlags::EnumNonEnumerable);
     }
     bool DynamicObjectPropertyEnumerator::GetEnumSymbols() const
-    {
+    {TRACE_IT(65982);
         return !!(flags & EnumeratorFlags::EnumSymbols);
     }
     bool DynamicObjectPropertyEnumerator::GetSnapShotSemantics() const
-    {
+    {TRACE_IT(65983);
         return !!(flags & EnumeratorFlags::SnapShotSemantics);
     }
 
     bool DynamicObjectPropertyEnumerator::GetUseCache() const
-    {
+    {TRACE_IT(65984);
 #if ENABLE_TTD
         if(this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode())
-        {
+        {TRACE_IT(65985);
             return false;
         }
 #endif
@@ -32,20 +32,20 @@ namespace Js
     }
 
     void DynamicObjectPropertyEnumerator::Initialize(DynamicType * type, CachedData * data, Js::BigPropertyIndex initialPropertyCount)
-    {
+    {TRACE_IT(65986);
         this->initialType = type;
         this->cachedData = data;
         this->initialPropertyCount = initialPropertyCount;
     }
 
     bool DynamicObjectPropertyEnumerator::Initialize(DynamicObject * object, EnumeratorFlags flags, ScriptContext * requestContext, ForInCache * forInCache)
-    {
+    {TRACE_IT(65987);
         this->scriptContext = requestContext;
         this->object = object;
         this->flags = flags;
 
         if (!object)
-        {
+        {TRACE_IT(65988);
             this->cachedData = nullptr;
             return true;
         }
@@ -54,9 +54,9 @@ namespace Js
         this->enumeratedCount = 0;
 
         if (!GetUseCache())
-        {
+        {TRACE_IT(65989);
             if (!object->GetDynamicType()->GetTypeHandler()->EnsureObjectReady(object))
-            {
+            {TRACE_IT(65990);
                 return false;
             }
             Initialize(object->GetDynamicType(), nullptr, GetSnapShotSemantics() ? this->object->GetPropertyCount() : Constants::NoBigSlot);
@@ -67,7 +67,7 @@ namespace Js
 
         CachedData * data;
         if (forInCache && type == forInCache->type)
-        {
+        {TRACE_IT(65991);
             // We shouldn't have a for in cache when asking to enum symbols
             Assert(!GetEnumSymbols());
             data = (CachedData *)forInCache->data;
@@ -90,7 +90,7 @@ namespace Js
             Initialize(type, data, data->propertyCount);
 
             if (forInCache)
-            {
+            {TRACE_IT(65992);
                 forInCache->type = type;
                 forInCache->data = data;
             }
@@ -98,7 +98,7 @@ namespace Js
         }
 
         if (!object->GetDynamicType()->GetTypeHandler()->EnsureObjectReady(object))
-        {
+        {TRACE_IT(65993);
             return false;
         }
 
@@ -126,7 +126,7 @@ namespace Js
         Initialize(type, data, propertyCount);
 
         if (forInCache)
-        {
+        {TRACE_IT(65994);
             forInCache->type = type;
             forInCache->data = data;
         }
@@ -134,12 +134,12 @@ namespace Js
     }
 
     bool DynamicObjectPropertyEnumerator::IsNullEnumerator() const
-    {
+    {TRACE_IT(65995);
         return this->object == nullptr;
     }
 
     bool DynamicObjectPropertyEnumerator::CanUseJITFastPath() const
-    {
+    {TRACE_IT(65996);
 #if ENABLE_TTD
         TTDAssert(this->cachedData == nullptr || !this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode(), "We should always have cachedData null if we are in record or replay mode");
 #endif
@@ -158,7 +158,7 @@ namespace Js
     }
 
     DynamicType * DynamicObjectPropertyEnumerator::GetTypeToEnumerate() const
-    {
+    {TRACE_IT(65997);
         return
             GetSnapShotSemantics() &&
             initialType->GetIsLocked() &&
@@ -168,7 +168,7 @@ namespace Js
     }
 
     JavascriptString * DynamicObjectPropertyEnumerator::MoveAndGetNextWithCache(PropertyId& propertyId, PropertyAttributes* attributes)
-    {
+    {TRACE_IT(65998);
 #if ENABLE_TTD
         AssertMsg(!this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode(), "We should always trap out to explicit enumeration in this case");
 #endif
@@ -177,7 +177,7 @@ namespace Js
         JavascriptString* propertyStringName;
         PropertyAttributes propertyAttributes = PropertyNone;
         if (enumeratedCount < cachedData->cachedCount)
-        {
+        {TRACE_IT(65999);
             PropertyString * propertyString = cachedData->strings[enumeratedCount];
             propertyStringName = propertyString;
             propertyId = propertyString->GetPropertyRecord()->GetPropertyId();
@@ -196,11 +196,11 @@ namespace Js
             enumeratedCount++;
         }
         else if (!cachedData->completed)
-        {
+        {TRACE_IT(66000);
             propertyStringName = this->MoveAndGetNextNoCache(propertyId, &propertyAttributes);
 
             if (propertyStringName && VirtualTableInfo<PropertyString>::HasVirtualTable(propertyStringName))
-            {
+            {TRACE_IT(66001);
                 Assert(enumeratedCount < this->initialPropertyCount);
                 cachedData->strings[enumeratedCount] = (PropertyString*)propertyStringName;
                 cachedData->indexes[enumeratedCount] = this->objectIndex;
@@ -208,12 +208,12 @@ namespace Js
                 cachedData->cachedCount = ++enumeratedCount;
             }
             else
-            {
+            {TRACE_IT(66002);
                 cachedData->completed = true;
             }
         }
         else
-        {
+        {TRACE_IT(66003);
 #if DBG
             PropertyId tempPropertyId;
             Assert(this->MoveAndGetNextNoCache(tempPropertyId, attributes) == nullptr);
@@ -223,24 +223,24 @@ namespace Js
         }
 
         if (attributes != nullptr)
-        {
+        {TRACE_IT(66004);
             *attributes = propertyAttributes;
         }
 
         return propertyStringName;
     }
     JavascriptString * DynamicObjectPropertyEnumerator::MoveAndGetNextNoCache(PropertyId& propertyId, PropertyAttributes * attributes)
-    {
+    {TRACE_IT(66005);
         JavascriptString* propertyString = nullptr;
 
         BigPropertyIndex newIndex = this->objectIndex;
         do
-        {
+        {TRACE_IT(66006);
             newIndex++;
             if (!object->FindNextProperty(newIndex, &propertyString, &propertyId, attributes,
                 GetTypeToEnumerate(), flags, this->scriptContext)
                 || (GetSnapShotSemantics() && newIndex >= initialPropertyCount))
-            {
+            {TRACE_IT(66007);
                 // No more properties
                 newIndex--;
                 propertyString = nullptr;
@@ -253,13 +253,13 @@ namespace Js
     }
 
     Var DynamicObjectPropertyEnumerator::MoveAndGetNext(PropertyId& propertyId, PropertyAttributes * attributes)
-    {
+    {TRACE_IT(66008);
         if (this->cachedData && this->initialType == this->object->GetDynamicType())
-        {
+        {TRACE_IT(66009);
             return MoveAndGetNextWithCache(propertyId, attributes);
         }
         if (this->object)
-        {
+        {TRACE_IT(66010);
             // Once enters NoCache path, ensure never switches to Cache path above.
             this->cachedData = nullptr;
             return MoveAndGetNextNoCache(propertyId, attributes);

@@ -36,7 +36,7 @@ private:
 protected:
     ValueInfo(const ValueType type, const ValueStructureKind structureKind)
         : ValueType(type), structureKind(structureKind)
-    {
+    {TRACE_IT(5559);
         // We can only prove that the representation is a tagged int on a ToVar. Currently, we cannot have more than one value
         // info per value number in a block, so a value info specifying tagged int representation cannot be created for a
         // specific sym. Instead, a value info can be shared by multiple syms, and hence cannot specify tagged int
@@ -50,18 +50,18 @@ protected:
 private:
     ValueInfo(const ValueInfo &other, const bool)
         : ValueType(other), structureKind(ValueStructureKind::Generic) // uses generic structure kind, as opposed to copying the structure kind
-    {
+    {TRACE_IT(5560);
         SetSymStore(other.GetSymStore());
     }
 
 public:
     static ValueInfo *          New(JitArenaAllocator *const alloc, const ValueType type)
-    {
+    {TRACE_IT(5561);
         return JitAnew(alloc, ValueInfo, type, ValueStructureKind::Generic);
     }
 
-    const ValueType &       Type() const { return *this; }
-    ValueType &             Type() { return *this; }
+    const ValueType &       Type() const {TRACE_IT(5562); return *this; }
+    ValueType &             Type() {TRACE_IT(5563); return *this; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // ValueType imports. Only importing functions that are appropriate to be called on Value.
@@ -254,9 +254,9 @@ public:
 
 
 public:
-    Sym *                   GetSymStore() const { return this->symStore; }
+    Sym *                   GetSymStore() const {TRACE_IT(5564); return this->symStore; }
     void                    SetSymStore(Sym * sym)
-    {
+    {TRACE_IT(5565);
         // Sym store should always be a var sym
         Assert(sym == nullptr || sym->IsPropertySym() || !sym->AsStackSym()->IsTypeSpec()); // property syms always have a var stack sym
         this->symStore = sym;
@@ -268,7 +268,7 @@ public:
     ValueInfo *             Copy(JitArenaAllocator * allocator);
 
     ValueInfo *             CopyWithGenericStructureKind(JitArenaAllocator * allocator) const
-    {
+    {TRACE_IT(5566);
         return JitAnew(allocator, ValueInfo, *this, false);
     }
 
@@ -279,7 +279,7 @@ public:
 #endif
 #if DBG
     // Add a vtable in debug builds so that the actual can been inspected easily in the debugger without having to manually cast
-    virtual void            AddVtable() { Assert(false); }
+    virtual void            AddVtable() {TRACE_IT(5567); Assert(false); }
 #endif
 };
 
@@ -292,25 +292,25 @@ private:
 protected:
     Value(const ValueNumber valueNumber, ValueInfo *valueInfo)
         : valueNumber(valueNumber), valueInfo(valueInfo)
-    {
+    {TRACE_IT(5568);
     };
 
 public:
     static Value *New(JitArenaAllocator *const allocator, const ValueNumber valueNumber, ValueInfo *valueInfo)
-    {
+    {TRACE_IT(5569);
         return JitAnew(allocator, Value, valueNumber, valueInfo);
     }
 
-    ValueNumber GetValueNumber() const { return this->valueNumber; }
-    ValueInfo * GetValueInfo() const { return this->valueInfo; }
-    ValueInfo * ShareValueInfo() const { this->valueInfo->SetIsShared(); return this->valueInfo; }
+    ValueNumber GetValueNumber() const {TRACE_IT(5570); return this->valueNumber; }
+    ValueInfo * GetValueInfo() const {TRACE_IT(5571); return this->valueInfo; }
+    ValueInfo * ShareValueInfo() const {TRACE_IT(5572); this->valueInfo->SetIsShared(); return this->valueInfo; }
 
-    void        SetValueInfo(ValueInfo * newValueInfo) { Assert(newValueInfo); this->valueInfo = newValueInfo; }
+    void        SetValueInfo(ValueInfo * newValueInfo) {TRACE_IT(5573); Assert(newValueInfo); this->valueInfo = newValueInfo; }
 
-    Value *     Copy(JitArenaAllocator * allocator, ValueNumber newValueNumber) { return Value::New(allocator, newValueNumber, this->ShareValueInfo()); }
+    Value *     Copy(JitArenaAllocator * allocator, ValueNumber newValueNumber) {TRACE_IT(5574); return Value::New(allocator, newValueNumber, this->ShareValueInfo()); }
 
 #if DBG_DUMP
-    _NOINLINE void Dump() const { Output::Print(_u("0x%X  ValueNumber: %3d,  -> "), this, this->valueNumber);  this->valueInfo->Dump(); }
+    _NOINLINE void Dump() const {TRACE_IT(5575); Output::Print(_u("0x%X  ValueNumber: %3d,  -> "), this, this->valueNumber);  this->valueInfo->Dump(); }
 #endif
 };
 
@@ -325,29 +325,29 @@ protected:
     IntConstantValueInfo(const int32 intValue)
         : ValueInfo(GetInt(IsTaggable(intValue)), ValueStructureKind::IntConstant),
         intValue(intValue)
-    {
+    {TRACE_IT(5576);
     }
 
 public:
     static IntConstantValueInfo *New(JitArenaAllocator *const allocator, const int32 intValue)
-    {
+    {TRACE_IT(5577);
         return JitAnew(allocator, IntConstantValueInfo, intValue);
     }
 
     IntConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(5578);
         return JitAnew(allocator, IntConstantValueInfo, *this);
     }
 
 public:
     int32 IntValue() const
-    {
+    {TRACE_IT(5579);
         return intValue;
     }
 
 private:
     static bool IsTaggable(const int32 i)
-    {
+    {TRACE_IT(5580);
 #if INT32VAR
         // All 32-bit ints are taggable on 64-bit architectures
         return true;
@@ -374,7 +374,7 @@ protected:
         : ValueInfo(constantBounds.GetValueType(), structureKind),
         IntConstantBounds(constantBounds),
         wasNegativeZeroPreventedByBailout(wasNegativeZeroPreventedByBailout)
-    {
+    {TRACE_IT(5581);
         Assert(!wasNegativeZeroPreventedByBailout || constantBounds.LowerBound() <= 0 && constantBounds.UpperBound() >= 0);
     }
 
@@ -384,7 +384,7 @@ public:
         const int32 lowerBound,
         const int32 upperBound,
         const bool wasNegativeZeroPreventedByBailout)
-    {
+    {TRACE_IT(5582);
         return
             JitAnew(
                 allocator,
@@ -394,13 +394,13 @@ public:
     }
 
     IntRangeValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(5583);
         return JitAnew(allocator, IntRangeValueInfo, *this);
     }
 
 public:
     bool WasNegativeZeroPreventedByBailout() const
-    {
+    {TRACE_IT(5584);
         return wasNegativeZeroPreventedByBailout;
     }
 };
@@ -413,24 +413,24 @@ private:
 public:
     FloatConstantValueInfo(const FloatConstType floatValue)
         : ValueInfo(Float, ValueStructureKind::FloatConstant), floatValue(floatValue)
-    {
+    {TRACE_IT(5585);
     }
 
     static FloatConstantValueInfo *New(
         JitArenaAllocator *const allocator,
         const FloatConstType floatValue)
-    {
+    {TRACE_IT(5586);
         return JitAnew(allocator, FloatConstantValueInfo, floatValue);
     }
 
     FloatConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(5587);
         return JitAnew(allocator, FloatConstantValueInfo, *this);
     }
 
 public:
     FloatConstType FloatValue() const
-    {
+    {TRACE_IT(5588);
         return floatValue;
     }
 };
@@ -446,34 +446,34 @@ public:
     VarConstantValueInfo(Js::Var varValue, ValueType valueType, bool isFunction = false, Js::Var localVarValue = nullptr)
         : ValueInfo(valueType, ValueStructureKind::VarConstant),
         varValue(varValue), localVarValue(localVarValue), isFunction(isFunction)
-    {
+    {TRACE_IT(5589);
     }
 
     static VarConstantValueInfo *New(JitArenaAllocator *const allocator, Js::Var varValue, ValueType valueType, bool isFunction = false, Js::Var localVarValue = nullptr)
-    {
+    {TRACE_IT(5590);
         return JitAnew(allocator, VarConstantValueInfo, varValue, valueType, isFunction, localVarValue);
     }
 
     VarConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(5591);
         return JitAnew(allocator, VarConstantValueInfo, *this);
     }
 
 public:
     Js::Var VarValue(bool useLocal = false) const
-    {
+    {TRACE_IT(5592);
         if(useLocal && this->localVarValue)
-        {
+        {TRACE_IT(5593);
             return this->localVarValue;
         }
         else
-        {
+        {TRACE_IT(5594);
             return this->varValue;
         }
     }
 
     bool IsFunction() const
-    {
+    {TRACE_IT(5595);
         return this->isFunction;
     }
 };
@@ -497,74 +497,74 @@ public:
     JsTypeValueInfo(JITTypeHolder type)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(type), jsTypeSet(nullptr), isShared(false)
-    {
+    {TRACE_IT(5596);
     }
 
     JsTypeValueInfo(Js::EquivalentTypeSet * typeSet)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(nullptr), jsTypeSet(typeSet), isShared(false)
-    {
+    {TRACE_IT(5597);
     }
 
     JsTypeValueInfo(const JsTypeValueInfo& other)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(other.jsType), jsTypeSet(other.jsTypeSet)
-    {
+    {TRACE_IT(5598);
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, JITTypeHolder typeSet)
-    {
+    {TRACE_IT(5599);
         return JitAnew(allocator, JsTypeValueInfo, typeSet);
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, Js::EquivalentTypeSet * typeSet)
-    {
+    {TRACE_IT(5600);
         return JitAnew(allocator, JsTypeValueInfo, typeSet);
     }
 
     JsTypeValueInfo(const JITTypeHolder type, Js::EquivalentTypeSet * typeSet)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(type), jsTypeSet(typeSet), isShared(false)
-    {
+    {TRACE_IT(5601);
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, const JITTypeHolder type, Js::EquivalentTypeSet * typeSet)
-    {
+    {TRACE_IT(5602);
         return JitAnew(allocator, JsTypeValueInfo, type, typeSet);
     }
 
 public:
     JsTypeValueInfo * Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(5603);
         JsTypeValueInfo * newInfo = JitAnew(allocator, JsTypeValueInfo, *this);
         newInfo->isShared = false;
         return newInfo;
     }
 
     JITTypeHolder GetJsType() const
-    {
+    {TRACE_IT(5604);
         return this->jsType;
     }
 
     void SetJsType(const JITTypeHolder value)
-    {
+    {TRACE_IT(5605);
         Assert(!this->isShared);
         this->jsType = value;
     }
 
     Js::EquivalentTypeSet * GetJsTypeSet() const
-    {
+    {TRACE_IT(5606);
         return this->jsTypeSet;
     }
 
     void SetJsTypeSet(Js::EquivalentTypeSet * value)
-    {
+    {TRACE_IT(5607);
         Assert(!this->isShared);
         this->jsTypeSet = value;
     }
 
-    bool GetIsShared() const { return this->isShared; }
-    void SetIsShared() { this->isShared = true; }
+    bool GetIsShared() const {TRACE_IT(5608); return this->isShared; }
+    void SetIsShared() {TRACE_IT(5609); this->isShared = true; }
 };
 
 class ArrayValueInfo : public ValueInfo
@@ -585,7 +585,7 @@ private:
         headSegmentSym(headSegmentSym),
         headSegmentLengthSym(headSegmentLengthSym),
         lengthSym(lengthSym)
-    {
+    {TRACE_IT(5610);
         Assert(valueType.IsAnyOptimizedArray());
         Assert(!(valueType.IsLikelyTypedArray() && !valueType.IsOptimizedTypedArray()));
 
@@ -595,7 +595,7 @@ private:
         Assert(!lengthSym || lengthSym != headSegmentLengthSym);
 
         if(symStore)
-        {
+        {TRACE_IT(5611);
             SetSymStore(symStore);
         }
     }
@@ -608,7 +608,7 @@ public:
         StackSym *const headSegmentLengthSym,
         StackSym *const lengthSym,
         Sym *const symStore = nullptr)
-    {
+    {TRACE_IT(5612);
         Assert(allocator);
 
         return JitAnew(allocator, ArrayValueInfo, valueType, headSegmentSym, headSegmentLengthSym, lengthSym, symStore);
@@ -619,7 +619,7 @@ public:
         const bool copyHeadSegment = true,
         const bool copyHeadSegmentLength = true,
         const bool copyLength = true) const
-    {
+    {TRACE_IT(5613);
         Assert(allocator);
 
         return
@@ -636,17 +636,17 @@ public:
 
 public:
     StackSym *HeadSegmentSym() const
-    {
+    {TRACE_IT(5614);
         return headSegmentSym;
     }
 
     StackSym *HeadSegmentLengthSym() const
-    {
+    {TRACE_IT(5615);
         return headSegmentLengthSym;
     }
 
     StackSym *LengthSym() const
-    {
+    {TRACE_IT(5616);
         return lengthSym;
     }
 
@@ -658,7 +658,7 @@ public:
         const bool eliminatedLowerBoundCheck,
         const bool eliminatedUpperBoundCheck,
         Func *const func) const
-    {
+    {TRACE_IT(5617);
         Assert(previousArrayOpnd);
         Assert(func);
 
@@ -682,29 +682,29 @@ protected:
 
 public:
     ExprAttributes(const uint32 attributes = 0) : attributes(attributes)
-    {
+    {TRACE_IT(5618);
     }
 
     uint32 Attributes() const
-    {
+    {TRACE_IT(5619);
         return attributes;
     }
 
 private:
     static const uint32 BitMask(const uint index)
-    {
+    {TRACE_IT(5620);
         return 1u << index;
     }
 
 protected:
     void SetBitAttribute(const uint index, const bool bit)
-    {
+    {TRACE_IT(5621);
         if(bit)
-        {
+        {TRACE_IT(5622);
             attributes |= BitMask(index);
         }
         else
-        {
+        {TRACE_IT(5623);
             attributes &= ~BitMask(index);
         }
     }
@@ -718,7 +718,7 @@ private:
 
 public:
     IntMathExprAttributes(const ExprAttributes &exprAttributes) : ExprAttributes(exprAttributes)
-    {
+    {TRACE_IT(5624);
     }
 
     IntMathExprAttributes(const bool ignoredIntOverflow, const bool ignoredNegativeZero)
@@ -736,7 +736,7 @@ private:
 
 public:
     DstIsIntOrNumberAttributes(const ExprAttributes &exprAttributes) : ExprAttributes(exprAttributes)
-    {
+    {TRACE_IT(5625);
     }
 
     DstIsIntOrNumberAttributes(const bool dstIsIntOnly, const bool dstIsNumberOnly)
@@ -750,11 +750,11 @@ public:
 class ExprHash
 {
 public:
-    ExprHash() { this->opcode = 0; }
-    ExprHash(int init) { Assert(init == 0); this->opcode = 0; }
+    ExprHash() {TRACE_IT(5626); this->opcode = 0; }
+    ExprHash(int init) {TRACE_IT(5627); Assert(init == 0); this->opcode = 0; }
 
     void Init(Js::OpCode opcode, ValueNumber src1Val, ValueNumber src2Val, ExprAttributes exprAttributes)
-    {
+    {TRACE_IT(5628);
         extern uint8 OpCodeToHash[(int)Js::OpCode::Count];
 
         uint32 opCodeHash = OpCodeToHash[(int)opcode];
@@ -769,7 +769,7 @@ public:
 
         // If value numbers are too large, just give up
         if (this->src1Val != src1Val || this->src2Val != src2Val)
-        {
+        {TRACE_IT(5629);
             this->opcode = 0;
             this->src1Val = 0;
             this->src2Val = 0;
@@ -777,13 +777,13 @@ public:
         }
     }
 
-    Js::OpCode  GetOpcode()             { return (Js::OpCode)this->opcode; }
-    ValueNumber GetSrc1ValueNumber()    { return this->src1Val; }
-    ValueNumber GetSrc2ValueNumber()    { return this->src2Val; }
-    ExprAttributes GetExprAttributes()  { return this->attributes; }
-    bool        IsValid()               { return this->opcode != 0; }
+    Js::OpCode  GetOpcode()             {TRACE_IT(5630); return (Js::OpCode)this->opcode; }
+    ValueNumber GetSrc1ValueNumber()    {TRACE_IT(5631); return this->src1Val; }
+    ValueNumber GetSrc2ValueNumber()    {TRACE_IT(5632); return this->src2Val; }
+    ExprAttributes GetExprAttributes()  {TRACE_IT(5633); return this->attributes; }
+    bool        IsValid()               {TRACE_IT(5634); return this->opcode != 0; }
 
-    operator    uint()                  { return *(uint*)this; }
+    operator    uint()                  {TRACE_IT(5635); return *(uint*)this; }
 
 private:
     uint32  opcode: 8;
@@ -812,7 +812,7 @@ private:
 public:
     PathDependentInfo(const PathDependentRelationship relationship, Value *const leftValue, Value *const rightValue)
         : relationship(relationship), leftValue(leftValue), rightValue(rightValue)
-    {
+    {TRACE_IT(5636);
         Assert(leftValue);
         Assert(rightValue);
     }
@@ -823,36 +823,36 @@ public:
         Value *const rightValue,
         const int32 rightConstantValue)
         : relationship(relationship), leftValue(leftValue), rightValue(rightValue), rightConstantValue(rightConstantValue)
-    {
+    {TRACE_IT(5637);
         Assert(leftValue);
     }
 
 public:
     bool HasInfo() const
-    {
+    {TRACE_IT(5638);
         return !!leftValue;
     }
 
     PathDependentRelationship Relationship() const
-    {
+    {TRACE_IT(5639);
         Assert(HasInfo());
         return relationship;
     }
 
     Value *LeftValue() const
-    {
+    {TRACE_IT(5640);
         Assert(HasInfo());
         return leftValue;
     }
 
     Value *RightValue() const
-    {
+    {TRACE_IT(5641);
         Assert(HasInfo());
         return rightValue;
     }
 
     int32 RightConstantValue() const
-    {
+    {TRACE_IT(5642);
         Assert(!RightValue());
         return rightConstantValue;
     }
@@ -865,28 +865,28 @@ private:
 
 public:
     PathDependentInfoToRestore() : leftValueInfo(nullptr), rightValueInfo(nullptr)
-    {
+    {TRACE_IT(5643);
     }
 
     PathDependentInfoToRestore(ValueInfo *const leftValueInfo, ValueInfo *const rightValueInfo)
         : leftValueInfo(leftValueInfo), rightValueInfo(rightValueInfo)
-    {
+    {TRACE_IT(5644);
     }
 
 public:
     ValueInfo *LeftValueInfo() const
-    {
+    {TRACE_IT(5645);
         return leftValueInfo;
     }
 
     ValueInfo *RightValueInfo() const
-    {
+    {TRACE_IT(5646);
         return rightValueInfo;
     }
 
 public:
     void Clear()
-    {
+    {TRACE_IT(5647);
         leftValueInfo = nullptr;
         rightValueInfo = nullptr;
     }
@@ -922,7 +922,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(5648);
 #if DBG
             this->value.propIds = nullptr;
             this->value.currentInitFldCount = (uint)-1;
@@ -968,7 +968,7 @@ public:
         curFunc(func),
         hasDataRef(nullptr),
         stackLiteralInitFldDataMap(nullptr)
-    {
+    {TRACE_IT(5649);
     }
 
     // Data
@@ -1027,34 +1027,34 @@ private:
 
 public:
     void OnDataInitialized(JitArenaAllocator *const allocator)
-    {
+    {TRACE_IT(5650);
         Assert(allocator);
 
         hasDataRef = JitAnew(allocator, bool, true);
     }
 
     void OnDataReused(GlobOptBlockData *const fromData)
-    {
+    {TRACE_IT(5651);
         // If a block's data is deleted, *hasDataRef will be set to false. Since these two blocks are pointing to the same data,
         // they also need to point to the same has-data info.
         hasDataRef = fromData->hasDataRef;
     }
 
     void OnDataUnreferenced()
-    {
+    {TRACE_IT(5652);
         // Other blocks may still be using the data, we should only un-reference the previous data
         hasDataRef = nullptr;
     }
 
     void OnDataDeleted()
-    {
+    {TRACE_IT(5653);
         if(hasDataRef)
             *hasDataRef = false;
         OnDataUnreferenced();
     }
 
     bool HasData()
-    {
+    {TRACE_IT(5654);
         if(!hasDataRef)
             return false;
         if(*hasDataRef)
@@ -1065,7 +1065,7 @@ public:
 
     // SIMD_JS
     BVSparse<JitArenaAllocator> * GetSimd128LivenessBV(IRType type)
-    {
+    {TRACE_IT(5655);
         switch (type)
         {
         case TySimd128F4:
@@ -1104,38 +1104,38 @@ private:
 
 public:
     JsArrayKills() : bits(0)
-    {
+    {TRACE_IT(5656);
     }
 
 private:
     JsArrayKills(const byte bits) : bits(bits)
-    {
+    {TRACE_IT(5657);
     }
 
 public:
-    bool KillsAllArrays() const { return killsAllArrays; }
-    void SetKillsAllArrays() { killsAllArrays = true; }
+    bool KillsAllArrays() const {TRACE_IT(5658); return killsAllArrays; }
+    void SetKillsAllArrays() {TRACE_IT(5659); killsAllArrays = true; }
 
-    bool KillsArraysWithNoMissingValues() const { return killsArraysWithNoMissingValues; }
-    void SetKillsArraysWithNoMissingValues() { killsArraysWithNoMissingValues = true; }
+    bool KillsArraysWithNoMissingValues() const {TRACE_IT(5660); return killsArraysWithNoMissingValues; }
+    void SetKillsArraysWithNoMissingValues() {TRACE_IT(5661); killsArraysWithNoMissingValues = true; }
 
-    bool KillsNativeArrays() const { return killsNativeArrays; }
-    void SetKillsNativeArrays() { killsNativeArrays = true; }
+    bool KillsNativeArrays() const {TRACE_IT(5662); return killsNativeArrays; }
+    void SetKillsNativeArrays() {TRACE_IT(5663); killsNativeArrays = true; }
 
-    bool KillsArrayHeadSegments() const { return killsArrayHeadSegments; }
-    void SetKillsArrayHeadSegments() { killsArrayHeadSegments = true; }
+    bool KillsArrayHeadSegments() const {TRACE_IT(5664); return killsArrayHeadSegments; }
+    void SetKillsArrayHeadSegments() {TRACE_IT(5665); killsArrayHeadSegments = true; }
 
-    bool KillsArrayHeadSegmentLengths() const { return killsArrayHeadSegmentLengths; }
-    void SetKillsArrayHeadSegmentLengths() { killsArrayHeadSegmentLengths = true; }
+    bool KillsArrayHeadSegmentLengths() const {TRACE_IT(5666); return killsArrayHeadSegmentLengths; }
+    void SetKillsArrayHeadSegmentLengths() {TRACE_IT(5667); killsArrayHeadSegmentLengths = true; }
 
-    bool KillsTypedArrayHeadSegmentLengths() const { return KillsAllArrays(); }
+    bool KillsTypedArrayHeadSegmentLengths() const {TRACE_IT(5668); return KillsAllArrays(); }
 
-    bool KillsArrayLengths() const { return killsArrayLengths; }
-    void SetKillsArrayLengths() { killsArrayLengths = true; }
+    bool KillsArrayLengths() const {TRACE_IT(5669); return killsArrayLengths; }
+    void SetKillsArrayLengths() {TRACE_IT(5670); killsArrayLengths = true; }
 
 public:
     bool KillsValueType(const ValueType valueType) const
-    {
+    {TRACE_IT(5671);
         Assert(valueType.IsArrayOrObjectWithArray());
 
         return
@@ -1145,12 +1145,12 @@ public:
     }
 
     bool AreSubsetOf(const JsArrayKills &other) const
-    {
+    {TRACE_IT(5672);
         return (bits & other.bits) == bits;
     }
 
     JsArrayKills Merge(const JsArrayKills &other)
-    {
+    {TRACE_IT(5673);
         return bits | other.bits;
     }
 };
@@ -1291,10 +1291,10 @@ public:
     static bool             DoFieldHoisting(Loop * loop);
 
     IR::ByteCodeUsesInstr * ConvertToByteCodeUses(IR::Instr * isntr);
-    bool GetIsAsmJSFunc()const{ return isAsmJSFunc; };
+    bool GetIsAsmJSFunc()const{TRACE_IT(5674); return isAsmJSFunc; };
     BOOLEAN                 IsArgumentsOpnd(IR::Opnd* opnd);
 private:
-    bool                    IsLoopPrePass() const { return this->prePassLoop != nullptr; }
+    bool                    IsLoopPrePass() const {TRACE_IT(5675); return this->prePassLoop != nullptr; }
     void                    OptBlock(BasicBlock *block);
     void                    BackwardPass(Js::Phase tag);
     void                    ForwardPass();
@@ -1633,7 +1633,7 @@ private:
     bool                    DoDivIntTypeSpec() const;
     bool                    DoLossyIntTypeSpec() const;
     bool                    DoFloatTypeSpec() const;
-    bool                    DoStringTypeSpec() const { return GlobOpt::DoStringTypeSpec(this->func); }
+    bool                    DoStringTypeSpec() const {TRACE_IT(5676); return GlobOpt::DoStringTypeSpec(this->func); }
     bool                    DoArrayCheckHoist() const;
     bool                    DoArrayCheckHoist(const ValueType baseValueType, Loop* loop, IR::Instr *const instr = nullptr) const;
     bool                    DoArrayMissingValueCheckHoist() const;
@@ -1641,10 +1641,10 @@ private:
     bool                    DoTypedArraySegmentLengthHoist(Loop *const loop) const;
     bool                    DoArrayLengthHoist() const;
     bool                    DoEliminateArrayAccessHelperCall() const;
-    bool                    DoTypedArrayTypeSpec() const { return GlobOpt::DoTypedArrayTypeSpec(this->func); }
-    bool                    DoNativeArrayTypeSpec() const { return GlobOpt::DoNativeArrayTypeSpec(this->func); }
+    bool                    DoTypedArrayTypeSpec() const {TRACE_IT(5677); return GlobOpt::DoTypedArrayTypeSpec(this->func); }
+    bool                    DoNativeArrayTypeSpec() const {TRACE_IT(5678); return GlobOpt::DoNativeArrayTypeSpec(this->func); }
     bool                    DoLdLenIntSpec(IR::Instr *const instr, const ValueType baseValueType) const;
-    bool                    IsSwitchOptEnabled() const { return GlobOpt::IsSwitchOptEnabled(this->func); }
+    bool                    IsSwitchOptEnabled() const {TRACE_IT(5679); return GlobOpt::IsSwitchOptEnabled(this->func); }
     bool                    DoPathDependentValues() const;
     bool                    DoTrackRelativeIntBounds() const;
     bool                    DoBoundCheckElimination() const;
@@ -1711,8 +1711,8 @@ private:
     bool                    DoFieldHoisting() const;
     bool                    DoObjTypeSpec() const;
     bool                    DoObjTypeSpec(Loop * loop) const;
-    bool                    DoFieldRefOpts() const { return DoObjTypeSpec(); }
-    bool                    DoFieldRefOpts(Loop * loop) const { return DoObjTypeSpec(loop); }
+    bool                    DoFieldRefOpts() const {TRACE_IT(5680); return DoObjTypeSpec(); }
+    bool                    DoFieldRefOpts(Loop * loop) const {TRACE_IT(5681); return DoObjTypeSpec(loop); }
     bool                    DoFieldOpts(Loop * loop) const;
     bool                    DoFieldPRE() const;
     bool                    DoFieldPRE(Loop *loop) const;

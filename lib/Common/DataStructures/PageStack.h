@@ -32,14 +32,14 @@ public:
     bool IsEmpty() const;
 #if DBG
     bool HasChunk() const
-    {
+    {TRACE_IT(21931);
         return this->currentChunk != nullptr;
     }
 #endif
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     void SetMaxPageCount(size_t maxPageCount)
-    {
+    {TRACE_IT(21932);
         this->maxPageCount = maxPageCount > 1 ? maxPageCount : 1;
     }
 #endif
@@ -71,14 +71,14 @@ private:
 template <typename T>
 inline
 bool PageStack<T>::Pop(T * item)
-{
+{TRACE_IT(21933);
     Assert(currentChunk != nullptr);
 
     if (nextEntry == chunkStart)
-    {
+    {TRACE_IT(21934);
         // We're at the beginning of the chunk.  Move to the previous chunk, if any
         if (currentChunk->nextChunk == nullptr)
-        {
+        {TRACE_IT(21935);
             // All done
             Assert(count == 0);
             return false;
@@ -109,12 +109,12 @@ bool PageStack<T>::Pop(T * item)
 template <typename T>
 inline
 bool PageStack<T>::Push(T item)
-{
+{TRACE_IT(21936);
     if (nextEntry == chunkEnd)
-    {
+    {TRACE_IT(21937);
         Chunk * newChunk = CreateChunk();
         if (newChunk == nullptr)
-        {
+        {TRACE_IT(21938);
             return false;
         }
 
@@ -148,7 +148,7 @@ PageStack<T>::PageStack(PagePool * pagePool) :
     chunkStart(nullptr),
     chunkEnd(nullptr),
     usesReservedPages(false)
-{
+{TRACE_IT(21939);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     pageCount = 0;
     maxPageCount = (size_t)-1;  // Default to no limit
@@ -162,7 +162,7 @@ PageStack<T>::PageStack(PagePool * pagePool) :
 
 template <typename T>
 PageStack<T>::~PageStack()
-{
+{TRACE_IT(21940);
     Assert(currentChunk == nullptr);
     Assert(nextEntry == nullptr);
     Assert(count == 0);
@@ -172,9 +172,9 @@ PageStack<T>::~PageStack()
 
 template <typename T>
 void PageStack<T>::Init(uint reservedPageCount)
-{
+{TRACE_IT(21941);
     if (reservedPageCount > 0)
-    {
+    {TRACE_IT(21942);
         this->usesReservedPages = true;
         this->pagePool->ReservePages(reservedPageCount);
     }
@@ -183,7 +183,7 @@ void PageStack<T>::Init(uint reservedPageCount)
     Assert(currentChunk == nullptr);
     currentChunk = CreateChunk();
     if (currentChunk == nullptr)
-    {
+    {TRACE_IT(21943);
         Js::Throw::OutOfMemory();
     }
     currentChunk->nextChunk = nullptr;
@@ -195,7 +195,7 @@ void PageStack<T>::Init(uint reservedPageCount)
 
 template <typename T>
 void PageStack<T>::Clear()
-{
+{TRACE_IT(21944);
     currentChunk = nullptr;
     nextEntry = nullptr;
 #if DBG
@@ -207,17 +207,17 @@ void PageStack<T>::Clear()
 
 template <typename T>
 typename PageStack<T>::Chunk * PageStack<T>::CreateChunk()
-{
+{TRACE_IT(21945);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     if (pageCount >= maxPageCount)
-    {
+    {TRACE_IT(21946);
         return nullptr;
     }
 #endif
     Chunk * newChunk = (Chunk *)this->pagePool->GetPage(usesReservedPages);
 
     if (newChunk == nullptr)
-    {
+    {TRACE_IT(21947);
         return nullptr;
     }
 
@@ -230,7 +230,7 @@ typename PageStack<T>::Chunk * PageStack<T>::CreateChunk()
 
 template <typename T>
 void PageStack<T>::FreeChunk(Chunk * chunk)
-{
+{TRACE_IT(21948);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     pageCount--;
 #endif
@@ -240,7 +240,7 @@ void PageStack<T>::FreeChunk(Chunk * chunk)
 
 template <typename T>
 uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T> ** targetStacks)
-{
+{TRACE_IT(21949);
     // Split the current stack up to [targetCount + 1] ways.
     // [targetStacks] contains the target stacks and must have [targetCount] elements.
 
@@ -265,9 +265,9 @@ uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T>
 
     uint targetIndex = 0;
     while (targetIndex < targetCount)
-    {
+    {TRACE_IT(21950);
         if (chunk == nullptr)
-        {
+        {TRACE_IT(21951);
             // No more pages.  Adjust targetCount down to what we were actually able to do.
             // We'll return this number below so the caller knows.
             targetCount = targetIndex;
@@ -303,9 +303,9 @@ uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T>
     // assigning each chunk to the main chunk and the target chunks in turn,
     // and linking each chunk to the end of the respective list.
     while (true)
-    {
+    {TRACE_IT(21952);
         if (chunk == nullptr)
-        {
+        {TRACE_IT(21953);
             break;
         }
 
@@ -316,9 +316,9 @@ uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T>
 
         targetIndex = 0;
         while (targetIndex < targetCount)
-        {
+        {TRACE_IT(21954);
             if (chunk == nullptr)
-            {
+            {TRACE_IT(21955);
                 break;
             }
 
@@ -343,7 +343,7 @@ uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T>
     mainCurrent->nextChunk = nullptr;
     targetIndex = 0;
     while (targetIndex < targetCount)
-    {
+    {TRACE_IT(21956);
         targetCurrents[targetIndex]->nextChunk = nullptr;
         targetIndex++;
     }
@@ -355,18 +355,18 @@ uint PageStack<T>::Split(uint targetCount, __in_ecount(targetCount) PageStack<T>
 
 template <typename T>
 void PageStack<T>::Abort()
-{
+{TRACE_IT(21957);
     // Abandon the current entries in the stack and reset to initialized state.
 
     if (currentChunk == nullptr)
-    {
+    {TRACE_IT(21958);
         Assert(count == 0);
         return;
     }
 
     // Free all the chunks except the first one
     while (currentChunk->nextChunk != nullptr)
-    {
+    {TRACE_IT(21959);
         Chunk * temp = currentChunk;
         currentChunk = currentChunk->nextChunk;
         FreeChunk(temp);
@@ -384,12 +384,12 @@ void PageStack<T>::Abort()
 
 template <typename T>
 void PageStack<T>::Release()
-{
+{TRACE_IT(21960);
     Assert(IsEmpty());
 
     // We may have a preallocated chunk still held; if so release it.
     if (currentChunk != nullptr)
-    {
+    {TRACE_IT(21961);
         Assert(currentChunk->nextChunk == nullptr);
         FreeChunk(currentChunk);
         currentChunk = nullptr;
@@ -403,16 +403,16 @@ void PageStack<T>::Release()
 
 template <typename T>
 bool PageStack<T>::IsEmpty() const
-{
+{TRACE_IT(21962);
     if (currentChunk == nullptr)
-    {
+    {TRACE_IT(21963);
         Assert(count == 0);
         Assert(nextEntry == nullptr);
         return true;
     }
 
     if (nextEntry == chunkStart && currentChunk->nextChunk == nullptr)
-    {
+    {TRACE_IT(21964);
         Assert(count == 0);
         return true;
     }

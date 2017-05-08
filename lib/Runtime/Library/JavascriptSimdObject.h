@@ -31,7 +31,7 @@ namespace Js
 
         Var Unwrap() const;
         Var GetValue() const;
-        TypeId GetTypeDescriptor() const { return typeDescriptor; }
-        uint GetLaneCount() const { Assert(typeDescriptor != TypeIds_SIMDObject); return numLanes; };
+        TypeId GetTypeDescriptor() const {TRACE_IT(61519); return typeDescriptor; }
+        uint GetLaneCount() const {TRACE_IT(61520); Assert(typeDescriptor != TypeIds_SIMDObject); return numLanes; };
      };
 } 

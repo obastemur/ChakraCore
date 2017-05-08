@@ -6,7 +6,7 @@
 
 FlowGraph *
 FlowGraph::New(Func * func, JitArenaAllocator * alloc)
-{
+{TRACE_IT(1929);
     FlowGraph * graph;
 
     graph = JitAnew(alloc, FlowGraph, func, alloc);
@@ -23,7 +23,7 @@ FlowGraph::New(Func * func, JitArenaAllocator * alloc)
 ///----------------------------------------------------------------------------
 void
 FlowGraph::Build(void)
-{
+{TRACE_IT(1930);
     Func * func = this->func;
 
     BEGIN_CODEGEN_PHASE(func, Js::FGPeepsPhase);
@@ -38,7 +38,7 @@ FlowGraph::Build(void)
             (this->func->IsSimpleJit() && this->func->GetJITFunctionBody()->DoJITLoopBody())
         )
        )
-    {
+    {TRACE_IT(1931);
         this->catchLabelStack = JitAnew(this->alloc, SList<IR::LabelInstr*>, this->alloc);
     }
 
@@ -47,13 +47,13 @@ FlowGraph::Build(void)
     BasicBlock * nextBlock = nullptr;
     bool hasCall = false;
     FOREACH_INSTR_IN_FUNC_BACKWARD_EDITING(instr, instrPrev, func)
-    {
+    {TRACE_IT(1932);
         if (currLastInstr == nullptr || instr->EndsBasicBlock())
-        {
+        {TRACE_IT(1933);
             // Start working on a new block.
             // If we're currently processing a block, then wrap it up before beginning a new one.
             if (currLastInstr != nullptr)
-            {
+            {TRACE_IT(1934);
                 nextBlock = currBlock;
                 currBlock = this->AddBlock(instr->m_next, currLastInstr, nextBlock);
                 currBlock->hasCall = hasCall;
@@ -64,13 +64,13 @@ FlowGraph::Build(void)
         }
 
         if (instr->StartsBasicBlock())
-        {
+        {TRACE_IT(1935);
             // Insert a BrOnException after the loop top if we are in a try-catch. This is required to
             // model flow from the loop to the catch block for loops that don't have a break condition.
             if (instr->IsLabelInstr() && instr->AsLabelInstr()->m_isLoopTop &&
                 this->catchLabelStack && !this->catchLabelStack->Empty() &&
                 instr->m_next->m_opcode != Js::OpCode::BrOnException)
-            {
+            {TRACE_IT(1936);
                 IR::BranchInstr * brOnException = IR::BranchInstr::New(Js::OpCode::BrOnException, this->catchLabelStack->Top(), instr->m_func);
                 instr->InsertAfter(brOnException);
                 instrPrev = brOnException; // process BrOnException before adding a new block for loop top label.
@@ -90,14 +90,14 @@ FlowGraph::Build(void)
         case Js::OpCode::Catch:
             Assert(instr->m_prev->IsLabelInstr());
             if (this->catchLabelStack)
-            {
+            {TRACE_IT(1937);
                 this->catchLabelStack->Push(instr->m_prev->AsLabelInstr());
             }
             break;
 
         case Js::OpCode::TryCatch:
             if (this->catchLabelStack)
-            {
+            {TRACE_IT(1938);
                 this->catchLabelStack->Pop();
             }
             break;
@@ -114,14 +114,14 @@ FlowGraph::Build(void)
         }
 
         if (OpCodeAttr::UseAllFields(instr->m_opcode))
-        {
+        {TRACE_IT(1939);
             // UseAllFields opcode are call instruction or opcode that would call.
             hasCall = true;
 
             if (OpCodeAttr::CallInstr(instr->m_opcode))
-            {
+            {TRACE_IT(1940);
                 if (!instr->isCallInstrProtectedByNoProfileBailout)
-                {
+                {TRACE_IT(1941);
                     instr->m_func->SetHasCallsOnSelfAndParents();
                 }
 
@@ -136,10 +136,10 @@ FlowGraph::Build(void)
                         argInstr->m_opcode != Js::OpCode::ArgOut_A_Dynamic &&
                         argInstr->m_opcode != Js::OpCode::ArgOut_A_FromStackArgs &&
                         argInstr->m_opcode != Js::OpCode::ArgOut_A_SpreadArg)
-                    {
+                    {TRACE_IT(1942);
                         // don't have bailout in asm.js so we don't need BytecodeArgOutCapture
                         if (!argInstr->m_func->GetJITFunctionBody()->IsAsmJsMode())
-                        {
+                        {TRACE_IT(1943);
                             // Need to always generate byte code arg out capture,
                             // because bailout can't restore from the arg out as it is
                             // replaced by new sym for register calling convention in lower
@@ -147,7 +147,7 @@ FlowGraph::Build(void)
                         }
                         // Check if the instruction is already next
                         if (argInstr != argInsertInstr->m_prev)
-                        {
+                        {TRACE_IT(1944);
                             // It is not, move it.
                             argInstr->Move(argInsertInstr);
                         }
@@ -167,7 +167,7 @@ FlowGraph::Build(void)
     // forward to number the blocks in lexical order.
     unsigned int blockNum = 0;
     FOREACH_BLOCK(block, this)
-    {
+    {TRACE_IT(1945);
         block->SetBlockNum(blockNum++);
     }NEXT_BLOCK;
     AssertMsg(blockNum == this->blockCount, "Block count is out of whack");
@@ -199,16 +199,16 @@ FlowGraph::Build(void)
                                 (this->func->DoOptimizeTryCatch() || (this->func->IsSimpleJit() && this->func->hasBailout));
     Region ** blockToRegion = nullptr;
     if (assignRegionsBeforeGlobopt)
-    {
+    {TRACE_IT(1946);
         blockToRegion = JitAnewArrayZ(this->alloc, Region*, this->blockCount);
     }
     FOREACH_BLOCK_ALL(block, this)
-    {
+    {TRACE_IT(1947);
         block->SetBlockNum(blockNum++);
         if (assignRegionsBeforeGlobopt)
-        {
+        {TRACE_IT(1948);
             if (block->isDeleted && !block->isDead)
-            {
+            {TRACE_IT(1949);
                 continue;
             }
             this->UpdateRegionForBlock(block, blockToRegion);
@@ -218,7 +218,7 @@ FlowGraph::Build(void)
     AssertMsg (blockNum == this->blockCount, "Block count is out of whack");
 
     if (breakBlocksRelocated)
-    {
+    {TRACE_IT(1950);
         // Sort loop lists only if there is break block removal.
         SortLoopLists();
     }
@@ -229,25 +229,25 @@ FlowGraph::Build(void)
 
 void
 FlowGraph::SortLoopLists()
-{
+{TRACE_IT(1951);
     // Sort the blocks in loopList
     for (Loop *loop = this->loopList; loop; loop = loop->next)
-    {
+    {TRACE_IT(1952);
         unsigned int lastBlockNumber = loop->GetHeadBlock()->GetBlockNum();
         // Insertion sort as the blockList is almost sorted in the loop.
         FOREACH_BLOCK_IN_LOOP_EDITING(block, loop, iter)
-        {
+        {TRACE_IT(1953);
             if (lastBlockNumber <= block->GetBlockNum())
-            {
+            {TRACE_IT(1954);
                 lastBlockNumber = block->GetBlockNum();
             }
             else
-            {
+            {TRACE_IT(1955);
                 iter.UnlinkCurrent();
                 FOREACH_BLOCK_IN_LOOP_EDITING(insertBlock,loop,newIter)
-                {
+                {TRACE_IT(1956);
                     if (insertBlock->GetBlockNum() > block->GetBlockNum())
-                    {
+                    {TRACE_IT(1957);
                         break;
                     }
                 }NEXT_BLOCK_IN_LOOP_EDITING;
@@ -259,14 +259,14 @@ FlowGraph::SortLoopLists()
 
 void
 FlowGraph::RunPeeps()
-{
+{TRACE_IT(1958);
     if (this->func->HasTry())
-    {
+    {TRACE_IT(1959);
         return;
     }
 
     if (PHASE_OFF(Js::FGPeepsPhase, this->func))
-    {
+    {TRACE_IT(1960);
         return;
     }
 
@@ -274,7 +274,7 @@ FlowGraph::RunPeeps()
     bool tryUnsignedCmpPeep = false;
 
     FOREACH_INSTR_IN_FUNC_EDITING(instr, instrNext, this->func)
-    {
+    {TRACE_IT(1961);
         switch(instr->m_opcode)
         {
         case Js::OpCode::Br:
@@ -325,7 +325,7 @@ FlowGraph::RunPeeps()
         case Js::OpCode::BrOnClassConstructor:
         case Js::OpCode::BrOnBaseConstructorKind:
             if (tryUnsignedCmpPeep)
-            {
+            {TRACE_IT(1962);
                 this->UnsignedCmpPeep(instr);
             }
             instrNext = Peeps::PeepBranch(instr->AsBranchInstr());
@@ -340,26 +340,26 @@ FlowGraph::RunPeeps()
         case Js::OpCode::BrTrue_A:
         case Js::OpCode::BrFalse_A:
             if (instrCm)
-            {
+            {TRACE_IT(1963);
                 if (instrCm->GetDst()->IsInt32())
-                {
+                {TRACE_IT(1964);
                     Assert(instr->m_opcode == Js::OpCode::BrTrue_I4 || instr->m_opcode == Js::OpCode::BrFalse_I4);
                     instrNext = this->PeepTypedCm(instrCm);
                 }
                 else
-                {
+                {TRACE_IT(1965);
                     instrNext = this->PeepCm(instrCm);
                 }
                 instrCm = nullptr;
 
                 if (instrNext == nullptr)
-                {
+                {TRACE_IT(1966);
                     // Set instrNext back to the current instr.
                     instrNext = instr;
                 }
             }
             else
-            {
+            {TRACE_IT(1967);
                 instrNext = Peeps::PeepBranch(instr->AsBranchInstr());
             }
             break;
@@ -379,7 +379,7 @@ FlowGraph::RunPeeps()
         case Js::OpCode::CmSrEq_A:
         case Js::OpCode::CmSrNeq_A:
             if (tryUnsignedCmpPeep)
-            {
+            {TRACE_IT(1968);
                 this->UnsignedCmpPeep(instr);
             }
         case Js::OpCode::CmUnGe_I4:
@@ -397,7 +397,7 @@ FlowGraph::RunPeeps()
 
         case Js::OpCode::Label:
             if (instr->AsLabelInstr()->IsUnreferenced())
-            {
+            {TRACE_IT(1969);
                 instrNext = Peeps::PeepUnreachableLabel(instr->AsLabelInstr(), false);
             }
             break;
@@ -410,13 +410,13 @@ FlowGraph::RunPeeps()
         case Js::OpCode::ShrU_I4:
         case Js::OpCode::ShrU_A:
             if (tryUnsignedCmpPeep)
-            {
+            {TRACE_IT(1970);
                 break;
             }
             if (instr->GetDst()->AsRegOpnd()->m_sym->IsSingleDef()
                 && instr->GetSrc2()->IsRegOpnd() && instr->GetSrc2()->AsRegOpnd()->m_sym->IsTaggableIntConst()
                 && instr->GetSrc2()->AsRegOpnd()->m_sym->GetIntConstValue() == 0)
-            {
+            {TRACE_IT(1971);
                 tryUnsignedCmpPeep = true;
             }
             break;
@@ -428,7 +428,7 @@ FlowGraph::RunPeeps()
 
 void
 Loop::InsertLandingPad(FlowGraph *fg)
-{
+{TRACE_IT(1972);
     BasicBlock *headBlock = this->GetHeadBlock();
 
     // Always create a landing pad.  This allows globopt to easily hoist instructions
@@ -459,9 +459,9 @@ Loop::InsertLandingPad(FlowGraph *fg)
     {
         // Find the head block in the block list of the parent loop
         FOREACH_BLOCK_IN_LOOP_EDITING(block, parentLoop, iter)
-        {
+        {TRACE_IT(1973);
             if (block == headBlock)
-            {
+            {TRACE_IT(1974);
                 // Add the landing pad to the block list
                 iter.InsertBefore(landingPad);
                 break;
@@ -473,12 +473,12 @@ Loop::InsertLandingPad(FlowGraph *fg)
 
     // Fix predecessor flow edges
     FOREACH_PREDECESSOR_EDGE_EDITING(edge, headBlock, iter)
-    {
+    {TRACE_IT(1975);
         // Make sure it isn't a back-edge
         if (edge->GetPred()->loop != this && !this->IsDescendentOrSelf(edge->GetPred()->loop))
-        {
+        {TRACE_IT(1976);
             if (edge->GetPred()->GetLastInstr()->IsBranchInstr() && headBlock->GetFirstInstr()->IsLabelInstr())
-            {
+            {TRACE_IT(1977);
                 IR::BranchInstr *branch = edge->GetPred()->GetLastInstr()->AsBranchInstr();
                 branch->ReplaceTarget(headBlock->GetFirstInstr()->AsLabelInstr(), landingPadLabel);
             }
@@ -493,25 +493,25 @@ Loop::InsertLandingPad(FlowGraph *fg)
 
 bool
 Loop::RemoveBreakBlocks(FlowGraph *fg)
-{
+{TRACE_IT(1978);
     bool breakBlockRelocated = false;
     if (PHASE_OFF(Js::RemoveBreakBlockPhase, fg->GetFunc()))
-    {
+    {TRACE_IT(1979);
         return false;
     }
 
     BasicBlock *loopTailBlock = nullptr;
     FOREACH_BLOCK_IN_LOOP(block, this)
-    {
+    {TRACE_IT(1980);
         loopTailBlock = block;
     }NEXT_BLOCK_IN_LOOP;
 
     AnalysisAssert(loopTailBlock);
 
     FOREACH_BLOCK_BACKWARD_IN_RANGE_EDITING(breakBlockEnd, loopTailBlock, this->GetHeadBlock(), blockPrev)
-    {
+    {TRACE_IT(1981);
         while (!this->IsDescendentOrSelf(breakBlockEnd->loop))
-        {
+        {TRACE_IT(1982);
             // Found at least one break block;
             breakBlockRelocated = true;
 
@@ -527,7 +527,7 @@ Loop::RemoveBreakBlocks(FlowGraph *fg)
 
             // Algorithm works on one loop at a time.
             while((breakBlockStartPrev->loop == breakBlockEnd->loop) || !this->IsDescendentOrSelf(breakBlockStartPrev->loop))
-            {
+            {TRACE_IT(1983);
                 breakBlockStart = breakBlockStartPrev;
                 breakBlockStartPrev = breakBlockStartPrev->GetPrev();
             }
@@ -554,7 +554,7 @@ Loop::RemoveBreakBlocks(FlowGraph *fg)
 
 void
 FlowGraph::MoveBlocksBefore(BasicBlock *blockStart, BasicBlock *blockEnd, BasicBlock *insertBlock)
-{
+{TRACE_IT(1984);
     BasicBlock *srcPredBlock = blockStart->prev;
     BasicBlock *srcNextBlock = blockEnd->next;
     BasicBlock *dstPredBlock = insertBlock->prev;
@@ -577,7 +577,7 @@ FlowGraph::MoveBlocksBefore(BasicBlock *blockStart, BasicBlock *blockEnd, BasicB
     // Fix instruction flow
     IR::Instr *srcLastInstr = srcPredBlock->GetLastInstr();
     if (srcLastInstr->IsBranchInstr() && srcLastInstr->AsBranchInstr()->HasFallThrough())
-    {
+    {TRACE_IT(1985);
         // There was a fallthrough in the break blocks original position.
         IR::BranchInstr *srcBranch = srcLastInstr->AsBranchInstr();
         IR::Instr *srcBranchNextInstr = srcBranch->GetNextRealInstrOrLabel();
@@ -591,7 +591,7 @@ FlowGraph::MoveBlocksBefore(BasicBlock *blockStart, BasicBlock *blockEnd, BasicB
         srcBranch->SetTarget(srcLabel);
 
         if (srcBranchNextInstr != srcBranchTarget)
-        {
+        {TRACE_IT(1986);
             FlowEdge *srcEdge  = this->FindEdge(srcPredBlock, srcBranchTarget->GetBasicBlock());
             Assert(srcEdge);
 
@@ -602,7 +602,7 @@ FlowGraph::MoveBlocksBefore(BasicBlock *blockStart, BasicBlock *blockEnd, BasicB
 
     IR::Instr *dstLastInstr = dstPredBlockLastInstr;
     if (dstLastInstr->IsBranchInstr() && dstLastInstr->AsBranchInstr()->HasFallThrough())
-    {
+    {TRACE_IT(1987);
         //There is a fallthrough in the block after which break block is inserted.
         FlowEdge *dstEdge = this->FindEdge(dstPredBlock, blockEnd->GetNext());
         Assert(dstEdge);
@@ -614,12 +614,12 @@ FlowGraph::MoveBlocksBefore(BasicBlock *blockStart, BasicBlock *blockEnd, BasicB
 
 FlowEdge *
 FlowGraph::FindEdge(BasicBlock *predBlock, BasicBlock *succBlock)
-{
+{TRACE_IT(1988);
         FlowEdge *srcEdge = nullptr;
         FOREACH_SUCCESSOR_EDGE(edge, predBlock)
-        {
+        {TRACE_IT(1989);
             if (edge->GetSucc() == succBlock)
-            {
+            {TRACE_IT(1990);
                 srcEdge = edge;
                 break;
             }
@@ -630,7 +630,7 @@ FlowGraph::FindEdge(BasicBlock *predBlock, BasicBlock *succBlock)
 
 void
 BasicBlock::InvertBranch(IR::BranchInstr *branch)
-{
+{TRACE_IT(1991);
     Assert(this->GetLastInstr() == branch);
     Assert(this->GetSuccList()->HasTwo());
 
@@ -640,12 +640,12 @@ BasicBlock::InvertBranch(IR::BranchInstr *branch)
 
 bool
 FlowGraph::CanonicalizeLoops()
-{
+{TRACE_IT(1992);
     if (this->func->HasProfileInfo())
-    {
+    {TRACE_IT(1993);
         this->implicitCallFlags = this->func->GetReadOnlyProfileInfo()->GetImplicitCallFlags();
         for (Loop *loop = this->loopList; loop; loop = loop->next)
-        {
+        {TRACE_IT(1994);
             this->implicitCallFlags = (Js::ImplicitCallFlags)(this->implicitCallFlags | loop->GetImplicitCallFlags());
         }
     }
@@ -657,13 +657,13 @@ FlowGraph::CanonicalizeLoops()
     bool breakBlockRelocated = false;
 
     for (Loop *loop = this->loopList; loop; loop = loop->next)
-    {
+    {TRACE_IT(1995);
         loop->InsertLandingPad(this);
         if (!this->func->HasTry() || this->func->DoOptimizeTryCatch())
-        {
+        {TRACE_IT(1996);
             bool relocated = loop->RemoveBreakBlocks(this);
             if (!breakBlockRelocated && relocated)
-            {
+            {TRACE_IT(1997);
                 breakBlockRelocated  = true;
             }
         }
@@ -681,23 +681,23 @@ FlowGraph::CanonicalizeLoops()
 // list preserves the reverse post-order of the blocks in the flowgraph block list.
 void
 FlowGraph::FindLoops()
-{
+{TRACE_IT(1998);
     if (!this->hasLoop)
-    {
+    {TRACE_IT(1999);
         return;
     }
 
     Func * func = this->func;
 
     FOREACH_BLOCK_BACKWARD_IN_FUNC(block, func)
-    {
+    {TRACE_IT(2000);
         if (block->loop != nullptr)
-        {
+        {TRACE_IT(2001);
             // Block already visited
             continue;
         }
         FOREACH_SUCCESSOR_BLOCK(succ, block)
-        {
+        {TRACE_IT(2002);
             if (succ->isLoopHeader && succ->loop == nullptr)
             {
                 // Found a loop back-edge
@@ -705,7 +705,7 @@ FlowGraph::FindLoops()
             }
         } NEXT_SUCCESSOR_BLOCK;
         if (block->isLoopHeader && block->loop == nullptr)
-        {
+        {TRACE_IT(2003);
             // We would have built a loop for it if it was a loop...
             block->isLoopHeader = false;
             block->GetFirstInstr()->AsLabelInstr()->m_isLoopTop = false;
@@ -715,15 +715,15 @@ FlowGraph::FindLoops()
 
 void
 FlowGraph::BuildLoop(BasicBlock *headBlock, BasicBlock *tailBlock, Loop *parentLoop)
-{
+{TRACE_IT(2004);
     // This function is recursive, so when jitting in the foreground, probe the stack
     if(!func->IsBackgroundJIT())
-    {
+    {TRACE_IT(2005);
         PROBE_STACK(func->GetScriptContext(), Js::Constants::MinStackDefault);
     }
 
     if (tailBlock->number < headBlock->number)
-    {
+    {TRACE_IT(2006);
         // Not a loop.  We didn't see any back-edge.
         headBlock->isLoopHeader = false;
         headBlock->GetFirstInstr()->AsLabelInstr()->m_isLoopTop = false;
@@ -741,7 +741,7 @@ FlowGraph::BuildLoop(BasicBlock *headBlock, BasicBlock *tailBlock, Loop *parentL
 
     // If parentLoop is a parent of loop, it's headBlock better appear first.
     if (parentLoop && loop->headBlock->number > parentLoop->headBlock->number)
-    {
+    {TRACE_IT(2007);
         loop->parent = parentLoop;
         parentLoop->isLeaf = false;
     }
@@ -761,39 +761,39 @@ FlowGraph::BuildLoop(BasicBlock *headBlock, BasicBlock *tailBlock, Loop *parentL
     firstInstr->SetLoop(loop);
 
     if (firstInstr->IsProfiledLabelInstr())
-    {
+    {TRACE_IT(2008);
         loop->SetImplicitCallFlags(firstInstr->AsProfiledLabelInstr()->loopImplicitCallFlags);
         if (this->func->HasProfileInfo() && this->func->GetReadOnlyProfileInfo()->IsLoopImplicitCallInfoDisabled())
-        {
+        {TRACE_IT(2009);
             loop->SetImplicitCallFlags(this->func->GetReadOnlyProfileInfo()->GetImplicitCallFlags());
         }
         loop->SetLoopFlags(firstInstr->AsProfiledLabelInstr()->loopFlags);
     }
     else
-    {
+    {TRACE_IT(2010);
         // Didn't collect profile information, don't do optimizations
         loop->SetImplicitCallFlags(Js::ImplicitCall_All);
     }
 }
 
 Loop::MemCopyCandidate* Loop::MemOpCandidate::AsMemCopy()
-{
+{TRACE_IT(2011);
     Assert(this->IsMemCopy());
     return (Loop::MemCopyCandidate*)this;
 }
 
 Loop::MemSetCandidate* Loop::MemOpCandidate::AsMemSet()
-{
+{TRACE_IT(2012);
     Assert(this->IsMemSet());
     return (Loop::MemSetCandidate*)this;
 }
 
 void
 Loop::EnsureMemOpVariablesInitialized()
-{
+{TRACE_IT(2013);
     Assert(this->doMemOp);
     if (this->memOpInfo == nullptr)
-    {
+    {TRACE_IT(2014);
         JitArenaAllocator *allocator = this->GetFunc()->GetTopFunc()->m_fg->alloc;
         this->memOpInfo = JitAnewStruct(allocator, Loop::MemOpInfo);
         this->memOpInfo->inductionVariablesUsedAfterLoop = nullptr;
@@ -813,7 +813,7 @@ Loop::EnsureMemOpVariablesInitialized()
 // Recurse on inner loops.
 void
 FlowGraph::WalkLoopBlocks(BasicBlock *block, Loop *loop, JitArenaAllocator *tempAlloc)
-{
+{TRACE_IT(2015);
     AnalysisAssert(loop);
 
     BVSparse<JitArenaAllocator> *loopBlocksBv = JitAnew(tempAlloc, BVSparse<JitArenaAllocator>, tempAlloc);
@@ -824,22 +824,22 @@ FlowGraph::WalkLoopBlocks(BasicBlock *block, Loop *loop, JitArenaAllocator *temp
     this->AddBlockToLoop(block, loop);
 
     if (block == loop->headBlock)
-    {
+    {TRACE_IT(2016);
         // Single block loop, we're done
         return;
     }
 
     do
-    {
+    {TRACE_IT(2017);
         BOOL isInLoop = loopBlocksBv->Test(block->GetBlockNum());
 
         FOREACH_SUCCESSOR_BLOCK(succ, block)
-        {
+        {TRACE_IT(2018);
             if (succ->isLoopHeader)
-            {
+            {TRACE_IT(2019);
                 // Found a loop back-edge
                 if (loop->headBlock == succ)
-                {
+                {TRACE_IT(2020);
                     isInLoop = true;
                 }
                 else if (succ->loop == nullptr || succ->loop->headBlock != succ)
@@ -854,18 +854,18 @@ FlowGraph::WalkLoopBlocks(BasicBlock *block, Loop *loop, JitArenaAllocator *temp
         {
             // This block is in the loop.  All of it's predecessors should be contained in the loop as well.
             FOREACH_PREDECESSOR_BLOCK(pred, block)
-            {
+            {TRACE_IT(2021);
                 // Fix up loop parent if it isn't set already.
                 // If pred->loop != loop, we're looking at an inner loop, which was already visited.
                 // If pred->loop->parent == nullptr, this is the first time we see this loop from an outer
                 // loop, so this must be an immediate child.
                 if (pred->loop && pred->loop != loop && loop->headBlock->number < pred->loop->headBlock->number
                     && (pred->loop->parent == nullptr || pred->loop->parent->headBlock->number < loop->headBlock->number))
-                {
+                {TRACE_IT(2022);
                     pred->loop->parent = loop;
                     loop->isLeaf = false;
                     if (pred->loop->hasCall)
-                    {
+                    {TRACE_IT(2023);
                         loop->SetHasCall();
                     }
                     loop->SetImplicitCallFlags(pred->loop->GetImplicitCallFlags());
@@ -875,12 +875,12 @@ FlowGraph::WalkLoopBlocks(BasicBlock *block, Loop *loop, JitArenaAllocator *temp
             } NEXT_PREDECESSOR_BLOCK;
 
             if (block->loop == nullptr || block->loop->IsDescendentOrSelf(loop))
-            {
+            {TRACE_IT(2024);
                 block->loop = loop;
             }
 
             if (block != tailBlock)
-            {
+            {TRACE_IT(2025);
                 this->AddBlockToLoop(block, loop);
             }
         }
@@ -892,10 +892,10 @@ FlowGraph::WalkLoopBlocks(BasicBlock *block, Loop *loop, JitArenaAllocator *temp
 // Add block to this loop, and it's parent loops.
 void
 FlowGraph::AddBlockToLoop(BasicBlock *block, Loop *loop)
-{
+{TRACE_IT(2026);
     loop->blockList.Prepend(block);
     if (block->hasCall)
-    {
+    {TRACE_IT(2027);
         loop->SetHasCall();
     }
 }
@@ -912,24 +912,24 @@ FlowGraph::AddBlock(
     IR::Instr * firstInstr,
     IR::Instr * lastInstr,
     BasicBlock * nextBlock)
-{
+{TRACE_IT(2028);
     BasicBlock * block;
     IR::LabelInstr * labelInstr;
 
     if (firstInstr->IsLabelInstr())
-    {
+    {TRACE_IT(2029);
         labelInstr = firstInstr->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(2030);
         labelInstr = IR::LabelInstr::New(Js::OpCode::Label, firstInstr->m_func);
         labelInstr->SetByteCodeOffset(firstInstr);
         if (firstInstr->IsEntryInstr())
-        {
+        {TRACE_IT(2031);
             firstInstr->InsertAfter(labelInstr);
         }
         else
-        {
+        {TRACE_IT(2032);
             firstInstr->InsertBefore(labelInstr);
         }
         firstInstr = labelInstr;
@@ -937,28 +937,28 @@ FlowGraph::AddBlock(
 
     block = labelInstr->GetBasicBlock();
     if (block == nullptr)
-    {
+    {TRACE_IT(2033);
         block = BasicBlock::New(this);
         labelInstr->SetBasicBlock(block);
         // Remember last block in function to target successor of RETs.
         if (!this->tailBlock)
-        {
+        {TRACE_IT(2034);
             this->tailBlock = block;
         }
     }
 
     // Hook up the successor edges
     if (lastInstr->EndsBasicBlock())
-    {
+    {TRACE_IT(2035);
         BasicBlock * blockTarget = nullptr;
 
         if (lastInstr->IsBranchInstr())
-        {
+        {TRACE_IT(2036);
             // Hook up a successor edge to the branch target.
             IR::BranchInstr * branchInstr = lastInstr->AsBranchInstr();
 
             if(branchInstr->IsMultiBranch())
-            {
+            {TRACE_IT(2037);
                 BasicBlock * blockMultiBrTarget;
 
                 IR::MultiBranchInstr * multiBranchInstr = branchInstr->AsMultiBrInstr();
@@ -970,38 +970,38 @@ FlowGraph::AddBlock(
                 });
             }
             else
-            {
+            {TRACE_IT(2038);
                 IR::LabelInstr * targetLabelInstr = branchInstr->GetTarget();
                 blockTarget = SetBlockTargetAndLoopFlag(targetLabelInstr);
                 if (branchInstr->IsConditional())
-                {
+                {TRACE_IT(2039);
                     IR::Instr *instrNext = branchInstr->GetNextRealInstrOrLabel();
 
                     if (instrNext->IsLabelInstr())
-                    {
+                    {TRACE_IT(2040);
                         SetBlockTargetAndLoopFlag(instrNext->AsLabelInstr());
                     }
                 }
             }
         }
         else if (lastInstr->m_opcode == Js::OpCode::Ret && block != this->tailBlock)
-        {
+        {TRACE_IT(2041);
             blockTarget = this->tailBlock;
         }
 
         if (blockTarget)
-        {
+        {TRACE_IT(2042);
             this->AddEdge(block, blockTarget);
         }
     }
 
     if (lastInstr->HasFallThrough())
-    {
+    {TRACE_IT(2043);
         // Add a branch to next instruction so that we don't have to update the flow graph
         // when the glob opt tries to insert instructions.
         // We don't run the globopt with try/catch, don't need to insert branch to next for fall through blocks.
         if (!this->func->HasTry() && !lastInstr->IsBranchInstr())
-        {
+        {TRACE_IT(2044);
             IR::BranchInstr * instr = IR::BranchInstr::New(Js::OpCode::Br,
                 lastInstr->m_next->AsLabelInstr(), lastInstr->m_func);
             instr->SetByteCodeOffset(lastInstr->m_next);
@@ -1016,7 +1016,7 @@ FlowGraph::AddBlock(
     block->SetLastInstr(lastInstr);
 
     if (this->blockList)
-    {
+    {TRACE_IT(2045);
         this->blockList->prev = block;
     }
     block->next = this->blockList;
@@ -1027,17 +1027,17 @@ FlowGraph::AddBlock(
 
 BasicBlock *
 FlowGraph::SetBlockTargetAndLoopFlag(IR::LabelInstr * labelInstr)
-{
+{TRACE_IT(2046);
     BasicBlock * blockTarget = nullptr;
     blockTarget = labelInstr->GetBasicBlock();
 
     if (blockTarget == nullptr)
-    {
+    {TRACE_IT(2047);
         blockTarget = BasicBlock::New(this);
         labelInstr->SetBasicBlock(blockTarget);
     }
     if (labelInstr->m_isLoopTop)
-    {
+    {TRACE_IT(2048);
         blockTarget->isLoopHeader = true;
         this->hasLoop = true;
     }
@@ -1054,7 +1054,7 @@ FlowGraph::SetBlockTargetAndLoopFlag(IR::LabelInstr * labelInstr)
 ///----------------------------------------------------------------------------
 FlowEdge *
 FlowGraph::AddEdge(BasicBlock * blockPred, BasicBlock * blockSucc)
-{
+{TRACE_IT(2049);
     FlowEdge * edge = FlowEdge::New(this);
     edge->SetPred(blockPred);
     edge->SetSucc(blockSucc);
@@ -1074,11 +1074,11 @@ FlowGraph::AddEdge(BasicBlock * blockPred, BasicBlock * blockSucc)
 ///----------------------------------------------------------------------------
 void
 FlowGraph::Destroy(void)
-{
+{TRACE_IT(2050);
     BOOL fHasTry = this->func->HasTry();
     Region ** blockToRegion = nullptr;
     if (fHasTry)
-    {
+    {TRACE_IT(2051);
         blockToRegion = JitAnewArrayZ(this->alloc, Region*, this->blockCount);
         // Do unreachable code removal up front to avoid problems
         // with unreachable back edges, etc.
@@ -1086,12 +1086,12 @@ FlowGraph::Destroy(void)
     }
 
     FOREACH_BLOCK_ALL(block, this)
-    {
+    {TRACE_IT(2052);
         IR::Instr * firstInstr = block->GetFirstInstr();
         if (block->isDeleted && !block->isDead)
-        {
+        {TRACE_IT(2053);
             if (firstInstr->IsLabelInstr())
-            {
+            {TRACE_IT(2054);
                 IR::LabelInstr * labelInstr = firstInstr->AsLabelInstr();
                 labelInstr->UnlinkBasicBlock();
                 // Removing the label for non try blocks as we have a deleted block which has the label instruction
@@ -1099,14 +1099,14 @@ FlowGraph::Destroy(void)
                 // i.e. helper introduced by polymorphic inlining bailout.
                 // Skipping Try blocks as we have dependency on blocks to get the last instr(see below in this function)
                 if (!fHasTry)
-                {
+                {TRACE_IT(2055);
                     if (this->func->GetJITFunctionBody()->IsCoroutine())
-                    {
+                    {TRACE_IT(2056);
                         // the label could be a yield resume label, in which case we also need to remove it from the YieldOffsetResumeLabels list
                         this->func->MapUntilYieldOffsetResumeLabels([this, &labelInstr](int i, const YieldOffsetResumeLabel& yorl)
                         {
                             if (labelInstr == yorl.Second())
-                            {
+                            {TRACE_IT(2057);
                                 labelInstr->m_hasNonBranchRef = false;
                                 this->func->RemoveYieldOffsetResumeLabel(yorl);
                                 return true;
@@ -1123,7 +1123,7 @@ FlowGraph::Destroy(void)
         }
 
         if (block->isLoopHeader && !block->isDead)
-        {
+        {TRACE_IT(2058);
             // Mark the tail block of this loop (the last back-edge).  The register allocator
             // uses this to lexically find loops.
             BasicBlock *loopTail = nullptr;
@@ -1133,9 +1133,9 @@ FlowGraph::Destroy(void)
             FOREACH_BLOCK_IN_LOOP(loopBlock, block->loop)
             {
                 FOREACH_SUCCESSOR_BLOCK(succ, loopBlock)
-                {
+                {TRACE_IT(2059);
                     if (succ == block)
-                    {
+                    {TRACE_IT(2060);
                         loopTail = loopBlock;
                         break;
                     }
@@ -1143,12 +1143,12 @@ FlowGraph::Destroy(void)
             } NEXT_BLOCK_IN_LOOP;
 
             if (loopTail)
-            {
+            {TRACE_IT(2061);
                 AssertMsg(loopTail->GetLastInstr()->IsBranchInstr(), "LastInstr of loop should always be a branch no?");
                 block->loop->SetLoopTopInstr(block->GetFirstInstr()->AsLabelInstr());
             }
             else
-            {
+            {TRACE_IT(2062);
                 // This loop doesn't have a back-edge: that is, it is not a loop
                 // anymore...
                 firstInstr->AsLabelInstr()->m_isLoopTop = FALSE;
@@ -1156,25 +1156,25 @@ FlowGraph::Destroy(void)
         }
 
         if (fHasTry)
-        {
+        {TRACE_IT(2063);
             this->UpdateRegionForBlock(block, blockToRegion);
         }
 
         if (firstInstr->IsLabelInstr())
-        {
+        {TRACE_IT(2064);
             IR::LabelInstr * labelInstr = firstInstr->AsLabelInstr();
             labelInstr->UnlinkBasicBlock();
             if (labelInstr->IsUnreferenced() && !fHasTry)
-            {
+            {TRACE_IT(2065);
                 // This is an unreferenced label, probably added by FG building.
                 // Delete it now to make extended basic blocks visible.
                 if (firstInstr == block->GetLastInstr())
-                {
+                {TRACE_IT(2066);
                     labelInstr->Remove();
                     continue;
                 }
                 else
-                {
+                {TRACE_IT(2067);
                     labelInstr->Remove();
                 }
             }
@@ -1183,10 +1183,10 @@ FlowGraph::Destroy(void)
         // We don't run the globopt with try/catch, don't need to remove branch to next for fall through blocks
         IR::Instr * lastInstr = block->GetLastInstr();
         if (!fHasTry && lastInstr->IsBranchInstr())
-        {
+        {TRACE_IT(2068);
             IR::BranchInstr * branchInstr = lastInstr->AsBranchInstr();
             if (!branchInstr->IsConditional() && branchInstr->GetTarget() == branchInstr->m_next)
-            {
+            {TRACE_IT(2069);
                 // Remove branch to next
                 branchInstr->Remove();
             }
@@ -1201,36 +1201,36 @@ FlowGraph::Destroy(void)
         // Now that all blocks have regions, we should see consistently propagated regions at all
         // block boundaries.
         FOREACH_BLOCK(block, this)
-        {
+        {TRACE_IT(2070);
             Region * region = blockToRegion[block->GetBlockNum()];
             Region * predRegion = nullptr;
             FOREACH_PREDECESSOR_BLOCK(predBlock, block)
-            {
+            {TRACE_IT(2071);
                 predRegion = blockToRegion[predBlock->GetBlockNum()];
                 if (predBlock->GetLastInstr() == nullptr)
-                {
+                {TRACE_IT(2072);
                     AssertMsg(region == predRegion, "Bad region propagation through empty block");
                 }
                 else
-                {
+                {TRACE_IT(2073);
                     switch (predBlock->GetLastInstr()->m_opcode)
                     {
                     case Js::OpCode::TryCatch:
                     case Js::OpCode::TryFinally:
                         AssertMsg(region->GetParent() == predRegion, "Bad region prop on entry to try-catch/finally");
                         if (block->GetFirstInstr() == predBlock->GetLastInstr()->AsBranchInstr()->GetTarget())
-                        {
+                        {TRACE_IT(2074);
                             if (predBlock->GetLastInstr()->m_opcode == Js::OpCode::TryCatch)
-                            {
+                            {TRACE_IT(2075);
                                 AssertMsg(region->GetType() == RegionTypeCatch, "Bad region type on entry to catch");
                             }
                             else
-                            {
+                            {TRACE_IT(2076);
                                 AssertMsg(region->GetType() == RegionTypeFinally, "Bad region type on entry to finally");
                             }
                         }
                         else
-                        {
+                        {TRACE_IT(2077);
                             AssertMsg(region->GetType() == RegionTypeTry, "Bad region type on entry to try");
                         }
                         break;
@@ -1253,21 +1253,21 @@ FlowGraph::Destroy(void)
 
                         Assert(region->GetType() == RegionTypeTry || region->GetType() == RegionTypeCatch);
                         if (region->GetType() == RegionTypeCatch)
-                        {
+                        {TRACE_IT(2078);
                             Assert((predRegion->GetType() == RegionTypeTry) || (predRegion->GetType() == RegionTypeCatch));
                         }
                         else if (region->GetType() == RegionTypeTry)
-                        {
+                        {TRACE_IT(2079);
                             Assert(region == predRegion);
                         }
                         break;
                     case Js::OpCode::Br:
                         if (region->GetType() == RegionTypeCatch && region != predRegion)
-                        {
+                        {TRACE_IT(2080);
                             AssertMsg(predRegion->GetType() == RegionTypeTry, "Bad region type for the try");
                         }
                         else
-                        {
+                        {TRACE_IT(2081);
                             AssertMsg(region == predRegion, "Bad region propagation through interior block");
                         }
                         break;
@@ -1297,12 +1297,12 @@ FlowGraph::Destroy(void)
         }
         NEXT_BLOCK;
         FOREACH_BLOCK_DEAD_OR_ALIVE(block, this)
-        {
+        {TRACE_IT(2082);
             if (block->GetFirstInstr()->IsLabelInstr())
-            {
+            {TRACE_IT(2083);
                 IR::LabelInstr *labelInstr = block->GetFirstInstr()->AsLabelInstr();
                 if (labelInstr->IsUnreferenced())
-                {
+                {TRACE_IT(2084);
                     // This is an unreferenced label, probably added by FG building.
                     // Delete it now to make extended basic blocks visible.
                     labelInstr->Remove();
@@ -1320,34 +1320,34 @@ FlowGraph::Destroy(void)
 // and on the label at the entry to the block (if any).
 void
 FlowGraph::UpdateRegionForBlock(BasicBlock * block, Region ** blockToRegion)
-{
+{TRACE_IT(2085);
     Region *region;
     Region * predRegion = nullptr;
     IR::Instr * tryInstr = nullptr;
     IR::Instr * firstInstr = block->GetFirstInstr();
     if (firstInstr->IsLabelInstr() && firstInstr->AsLabelInstr()->GetRegion())
-    {
+    {TRACE_IT(2086);
         Assert(this->func->HasTry() && (this->func->DoOptimizeTryCatch() || (this->func->IsSimpleJit() && this->func->hasBailout)));
         blockToRegion[block->GetBlockNum()] = firstInstr->AsLabelInstr()->GetRegion();
         return;
     }
 
     if (block == this->blockList)
-    {
+    {TRACE_IT(2087);
         // Head of the graph: create the root region.
         region = Region::New(RegionTypeRoot, nullptr, this->func);
     }
     else
-    {
+    {TRACE_IT(2088);
         // Propagate the region forward by finding a predecessor we've already processed.
         // We require that there be one, since we've already removed unreachable blocks.
         region = nullptr;
         FOREACH_PREDECESSOR_BLOCK(predBlock, block)
-        {
+        {TRACE_IT(2089);
             AssertMsg(predBlock->GetBlockNum() < this->blockCount, "Misnumbered block at teardown time?");
             predRegion = blockToRegion[predBlock->GetBlockNum()];
             if (predRegion != nullptr)
-            {
+            {TRACE_IT(2090);
                 region = this->PropagateRegionFromPred(block, predBlock, predRegion, tryInstr);
                 break;
             }
@@ -1357,20 +1357,20 @@ FlowGraph::UpdateRegionForBlock(BasicBlock * block, Region ** blockToRegion)
 
     AnalysisAssertMsg(region != nullptr, "Failed to find region for block");
     if (!region->ehBailoutData)
-    {
+    {TRACE_IT(2091);
         region->AllocateEHBailoutData(this->func, tryInstr);
     }
 
     // Record the region in the block-to-region map.
     blockToRegion[block->GetBlockNum()] = region;
     if (firstInstr->IsLabelInstr())
-    {
+    {TRACE_IT(2092);
         // Record the region on the label and make sure it stays around as a region
         // marker if we're entering a region at this point.
         IR::LabelInstr * labelInstr = firstInstr->AsLabelInstr();
         labelInstr->SetRegion(region);
         if (region != predRegion)
-        {
+        {TRACE_IT(2093);
             labelInstr->m_hasNonBranchRef = true;
         }
     }
@@ -1378,19 +1378,19 @@ FlowGraph::UpdateRegionForBlock(BasicBlock * block, Region ** blockToRegion)
 
 Region *
 FlowGraph::PropagateRegionFromPred(BasicBlock * block, BasicBlock * predBlock, Region * predRegion, IR::Instr * &tryInstr)
-{
+{TRACE_IT(2094);
     // Propagate predRegion to region, looking at the flow transition for an opcode
     // that affects the region.
     Region * region = nullptr;
     IR::Instr * predLastInstr = predBlock->GetLastInstr();
     IR::Instr * firstInstr = block->GetFirstInstr();
     if (predLastInstr == nullptr)
-    {
+    {TRACE_IT(2095);
         // Empty block: trivially propagate the region.
         region = predRegion;
     }
     else
-    {
+    {TRACE_IT(2096);
         Region * tryRegion = nullptr;
         IR::LabelInstr * tryInstrNext = nullptr;
         switch (predLastInstr->m_opcode)
@@ -1403,14 +1403,14 @@ FlowGraph::PropagateRegionFromPred(BasicBlock * block, BasicBlock * predBlock, R
             tryRegion = tryInstrNext->GetRegion();
 
             if (firstInstr == predLastInstr->AsBranchInstr()->GetTarget())
-            {
+            {TRACE_IT(2097);
                 region = Region::New(RegionTypeCatch, predRegion, this->func);
                 Assert(tryRegion);
                 region->SetMatchingTryRegion(tryRegion);
                 tryRegion->SetMatchingCatchRegion(region);
             }
             else
-            {
+            {TRACE_IT(2098);
                 region = Region::New(RegionTypeTry, predRegion, this->func);
                 tryInstr = predLastInstr;
             }
@@ -1424,14 +1424,14 @@ FlowGraph::PropagateRegionFromPred(BasicBlock * block, BasicBlock * predBlock, R
             tryRegion = tryInstrNext->GetRegion();
 
             if (firstInstr == predLastInstr->AsBranchInstr()->GetTarget())
-            {
+            {TRACE_IT(2099);
                 region = Region::New(RegionTypeFinally, predRegion, this->func);
                 Assert(tryRegion);
                 region->SetMatchingTryRegion(tryRegion);
                 tryRegion->SetMatchingFinallyRegion(region);
             }
             else
-            {
+            {TRACE_IT(2100);
                 region = Region::New(RegionTypeTry, predRegion, this->func);
                 tryInstr = predLastInstr;
             }
@@ -1442,7 +1442,7 @@ FlowGraph::PropagateRegionFromPred(BasicBlock * block, BasicBlock * predBlock, R
             // Exiting a try or handler. Retrieve the current region's parent.
             region = predRegion->GetParent();
             if (region == nullptr)
-            {
+            {TRACE_IT(2101);
                 // We found a Leave in the root region- this can only happen when a jitted loop body
                 // in a try block has a return statement.
                 Assert(this->func->IsLoopBodyInTry());
@@ -1462,22 +1462,22 @@ FlowGraph::PropagateRegionFromPred(BasicBlock * block, BasicBlock * predBlock, R
 
 void
 FlowGraph::InsertCompBlockToLoopList(Loop *loop, BasicBlock* compBlock, BasicBlock* targetBlock, bool postTarget)
-{
+{TRACE_IT(2102);
     if (loop)
-    {
+    {TRACE_IT(2103);
         bool found = false;
         FOREACH_BLOCK_IN_LOOP_EDITING(loopBlock, loop, iter)
-        {
+        {TRACE_IT(2104);
             if (loopBlock == targetBlock)
-            {
+            {TRACE_IT(2105);
                 found = true;
                 break;
             }
         } NEXT_BLOCK_IN_LOOP_EDITING;
         if (found)
-        {
+        {TRACE_IT(2106);
             if (postTarget)
-            {
+            {TRACE_IT(2107);
                 iter.Next();
             }
             iter.InsertBefore(compBlock);
@@ -1489,7 +1489,7 @@ FlowGraph::InsertCompBlockToLoopList(Loop *loop, BasicBlock* compBlock, BasicBlo
 // Insert a block on the given edge
 BasicBlock *
 FlowGraph::InsertAirlockBlock(FlowEdge * edge)
-{
+{TRACE_IT(2108);
     BasicBlock * airlockBlock = BasicBlock::New(this);
     BasicBlock * sourceBlock = edge->GetPred();
     BasicBlock * sinkBlock = edge->GetSucc();
@@ -1557,22 +1557,22 @@ FlowGraph::InsertAirlockBlock(FlowEdge * edge)
     // Fixup flow out of sourceBlock
     IR::BranchInstr *sourceBr = sourceLastInstr->AsBranchInstr();
     if (sourceBr->IsMultiBranch())
-    {
+    {TRACE_IT(2109);
         const bool replaced = sourceBr->AsMultiBrInstr()->ReplaceTarget(sinkLabel, airlockLabel);
         Assert(replaced);
     }
     else if (sourceBr->GetTarget() == sinkLabel)
-    {
+    {TRACE_IT(2110);
         sourceBr->SetTarget(airlockLabel);
     }
 
     if (!sinkPrevBlockLastInstr->IsBranchInstr() || sinkPrevBlockLastInstr->AsBranchInstr()->HasFallThrough())
-    {
+    {TRACE_IT(2111);
         if (!sinkPrevBlock->isDeleted)
-        {
+        {TRACE_IT(2112);
             FlowEdge *dstEdge = this->FindEdge(sinkPrevBlock, sinkBlock);
             if (dstEdge) // Possibility that sourceblock may be same as sinkPrevBlock
-            {
+            {TRACE_IT(2113);
                 BasicBlock* compensationBlock = this->InsertCompensationCodeForBlockMove(dstEdge, true /*insert comp block to loop list*/, true);
                 compensationBlock->IncrementDataUseCount();
                 // We need to skip airlock compensation block in globopt as its inserted while globopt is iteration over the blocks.
@@ -1591,7 +1591,7 @@ FlowGraph::InsertAirlockBlock(FlowEdge * edge)
 // Insert a block on the given edge
 BasicBlock *
 FlowGraph::InsertCompensationCodeForBlockMove(FlowEdge * edge,  bool insertToLoopList, bool sinkBlockLoop)
-{
+{TRACE_IT(2114);
     BasicBlock * compBlock = BasicBlock::New(this);
     BasicBlock * sourceBlock = edge->GetPred();
     BasicBlock * sinkBlock = edge->GetSucc();
@@ -1601,19 +1601,19 @@ FlowGraph::InsertCompensationCodeForBlockMove(FlowEdge * edge,  bool insertToLoo
     compBlock->SetBlockNum(this->blockCount++);
 
     if (insertToLoopList)
-    {
+    {TRACE_IT(2115);
         // For flow graph edits in
         if (sinkBlockLoop)
-        {
+        {TRACE_IT(2116);
             if (sinkBlock->loop && sinkBlock->loop->GetHeadBlock() == sinkBlock)
-            {
+            {TRACE_IT(2117);
                 // BLUE 531255: sinkblock may be the head block of new loop, we shouldn't insert compensation block to that loop
                 // Insert it to all the parent loop lists.
                 compBlock->loop = sinkBlock->loop->parent;
                 InsertCompBlockToLoopList(compBlock->loop, compBlock, sinkBlock, false);
             }
             else
-            {
+            {TRACE_IT(2118);
                 compBlock->loop = sinkBlock->loop;
                 InsertCompBlockToLoopList(compBlock->loop, compBlock, sinkBlock, false); // sinkBlock or fallthroughBlock?
             }
@@ -1622,7 +1622,7 @@ FlowGraph::InsertCompensationCodeForBlockMove(FlowEdge * edge,  bool insertToLoo
 #endif
         }
         else
-        {
+        {TRACE_IT(2119);
             compBlock->loop = sourceBlock->loop;
             InsertCompBlockToLoopList(compBlock->loop, compBlock, sourceBlock, true);
 #ifdef DBG
@@ -1677,11 +1677,11 @@ FlowGraph::InsertCompensationCodeForBlockMove(FlowEdge * edge,  bool insertToLoo
 
     // Fixup flow out of sourceBlock
     if (sourceLastInstr->IsBranchInstr())
-    {
+    {TRACE_IT(2120);
         IR::BranchInstr *sourceBr = sourceLastInstr->AsBranchInstr();
         Assert(sourceBr->IsMultiBranch() || sourceBr->IsConditional());
         if (sourceBr->IsMultiBranch())
-        {
+        {TRACE_IT(2121);
             const bool replaced = sourceBr->AsMultiBrInstr()->ReplaceTarget(sinkLabel, compLabel);
             Assert(replaced);
         }
@@ -1692,11 +1692,11 @@ FlowGraph::InsertCompensationCodeForBlockMove(FlowEdge * edge,  bool insertToLoo
 
 void
 FlowGraph::RemoveUnreachableBlocks()
-{
+{TRACE_IT(2122);
     AnalysisAssert(this->blockList);
 
     FOREACH_BLOCK(block, this)
-    {
+    {TRACE_IT(2123);
         block->isVisited = false;
     }
     NEXT_BLOCK;
@@ -1704,16 +1704,16 @@ FlowGraph::RemoveUnreachableBlocks()
     this->blockList->isVisited = true;
 
     FOREACH_BLOCK_EDITING(block, this)
-    {
+    {TRACE_IT(2124);
         if (block->isVisited)
         {
             FOREACH_SUCCESSOR_BLOCK(succ, block)
-            {
+            {TRACE_IT(2125);
                 succ->isVisited = true;
             } NEXT_SUCCESSOR_BLOCK;
         }
         else
-        {
+        {TRACE_IT(2126);
             this->RemoveBlock(block);
         }
     }
@@ -1723,28 +1723,28 @@ FlowGraph::RemoveUnreachableBlocks()
 // If block has no predecessor, remove it.
 bool
 FlowGraph::RemoveUnreachableBlock(BasicBlock *block, GlobOpt * globOpt)
-{
+{TRACE_IT(2127);
     bool isDead = false;
 
     if ((block->GetPredList() == nullptr || block->GetPredList()->Empty()) && block != this->func->m_fg->blockList)
-    {
+    {TRACE_IT(2128);
         isDead = true;
     }
     else if (block->isLoopHeader)
-    {
+    {TRACE_IT(2129);
         // A dead loop still has back-edges pointing to it...
         isDead = true;
         FOREACH_PREDECESSOR_BLOCK(pred, block)
-        {
+        {TRACE_IT(2130);
             if (!block->loop->IsDescendentOrSelf(pred->loop))
-            {
+            {TRACE_IT(2131);
                 isDead = false;
             }
         } NEXT_PREDECESSOR_BLOCK;
     }
 
     if (isDead)
-    {
+    {TRACE_IT(2132);
         this->RemoveBlock(block, globOpt);
         return true;
     }
@@ -1753,7 +1753,7 @@ FlowGraph::RemoveUnreachableBlock(BasicBlock *block, GlobOpt * globOpt)
 
 IR::Instr *
 FlowGraph::PeepTypedCm(IR::Instr *instr)
-{
+{TRACE_IT(2133);
     // Basic pattern, peep:
     //      t1 = CmEq a, b
     //      BrTrue_I4 $L1, t1
@@ -1767,14 +1767,14 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     // find intermediate Lds
     IR::Instr * instrLd = nullptr;
     if (instrNext->m_opcode == Js::OpCode::Ld_I4)
-    {
+    {TRACE_IT(2134);
         instrLd = instrNext;
         instrNext = instrNext->GetNextRealInstrOrLabel();
     }
 
     IR::Instr * instrLd2 = nullptr;
     if (instrNext->m_opcode == Js::OpCode::Ld_I4)
-    {
+    {TRACE_IT(2135);
         instrLd2 = instrNext;
         instrNext = instrNext->GetNextRealInstrOrLabel();
     }
@@ -1783,17 +1783,17 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     IR::Instr *instrBr;
     bool brIsTrue;
     if (instrNext->m_opcode == Js::OpCode::BrTrue_I4)
-    {
+    {TRACE_IT(2136);
         instrBr = instrNext;
         brIsTrue = true;
     }
     else if (instrNext->m_opcode == Js::OpCode::BrFalse_I4)
-    {
+    {TRACE_IT(2137);
         instrBr = instrNext;
         brIsTrue = false;
     }
     else
-    {
+    {TRACE_IT(2138);
         return nullptr;
     }
 
@@ -1804,12 +1804,12 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     //      t2 = Ld_A t1
     //      BrTrue $L1, t2
     if (instrLd && !instrLd->GetSrc1()->IsEqual(instr->GetDst()))
-    {
+    {TRACE_IT(2139);
         return nullptr;
     }
 
     if (instrLd2 && !instrLd2->GetSrc1()->IsEqual(instrLd->GetDst()))
-    {
+    {TRACE_IT(2140);
         return nullptr;
     }
 
@@ -1817,7 +1817,7 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     //      t1 = CmEq a, b
     //           BrTrue/BrFalse t1
     if (!(instr->GetDst()->IsEqual(instrBr->GetSrc1()) || (instrLd && instrLd->GetDst()->IsEqual(instrBr->GetSrc1())) || (instrLd2 && instrLd2->GetDst()->IsEqual(instrBr->GetSrc1()))))
-    {
+    {TRACE_IT(2141);
         return nullptr;
     }
 
@@ -1827,7 +1827,7 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     IR::Instr * instrNew;
     IR::Opnd * tmpOpnd;
     if (instr->GetDst()->IsEqual(src1) || (instrLd && instrLd->GetDst()->IsEqual(src1)) || (instrLd2 && instrLd2->GetDst()->IsEqual(src1)))
-    {
+    {TRACE_IT(2142);
         Assert(src1->IsInt32());
 
         tmpOpnd = IR::RegOpnd::New(TyInt32, instr->m_func);
@@ -1838,7 +1838,7 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     }
 
     if (instr->GetDst()->IsEqual(src2) || (instrLd && instrLd->GetDst()->IsEqual(src2)) || (instrLd2 && instrLd2->GetDst()->IsEqual(src2)))
-    {
+    {TRACE_IT(2143);
         Assert(src2->IsInt32());
 
         tmpOpnd = IR::RegOpnd::New(TyInt32, instr->m_func);
@@ -1928,21 +1928,21 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
     instrBr->m_opcode = newOpcode;
 
     if (brIsTrue)
-    {
+    {TRACE_IT(2144);
         instr->SetSrc1(IR::IntConstOpnd::New(1, TyInt8, instr->m_func));
         instr->m_opcode = Js::OpCode::Ld_I4;
         instrNew = IR::Instr::New(Js::OpCode::Ld_I4, instr->GetDst(), IR::IntConstOpnd::New(0, TyInt8, instr->m_func), instr->m_func);
         instrNew->SetByteCodeOffset(instrBr);
         instrBr->InsertAfter(instrNew);
         if (instrLd)
-        {
+        {TRACE_IT(2145);
             instrLd->ReplaceSrc1(IR::IntConstOpnd::New(1, TyInt8, instr->m_func));
             instrNew = IR::Instr::New(Js::OpCode::Ld_I4, instrLd->GetDst(), IR::IntConstOpnd::New(0, TyInt8, instr->m_func), instr->m_func);
             instrNew->SetByteCodeOffset(instrBr);
             instrBr->InsertAfter(instrNew);
 
             if (instrLd2)
-            {
+            {TRACE_IT(2146);
                 instrLd2->ReplaceSrc1(IR::IntConstOpnd::New(1, TyInt8, instr->m_func));
                 instrNew = IR::Instr::New(Js::OpCode::Ld_I4, instrLd2->GetDst(), IR::IntConstOpnd::New(0, TyInt8, instr->m_func), instr->m_func);
                 instrNew->SetByteCodeOffset(instrBr);
@@ -1951,7 +1951,7 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
         }
     }
     else
-    {
+    {TRACE_IT(2147);
         instrBr->AsBranchInstr()->Invert();
 
         instr->SetSrc1(IR::IntConstOpnd::New(0, TyInt8, instr->m_func));
@@ -1960,14 +1960,14 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
         instrNew->SetByteCodeOffset(instrBr);
         instrBr->InsertAfter(instrNew);
         if (instrLd)
-        {
+        {TRACE_IT(2148);
             instrLd->ReplaceSrc1(IR::IntConstOpnd::New(0, TyInt8, instr->m_func));
             instrNew = IR::Instr::New(Js::OpCode::Ld_I4, instrLd->GetDst(), IR::IntConstOpnd::New(1, TyInt8, instr->m_func), instr->m_func);
             instrNew->SetByteCodeOffset(instrBr);
             instrBr->InsertAfter(instrNew);
 
             if (instrLd2)
-            {
+            {TRACE_IT(2149);
                 instrLd2->ReplaceSrc1(IR::IntConstOpnd::New(0, TyInt8, instr->m_func));
                 instrNew = IR::Instr::New(Js::OpCode::Ld_I4, instrLd2->GetDst(), IR::IntConstOpnd::New(1, TyInt8, instr->m_func), instr->m_func);
                 instrNew->SetByteCodeOffset(instrBr);
@@ -1981,7 +1981,7 @@ FlowGraph::PeepTypedCm(IR::Instr *instr)
 
 IR::Instr *
 FlowGraph::PeepCm(IR::Instr *instr)
-{
+{TRACE_IT(2150);
     // Basic pattern, peep:
     //      t1 = CmEq a, b
     //      t2 = Ld_A t1
@@ -2013,13 +2013,13 @@ FlowGraph::PeepCm(IR::Instr *instr)
     IR::Opnd *brSrc = instr->GetDst();
 
     if (instrNext->m_opcode == Js::OpCode::Ld_A && instrNext->GetSrc1()->IsEqual(instr->GetDst()))
-    {
+    {TRACE_IT(2151);
         ldFound = true;
         instrLd = instrNext;
         brSrc = instrNext->GetDst();
 
         if (brSrc->IsEqual(instr->GetSrc1()) || brSrc->IsEqual(instr->GetSrc2()))
-        {
+        {TRACE_IT(2152);
             return nullptr;
         }
 
@@ -2027,7 +2027,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
         // Is there a second Ld_A?
         if (instrNext->m_opcode == Js::OpCode::Ld_A && instrNext->GetSrc1()->IsEqual(brSrc))
-        {
+        {TRACE_IT(2153);
             // We have:
             //      t1 = Cm
             //      t2 = t1     // ldSrc = t1
@@ -2038,7 +2038,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
             brSrc = instrLd2->GetDst();
             instrNext = instrLd2->GetNextRealInstrOrLabel();
             if (brSrc->IsEqual(instr->GetSrc1()) || brSrc->IsEqual(instr->GetSrc2()))
-            {
+            {TRACE_IT(2154);
                 return nullptr;
             }
         }
@@ -2046,7 +2046,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // Skip over InlineeEnd
     if (instrNext->m_opcode == Js::OpCode::InlineeEnd)
-    {
+    {TRACE_IT(2155);
         inlineeEndInstr = instrNext;
         instrNext = inlineeEndInstr->GetNextRealInstrOrLabel();
     }
@@ -2054,15 +2054,15 @@ FlowGraph::PeepCm(IR::Instr *instr)
     // Find BrTrue/BrFalse
     bool brIsTrue;
     if (instrNext->m_opcode == Js::OpCode::BrTrue_A)
-    {
+    {TRACE_IT(2156);
         brIsTrue = true;
     }
     else if (instrNext->m_opcode == Js::OpCode::BrFalse_A)
-    {
+    {TRACE_IT(2157);
         brIsTrue = false;
     }
     else
-    {
+    {TRACE_IT(2158);
         return nullptr;
     }
 
@@ -2072,7 +2072,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
     //      t1 = Ld_A
     //         BrTrue/BrFalse t1
     if (!instr->GetDst()->IsEqual(instrBr->GetSrc1()) && !brSrc->IsEqual(instrBr->GetSrc1()))
-    {
+    {TRACE_IT(2159);
         return nullptr;
     }
 
@@ -2151,10 +2151,10 @@ FlowGraph::PeepCm(IR::Instr *instr)
     falseOpnd->SetValueType(ValueType::Boolean);
 
     if (ldFound)
-    {
+    {TRACE_IT(2160);
         // Split Ld_A into "Ld_A TRUE"/"Ld_A FALSE"
         if (brIsTrue)
-        {
+        {TRACE_IT(2161);
             instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd->GetSrc1(), trueOpnd, instrBr->m_func);
             instrNew->SetByteCodeOffset(instrBr);
             instrNew->GetDst()->AsRegOpnd()->m_fgPeepTmp = true;
@@ -2171,7 +2171,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
             instrLd->ReplaceSrc1(falseOpnd);
 
             if (instrLd2)
-            {
+            {TRACE_IT(2162);
                 instrLd2->ReplaceSrc1(falseOpnd);
 
                 instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd2->GetDst(), trueOpnd, instrBr->m_func);
@@ -2181,7 +2181,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
             }
         }
         else
-        {
+        {TRACE_IT(2163);
             instrBr->AsBranchInstr()->Invert();
 
             instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd->GetSrc1(), falseOpnd, instrBr->m_func);
@@ -2200,7 +2200,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
             instrNew->GetDst()->AsRegOpnd()->m_fgPeepTmp = true;
 
             if (instrLd2)
-            {
+            {TRACE_IT(2164);
                 instrLd2->ReplaceSrc1(trueOpnd);
                 instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd->GetSrc1(), trueOpnd, instrBr->m_func);
                 instrBr->InsertBefore(instrNew);
@@ -2212,12 +2212,12 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // Fix InlineeEnd
     if (inlineeEndInstr)
-    {
+    {TRACE_IT(2165);
         this->InsertInlineeOnFLowEdge(instrBr->AsBranchInstr(), inlineeEndInstr, instrByteCode , origBrFunc, origBrByteCodeOffset, origBranchSrcOpndIsJITOpt, origBranchSrcSymId);
     }
 
     if (instr->GetDst()->AsRegOpnd()->m_sym->HasByteCodeRegSlot())
-    {
+    {TRACE_IT(2166);
         Assert(!instrBr->AsBranchInstr()->HasByteCodeReg());
         StackSym *dstSym = instr->GetDst()->AsRegOpnd()->m_sym;
         instrBr->AsBranchInstr()->SetByteCodeReg(dstSym->GetByteCodeRegSlot());
@@ -2250,13 +2250,13 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // Skip over branch to branch
     while (instrLd3->m_opcode == Js::OpCode::Br)
-    {
+    {TRACE_IT(2167);
         instrLd3 = instrLd3->AsBranchInstr()->GetTarget()->GetNextRealInstrOrLabel();
     }
 
     // Find Ld_A
     if (instrLd3->m_opcode != Js::OpCode::Ld_A)
-    {
+    {TRACE_IT(2168);
         return instrBr;
     }
 
@@ -2266,7 +2266,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
     // InlineeEnd?
     // REVIEW: Can we handle 2 inlineeEnds?
     if (instrBr2->m_opcode == Js::OpCode::InlineeEnd && !inlineeEndInstr)
-    {
+    {TRACE_IT(2169);
         inlineeEndInstr2 = instrBr2;
         instrBr2 = instrBr2->GetNextRealInstrOrLabel();
     }
@@ -2274,35 +2274,35 @@ FlowGraph::PeepCm(IR::Instr *instr)
     // Find branch
     bool brIsTrue2;
     if (instrBr2->m_opcode == Js::OpCode::BrTrue_A)
-    {
+    {TRACE_IT(2170);
         brIsTrue2 = true;
     }
     else if (instrBr2->m_opcode == Js::OpCode::BrFalse_A)
-    {
+    {TRACE_IT(2171);
         brIsTrue2 = false;
     }
     else
-    {
+    {TRACE_IT(2172);
         return nullptr;
     }
 
     // Make sure Ld_A operates on the right tmps.
     if (!instrLd3->GetDst()->IsEqual(instrBr2->GetSrc1()) || !brSrc->IsEqual(instrLd3->GetSrc1()))
-    {
+    {TRACE_IT(2173);
         return nullptr;
     }
 
     if (instrLd3->GetDst()->IsEqual(instrBr->GetSrc1()) || instrLd3->GetDst()->IsEqual(instrBr->GetSrc2()))
-    {
+    {TRACE_IT(2174);
         return nullptr;
     }
 
     // Make sure that the reg we're assigning to is not live in the intervening instructions (if this is a forward branch).
     if (instrLd3->GetByteCodeOffset() > instrBr->GetByteCodeOffset())
-    {
+    {TRACE_IT(2175);
         StackSym *symLd3 = instrLd3->GetDst()->AsRegOpnd()->m_sym;
         if (IR::Instr::FindRegUseInRange(symLd3, instrBr->m_next, instrLd3))
-        {
+        {TRACE_IT(2176);
             return nullptr;
         }
     }
@@ -2312,7 +2312,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
     //
 
     if(inlineeEndInstr2)
-    {
+    {TRACE_IT(2177);
         origBrFunc = instrBr2->m_func;
         origBrByteCodeOffset = instrBr2->GetByteCodeOffset();
         origBranchSrcSymId = instrBr2->GetSrc1()->GetStackSym()->m_id;
@@ -2320,14 +2320,14 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // Fix Ld_A
     if (brIsTrue)
-    {
+    {TRACE_IT(2178);
         instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd3->GetDst(), trueOpnd, instrBr->m_func);
         instrBr->InsertBefore(instrNew);
         instrNew->SetByteCodeOffset(instrBr);
         instrNew->GetDst()->AsRegOpnd()->m_fgPeepTmp = true;
     }
     else
-    {
+    {TRACE_IT(2179);
         instrNew = IR::Instr::New(Js::OpCode::Ld_A, instrLd3->GetDst(), falseOpnd, instrBr->m_func);
         instrBr->InsertBefore(instrNew);
         instrNew->SetByteCodeOffset(instrBr);
@@ -2338,11 +2338,11 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // Retarget branch
     if (brIsTrue2 == brIsTrue)
-    {
+    {TRACE_IT(2180);
         brTarget2 = instrBr2->AsBranchInstr()->GetTarget();
     }
     else
-    {
+    {TRACE_IT(2181);
         brTarget2 = IR::LabelInstr::New(Js::OpCode::Label, instrBr2->m_func);
         brTarget2->SetByteCodeOffset(instrBr2->m_next);
         instrBr2->InsertAfter(brTarget2);
@@ -2352,7 +2352,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
     // InlineeEnd?
     if (inlineeEndInstr2)
-    {
+    {TRACE_IT(2182);
         this->InsertInlineeOnFLowEdge(instrBr->AsBranchInstr(), inlineeEndInstr2, instrByteCode, origBrFunc, origBrByteCodeOffset, origBranchSrcOpndIsJITOpt, origBranchSrcSymId);
     }
 
@@ -2361,7 +2361,7 @@ FlowGraph::PeepCm(IR::Instr *instr)
 
 void
 FlowGraph::InsertInlineeOnFLowEdge(IR::BranchInstr *instrBr, IR::Instr *inlineeEndInstr, IR::Instr *instrBytecode, Func* origBrFunc, uint32 origByteCodeOffset, bool origBranchSrcOpndIsJITOpt, uint32 origBranchSrcSymId)
-{
+{TRACE_IT(2183);
     // Helper for PeepsCm code.
     //
     // We've skipped some InlineeEnd.  Globopt expects to see these
@@ -2407,7 +2407,7 @@ FlowGraph::InsertInlineeOnFLowEdge(IR::BranchInstr *instrBr, IR::Instr *inlineeE
 
 BasicBlock *
 BasicBlock::New(FlowGraph * graph)
-{
+{TRACE_IT(2184);
     BasicBlock * block;
 
     block = JitAnew(graph->alloc, BasicBlock, graph->alloc, graph->GetFunc());
@@ -2417,37 +2417,37 @@ BasicBlock::New(FlowGraph * graph)
 
 void
 BasicBlock::AddPred(FlowEdge * edge, FlowGraph * graph)
-{
+{TRACE_IT(2185);
     this->predList.Prepend(graph->alloc, edge);
 }
 
 void
 BasicBlock::AddSucc(FlowEdge * edge, FlowGraph * graph)
-{
+{TRACE_IT(2186);
     this->succList.Prepend(graph->alloc, edge);
 }
 
 void
 BasicBlock::RemovePred(BasicBlock *block, FlowGraph * graph)
-{
+{TRACE_IT(2187);
     this->RemovePred(block, graph, true, false);
 }
 
 void
 BasicBlock::RemoveSucc(BasicBlock *block, FlowGraph * graph)
-{
+{TRACE_IT(2188);
     this->RemoveSucc(block, graph, true, false);
 }
 
 void
 BasicBlock::RemoveDeadPred(BasicBlock *block, FlowGraph * graph)
-{
+{TRACE_IT(2189);
     this->RemovePred(block, graph, true, true);
 }
 
 void
 BasicBlock::RemoveDeadSucc(BasicBlock *block, FlowGraph * graph)
-{
+{TRACE_IT(2190);
     this->RemoveSucc(block, graph, true, true);
 }
 
@@ -2455,25 +2455,25 @@ void
 BasicBlock::RemovePred(BasicBlock *block, FlowGraph * graph, bool doCleanSucc, bool moveToDead)
 {
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, this->GetPredList(), iter)
-    {
+    {TRACE_IT(2191);
         if (edge->GetPred() == block)
-        {
+        {TRACE_IT(2192);
             BasicBlock *blockSucc = edge->GetSucc();
             if (moveToDead)
-            {
+            {TRACE_IT(2193);
                 iter.MoveCurrentTo(this->GetDeadPredList());
 
             }
             else
-            {
+            {TRACE_IT(2194);
                 iter.RemoveCurrent(graph->alloc);
             }
             if (doCleanSucc)
-            {
+            {TRACE_IT(2195);
                 block->RemoveSucc(this, graph, false, moveToDead);
             }
             if (blockSucc->isLoopHeader && blockSucc->loop && blockSucc->GetPredList()->HasOne())
-            {
+            {TRACE_IT(2196);
                 Loop *loop = blockSucc->loop;
                 loop->isDead = true;
             }
@@ -2487,25 +2487,25 @@ void
 BasicBlock::RemoveSucc(BasicBlock *block, FlowGraph * graph, bool doCleanPred, bool moveToDead)
 {
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, this->GetSuccList(), iter)
-    {
+    {TRACE_IT(2197);
         if (edge->GetSucc() == block)
-        {
+        {TRACE_IT(2198);
             if (moveToDead)
-            {
+            {TRACE_IT(2199);
                 iter.MoveCurrentTo(this->GetDeadSuccList());
             }
             else
-            {
+            {TRACE_IT(2200);
                 iter.RemoveCurrent(graph->alloc);
             }
 
             if (doCleanPred)
-            {
+            {TRACE_IT(2201);
                 block->RemovePred(this, graph, false, moveToDead);
             }
 
             if (block->isLoopHeader && block->loop && block->GetPredList()->HasOne())
-            {
+            {TRACE_IT(2202);
                 Loop *loop = block->loop;
                 loop->isDead = true;
             }
@@ -2517,13 +2517,13 @@ BasicBlock::RemoveSucc(BasicBlock *block, FlowGraph * graph, bool doCleanPred, b
 
 void
 BasicBlock::UnlinkPred(BasicBlock *block)
-{
+{TRACE_IT(2203);
     this->UnlinkPred(block, true);
 }
 
 void
 BasicBlock::UnlinkSucc(BasicBlock *block)
-{
+{TRACE_IT(2204);
     this->UnlinkSucc(block, true);
 }
 
@@ -2531,12 +2531,12 @@ void
 BasicBlock::UnlinkPred(BasicBlock *block, bool doCleanSucc)
 {
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, this->GetPredList(), iter)
-    {
+    {TRACE_IT(2205);
         if (edge->GetPred() == block)
-        {
+        {TRACE_IT(2206);
             iter.UnlinkCurrent();
             if (doCleanSucc)
-            {
+            {TRACE_IT(2207);
                 block->UnlinkSucc(this, false);
             }
             return;
@@ -2549,12 +2549,12 @@ void
 BasicBlock::UnlinkSucc(BasicBlock *block, bool doCleanPred)
 {
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, this->GetSuccList(), iter)
-    {
+    {TRACE_IT(2208);
         if (edge->GetSucc() == block)
-        {
+        {TRACE_IT(2209);
             iter.UnlinkCurrent();
             if (doCleanPred)
-            {
+            {TRACE_IT(2210);
                 block->UnlinkPred(this, false);
             }
             return;
@@ -2565,28 +2565,28 @@ BasicBlock::UnlinkSucc(BasicBlock *block, bool doCleanPred)
 
 bool
 BasicBlock::IsLandingPad()
-{
+{TRACE_IT(2211);
     BasicBlock * nextBlock = this->GetNext();
     return nextBlock && nextBlock->loop && nextBlock->isLoopHeader && nextBlock->loop->landingPad == this;
 }
 
 IR::Instr *
 FlowGraph::RemoveInstr(IR::Instr *instr, GlobOpt * globOpt)
-{
+{TRACE_IT(2212);
     IR::Instr *instrPrev = instr->m_prev;
     if (globOpt)
-    {
+    {TRACE_IT(2213);
         // Removing block during glob opt.  Need to maintain the graph so that
         // bailout will record the byte code use in case the dead code is exposed
         // by dyno-pogo optimization (where bailout need the byte code uses from
         // the dead blocks where it may not be dead after bailing out)
         if (instr->IsLabelInstr())
-        {
+        {TRACE_IT(2214);
             instr->AsLabelInstr()->m_isLoopTop = false;
             return instr;
         }
         else if (instr->IsByteCodeUsesInstr())
-        {
+        {TRACE_IT(2215);
             return instr;
         }
 
@@ -2597,7 +2597,7 @@ FlowGraph::RemoveInstr(IR::Instr *instr, GlobOpt * globOpt)
         Js::OpCode opcode = instr->m_opcode;
         if (opcode == Js::OpCode::LdElemI_A && instr->DoStackArgsOpt(this->func) &&
             globOpt->IsArgumentsOpnd(instr->GetSrc1()) && instr->m_func->GetScopeObjSym())
-        {
+        {TRACE_IT(2216);
             IR::ByteCodeUsesInstr * byteCodeUsesInstr = IR::ByteCodeUsesInstr::New(instr);
             byteCodeUsesInstr->SetNonOpndSymbol(instr->m_func->GetScopeObjSym()->m_id);
             instr->InsertAfter(byteCodeUsesInstr);
@@ -2605,17 +2605,17 @@ FlowGraph::RemoveInstr(IR::Instr *instr, GlobOpt * globOpt)
 
         IR::ByteCodeUsesInstr * newByteCodeUseInstr = globOpt->ConvertToByteCodeUses(instr);
         if (newByteCodeUseInstr != nullptr)
-        {
+        {TRACE_IT(2217);
             // We don't care about property used in these instruction
             // It is only necessary for field copy prop so that we will keep the implicit call
             // up to the copy prop location.
             newByteCodeUseInstr->propertySymUse = nullptr;
 
             if (opcode == Js::OpCode::Yield)
-            {
+            {TRACE_IT(2218);
                 IR::Instr *instrLabel = newByteCodeUseInstr->m_next;
                 while (instrLabel->m_opcode != Js::OpCode::Label)
-                {
+                {TRACE_IT(2219);
                     instrLabel = instrLabel->m_next;
                 }
                 func->RemoveDeadYieldOffsetResumeLabel(instrLabel->AsLabelInstr());
@@ -2626,12 +2626,12 @@ FlowGraph::RemoveInstr(IR::Instr *instr, GlobOpt * globOpt)
             return newByteCodeUseInstr;
         }
         else
-        {
+        {TRACE_IT(2220);
             return instrPrev;
         }
     }
     else
-    {
+    {TRACE_IT(2221);
         instr->Remove();
         return instrPrev;
     }
@@ -2639,63 +2639,63 @@ FlowGraph::RemoveInstr(IR::Instr *instr, GlobOpt * globOpt)
 
 void
 FlowGraph::RemoveBlock(BasicBlock *block, GlobOpt * globOpt, bool tailDuping)
-{
+{TRACE_IT(2222);
     Assert(!block->isDead && !block->isDeleted);
     IR::Instr * lastInstr = nullptr;
     FOREACH_INSTR_IN_BLOCK_EDITING(instr, instrNext, block)
-    {
+    {TRACE_IT(2223);
         if (instr->m_opcode == Js::OpCode::FunctionExit)
-        {
+        {TRACE_IT(2224);
             // Removing FunctionExit causes problems downstream...
             // We could change the opcode, or have FunctionEpilog/FunctionExit to get
             // rid of the epilog.
             break;
         }
         if (instr == block->GetFirstInstr())
-        {
+        {TRACE_IT(2225);
             Assert(instr->IsLabelInstr());
             instr->AsLabelInstr()->m_isLoopTop = false;
         }
         else
-        {
+        {TRACE_IT(2226);
             lastInstr = this->RemoveInstr(instr, globOpt);
         }
     } NEXT_INSTR_IN_BLOCK_EDITING;
 
     if (lastInstr)
-    {
+    {TRACE_IT(2227);
         block->SetLastInstr(lastInstr);
     }
     FOREACH_SLISTBASECOUNTED_ENTRY(FlowEdge*, edge, block->GetPredList())
-    {
+    {TRACE_IT(2228);
         edge->GetPred()->RemoveSucc(block, this, false, globOpt != nullptr);
     } NEXT_SLISTBASECOUNTED_ENTRY;
 
     FOREACH_SLISTBASECOUNTED_ENTRY(FlowEdge*, edge, block->GetSuccList())
-    {
+    {TRACE_IT(2229);
         edge->GetSucc()->RemovePred(block, this, false, globOpt != nullptr);
     } NEXT_SLISTBASECOUNTED_ENTRY;
 
     if (block->isLoopHeader && this->loopList)
-    {
+    {TRACE_IT(2230);
         // If loop graph is built, remove loop from loopList
         Loop **pPrevLoop = &this->loopList;
 
         while (*pPrevLoop != block->loop)
-        {
+        {TRACE_IT(2231);
             pPrevLoop = &((*pPrevLoop)->next);
         }
         *pPrevLoop = (*pPrevLoop)->next;
         this->hasLoop = (this->loopList != nullptr);
     }
     if (globOpt != nullptr)
-    {
+    {TRACE_IT(2232);
         block->isDead = true;
         block->GetPredList()->MoveTo(block->GetDeadPredList());
         block->GetSuccList()->MoveTo(block->GetDeadSuccList());
     }
     if (tailDuping)
-    {
+    {TRACE_IT(2233);
         block->isDead = true;
     }
     block->isDeleted = true;
@@ -2704,16 +2704,16 @@ FlowGraph::RemoveBlock(BasicBlock *block, GlobOpt * globOpt, bool tailDuping)
 
 void
 BasicBlock::UnlinkInstr(IR::Instr * instr)
-{
+{TRACE_IT(2234);
     Assert(this->Contains(instr));
     Assert(this->GetFirstInstr() != this->GetLastInstr());
     if (instr == this->GetFirstInstr())
-    {
+    {TRACE_IT(2235);
         Assert(!this->GetFirstInstr()->IsLabelInstr());
         this->SetFirstInstr(instr->m_next);
     }
     else if (instr == this->GetLastInstr())
-    {
+    {TRACE_IT(2236);
         this->SetLastInstr(instr->m_prev);
     }
 
@@ -2722,14 +2722,14 @@ BasicBlock::UnlinkInstr(IR::Instr * instr)
 
 void
 BasicBlock::RemoveInstr(IR::Instr * instr)
-{
+{TRACE_IT(2237);
     Assert(this->Contains(instr));
     if (instr == this->GetFirstInstr())
-    {
+    {TRACE_IT(2238);
         this->SetFirstInstr(instr->m_next);
     }
     else if (instr == this->GetLastInstr())
-    {
+    {TRACE_IT(2239);
         this->SetLastInstr(instr->m_prev);
     }
 
@@ -2738,12 +2738,12 @@ BasicBlock::RemoveInstr(IR::Instr * instr)
 
 void
 BasicBlock::InsertInstrBefore(IR::Instr *newInstr, IR::Instr *beforeThisInstr)
-{
+{TRACE_IT(2240);
     Assert(this->Contains(beforeThisInstr));
     beforeThisInstr->InsertBefore(newInstr);
 
     if(this->GetFirstInstr() == beforeThisInstr)
-    {
+    {TRACE_IT(2241);
         Assert(!beforeThisInstr->IsLabelInstr());
         this->SetFirstInstr(newInstr);
     }
@@ -2751,12 +2751,12 @@ BasicBlock::InsertInstrBefore(IR::Instr *newInstr, IR::Instr *beforeThisInstr)
 
 void
 BasicBlock::InsertInstrAfter(IR::Instr *newInstr, IR::Instr *afterThisInstr)
-{
+{TRACE_IT(2242);
     Assert(this->Contains(afterThisInstr));
     afterThisInstr->InsertAfter(newInstr);
 
     if (this->GetLastInstr() == afterThisInstr)
-    {
+    {TRACE_IT(2243);
         Assert(afterThisInstr->HasFallThrough());
         this->SetLastInstr(newInstr);
     }
@@ -2764,7 +2764,7 @@ BasicBlock::InsertInstrAfter(IR::Instr *newInstr, IR::Instr *afterThisInstr)
 
 void
 BasicBlock::InsertAfter(IR::Instr *newInstr)
-{
+{TRACE_IT(2244);
     Assert(this->GetLastInstr()->HasFallThrough());
     this->GetLastInstr()->InsertAfter(newInstr);
     this->SetLastInstr(newInstr);
@@ -2772,16 +2772,16 @@ BasicBlock::InsertAfter(IR::Instr *newInstr)
 
 void
 Loop::SetHasCall()
-{
+{TRACE_IT(2245);
     Loop * current = this;
     do
-    {
+    {TRACE_IT(2246);
         if (current->hasCall)
-        {
+        {TRACE_IT(2247);
 #if DBG
             current = current->parent;
             while (current)
-            {
+            {TRACE_IT(2248);
                 Assert(current->hasCall);
                 current = current->parent;
             }
@@ -2796,16 +2796,16 @@ Loop::SetHasCall()
 
 void
 Loop::SetImplicitCallFlags(Js::ImplicitCallFlags newFlags)
-{
+{TRACE_IT(2249);
     Loop * current = this;
     do
-    {
+    {TRACE_IT(2250);
         if ((current->implicitCallFlags & newFlags) == newFlags)
-        {
+        {TRACE_IT(2251);
 #if DBG
             current = current->parent;
             while (current)
-            {
+            {TRACE_IT(2252);
                 Assert((current->implicitCallFlags & newFlags) == newFlags);
                 current = current->parent;
             }
@@ -2821,16 +2821,16 @@ Loop::SetImplicitCallFlags(Js::ImplicitCallFlags newFlags)
 
 Js::ImplicitCallFlags
 Loop::GetImplicitCallFlags()
-{
+{TRACE_IT(2253);
     if (this->implicitCallFlags == Js::ImplicitCall_HasNoInfo)
-    {
+    {TRACE_IT(2254);
         if (this->parent == nullptr)
-        {
+        {TRACE_IT(2255);
             // We don't have any information, and we don't have any parent, so just assume that there aren't any implicit calls
             this->implicitCallFlags = Js::ImplicitCall_None;
         }
         else
-        {
+        {TRACE_IT(2256);
             // We don't have any information, get it from the parent and hope for the best
             this->implicitCallFlags = this->parent->GetImplicitCallFlags();
         }
@@ -2840,11 +2840,11 @@ Loop::GetImplicitCallFlags()
 
 bool
 Loop::CanDoFieldCopyProp()
-{
+{TRACE_IT(2257);
 #if DBG_DUMP
     if (((this->implicitCallFlags & ~(Js::ImplicitCall_External)) == 0) &&
         Js::Configuration::Global.flags.Trace.IsEnabled(Js::HostOptPhase))
-    {
+    {TRACE_IT(2258);
         Output::Print(_u("fieldcopyprop disabled because external: loop count: %d"), GetLoopNumber());
         GetFunc()->DumpFullFunctionName();
         Output::Print(_u("\n"));
@@ -2856,18 +2856,18 @@ Loop::CanDoFieldCopyProp()
 
 bool
 Loop::CanDoFieldHoist()
-{
+{TRACE_IT(2259);
     // We can do field hoist wherever we can do copy prop
     return CanDoFieldCopyProp();
 }
 
 bool
 Loop::CanHoistInvariants()
-{
+{TRACE_IT(2260);
     Func * func = this->GetHeadBlock()->firstInstr->m_func->GetTopFunc();
 
     if (PHASE_OFF(Js::InvariantsPhase, func))
-    {
+    {TRACE_IT(2261);
         return false;
     }
 
@@ -2876,19 +2876,19 @@ Loop::CanHoistInvariants()
 
 IR::LabelInstr *
 Loop::GetLoopTopInstr() const
-{
+{TRACE_IT(2262);
     IR::LabelInstr * instr = nullptr;
     if (this->topFunc->isFlowGraphValid)
-    {
+    {TRACE_IT(2263);
         instr = this->GetHeadBlock()->GetFirstInstr()->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(2264);
         // Flowgraph gets torn down after the globopt, so can't get the loopTop from the head block.
         instr = this->loopTopLabel;
     }
     if (instr)
-    {
+    {TRACE_IT(2265);
         Assert(instr->m_isLoopTop);
     }
     return instr;
@@ -2896,17 +2896,17 @@ Loop::GetLoopTopInstr() const
 
 void
 Loop::SetLoopTopInstr(IR::LabelInstr * loopTop)
-{
+{TRACE_IT(2266);
     this->loopTopLabel = loopTop;
 }
 
 #if DBG_DUMP
 uint
 Loop::GetLoopNumber() const
-{
+{TRACE_IT(2267);
     IR::LabelInstr * loopTopInstr = this->GetLoopTopInstr();
     if (loopTopInstr->IsProfiledLabelInstr())
-    {
+    {TRACE_IT(2268);
         return loopTopInstr->AsProfiledLabelInstr()->loopNum;
     }
     return Js::LoopHeader::NoLoop;
@@ -2916,9 +2916,9 @@ bool
 BasicBlock::Contains(IR::Instr * instr)
 {
     FOREACH_INSTR_IN_BLOCK(blockInstr, this)
-    {
+    {TRACE_IT(2269);
         if (instr == blockInstr)
-        {
+        {TRACE_IT(2270);
             return true;
         }
     }
@@ -2929,7 +2929,7 @@ BasicBlock::Contains(IR::Instr * instr)
 
 FlowEdge *
 FlowEdge::New(FlowGraph * graph)
-{
+{TRACE_IT(2271);
     FlowEdge * edge;
 
     edge = JitAnew(graph->alloc, FlowEdge);
@@ -2939,12 +2939,12 @@ FlowEdge::New(FlowGraph * graph)
 
 bool
 Loop::IsDescendentOrSelf(Loop const * loop) const
-{
+{TRACE_IT(2272);
     Loop const * currentLoop = loop;
     while (currentLoop != nullptr)
-    {
+    {TRACE_IT(2273);
         if (currentLoop == this)
-        {
+        {TRACE_IT(2274);
             return true;
         }
         currentLoop = currentLoop->parent;
@@ -2953,49 +2953,49 @@ Loop::IsDescendentOrSelf(Loop const * loop) const
 }
 
 void FlowGraph::SafeRemoveInstr(IR::Instr *instr)
-{
+{TRACE_IT(2275);
     BasicBlock *block;
 
     if (instr->m_next->IsLabelInstr())
-    {
+    {TRACE_IT(2276);
         block = instr->m_next->AsLabelInstr()->GetBasicBlock()->GetPrev();
         block->RemoveInstr(instr);
     }
     else if (instr->IsLabelInstr())
-    {
+    {TRACE_IT(2277);
         block = instr->AsLabelInstr()->GetBasicBlock();
         block->RemoveInstr(instr);
     }
     else
-    {
+    {TRACE_IT(2278);
         Assert(!instr->EndsBasicBlock() && !instr->StartsBasicBlock());
         instr->Remove();
     }
 }
 
 bool FlowGraph::IsUnsignedOpnd(IR::Opnd *src, IR::Opnd **pShrSrc1)
-{
+{TRACE_IT(2279);
     // Look for an unsigned constant, or the result of an unsigned shift by zero
     if (!src->IsRegOpnd())
-    {
+    {TRACE_IT(2280);
         return false;
     }
     if (!src->AsRegOpnd()->m_sym->IsSingleDef())
-    {
+    {TRACE_IT(2281);
         return false;
     }
 
     if (src->AsRegOpnd()->m_sym->IsIntConst())
-    {
+    {TRACE_IT(2282);
         int32 intConst = src->AsRegOpnd()->m_sym->GetIntConstValue();
 
         if (intConst >= 0)
-        {
+        {TRACE_IT(2283);
             *pShrSrc1 = src;
             return true;
         }
         else
-        {
+        {TRACE_IT(2284);
             return false;
         }
     }
@@ -3003,14 +3003,14 @@ bool FlowGraph::IsUnsignedOpnd(IR::Opnd *src, IR::Opnd **pShrSrc1)
     IR::Instr * shrUInstr = src->AsRegOpnd()->m_sym->GetInstrDef();
 
     if (shrUInstr->m_opcode != Js::OpCode::ShrU_A)
-    {
+    {TRACE_IT(2285);
         return false;
     }
 
     IR::Opnd *shrCnt = shrUInstr->GetSrc2();
 
     if (!shrCnt->IsRegOpnd() || !shrCnt->AsRegOpnd()->m_sym->IsTaggableIntConst() || shrCnt->AsRegOpnd()->m_sym->GetIntConstValue() != 0)
-    {
+    {TRACE_IT(2286);
         return false;
     }
 
@@ -3019,7 +3019,7 @@ bool FlowGraph::IsUnsignedOpnd(IR::Opnd *src, IR::Opnd **pShrSrc1)
 }
 
 bool FlowGraph::UnsignedCmpPeep(IR::Instr *cmpInstr)
-{
+{TRACE_IT(2287);
     IR::Opnd *cmpSrc1 = cmpInstr->GetSrc1();
     IR::Opnd *cmpSrc2 = cmpInstr->GetSrc2();
     IR::Opnd *newSrc1;
@@ -3040,26 +3040,26 @@ bool FlowGraph::UnsignedCmpPeep(IR::Instr *cmpInstr)
     // Hopefully dead-store can get rid of the ShrU
 
     if (!this->func->DoGlobOpt() || !GlobOpt::DoAggressiveIntTypeSpec(this->func) || !GlobOpt::DoLossyIntTypeSpec(this->func))
-    {
+    {TRACE_IT(2288);
         return false;
     }
 
     if (cmpInstr->IsBranchInstr() && !cmpInstr->AsBranchInstr()->IsConditional())
-    {
+    {TRACE_IT(2289);
         return false;
     }
 
     if (!cmpInstr->GetSrc2())
-    {
+    {TRACE_IT(2290);
         return false;
     }
 
     if (!this->IsUnsignedOpnd(cmpSrc1, &newSrc1))
-    {
+    {TRACE_IT(2291);
         return false;
     }
     if (!this->IsUnsignedOpnd(cmpSrc2, &newSrc2))
-    {
+    {TRACE_IT(2292);
         return false;
     }
 
@@ -3103,26 +3103,26 @@ bool FlowGraph::UnsignedCmpPeep(IR::Instr *cmpInstr)
     cmpInstr->InsertAfter(bytecodeInstr);
 
     if (cmpSrc1 != newSrc1)
-    {
+    {TRACE_IT(2293);
         if (cmpSrc1->IsRegOpnd() && !cmpSrc1->GetIsJITOptimizedReg())
-        {
+        {TRACE_IT(2294);
             bytecodeInstr->Set(cmpSrc1);
         }
         cmpInstr->ReplaceSrc1(newSrc1);
         if (newSrc1->IsRegOpnd())
-        {
+        {TRACE_IT(2295);
             cmpInstr->GetSrc1()->AsRegOpnd()->SetIsJITOptimizedReg(true);
         }
     }
     if (cmpSrc2 != newSrc2)
-    {
+    {TRACE_IT(2296);
         if (cmpSrc2->IsRegOpnd() && !cmpSrc2->GetIsJITOptimizedReg())
-        {
+        {TRACE_IT(2297);
             bytecodeInstr->Set(cmpSrc2);
         }
         cmpInstr->ReplaceSrc2(newSrc2);
         if (newSrc2->IsRegOpnd())
-        {
+        {TRACE_IT(2298);
             cmpInstr->GetSrc2()->AsRegOpnd()->SetIsJITOptimizedReg(true);
         }
     }
@@ -3137,17 +3137,17 @@ void
 FlowGraph::VerifyLoopGraph()
 {
     FOREACH_BLOCK(block, this)
-    {
+    {TRACE_IT(2299);
         Loop *loop = block->loop;
         FOREACH_SUCCESSOR_BLOCK(succ, block)
-        {
+        {TRACE_IT(2300);
             if (loop == succ->loop)
-            {
+            {TRACE_IT(2301);
                 Assert(succ->isLoopHeader == false || loop->GetHeadBlock() == succ);
                 continue;
             }
             if (succ->isLoopHeader)
-            {
+            {TRACE_IT(2302);
                 Assert(succ->loop->parent == loop
                     || (!loop->IsDescendentOrSelf(succ->loop)));
                 continue;
@@ -3156,10 +3156,10 @@ FlowGraph::VerifyLoopGraph()
         } NEXT_SUCCESSOR_BLOCK;
 
         if (!PHASE_OFF(Js::RemoveBreakBlockPhase, this->GetFunc()))
-        {
+        {TRACE_IT(2303);
             // Make sure all break blocks have been removed.
             if (loop && !block->isLoopHeader && !(this->func->HasTry() && !this->func->DoOptimizeTryCatch()))
-            {
+            {TRACE_IT(2304);
                 Assert(loop->IsDescendentOrSelf(block->GetPrev()->loop));
             }
         }
@@ -3172,13 +3172,13 @@ FlowGraph::VerifyLoopGraph()
 
 void
 FlowGraph::Dump(bool onlyOnVerboseMode, const char16 *form)
-{
+{TRACE_IT(2305);
     if(PHASE_DUMP(Js::FGBuildPhase, this->GetFunc()))
-    {
+    {TRACE_IT(2306);
         if (!onlyOnVerboseMode || Js::Configuration::Global.flags.Verbose)
-        {
+        {TRACE_IT(2307);
             if (form)
-            {
+            {TRACE_IT(2308);
                 Output::Print(form);
             }
             this->Dump();
@@ -3188,13 +3188,13 @@ FlowGraph::Dump(bool onlyOnVerboseMode, const char16 *form)
 
 void
 FlowGraph::Dump()
-{
+{TRACE_IT(2309);
     Output::Print(_u("\nFlowGraph\n"));
     FOREACH_BLOCK(block, this)
-    {
+    {TRACE_IT(2310);
         Loop * loop = block->loop;
         while (loop)
-        {
+        {TRACE_IT(2311);
             Output::Print(_u("    "));
             loop = loop->parent;
         }
@@ -3204,10 +3204,10 @@ FlowGraph::Dump()
     Output::Print(_u("\nLoopGraph\n"));
 
     for (Loop *loop = this->loopList; loop; loop = loop->next)
-    {
+    {TRACE_IT(2312);
         Output::Print(_u("\nLoop\n"));
         FOREACH_BLOCK_IN_LOOP(block, loop)
-        {
+        {TRACE_IT(2313);
             block->DumpHeader(false);
         }NEXT_BLOCK_IN_LOOP;
         Output::Print(_u("Loop  Ends\n"));
@@ -3216,47 +3216,47 @@ FlowGraph::Dump()
 
 void
 BasicBlock::DumpHeader(bool insertCR)
-{
+{TRACE_IT(2314);
     if (insertCR)
-    {
+    {TRACE_IT(2315);
         Output::Print(_u("\n"));
     }
     Output::Print(_u("BLOCK %d:"), this->number);
 
     if (this->isDead)
-    {
+    {TRACE_IT(2316);
         Output::Print(_u(" **** DEAD ****"));
     }
 
     if (this->isBreakBlock)
-    {
+    {TRACE_IT(2317);
         Output::Print(_u(" **** Break Block ****"));
     }
     else if (this->isAirLockBlock)
-    {
+    {TRACE_IT(2318);
         Output::Print(_u(" **** Air lock Block ****"));
     }
     else if (this->isBreakCompensationBlockAtSource)
-    {
+    {TRACE_IT(2319);
         Output::Print(_u(" **** Break Source Compensation Code ****"));
     }
     else if (this->isBreakCompensationBlockAtSink)
-    {
+    {TRACE_IT(2320);
         Output::Print(_u(" **** Break Sink Compensation Code ****"));
     }
     else if (this->isAirLockCompensationBlock)
-    {
+    {TRACE_IT(2321);
         Output::Print(_u(" **** Airlock block Compensation Code ****"));
     }
 
     if (!this->predList.Empty())
-    {
+    {TRACE_IT(2322);
         BOOL fFirst = TRUE;
         Output::Print(_u(" In("));
         FOREACH_PREDECESSOR_BLOCK(blockPred, this)
-        {
+        {TRACE_IT(2323);
             if (!fFirst)
-            {
+            {TRACE_IT(2324);
                 Output::Print(_u(", "));
             }
             Output::Print(_u("%d"), blockPred->GetBlockNum());
@@ -3268,13 +3268,13 @@ BasicBlock::DumpHeader(bool insertCR)
 
 
     if (!this->succList.Empty())
-    {
+    {TRACE_IT(2325);
         BOOL fFirst = TRUE;
         Output::Print(_u(" Out("));
         FOREACH_SUCCESSOR_BLOCK(blockSucc, this)
-        {
+        {TRACE_IT(2326);
             if (!fFirst)
-            {
+            {TRACE_IT(2327);
                 Output::Print(_u(", "));
             }
             Output::Print(_u("%d"), blockSucc->GetBlockNum());
@@ -3285,13 +3285,13 @@ BasicBlock::DumpHeader(bool insertCR)
     }
 
     if (!this->deadPredList.Empty())
-    {
+    {TRACE_IT(2328);
         BOOL fFirst = TRUE;
         Output::Print(_u(" DeadIn("));
         FOREACH_DEAD_PREDECESSOR_BLOCK(blockPred, this)
-        {
+        {TRACE_IT(2329);
             if (!fFirst)
-            {
+            {TRACE_IT(2330);
                 Output::Print(_u(", "));
             }
             Output::Print(_u("%d"), blockPred->GetBlockNum());
@@ -3302,13 +3302,13 @@ BasicBlock::DumpHeader(bool insertCR)
     }
 
     if (!this->deadSuccList.Empty())
-    {
+    {TRACE_IT(2331);
         BOOL fFirst = TRUE;
         Output::Print(_u(" DeadOut("));
         FOREACH_DEAD_SUCCESSOR_BLOCK(blockSucc, this)
-        {
+        {TRACE_IT(2332);
             if (!fFirst)
-            {
+            {TRACE_IT(2333);
                 Output::Print(_u(", "));
             }
             Output::Print(_u("%d"), blockSucc->GetBlockNum());
@@ -3319,24 +3319,24 @@ BasicBlock::DumpHeader(bool insertCR)
     }
 
     if (this->loop)
-    {
+    {TRACE_IT(2334);
         Output::Print(_u("   Loop(%d) header: %d"), this->loop->loopNumber, this->loop->GetHeadBlock()->GetBlockNum());
 
         if (this->loop->parent)
-        {
+        {TRACE_IT(2335);
             Output::Print(_u(" parent(%d): %d"), this->loop->parent->loopNumber, this->loop->parent->GetHeadBlock()->GetBlockNum());
         }
 
         if (this->loop->GetHeadBlock() == this)
-        {
+        {TRACE_IT(2336);
             Output::SkipToColumn(50);
             Output::Print(_u("Call Exp/Imp: "));
             if (this->loop->GetHasCall())
-            {
+            {TRACE_IT(2337);
                 Output::Print(_u("yes/"));
             }
             else
-            {
+            {TRACE_IT(2338);
                 Output::Print(_u(" no/"));
             }
             Output::Print(Js::DynamicProfileInfo::GetImplicitCallFlagsString(this->loop->GetImplicitCallFlags()));
@@ -3345,7 +3345,7 @@ BasicBlock::DumpHeader(bool insertCR)
 
     Output::Print(_u("\n"));
     if (insertCR)
-    {
+    {TRACE_IT(2339);
         Output::Print(_u("\n"));
     }
 }
@@ -3355,7 +3355,7 @@ BasicBlock::Dump()
 {
     // Dumping the first instruction (label) will dump the block header as well.
     FOREACH_INSTR_IN_BLOCK(instr, this)
-    {
+    {TRACE_IT(2340);
         instr->Dump();
     }
     NEXT_INSTR_IN_BLOCK;
@@ -3363,7 +3363,7 @@ BasicBlock::Dump()
 
 void
 AddPropertyCacheBucket::Dump() const
-{
+{TRACE_IT(2341);
     Assert(this->initialType != nullptr);
     Assert(this->finalType != nullptr);
     Output::Print(_u(" initial type: 0x%x, final type: 0x%x "), this->initialType->GetAddr(), this->finalType->GetAddr());
@@ -3371,14 +3371,14 @@ AddPropertyCacheBucket::Dump() const
 
 void
 ObjTypeGuardBucket::Dump() const
-{
+{TRACE_IT(2342);
     Assert(this->guardedPropertyOps != nullptr);
     this->guardedPropertyOps->Dump();
 }
 
 void
 ObjWriteGuardBucket::Dump() const
-{
+{TRACE_IT(2343);
     Assert(this->writeGuards != nullptr);
     this->writeGuards->Dump();
 }

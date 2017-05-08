@@ -59,7 +59,7 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { Assert(false); return false; }
+        virtual bool SupportsPrototypeInstances() const {TRACE_IT(66413); Assert(false); return false; }
         virtual bool CanStorePropertyValueDirectly(const DynamicObject* instance, PropertyId propertyId, bool allowLetConst) override;
 #endif
 

@@ -51,7 +51,7 @@ Output::VerboseNote(const char16 * format, ...)
 {
 #ifdef ENABLE_TRACE
     if (Js::Configuration::Global.flags.Verbose)
-    {
+    {TRACE_IT(20221);
         AutoCriticalSection autocs(&s_critsect);
         va_list argptr;
         va_start(argptr, format);
@@ -71,7 +71,7 @@ Output::Trace(Js::Phase phase, const char16 *form, ...)
     size_t retValue = 0;
 
     if(Js::Configuration::Global.flags.Trace.IsEnabled(phase))
-    {
+    {TRACE_IT(20222);
         va_list argptr;
         va_start(argptr, form);
         retValue += Output::VTrace(_u("%s: "), Js::PhaseNames[static_cast<int>(phase)], form, argptr);
@@ -87,7 +87,7 @@ Output::Trace2(Js::Phase phase, const char16 *form, ...)
     size_t retValue = 0;
 
     if (Js::Configuration::Global.flags.Trace.IsEnabled(phase))
-    {
+    {TRACE_IT(20223);
         va_list argptr;
         va_start(argptr, form);
         retValue += Output::VPrint(form, argptr);
@@ -103,7 +103,7 @@ Output::TraceWithPrefix(Js::Phase phase, const char16 prefix[], const char16 *fo
     size_t retValue = 0;
 
     if (Js::Configuration::Global.flags.Trace.IsEnabled(phase))
-    {
+    {TRACE_IT(20224);
         va_list argptr;
         va_start(argptr, form);
         WCHAR prefixValue[512];
@@ -121,7 +121,7 @@ Output::TraceWithFlush(Js::Phase phase, const char16 *form, ...)
     size_t retValue = 0;
 
     if(Js::Configuration::Global.flags.Trace.IsEnabled(phase))
-    {
+    {TRACE_IT(20225);
         va_list argptr;
         va_start(argptr, form);
         retValue += Output::VTrace(_u("%s:"), Js::PhaseNames[static_cast<int>(phase)], form, argptr);
@@ -138,7 +138,7 @@ Output::TraceWithFlush(Js::Flag flag, const char16 *form, ...)
     size_t retValue = 0;
 
     if (Js::Configuration::Global.flags.IsEnabled(flag))
-    {
+    {TRACE_IT(20226);
         va_list argptr;
         va_start(argptr, form);
         retValue += Output::VTrace(_u("[-%s]::"), Js::FlagNames[static_cast<int>(flag)], form, argptr);
@@ -151,18 +151,18 @@ Output::TraceWithFlush(Js::Flag flag, const char16 *form, ...)
 
 size_t
 Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char16 *form, va_list argptr)
-{
+{TRACE_IT(20227);
     size_t retValue = 0;
 
 #if CONFIG_RICH_TRACE_FORMAT
     if (CONFIG_FLAG(RichTraceFormat))
-    {
+    {TRACE_IT(20228);
         InterlockedIncrement(&s_traceEntryId);
         retValue += Output::Print(_u("[%d ~%d %s] "), s_traceEntryId, ::GetCurrentThreadId(), prefix);
     }
     else
 #endif
-    {
+    {TRACE_IT(20229);
         retValue += Output::Print(shortPrefixFormat, prefix);
     }
     retValue += Output::VPrint(form, argptr);
@@ -170,12 +170,12 @@ Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char
 #ifdef STACK_BACK_TRACE
     // Print stack trace.
     if (s_stackTraceHelper)
-    {
+    {TRACE_IT(20230);
         const ULONG c_framesToSkip = 2; // Skip 2 frames -- Output::VTrace and Output::Trace.
         const ULONG c_frameCount = 10;  // TODO: make it configurable.
         const char16 callStackPrefix[] = _u("call stack:");
         if (s_inMemoryLogger)
-        {
+        {TRACE_IT(20231);
             // Trace just addresses of functions, avoid symbol info as it takes too much memory.
             // One line for whole stack trace for easier parsing on the jd side.
             const size_t c_msgCharCount = _countof(callStackPrefix) + (1 + sizeof(void*) * 2) * c_frameCount; // 2 hexadecimal digits per byte + 1 for space.
@@ -191,7 +191,7 @@ Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char
             ULONG framesObtained = s_stackTraceHelper->GetStackTrace(c_framesToSkip, c_frameCount, frames);
             Assert(framesObtained <= c_frameCount);
             for (ULONG i = 0; i < framesObtained && i < c_frameCount; ++i)
-            {
+            {TRACE_IT(20232);
                 Assert(_countof(callStackMsg) >= start);
                 temp = _snwprintf_s(callStackMsg + start, _countof(callStackMsg) - start, _TRUNCATE, _u(" %p"), frames[i]);
                 Assert(temp != -1);
@@ -201,7 +201,7 @@ Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char
             retValue += Output::Print(_u("%s\n"), callStackMsg);
         }
         else
-        {
+        {TRACE_IT(20233);
             // Trace with full symbol info.
             retValue += Output::Print(_u("%s\n"), callStackPrefix);
             retValue += s_stackTraceHelper->PrintStackTrace(c_framesToSkip, c_frameCount);
@@ -217,7 +217,7 @@ size_t __cdecl
 Output::TraceStats(Js::Phase phase, const char16 *form, ...)
 {
     if(PHASE_STATS1(phase))
-    {
+    {TRACE_IT(20234);
         va_list argptr;
         va_start(argptr, form);
         size_t ret_val = Output::VPrint(form, argptr);
@@ -261,13 +261,13 @@ Output::Print(int column, const char16 *form, ...)
 
 size_t __cdecl
 Output::VPrint(const char16 *form, va_list argptr)
-{
+{TRACE_IT(20235);
     char16 buf[2048];
     size_t size;
 
     size = _vsnwprintf_s(buf, _countof(buf), _TRUNCATE, form, argptr);
     if(size == -1)
-    {
+    {TRACE_IT(20236);
         size = 2048;
     }
     return Output::PrintBuffer(buf, size);
@@ -275,26 +275,26 @@ Output::VPrint(const char16 *form, va_list argptr)
 
 size_t __cdecl
 Output::PrintBuffer(const char16 * buf, size_t size)
-{
+{TRACE_IT(20237);
     Output::s_Column += size;
     const char16 * endbuf = wcschr(buf, '\n');
     while (endbuf != nullptr)
-    {
+    {TRACE_IT(20238);
         Output::s_Column = size - (endbuf - buf) - 1;
         endbuf = wcschr(endbuf + 1, '\n');
     }
 
     bool useConsoleOrFile = true;
     if (!Output::s_capture)
-    {
+    {TRACE_IT(20239);
         if (Output::s_useDebuggerWindow)
-        {
+        {TRACE_IT(20240);
             OutputDebugStringW(buf);
             useConsoleOrFile = false;
         }
 #ifdef ENABLE_TRACE
         if (Output::s_inMemoryLogger)
-        {
+        {TRACE_IT(20241);
             s_inMemoryLogger->Write(buf);
             useConsoleOrFile = false;
         }
@@ -302,28 +302,28 @@ Output::PrintBuffer(const char16 * buf, size_t size)
     }
 
     if (useConsoleOrFile)
-    {
+    {TRACE_IT(20242);
         if (s_file == nullptr || Output::s_capture)
-        {
+        {TRACE_IT(20243);
             bool addToBuffer = true;
             if (Output::bufferFreeSize < size + 1)
-            {
+            {TRACE_IT(20244);
                 if (Output::bufferAllocSize > MAX_OUTPUT_BUFFER_SIZE && !Output::s_capture)
-                {
+                {TRACE_IT(20245);
                     Output::Flush();
                     if (Output::bufferFreeSize < size + 1)
-                    {
+                    {TRACE_IT(20246);
                         DirectPrint(buf);
                         addToBuffer = false;
                     }
                 }
                 else
-                {
+                {TRACE_IT(20247);
                     size_t oldBufferSize = bufferAllocSize - bufferFreeSize;
                     size_t newBufferAllocSize = (bufferAllocSize + size + 1) * 4 / 3;
                     char16 * newBuffer = (char16 *)realloc(buffer, (newBufferAllocSize * sizeof(char16)));
                     if (newBuffer == nullptr)
-                    {
+                    {TRACE_IT(20248);
                         // See if I can just flush it and print directly
                         Output::Flush();
 
@@ -338,7 +338,7 @@ Output::PrintBuffer(const char16 * buf, size_t size)
                         addToBuffer = false;
                     }
                     else
-                    {
+                    {TRACE_IT(20249);
                         bufferAllocSize = newBufferAllocSize;
                         buffer = newBuffer;
                         bufferFreeSize = bufferAllocSize - oldBufferSize;
@@ -346,7 +346,7 @@ Output::PrintBuffer(const char16 * buf, size_t size)
                 }
             }
             if (addToBuffer)
-            {
+            {TRACE_IT(20250);
                 Assert(Output::bufferFreeSize >= size + 1);
                 memcpy_s(Output::buffer + Output::bufferAllocSize - Output::bufferFreeSize, Output::bufferFreeSize * sizeof(char16),
                     buf, (size + 1) * sizeof(char16));
@@ -354,7 +354,7 @@ Output::PrintBuffer(const char16 * buf, size_t size)
             }
         }
         else
-        {
+        {TRACE_IT(20251);
             fwprintf_s(Output::s_file, _u("%s"), buf);
         }
 
@@ -370,25 +370,25 @@ Output::PrintBuffer(const char16 * buf, size_t size)
 }
 
 void Output::Flush()
-{
+{TRACE_IT(20252);
     if (s_capture)
-    {
+    {TRACE_IT(20253);
         return;
     }
     if (bufferFreeSize != bufferAllocSize)
-    {
+    {TRACE_IT(20254);
         DirectPrint(Output::buffer);
         bufferFreeSize = bufferAllocSize;
     }
     if(s_outputFile != nullptr)
-    {
+    {TRACE_IT(20255);
         fflush(s_outputFile);
     }
     _flushall();
 }
 
 void Output::DirectPrint(char16 const * string)
-{
+{TRACE_IT(20256);
     AutoCriticalSection autocs(&s_critsect);
 
     // xplat-todo: support console color
@@ -397,12 +397,12 @@ void Output::DirectPrint(char16 const * string)
     BOOL restoreColor = FALSE;
     HANDLE hConsole = NULL;
     if (Output::s_hasColor)
-    {
+    {TRACE_IT(20257);
         _CONSOLE_SCREEN_BUFFER_INFO info;
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
         if (hConsole && GetConsoleScreenBufferInfo(hConsole, &info))
-        {
+        {TRACE_IT(20258);
             oldValue = info.wAttributes;
             restoreColor = SetConsoleTextAttribute(hConsole, Output::s_color);
         }
@@ -429,9 +429,9 @@ void Output::DirectPrint(char16 const * string)
 
 void
 Output::SkipToColumn(size_t column)
-{
+{TRACE_IT(20259);
     if (column <= Output::s_Column)
-    {
+    {TRACE_IT(20260);
         Output::Print(_u(" "));
         return;
     }
@@ -442,7 +442,7 @@ Output::SkipToColumn(size_t column)
 
     // Print at least one space
     while (dist > 0)
-    {
+    {TRACE_IT(20261);
         Output::Print(_u(" "));
         dist--;
     }
@@ -450,13 +450,13 @@ Output::SkipToColumn(size_t column)
 
 FILE*
 Output::GetFile()
-{
+{TRACE_IT(20262);
     return Output::s_file;
 }
 
 FILE*
 Output::SetFile(FILE *file)
-{
+{TRACE_IT(20263);
     Output::Flush();
     FILE *oldfile = Output::s_file;
     Output::s_file = file;
@@ -465,27 +465,27 @@ Output::SetFile(FILE *file)
 
 void
 Output::SetOutputFile(FILE* file)
-{
+{TRACE_IT(20264);
     if(s_outputFile != nullptr)
     {
         AssertMsg(false, "Output file is being set twice.");
     }
     else
-    {
+    {TRACE_IT(20265);
         s_outputFile = file;
     }
 }
 
 FILE*
 Output::GetOutputFile()
-{
+{TRACE_IT(20266);
     return s_outputFile;
 }
 
 #ifdef ENABLE_TRACE
 void
 Output::SetInMemoryLogger(Js::ILogger* logger)
-{
+{TRACE_IT(20267);
     AssertMsg(s_inMemoryLogger == nullptr, "This cannot be called more than once.");
     s_inMemoryLogger = logger;
 }
@@ -493,7 +493,7 @@ Output::SetInMemoryLogger(Js::ILogger* logger)
 #ifdef STACK_BACK_TRACE
 void
 Output::SetStackTraceHelper(Js::IStackTraceHelper* helper)
-{
+{TRACE_IT(20268);
     AssertMsg(s_stackTraceHelper == nullptr, "This cannot be called more than once.");
     s_stackTraceHelper = helper;
 }
@@ -507,7 +507,7 @@ Output::SetStackTraceHelper(Js::IStackTraceHelper* helper)
 
 WORD
 Output::SetConsoleForeground(WORD color)
-{
+{TRACE_IT(20269);
     AutoCriticalSection autocs(&s_critsect);
 
     // xplat-todo: support console color
@@ -516,7 +516,7 @@ Output::SetConsoleForeground(WORD color)
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     if (hConsole && GetConsoleScreenBufferInfo(hConsole, &info))
-    {
+    {TRACE_IT(20270);
         Output::Flush();
         Output::s_color = color | (info.wAttributes & ~15);
         Output::s_hasColor = Output::s_color != info.wAttributes;
@@ -529,7 +529,7 @@ Output::SetConsoleForeground(WORD color)
 
 void
 Output::CaptureStart()
-{
+{TRACE_IT(20271);
     Assert(!s_capture);
     Output::Flush();
     s_capture = true;
@@ -537,7 +537,7 @@ Output::CaptureStart()
 
 char16 *
 Output::CaptureEnd()
-{
+{TRACE_IT(20272);
     Assert(s_capture);
     s_capture = false;
     bufferFreeSize = 0;

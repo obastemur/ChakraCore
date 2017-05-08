@@ -21,7 +21,7 @@ namespace TTD
         //Handle the replay of the result of an action for the the given action type and tag
         template <typename T, EventKind tag>
         void JsRTActionHandleResultForReplay(ThreadContextTTD* executeContext, const EventLogEntry* evt, Js::Var result)
-        {
+        {TRACE_IT(43526);
             TTDVar origResult = GetInlineEventDataAs<T, tag>(evt)->Result;
             PassVarToHostInReplay(executeContext, origResult, result);
         }
@@ -39,7 +39,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43527);
             const JsRTVarsArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -54,7 +54,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43528);
             JsRTVarsArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -78,7 +78,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithIntegralUnionArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43529);
             const JsRTVarsWithIntegralUnionArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithIntegralUnionArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -94,7 +94,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithIntegralUnionArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43530);
             JsRTVarsWithIntegralUnionArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithIntegralUnionArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -120,7 +120,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithBoolAndPIDArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43531);
             const JsRTVarsWithBoolAndPIDArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithBoolAndPIDArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -137,7 +137,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithBoolAndPIDArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43532);
             JsRTVarsWithBoolAndPIDArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithBoolAndPIDArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -161,7 +161,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTDoubleArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43533);
             const JsRTDoubleArgumentAction* dblAction = GetInlineEventDataAs<JsRTDoubleArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -172,7 +172,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTDoubleArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43534);
             JsRTDoubleArgumentAction* dblAction = GetInlineEventDataAs<JsRTDoubleArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -190,7 +190,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43535);
             JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             alloc.UnlinkString(strAction->StringValue);
@@ -198,7 +198,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43536);
             const JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -209,7 +209,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43537);
             JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -228,18 +228,18 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTByteBufferAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43538);
             JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             if(bufferAction->Buffer != nullptr)
-            {
+            {TRACE_IT(43539);
                 alloc.UnlinkAllocation(bufferAction->Buffer);
             }
         }
 
         template <EventKind tag>
         void JsRTByteBufferAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43540);
             const JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -251,9 +251,9 @@ namespace TTD
             writer->WriteLengthValue(bufferAction->Length, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             if(!badValue)
-            {
+            {TRACE_IT(43541);
                 for(uint32 i = 0; i < bufferAction->Length; ++i)
-                {
+                {TRACE_IT(43542);
                     writer->WriteNakedByte(bufferAction->Buffer[i], i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
                 }
             }
@@ -262,7 +262,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTByteBufferAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43543);
             JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -275,11 +275,11 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             if(!badValue)
-            {
+            {TRACE_IT(43544);
                 bufferAction->Buffer = (bufferAction->Length != 0) ? alloc.SlabAllocateArray<byte>(bufferAction->Length) : nullptr;
 
                 for(uint32 i = 0; i < bufferAction->Length; ++i)
-                {
+                {TRACE_IT(43545);
                     bufferAction->Buffer[i] = reader->ReadNakedByte(i != 0);
                 }
                 reader->ReadSequenceEnd();
@@ -344,7 +344,7 @@ namespace TTD
 
         template<EventKind errorKind>
         void CreateError_Execute(const EventLogEntry* evt, ThreadContextTTD* executeContext)
-        {
+        {TRACE_IT(43546);
             const JsRTVarsArgumentAction* action = GetInlineEventDataAs<JsRTVarsArgumentAction, errorKind>(evt);
 
             Js::Var res = nullptr;
@@ -422,18 +422,18 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43547);
             JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             if(bufferAction->Data != nullptr)
-            {
+            {TRACE_IT(43548);
                 alloc.UnlinkAllocation(bufferAction->Data);
             }
         }
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {TRACE_IT(43549);
             const JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -444,7 +444,7 @@ namespace TTD
             writer->WriteLengthValue(bufferAction->Length, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < bufferAction->Length; ++i)
-            {
+            {TRACE_IT(43550);
                 writer->WriteNakedByte(bufferAction->Data[i], i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
             }
             writer->WriteSequenceEnd();
@@ -452,7 +452,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {TRACE_IT(43551);
             JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -465,7 +465,7 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < bufferAction->Length; ++i)
-            {
+            {TRACE_IT(43552);
                 bufferAction->Data[i] = reader->ReadNakedByte(i != 0);
             }
             reader->ReadSequenceEnd();

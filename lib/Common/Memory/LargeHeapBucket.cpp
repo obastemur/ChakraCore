@@ -8,7 +8,7 @@
 // Initialization
 //=====================================================================================================
 LargeHeapBucket::~LargeHeapBucket()
-{
+{TRACE_IT(24544);
     Recycler* recycler = this->heapInfo->recycler;
     HeapInfo* autoHeap = this->heapInfo;
 
@@ -22,7 +22,7 @@ LargeHeapBucket::~LargeHeapBucket()
 
 void
 LargeHeapBucket::Initialize(HeapInfo * heapInfo, uint sizeCat, bool supportFreeList)
-{
+{TRACE_IT(24545);
     this->heapInfo = heapInfo;
     this->sizeCat = sizeCat;
 #ifdef RECYCLER_PAGE_HEAP
@@ -36,19 +36,19 @@ LargeHeapBucket::Initialize(HeapInfo * heapInfo, uint sizeCat, bool supportFreeL
 //=====================================================================================================
 char *
 LargeHeapBucket::TryAllocFromNewHeapBlock(Recycler * recycler, size_t sizeCat, size_t size, ObjectInfoBits attributes, bool nothrow)
-{
+{TRACE_IT(24546);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
 #ifdef RECYCLER_PAGE_HEAP
     if (IsPageHeapEnabled(attributes))
-    {
+    {TRACE_IT(24547);
         return this->PageHeapAlloc(recycler, sizeCat, size, attributes, this->heapInfo->pageHeapMode, true);
     }
 #endif
 
     LargeHeapBlock * heapBlock = AddLargeHeapBlock(sizeCat, nothrow);
     if (heapBlock == nullptr)
-    {
+    {TRACE_IT(24548);
         return nullptr;
     }
     char * memBlock = heapBlock->Alloc(sizeCat, attributes);
@@ -58,7 +58,7 @@ LargeHeapBucket::TryAllocFromNewHeapBlock(Recycler * recycler, size_t sizeCat, s
 
 char *
 LargeHeapBucket::SnailAlloc(Recycler * recycler, size_t sizeCat, size_t size, ObjectInfoBits attributes, bool nothrow)
-{
+{TRACE_IT(24549);
     char * memBlock;
 
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
@@ -72,10 +72,10 @@ LargeHeapBucket::SnailAlloc(Recycler * recycler, size_t sizeCat, size_t size, Ob
 #endif
 
     if (!collected)
-    {
+    {TRACE_IT(24550);
         memBlock = TryAllocFromNewHeapBlock(recycler, sizeCat, size, attributes, nothrow);
         if (memBlock != nullptr)
-        {
+        {TRACE_IT(24551);
             return memBlock;
         }
         // Can't even allocate a new block, we need force a collection and
@@ -86,18 +86,18 @@ LargeHeapBucket::SnailAlloc(Recycler * recycler, size_t sizeCat, size_t size, Ob
 
     memBlock = TryAlloc(recycler, sizeCat, attributes);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(24552);
         return memBlock;
     }
 
     memBlock = TryAllocFromNewHeapBlock(recycler, sizeCat, size, attributes, nothrow);
     if (memBlock != nullptr)
-    {
+    {TRACE_IT(24553);
         return memBlock;
     }
 
     if (nothrow == false)
-    {
+    {TRACE_IT(24554);
         // Can't add a heap block, we are out of memory
         // Since nothrow is false, we can throw right here
         recycler->OutOfMemory();
@@ -109,13 +109,13 @@ LargeHeapBucket::SnailAlloc(Recycler * recycler, size_t sizeCat, size_t size, Ob
 #ifdef RECYCLER_PAGE_HEAP
 char*
 LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size, ObjectInfoBits attributes, PageHeapMode mode, bool nothrow)
-{
+{TRACE_IT(24555);
     Segment * segment;
     size_t pageCount = LargeHeapBlock::GetPagesNeeded(size, false);
     if (pageCount == 0)
-    {
+    {TRACE_IT(24556);
         if (nothrow == false)
-        {
+        {TRACE_IT(24557);
             // overflow
             // Since nothrow is false here, it's okay to throw
             recycler->OutOfMemory();
@@ -125,7 +125,7 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
     }
 
     if(size<sizeof(void*))
-    {
+    {TRACE_IT(24558);
         attributes = (ObjectInfoBits)(attributes | LeafBit);
     }
 
@@ -134,7 +134,7 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
     auto pageAllocator = recycler->GetRecyclerLargeBlockPageAllocator();
     char * baseAddress = pageAllocator->Alloc(&actualPageCount, &segment);
     if (baseAddress == nullptr)
-    {
+    {TRACE_IT(24559);
         return nullptr;
     }
 
@@ -144,17 +144,17 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
     char* guardPageAddress = nullptr;
 
     if (heapInfo->pageHeapMode == PageHeapMode::PageHeapModeBlockStart)
-    {
+    {TRACE_IT(24560);
         address = baseAddress + AutoSystemInfo::PageSize * guardPageCount;
         guardPageAddress = baseAddress;
     }
     else if (heapInfo->pageHeapMode == PageHeapMode::PageHeapModeBlockEnd)
-    {
+    {TRACE_IT(24561);
         address = baseAddress;
         guardPageAddress = baseAddress + pageCount * AutoSystemInfo::PageSize;
     }
     else
-    {
+    {TRACE_IT(24562);
         AnalysisAssert(false);
     }
 
@@ -162,7 +162,7 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
 
     LargeHeapBlock * heapBlock = LargeHeapBlock::New(address, pageCount, segment, 1, this);
     if (!heapBlock)
-    {
+    {TRACE_IT(24563);
         pageAllocator->SuspendIdleDecommit();
         pageAllocator->Release(baseAddress, actualPageCount, segment);
         pageAllocator->ResumeIdleDecommit();
@@ -183,7 +183,7 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
     heapBlock->pageHeapMode = heapInfo->pageHeapMode;
 
     if (!recycler->heapBlockMap.SetHeapBlock(address, pageCount, heapBlock, HeapBlock::HeapBlockType::LargeBlockType, 0))
-    {
+    {TRACE_IT(24564);
         pageAllocator->SuspendIdleDecommit();
         heapBlock->ReleasePages(recycler);
         pageAllocator->ResumeIdleDecommit();
@@ -208,7 +208,7 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
 
 
     if (recycler->ShouldCapturePageHeapAllocStack())
-    {
+    {TRACE_IT(24565);
 #ifdef STACK_BACK_TRACE
         heapBlock->CapturePageHeapAllocStack();
 #endif
@@ -220,14 +220,14 @@ LargeHeapBucket::PageHeapAlloc(Recycler * recycler, size_t sizeCat, size_t size,
 
 LargeHeapBlock*
 LargeHeapBucket::AddLargeHeapBlock(size_t size, bool nothrow)
-{
+{TRACE_IT(24566);
     Recycler* recycler = this->heapInfo->recycler;
     Segment * segment;
     size_t pageCount = LargeHeapBlock::GetPagesNeeded(size, this->supportFreeList);
     if (pageCount == 0)
-    {
+    {TRACE_IT(24567);
         if (nothrow == false)
-        {
+        {TRACE_IT(24568);
             // overflow
             // Since nothrow is false here, it's okay to throw
             recycler->OutOfMemory();
@@ -243,7 +243,7 @@ LargeHeapBucket::AddLargeHeapBlock(size_t size, bool nothrow)
     pageCount = realPageCount;
 
     if (address == nullptr)
-    {
+    {TRACE_IT(24569);
         return nullptr;
     }
 #ifdef RECYCLER_ZERO_MEM_CHECK
@@ -258,13 +258,13 @@ LargeHeapBucket::AddLargeHeapBlock(size_t size, bool nothrow)
 #ifdef ENABLE_JS_ETW
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     if (segment->GetPageCount() > recycler->GetRecyclerLargeBlockPageAllocator()->GetMaxAllocPageCount())
-    {
+    {TRACE_IT(24570);
         JS_ETW_INTERNAL(EventWriteJSCRIPT_INTERNAL_RECYCLER_EXTRALARGE_OBJECT_ALLOC(size));
     }
 #endif
 #endif
     if (!heapBlock)
-    {
+    {TRACE_IT(24571);
         recycler->GetRecyclerLargeBlockPageAllocator()->SuspendIdleDecommit();
         recycler->GetRecyclerLargeBlockPageAllocator()->Release(address, pageCount, segment);
         recycler->GetRecyclerLargeBlockPageAllocator()->ResumeIdleDecommit();
@@ -283,7 +283,7 @@ LargeHeapBucket::AddLargeHeapBlock(size_t size, bool nothrow)
     Assert(recycler->collectionState != CollectionStateMark);
 
     if (!recycler->heapBlockMap.SetHeapBlock(address, pageCount, heapBlock, HeapBlock::HeapBlockType::LargeBlockType, 0))
-    {
+    {TRACE_IT(24572);
         recycler->GetRecyclerLargeBlockPageAllocator()->SuspendIdleDecommit();
         heapBlock->ReleasePages(recycler);
         recycler->GetRecyclerLargeBlockPageAllocator()->ResumeIdleDecommit();
@@ -301,24 +301,24 @@ LargeHeapBucket::AddLargeHeapBlock(size_t size, bool nothrow)
 
 char *
 LargeHeapBucket::TryAllocFromFreeList(Recycler * recycler, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(24573);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     LargeHeapBlockFreeList* freeListEntry = this->freeList;
 
     // Walk through the free list, find the first entry that can fit our desired size
     while (freeListEntry)
-    {
+    {TRACE_IT(24574);
         LargeHeapBlock* heapBlock = freeListEntry->heapBlock;
 
         char * memBlock = heapBlock->TryAllocFromFreeList(sizeCat, attributes);
         if (memBlock)
-        {
+        {TRACE_IT(24575);
             // Don't need to verify zero fill here since we will do it in LargeHeapBucket::Alloc
             return memBlock;
         }
         else
-        {
+        {TRACE_IT(24576);
 #if DBG
             LargeAllocationVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("Unable to allocate object of size 0x%x from freelist\n"), sizeCat);
 #endif
@@ -331,19 +331,19 @@ LargeHeapBucket::TryAllocFromFreeList(Recycler * recycler, size_t sizeCat, Objec
 
 char *
 LargeHeapBucket::TryAllocFromExplicitFreeList(Recycler * recycler, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(24577);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     FreeObject * currFreeObject = this->explicitFreeList;
     FreeObject * prevFreeObject = nullptr;
     while (currFreeObject != nullptr)
-    {
+    {TRACE_IT(24578);
         char * memBlock = (char *)currFreeObject;
         LargeObjectHeader * header = LargeHeapBlock::GetHeaderFromAddress(memBlock);
         Assert(header->isExplicitFreed);
         Assert(HeapInfo::GetMediumObjectAlignedSizeNoCheck(header->objectSize) == this->sizeCat);
         if (header->objectSize < sizeCat)
-        {
+        {TRACE_IT(24579);
             prevFreeObject = currFreeObject;
             currFreeObject = currFreeObject->GetNext();
             continue;
@@ -351,11 +351,11 @@ LargeHeapBucket::TryAllocFromExplicitFreeList(Recycler * recycler, size_t sizeCa
 
         DebugOnly(header->isExplicitFreed = false);
         if (prevFreeObject)
-        {
+        {TRACE_IT(24580);
             prevFreeObject->SetNext(currFreeObject->GetNext());
         }
         else
-        {
+        {TRACE_IT(24581);
             this->explicitFreeList = currFreeObject->GetNext();
         }
 
@@ -378,7 +378,7 @@ LargeHeapBucket::TryAllocFromExplicitFreeList(Recycler * recycler, size_t sizeCa
         header->SetAttributes(recycler->Cookie, (attributes & StoredObjectInfoBitMask));
 
         if ((attributes & ObjectInfoBits::FinalizeBit) != 0)
-        {
+        {TRACE_IT(24582);
             LargeHeapBlock* heapBlock = (LargeHeapBlock *)recycler->FindHeapBlock(memBlock);
             heapBlock->finalizeCount++;
 #ifdef RECYCLER_FINALIZE_CHECK
@@ -396,7 +396,7 @@ LargeHeapBucket::TryAllocFromExplicitFreeList(Recycler * recycler, size_t sizeCa
 //=====================================================================================================
 void
 LargeHeapBucket::ExplicitFree(void * object, size_t sizeCat)
-{
+{TRACE_IT(24583);
     Assert(HeapInfo::GetMediumObjectAlignedSizeNoCheck(sizeCat) == this->sizeCat);
     LargeObjectHeader * header = LargeHeapBlock::GetHeaderFromAddress(object);
     Assert(header->GetAttributes(this->heapInfo->recycler->Cookie) == ObjectInfoBits::NoBit || header->GetAttributes(this->heapInfo->recycler->Cookie) == ObjectInfoBits::LeafBit);
@@ -428,7 +428,7 @@ LargeHeapBucket::ExplicitFree(void * object, size_t sizeCat)
 //=====================================================================================================
 void
 LargeHeapBucket::ResetMarks(ResetMarkFlags flags)
-{
+{TRACE_IT(24584);
     Recycler* recycler = this->heapInfo->recycler;
 
     HeapBlockList::ForEach(largeBlockList, [flags, recycler](LargeHeapBlock * heapBlock)
@@ -456,7 +456,7 @@ LargeHeapBucket::ResetMarks(ResetMarkFlags flags)
 
 void
 LargeHeapBucket::ScanInitialImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24585);
     HeapBlockList::ForEach(largeBlockList, [recycler](LargeHeapBlock * heapBlock)
     {
         heapBlock->ScanInitialImplicitRoots(recycler);
@@ -482,7 +482,7 @@ LargeHeapBucket::ScanInitialImplicitRoots(Recycler * recycler)
 
 void
 LargeHeapBucket::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24586);
     HeapBlockList::ForEach(largeBlockList, [recycler](LargeHeapBlock * heapBlock)
     {
         heapBlock->ScanNewImplicitRoots(recycler);
@@ -513,7 +513,7 @@ LargeHeapBucket::ScanNewImplicitRoots(Recycler * recycler)
 
 void
 LargeHeapBucket::Sweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24587);
 #if ENABLE_CONCURRENT_GC
     // CONCURRENT-TODO: large buckets are not swept in the background currently.
     Assert(!recyclerSweep.GetRecycler()->IsConcurrentExecutingState());
@@ -534,7 +534,7 @@ LargeHeapBucket::Sweep(RecyclerSweep& recyclerSweep)
     // Clear the free list before sweep
     // We'll reconstruct the free list during sweep
     if (this->supportFreeList)
-    {
+    {TRACE_IT(24588);
 #if DBG
         LargeAllocationVerboseTrace(recyclerSweep.GetRecycler()->GetRecyclerFlagsTable(), _u("Resetting free list for 0x%x bucket\n"), this->sizeCat);
 #endif
@@ -555,7 +555,7 @@ LargeHeapBucket::Sweep(RecyclerSweep& recyclerSweep)
 
 void
 LargeHeapBucket::SweepLargeHeapBlockList(RecyclerSweep& recyclerSweep, LargeHeapBlock * heapBlockList)
-{
+{TRACE_IT(24589);
     Recycler * recycler = recyclerSweep.GetRecycler();
     HeapBlockList::ForEachEditing(heapBlockList, [this, &recyclerSweep, recycler](LargeHeapBlock * heapBlock)
     {
@@ -580,11 +580,11 @@ LargeHeapBucket::SweepLargeHeapBlockList(RecyclerSweep& recyclerSweep, LargeHeap
             break;
         case SweepStateSwept:
             if (supportFreeList)
-            {
+            {TRACE_IT(24590);
                 ConstructFreelist(heapBlock);
             }
             else
-            {
+            {TRACE_IT(24591);
                 ReinsertLargeHeapBlock(heapBlock);
             }
 
@@ -612,19 +612,19 @@ LargeHeapBucket::SweepLargeHeapBlockList(RecyclerSweep& recyclerSweep, LargeHeap
 
 void
 LargeHeapBucket::ReinsertLargeHeapBlock(LargeHeapBlock * heapBlock)
-{
+{TRACE_IT(24592);
     Assert(!heapBlock->hasPartialFreeObjects);
     Assert(!heapBlock->IsInPendingDisposeList());
 
     if (this->largeBlockList != nullptr && heapBlock->GetFreeSize() > this->largeBlockList->GetFreeSize())
-    {
+    {TRACE_IT(24593);
         heapBlock->SetNextBlock(this->largeBlockList->GetNextBlock());
         this->largeBlockList->SetNextBlock(this->fullLargeBlockList);
         this->fullLargeBlockList = this->largeBlockList;
         this->largeBlockList = heapBlock;
     }
     else
-    {
+    {TRACE_IT(24594);
         heapBlock->SetNextBlock(this->fullLargeBlockList);
         this->fullLargeBlockList = heapBlock;
     }
@@ -632,14 +632,14 @@ LargeHeapBucket::ReinsertLargeHeapBlock(LargeHeapBlock * heapBlock)
 
 void
 LargeHeapBucket::RegisterFreeList(LargeHeapBlockFreeList* freeList)
-{
+{TRACE_IT(24595);
     Assert(freeList->next == nullptr);
     Assert(freeList->previous == nullptr);
 
     LargeHeapBlockFreeList* head = this->freeList;
 
     if (head)
-    {
+    {TRACE_IT(24596);
         head->previous = freeList;
     }
 
@@ -649,17 +649,17 @@ LargeHeapBucket::RegisterFreeList(LargeHeapBlockFreeList* freeList)
 
 void
 LargeHeapBucket::UnregisterFreeList(LargeHeapBlockFreeList* freeList)
-{
+{TRACE_IT(24597);
     LargeHeapBlockFreeList* next = freeList->next;
     LargeHeapBlockFreeList* previous = freeList->previous;
 
     if (previous)
-    {
+    {TRACE_IT(24598);
         previous->next = next;
     }
 
     if (next)
-    {
+    {TRACE_IT(24599);
         next->previous = previous;
     }
 
@@ -667,14 +667,14 @@ LargeHeapBucket::UnregisterFreeList(LargeHeapBlockFreeList* freeList)
     freeList->previous = nullptr;
 
     if (freeList == this->freeList)
-    {
+    {TRACE_IT(24600);
         this->freeList = next;
     }
 }
 
 void
 LargeHeapBucket::ConstructFreelist(LargeHeapBlock * heapBlock)
-{
+{TRACE_IT(24601);
     Assert(!heapBlock->hasPartialFreeObjects);
     Assert(!heapBlock->IsInPendingDisposeList());
 
@@ -685,7 +685,7 @@ LargeHeapBucket::ConstructFreelist(LargeHeapBlock * heapBlock)
     Assert(freeList);
 
     if (freeList->entries)
-    {
+    {TRACE_IT(24602);
         this->RegisterFreeList(freeList);
 
 #if DBG
@@ -700,7 +700,7 @@ LargeHeapBucket::ConstructFreelist(LargeHeapBlock * heapBlock)
 
 size_t
 LargeHeapBucket::Rescan(LargeHeapBlock * list, Recycler * recycler, bool isPartialSwept, RescanFlags flags)
-{
+{TRACE_IT(24603);
     size_t scannedPageCount = 0;
     HeapBlockList::ForEach(list, [recycler, isPartialSwept, flags, &scannedPageCount](LargeHeapBlock * heapBlock)
     {
@@ -711,7 +711,7 @@ LargeHeapBucket::Rescan(LargeHeapBlock * list, Recycler * recycler, bool isParti
 
 size_t
 LargeHeapBucket::Rescan(RescanFlags flags)
-{
+{TRACE_IT(24604);
 #if ENABLE_CONCURRENT_GC
     Assert(pendingSweepLargeBlockList == nullptr);
 #endif
@@ -729,7 +729,7 @@ LargeHeapBucket::Rescan(RescanFlags flags)
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
     Assert(recycler->inPartialCollectMode || partialSweptLargeBlockList == nullptr);
     if (recycler->inPartialCollectMode)
-    {
+    {TRACE_IT(24605);
         scannedPageCount += LargeHeapBucket::Rescan(partialSweptLargeBlockList, recycler, true, flags);
     }
 #endif
@@ -739,14 +739,14 @@ LargeHeapBucket::Rescan(RescanFlags flags)
 #if ENABLE_PARTIAL_GC || ENABLE_CONCURRENT_GC
 void
 LargeHeapBucket::SweepPendingObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24606);
 #if ENABLE_CONCURRENT_GC
     if (recyclerSweep.IsBackground())
-    {
+    {TRACE_IT(24607);
         Recycler * recycler = recyclerSweep.GetRecycler();
 #if ENABLE_PARTIAL_GC
         if (recycler->inPartialCollectMode)
-        {
+        {TRACE_IT(24608);
             HeapBlockList::ForEach(this->pendingSweepLargeBlockList, [recycler](LargeHeapBlock * heapBlock)
             {
                 // Page heap blocks are never swept concurrently
@@ -755,7 +755,7 @@ LargeHeapBucket::SweepPendingObjects(RecyclerSweep& recyclerSweep)
         }
         else
 #endif
-        {
+        {TRACE_IT(24609);
             HeapBlockList::ForEach(this->pendingSweepLargeBlockList, [recycler](LargeHeapBlock * heapBlock)
             {
                 // Page heap blocks are never swept concurrently
@@ -764,7 +764,7 @@ LargeHeapBucket::SweepPendingObjects(RecyclerSweep& recyclerSweep)
         }
     }
     else
-    {
+    {TRACE_IT(24610);
         Assert(this->pendingSweepLargeBlockList == nullptr);
     }
 #endif
@@ -774,7 +774,7 @@ LargeHeapBucket::SweepPendingObjects(RecyclerSweep& recyclerSweep)
 #if ENABLE_CONCURRENT_GC
 void
 LargeHeapBucket::ConcurrentPartialTransferSweptObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24611);
     Assert(recyclerSweep.InPartialCollectMode());
     Assert(!recyclerSweep.IsBackground());
 
@@ -796,12 +796,12 @@ LargeHeapBucket::ConcurrentPartialTransferSweptObjects(RecyclerSweep& recyclerSw
 
 void
 LargeHeapBucket::FinishPartialCollect(RecyclerSweep * recyclerSweep)
-{
+{TRACE_IT(24612);
 #if ENABLE_CONCURRENT_GC
     Recycler* recycler = this->heapInfo->recycler;
 
     if (recyclerSweep && recyclerSweep->IsBackground())
-    {
+    {TRACE_IT(24613);
         // Leave it in the partialSweptLargeBlockList if we are processing it in the background
         // ConcurrentTransferSweptObjects will put it back.
         HeapBlockList::ForEachEditing(partialSweptLargeBlockList, [this, recycler](LargeHeapBlock * heapBlock)
@@ -810,7 +810,7 @@ LargeHeapBucket::FinishPartialCollect(RecyclerSweep * recyclerSweep)
         });
     }
     else
-    {
+    {TRACE_IT(24614);
         HeapBlockList::ForEachEditing(partialSweptLargeBlockList, [this, recycler](LargeHeapBlock * heapBlock)
         {
             heapBlock->FinishPartialCollect(recycler);
@@ -825,7 +825,7 @@ LargeHeapBucket::FinishPartialCollect(RecyclerSweep * recyclerSweep)
 #if ENABLE_CONCURRENT_GC
 void
 LargeHeapBucket::ConcurrentTransferSweptObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24615);
 #if ENABLE_PARTIAL_GC
     Assert(!recyclerSweep.InPartialCollectMode());
 #endif
@@ -855,14 +855,14 @@ LargeHeapBucket::ConcurrentTransferSweptObjects(RecyclerSweep& recyclerSweep)
 
 void
 LargeHeapBucket::FinalizeAllObjects()
-{
+{TRACE_IT(24616);
     ForEachLargeHeapBlock([](LargeHeapBlock * heapBlock) { heapBlock->FinalizeAllObjects(); });
 }
 
 
 void
 LargeHeapBucket::Finalize(Recycler * recycler, LargeHeapBlock * heapBlockList)
-{
+{TRACE_IT(24617);
     HeapBlockList::ForEachEditing(heapBlockList, [recycler](LargeHeapBlock * heapBlock)
     {
         heapBlock->FinalizeObjects(recycler);
@@ -871,7 +871,7 @@ LargeHeapBucket::Finalize(Recycler * recycler, LargeHeapBlock * heapBlockList)
 
 void
 LargeHeapBucket::Finalize()
-{
+{TRACE_IT(24618);
     Recycler* recycler = this->heapInfo->recycler;
 
     // Finalize any free objects in the non-filled large heap blocks
@@ -895,7 +895,7 @@ LargeHeapBucket::Finalize()
 
 void
 LargeHeapBucket::DisposeObjects()
-{
+{TRACE_IT(24619);
     Recycler * recycler = this->heapInfo->recycler;
     HeapBlockList::ForEach(this->pendingDisposeLargeBlockList, [recycler](LargeHeapBlock * heapBlock)
     {
@@ -905,7 +905,7 @@ LargeHeapBucket::DisposeObjects()
 
 void
 LargeHeapBucket::TransferDisposedObjects()
-{
+{TRACE_IT(24620);
 #if ENABLE_CONCURRENT_GC
     Recycler * recycler = this->heapInfo->recycler;
     Assert(!recycler->IsConcurrentExecutingState());
@@ -923,7 +923,7 @@ LargeHeapBucket::TransferDisposedObjects()
 
 void
 LargeHeapBucket::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24621);
     HeapBucket::EnumerateObjects(largeBlockList, infoBits, CallBackFunction);
 #ifdef RECYCLER_PAGE_HEAP
     HeapBucket::EnumerateObjects(largePageHeapBlockList, infoBits, CallBackFunction);
@@ -947,7 +947,7 @@ LargeHeapBucket::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFuncti
 
 size_t
 LargeHeapBucket::GetLargeHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(24622);
     size_t currentLargeHeapBlockCount = HeapBlockList::Count(fullLargeBlockList);
     currentLargeHeapBlockCount += HeapBlockList::Count(largeBlockList);
 #ifdef RECYCLER_PAGE_HEAP
@@ -968,7 +968,7 @@ LargeHeapBucket::GetLargeHeapBlockCount(bool checkCount) const
 #ifdef RECYCLER_SLOW_CHECK_ENABLED
 size_t
 LargeHeapBucket::Check()
-{
+{TRACE_IT(24623);
     size_t currentLargeHeapBlockCount = Check(false, false, largeBlockList);
 #ifdef RECYCLER_PAGE_HEAP
     currentLargeHeapBlockCount += Check(true, false, largePageHeapBlockList);
@@ -988,7 +988,7 @@ LargeHeapBucket::Check()
 template <typename TBlockType>
 size_t
 LargeHeapBucket::Check(bool expectFull, bool expectPending, TBlockType * list, TBlockType * tail)
-{
+{TRACE_IT(24624);
     size_t heapBlockCount = 0;
     HeapBlockList::ForEach(list, tail, [&heapBlockCount, expectFull, expectPending](TBlockType * heapBlock)
     {
@@ -1002,7 +1002,7 @@ template size_t LargeHeapBucket::Check<LargeHeapBlock>(bool expectFull, bool exp
 
 void
 LargeHeapBucket::VerifyLargeHeapBlockCount()
-{
+{TRACE_IT(24625);
     GetLargeHeapBlockCount(true);
 }
 #endif
@@ -1010,7 +1010,7 @@ LargeHeapBucket::VerifyLargeHeapBlockCount()
 #ifdef RECYCLER_MEMORY_VERIFY
 void
 LargeHeapBucket::Verify()
-{
+{TRACE_IT(24626);
     Recycler * recycler = this->heapInfo->recycler;
     HeapBlockList::ForEach(largeBlockList, [recycler](LargeHeapBlock * largeHeapBlock)
     {
@@ -1036,7 +1036,7 @@ LargeHeapBucket::Verify()
 #ifdef RECYCLER_VERIFY_MARK
 void
 LargeHeapBucket::VerifyMark()
-{
+{TRACE_IT(24627);
     HeapBlockList::ForEach(largeBlockList, [](LargeHeapBlock * largeHeapBlock)
     {
         largeHeapBlock->VerifyMark();

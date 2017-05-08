@@ -189,7 +189,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<objectAttributes, TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26918);
             CompileAssert(objectAttributes & FinalizeBit);
             return heapBucketGroup->finalizableHeapBucket;
         }
@@ -201,7 +201,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<LeafBit, TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {            
+        {TRACE_IT(26919);            
             return heapBucketGroup->leafHeapBucket;
         }
     };
@@ -212,7 +212,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<NoBit, TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26920);
             return heapBucketGroup->heapBucket;
         }
     };
@@ -223,7 +223,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<(ObjectInfoBits)(FinalizeBit | LeafBit), TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26921);
             // TODO: SWB implemente finalizable leaf bucket
             return heapBucketGroup->finalizableHeapBucket;
         }
@@ -236,7 +236,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<WithBarrierBit, TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26922);
             return heapBucketGroup->smallNormalWithBarrierHeapBucket;
         }
     };
@@ -247,7 +247,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<(ObjectInfoBits)(WithBarrierBit | LeafBit), TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26923);
             // WithBarrierBit | LeafBit combination should not exist, this is only for compilation purpose
             Assert(false);
             return heapBucketGroup->leafHeapBucket;
@@ -260,7 +260,7 @@ class HeapBucketGroup
     public:
         typedef typename SmallHeapBlockType<FinalizableWithBarrierBit, TBlockAttributes>::BucketType BucketType;
         static BucketType& GetBucket(HeapBucketGroup<TBlockAttributes> * heapBucketGroup)
-        {
+        {TRACE_IT(26924);
             return heapBucketGroup->smallFinalizableWithBarrierHeapBucket;
         }
     };
@@ -269,7 +269,7 @@ public:
 
     template <ObjectInfoBits objectAttributes>
     typename SmallHeapBlockType<objectAttributes, TBlockAttributes>::BucketType& GetBucket()
-    {
+    {TRACE_IT(26925);
         return BucketGetter<objectAttributes>::GetBucket(this);
     }
 
@@ -297,7 +297,7 @@ public:
     void TransferDisposedObjects();
     void EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size));
     void FinalizeAllObjects();
-    static unsigned int GetHeapBucketOffset() { return offsetof(HeapBucketGroup<TBlockAttributes>, heapBucket); }
+    static unsigned int GetHeapBucketOffset() {TRACE_IT(26926); return offsetof(HeapBucketGroup<TBlockAttributes>, heapBucket); }
 
 #if DBG || defined(RECYCLER_SLOW_CHECK_ENABLED)
     size_t GetNonEmptyHeapBlockCount(bool checkCount) const;

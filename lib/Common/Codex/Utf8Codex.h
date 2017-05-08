@@ -68,13 +68,13 @@ extern "C++" {
 
 #define DEFINE_ENUM_FLAG_OPERATORS(ENUMTYPE) \
 extern "C++" { \
-inline ENUMTYPE operator | (ENUMTYPE a, ENUMTYPE b) { return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) | ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
-inline ENUMTYPE &operator |= (ENUMTYPE &a, ENUMTYPE b) { return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) |= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
-inline ENUMTYPE operator & (ENUMTYPE a, ENUMTYPE b) { return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) & ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
-inline ENUMTYPE &operator &= (ENUMTYPE &a, ENUMTYPE b) { return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) &= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
-inline ENUMTYPE operator ~ (ENUMTYPE a) { return ENUMTYPE(~((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a)); } \
-inline ENUMTYPE operator ^ (ENUMTYPE a, ENUMTYPE b) { return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) ^ ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
-inline ENUMTYPE &operator ^= (ENUMTYPE &a, ENUMTYPE b) { return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) ^= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE operator | (ENUMTYPE a, ENUMTYPE b) {TRACE_IT(18735); return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) | ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE &operator |= (ENUMTYPE &a, ENUMTYPE b) {TRACE_IT(18736); return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) |= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE operator & (ENUMTYPE a, ENUMTYPE b) {TRACE_IT(18737); return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) & ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE &operator &= (ENUMTYPE &a, ENUMTYPE b) {TRACE_IT(18738); return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) &= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE operator ~ (ENUMTYPE a) {TRACE_IT(18739); return ENUMTYPE(~((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a)); } \
+inline ENUMTYPE operator ^ (ENUMTYPE a, ENUMTYPE b) {TRACE_IT(18740); return ENUMTYPE(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)a) ^ ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
+inline ENUMTYPE &operator ^= (ENUMTYPE &a, ENUMTYPE b) {TRACE_IT(18741); return (ENUMTYPE &)(((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type &)a) ^= ((_ENUM_FLAG_SIZED_INTEGER<ENUMTYPE>::type)b)); } \
 }
 
 #endif
@@ -118,7 +118,7 @@ namespace utf8
 
     // Return the number of bytes needed to encode the given character (ignoring surrogate pairs)
     inline size_t EncodedSize(char16 ch)
-    {
+    {TRACE_IT(18742);
         if (ch < 0x0080) return 1;
         if (ch < 0x0800) return 2;
         return 3;
@@ -151,7 +151,7 @@ namespace utf8
     // expects trail bytes past end then 0xFFFD are emitted until ptr == end.
     _At_(ptr, _In_reads_(end - ptr) _Post_satisfies_(ptr >= _Old_(ptr) && ptr <= end))
     inline char16 Decode(LPCUTF8& ptr, LPCUTF8 end, DecodeOptions& options)
-    {
+    {TRACE_IT(18743);
         if (ptr >= end) return 0;
         utf8char_t c1 = *ptr++;
         if (c1 < 0x80) return static_cast<char16>(c1);
@@ -169,9 +169,9 @@ namespace utf8
     // Encode ch into a UTF8 sequence ignoring surrogate pairs (which are encoded as two
     // separate code points).
     inline LPUTF8 Encode(char16 ch, __out_ecount(3) LPUTF8 ptr)
-    {
+    {TRACE_IT(18744);
         if (ch < 0x80)
-        {
+        {TRACE_IT(18745);
             *ptr = static_cast<utf8char_t>(ch);
             return ptr + 1;
         }
@@ -180,21 +180,21 @@ namespace utf8
 
     // Encode ch into a UTF8 sequence while being aware of surrogate pairs.
     inline LPUTF8 EncodeTrueUtf8(char16 ch, const char16** source, charcount_t* cch, __out_ecount((*cch + 1) * 3) LPUTF8 ptr)
-    {
+    {TRACE_IT(18746);
         if (ch < 0x80)
-        {
+        {TRACE_IT(18747);
             *ptr = static_cast<utf8char_t>(ch);
             return ptr + 1;
         }
         else if (ch < 0xD800 || (ch >= 0xE000 && ch <= 0xFFFF))
-        {
+        {TRACE_IT(18748);
             return EncodeFull(ch, ptr);
         }
 
         // We're now decoding a surrogate pair. If the input is malformed (eg. low surrogate is absent)
         // we'll instead encode the unicode replacement character as utf8
         if (*cch > 0)
-        {
+        {TRACE_IT(18749);
             char16 surrogateHigh = ch;
             char16 surrogateLow = **source;
 
@@ -202,7 +202,7 @@ namespace utf8
             // ranges for high and low surrogates
             if ((surrogateHigh >= 0xD800 && surrogateHigh <= 0xDBFF) &&
                 (surrogateLow >= 0xDC00 && surrogateLow <= 0xDFFF))
-            {
+            {TRACE_IT(18750);
                 LPUTF8 retptr = EncodeSurrogatePair(surrogateHigh, surrogateLow, ptr);
 
                 // SAL analysis gets confused if we call EncodeSurrogatePair after
@@ -225,25 +225,25 @@ namespace utf8
 
     // Return true if ch is a lead byte of a UTF8 multi-unit sequence.
     inline bool IsLeadByte(utf8char_t ch)
-    {
+    {TRACE_IT(18751);
         return ch >= 0xC0;
     }
 
     // Return true if ch is a byte that starts a well-formed UTF8 sequence (i.e. is an ASCII character or a valid UTF8 lead byte)
     inline bool IsStartByte(utf8char_t ch)
-    {
+    {TRACE_IT(18752);
         return ch < 0x80 || ch >= 0xC0;
     }
 
     // Returns true if ch is a UTF8 multi-unit sequence trail byte.
     inline bool IsTrailByte(utf8char_t ch)
-    {
+    {TRACE_IT(18753);
         return (ch & 0xC0) == 0x80;
     }
 
     // Returns true if ptr points to a well-formed UTF8
     inline bool IsCharStart(LPCUTF8 ptr)
-    {
+    {TRACE_IT(18754);
         return IsStartByte(*ptr);
     }
 
@@ -253,7 +253,7 @@ namespace utf8
 
     // Return the start of the next well-formed UTF-8 sequence.
     inline LPCUTF8 NextChar(LPCUTF8 ptr)
-    {
+    {TRACE_IT(18755);
         if (*ptr < 0x80) return ptr + 1;
         return NextCharFull(ptr);
     }
@@ -267,7 +267,7 @@ namespace utf8
     // Return the start of the previous well-formed UTF-8 sequence prior to start or start if
     // if ptr is already start or no well-formed sequence starts a start.
     inline LPCUTF8 PrevChar(LPCUTF8 ptr, LPCUTF8 start)
-    {
+    {TRACE_IT(18756);
         if (ptr > start && *(ptr - 1) < 0x80) return ptr - 1;
         return PrevCharFull(ptr, start);
     }

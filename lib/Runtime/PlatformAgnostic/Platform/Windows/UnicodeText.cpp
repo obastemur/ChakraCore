@@ -77,13 +77,13 @@ namespace PlatformAgnostic
         };
 
         static BOOL doBinSearch(OLECHAR ch, const oldCharTypesRangeStruct *pRanges, int cSize)
-        {
+        {TRACE_IT(65188);
             int lo = 0;
             int hi = cSize;
             int mid;
 
             while (lo != hi)
-            {
+            {TRACE_IT(65189);
                 mid = lo + (hi - lo) / 2;
                 if (pRanges[mid].chStart <= ch && ch <= pRanges[mid].chFinish)
                     return true;
@@ -96,7 +96,7 @@ namespace PlatformAgnostic
         }
 
         static WORD oFindOldCharType(OLECHAR ch)
-        {
+        {TRACE_IT(65190);
             if ((OLECHAR)65279 == ch)
                 return C1_SPACE;
 
@@ -112,7 +112,7 @@ namespace PlatformAgnostic
         // Helper wrapper methods
         template <typename TRet, typename Fn>
         static TRet ExecuteWithThreadContext(Fn fn, TRet defaultValue)
-        {
+        {TRACE_IT(65191);
             // TODO: We should remove the depedency on ThreadContext for this layer
             // Currently, this exists since Windows.Globalization.dll is delay loaded and the
             // handle is stored on the thread context. We should move the management of the
@@ -122,7 +122,7 @@ namespace PlatformAgnostic
             AssertMsg(threadContext, "Method should not be called after thread context is freed");
 
             if (threadContext != nullptr)
-            {
+            {TRACE_IT(65192);
                 return fn(threadContext);
             }
 
@@ -131,7 +131,7 @@ namespace PlatformAgnostic
 
         template <typename Fn, typename TDefaultValue>
         static TDefaultValue ExecuteWinGlobApi(Fn fn, TDefaultValue defaultValue)
-        {
+        {TRACE_IT(65193);
             return ExecuteWithThreadContext([&](ThreadContext* threadContext)
             {
                 Js::WindowsGlobalizationAdapter* globalizationAdapter = threadContext->GetWindowsGlobalizationAdapter();
@@ -139,7 +139,7 @@ namespace PlatformAgnostic
                 IUnicodeCharactersStatics* pCharStatics = globalizationAdapter->GetUnicodeStatics();
                 Assert(pCharStatics != nullptr);
                 if (pCharStatics)
-                {
+                {TRACE_IT(65194);
                     return fn(pCharStatics);
                 }
 
@@ -150,7 +150,7 @@ namespace PlatformAgnostic
 
         template <typename Fn>
         static bool ExecuteWinGlobCodepointCheckApi(codepoint_t codepoint, Fn fn)
-        {
+        {TRACE_IT(65195);
             return ExecuteWinGlobApi([&](IUnicodeCharactersStatics* pUnicodeCharStatics) {
                 boolean returnValue = false;
                 HRESULT hr = (pUnicodeCharStatics->*fn)(codepoint, &returnValue);
@@ -161,7 +161,7 @@ namespace PlatformAgnostic
 
         // Helper Win32 conversion utilities
         static NORM_FORM TranslateToWin32NormForm(NormalizationForm normalizationForm)
-        {
+        {TRACE_IT(65196);
             // NormalizationForm is equivalent to NORM_FORM
             // The following statements assert this
             CompileAssert(NormalizationForm::C == NORM_FORM::NormalizationC);
@@ -182,7 +182,7 @@ namespace PlatformAgnostic
         }
 
         static ApiError TranslateWin32Error(DWORD win32Error)
-        {
+        {TRACE_IT(65197);
             switch (win32Error)
             {
                 case ERROR_INSUFFICIENT_BUFFER:
@@ -199,7 +199,7 @@ namespace PlatformAgnostic
         }
 
         int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65198);
             // Assert pointers
             Assert(sourceString != nullptr);
             Assert(destString != nullptr || destLength == 0);
@@ -218,13 +218,13 @@ namespace PlatformAgnostic
             int normalizedStringLength = ::NormalizeString(TranslateToWin32NormForm(normalizationForm), (LPCWSTR)sourceString, sourceLength, (LPWSTR)destString, destLength);
 
             if (destLength == 0 && normalizedStringLength >= 0)
-            {
+            {TRACE_IT(65199);
                 *pErrorOut = ApiError::InsufficientBuffer;
                 return normalizedStringLength;
             }
 
             if (normalizedStringLength <= 0)
-            {
+            {TRACE_IT(65200);
                 DWORD win32Error = ::GetLastError();
                 *pErrorOut = TranslateWin32Error(win32Error);
             }
@@ -233,14 +233,14 @@ namespace PlatformAgnostic
         }
 
         bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength)
-        {
+        {TRACE_IT(65201);
             Assert(testString != nullptr);
 
             return (::IsNormalizedString(TranslateToWin32NormForm(normalizationForm), (LPCWSTR)testString, testStringLength) == TRUE);
         }
 
         int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
-        {
+        {TRACE_IT(65202);
             // Assert pointers
             Assert(sourceString != nullptr);
             Assert(destString != nullptr || destLength == 0);
@@ -258,7 +258,7 @@ namespace PlatformAgnostic
             int translatedStringLength = LCMapStringW(lcid, dwFlags, sourceString, sourceLength, destString, destLength);
 
             if (translatedStringLength == 0)
-            {
+            {TRACE_IT(65203);
                 *pErrorOut = TranslateWin32Error(::GetLastError());
             }
 
@@ -267,21 +267,21 @@ namespace PlatformAgnostic
         }
 
         uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, char16* sourceString, uint32 sourceLength)
-        {
+        {TRACE_IT(65204);
             // Assert pointers
             Assert(sourceString != nullptr);
 
             if (sourceLength == 0 || sourceString == nullptr)
-            {
+            {TRACE_IT(65205);
                 return 0;
             }
 
             if (caseFlags == CaseFlagsUpper)
-            {
+            {TRACE_IT(65206);
                 return (uint32) CharUpperBuff(sourceString, sourceLength);
             }
             else if (caseFlags == CaseFlagsLower)
-            {
+            {TRACE_IT(65207);
                 return (uint32) CharLowerBuff(sourceString, sourceLength);
             }
 
@@ -290,14 +290,14 @@ namespace PlatformAgnostic
         }
 
         UnicodeGeneralCategoryClass GetGeneralCategoryClass(codepoint_t codepoint)
-        {
+        {TRACE_IT(65208);
             return ExecuteWinGlobApi([&](IUnicodeCharactersStatics* pUnicodeCharStatics) {
                 UnicodeGeneralCategory category = UnicodeGeneralCategory::UnicodeGeneralCategory_NotAssigned;
 
                 HRESULT hr = pUnicodeCharStatics->GetGeneralCategory(codepoint, &category);
                 Assert(SUCCEEDED(hr));
                 if (SUCCEEDED(hr))
-                {
+                {TRACE_IT(65209);
                     switch (category)
                     {
                         case UnicodeGeneralCategory::UnicodeGeneralCategory_LowercaseLetter:
@@ -331,22 +331,22 @@ namespace PlatformAgnostic
         }
 
         bool IsIdStart(codepoint_t codepoint)
-        {
+        {TRACE_IT(65210);
             return ExecuteWinGlobCodepointCheckApi(codepoint, &IUnicodeCharactersStatics::IsIdStart);
         }
 
         bool IsIdContinue(codepoint_t codepoint)
-        {
+        {TRACE_IT(65211);
             return ExecuteWinGlobCodepointCheckApi(codepoint, &IUnicodeCharactersStatics::IsIdContinue);
         }
 
         bool IsWhitespace(codepoint_t codepoint)
-        {
+        {TRACE_IT(65212);
             return ExecuteWinGlobCodepointCheckApi(codepoint, &IUnicodeCharactersStatics::IsWhitespace);
         }
 
         bool IsExternalUnicodeLibraryAvailable()
-        {
+        {TRACE_IT(65213);
             return ExecuteWithThreadContext([](ThreadContext* threadContext) {
                 Js::WindowsGlobalizationAdapter* globalizationAdapter = threadContext->GetWindowsGlobalizationAdapter();
                 Js::DelayLoadWindowsGlobalization* globLibrary = threadContext->GetWindowsGlobalizationLibrary();
@@ -354,10 +354,10 @@ namespace PlatformAgnostic
                 // Failed to load windows.globalization.dll or jsintl.dll. No unicodeStatics support
                 // in that case.
                 if (SUCCEEDED(hr))
-                {
+                {TRACE_IT(65214);
                     auto winGlobCharApi = globalizationAdapter->GetUnicodeStatics();
                     if (winGlobCharApi != nullptr)
-                    {
+                    {TRACE_IT(65215);
                         return true;
                     }
                 }
@@ -367,7 +367,7 @@ namespace PlatformAgnostic
         }
 
         int LogicalStringCompare(const char16* string1, const char16* string2)
-        {
+        {TRACE_IT(65216);
             // CompareStringW called with these flags is equivalent to calling StrCmpLogicalW
             // and we have the added advantage of not having to link with shlwapi.lib just for one function
             int i = CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE | SORT_DIGITSASNUMBERS, string1, -1, string2, -1);
@@ -378,15 +378,15 @@ namespace PlatformAgnostic
         // Win32 implementation of platform-agnostic Unicode interface
         // These are the public APIs of this interface
         CharacterClassificationType GetLegacyCharacterClassificationType(char16 ch)
-        {
+        {TRACE_IT(65217);
             WORD charType = 0;
             BOOL res = ::GetStringTypeW(CT_CTYPE1, &ch, 1, &charType);
 
             if (res == TRUE)
-            {
+            {TRACE_IT(65218);
                 // BOM ( 0xfeff) is recognized as GetStringTypeW as WS.
                 if ((0x03FF & charType) == 0x0200)
-                {
+                {TRACE_IT(65219);
                     // Some of the char types changed for Whistler (Unicode 3.0).
                     // They will return 0x0200 on Whistler, indicating a defined char
                     // with no type attributes. We want to continue to support these
@@ -401,15 +401,15 @@ namespace PlatformAgnostic
                 }
 
                 if (charType & C1_ALPHA)
-                {
+                {TRACE_IT(65220);
                     return CharacterClassificationType::Letter;
                 }
                 else if (charType & (C1_DIGIT | C1_PUNCT))
-                {
+                {TRACE_IT(65221);
                     return CharacterClassificationType::DigitOrPunct;
                 }
                 else if (charType & (C1_SPACE | C1_BLANK))
-                {
+                {TRACE_IT(65222);
                     return CharacterClassificationType::Whitespace;
                 }
             }

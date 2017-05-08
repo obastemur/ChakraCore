@@ -96,7 +96,7 @@ struct HeapAllocator
     static const bool FakeZeroLengthArray = false;
 
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23322);
         return AllocT<false>(byteSize);
     }
     template <bool noThrow>
@@ -104,24 +104,24 @@ struct HeapAllocator
 
     // This exists solely to make the AllocateXXX macros more polymorphic
     char * AllocLeaf(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23323);
         return Alloc(byteSize);
     }
 
     char * NoThrowAlloc(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23324);
         return AllocT<true>(byteSize);
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23325);
         char * buffer = Alloc(byteSize);
         memset(buffer, 0, byteSize);
         return buffer;
     }
 
     char * NoThrowAllocZero(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23326);
         char * buffer = NoThrowAlloc(byteSize);
         if (buffer != nullptr)
         {
@@ -192,12 +192,12 @@ public:
     void Free(void * buffer, size_t byteSize);
 
     char * NoThrowAlloc(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23327);
         return Alloc(byteSize);
     }
 
     char * NoThrowAllocZero(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23328);
         return AllocZero(byteSize);
     }
 
@@ -235,14 +235,14 @@ class NoCheckHeapAllocator
 public:
     static const bool FakeZeroLengthArray = false;
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23329);
         if (processHeap == NULL)
-        {
+        {TRACE_IT(23330);
             processHeap = GetProcessHeap();
         }
         char * buffer = (char*)HeapAlloc(processHeap, 0, byteSize);
         if (buffer == nullptr)
-        {
+        {TRACE_IT(23331);
             // NoCheck heap allocator is only used by debug only code, and if we fail to allocate
             // memory, we will just raise an exception and kill the process
             DebugHeap_OOM_fatal_error();
@@ -250,14 +250,14 @@ public:
         return buffer;
     }
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-    {
+    {TRACE_IT(23332);
         if (processHeap == NULL)
-        {
+        {TRACE_IT(23333);
             processHeap = GetProcessHeap();
         }
         char * buffer = (char*)HeapAlloc(processHeap, HEAP_ZERO_MEMORY, byteSize);
         if (buffer == nullptr)
-        {
+        {TRACE_IT(23334);
             // NoCheck heap allocator is only used by debug only code, and if we fail to allocate
             // memory, we will just raise an exception and kill the process
             DebugHeap_OOM_fatal_error();
@@ -265,15 +265,15 @@ public:
         return buffer;
     }
     void Free(void * buffer, size_t byteSize)
-    {
+    {TRACE_IT(23335);
         Assert(processHeap != NULL);
         HeapFree(processHeap, 0, buffer);
     }
 
 #ifdef TRACK_ALLOC
     // Doesn't support tracking information, dummy implementation
-    NoCheckHeapAllocator * TrackAllocInfo(TrackAllocData const& data) { return this; }
-    void ClearTrackAllocInfo(TrackAllocData* data = NULL) {}
+    NoCheckHeapAllocator * TrackAllocInfo(TrackAllocData const& data) {TRACE_IT(23336); return this; }
+    void ClearTrackAllocInfo(TrackAllocData* data = NULL) {TRACE_IT(23337);}
 #endif
     static NoCheckHeapAllocator Instance;
     static HANDLE processHeap;
@@ -283,11 +283,11 @@ public:
 class MemoryLeakCheck
 {
 public:
-    MemoryLeakCheck() : head(NULL), tail(NULL), leakedBytes(0), leakedCount(0), enableOutput(true) {}
+    MemoryLeakCheck() : head(NULL), tail(NULL), leakedBytes(0), leakedCount(0), enableOutput(true) {TRACE_IT(23338);}
     ~MemoryLeakCheck();
     static void AddLeakDump(char16 const * dump, size_t bytes, size_t count);
-    static void SetEnableOutput(bool flag) { leakCheck.enableOutput = flag; }
-    static bool IsEnableOutput() { return leakCheck.enableOutput; }
+    static void SetEnableOutput(bool flag) {TRACE_IT(23339); leakCheck.enableOutput = flag; }
+    static bool IsEnableOutput() {TRACE_IT(23340); return leakCheck.enableOutput; }
 private:
     static MemoryLeakCheck leakCheck;
 
@@ -315,33 +315,33 @@ private:
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowNoMemProtectHeapAllocator * alloc, char * (NoThrowNoMemProtectHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23341);
     return ::operator new(byteSize, alloc, true, AllocFunc);
 }
 
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowNoMemProtectHeapAllocator * alloc, char * (NoThrowNoMemProtectHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23342);
     return ::operator new[](byteSize, alloc, true, AllocFunc);
 }
 
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowNoMemProtectHeapAllocator * alloc, char * (NoThrowNoMemProtectHeapAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t plusSize)
-{
+{TRACE_IT(23343);
     return ::operator new(byteSize, alloc, true, AllocFunc, plusSize);
 }
 
 inline void __cdecl
 operator delete(void * obj, NoThrowNoMemProtectHeapAllocator * alloc, char * (NoThrowNoMemProtectHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23344);
     alloc->Free(obj, (size_t)-1);
 }
 
 inline void __cdecl
 operator delete(void * obj, NoThrowNoMemProtectHeapAllocator * alloc, char * (NoThrowNoMemProtectHeapAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(23345);
     alloc->Free(obj, (size_t)-1);
 }
 #else
@@ -361,13 +361,13 @@ _Ret_maybenull_ void * __cdecl operator new[](DECLSPEC_GUARD_OVERFLOW size_t byt
 //----------------------------------------
 inline void __cdecl
 operator delete(void * obj, HeapAllocator * alloc, char * (HeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23346);
     alloc->Free(obj, (size_t)-1);
 }
 
 inline void __cdecl
 operator delete(void * obj, HeapAllocator * alloc, char * (HeapAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(23347);
     alloc->Free(obj, (size_t)-1);
 }
 
@@ -377,33 +377,33 @@ operator delete(void * obj, HeapAllocator * alloc, char * (HeapAllocator::*Alloc
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23348);
     return ::operator new(byteSize, alloc, true, AllocFunc);
 }
 
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23349);
     return ::operator new[](byteSize, alloc, true, AllocFunc);
 }
 
 template <>
 _Ret_maybenull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(23350);
     return ::operator new(byteSize, alloc, true, AllocFunc, plusSize);
 }
 
 inline void __cdecl
 operator delete(void * obj, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23351);
     alloc->Free(obj, (size_t)-1);
 }
 
 inline void __cdecl
 operator delete(void * obj, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(23352);
     alloc->Free(obj, (size_t)-1);
 }
 
@@ -411,7 +411,7 @@ operator delete(void * obj, NoThrowHeapAllocator * alloc, char * (NoThrowHeapAll
 template <>
 _Ret_notnull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoCheckHeapAllocator * alloc, char * (NoCheckHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23353);
     Assert(byteSize != 0);
     void * buffer = (alloc->*AllocFunc)(byteSize);
     return buffer;
@@ -421,7 +421,7 @@ operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoCheckHeapAllocator * all
 template <>
 _Ret_notnull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoCheckHeapAllocator * alloc, char * (NoCheckHeapAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t plusSize)
-{
+{TRACE_IT(23354);
     Assert(byteSize != 0);
     Assert(plusSize != 0);
     void * buffer = (alloc->*AllocFunc)(AllocSizeMath::Add(byteSize, plusSize));
@@ -431,25 +431,25 @@ operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoCheckHeapAllocator * all
 
 _Ret_notnull_ inline void * __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize, NoCheckHeapAllocator * alloc, char * (NoCheckHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23355);
     void * buffer = (alloc->*AllocFunc)(byteSize);
     return buffer;
 }
 
 inline void __cdecl
 operator delete(void * obj, NoCheckHeapAllocator * alloc, char * (NoCheckHeapAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(23356);
     alloc->Free(obj, (size_t)-1);
 }
 
 inline void __cdecl
 operator delete(void * obj, NoCheckHeapAllocator * alloc, char * (NoCheckHeapAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(23357);
     alloc->Free(obj, (size_t)-1);
 }
 
 // Free routine where we don't care about following C++ semantics (e.g. calling the destructor)
 inline void HeapFree(void* obj, size_t size)
-{
+{TRACE_IT(23358);
     AllocatorFree(&HeapAllocator::Instance, &HeapAllocator::Free, obj, size);
 }

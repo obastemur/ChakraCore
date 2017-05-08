@@ -15,7 +15,7 @@ namespace Js
         DEFINE_VTABLE_CTOR_ABSTRACT(ArgumentsObject, DynamicObject);
     public:
         ArgumentsObject(DynamicType * type) : DynamicObject(type)
-        {
+        {TRACE_IT(54221);
             Assert(type->GetTypeId() == TypeIds_Arguments);
         }
         Var GetCaller(ScriptContext * scriptContext);
@@ -91,7 +91,7 @@ namespace Js
 
         virtual uint32 GetNumberOfArguments() const override;
         virtual uint32 GetNextFormalArgIndex(uint32 index, BOOL enumNonEnumerable = FALSE, PropertyAttributes* attributes = nullptr) const override;
-        virtual Var GetHeapArguments() { return this; }
+        virtual Var GetHeapArguments() {TRACE_IT(54222); return this; }
         virtual void SetHeapArguments(HeapArgumentsObject *args)
         {
             AssertMsg(false, "Should never get here");
@@ -108,19 +108,19 @@ namespace Js
         virtual BOOL Freeze() override;
 
         uint32 GetFormalCount() const
-        {
+        {TRACE_IT(54223);
             return this->formalCount;
         }
 
         void SetFormalCount(uint32 value)
-        {
+        {TRACE_IT(54224);
             this->formalCount = value;
         }
 
         ES5HeapArgumentsObject* ConvertToUnmappedArgumentsObject(bool overwriteArgsUsingFrameObject = true);
-        const ActivationObject* const GetFrameObject() { return frameObject; }
+        const ActivationObject* const GetFrameObject() {TRACE_IT(54225); return frameObject; }
         void SetFrameObject(ActivationObject * value)
-        {
+        {TRACE_IT(54226);
             AssertMsg(frameObject == nullptr, "Setting the frame object again?");
             frameObject = value;
         }
@@ -183,7 +183,7 @@ namespace Js
     public:
         ES5HeapArgumentsObject(Recycler *recycler, ActivationObject* obj, uint32 formalCount, DynamicType * type)
             : HeapArgumentsObject(recycler, obj, formalCount, type)
-        {
+        {TRACE_IT(54227);
         }
 
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override;

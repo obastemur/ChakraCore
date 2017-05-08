@@ -37,18 +37,18 @@ private:
 class AutoReturnPageAllocator
 {
 public:
-    AutoReturnPageAllocator() :pageAllocator(nullptr) {}
+    AutoReturnPageAllocator() :pageAllocator(nullptr) {TRACE_IT(14892);}
     ~AutoReturnPageAllocator()
-    {
+    {TRACE_IT(14893);
         if (pageAllocator)
-        {
+        {TRACE_IT(14894);
             PageAllocatorPool::Instance->ReturnPageAllocator(pageAllocator);
         }
     }
     PageAllocator* GetPageAllocator()
-    {
+    {TRACE_IT(14895);
         if (pageAllocator == nullptr)
-        {
+        {TRACE_IT(14896);
             pageAllocator = PageAllocatorPool::Instance->GetPageAllocator();
         }
 

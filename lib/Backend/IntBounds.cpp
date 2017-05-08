@@ -16,85 +16,85 @@ IntBounds::IntBounds(
     wasConstantUpperBoundEstablishedExplicitly(wasConstantUpperBoundEstablishedExplicitly),
     relativeLowerBounds(allocator),
     relativeUpperBounds(allocator)
-{
+{TRACE_IT(9505);
 }
 
 IntBounds *IntBounds::New(
     const IntConstantBounds &constantBounds,
     const bool wasConstantUpperBoundEstablishedExplicitly,
     JitArenaAllocator *const allocator)
-{
+{TRACE_IT(9506);
     Assert(allocator);
     return JitAnew(allocator, IntBounds, constantBounds, wasConstantUpperBoundEstablishedExplicitly, allocator);
 }
 
 IntBounds *IntBounds::Clone() const
-{
+{TRACE_IT(9507);
     JitArenaAllocator *const allocator = relativeLowerBounds.GetAllocator();
     return JitAnew(allocator, IntBounds, *this);
 }
 
 void IntBounds::Delete() const
-{
+{TRACE_IT(9508);
     JitArenaAllocator *const allocator = relativeLowerBounds.GetAllocator();
     JitAdelete(allocator, const_cast<IntBounds *>(this));
 }
 
 void IntBounds::Verify() const
-{
+{TRACE_IT(9509);
     Assert(this);
     Assert(constantLowerBound <= constantUpperBound);
     Assert(HasBounds());
 }
 
 bool IntBounds::HasBounds() const
-{
+{TRACE_IT(9510);
     return constantLowerBound != IntConstMin || constantUpperBound != IntConstMax || RequiresIntBoundedValueInfo();
 }
 
 bool IntBounds::RequiresIntBoundedValueInfo(const ValueType valueType) const
-{
+{TRACE_IT(9511);
     Assert(valueType.IsLikelyInt());
     return !valueType.IsInt() || RequiresIntBoundedValueInfo();
 }
 
 bool IntBounds::RequiresIntBoundedValueInfo() const
-{
+{TRACE_IT(9512);
     return WasConstantUpperBoundEstablishedExplicitly() || relativeLowerBounds.Count() != 0 || relativeUpperBounds.Count() != 0;
 }
 
 int IntBounds::ConstantLowerBound() const
-{
+{TRACE_IT(9513);
     return constantLowerBound;
 }
 
 int IntBounds::ConstantUpperBound() const
-{
+{TRACE_IT(9514);
     return constantUpperBound;
 }
 
 IntConstantBounds IntBounds::ConstantBounds() const
-{
+{TRACE_IT(9515);
     return IntConstantBounds(ConstantLowerBound(), ConstantUpperBound());
 }
 
 bool IntBounds::WasConstantUpperBoundEstablishedExplicitly() const
-{
+{TRACE_IT(9516);
     return wasConstantUpperBoundEstablishedExplicitly;
 }
 
 const RelativeIntBoundSet &IntBounds::RelativeLowerBounds() const
-{
+{TRACE_IT(9517);
     return relativeLowerBounds;
 }
 
 const RelativeIntBoundSet &IntBounds::RelativeUpperBounds() const
-{
+{TRACE_IT(9518);
     return relativeUpperBounds;
 }
 
 void IntBounds::SetLowerBound(const int constantBound)
-{
+{TRACE_IT(9519);
     if(constantLowerBound < constantBound && constantBound <= constantUpperBound)
         constantLowerBound = constantBound;
 }
@@ -105,7 +105,7 @@ void IntBounds::SetLowerBound(const int constantBoundBase, const int offset)
 }
 
 void IntBounds::SetUpperBound(const int constantBound, const bool wasEstablishedExplicitly)
-{
+{TRACE_IT(9520);
     if(constantLowerBound <= constantBound && constantBound < constantUpperBound)
         constantUpperBound = constantBound;
     if(wasEstablishedExplicitly)
@@ -119,7 +119,7 @@ void IntBounds::SetUpperBound(const int constantBoundBase, const int offset, con
 
 template<bool Lower>
 void IntBounds::SetBound(const int constantBoundBase, const int offset, const bool wasEstablishedExplicitly)
-{
+{TRACE_IT(9521);
     int constantBound;
     if(offset == 0)
         constantBound = constantBoundBase;
@@ -172,7 +172,7 @@ void IntBounds::SetBound(
     const Value *const baseValue,
     const int offset,
     const bool wasEstablishedExplicitly)
-{
+{TRACE_IT(9522);
     Assert(baseValue);
     Assert(baseValue->GetValueNumber() != myValueNumber);
 
@@ -194,19 +194,19 @@ void IntBounds::SetBound(
     RelativeIntBoundSet &boundSet = Lower ? relativeLowerBounds : relativeUpperBounds;
     const RelativeIntBoundSet &oppositeBoundSet = Lower ? relativeUpperBounds : relativeLowerBounds;
     if(baseValueInfo->IsIntBounded())
-    {
+    {TRACE_IT(9523);
         const IntBounds *const baseValueBounds = baseValueInfo->AsIntBounded()->Bounds();
         const RelativeIntBoundSet &baseValueBoundSet =
             Lower ? baseValueBounds->relativeLowerBounds : baseValueBounds->relativeUpperBounds;
         for(auto it = baseValueBoundSet.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {TRACE_IT(9524);
             ValueRelativeOffset bound(it.CurrentValue());
             if(bound.BaseValueNumber() == myValueNumber || !bound.Add(offset))
                 continue;
             const ValueRelativeOffset *existingOppositeBound;
             if(oppositeBoundSet.TryGetReference(bound.BaseValueNumber(), &existingOppositeBound) &&
                 (Lower ? bound.Offset() > existingOppositeBound->Offset() : bound.Offset() < existingOppositeBound->Offset()))
-            {
+            {TRACE_IT(9525);
                 // This bound contradicts the existing opposite bound on the same base value number:
                 //     - Setting a lower bound (base + offset) when (base + offset2) is an upper bound and (offset > offset2)
                 //     - Setting an upper bound (base + offset) when (base + offset2) is a lower bound and (offset < offset2)
@@ -225,7 +225,7 @@ void IntBounds::SetBound(
     const ValueRelativeOffset *existingOppositeBound;
     if(oppositeBoundSet.TryGetReference(bound.BaseValueNumber(), &existingOppositeBound) &&
         (Lower ? offset > existingOppositeBound->Offset() : offset < existingOppositeBound->Offset()))
-    {
+    {TRACE_IT(9526);
         // This bound contradicts the existing opposite bound on the same base value number:
         //     - Setting a lower bound (base + offset) when (base + offset2) is an upper bound and (offset > offset2)
         //     - Setting an upper bound (base + offset) when (base + offset2) is a lower bound and (offset < offset2)
@@ -239,18 +239,18 @@ void IntBounds::SetBound(
 }
 
 bool IntBounds::SetIsNot(const int constantValue, const bool isExplicit)
-{
+{TRACE_IT(9527);
     if(constantLowerBound == constantUpperBound)
         return false;
 
     Assert(constantLowerBound < constantUpperBound);
     if(constantValue == constantLowerBound)
-    {
+    {TRACE_IT(9528);
         ++constantLowerBound;
         return true;
     }
     if(constantValue == constantUpperBound)
-    {
+    {TRACE_IT(9529);
         --constantUpperBound;
         if(isExplicit)
             wasConstantUpperBoundEstablishedExplicitly = true;
@@ -260,7 +260,7 @@ bool IntBounds::SetIsNot(const int constantValue, const bool isExplicit)
 }
 
 bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
-{
+{TRACE_IT(9530);
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -269,7 +269,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
     int constantValue;
     bool changed;
     if(valueInfo->TryGetIntConstantValue(&constantValue, true))
-    {
+    {TRACE_IT(9531);
         changed = SetIsNot(constantValue, isExplicit);
         if(valueInfo->IsInt())
             return changed;
@@ -289,7 +289,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
     if(existingLowerBoundOffsetIsZero)
         existingLowerBound->SetOffset(1);
     else
-    {
+    {TRACE_IT(9532);
         existingUpperBound->SetOffset(-1);
         if(isExplicit)
             existingUpperBound->SetWasEstablishedExplicitly();
@@ -298,7 +298,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const int constantValue, const int constantBoundBase, const int offset)
-{
+{TRACE_IT(9533);
     if(offset == 0)
         return constantValue >= constantBoundBase;
     if(offset == 1)
@@ -313,7 +313,7 @@ bool IntBounds::IsGreaterThanOrEqualTo(const int constantValue, const int consta
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const int constantValue, const int constantBoundBase, const int offset)
-{
+{TRACE_IT(9534);
     if(offset == 0)
         return constantValue <= constantBoundBase;
     if(offset == -1)
@@ -328,17 +328,17 @@ bool IntBounds::IsLessThanOrEqualTo(const int constantValue, const int constantB
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const int constantBoundBase, const int offset) const
-{
+{TRACE_IT(9535);
     return IsGreaterThanOrEqualTo(constantLowerBound, constantBoundBase, offset);
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const int constantBoundBase, const int offset) const
-{
+{TRACE_IT(9536);
     return IsLessThanOrEqualTo(constantUpperBound, constantBoundBase, offset);
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const Value *const value, const int offset) const
-{
+{TRACE_IT(9537);
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -356,7 +356,7 @@ bool IntBounds::IsGreaterThanOrEqualTo(const Value *const value, const int offse
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const Value *const value, const int offset) const
-{
+{TRACE_IT(9538);
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -379,7 +379,7 @@ const IntBounds *IntBounds::Add(
     const bool baseValueInfoIsPrecise,
     const IntConstantBounds &newConstantBounds,
     JitArenaAllocator *const allocator)
-{
+{TRACE_IT(9539);
     Assert(baseValue);
     Assert(baseValue->GetValueInfo()->IsLikelyInt());
     Assert(!baseValue->GetValueInfo()->HasIntConstantValue());
@@ -389,11 +389,11 @@ const IntBounds *IntBounds::Add(
     ValueInfo *const baseValueInfo = baseValue->GetValueInfo();
     const IntBounds *const baseBounds = baseValueInfo->IsIntBounded() ? baseValueInfo->AsIntBounded()->Bounds() : nullptr;
     if(baseBounds && baseBounds->WasConstantUpperBoundEstablishedExplicitly())
-    {
+    {TRACE_IT(9540);
         int baseAdjustedConstantUpperBound;
         if(!Int32Math::Add(baseBounds->ConstantUpperBound(), n, &baseAdjustedConstantUpperBound) &&
             baseAdjustedConstantUpperBound == newConstantBounds.UpperBound())
-        {
+        {TRACE_IT(9541);
             wasConstantUpperBoundEstablishedExplicitly = true;
         }
     }
@@ -405,18 +405,18 @@ const IntBounds *IntBounds::Add(
     // Adjust the relative bounds by the constant. The base value info would not be precise for instance, when we're in a loop
     // and the value was created before the loop or in a previous loop iteration.
     if(n < 0 && !baseValueInfoIsPrecise)
-    {
+    {TRACE_IT(9542);
         // Don't know the number of similar decreases in value that will take place
         Assert(newBounds->constantLowerBound == IntConstMin);
     }
     else if(baseBounds)
-    {
+    {TRACE_IT(9543);
         Assert(!baseBounds->relativeLowerBounds.ContainsKey(baseValue->GetValueNumber()));
         newBounds->relativeLowerBounds.Copy(&baseBounds->relativeLowerBounds);
         if(n != 0)
-        {
+        {TRACE_IT(9544);
             for(auto it = newBounds->relativeLowerBounds.GetIteratorWithRemovalSupport(); it.IsValid(); it.MoveNext())
-            {
+            {TRACE_IT(9545);
                 ValueRelativeOffset &bound = it.CurrentValueReference();
                 if(!bound.Add(n))
                     it.RemoveCurrent();
@@ -424,18 +424,18 @@ const IntBounds *IntBounds::Add(
         }
     }
     if(n > 0 && !baseValueInfoIsPrecise)
-    {
+    {TRACE_IT(9546);
         // Don't know the number of similar increases in value that will take place, so clear the relative upper bounds
         Assert(newBounds->constantUpperBound == IntConstMax);
     }
     else if(baseBounds)
-    {
+    {TRACE_IT(9547);
         Assert(!baseBounds->relativeUpperBounds.ContainsKey(baseValue->GetValueNumber()));
         newBounds->relativeUpperBounds.Copy(&baseBounds->relativeUpperBounds);
         if(n != 0)
-        {
+        {TRACE_IT(9548);
             for(auto it = newBounds->relativeUpperBounds.GetIteratorWithRemovalSupport(); it.IsValid(); it.MoveNext())
-            {
+            {TRACE_IT(9549);
                 ValueRelativeOffset &bound = it.CurrentValueReference();
                 if(!bound.Add(n))
                     it.RemoveCurrent();
@@ -455,14 +455,14 @@ const IntBounds *IntBounds::Add(
 }
 
 bool IntBounds::AddCannotOverflowBasedOnRelativeBounds(const int n) const
-{
+{TRACE_IT(9550);
     Assert(n != 0);
 
     if(n >= 0)
-    {
+    {TRACE_IT(9551);
         const int maxBoundOffset = -n;
         for(auto it = relativeUpperBounds.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {TRACE_IT(9552);
             // If (a < b), then (a + 1) cannot overflow
             const ValueRelativeOffset &bound = it.CurrentValue();
             if(bound.Offset() <= maxBoundOffset)
@@ -475,14 +475,14 @@ bool IntBounds::AddCannotOverflowBasedOnRelativeBounds(const int n) const
 }
 
 bool IntBounds::SubCannotOverflowBasedOnRelativeBounds(const int n) const
-{
+{TRACE_IT(9553);
     Assert(n != 0);
 
     if(n >= 0)
-    {
+    {TRACE_IT(9554);
         const int minBoundOffset = n;
         for(auto it = relativeLowerBounds.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {TRACE_IT(9555);
             // If (a > b), then (a - 1) cannot overflow
             const ValueRelativeOffset &bound = it.CurrentValue();
             if(bound.Offset() >= minBoundOffset)
@@ -499,7 +499,7 @@ const IntBounds *IntBounds::Merge(
     const IntBounds *const bounds0,
     const Value *const bounds1Value,
     const IntConstantBounds &constantBounds1)
-{
+{TRACE_IT(9556);
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -520,7 +520,7 @@ const IntBounds *IntBounds::Merge(
         constantBounds.UpperBound() == IntConstMax &&
         !commonLowerBound &&
         !commonUpperBound)
-    {
+    {TRACE_IT(9557);
         return nullptr;
     }
 
@@ -530,7 +530,7 @@ const IntBounds *IntBounds::Merge(
     if(bounds0Value->GetValueNumber() == bounds1ValueNumber)
         return mergedBounds;
     if(commonLowerBound)
-    {
+    {TRACE_IT(9558);
         ValueRelativeOffset mergedLowerBound(*commonLowerBound);
         if(constantBounds1.IsConstant())
             mergedLowerBound.MergeConstantValue<true, false>(constantBounds1.LowerBound());
@@ -539,7 +539,7 @@ const IntBounds *IntBounds::Merge(
         mergedBounds->relativeLowerBounds.Add(mergedLowerBound);
     }
     if(commonUpperBound)
-    {
+    {TRACE_IT(9559);
         ValueRelativeOffset mergedUpperBound(*commonUpperBound);
         if(constantBounds1.IsConstant())
             mergedUpperBound.MergeConstantValue<false, false>(constantBounds1.LowerBound());
@@ -557,7 +557,7 @@ const IntBounds *IntBounds::Merge(
     const IntBounds *const bounds0,
     const Value *const bounds1Value,
     const IntBounds *const bounds1)
-{
+{TRACE_IT(9560);
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -576,7 +576,7 @@ const IntBounds *IntBounds::Merge(
     MergeBoundSets<true>(bounds0Value, bounds0, bounds1Value, bounds1, mergedBounds);
     MergeBoundSets<false>(bounds0Value, bounds0, bounds1Value, bounds1, mergedBounds);
     if(mergedBounds->HasBounds())
-    {
+    {TRACE_IT(9561);
         mergedBounds->Verify();
         return mergedBounds;
     }
@@ -591,7 +591,7 @@ void IntBounds::MergeBoundSets(
     const Value *const bounds1Value,
     const IntBounds *const bounds1,
     IntBounds *const mergedBounds)
-{
+{TRACE_IT(9562);
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -604,13 +604,13 @@ void IntBounds::MergeBoundSets(
     RelativeIntBoundSet *mergedBoundSet;
     const RelativeIntBoundSet *boundSet0, *boundSet1;
     if(Lower)
-    {
+    {TRACE_IT(9563);
         mergedBoundSet = &mergedBounds->relativeLowerBounds;
         boundSet0 = &bounds0->relativeLowerBounds;
         boundSet1 = &bounds1->relativeLowerBounds;
     }
     else
-    {
+    {TRACE_IT(9564);
         mergedBoundSet = &mergedBounds->relativeUpperBounds;
         boundSet0 = &bounds0->relativeUpperBounds;
         boundSet1 = &bounds1->relativeUpperBounds;
@@ -619,17 +619,17 @@ void IntBounds::MergeBoundSets(
     // Iterate over the smaller set and look up in the larger set for compatible bounds that can be merged
     const RelativeIntBoundSet *iterateOver, *lookUpIn;
     if(boundSet0->Count() <= boundSet1->Count())
-    {
+    {TRACE_IT(9565);
         iterateOver = boundSet0;
         lookUpIn = boundSet1;
     }
     else
-    {
+    {TRACE_IT(9566);
         iterateOver = boundSet1;
         lookUpIn = boundSet0;
     }
     for(auto it = iterateOver->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {TRACE_IT(9567);
         const ValueRelativeOffset &iterateOver_bound(it.CurrentValue());
         const ValueNumber baseValueNumber = iterateOver_bound.BaseValueNumber();
         const ValueRelativeOffset *lookUpIn_bound;
@@ -646,13 +646,13 @@ void IntBounds::MergeBoundSets(
         return;
     const ValueRelativeOffset *bound;
     if(boundSet0->TryGetReference(bounds1ValueNumber, &bound))
-    {
+    {TRACE_IT(9568);
         ValueRelativeOffset mergedBound(bounds1Value, true);
         mergedBound.Merge<Lower, false>(*bound);
         mergedBoundSet->Add(mergedBound);
     }
     if(boundSet1->TryGetReference(bounds0ValueNumber, &bound))
-    {
+    {TRACE_IT(9569);
         ValueRelativeOffset mergedBound(bounds0Value, true);
         mergedBound.Merge<Lower, false>(*bound);
         mergedBoundSet->Add(mergedBound);
@@ -667,16 +667,16 @@ IntBoundCheckCompatibilityId::IntBoundCheckCompatibilityId(
     const ValueNumber leftValueNumber,
     const ValueNumber rightValueNumber)
     : leftValueNumber(leftValueNumber), rightValueNumber(rightValueNumber)
-{
+{TRACE_IT(9570);
 }
 
 bool IntBoundCheckCompatibilityId::operator ==(const IntBoundCheckCompatibilityId &other) const
-{
+{TRACE_IT(9571);
     return leftValueNumber == other.leftValueNumber && rightValueNumber == other.rightValueNumber;
 }
 
 IntBoundCheckCompatibilityId::operator hash_t() const
-{
+{TRACE_IT(9572);
     return static_cast<hash_t>(static_cast<hash_t>(leftValueNumber) + static_cast<hash_t>(rightValueNumber));
 }
 
@@ -694,64 +694,64 @@ IntBoundCheck::IntBoundCheck(
     IR::Instr *const instr,
     BasicBlock *const block)
     : leftValueNumber(leftValueNumber), rightValueNumber(rightValueNumber), instr(instr), block(block)
-{
+{TRACE_IT(9573);
     Assert(IsValid());
 }
 
 #if DBG
 
 bool IntBoundCheck::IsValid() const
-{
+{TRACE_IT(9574);
     return leftValueNumber != InvalidValueNumber;
 }
 
 #endif
 
 ValueNumber IntBoundCheck::LeftValueNumber() const
-{
+{TRACE_IT(9575);
     Assert(IsValid());
     return leftValueNumber;
 }
 
 ValueNumber IntBoundCheck::RightValueNumber() const
-{
+{TRACE_IT(9576);
     Assert(IsValid());
     return rightValueNumber;
 }
 
 IR::Instr *IntBoundCheck::Instr() const
-{
+{TRACE_IT(9577);
     Assert(IsValid());
     return instr;
 }
 
 BasicBlock *IntBoundCheck::Block() const
-{
+{TRACE_IT(9578);
     Assert(IsValid());
     return block;
 }
 
 IntBoundCheckCompatibilityId IntBoundCheck::CompatibilityId() const
-{
+{TRACE_IT(9579);
     return IntBoundCheckCompatibilityId(leftValueNumber, rightValueNumber);
 }
 
 bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBasedBound) const
-{
+{TRACE_IT(9580);
     Assert(IsValid());
 
     // Determine the previous offset from the instruction (src1 <= src2 + dst)
     IR::IntConstOpnd *dstOpnd = nullptr;
     IntConstType previousOffset = 0;
     if (instr->GetDst())
-    {
+    {TRACE_IT(9581);
         dstOpnd = instr->GetDst()->AsIntConstOpnd();
         previousOffset = dstOpnd->GetValue();
     }
 
     IR::IntConstOpnd *src1Opnd = nullptr;
     if (instr->GetSrc1()->IsIntConstOpnd())
-    {
+    {TRACE_IT(9582);
         src1Opnd = instr->GetSrc1()->AsIntConstOpnd();
         if (IntConstMath::Sub(previousOffset, src1Opnd->GetValue(), &previousOffset))
             return false;
@@ -773,7 +773,7 @@ bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBased
 
     Assert(offsetDecrease > 0);
     if(src1Opnd)
-    {
+    {TRACE_IT(9583);
         // Prefer to increase src1, as this is an upper bound check and src1 corresponds to the index
         IntConstType newSrc1Value;
         if(IntConstMath::Add(src1Opnd->GetValue(), offsetDecrease, &newSrc1Value))
@@ -781,7 +781,7 @@ bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBased
         src1Opnd->SetValue(newSrc1Value);
     }
     else if(dstOpnd)
-    {
+    {TRACE_IT(9584);
         IntConstType newDstValue;
         if(IntConstMath::Sub(dstOpnd->GetValue(), offsetDecrease, &newDstValue))
             return false;

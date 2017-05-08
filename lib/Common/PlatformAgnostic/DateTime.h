@@ -22,7 +22,7 @@ namespace DateTime
         double Now();
         double GetSystemTime();
 
-        void Reset() { data.Reset(); }
+        void Reset() {TRACE_IT(27234); data.Reset(); }
     };
 
     class Utility
@@ -49,7 +49,7 @@ namespace DateTime
         int                 time; // time of day (in milliseconds: 0 to 86399999)
 
         void ToSystemTime(SYSTEMTIME *sys)
-        {
+        {TRACE_IT(27235);
             sys->wYear = (WORD)year;
             sys->wMonth = (WORD)(mon + 1);
             sys->wDay =(WORD)(mday + 1);

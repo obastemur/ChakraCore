@@ -377,7 +377,7 @@
 #endif
 
 #if ENABLE_TTD
-#define TTDAssert(C, M) { if(!(C)) TTDAbort_fatal_error(M); }
+#define TTDAssert(C, M) {TRACE_IT(19568); if(!(C)) TTDAbort_fatal_error(M); }
 #else
 #define TTDAssert(C, M)
 #endif

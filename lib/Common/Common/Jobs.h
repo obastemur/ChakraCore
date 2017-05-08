@@ -436,11 +436,11 @@ namespace JsUtil
             processor(nullptr),
             parser(nullptr),
             pse(nullptr)
-            {
+            {TRACE_IT(19037);
             }
 
-        PageAllocator* const GetPageAllocator() { return &backgroundPageAllocator; }
-        bool CanDecommit() const { return canDecommit; }
+        PageAllocator* const GetPageAllocator() {TRACE_IT(19038); return &backgroundPageAllocator; }
+        bool CanDecommit() const {TRACE_IT(19039); return canDecommit; }
     };
 
     class BackgroundJobProcessor sealed : public JobProcessor
@@ -510,16 +510,16 @@ namespace JsUtil
         bool Process(Job *const job, ParallelThreadData *threadData);
         bool IsBeingProcessed(Job *job);
 
-        CriticalSection * GetCriticalSection() { return &criticalSection; }
+        CriticalSection * GetCriticalSection() {TRACE_IT(19040); return &criticalSection; }
 
         //Iterates each background thread, callback returns true when it needs to terminate the iteration.
         template<class Fn>
         bool IterateBackgroundThreads(Fn callback)
-        {
+        {TRACE_IT(19041);
             for (uint i = 0; i < this->threadCount; i++)
-            {
+            {TRACE_IT(19042);
                 if (callback(this->parallelThreadData[i]))
-                {
+                {TRACE_IT(19043);
                     return false;
                 }
             }

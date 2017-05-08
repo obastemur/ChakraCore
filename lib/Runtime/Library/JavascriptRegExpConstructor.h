@@ -47,7 +47,7 @@ namespace Js
         virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) override;
         virtual uint GetSpecialPropertyCount() const override;
         virtual PropertyId const * GetSpecialPropertyIds() const override;
-        UnifiedRegex::RegexPattern* GetLastPattern() const { return lastPattern; }
+        UnifiedRegex::RegexPattern* GetLastPattern() const {TRACE_IT(61166); return lastPattern; }
 
     private:
         bool GetPropertyBuiltIns(PropertyId propertyId, Var* value, BOOL* result);
@@ -72,7 +72,7 @@ namespace Js
     {
     public:
         static bool IsSpecialProperty(PropertyId id)
-        {
+        {TRACE_IT(61167);
             switch (id)
             {
                 case PropertyIds::input:

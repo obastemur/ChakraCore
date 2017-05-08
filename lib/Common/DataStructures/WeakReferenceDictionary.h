@@ -26,7 +26,7 @@ namespace JsUtil
     public:
         WeakReferenceDictionary(Recycler* recycler, int capacity = 0):
           Base(recycler, capacity)
-        {
+        {TRACE_IT(22451);
             Assert(reinterpret_cast<void*>(this) == reinterpret_cast<void*>((IWeakReferenceDictionary*) this));
         }
 

@@ -46,6 +46,6 @@ public:
 
 template<>
 inline ValueNumber JsUtil::ValueToKey<ValueNumber, ValueRelativeOffset>::ToKey(const ValueRelativeOffset &valueRelativeOffset)
-{
+{TRACE_IT(16035);
     return valueRelativeOffset.BaseValueNumber();
 }

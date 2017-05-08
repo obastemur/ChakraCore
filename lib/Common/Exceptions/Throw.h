@@ -45,13 +45,13 @@ namespace Js {
     // Info:        Verify the result or throw catastrophic
     // Parameters:  HRESULT
     inline void VerifyOkCatastrophic(__in HRESULT hr)
-    {
+    {TRACE_IT(22580);
         if (hr == E_OUTOFMEMORY)
-        {
+        {TRACE_IT(22581);
             Js::Throw::OutOfMemory();
         }
         else if (FAILED(hr))
-        {
+        {TRACE_IT(22582);
             Js::Throw::FatalProjectionError();
         }
     }
@@ -60,9 +60,9 @@ namespace Js {
     // Parameters:  bool
     template<typename TCheck>
     inline void VerifyCatastrophic(__in TCheck result)
-    {
+    {TRACE_IT(22583);
         if (!result)
-        {
+        {TRACE_IT(22584);
             Assert(false);
             Js::Throw::FatalProjectionError();
         }
@@ -72,15 +72,15 @@ namespace Js {
 } // namespace Js
 
 #define BEGIN_TRANSLATE_TO_HRESULT(type) \
-{\
+{TRACE_IT(22585);\
     try \
-    { \
+    {TRACE_IT(22586); \
         AUTO_HANDLED_EXCEPTION_TYPE(type);
 
 #define BEGIN_TRANSLATE_TO_HRESULT_NESTED(type) \
-{\
+{TRACE_IT(22587);\
     try \
-    { \
+    {TRACE_IT(22588); \
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(type);
 
 #define BEGIN_TRANSLATE_OOM_TO_HRESULT BEGIN_TRANSLATE_TO_HRESULT(ExceptionType_OutOfMemory)
@@ -89,7 +89,7 @@ namespace Js {
 #define END_TRANSLATE_OOM_TO_HRESULT(hr) \
     } \
     catch (Js::OutOfMemoryException) \
-    {   \
+    {TRACE_IT(22589);   \
         hr = E_OUTOFMEMORY; \
     }\
 }
@@ -97,7 +97,7 @@ namespace Js {
 #define END_TRANSLATE_OOM_TO_HRESULT_AND_EXCEPTION_OBJECT(hr, scriptContext, exceptionObject) \
     } \
     catch(Js::OutOfMemoryException) \
-    {   \
+    {TRACE_IT(22590);   \
         hr = E_OUTOFMEMORY; \
         *exceptionObject = Js::JavascriptExceptionOperators::GetOutOfMemoryExceptionObject(scriptContext); \
     } \
@@ -111,50 +111,50 @@ namespace Js {
 #define END_TRANSLATE_KNOWN_EXCEPTION_TO_HRESULT(hr) \
     } \
     catch (Js::OutOfMemoryException) \
-    {   \
+    {TRACE_IT(22591);   \
         hr = E_OUTOFMEMORY; \
     }   \
     catch (Js::StackOverflowException) \
-    { \
+    {TRACE_IT(22592); \
         hr = VBSERR_OutOfStack; \
     } \
     catch (Js::NotImplementedException)  \
-    {   \
+    {TRACE_IT(22593);   \
         hr = E_NOTIMPL; \
     } \
     catch (Js::ScriptAbortException)  \
-    {   \
+    {TRACE_IT(22594);   \
         hr = E_ABORT; \
     }  \
     catch (Js::AsmJsParseException)  \
-    {   \
+    {TRACE_IT(22595);   \
         hr = JSERR_AsmJsCompileError; \
     }
 
 // This should be the inverse of END_TRANSLATE_KNOWN_EXCEPTION_TO_HRESULT, and catch all the same cases.
 #define THROW_KNOWN_HRESULT_EXCEPTIONS(hr, scriptContext) \
     if (hr == E_OUTOFMEMORY) \
-    { \
+    {TRACE_IT(22596); \
         JavascriptError::ThrowOutOfMemoryError(scriptContext); \
     } \
     else if (hr == VBSERR_OutOfStack) \
-    { \
+    {TRACE_IT(22597); \
         JavascriptError::ThrowStackOverflowError(scriptContext); \
     } \
     else if (hr == E_NOTIMPL) \
-    { \
+    {TRACE_IT(22598); \
         throw Js::NotImplementedException(); \
     } \
     else if (hr == E_ABORT) \
-    { \
+    {TRACE_IT(22599); \
         throw Js::ScriptAbortException(); \
     } \
     else if (hr == JSERR_AsmJsCompileError) \
-    { \
+    {TRACE_IT(22600); \
         throw Js::AsmJsParseException(); \
     } \
     else if (FAILED(hr)) \
-    { \
+    {TRACE_IT(22601); \
         /* Intended to be the inverse of E_FAIL in CATCH_UNHANDLED_EXCEPTION */ \
         AssertOrFailFast(false); \
     }
@@ -192,21 +192,21 @@ namespace Js {
 
 #define END_TRANSLATE_ERROROBJECT_TO_HRESULT_EX(hr, GetRuntimeErrorFunc) \
     catch(const Js::JavascriptException& err)  \
-    {   \
+    {TRACE_IT(22602);   \
         Js::JavascriptExceptionObject* exceptionObject = err.GetAndClear(); \
         GET_RUNTIME_ERROR_IMPL(hr, GetRuntimeErrorFunc, exceptionObject); \
     }
 
 #define GET_RUNTIME_ERROR_IMPL(hr, GetRuntimeErrorFunc, exceptionObject) \
-    {   \
+    {TRACE_IT(22603);   \
         Js::Var errorObject = exceptionObject->GetThrownObject(nullptr);   \
         if (errorObject != nullptr && (Js::JavascriptError::Is(errorObject) ||  \
             Js::JavascriptError::IsRemoteError(errorObject)))   \
-        {       \
+        {TRACE_IT(22604);       \
             hr = GetRuntimeErrorFunc(Js::RecyclableObject::FromVar(errorObject), nullptr);   \
         }   \
         else \
-        {  \
+        {TRACE_IT(22605);  \
             AssertMsg(errorObject == nullptr, "errorObject should be NULL");  \
             hr = E_OUTOFMEMORY;  \
         }  \
@@ -220,7 +220,7 @@ namespace Js {
 
 #define END_GET_ERROROBJECT(hr, scriptContext, exceptionObject) \
     catch (const Js::JavascriptException& err)  \
-    {   \
+    {TRACE_IT(22606);   \
         Js::JavascriptExceptionObject *  _exceptionObject = err.GetAndClear(); \
         BEGIN_TRANSLATE_OOM_TO_HRESULT_NESTED \
             exceptionObject = _exceptionObject; \
@@ -230,17 +230,17 @@ namespace Js {
 
 #define CATCH_STATIC_JAVASCRIPT_EXCEPTION_OBJECT(errCode) \
     catch (Js::OutOfMemoryException)  \
-    {  \
+    {TRACE_IT(22607);  \
         errCode = JsErrorOutOfMemory;  \
     } catch (Js::StackOverflowException)  \
-    {  \
+    {TRACE_IT(22608);  \
         errCode = JsErrorOutOfMemory;  \
     }  \
 
 #if ENABLE_TTD
 #define CATCH_OTHER_EXCEPTIONS(errCode)  \
     catch (JsrtExceptionBase& e)  \
-    {  \
+    {TRACE_IT(22609);  \
         errCode = e.GetJsErrorCode();  \
     }   \
     catch (Js::ExceptionBase)   \
@@ -249,7 +249,7 @@ namespace Js {
         errCode = JsErrorFatal;    \
     }   \
     catch (TTD::TTDebuggerAbortException)   \
-    {   \
+    {TRACE_IT(22610);   \
         throw; /*don't set errcode we treat this as non-termination of the code that was executing*/  \
     }   \
     catch (...) \
@@ -260,7 +260,7 @@ namespace Js {
 #else
 #define CATCH_OTHER_EXCEPTIONS(errCode)  \
     catch (JsrtExceptionBase& e)  \
-    {  \
+    {TRACE_IT(22611);  \
         errCode = e.GetJsErrorCode();  \
     }   \
     catch (Js::ExceptionBase)   \
@@ -282,6 +282,6 @@ namespace Js {
 #define TRANSLATE_EXCEPTION_TO_HRESULT_ENTRY(ex) \
     } \
     catch (ex) \
-    {
+    {TRACE_IT(22612);
 
 #define DEBUGGER_ATTACHDETACH_FATAL_ERROR_IF_FAILED(hr) if (hr != S_OK) Debugger_AttachDetach_fatal_error(hr);

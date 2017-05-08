@@ -17,7 +17,7 @@ public:
 inline bool
 ExternalLowerer::TryGenerateFastExternalEqTest(IR::Opnd * src1, IR::Opnd * src2, IR::Instr * instrBranch,
     IR::LabelInstr * labelHelper, IR::LabelInstr * labelBooleanCmp, Lowerer * lowerer, bool isStrictBr)
-{
+{TRACE_IT(1928);
     return false;
 }
 #endif

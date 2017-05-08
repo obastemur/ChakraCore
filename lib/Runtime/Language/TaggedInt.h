@@ -58,8 +58,8 @@ namespace Js {
         static JavascriptString* ToString(int value,ScriptContext* scriptContext);
         static JavascriptString* ToString(uint value,ScriptContext* scriptContext);
 
-        static Var MinVal() { return ToVarUnchecked(k_nMinValue); }
-        static Var MaxVal() { return ToVarUnchecked(k_nMaxValue); }
+        static Var MinVal() {TRACE_IT(52954); return ToVarUnchecked(k_nMinValue); }
+        static Var MaxVal() {TRACE_IT(52955); return ToVarUnchecked(k_nMaxValue); }
 
     private:
         static Var DivideByZero(int nLeft, ScriptContext* scriptContext);

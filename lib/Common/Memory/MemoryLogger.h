@@ -43,7 +43,7 @@ namespace Js
         virtual size_t PrintStackTrace(ULONG framesToSkip, ULONG framesToCapture) override;
         virtual ULONG GetStackTrace(ULONG framesToSkip, ULONG framesToCapture, void** stackFrames) override;
     private:
-        StackTraceHelper(TAllocator* alloc) : m_alloc(alloc) {}
+        StackTraceHelper(TAllocator* alloc) : m_alloc(alloc) {TRACE_IT(24730);}
         void Print();
     };
 #endif // STACK_BACK_TRACE

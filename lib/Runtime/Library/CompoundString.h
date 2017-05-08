@@ -209,9 +209,9 @@ namespace Js
             void AllocateBuffer(const CharCount charCapacity, Recycler *const recycler);
             Block *CopyBuffer(const void *const buffer, const CharCount usedCharLength, const bool reserveMoreSpace, Recycler *const recycler);
             Block *Resize(Recycler *const recycler);
-            static size_t GetOffsetOfCharLength() { return offsetof(BlockInfo, charLength); }
-            static size_t GetOffsetOfCharCapacity() { return offsetof(BlockInfo, charCapacity); }
-            static size_t GetOffsetOfBuffer() { return offsetof(BlockInfo, buffer); }
+            static size_t GetOffsetOfCharLength() {TRACE_IT(54662); return offsetof(BlockInfo, charLength); }
+            static size_t GetOffsetOfCharCapacity() {TRACE_IT(54663); return offsetof(BlockInfo, charCapacity); }
+            static size_t GetOffsetOfBuffer() {TRACE_IT(54664); return offsetof(BlockInfo, buffer); }
 
         public:
             void CopyFrom(Block *const block);
@@ -342,12 +342,12 @@ namespace Js
         static bool Is(const Var var);
         static CompoundString *FromVar(RecyclableObject *const object);
         static CompoundString *FromVar(const Var var);
-        static size_t GetOffsetOfOwnsLastBlock() { return offsetof(CompoundString, ownsLastBlock); }
-        static size_t GetOffsetOfDirectCharLength() { return offsetof(CompoundString, directCharLength); }
-        static size_t GetOffsetOfLastBlockInfo() { return offsetof(CompoundString, lastBlockInfo); }
-        static size_t GetOffsetOfLastBlockInfoCharLength() { return CompoundString::BlockInfo::GetOffsetOfCharLength(); }
-        static size_t GetOffsetOfLastBlockInfoCharCapacity() { return CompoundString::BlockInfo::GetOffsetOfCharCapacity(); }
-        static size_t GetOffsetOfLastBlockInfoBuffer() { return CompoundString::BlockInfo::GetOffsetOfBuffer(); }
+        static size_t GetOffsetOfOwnsLastBlock() {TRACE_IT(54665); return offsetof(CompoundString, ownsLastBlock); }
+        static size_t GetOffsetOfDirectCharLength() {TRACE_IT(54666); return offsetof(CompoundString, directCharLength); }
+        static size_t GetOffsetOfLastBlockInfo() {TRACE_IT(54667); return offsetof(CompoundString, lastBlockInfo); }
+        static size_t GetOffsetOfLastBlockInfoCharLength() {TRACE_IT(54668); return CompoundString::BlockInfo::GetOffsetOfCharLength(); }
+        static size_t GetOffsetOfLastBlockInfoCharCapacity() {TRACE_IT(54669); return CompoundString::BlockInfo::GetOffsetOfCharCapacity(); }
+        static size_t GetOffsetOfLastBlockInfoBuffer() {TRACE_IT(54670); return CompoundString::BlockInfo::GetOffsetOfBuffer(); }
 
     public:
         static JavascriptString *GetImmutableOrScriptUnreferencedString(JavascriptString *const s);
@@ -458,7 +458,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     bool CompoundString::Builder<MinimumCharCapacity>::IsFinalized() const
-    {
+    {TRACE_IT(54671);
     #if DBG
         return isFinalized;
     #else
@@ -468,19 +468,19 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     bool CompoundString::Builder<MinimumCharCapacity>::HasOnlyDirectChars() const
-    {
+    {TRACE_IT(54672);
         return directCharLength == static_cast<CharCount>(-1);
     }
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::SwitchToPointerMode()
-    {
+    {TRACE_IT(54673);
         Assert(HasOnlyDirectChars());
 
         directCharLength = charLength;
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54674);
             Output::Print(_u("CompoundString::SwitchToPointerMode() - directCharLength = %u\n"), directCharLength);
             Output::Flush();
         }
@@ -488,14 +488,14 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     bool CompoundString::Builder<MinimumCharCapacity>::OwnsLastBlock() const
-    {
+    {TRACE_IT(54675);
         return true;
     }
 
     template<CharCount MinimumCharCapacity>
     inline const char16 *CompoundString::Builder<MinimumCharCapacity>::GetAppendStringBuffer(
         JavascriptString *const s) const
-    {
+    {TRACE_IT(54676);
         Assert(s);
 
         return s->GetString();
@@ -503,73 +503,73 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     ScriptContext *CompoundString::Builder<MinimumCharCapacity>::GetScriptContext() const
-    {
+    {TRACE_IT(54677);
         return scriptContext;
     }
 
     template<CharCount MinimumCharCapacity>
     JavascriptLibrary *CompoundString::Builder<MinimumCharCapacity>::GetLibrary() const
-    {
+    {TRACE_IT(54678);
         return scriptContext->GetLibrary();
     }
 
     template<CharCount MinimumCharCapacity>
     char16 *CompoundString::Builder<MinimumCharCapacity>::LastBlockChars()
-    {
+    {TRACE_IT(54679);
         return Block::Chars(buffer);
     }
 
     template<CharCount MinimumCharCapacity>
     CharCount CompoundString::Builder<MinimumCharCapacity>::LastBlockCharLength() const
-    {
+    {TRACE_IT(54680);
         return charLength;
     }
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::SetLastBlockCharLength(const CharCount charLength)
-    {
+    {TRACE_IT(54681);
         this->charLength = charLength;
     }
 
     template<CharCount MinimumCharCapacity>
     CharCount CompoundString::Builder<MinimumCharCapacity>::LastBlockCharCapacity() const
-    {
+    {TRACE_IT(54682);
         return Block::CharCapacityFromPointerCapacity(LastBlockPointerCapacity());
     }
 
     template<CharCount MinimumCharCapacity>
     Field(void*) *CompoundString::Builder<MinimumCharCapacity>::LastBlockPointers()
-    {
+    {TRACE_IT(54683);
         return Block::Pointers(buffer);
     }
 
     template<CharCount MinimumCharCapacity>
     CharCount CompoundString::Builder<MinimumCharCapacity>::LastBlockPointerLength() const
-    {
+    {TRACE_IT(54684);
         return Block::PointerLengthFromCharLength(charLength);
     }
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::SetLastBlockPointerLength(const CharCount pointerLength)
-    {
+    {TRACE_IT(54685);
         charLength = Block::CharLengthFromPointerLength(pointerLength);
     }
 
     template<CharCount MinimumCharCapacity>
     CharCount CompoundString::Builder<MinimumCharCapacity>::LastBlockPointerCapacity() const
-    {
+    {TRACE_IT(54686);
         return _countof(buffer);
     }
 
     template<CharCount MinimumCharCapacity>
     CharCount CompoundString::Builder<MinimumCharCapacity>::GetLength() const
-    {
+    {TRACE_IT(54687);
         return stringLength;
     }
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::SetLength(const CharCount stringLength)
-    {
+    {TRACE_IT(54688);
         if(!IsValidCharCount(stringLength))
             Throw::OutOfMemory();
         this->stringLength = stringLength;
@@ -577,7 +577,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::AppendSlow(const char16 c)
-    {
+    {TRACE_IT(54689);
         Assert(!this->compoundString);
         CompoundString *const compoundString = CreateCompoundString(true);
         this->compoundString = compoundString;
@@ -590,7 +590,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     void CompoundString::Builder<MinimumCharCapacity>::AppendSlow(JavascriptString *const s)
-    {
+    {TRACE_IT(54690);
         Assert(!this->compoundString);
         CompoundString *const compoundString = CreateCompoundString(true);
         this->compoundString = compoundString;
@@ -602,7 +602,7 @@ namespace Js
     void CompoundString::Builder<MinimumCharCapacity>::AppendSlow(
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54691);
         // Even though CreateCompoundString() will create a compound string with some additional space reserved for appending,
         // the amount of space available may still not be enough, so need to check and fall back to the slow path as well
         Assert(!this->compoundString);
@@ -619,7 +619,7 @@ namespace Js
         void *const packedSubstringInfo,
         void *const packedSubstringInfo2,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54692);
         Assert(!this->compoundString);
         CompoundString *const compoundString = CreateCompoundString(true);
         this->compoundString = compoundString;
@@ -629,7 +629,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     inline void CompoundString::Builder<MinimumCharCapacity>::Append(const char16 c)
-    {
+    {TRACE_IT(54693);
         if(!compoundString)
         {
             AppendGeneric(c, this, false);
@@ -641,7 +641,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     inline void CompoundString::Builder<MinimumCharCapacity>::AppendChars(const char16 c)
-    {
+    {TRACE_IT(54694);
         if(!compoundString)
         {
             AppendGeneric(c, this, true);
@@ -653,7 +653,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     inline void CompoundString::Builder<MinimumCharCapacity>::Append(JavascriptString *const s)
-    {
+    {TRACE_IT(54695);
         if(!compoundString)
         {
             AppendGeneric(s, this, false);
@@ -665,7 +665,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     inline void CompoundString::Builder<MinimumCharCapacity>::AppendChars(JavascriptString *const s)
-    {
+    {TRACE_IT(54696);
         if(!compoundString)
         {
             AppendGeneric(s, this, true);
@@ -680,7 +680,7 @@ namespace Js
         JavascriptString *const s,
         const CharCount startIndex,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54697);
         if(!compoundString)
         {
             AppendGeneric(s, startIndex, appendCharLength, this, false);
@@ -695,7 +695,7 @@ namespace Js
         JavascriptString *const s,
         const CharCount startIndex,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54698);
         if(!compoundString)
         {
             AppendGeneric(s, startIndex, appendCharLength, this, true);
@@ -710,7 +710,7 @@ namespace Js
     inline void CompoundString::Builder<MinimumCharCapacity>::Append(
         const char16 (&s)[AppendCharLengthPlusOne],
         const bool isCppLiteral)
-    {
+    {TRACE_IT(54699);
         if(!compoundString)
         {
             AppendGeneric(s, isCppLiteral, this, false);
@@ -725,7 +725,7 @@ namespace Js
     inline void CompoundString::Builder<MinimumCharCapacity>::AppendChars(
         const char16 (&s)[AppendCharLengthPlusOne],
         const bool isCppLiteral)
-    {
+    {TRACE_IT(54700);
         if(!compoundString)
         {
             AppendGeneric(s, isCppLiteral, this, true);
@@ -739,7 +739,7 @@ namespace Js
     inline void CompoundString::Builder<MinimumCharCapacity>::Append(
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54701);
         if(!compoundString)
         {
             AppendGeneric(s, appendCharLength, this, false);
@@ -753,7 +753,7 @@ namespace Js
     inline void CompoundString::Builder<MinimumCharCapacity>::AppendChars(
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54702);
         if(!compoundString)
         {
             AppendGeneric(s, appendCharLength, this, true);
@@ -769,7 +769,7 @@ namespace Js
         const TValue &value,
         const CharCount maximumAppendCharLength,
         const FConvertToString ConvertToString)
-    {
+    {TRACE_IT(54703);
         if(!compoundString)
         {
             AppendGeneric(value, maximumAppendCharLength, ConvertToString, this, false);
@@ -785,7 +785,7 @@ namespace Js
         const TValue &value,
         const CharCount maximumAppendCharLength,
         const FConvertToString ConvertToString)
-    {
+    {TRACE_IT(54704);
         if(!compoundString)
         {
             AppendGeneric(value, maximumAppendCharLength, ConvertToString, this, true);
@@ -797,7 +797,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     CompoundString *CompoundString::Builder<MinimumCharCapacity>::CreateCompoundString(const bool reserveMoreSpace) const
-    {
+    {TRACE_IT(54705);
         return
             CompoundString::New(
                 stringLength,
@@ -810,7 +810,7 @@ namespace Js
 
     template<CharCount MinimumCharCapacity>
     inline JavascriptString *CompoundString::Builder<MinimumCharCapacity>::ToString()
-    {
+    {TRACE_IT(54706);
     #if DBG
         // Should not append to the builder after this function is called
         isFinalized = true;
@@ -846,7 +846,7 @@ namespace Js
 
     template<class String>
     inline bool CompoundString::TryAppendGeneric(const char16 c, String *const toString)
-    {
+    {TRACE_IT(54707);
         Assert(toString);
         Assert(!toString->IsFinalized());
         Assert(toString->OwnsLastBlock());
@@ -854,7 +854,7 @@ namespace Js
 
         const CharCount blockCharLength = toString->LastBlockCharLength();
         if(blockCharLength < toString->LastBlockCharCapacity())
-        {
+        {TRACE_IT(54708);
             toString->LastBlockChars()[blockCharLength] = c;
             toString->SetLength(toString->GetLength() + 1);
             toString->SetLastBlockCharLength(blockCharLength + 1);
@@ -868,7 +868,7 @@ namespace Js
         JavascriptString *const s,
         const CharCount appendCharLength,
         String *const toString)
-    {
+    {TRACE_IT(54709);
         Assert(s);
         Assert(appendCharLength == s->GetLength());
         Assert(toString);
@@ -878,7 +878,7 @@ namespace Js
 
         const CharCount blockPointerLength = toString->LastBlockPointerLength();
         if(blockPointerLength < toString->LastBlockPointerCapacity())
-        {
+        {TRACE_IT(54710);
             toString->LastBlockPointers()[blockPointerLength] = GetImmutableOrScriptUnreferencedString(s);
             toString->SetLength(toString->GetLength() + appendCharLength);
             toString->SetLastBlockPointerLength(blockPointerLength + 1);
@@ -892,7 +892,7 @@ namespace Js
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength,
         String *const toString)
-    {
+    {TRACE_IT(54711);
         Assert(s);
         Assert(toString);
         Assert(!toString->IsFinalized());
@@ -901,7 +901,7 @@ namespace Js
 
         const CharCount blockCharLength = toString->LastBlockCharLength();
         if(appendCharLength <= toString->LastBlockCharCapacity() - blockCharLength)
-        {
+        {TRACE_IT(54712);
             const char16 *appendCharBuffer = s;
             char16 *charBuffer = &toString->LastBlockChars()[blockCharLength];
             const char16 *const charBufferEnd = charBuffer + appendCharLength;
@@ -919,7 +919,7 @@ namespace Js
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength,
         String *const toString)
-    {
+    {TRACE_IT(54713);
         Assert(s);
         Assert(toString);
         Assert(!toString->IsFinalized());
@@ -928,7 +928,7 @@ namespace Js
 
         const CharCount blockCharLength = toString->LastBlockCharLength();
         if(appendCharLength <= toString->LastBlockCharCapacity() - blockCharLength)
-        {
+        {TRACE_IT(54714);
             CopyHelper(&toString->LastBlockChars()[blockCharLength], s, appendCharLength);
             toString->SetLength(toString->GetLength() + appendCharLength);
             toString->SetLastBlockCharLength(blockCharLength + appendCharLength);
@@ -944,7 +944,7 @@ namespace Js
         void *const packedSubstringInfo2,
         const CharCount appendCharLength,
         String *const toString)
-    {
+    {TRACE_IT(54715);
         Assert(s);
         Assert(packedSubstringInfo);
         Assert(appendCharLength <= s->GetLength());
@@ -956,7 +956,7 @@ namespace Js
         const CharCount blockPointerLength = toString->LastBlockPointerLength();
         const CharCount appendPointerLength = 2 + !!packedSubstringInfo2;
         if(blockPointerLength < toString->LastBlockPointerCapacity() - (appendPointerLength - 1))
-        {
+        {TRACE_IT(54716);
             Field(void*)* pointers = toString->LastBlockPointers();
             pointers[blockPointerLength] = GetImmutableOrScriptUnreferencedString(s);
             if(packedSubstringInfo2)
@@ -971,14 +971,14 @@ namespace Js
 
     template<class String>
     inline void CompoundString::AppendGeneric(const char16 c, String *const toString, const bool appendChars)
-    {
+    {TRACE_IT(54717);
         Assert(toString);
         Assert(!toString->IsFinalized());
         Assert(toString->OwnsLastBlock());
         Assert(!(appendChars && !toString->HasOnlyDirectChars()));
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54718);
             Output::Print(_u("CompoundString::AppendGeneric('%c', appendChars = %s)\n"), c, appendChars ? _u("true") : _u("false"));
             Output::Flush();
         }
@@ -986,7 +986,7 @@ namespace Js
         if(appendChars || toString->HasOnlyDirectChars()
                 ? TryAppendGeneric(c, toString)
                 : TryAppendGeneric(toString->GetLibrary()->GetCharStringCache().GetStringForChar(c), 1, toString))
-        {
+        {TRACE_IT(54719);
             return;
         }
         toString->AppendSlow(c);
@@ -997,7 +997,7 @@ namespace Js
         JavascriptString *const s,
         String *const toString,
         const bool appendChars)
-    {
+    {TRACE_IT(54720);
         Assert(s);
         Assert(toString);
         Assert(!toString->IsFinalized());
@@ -1009,7 +1009,7 @@ namespace Js
             return;
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54721);
             Output::Print(
                 _u("CompoundString::AppendGeneric(JavascriptString *s = \"%.8s%s\", appendCharLength = %u, appendChars = %s)\n"),
                 s->IsFinalized() ? s->GetString() : _u(""),
@@ -1020,9 +1020,9 @@ namespace Js
         }
 
         if(appendChars || toString->HasOnlyDirectChars())
-        {
+        {TRACE_IT(54722);
             if(appendCharLength == 1)
-            {
+            {TRACE_IT(54723);
                 const char16 c = toString->GetAppendStringBuffer(s)[0];
                 if(TryAppendGeneric(c, toString))
                     return;
@@ -1031,12 +1031,12 @@ namespace Js
             }
 
             if(appendChars || Block::ShouldAppendChars(appendCharLength))
-            {
+            {TRACE_IT(54724);
                 const char16 *const appendBuffer = toString->GetAppendStringBuffer(s);
                 if(appendChars
                         ? TryAppendGeneric(appendBuffer, appendCharLength, toString)
                         : TryAppendFewCharsGeneric(appendBuffer, appendCharLength, toString))
-                {
+                {TRACE_IT(54725);
                     return;
                 }
                 toString->AppendSlow(appendBuffer, appendCharLength);
@@ -1058,7 +1058,7 @@ namespace Js
         const CharCount appendCharLength,
         String *const toString,
         const bool appendChars)
-    {
+    {TRACE_IT(54726);
         Assert(s);
         Assert(startIndex <= s->GetLength());
         Assert(appendCharLength <= s->GetLength() - startIndex);
@@ -1071,7 +1071,7 @@ namespace Js
             return;
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54727);
             Output::Print(
                 _u("CompoundString::AppendGeneric(JavascriptString *s = \"%.*s%s\", startIndex = %u, appendCharLength = %u, appendChars = %s)\n"),
                 min(static_cast<CharCount>(8), appendCharLength),
@@ -1084,9 +1084,9 @@ namespace Js
         }
 
         if(appendChars || toString->HasOnlyDirectChars())
-        {
+        {TRACE_IT(54728);
             if(appendCharLength == 1)
-            {
+            {TRACE_IT(54729);
                 const char16 c = toString->GetAppendStringBuffer(s)[startIndex];
                 if(TryAppendGeneric(c, toString))
                     return;
@@ -1095,12 +1095,12 @@ namespace Js
             }
 
             if(appendChars || Block::ShouldAppendChars(appendCharLength, sizeof(void *)))
-            {
+            {TRACE_IT(54730);
                 const char16 *const appendBuffer = &toString->GetAppendStringBuffer(s)[startIndex];
                 if(appendChars
                         ? TryAppendGeneric(appendBuffer, appendCharLength, toString)
                         : TryAppendFewCharsGeneric(appendBuffer, appendCharLength, toString))
-                {
+                {TRACE_IT(54731);
                     return;
                 }
                 toString->AppendSlow(appendBuffer, appendCharLength);
@@ -1111,7 +1111,7 @@ namespace Js
         }
 
         if(appendCharLength == 1)
-        {
+        {TRACE_IT(54732);
             JavascriptString *const js =
                 toString->GetLibrary()->GetCharStringCache().GetStringForChar(toString->GetAppendStringBuffer(s)[startIndex]);
             if(TryAppendGeneric(js, 1, toString))
@@ -1133,7 +1133,7 @@ namespace Js
         const bool isCppLiteral,
         String *const toString,
         const bool appendChars)
-    {
+    {TRACE_IT(54733);
         CompileAssert(AppendCharLengthPlusOne != 0);
         Assert(s);
         Assert(s[AppendCharLengthPlusOne - 1] == _u('\0'));
@@ -1145,7 +1145,7 @@ namespace Js
         if(AppendCharLengthPlusOne == 1)
             return;
         if(AppendCharLengthPlusOne == 2)
-        {
+        {TRACE_IT(54734);
             AppendGeneric(s[0], toString, appendChars);
             return;
         }
@@ -1158,7 +1158,7 @@ namespace Js
         }
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54735);
             Output::Print(
                 _u("CompoundString::AppendGeneric(C++ literal \"%.8s%s\", appendCharLength = %u, appendChars = %s)\n"),
                 s,
@@ -1169,13 +1169,13 @@ namespace Js
         }
 
         if(appendChars || toString->HasOnlyDirectChars())
-        {
+        {TRACE_IT(54736);
             if(appendChars || Block::ShouldAppendChars(appendCharLength, sizeof(LiteralString)))
-            {
+            {TRACE_IT(54737);
                 if(appendChars
                         ? TryAppendGeneric(s, appendCharLength, toString)
                         : TryAppendFewCharsGeneric(s, appendCharLength, toString))
-                {
+                {TRACE_IT(54738);
                     return;
                 }
                 toString->AppendSlow(s, appendCharLength);
@@ -1197,7 +1197,7 @@ namespace Js
         const CharCount appendCharLength,
         String *const toString,
         const bool appendChars)
-    {
+    {TRACE_IT(54739);
         Assert(s);
         Assert(toString);
         Assert(!toString->IsFinalized());
@@ -1208,7 +1208,7 @@ namespace Js
             return;
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54740);
             Output::Print(
                 _u("CompoundString::AppendGeneric(char16 *s = \"%.8s%s\", appendCharLength = %u, appendChars = %s)\n"),
                 s,
@@ -1219,9 +1219,9 @@ namespace Js
         }
 
         if(appendChars || toString->HasOnlyDirectChars())
-        {
+        {TRACE_IT(54741);
             if(appendCharLength == 1)
-            {
+            {TRACE_IT(54742);
                 const char16 c = s[0];
                 if(TryAppendGeneric(c, toString))
                     return;
@@ -1249,7 +1249,7 @@ namespace Js
         const FConvertToString ConvertToString,
         String *const toString,
         const bool appendChars)
-    {
+    {TRACE_IT(54743);
         const CharCount AbsoluteMaximumAppendCharLength = 20; // maximum length of uint64 converted to base-10 string
 
         Assert(maximumAppendCharLength != 0);
@@ -1270,7 +1270,7 @@ namespace Js
 
         const CharCount appendCharLength = static_cast<CharCount>(wcslen(convertBuffer));
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54744);
             Output::Print(
                 _u("CompoundString::AppendGeneric(TValue &, appendChars = %s) - converted = \"%.8s%s\", appendCharLength = %u\n"),
                 appendChars ? _u("true") : _u("false"),
@@ -1281,7 +1281,7 @@ namespace Js
         }
 
         if(convertInPlace)
-        {
+        {TRACE_IT(54745);
             toString->SetLength(toString->GetLength() + appendCharLength);
             toString->SetLastBlockCharLength(blockCharLength + appendCharLength);
             return;

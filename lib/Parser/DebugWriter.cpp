@@ -11,7 +11,7 @@ namespace UnifiedRegex
     const char16* const DebugWriter::hex = _u("0123456789abcdef");
 
     DebugWriter::DebugWriter() : indent(0), nlPending(false)
-    {
+    {TRACE_IT(29176);
     }
 
 #define PRINT_DEBUG_WRITER()                                        \
@@ -21,7 +21,7 @@ namespace UnifiedRegex
     if (len < 0 || len >= bufLen - 1)                               \
         Output::Print(_u("<not enough buffer space to format>"));   \
     else                                                            \
-    {                                                               \
+    {TRACE_IT(29177);                                                               \
         if (len > 0)                                                \
             CheckForNewline();                                      \
         Output::Print(_u("%s"), buf);                               \
@@ -40,13 +40,13 @@ namespace UnifiedRegex
     }
 
     void DebugWriter::PrintEscapedString(const Char* str, CharCount len)
-    {
+    {TRACE_IT(29178);
         Assert(str != 0);
         CheckForNewline();
 
         const Char* pl = str + len;
         for (const Char* p = str; p < pl; p++)
-        {
+        {TRACE_IT(29179);
             if (*p == '"')
                 Output::Print(_u("\\\""));
             else
@@ -90,30 +90,30 @@ namespace UnifiedRegex
     }
 
     void DebugWriter::EOL()
-    {
+    {TRACE_IT(29180);
         CheckForNewline();
         nlPending = true;
     }
 
     void DebugWriter::Indent()
-    {
+    {TRACE_IT(29181);
         indent++;
     }
 
     void DebugWriter::Unindent()
-    {
+    {TRACE_IT(29182);
         indent--;
     }
 
     void DebugWriter::Flush()
-    {
+    {TRACE_IT(29183);
         Output::Print(_u("\n"));
         Output::Flush();
         nlPending = false;
     }
 
     void DebugWriter::BeginLine()
-    {
+    {TRACE_IT(29184);
         Output::Print(_u("\n%*s"), indent * 4, _u(""));
     }
 }

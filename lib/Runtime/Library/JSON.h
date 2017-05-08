@@ -40,21 +40,21 @@ namespace JSON
                 gap(NULL),
                 indent(0),
                 propertySeparator(NULL)
-        {
+        {TRACE_IT(55832);
             replacer.propertyList.propertyNames = NULL;
             replacer.propertyList.length = 0;
         };
 
-        Js::Var Stringify(){};
+        Js::Var Stringify(){TRACE_IT(55833);};
 
         // Init operation is split in three functions
         void InitReplacer(Js::RecyclableObject* f)
-        {
+        {TRACE_IT(55834);
             replacerType = ReplacerFunction;
             replacer.ReplacerFunction = f;
         }
         void InitReplacer(StringTable *nameTable, uint len)
-        {
+        {TRACE_IT(55835);
             replacerType = ReplacerArray;
             replacer.propertyList.propertyNames = nameTable;
             replacer.propertyList.length = len;

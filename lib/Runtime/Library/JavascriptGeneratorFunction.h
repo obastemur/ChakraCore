@@ -28,12 +28,12 @@ namespace Js
         JavascriptGeneratorFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction);
 
         virtual JavascriptString* GetDisplayNameImpl() const override;
-        GeneratorVirtualScriptFunction* GetGeneratorVirtualScriptFunction() { return scriptFunction; }
+        GeneratorVirtualScriptFunction* GetGeneratorVirtualScriptFunction() {TRACE_IT(59074); return scriptFunction; }
 
         static JavascriptGeneratorFunction* FromVar(Var var);
         static bool Is(Var var);
         inline static bool Test(JavascriptFunction *obj)
-        {
+        {TRACE_IT(59075);
             return VirtualTableInfo<JavascriptGeneratorFunction>::HasVirtualTable(obj)
               || VirtualTableInfo<CrossSiteObject<JavascriptGeneratorFunction>>::HasVirtualTable(obj);
         }
@@ -41,7 +41,7 @@ namespace Js
         static JavascriptGeneratorFunction* OP_NewScGenFunc(FrameDisplay* environment, FunctionInfoPtrPtr infoRef);
         static Var EntryGeneratorFunctionImplementation(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryAsyncFunctionImplementation(RecyclableObject* function, CallInfo callInfo, ...);
-        static DWORD GetOffsetOfScriptFunction() { return offsetof(JavascriptGeneratorFunction, scriptFunction); }
+        static DWORD GetOffsetOfScriptFunction() {TRACE_IT(59076); return offsetof(JavascriptGeneratorFunction, scriptFunction); }
 
         virtual Var GetHomeObj() const override;
         virtual void SetHomeObj(Var homeObj) override;
@@ -69,7 +69,7 @@ namespace Js
 
         virtual BOOL IsWritable(PropertyId propertyId) override;
         virtual BOOL IsEnumerable(PropertyId propertyId) override;
-        virtual bool IsGeneratorFunction() const { return true; };
+        virtual bool IsGeneratorFunction() const {TRACE_IT(59077); return true; };
 
         class EntryInfo
         {
@@ -101,12 +101,12 @@ namespace Js
         JavascriptAsyncFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction);
 
         static JavascriptAsyncFunction* New(ScriptContext* scriptContext, GeneratorVirtualScriptFunction* scriptFunction);
-        static DWORD GetOffsetOfScriptFunction() { return JavascriptGeneratorFunction::GetOffsetOfScriptFunction(); }
+        static DWORD GetOffsetOfScriptFunction() {TRACE_IT(59078); return JavascriptGeneratorFunction::GetOffsetOfScriptFunction(); }
 
         static JavascriptAsyncFunction* FromVar(Var var);
         static bool Is(Var var);
         inline static bool Test(JavascriptFunction *obj)
-        {
+        {TRACE_IT(59079);
             return VirtualTableInfo<JavascriptAsyncFunction>::HasVirtualTable(obj)
               || VirtualTableInfo<CrossSiteObject<JavascriptAsyncFunction>>::HasVirtualTable(obj);
         }
@@ -125,12 +125,12 @@ namespace Js
 
         Field(JavascriptGeneratorFunction*) realFunction;
 
-        void SetRealGeneratorFunction(JavascriptGeneratorFunction* realFunction) { this->realFunction = realFunction; }
+        void SetRealGeneratorFunction(JavascriptGeneratorFunction* realFunction) {TRACE_IT(59080); this->realFunction = realFunction; }
 
     public:
-        GeneratorVirtualScriptFunction(FunctionProxy* proxy, ScriptFunctionType* deferredPrototypeType) : ScriptFunction(proxy, deferredPrototypeType) { }
+        GeneratorVirtualScriptFunction(FunctionProxy* proxy, ScriptFunctionType* deferredPrototypeType) : ScriptFunction(proxy, deferredPrototypeType) {TRACE_IT(59081); }
 
-        static uint32 GetRealFunctionOffset() { return offsetof(GeneratorVirtualScriptFunction, realFunction); }
+        static uint32 GetRealFunctionOffset() {TRACE_IT(59082); return offsetof(GeneratorVirtualScriptFunction, realFunction); }
 
         virtual JavascriptFunction* GetRealFunctionObject() override { return realFunction; }
 

@@ -17,7 +17,7 @@ namespace Js
 
 public:
         TinyDictionary()
-        {
+        {TRACE_IT(67983);
             CompileAssert(BUCKETS_DWORDS * sizeof(DWORD) == PowerOf2_BUCKETS);
             CompileAssert(BUCKETS_DWORDS == 2);
             DWORD* init = bucketsData;
@@ -25,7 +25,7 @@ public:
         }
 
         void Add(PropertyId key, byte value)
-        {
+        {TRACE_IT(67984);
             byte* buckets = reinterpret_cast<byte*>(bucketsData);
             uint32 bucketIndex = key & (PowerOf2_BUCKETS - 1);
 
@@ -37,14 +37,14 @@ public:
         // Template shared with diagnostics
         template <class Data>
         inline bool TryGetValue(PropertyId key, PropertyIndex* index, const Data& data)
-        {
+        {TRACE_IT(67985);
             byte* buckets = reinterpret_cast<byte*>(bucketsData);
             uint32 bucketIndex = key & (PowerOf2_BUCKETS - 1);
 
             for (byte i = buckets[bucketIndex] ; i != NIL ; i = next[i])
-            {
+            {TRACE_IT(67986);
                 if (data[i]->GetPropertyId()== key)
-                {
+                {TRACE_IT(67987);
                     *index = i;
                     return true;
                 }
@@ -118,10 +118,10 @@ public:
             singletonInstance(nullptr),
 #endif
             data(nullptr)
-        {
+        {TRACE_IT(67988);
         }
 
-        Data * GetData() { return data; }
+        Data * GetData() {TRACE_IT(67989); return data; }
     public:
         static TypePath* New(Recycler* recycler, uint size = InitialTypePathSize);
 
@@ -130,13 +130,13 @@ public:
         TypePath * Grow(Recycler * alloc);
 
         const PropertyRecord* GetPropertyIdUnchecked(int index)
-        {
+        {TRACE_IT(67990);
             Assert(((uint)index) < ((uint)this->GetPathLength()));
             return assignments[index];
         }
 
         const PropertyRecord* GetPropertyId(int index)
-        {
+        {TRACE_IT(67991);
             if (((uint)index) < ((uint)this->GetPathLength()))
                 return GetPropertyIdUnchecked(index);
             else
@@ -144,7 +144,7 @@ public:
         }
 
         int Add(const PropertyRecord * propertyRecord)
-        {
+        {TRACE_IT(67992);
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             Assert(this->GetPathLength() == this->GetMaxInitializedLength());
             this->GetData()->maxInitializedLength++;
@@ -152,8 +152,8 @@ public:
             return AddInternal(propertyRecord);
         }
 
-        uint8 GetPathLength() { return this->GetData()->pathLength; }
-        uint8 GetPathSize() { return this->GetData()->pathSize; }
+        uint8 GetPathLength() {TRACE_IT(67993); return this->GetData()->pathLength; }
+        uint8 GetPathSize() {TRACE_IT(67994); return this->GetData()->pathSize; }
 
         PropertyIndex Lookup(PropertyId propId,int typePathLength);
         PropertyIndex LookupInline(PropertyId propId,int typePathLength);
@@ -162,9 +162,9 @@ public:
         int AddInternal(const PropertyRecord* propId);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
-        uint8 GetMaxInitializedLength() { return this->GetData()->maxInitializedLength; }
+        uint8 GetMaxInitializedLength() {TRACE_IT(67995); return this->GetData()->maxInitializedLength; }
         void SetMaxInitializedLength(int newMaxInitializedLength)
-        {
+        {TRACE_IT(67996);
             Assert(newMaxInitializedLength >= 0);
             Assert(newMaxInitializedLength <= MaxPathTypeHandlerLength);
             Assert(this->GetMaxInitializedLength() <= newMaxInitializedLength);
@@ -174,45 +174,45 @@ public:
         Var GetSingletonFixedFieldAt(PropertyIndex index, int typePathLength, ScriptContext * requestContext);
 
         bool HasSingletonInstance() const
-        {
+        {TRACE_IT(67997);
             return this->singletonInstance != nullptr;
         }
 
         RecyclerWeakReference<DynamicObject>* GetSingletonInstance() const
-        {
+        {TRACE_IT(67998);
             return this->singletonInstance;
         }
 
         void SetSingletonInstance(RecyclerWeakReference<DynamicObject>* instance, int typePathLength)
-        {
+        {TRACE_IT(67999);
             Assert(this->singletonInstance == nullptr && instance != nullptr);
             Assert(typePathLength >= this->GetMaxInitializedLength());
             this->singletonInstance = instance;
         }
 
         void ClearSingletonInstance()
-        {
+        {TRACE_IT(68000);
             this->singletonInstance = nullptr;
         }
 
         void ClearSingletonInstanceIfSame(DynamicObject* instance)
-        {
+        {TRACE_IT(68001);
             if (this->singletonInstance != nullptr && this->singletonInstance->Get() == instance)
-            {
+            {TRACE_IT(68002);
                 ClearSingletonInstance();
             }
         }
 
         void ClearSingletonInstanceIfDifferent(DynamicObject* instance)
-        {
+        {TRACE_IT(68003);
             if (this->singletonInstance != nullptr && this->singletonInstance->Get() != instance)
-            {
+            {TRACE_IT(68004);
                 ClearSingletonInstance();
             }
         }
 
         bool GetIsFixedFieldAt(PropertyIndex index, int typePathLength)
-        {
+        {TRACE_IT(68005);
             Assert(index < this->GetPathLength());
             Assert(index < typePathLength);
             Assert(typePathLength <= this->GetPathLength());
@@ -221,7 +221,7 @@ public:
         }
 
         bool GetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength)
-        {
+        {TRACE_IT(68006);
             Assert(index < this->GetPathLength());
             Assert(index < typePathLength);
             Assert(typePathLength <= this->GetPathLength());
@@ -230,14 +230,14 @@ public:
         }
 
         void SetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength)
-        {
+        {TRACE_IT(68007);
             Assert(index < this->GetMaxInitializedLength());
             Assert(CanHaveFixedFields(typePathLength));
             this->GetData()->usedFixedFields.Set(index);
         }
 
         void ClearIsFixedFieldAt(PropertyIndex index, int typePathLength)
-        {
+        {TRACE_IT(68008);
             Assert(index < this->GetMaxInitializedLength());
             Assert(index < typePathLength);
             Assert(typePathLength <= this->GetPathLength());
@@ -247,7 +247,7 @@ public:
         }
 
         bool CanHaveFixedFields(int typePathLength)
-        {
+        {TRACE_IT(68009);
             // We only support fixed fields on singleton instances.
             // If the instance in question is a singleton, it must be the tip of the type path.
             return this->singletonInstance != nullptr && typePathLength >= this->GetData()->maxInitializedLength;
@@ -264,25 +264,25 @@ public:
 #endif
 
 #else
-        int GetMaxInitializedLength() { Assert(false); return this->pathLength; }
+        int GetMaxInitializedLength() {TRACE_IT(68010); Assert(false); return this->pathLength; }
 
         Var GetSingletonFixedFieldAt(PropertyIndex index, int typePathLength, ScriptContext * requestContext);
 
-        bool HasSingletonInstance() const { Assert(false); return false; }
-        RecyclerWeakReference<DynamicObject>* GetSingletonInstance() const { Assert(false); return nullptr; }
-        void SetSingletonInstance(RecyclerWeakReference<DynamicObject>* instance, int typePathLength) { Assert(false); }
-        void ClearSingletonInstance() { Assert(false); }
-        void ClearSingletonInstanceIfSame(RecyclerWeakReference<DynamicObject>* instance) { Assert(false); }
-        void ClearSingletonInstanceIfDifferent(RecyclerWeakReference<DynamicObject>* instance) { Assert(false); }
+        bool HasSingletonInstance() const {TRACE_IT(68011); Assert(false); return false; }
+        RecyclerWeakReference<DynamicObject>* GetSingletonInstance() const {TRACE_IT(68012); Assert(false); return nullptr; }
+        void SetSingletonInstance(RecyclerWeakReference<DynamicObject>* instance, int typePathLength) {TRACE_IT(68013); Assert(false); }
+        void ClearSingletonInstance() {TRACE_IT(68014); Assert(false); }
+        void ClearSingletonInstanceIfSame(RecyclerWeakReference<DynamicObject>* instance) {TRACE_IT(68015); Assert(false); }
+        void ClearSingletonInstanceIfDifferent(RecyclerWeakReference<DynamicObject>* instance) {TRACE_IT(68016); Assert(false); }
 
-        bool GetIsFixedFieldAt(PropertyIndex index, int typePathLength) { Assert(false); return false; }
-        bool GetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength) { Assert(false); return false; }
-        void SetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength) { Assert(false); }
-        void ClearIsFixedFieldAt(PropertyIndex index, int typePathLength) { Assert(false); }
-        bool CanHaveFixedFields(int typePathLength) { Assert(false); return false; }
-        void AddBlankFieldAt(PropertyIndex index, int typePathLength) { Assert(false); }
-        void AddSingletonInstanceFieldAt(DynamicObject* instance, PropertyIndex index, bool isFixed, int typePathLength) { Assert(false); }
-        void AddSingletonInstanceFieldAt(PropertyIndex index, int typePathLength) { Assert(false); }
+        bool GetIsFixedFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68017); Assert(false); return false; }
+        bool GetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68018); Assert(false); return false; }
+        void SetIsUsedFixedFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68019); Assert(false); }
+        void ClearIsFixedFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68020); Assert(false); }
+        bool CanHaveFixedFields(int typePathLength) {TRACE_IT(68021); Assert(false); return false; }
+        void AddBlankFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68022); Assert(false); }
+        void AddSingletonInstanceFieldAt(DynamicObject* instance, PropertyIndex index, bool isFixed, int typePathLength) {TRACE_IT(68023); Assert(false); }
+        void AddSingletonInstanceFieldAt(PropertyIndex index, int typePathLength) {TRACE_IT(68024); Assert(false); }
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded();
 #endif

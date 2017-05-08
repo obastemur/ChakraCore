@@ -7,7 +7,7 @@
 template <typename TBlockAttributes>
 void
 SmallLeafHeapBucketT<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(26980);
     BaseT::SweepBucket(recyclerSweep, [](RecyclerSweep& recyclerSweep){});
 }
 
@@ -16,7 +16,7 @@ SmallLeafHeapBucketT<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep)
 template <typename TBlockAttributes>
 size_t
 SmallLeafHeapBucketT<TBlockAttributes>::GetNonEmptyHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(26981);
     return BaseT::GetNonEmptyHeapBlockCount(checkCount);
 }
 #endif
@@ -25,7 +25,7 @@ SmallLeafHeapBucketT<TBlockAttributes>::GetNonEmptyHeapBlockCount(bool checkCoun
 template <typename TBlockAttributes>
 size_t
 SmallLeafHeapBucketT<TBlockAttributes>::Check()
-{
+{TRACE_IT(26982);
     return BaseT::Check(true);
 }
 #endif
@@ -34,7 +34,7 @@ SmallLeafHeapBucketT<TBlockAttributes>::Check()
 template <typename TBlockAttributes>
 void
 SmallLeafHeapBucketT<TBlockAttributes>::Verify()
-{
+{TRACE_IT(26983);
     BaseT::Verify();
 }
 #endif
@@ -43,7 +43,7 @@ SmallLeafHeapBucketT<TBlockAttributes>::Verify()
 template <typename TBlockAttributes>
 void
 SmallLeafHeapBucketT<TBlockAttributes>::VerifyMark()
-{
+{TRACE_IT(26984);
     __super::VerifyMark();
 }
 #endif

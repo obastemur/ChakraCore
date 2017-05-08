@@ -53,10 +53,10 @@ private:
     public:
         Exception(LPCWSTR message):
             pszMsg(message)
-        {}
+        {TRACE_IT(19703);}
 
         operator LPCWSTR () const
-        {
+        {TRACE_IT(19704);
             return this->pszMsg;
         }
     };
@@ -76,27 +76,27 @@ private:
             void                       PrintUsage();
 
             char16 CurChar()
-            {
+            {TRACE_IT(19705);
                 return this->pszCurrentArg[0];
             }
 
             char16 PeekChar()
-            {
+            {TRACE_IT(19706);
                 return this->pszCurrentArg[1];
             }
 
             void NextChar()
-            {
+            {TRACE_IT(19707);
                 this->pszCurrentArg++;
             }
 
             bool IsDigit()
-            {
+            {TRACE_IT(19708);
                 return (CurChar() >='0' && CurChar() <= '9');
             }
 
             bool IsHexDigit()
-            {
+            {TRACE_IT(19709);
                 return (CurChar() >= '0' && CurChar() <= '9') ||
                     (CurChar() >= 'A' && CurChar() <= 'F') ||
                     (CurChar() >= 'a' && CurChar() <= 'f');

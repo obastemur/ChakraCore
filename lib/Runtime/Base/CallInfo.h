@@ -22,7 +22,7 @@ namespace Js
 
     struct CallInfo
     {
-        CallInfo() {}
+        CallInfo() {TRACE_IT(33484);}
 
         /*
          * Removed the copy constructor because it forced the 64 bit compiler
@@ -48,7 +48,7 @@ namespace Js
         }
 
         CallInfo(VirtualTableInfoCtorEnum v)
-        {
+        {TRACE_IT(33485);
         }
 
         // Assumes big-endian layout
@@ -64,7 +64,7 @@ namespace Js
 
 #if DBG
         bool operator==(CallInfo other) const
-        {
+        {TRACE_IT(33486);
             return this->Count == other.Count && this->Flags == other.Flags;
         }
 #endif
@@ -74,7 +74,7 @@ namespace Js
         static const uint kMaxCountArgs;
 
         static bool isDirectEvalCall(CallFlags flags)
-        {
+        {TRACE_IT(33487);
             // This was recognized as an eval call at compile time. The last one or two args are internal to us.
             // Argcount will be one of the following when called from global code
             //  - eval("...")     : argcount 3 : this, evalString, frameDisplay
@@ -92,16 +92,16 @@ namespace Js
         static size_t const MaxInlineeArgoutCount = 0xF;
 
         static bool Encode(intptr_t &callInfo, size_t count, size_t offset)
-        {
+        {TRACE_IT(33488);
             const size_t offsetMask = (~(size_t)0) >> 4;
             const size_t countMask  = 0x0000000F;
             if (count != (count & countMask))
-            {
+            {TRACE_IT(33489);
                 return false;
             }
 
             if (offset != (offset & offsetMask))
-            {
+            {TRACE_IT(33490);
                 return false;
             }
 
@@ -111,7 +111,7 @@ namespace Js
         }
 
         void Clear()
-        {
+        {TRACE_IT(33491);
             this->Count = 0;
             this->InlineeStartOffset = 0;
         }

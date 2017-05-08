@@ -8,13 +8,13 @@ namespace Js
 {
     template <typename StringType>
     inline void JavascriptString::Copy(__out_ecount(bufLen) char16 *const buffer, const charcount_t bufLen)
-    {
+    {TRACE_IT(62048);
         Assert(buffer);
 
         charcount_t stringLen = this->GetLength();
         Assert(stringLen == m_charLength);
         if (bufLen < stringLen)
-        {
+        {TRACE_IT(62049);
             Throw::InternalError();
         }
 

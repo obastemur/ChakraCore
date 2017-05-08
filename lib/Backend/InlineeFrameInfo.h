@@ -7,13 +7,13 @@
 
 struct BailoutConstantValue {
 public:
-    void InitIntConstValue(int32 value) { this->type = TyInt32; this->u.intConst.value = (IntConstType)value; };
-    void InitIntConstValue(IntConstType value, IRType type) {
+    void InitIntConstValue(int32 value) {TRACE_IT(9369); this->type = TyInt32; this->u.intConst.value = (IntConstType)value; };
+    void InitIntConstValue(IntConstType value, IRType type) {TRACE_IT(9370);
         Assert(IRType_IsSignedInt(type));
         this->type = type; this->u.intConst.value = value;
     };
     void InitVarConstValue(Js::Var value);
-    void InitFloatConstValue(FloatConstType value) { this->type = TyFloat64; this->u.floatConst.value = value; }
+    void InitFloatConstValue(FloatConstType value) {TRACE_IT(9371); this->type = TyFloat64; this->u.floatConst.value = value; }
     bool IsEqual(const BailoutConstantValue & bailoutConstValue);
 public:
     IRType type;
@@ -51,11 +51,11 @@ struct InlineFrameInfoValue
         BailoutConstantValue constValue;
     };
 
-    bool IsConst() { return this->type == InlineeFrameInfoValueType_Const; }
+    bool IsConst() {TRACE_IT(9372); return this->type == InlineeFrameInfoValueType_Const; }
 
-    InlineFrameInfoValue() : type(InlineeFrameInfoValueType_None), sym(nullptr) {}
-    InlineFrameInfoValue(StackSym* sym) : type(InlineeFrameInfoValueType_Sym), sym(sym) {}
-    InlineFrameInfoValue(BailoutConstantValue value) : type(InlineeFrameInfoValueType_Const), constValue(value) {}
+    InlineFrameInfoValue() : type(InlineeFrameInfoValueType_None), sym(nullptr) {TRACE_IT(9373);}
+    InlineFrameInfoValue(StackSym* sym) : type(InlineeFrameInfoValueType_Sym), sym(sym) {TRACE_IT(9374);}
+    InlineFrameInfoValue(BailoutConstantValue value) : type(InlineeFrameInfoValueType_Const), constValue(value) {TRACE_IT(9375);}
 
 };
 struct InlineeFrameInfo;
@@ -75,11 +75,11 @@ struct InlineeFrameRecord
 
     template<class Fnc>
     void MapOffsets(Fnc callback)
-    {
+    {TRACE_IT(9376);
         callback(functionOffset);
 
         for (uint i = 0; i < argCount; i++)
-        {
+        {TRACE_IT(9377);
             callback(argOffsets[i]);
         }
     }
@@ -99,7 +99,7 @@ struct InlineeFrameRecord
     {}
 
     static InlineeFrameRecord* New(NativeCodeData::Allocator* alloc, uint argCount, uint constantCount, intptr_t functionBodyAddr, InlineeFrameInfo* frameInfo)
-    {
+    {TRACE_IT(9378);
         InlineeFrameRecord* record = NativeCodeDataNewZ(alloc, InlineeFrameRecord, argCount, (Js::FunctionBody*)functionBodyAddr, frameInfo);
         record->argOffsets = (int*)NativeCodeDataNewArrayNoFixup(alloc, IntType<DataDesc_InlineeFrameRecord_ArgOffsets>, argCount);
         record->constants = (Js::Var*)NativeCodeDataNewArrayNoFixup(alloc, VarType<DataDesc_InlineeFrameRecord_Constants>, constantCount);
@@ -160,7 +160,7 @@ struct InlineeFrameInfo
     bool isRecorded;
 
     static InlineeFrameInfo* New(JitArenaAllocator* alloc)
-    {
+    {TRACE_IT(9379);
         InlineeFrameInfo* frameInfo = JitAnewStructZ(alloc, InlineeFrameInfo);
         frameInfo->arguments = JitAnew(alloc, ArgList, alloc);
         return frameInfo;
@@ -168,32 +168,32 @@ struct InlineeFrameInfo
 
     template<class Fn>
     void IterateSyms(Fn callback, bool inReverse = false)
-    {
+    {TRACE_IT(9380);
         auto iterator = [=](uint index, InlineFrameInfoValue& value)
-        {
+        {TRACE_IT(9381);
             if (value.type == InlineeFrameInfoValueType_Sym)
-            {
+            {TRACE_IT(9382);
                 callback(value.sym);
             }
             Assert(value.type != InlineeFrameInfoValueType_None);
         };
 
         if (inReverse && function.type == InlineeFrameInfoValueType_Sym)
-        {
+        {TRACE_IT(9383);
             callback(function.sym);
         }
 
         if (inReverse)
-        {
+        {TRACE_IT(9384);
             arguments->ReverseMap(iterator);
         }
         else
-        {
+        {TRACE_IT(9385);
             arguments->Map(iterator);
         }
         Assert(function.type != InlineeFrameInfoValueType_None);
         if (!inReverse && function.type == InlineeFrameInfoValueType_Sym)
-        {
+        {TRACE_IT(9386);
             callback(function.sym);
         }
     }

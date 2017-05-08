@@ -51,6 +51,6 @@ namespace JsUtil
 
 // Just an alias to ExternalApi::GetCurrentThreadContextId
 inline ThreadContextId GetCurrentThreadContextId()
-{
+{TRACE_IT(19612);
     return JsUtil::ExternalApi::GetCurrentThreadContextId();
 }

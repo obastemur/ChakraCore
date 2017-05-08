@@ -26,7 +26,7 @@ public:
     void Init(uint reservedPageCount);
     void Clear();
 
-    Recycler * GetRecycler() { return this->recycler; }
+    Recycler * GetRecycler() {TRACE_IT(24682); return this->recycler; }
 
     bool AddMarkedObject(void * obj, size_t byteCount);
 #if ENABLE_CONCURRENT_GC
@@ -52,16 +52,16 @@ public:
     void Abort();
     void Release();
 
-    bool HasPendingMarkObjects() const { return !markStack.IsEmpty(); }
-    bool HasPendingTrackObjects() const { return !trackStack.IsEmpty(); }
-    bool HasPendingObjects() const { return HasPendingMarkObjects() || HasPendingTrackObjects(); }
+    bool HasPendingMarkObjects() const {TRACE_IT(24683); return !markStack.IsEmpty(); }
+    bool HasPendingTrackObjects() const {TRACE_IT(24684); return !trackStack.IsEmpty(); }
+    bool HasPendingObjects() const {TRACE_IT(24685); return HasPendingMarkObjects() || HasPendingTrackObjects(); }
 
-    PageAllocator * GetPageAllocator() { return this->pagePool->GetPageAllocator(); }
+    PageAllocator * GetPageAllocator() {TRACE_IT(24686); return this->pagePool->GetPageAllocator(); }
 
     bool IsEmpty()
-    {
+    {TRACE_IT(24687);
         if (HasPendingObjects())
-        {
+        {TRACE_IT(24688);
             return false;
         }
 
@@ -72,28 +72,28 @@ public:
 
 #if DBG
     void VerifyPostMarkState()
-    {
+    {TRACE_IT(24689);
         Assert(this->markStack.HasChunk());
     }
 #endif
 
     void Cleanup()
-    {
+    {TRACE_IT(24690);
         Assert(!HasPendingObjects());
         Assert(!GetPageAllocator()->DisableAllocationOutOfMemory());
         this->pagePool->ReleaseFreePages();
     }
 
-    void DecommitPages() { this->pagePool->Decommit(); }
+    void DecommitPages() {TRACE_IT(24691); this->pagePool->Decommit(); }
 
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-    void SetMaxPageCount(size_t maxPageCount) { markStack.SetMaxPageCount(maxPageCount); trackStack.SetMaxPageCount(maxPageCount); }
+    void SetMaxPageCount(size_t maxPageCount) {TRACE_IT(24692); markStack.SetMaxPageCount(maxPageCount); trackStack.SetMaxPageCount(maxPageCount); }
 #endif
 
 #ifdef RECYCLER_MARK_TRACK
     void SetMarkMap(MarkMap* markMap)
-    {
+    {TRACE_IT(24693);
         this->markMap = markMap;
     }
 #endif

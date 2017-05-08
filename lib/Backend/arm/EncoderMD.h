@@ -52,7 +52,7 @@ public:
 class EncoderMD
 {
 public:
-    EncoderMD(Func * func) : m_func(func), consecutiveThumbInstrCount(0) { }
+    EncoderMD(Func * func) : m_func(func), consecutiveThumbInstrCount(0) {TRACE_IT(16883); }
     ptrdiff_t       Encode(IR::Instr * instr, BYTE *pc, BYTE* beginCodeAddress = nullptr);
     void            Init(Encoder *encoder);
     void            ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint* bufferCRC, BOOL isBrShorteningSucceeded, bool isFinalBufferValidation = false);
@@ -65,39 +65,39 @@ public:
     static uint32   GetOpdope(Js::OpCode op);
 
     static bool     IsLoad(IR::Instr *instr)
-    {
+    {TRACE_IT(16884);
         return ISLOAD(instr->m_opcode);
     }
 
     static bool     IsStore(IR::Instr *instr)
-    {
+    {TRACE_IT(16885);
         return ISSTORE(instr->m_opcode);
     }
 
     static bool     IsShifterUpdate(IR::Instr *instr)
-    {
+    {TRACE_IT(16886);
         return ISSHIFTERUPDATE(instr->m_opcode);
     }
 
     static bool     IsShifterSub(IR::Instr *instr)
-    {
+    {TRACE_IT(16887);
         return ISSHIFTERSUB(instr->m_opcode);
     }
 
     static bool     IsShifterPost(IR::Instr *instr)
-    {
+    {TRACE_IT(16888);
         return ISSHIFTERPOST(instr->m_opcode);
     }
 
     static bool     SetsSBit(IR::Instr *instr)
-    {
+    {TRACE_IT(16889);
         return SETS_SBIT(instr->m_opcode);
     }
 
     void            AddLabelReloc(BYTE* relocAddress);
 
     static bool     CanEncodeModConst12(DWORD constant);
-    static bool     CanEncodeLoadStoreOffset(int32 offset) { return IS_CONST_UINT12(offset); }
+    static bool     CanEncodeLoadStoreOffset(int32 offset) {TRACE_IT(16890); return IS_CONST_UINT12(offset); }
     static void     BaseAndOffsetFromSym(IR::SymOpnd *symOpnd, RegNum *pBaseReg, int32 *pOffset, Func * func);
     static bool     EncodeImmediate16(int32 constant, DWORD * result);
     static ENCODE_32  BranchOffset_T2_24(int x);

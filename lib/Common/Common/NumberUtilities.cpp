@@ -93,19 +93,19 @@ namespace Js
 
 
     bool NumberUtilities::IsDigit(int ch)
-    {
+    {TRACE_IT(19109);
         return ch >= '0' && ch <= '9';
     }
 
     BOOL NumberUtilities::FHexDigit(char16 ch, int *pw)
-    {
+    {TRACE_IT(19110);
         if ((ch -= '0') <= 9)
-        {
+        {TRACE_IT(19111);
             *pw = ch;
             return TRUE;
         }
         if ((ch -= 'A' - '0') <= 5 || (ch -= 'a' - 'A') <= 5)
-        {
+        {TRACE_IT(19112);
             *pw = 10 + ch;
             return TRUE;
         }
@@ -119,7 +119,7 @@ namespace Js
 #pragma warning(push)
 #pragma warning(disable:4035)   // Turn off warning that there is no return value
     uint32 NumberUtilities::MulLu(uint32 lu1, uint32 lu2, uint32 *pluHi)
-    {
+    {TRACE_IT(19113);
 #if I386_ASM
         __asm
         {
@@ -141,13 +141,13 @@ namespace Js
     Add two unsigned longs and return the carry bit.
     ***************************************************************************/
     int NumberUtilities::AddLu(uint32 *plu1, uint32 lu2)
-    {
+    {TRACE_IT(19114);
         *plu1 += lu2;
         return *plu1 < lu2;
     }
 
     bool NumberUtilities::IsFinite(double value)
-    {
+    {TRACE_IT(19115);
 #if defined(_M_X64_OR_ARM64)
         return 0 != (~(ToSpecial(value)) & 0x7FF0000000000000ull);
 #else
@@ -156,31 +156,31 @@ namespace Js
     }
 
     int NumberUtilities::CbitZeroLeft(uint32 lu)
-    {
+    {TRACE_IT(19116);
         int cbit = 0;
 
         if (0 == (lu & 0xFFFF0000))
-        {
+        {TRACE_IT(19117);
             cbit += 16;
             lu <<= 16;
         }
         if (0 == (lu & 0xFF000000))
-        {
+        {TRACE_IT(19118);
             cbit += 8;
             lu <<= 8;
         }
         if (0 == (lu & 0xF0000000))
-        {
+        {TRACE_IT(19119);
             cbit += 4;
             lu <<= 4;
         }
         if (0 == (lu & 0xC0000000))
-        {
+        {TRACE_IT(19120);
             cbit += 2;
             lu <<= 2;
         }
         if (0 == (lu & 0x80000000))
-        {
+        {TRACE_IT(19121);
             cbit += 1;
             lu <<= 1;
         }
@@ -190,7 +190,7 @@ namespace Js
     }
 
     charcount_t NumberUtilities::UInt16ToString(uint16 integer, __out __ecount(outBufferSize) WCHAR* outBuffer, charcount_t outBufferSize, char widthForPaddingZerosInsteadSpaces)
-    {
+    {TRACE_IT(19122);
         // inlined here
         WORD digit;
         charcount_t cchWritten = 0;
@@ -199,9 +199,9 @@ namespace Js
 
         // word is 0 to 65,535 -- 5 digits max
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19123);
             if (integer >= 10000)
-            {
+            {TRACE_IT(19124);
                 digit = integer / 10000;
                 integer %= 10000;
                 *outBuffer = digit + _u('0');
@@ -209,7 +209,7 @@ namespace Js
                 cchWritten++;
             }
             else if( widthForPaddingZerosInsteadSpaces > 4 )
-            {
+            {TRACE_IT(19125);
                 *outBuffer = _u('0');
                 outBuffer++;
                 cchWritten++;
@@ -218,9 +218,9 @@ namespace Js
 
         Assert(cchWritten < outBufferSize);
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19126);
             if (integer >= 1000)
-            {
+            {TRACE_IT(19127);
                 digit = integer / 1000;
                 integer %= 1000;
                 *outBuffer = digit + _u('0');
@@ -228,7 +228,7 @@ namespace Js
                 cchWritten++;
             }
             else if( widthForPaddingZerosInsteadSpaces > 3 )
-            {
+            {TRACE_IT(19128);
                 *outBuffer = _u('0');
                 outBuffer++;
                 cchWritten++;
@@ -237,9 +237,9 @@ namespace Js
 
         Assert(cchWritten < outBufferSize);
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19129);
             if (integer >= 100)
-            {
+            {TRACE_IT(19130);
                 digit = integer / 100;
                 integer %= 100;
                 *outBuffer = digit + _u('0');
@@ -247,7 +247,7 @@ namespace Js
                 cchWritten++;
             }
             else if( widthForPaddingZerosInsteadSpaces > 2 )
-            {
+            {TRACE_IT(19131);
                 *outBuffer = _u('0');
                 outBuffer++;
                 cchWritten++;
@@ -256,9 +256,9 @@ namespace Js
 
         Assert(cchWritten < outBufferSize);
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19132);
             if (integer >= 10)
-            {
+            {TRACE_IT(19133);
                 digit = integer / 10;
                 integer %= 10;
                 *outBuffer = digit + _u('0');
@@ -266,7 +266,7 @@ namespace Js
                 cchWritten++;
             }
             else if( widthForPaddingZerosInsteadSpaces > 1 )
-            {
+            {TRACE_IT(19134);
                 *outBuffer = _u('0');
                 outBuffer++;
                 cchWritten++;
@@ -275,7 +275,7 @@ namespace Js
 
         Assert(cchWritten < outBufferSize);
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19135);
             *outBuffer = integer + _u('0');
             outBuffer++;
             cchWritten++;
@@ -283,7 +283,7 @@ namespace Js
 
         Assert(cchWritten < outBufferSize);
         if (cchWritten < outBufferSize)
-        {
+        {TRACE_IT(19136);
             // cchWritten doesn't include the terminating char, like swprintf_s
             *outBuffer = 0;
         }
@@ -292,44 +292,44 @@ namespace Js
     }
 
     BOOL NumberUtilities::TryConvertToUInt32(const char16* str, int length, uint32* intVal)
-    {
+    {TRACE_IT(19137);
         if (length <= 0 || length > 10)
-        {
+        {TRACE_IT(19138);
             return false;
         }
         if (length == 1)
-        {
+        {TRACE_IT(19139);
             if (str[0] >= _u('0') && str[0] <= _u('9'))
-            {
+            {TRACE_IT(19140);
                 *intVal = (uint32)(str[0] - _u('0'));
                 return true;
             }
             else
-            {
+            {TRACE_IT(19141);
                 return false;
             }
         }
         if (str[0] < _u('1') || str[0] > _u('9'))
-        {
+        {TRACE_IT(19142);
             return false;
         }
         uint32 val = (uint32)(str[0] - _u('0'));
         int calcLen = min(length, 9);
         for (int i = 1; i < calcLen; i++)
-        {
+        {TRACE_IT(19143);
             if ((str[i] < _u('0'))|| (str[i] > _u('9')))
-            {
+            {TRACE_IT(19144);
                 return false;
             }
             val = (val * 10) + (uint32)(str[i] - _u('0'));
         }
         if (length == 10)
-        {
+        {TRACE_IT(19145);
             // check for overflow 4294967295
             if (str[9] < _u('0') || str[9] > _u('9') ||
                 UInt32Math::Mul(val, 10, &val) ||
                 UInt32Math::Add(val, (uint32)(str[9] - _u('0')), &val))
-            {
+            {TRACE_IT(19146);
                 return false;
             }
         }
@@ -338,30 +338,30 @@ namespace Js
     }
 
     double NumberUtilities::Modulus(double dblLeft, double dblRight)
-    {
+    {TRACE_IT(19147);
         double value = 0;
 
         if (!Js::NumberUtilities::IsFinite(dblRight))
-        {
+        {TRACE_IT(19148);
             if (NumberUtilities::IsNan(dblRight) || !Js::NumberUtilities::IsFinite(dblLeft))
-            {
+            {TRACE_IT(19149);
                 value = NumberConstants::NaN;
             }
             else
-            {
+            {TRACE_IT(19150);
                 value =  dblLeft;
             }
         }
         else if (0 == dblRight || NumberUtilities::IsNan(dblLeft))
-        {
+        {TRACE_IT(19151);
             value =  NumberConstants::NaN;
         }
         else if (0 == dblLeft)
-        {
+        {TRACE_IT(19152);
             value =  dblLeft;
         }
         else
-        {
+        {TRACE_IT(19153);
             value = fmod(dblLeft, dblRight);
         }
 
@@ -369,7 +369,7 @@ namespace Js
     }
 
     int32 NumberUtilities::LwFromDblNearest(double dbl)
-    {
+    {TRACE_IT(19154);
         if (Js::NumberUtilities::IsNan(dbl))
             return 0;
         if (dbl > 0x7FFFFFFFL)
@@ -380,7 +380,7 @@ namespace Js
     }
 
     uint32 NumberUtilities::LuFromDblNearest(double dbl)
-    {
+    {TRACE_IT(19155);
         if (Js::NumberUtilities::IsNan(dbl))
             return 0;
         if (dbl >(uint32)0xFFFFFFFFUL)
@@ -391,7 +391,7 @@ namespace Js
     }
 
     BOOL NumberUtilities::FDblIsInt32(double dbl, int32 *plw)
-    {
+    {TRACE_IT(19156);
         AssertMem(plw);
         double dblT;
 
@@ -402,7 +402,7 @@ namespace Js
 
     template<typename EncodedChar>
     double NumberUtilities::DblFromHex(const EncodedChar *psz, const EncodedChar **ppchLim)
-    {
+    {TRACE_IT(19157);
         double dbl;
         uint uT;
         byte bExtra;
@@ -418,11 +418,11 @@ namespace Js
 
         // Get the first digit.
         if ((uT = *psz - '0') > 9)
-        {
+        {TRACE_IT(19158);
             if ((uT -= 'A' - '0') <= 5 || (uT -= 'a' - 'A') <= 5)
                 uT += 10;
             else
-            {
+            {TRACE_IT(19159);
                 *ppchLim = psz;
                 return dbl;
             }
@@ -430,31 +430,31 @@ namespace Js
         psz++;
 
         if (uT & 0x08)
-        {
+        {TRACE_IT(19160);
             cbit = 4;
             Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)(uT & 0x07) << 17;
         }
         else if (uT & 0x04)
-        {
+        {TRACE_IT(19161);
             cbit = 3;
             Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)(uT & 0x03) << 18;
         }
         else if (uT & 0x02)
-        {
+        {TRACE_IT(19162);
             cbit = 2;
             Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)(uT & 0x01) << 19;
         }
         else
-        {
+        {TRACE_IT(19163);
             Assert(uT & 0x01);
             cbit = 1;
         }
         bExtra = 0;
 
         for (; ; psz++)
-        {
+        {TRACE_IT(19164);
             if ((uT = (*psz - '0')) > 9)
-            {
+            {TRACE_IT(19165);
                 if ((uT -= 'A' - '0') <= 5 || (uT -= 'a' - 'A') <= 5)
                     uT += 10;
                 else
@@ -464,14 +464,14 @@ namespace Js
             if (cbit <= 17)
                 Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)uT << (17 - cbit);
             else if (cbit < 21)
-            {
+            {TRACE_IT(19166);
                 Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)uT >> (cbit - 17);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT << (49 - cbit);
             }
             else if (cbit <= 49)
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT << (49 - cbit);
             else if (cbit <= 53)
-            {
+            {TRACE_IT(19167);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT >> (cbit - 49);
                 bExtra = (byte)(uT << (57 - cbit));
             }
@@ -486,7 +486,7 @@ namespace Js
         // Set the exponent.
         cbit += 1022;
         if (cbit > 2046)
-        {
+        {TRACE_IT(19168);
             // Overflow to Infinity
             Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -496,7 +496,7 @@ namespace Js
 
         // Use bExtra to round.
         if ((bExtra & 0x80) && ((bExtra & 0x7F) || (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19169);
             // Round up. Note that this overflows the mantissa correctly,
             // even to Infinity.
             if (0 == ++Js::NumberUtilities::LuLoDbl(dbl))
@@ -508,7 +508,7 @@ namespace Js
 
     template <typename EncodedChar>
     double NumberUtilities::DblFromBinary(const EncodedChar *psz, const EncodedChar **ppchLim)
-    {
+    {TRACE_IT(19170);
         double dbl = 0;
         Assert(Js::NumberUtilities::LuHiDbl(dbl) == 0);
         Assert(Js::NumberUtilities::LuLoDbl(dbl) == 0);
@@ -521,7 +521,7 @@ namespace Js
         // Get the first digit.
         uT = *psz - '0';
         if (uT > 1)
-        {
+        {TRACE_IT(19171);
             *ppchLim = psz;
             return dbl;
         }
@@ -541,23 +541,23 @@ namespace Js
         // for double precision floating point)
         const uint leftShiftValue = 52;
         for (; (uT = (*psz - '0')) <= 1; psz++)
-        {
+        {TRACE_IT(19172);
             if (cbit <= rightShiftValue)
-            {
+            {TRACE_IT(19173);
                 Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)uT << (rightShiftValue - cbit);
 
             }
             else if (cbit <= leftShiftValue)
-            {
+            {TRACE_IT(19174);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT << (leftShiftValue - cbit);
             }
             else if (cbit == leftShiftValue + 1)//53 bits
-            {
+            {TRACE_IT(19175);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT >> (cbit - leftShiftValue);
                 bExtra = (byte)(uT << (60 - cbit));
             }
             else if (0 != uT)
-            {
+            {TRACE_IT(19176);
                 bExtra |= 1;
             }
             cbit++;
@@ -568,7 +568,7 @@ namespace Js
         // Set the exponent.
         cbit += 1022;
         if (cbit > 2046)
-        {
+        {TRACE_IT(19177);
             // Overflow to Infinity
             Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -579,7 +579,7 @@ namespace Js
 
         // Use bExtra to round.
         if ((bExtra & 0x80) && ((bExtra & 0x7F) || (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19178);
             // Round up. Note that this overflows the mantissa correctly,
             // even to Infinity.
             if (0 == ++Js::NumberUtilities::LuLoDbl(dbl))
@@ -590,7 +590,7 @@ namespace Js
 
     template <typename EncodedChar>
     double NumberUtilities::DblFromOctal(const EncodedChar *psz, const EncodedChar **ppchLim)
-    {
+    {TRACE_IT(19179);
         double dbl;
         uint uT;
         byte bExtra;
@@ -607,42 +607,42 @@ namespace Js
         // Get the first digit.
         uT = *psz - '0';
         if (uT > 7)
-        {
+        {TRACE_IT(19180);
             *ppchLim = psz;
             return dbl;
         }
         psz++;
 
         if (uT & 0x04)//is the 3rd bit set
-        {
+        {TRACE_IT(19181);
             cbit = 3;
             Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)(uT & 0x03) << 18;
         }
         else if (uT & 0x02)//is the 2nd bit set
-        {
+        {TRACE_IT(19182);
             cbit = 2;
             Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)(uT & 0x01) << 19;
         }
         else// then is the first bit set
-        {
+        {TRACE_IT(19183);
             Assert(uT & 0x01);
             cbit = 1;
         }
         bExtra = 0;
 
         for (; (uT = (*psz - '0')) <= 7; psz++)
-        {
+        {TRACE_IT(19184);
             if (cbit <= 18)
                 Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)uT << (18 - cbit);
             else if (cbit < 21)
-            {
+            {TRACE_IT(19185);
                 Js::NumberUtilities::LuHiDbl(dbl) |= (uint32)uT >> (cbit - 18);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT << (50 - cbit);
             }
             else if (cbit <= 50)
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT << (50 - cbit);
             else if (cbit <= 53)
-            {
+            {TRACE_IT(19186);
                 Js::NumberUtilities::LuLoDbl(dbl) |= (uint32)uT >> (cbit - 50);
                 bExtra = (byte)(uT << (58 - cbit));
             }
@@ -657,7 +657,7 @@ namespace Js
         // Set the exponent.
         cbit += 1022;
         if (cbit > 2046)
-        {
+        {TRACE_IT(19187);
             // Overflow to Infinity
             Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -668,7 +668,7 @@ namespace Js
 
         // Use bExtra to round.
         if ((bExtra & 0x80) && ((bExtra & 0x7F) || (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19188);
             // Round up. Note that this overflows the mantissa correctly,
             // even to Infinity.
             if (0 == ++Js::NumberUtilities::LuLoDbl(dbl))
@@ -680,7 +680,7 @@ namespace Js
 
     template <typename EncodedChar>
     double NumberUtilities::StrToDbl(const EncodedChar * psz, const EncodedChar **ppchLim, Js::ScriptContext *const scriptContext)
-    {
+    {TRACE_IT(19189);
         Assert(scriptContext);
         bool likelyInt = true;
         return Js::NumberUtilities::StrToDbl<EncodedChar>(psz, ppchLim, likelyInt);

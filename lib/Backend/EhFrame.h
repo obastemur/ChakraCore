@@ -23,10 +23,10 @@ private:
 
 public:
     LEB128Wrapper(T value): value(value)
-    {}
+    {TRACE_IT(1681);}
 
     BYTE* Write(BYTE* pc) const
-    {
+    {TRACE_IT(1682);
         return EmitLEB128(pc, value);
     }
 };
@@ -50,12 +50,12 @@ class EhFrame
 
     public:
         Writer(BYTE* buffer, size_t size) : buffer(buffer), cur(buffer), size(size)
-        {}
+        {TRACE_IT(1683);}
 
         // Write a value, and advance cur position
         template <class T>
         void Write(T value)
-        {
+        {TRACE_IT(1684);
             *reinterpret_cast<T*>(cur) = value;
             cur += sizeof(value);
             Assert(Count() <= size);
@@ -64,7 +64,7 @@ class EhFrame
         // Write a ULEB128 or LEB128 value, and advance cur position
         template <class T>
         void Write(const LEB128Wrapper<T>& leb128)
-        {
+        {TRACE_IT(1685);
             cur = leb128.Write(cur);
             Assert(Count() <= size);
         }
@@ -72,20 +72,20 @@ class EhFrame
         // Write a value at an absolute position
         template <class T>
         void Write(size_t offset, T value)
-        {
+        {TRACE_IT(1686);
             Assert(offset + sizeof(value) <= size);
             *reinterpret_cast<T*>(buffer + offset) = value;
         }
 
         // Get original buffer head
         BYTE* Buffer() const
-        {
+        {TRACE_IT(1687);
             return buffer;
         }
 
         // Get count of written bytes (== offset of cur position)
         size_t Count() const
-        {
+        {TRACE_IT(1688);
             return cur - buffer;
         }
     };
@@ -98,16 +98,16 @@ class EhFrame
         size_t  beginOffset;    // where we'll update "length" record
 
         // To limit supported value types
-        void Emit(ubyte value) { writer->Write(value); }
-        void Emit(uhalf value) { writer->Write(value); }
-        void Emit(uword value) { writer->Write(value); }
-        void Emit(const void* absptr) { writer->Write(absptr); }
-        void Emit(LEB128 value) { writer->Write(value); }
-        void Emit(ULEB128 value) { writer->Write(value); }
+        void Emit(ubyte value) {TRACE_IT(1689); writer->Write(value); }
+        void Emit(uhalf value) {TRACE_IT(1690); writer->Write(value); }
+        void Emit(uword value) {TRACE_IT(1691); writer->Write(value); }
+        void Emit(const void* absptr) {TRACE_IT(1692); writer->Write(absptr); }
+        void Emit(LEB128 value) {TRACE_IT(1693); writer->Write(value); }
+        void Emit(ULEB128 value) {TRACE_IT(1694); writer->Write(value); }
 
         template <class T1>
         void Emit(ubyte op, T1 arg1)
-        {
+        {TRACE_IT(1695);
             Emit(op);
             Emit(arg1);
         }
@@ -121,14 +121,14 @@ class EhFrame
 
     public:
         Entry(Writer* writer) : writer(writer), beginOffset(-1)
-        {}
+        {TRACE_IT(1696);}
 
         void Begin();
         void End();
 
 #define ENTRY(name, op) \
     void cfi_##name() \
-    { Emit(static_cast<ubyte>(op)); }
+    {TRACE_IT(1697); Emit(static_cast<ubyte>(op)); }
 
 #define ENTRY1(name, op, arg1_type) \
     void cfi_##name(arg1_type arg1) \
@@ -140,11 +140,11 @@ class EhFrame
 
 #define ENTRY_SM1(name, op, arg1_type) \
     void cfi_##name(arg1_type arg1) \
-    { Assert((arg1) <= 0x3F); Emit(static_cast<ubyte>((op) | arg1)); }
+    {TRACE_IT(1698); Assert((arg1) <= 0x3F); Emit(static_cast<ubyte>((op) | arg1)); }
 
 #define ENTRY_SM2(name, op, arg1_type, arg2_type) \
     void cfi_##name(arg1_type arg1, arg2_type arg2) \
-    { Assert((arg1) <= 0x3F); Emit((op) | arg1, arg2); }
+    {TRACE_IT(1699); Assert((arg1) <= 0x3F); Emit((op) | arg1, arg2); }
 
 #include "EhFrameCFI.inc"
 
@@ -156,7 +156,7 @@ class EhFrame
     {
     public:
         CIE(Writer* writer) : Entry(writer)
-        {}
+        {TRACE_IT(1700);}
 
         void Begin();
     };
@@ -169,7 +169,7 @@ class EhFrame
 
     public:
         FDE(Writer* writer) : Entry(writer)
-        {}
+        {TRACE_IT(1701);}
 
         void Begin();
         void UpdateAddressRange(const void* pcBegin, size_t pcRange);
@@ -183,24 +183,24 @@ public:
     EhFrame(BYTE* buffer, size_t size);
 
     Writer* GetWriter()
-    {
+    {TRACE_IT(1702);
         return &writer;
     }
 
     FDE* GetFDE()
-    {
+    {TRACE_IT(1703);
         return &fde;
     }
 
     void End();
 
     BYTE* Buffer() const
-    {
+    {TRACE_IT(1704);
         return writer.Buffer();
     }
 
     size_t Count() const
-    {
+    {TRACE_IT(1705);
         return writer.Count();
     }
 };

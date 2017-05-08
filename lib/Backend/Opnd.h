@@ -125,7 +125,7 @@ protected:
         canStoreTemp(false),
         isDiagHelperCallOpnd(false),
         isPropertySymOpnd(false)
-    {
+    {TRACE_IT(14637);
 #if DBG
         isFakeDst = false;
         isDeleted = false;
@@ -139,7 +139,7 @@ protected:
         m_inUse(false),
         m_isValueTypeFixed(false),
         canStoreTemp(oldOpnd.canStoreTemp)
-    {
+    {TRACE_IT(14638);
 #if DBG
         isFakeDst = false;
         isDeleted = false;
@@ -196,62 +196,62 @@ public:
 
     bool                IsEqual(Opnd *opnd);
     void                Free(Func * func);
-    bool                IsInUse() const { return m_inUse; }
+    bool                IsInUse() const {TRACE_IT(14639); return m_inUse; }
     Opnd *              Use(Func * func);
     void                UnUse();
-    IRType              GetType() const { return this->m_type; }
-    void                SetType(IRType type) { this->m_type = type; }
-    bool                IsSigned() const { return IRType_IsSignedInt(this->m_type); }
-    bool                IsUnsigned() const { return IRType_IsUnsignedInt(this->m_type); }
-    int                 GetSize() const { return TySize[this->m_type]; }
-    bool                IsInt64() const { return IRType_IsInt64(this->m_type); }
-    bool                IsInt32() const { return this->m_type == TyInt32; }
-    bool                IsUInt32() const { return this->m_type == TyUint32; }
-    bool                IsFloat32() const { return this->m_type == TyFloat32; }
-    bool                IsFloat64() const { return this->m_type == TyFloat64; }
-    bool                IsFloat() const { return this->IsFloat32() || this->IsFloat64(); }
-    bool                IsSimd128() const { return IRType_IsSimd128(this->m_type);  }
-    bool                IsSimd128F4()  const { return this->m_type == TySimd128F4;  }
-    bool                IsSimd128I4()  const { return this->m_type == TySimd128I4;  }
-    bool                IsSimd128I8()  const { return this->m_type == TySimd128I8;  }
-    bool                IsSimd128I16() const { return this->m_type == TySimd128I16; }
-    bool                IsSimd128U4()  const { return this->m_type == TySimd128U4;  }
-    bool                IsSimd128U8()  const { return this->m_type == TySimd128U8;  }
-    bool                IsSimd128U16() const { return this->m_type == TySimd128U16; }
-    bool                IsSimd128B4()  const { return this->m_type == TySimd128B4;  }
-    bool                IsSimd128B8()  const { return this->m_type == TySimd128B8;  }
-    bool                IsSimd128B16() const { return this->m_type == TySimd128B16; }
-    bool                IsSimd128D2()  const { return this->m_type == TySimd128D2;  }
-    bool                IsVar() const { return this->m_type == TyVar; }
+    IRType              GetType() const {TRACE_IT(14640); return this->m_type; }
+    void                SetType(IRType type) {TRACE_IT(14641); this->m_type = type; }
+    bool                IsSigned() const {TRACE_IT(14642); return IRType_IsSignedInt(this->m_type); }
+    bool                IsUnsigned() const {TRACE_IT(14643); return IRType_IsUnsignedInt(this->m_type); }
+    int                 GetSize() const {TRACE_IT(14644); return TySize[this->m_type]; }
+    bool                IsInt64() const {TRACE_IT(14645); return IRType_IsInt64(this->m_type); }
+    bool                IsInt32() const {TRACE_IT(14646); return this->m_type == TyInt32; }
+    bool                IsUInt32() const {TRACE_IT(14647); return this->m_type == TyUint32; }
+    bool                IsFloat32() const {TRACE_IT(14648); return this->m_type == TyFloat32; }
+    bool                IsFloat64() const {TRACE_IT(14649); return this->m_type == TyFloat64; }
+    bool                IsFloat() const {TRACE_IT(14650); return this->IsFloat32() || this->IsFloat64(); }
+    bool                IsSimd128() const {TRACE_IT(14651); return IRType_IsSimd128(this->m_type);  }
+    bool                IsSimd128F4()  const {TRACE_IT(14652); return this->m_type == TySimd128F4;  }
+    bool                IsSimd128I4()  const {TRACE_IT(14653); return this->m_type == TySimd128I4;  }
+    bool                IsSimd128I8()  const {TRACE_IT(14654); return this->m_type == TySimd128I8;  }
+    bool                IsSimd128I16() const {TRACE_IT(14655); return this->m_type == TySimd128I16; }
+    bool                IsSimd128U4()  const {TRACE_IT(14656); return this->m_type == TySimd128U4;  }
+    bool                IsSimd128U8()  const {TRACE_IT(14657); return this->m_type == TySimd128U8;  }
+    bool                IsSimd128U16() const {TRACE_IT(14658); return this->m_type == TySimd128U16; }
+    bool                IsSimd128B4()  const {TRACE_IT(14659); return this->m_type == TySimd128B4;  }
+    bool                IsSimd128B8()  const {TRACE_IT(14660); return this->m_type == TySimd128B8;  }
+    bool                IsSimd128B16() const {TRACE_IT(14661); return this->m_type == TySimd128B16; }
+    bool                IsSimd128D2()  const {TRACE_IT(14662); return this->m_type == TySimd128D2;  }
+    bool                IsVar() const {TRACE_IT(14663); return this->m_type == TyVar; }
     bool                IsTaggedInt() const;
     bool                IsTaggedValue() const;
     bool                IsNotNumber() const;
     bool                IsNotInt() const;
     bool                IsNotTaggedValue() const;
     bool                IsWriteBarrierTriggerableValue();
-    void                SetIsDead(const bool isDead = true)   { this->m_isDead = isDead; }
-    bool                GetIsDead()   { return this->m_isDead; }
+    void                SetIsDead(const bool isDead = true)   {TRACE_IT(14664); this->m_isDead = isDead; }
+    bool                GetIsDead()   {TRACE_IT(14665); return this->m_isDead; }
     int64               GetImmediateValue(Func * func);
 #if TARGET_32 && !defined(_M_IX86)
     // Helper for 32bits systems without int64 const operand support
     int32               GetImmediateValueAsInt32(Func * func);
 #endif
     BailoutConstantValue GetConstValue();
-    bool                GetIsJITOptimizedReg() const { return m_isJITOptimizedReg; }
-    void                SetIsJITOptimizedReg(bool value) { Assert(!value || !this->IsIndirOpnd()); m_isJITOptimizedReg = value; }
+    bool                GetIsJITOptimizedReg() const {TRACE_IT(14666); return m_isJITOptimizedReg; }
+    void                SetIsJITOptimizedReg(bool value) {TRACE_IT(14667); Assert(!value || !this->IsIndirOpnd()); m_isJITOptimizedReg = value; }
 
-    ValueType           GetValueType() const { return m_valueType; }
+    ValueType           GetValueType() const {TRACE_IT(14668); return m_valueType; }
     void                SetValueType(const ValueType valueType);
     ValueType           FindProfiledValueType();
     bool                IsScopeObjOpnd(Func * func);
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-    virtual void        DummyFunction() {} // Note needed for the VS debugger to disambiguate the different classes.
+    virtual void        DummyFunction() {TRACE_IT(14669);} // Note needed for the VS debugger to disambiguate the different classes.
     void                DumpValueType();
     static void         DumpValueType(const ValueType valueType);
 #endif
 
-    bool                IsValueTypeFixed() const { return m_isValueTypeFixed; }
-    void                SetValueTypeFixed() { m_isValueTypeFixed = true; }
+    bool                IsValueTypeFixed() const {TRACE_IT(14670); return m_isValueTypeFixed; }
+    void                SetValueTypeFixed() {TRACE_IT(14671); m_isValueTypeFixed = true; }
     IR::RegOpnd *       FindRegUse(IR::RegOpnd *regOpnd);
     bool                IsArgumentsObject();
 
@@ -274,8 +274,8 @@ public:
     void                Dump();
 #endif
 
-    bool                CanStoreTemp() const { return canStoreTemp; }
-    void                SetCanStoreTemp() { Assert(this->IsSymOpnd() || this->IsIndirOpnd()); canStoreTemp = true; }
+    bool                CanStoreTemp() const {TRACE_IT(14672); return canStoreTemp; }
+    void                SetCanStoreTemp() {TRACE_IT(14673); Assert(this->IsSymOpnd() || this->IsIndirOpnd()); canStoreTemp = true; }
 protected:
     ValueType           m_valueType;
     IRType              m_type;
@@ -337,17 +337,17 @@ public:
                                                 // constants not controllable by the user.
 
     IntConstType GetValue()
-    {
+    {TRACE_IT(14674);
         return m_value;
     }
 
     void IncrValue(IntConstType by)
-    {
+    {TRACE_IT(14675);
         SetValue(m_value + by);
     }
 
     void DecrValue(IntConstType by)
-    {
+    {TRACE_IT(14676);
         SetValue(m_value - by);
     }
 
@@ -450,7 +450,7 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
     bool                    IsDiagHelperCallOpnd() const
-    {
+    {TRACE_IT(14677);
         Assert(this->DbgIsDiagHelperCallOpnd() == isDiagHelperCallOpnd);
         return isDiagHelperCallOpnd;
     }
@@ -459,7 +459,7 @@ public:
 
 #if DBG
 private:
-    virtual bool DbgIsDiagHelperCallOpnd() const { return false; }
+    virtual bool DbgIsDiagHelperCallOpnd() const {TRACE_IT(14678); return false; }
 #endif
 };
 
@@ -508,7 +508,7 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
     bool                    IsPropertySymOpnd() const
-    {
+    {TRACE_IT(14679);
         Assert(this->DbgIsPropertySymOpnd() == this->isPropertySymOpnd);
         return isPropertySymOpnd;
     }
@@ -518,7 +518,7 @@ public:
 
 private:
 #if DBG
-    virtual bool            DbgIsPropertySymOpnd() const { return false; }
+    virtual bool            DbgIsPropertySymOpnd() const {TRACE_IT(14680); return false; }
 #endif
 
 private:
@@ -526,12 +526,12 @@ private:
 
 public:
     ValueType GetPropertyOwnerValueType() const
-    {
+    {TRACE_IT(14681);
         return propertyOwnerValueType;
     }
 
     void SetPropertyOwnerValueType(const ValueType valueType)
-    {
+    {TRACE_IT(14682);
         propertyOwnerValueType = valueType;
     }
 
@@ -541,8 +541,8 @@ public:
 class PropertySymOpnd sealed : public SymOpnd
 {
 protected:
-    PropertySymOpnd() : SymOpnd() {}
-    PropertySymOpnd(SymOpnd* symOpnd) : SymOpnd(*symOpnd) {}
+    PropertySymOpnd() : SymOpnd() {TRACE_IT(14683);}
+    PropertySymOpnd(SymOpnd* symOpnd) : SymOpnd(*symOpnd) {TRACE_IT(14684);}
 
 public:
     static PropertySymOpnd * New(PropertySym *propertySym, uint inlineCacheIndex, IRType type, Func *func);
@@ -608,32 +608,32 @@ public:
     };
 
 public:
-    StackSym * GetObjectSym() const { return this->m_sym->AsPropertySym()->m_stackSym; };
-    bool HasObjectTypeSym() const { return this->m_sym->AsPropertySym()->HasObjectTypeSym(); };
-    StackSym * GetObjectTypeSym() const { return this->m_sym->AsPropertySym()->GetObjectTypeSym(); };
-    PropertySym* GetPropertySym() const { return this->m_sym->AsPropertySym(); }
+    StackSym * GetObjectSym() const {TRACE_IT(14685); return this->m_sym->AsPropertySym()->m_stackSym; };
+    bool HasObjectTypeSym() const {TRACE_IT(14686); return this->m_sym->AsPropertySym()->HasObjectTypeSym(); };
+    StackSym * GetObjectTypeSym() const {TRACE_IT(14687); return this->m_sym->AsPropertySym()->GetObjectTypeSym(); };
+    PropertySym* GetPropertySym() const {TRACE_IT(14688); return this->m_sym->AsPropertySym(); }
 
     void TryDisableRuntimePolymorphicCache()
-    {
+    {TRACE_IT(14689);
         if (this->m_runtimePolymorphicInlineCache && (this->m_polyCacheUtil < PolymorphicInlineCacheUtilizationThreshold))
-        {
+        {TRACE_IT(14690);
             this->m_runtimePolymorphicInlineCache = nullptr;
         }
     }
 
     bool HasObjTypeSpecFldInfo() const
-    {
+    {TRACE_IT(14691);
         return this->objTypeSpecFldInfo != nullptr;
     }
 
     void SetObjTypeSpecFldInfo(JITObjTypeSpecFldInfo *const objTypeSpecFldInfo)
-    {
+    {TRACE_IT(14692);
         this->objTypeSpecFldInfo = objTypeSpecFldInfo;
 
         // The following information may change in a flow-based manner, and an ObjTypeSpecFldInfo is shared among several
         // PropertySymOpnds, so copy the information to the opnd
         if(!objTypeSpecFldInfo)
-        {
+        {TRACE_IT(14693);
             usesAuxSlot = false;
             slotIndex = 0;
             return;
@@ -643,355 +643,355 @@ public:
     }
 
     void TryResetObjTypeSpecFldInfo()
-    {
+    {TRACE_IT(14694);
         if (this->ShouldResetObjTypeSpecFldInfo())
-        {
+        {TRACE_IT(14695);
             SetObjTypeSpecFldInfo(nullptr);
         }
     }
 
     bool ShouldResetObjTypeSpecFldInfo()
-    {
+    {TRACE_IT(14696);
         // If an objTypeSpecFldInfo was created just for the purpose of polymorphic inlining but didn't get used for the same (for some reason or the other), and the polymorphic cache it was created from, wasn't equivalent,
         // we should null out this info on the propertySymOpnd so that assumptions downstream around equivalent object type spec still hold.
         if (HasObjTypeSpecFldInfo() && IsPoly() && (DoesntHaveEquivalence() || !IsLoadedFromProto()))
-        {
+        {TRACE_IT(14697);
             return true;
         }
         return false;
     }
 
     JITObjTypeSpecFldInfo* GetObjTypeSpecInfo() const
-    {
+    {TRACE_IT(14698);
         return this->objTypeSpecFldInfo;
     }
 
     uint GetObjTypeSpecFldId() const
-    {
+    {TRACE_IT(14699);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetObjTypeSpecFldId();
     }
 
     bool IsMono() const
-    {
+    {TRACE_IT(14700);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsMono();
     }
 
     bool IsPoly() const
-    {
+    {TRACE_IT(14701);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsPoly();
     }
 
     bool HasEquivalentTypeSet() const
-    {
+    {TRACE_IT(14702);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->HasEquivalentTypeSet();
     }
 
     bool DoesntHaveEquivalence() const
-    {
+    {TRACE_IT(14703);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->DoesntHaveEquivalence();
     }
 
     bool UsesAuxSlot() const
-    {
+    {TRACE_IT(14704);
         return usesAuxSlot && HasObjTypeSpecFldInfo();
     }
 
     void SetUsesAuxSlot(bool value)
-    {
+    {TRACE_IT(14705);
         Assert(HasObjTypeSpecFldInfo());
         usesAuxSlot = value;
     }
 
     bool IsLoadedFromProto() const
-    {
+    {TRACE_IT(14706);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsLoadedFromProto();
     }
 
     bool UsesAccessor() const
-    {
+    {TRACE_IT(14707);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->UsesAccessor();
     }
 
     bool HasFixedValue() const
-    {
+    {TRACE_IT(14708);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->HasFixedValue();
     }
 
     bool UsesFixedValue() const
-    {
+    {TRACE_IT(14709);
         return this->usesFixedValue;
     }
 
     void SetUsesFixedValue(bool value)
-    {
+    {TRACE_IT(14710);
         this->usesFixedValue = value;
     }
 
     bool MustDoMonoCheck() const
-    {
+    {TRACE_IT(14711);
         return this->monoGuardType != nullptr;
     }
 
     JITTypeHolder GetMonoGuardType() const
-    {
+    {TRACE_IT(14712);
         return this->monoGuardType;
     }
 
     void SetMonoGuardType(JITTypeHolder type)
-    {
+    {TRACE_IT(14713);
         this->monoGuardType = type;
     }
 
     bool NeedsMonoCheck() const
-    {
+    {TRACE_IT(14714);
         Assert(HasObjTypeSpecFldInfo());
         return this->IsBeingAdded() || (this->HasFixedValue() && !this->IsLoadedFromProto());
     }
 
     bool IsBeingStored() const
-    {
+    {TRACE_IT(14715);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsBeingStored();
     }
 
     void SetIsBeingStored(bool value)
-    {
+    {TRACE_IT(14716);
         Assert(HasObjTypeSpecFldInfo());
         this->objTypeSpecFldInfo->SetIsBeingStored(value);
     }
 
     bool IsBeingAdded() const
-    {
+    {TRACE_IT(14717);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsBeingAdded();
     }
 
     bool IsRootObjectNonConfigurableField() const
-    {
+    {TRACE_IT(14718);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsRootObjectNonConfigurableField();
     }
 
     bool IsRootObjectNonConfigurableFieldLoad() const
-    {
+    {TRACE_IT(14719);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsRootObjectNonConfigurableFieldLoad();
     }
 
     uint16 GetSlotIndex() const
-    {
+    {TRACE_IT(14720);
         Assert(HasObjTypeSpecFldInfo());
         return slotIndex;
     }
 
     void SetSlotIndex(uint16 index)
-    {
+    {TRACE_IT(14721);
         Assert(HasObjTypeSpecFldInfo());
         slotIndex = index;
     }
 
     uint16 GetCheckedTypeSetIndex() const
-    {
+    {TRACE_IT(14722);
         Assert(HasEquivalentTypeSet());
         return checkedTypeSetIndex;
     }
 
     void SetCheckedTypeSetIndex(uint16 index)
-    {
+    {TRACE_IT(14723);
         Assert(HasEquivalentTypeSet());
         checkedTypeSetIndex = index;
     }
 
     Js::PropertyId GetPropertyId() const
-    {
+    {TRACE_IT(14724);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetPropertyId();
     }
 
     intptr_t GetProtoObject() const
-    {
+    {TRACE_IT(14725);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetProtoObject();
     }
 
     JITTimeFixedField * GetFixedFunction() const
-    {
+    {TRACE_IT(14726);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldIfAvailableAsFixedFunction();
     }
 
     JITTimeFixedField * GetFixedFunction(uint i) const
-    {
+    {TRACE_IT(14727);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldIfAvailableAsFixedFunction(i);
     }
 
     intptr_t GetFieldValueAsFixedData() const
-    {
+    {TRACE_IT(14728);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFieldValueAsFixedDataIfAvailable();
     }
 
     intptr_t GetFieldValue(uint i) const
-    {
+    {TRACE_IT(14729);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFieldValue(i);
     }
 
     JITTimeFixedField * GetFixedFieldInfoArray()
-    {
+    {TRACE_IT(14730);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldInfoArray();
     }
 
     uint16 GetFixedFieldCount()
-    {
+    {TRACE_IT(14731);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldCount();
     }
 
     JITTimeConstructorCache * GetCtorCache() const
-    {
+    {TRACE_IT(14732);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetCtorCache();
     }
 
     intptr_t GetPropertyGuardValueAddr() const
-    {
+    {TRACE_IT(14733);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetPropertyGuardValueAddr();
     }
 
     bool IsTypeCheckSeqCandidate() const
-    {
+    {TRACE_IT(14734);
         Assert(IsObjTypeSpecCandidate() || !this->isTypeCheckSeqCandidate);
         return this->isTypeCheckSeqCandidate;
     }
 
     void SetTypeCheckSeqCandidate(bool value)
-    {
+    {TRACE_IT(14735);
         Assert(IsObjTypeSpecCandidate() || !value);
         this->isTypeCheckSeqCandidate = value;
     }
 
     bool IsTypeCheckOnly() const
-    {
+    {TRACE_IT(14736);
         return this->isTypeCheckOnly;
     }
 
     void SetTypeCheckOnly(bool value)
-    {
+    {TRACE_IT(14737);
         this->isTypeCheckOnly = value;
     }
 
     bool IsTypeAvailable() const
-    {
+    {TRACE_IT(14738);
         return this->typeAvailable;
     }
 
     void SetTypeAvailable(bool value)
-    {
+    {TRACE_IT(14739);
         Assert(IsTypeCheckSeqCandidate());
         this->typeAvailable = value;
     }
 
     bool IsTypeDead() const
-    {
+    {TRACE_IT(14740);
         return this->typeDead;
     }
 
     void SetTypeDead(bool value)
-    {
+    {TRACE_IT(14741);
         Assert(IsTypeCheckSeqCandidate());
         this->typeDead = value;
     }
 
     void SetTypeDeadIfTypeCheckSeqCandidate(bool value)
-    {
+    {TRACE_IT(14742);
         if (IsTypeCheckSeqCandidate())
-        {
+        {TRACE_IT(14743);
             this->typeDead = value;
         }
     }
 
     bool IsTypeChecked() const
-    {
+    {TRACE_IT(14744);
         return this->typeChecked;
     }
 
     void SetTypeChecked(bool value)
-    {
+    {TRACE_IT(14745);
         Assert(IsTypeCheckSeqCandidate());
         this->typeChecked = value;
     }
 
     bool IsInitialTypeChecked() const
-    {
+    {TRACE_IT(14746);
         return this->initialTypeChecked;
     }
 
     void SetInitialTypeChecked(bool value)
-    {
+    {TRACE_IT(14747);
         Assert(IsTypeCheckSeqCandidate());
         this->initialTypeChecked = value;
     }
 
     bool HasTypeMismatch() const
-    {
+    {TRACE_IT(14748);
         return this->typeMismatch;
     }
 
     void SetTypeMismatch(bool value)
-    {
+    {TRACE_IT(14749);
         Assert(IsTypeCheckSeqCandidate());
         this->typeMismatch = value;
     }
 
     bool IsWriteGuardChecked() const
-    {
+    {TRACE_IT(14750);
         return this->writeGuardChecked;
     }
 
     void SetWriteGuardChecked(bool value)
-    {
+    {TRACE_IT(14751);
         Assert(IsTypeCheckSeqCandidate());
         this->writeGuardChecked = value;
     }
 
     uint16 GetObjTypeSpecFlags() const
-    {
+    {TRACE_IT(14752);
         return this->objTypeSpecFlags;
     }
 
     void ClearObjTypeSpecFlags()
-    {
+    {TRACE_IT(14753);
         this->objTypeSpecFlags = 0;
     }
 
     uint16 GetTypeCheckSeqFlags() const
-    {
+    {TRACE_IT(14754);
         return this->typeCheckSeqFlags;
     }
 
     void ClearTypeCheckSeqFlags()
-    {
+    {TRACE_IT(14755);
         this->typeCheckSeqFlags = 0;
     }
 
     bool MayNeedTypeCheckProtection() const
-    {
+    {TRACE_IT(14756);
         return IsObjTypeSpecCandidate() && (IsTypeCheckSeqCandidate() || UsesFixedValue());
     }
 
     bool MayNeedWriteGuardProtection() const
-    {
+    {TRACE_IT(14757);
         return IsLoadedFromProto() || UsesFixedValue();
     }
 
     bool IsTypeCheckProtected() const
-    {
+    {TRACE_IT(14758);
         return IsTypeCheckSeqCandidate() && IsTypeChecked();
     }
 
     bool NeedsPrimaryTypeCheck() const
-    {
+    {TRACE_IT(14759);
         // Only indicate that we need a primary type check, i.e. the type isn't yet available but will be needed downstream.
         // Type checks and bailouts may still be needed in other places (e.g. loads from proto, fixed field checks, or
         // property adds), if a primary type check cannot protect them.
@@ -1001,7 +1001,7 @@ public:
     }
 
     bool NeedsLocalTypeCheck() const
-    {
+    {TRACE_IT(14760);
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Indicate whether this operation needs a type check for its own sake, since the type is dead and no downstream
@@ -1011,7 +1011,7 @@ public:
     }
 
     bool NeedsWriteGuardTypeCheck() const
-    {
+    {TRACE_IT(14761);
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Type has been checked but property might have been written to since then.
@@ -1019,7 +1019,7 @@ public:
     }
 
     bool NeedsLoadFromProtoTypeCheck() const
-    {
+    {TRACE_IT(14762);
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Proto cache, where type has been checked but property might have been written to since then.
@@ -1027,7 +1027,7 @@ public:
     }
 
     bool NeedsAddPropertyTypeCheck() const
-    {
+    {TRACE_IT(14763);
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // A property cannot become read-only without an explicit or implicit call (at least Object.defineProperty is needed), so if this
@@ -1036,27 +1036,27 @@ public:
     }
 
     bool NeedsCheckFixedFieldTypeCheck() const
-    {
+    {TRACE_IT(14764);
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         return !IsTypeCheckOnly() && !NeedsPrimaryTypeCheck() && UsesFixedValue() && (!IsTypeChecked() || NeedsWriteGuardTypeCheck());
     }
 
     bool NeedsTypeCheck() const
-    {
+    {TRACE_IT(14765);
         return NeedsPrimaryTypeCheck() || NeedsLocalTypeCheck() ||
             NeedsLoadFromProtoTypeCheck() || NeedsAddPropertyTypeCheck() || NeedsCheckFixedFieldTypeCheck();
     }
 
     bool NeedsTypeCheckAndBailOut() const
-    {
+    {TRACE_IT(14766);
         return NeedsPrimaryTypeCheck() || (PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) && NeedsLocalTypeCheck()) || NeedsCheckFixedFieldTypeCheck();
     }
 
     // Is the instruction involving this operand optimized with a direct slot load or store? In other words, is it guarded
     // by a type check, either as part of the type check sequence, or explicitly on this instruction.
     bool IsObjTypeSpecOptimized() const
-    {
+    {TRACE_IT(14767);
         return MayNeedTypeCheckProtection() && (NeedsTypeCheckAndBailOut() || IsTypeCheckProtected());
     }
 
@@ -1065,7 +1065,7 @@ public:
     // type check may still end up with implicit call bailout.  However, if we are type check protected we will never
     // fall back on live cache.  Similarly, for fixed method checks.
     bool MayHaveImplicitCall() const
-    {
+    {TRACE_IT(14768);
         return !IsRootObjectNonConfigurableFieldLoad() && !UsesFixedValue() && (!IsTypeCheckSeqCandidate() || !IsTypeCheckProtected());
     }
 
@@ -1073,7 +1073,7 @@ public:
     // in that an instruction such as CheckFixedFld may require a type check even if it is not part of a type check
     // sequence. In this case IsObjTypeSpecOptimized() == true, but IsTypeCheckSeqParticipant() == false.
     bool IsTypeCheckSeqParticipant() const
-    {
+    {TRACE_IT(14769);
         Assert(IsTypeCheckSeqCandidate());
         return NeedsPrimaryTypeCheck() || IsTypeCheckProtected();
     }
@@ -1081,128 +1081,128 @@ public:
     bool HasFinalType() const;
 
     JITTypeHolder GetFinalType() const
-    {
+    {TRACE_IT(14770);
         return this->finalType;
     }
 
     void SetFinalType(JITTypeHolder type)
-    {
+    {TRACE_IT(14771);
         Assert(type != nullptr);
         this->finalType = type;
     }
 
     void ClearFinalType()
-    {
+    {TRACE_IT(14772);
         this->finalType = JITTypeHolder(nullptr);
     }
 
     BVSparse<JitArenaAllocator>* GetGuardedPropOps()
-    {
+    {TRACE_IT(14773);
         return this->guardedPropOps;
     }
 
     void EnsureGuardedPropOps(JitArenaAllocator* allocator)
-    {
+    {TRACE_IT(14774);
         if (this->guardedPropOps == nullptr)
-        {
+        {TRACE_IT(14775);
             this->guardedPropOps = JitAnew(allocator, BVSparse<JitArenaAllocator>, allocator);
         }
     }
 
     void SetGuardedPropOp(uint propOpId)
-    {
+    {TRACE_IT(14776);
         Assert(this->guardedPropOps != nullptr);
         this->guardedPropOps->Set(propOpId);
     }
 
     void AddGuardedPropOps(const BVSparse<JitArenaAllocator>* propOps)
-    {
+    {TRACE_IT(14777);
         Assert(this->guardedPropOps != nullptr);
         this->guardedPropOps->Or(propOps);
     }
 
     BVSparse<JitArenaAllocator>* GetWriteGuards()
-    {
+    {TRACE_IT(14778);
         return this->writeGuards;
     }
 
     void SetWriteGuards(BVSparse<JitArenaAllocator>* value)
-    {
+    {TRACE_IT(14779);
         Assert(this->writeGuards == nullptr);
         this->writeGuards = value;
     }
 
     void ClearWriteGuards()
-    {
+    {TRACE_IT(14780);
         this->writeGuards = nullptr;
     }
 
 #if DBG
     bool TypeCheckSeqBitsSetOnlyIfCandidate() const
-    {
+    {TRACE_IT(14781);
         return IsTypeCheckSeqCandidate() || (!IsTypeAvailable() && !IsTypeChecked() && !IsWriteGuardChecked() && !IsTypeDead());
     }
 #endif
 
     bool IsObjTypeSpecCandidate() const
-    {
+    {TRACE_IT(14782);
         return HasObjTypeSpecFldInfo();
     }
 
     bool IsMonoObjTypeSpecCandidate() const
-    {
+    {TRACE_IT(14783);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsMonoObjTypeSpecCandidate();
     }
 
     bool IsPolyObjTypeSpecCandidate() const
-    {
+    {TRACE_IT(14784);
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsPolyObjTypeSpecCandidate();
     }
 
     Js::TypeId GetTypeId() const
-    {
+    {TRACE_IT(14785);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetTypeId();
     }
 
     Js::TypeId GetTypeId(uint i) const
-    {
+    {TRACE_IT(14786);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetTypeId(i);
     }
 
     JITTypeHolder GetType() const
-    {
+    {TRACE_IT(14787);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetType();
     }
 
     JITTypeHolder GetType(uint i) const
-    {
+    {TRACE_IT(14788);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetType(i);
     }
 
     bool HasInitialType() const
-    {
+    {TRACE_IT(14789);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->HasInitialType();
     }
 
     JITTypeHolder GetInitialType() const
-    {
+    {TRACE_IT(14790);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetInitialType();
     }
 
     Js::EquivalentTypeSet * GetEquivalentTypeSet() const
-    {
+    {TRACE_IT(14791);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetEquivalentTypeSet();
     }
 
     JITTypeHolder GetFirstEquivalentType() const
-    {
+    {TRACE_IT(14792);
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFirstEquivalentType();
     }
@@ -1213,7 +1213,7 @@ public:
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     const char16* GetCacheLayoutString() const
-    {
+    {TRACE_IT(14793);
         return HasObjTypeSpecFldInfo() ? this->objTypeSpecFldInfo->GetCacheLayoutString() : _u("empty");
     }
 #endif
@@ -1241,7 +1241,7 @@ public:
 
 public:
     bool                    IsArrayRegOpnd() const
-    {
+    {TRACE_IT(14794);
         Assert(m_isArrayRegOpnd == DbgIsArrayRegOpnd());
         Assert(!m_isArrayRegOpnd || m_valueType.IsAnyOptimizedArray());
         return m_isArrayRegOpnd;
@@ -1263,10 +1263,10 @@ public:
     bool                    IsSameRegUntyped(Opnd *opnd);
 
 #if DBG
-    void FreezeSymValue() { m_symValueFrozen = true; }
-    bool IsSymValueFrozen() const { return m_symValueFrozen; }
+    void FreezeSymValue() {TRACE_IT(14795); m_symValueFrozen = true; }
+    bool IsSymValueFrozen() const {TRACE_IT(14796); return m_symValueFrozen; }
 
-    virtual bool DbgIsArrayRegOpnd() const { return false; }
+    virtual bool DbgIsArrayRegOpnd() const {TRACE_IT(14797); return false; }
 #endif
 
 private:
@@ -1315,48 +1315,48 @@ public:
 
 public:
 #if DBG
-    virtual bool DbgIsArrayRegOpnd() const { return true; }
+    virtual bool DbgIsArrayRegOpnd() const {TRACE_IT(14798); return true; }
 #endif
     StackSym *HeadSegmentSym() const
-    {
+    {TRACE_IT(14799);
         return headSegmentSym;
     }
 
     void RemoveHeadSegmentSym()
-    {
+    {TRACE_IT(14800);
         headSegmentSym = nullptr;
     }
 
     StackSym *HeadSegmentLengthSym() const
-    {
+    {TRACE_IT(14801);
         return headSegmentLengthSym;
     }
 
     void RemoveHeadSegmentLengthSym()
-    {
+    {TRACE_IT(14802);
         headSegmentLengthSym = nullptr;
     }
 
     StackSym *LengthSym() const
-    {
+    {TRACE_IT(14803);
         // For typed arrays, the head segment length is the same as the array length
         Assert(!(m_valueType.IsLikelyTypedArray() && !m_valueType.IsOptimizedTypedArray()));
         return m_valueType.IsLikelyTypedArray() ? HeadSegmentLengthSym() : lengthSym;
     }
 
     void RemoveLengthSym()
-    {
+    {TRACE_IT(14804);
         Assert(m_valueType.IsArray());
         lengthSym = nullptr;
     }
 
     bool EliminatedLowerBoundCheck() const
-    {
+    {TRACE_IT(14805);
         return eliminatedLowerBoundCheck;
     }
 
     bool EliminatedUpperBoundCheck() const
-    {
+    {TRACE_IT(14806);
         return eliminatedUpperBoundCheck;
     }
 
@@ -1401,10 +1401,10 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
 
-    bool                    IsDynamic() const { return addrOpndKind > AddrOpndKindConstantVar; }
-    bool                    IsVar() const { return addrOpndKind == AddrOpndKindDynamicVar || addrOpndKind == AddrOpndKindConstantVar; }
+    bool                    IsDynamic() const {TRACE_IT(14807); return addrOpndKind > AddrOpndKindConstantVar; }
+    bool                    IsVar() const {TRACE_IT(14808); return addrOpndKind == AddrOpndKindDynamicVar || addrOpndKind == AddrOpndKindConstantVar; }
     void                    SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind);
-    AddrOpndKind            GetAddrOpndKind() const { return addrOpndKind; }
+    AddrOpndKind            GetAddrOpndKind() const {TRACE_IT(14809); return addrOpndKind; }
     void                    SetAddress(Js::Var address, AddrOpndKind addrOpndKind);
 public:
 
@@ -1587,7 +1587,7 @@ private:
 
 public:
     AutoReuseOpnd() : opnd(nullptr), wasInUse(true)
-    {
+    {TRACE_IT(14810);
     }
 
     AutoReuseOpnd(Opnd *const opnd, Func *const func, const bool autoDelete = true) : opnd(nullptr)
@@ -1596,12 +1596,12 @@ public:
     }
 
     void Initialize(Opnd *const opnd, Func *const func, const bool autoDelete = true)
-    {
+    {TRACE_IT(14811);
         Assert(!this->opnd);
         Assert(func);
 
         if(!opnd)
-        {
+        {TRACE_IT(14812);
             // Simulate the default constructor
             wasInUse = true;
             return;
@@ -1610,7 +1610,7 @@ public:
         this->opnd = opnd;
         wasInUse = opnd->IsInUse();
         if(wasInUse)
-        {
+        {TRACE_IT(14813);
             return;
         }
         this->func = func;
@@ -1625,17 +1625,17 @@ public:
     }
 
     ~AutoReuseOpnd()
-    {
+    {TRACE_IT(14814);
         if(wasInUse)
-        {
+        {TRACE_IT(14815);
             return;
         }
         if(autoDelete)
-        {
+        {TRACE_IT(14816);
             opnd->Free(func);
         }
         else
-        {
+        {TRACE_IT(14817);
             opnd->UnUse();
         }
     }

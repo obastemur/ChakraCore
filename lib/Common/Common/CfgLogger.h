@@ -9,7 +9,7 @@ public:
     static void Enable();
     static void __fastcall GuardCheck(_In_ uintptr_t Target);
 private:
-    CFGLogger() {}
+    CFGLogger() {TRACE_IT(18793);}
     ~CFGLogger();
 
     typedef void(__fastcall * PfnGuardCheckFunction)(_In_ uintptr_t Target);

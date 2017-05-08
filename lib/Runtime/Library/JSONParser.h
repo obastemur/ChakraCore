@@ -22,14 +22,14 @@ namespace JSON
             typeWithoutProperty(typeWithoutProperty),
             typeWithProperty(typeWithProperty),
             propertyIndex(propertyIndex),
-            next(nullptr) {}
+            next(nullptr) {TRACE_IT(55892);}
 
         static JsonTypeCache* New(ArenaAllocator* allocator,
             const Js::PropertyRecord* propertyRecord,
             Js::DynamicType* typeWithoutProperty,
             Js::DynamicType* typeWithProperty,
             Js::PropertyIndex propertyIndex)
-        {
+        {TRACE_IT(55893);
             return Anew(allocator, JsonTypeCache, propertyRecord, typeWithoutProperty, typeWithProperty, propertyIndex);
         }
 
@@ -37,7 +37,7 @@ namespace JSON
             Js::DynamicType* typeWithoutProperty,
             Js::DynamicType* typeWithProperty,
             Js::PropertyIndex propertyIndex)
-        {
+        {TRACE_IT(55894);
             this->propertyRecord = propertyRecord;
             this->typeWithoutProperty = typeWithoutProperty;
             this->typeWithProperty = typeWithProperty;
@@ -51,7 +51,7 @@ namespace JSON
     public:
         JSONParser(Js::ScriptContext* sc, Js::RecyclableObject* rv) : scriptContext(sc),
             reviver(rv),  arenaAllocatorObject(nullptr), arenaAllocator(nullptr), typeCacheList(nullptr)
-        {
+        {TRACE_IT(55895);
         };
 
         Js::Var Parse(LPCWSTR str, int length);
@@ -61,21 +61,21 @@ namespace JSON
 
     private:
         tokens Scan()
-        {
+        {TRACE_IT(55896);
             return m_scanner.Scan();
         }
 
         Js::Var ParseObject();
 
         void CheckCurrentToken(int tk, int wErr)
-        {
+        {TRACE_IT(55897);
             if (m_token.tk != tk)
                 m_scanner.ThrowSyntaxError(wErr);
             Scan();
         }
 
         bool IsCaching()
-        {
+        {TRACE_IT(55898);
             return arenaAllocator != nullptr;
         }
 

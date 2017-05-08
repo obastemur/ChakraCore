@@ -57,7 +57,7 @@ namespace MarkStack
     {
     public:
         __forceinline MarkCandidate* Push(void** obj, size_t byteCount) throw()
-        {
+        {TRACE_IT(24711);
             // We first cache the current stack locally
             // We then increment the stack pointer- at this point it could be pointing to an address that is past the guard page
             // We then try to write the item to the cached location. If that's within the guard page, the official stack gets adjusted
@@ -71,11 +71,11 @@ namespace MarkStack
 
 #if DBG
             if (this->chunkCount > 0)
-            {
+            {TRACE_IT(24712);
                 for (Chunk* chunk = this->preAllocatedChunk; chunk->next != null; chunk = chunk->next)
-                {
+                {TRACE_IT(24713);
                     if (chunk->next == null)
-                    {
+                    {TRACE_IT(24714);
                         char* page = (((char*)chunk) + ChunkSize - PageSize);
                         // Don't write to the old page when a new chunk is pushed.
                         ::VirtualProtect((LPVOID)page, PageSize, PAGE_NOACCESS, NULL);
@@ -93,12 +93,12 @@ namespace MarkStack
         void Clear() throw();
 
         bool Empty() throw()
-        {
+        {TRACE_IT(24715);
             return (stack == start && chunkTail == preAllocatedChunk);
         }
 
         __forceinline MarkCandidate* Pop() throw()
-        {
+        {TRACE_IT(24716);
             // TODO: Can we make this faster?
             // One option (at the expense of wasting another 4K/Chunk) is to use a guard page at the start of the chunk too
             // Then we can eliminate this bound-check
@@ -108,7 +108,7 @@ namespace MarkStack
             // 1 to subtract the stack
             // 1 to reload it back into the register
             if (stack != start)
-            {
+            {TRACE_IT(24717);
                 stack = stack - sizeof(MarkCandidate);
 #if MARKSTACK_DIAG
                 count--;
@@ -120,7 +120,7 @@ namespace MarkStack
         }
 
 #if MARKSTACK_DIAG
-        size_t Count() { return count; }
+        size_t Count() {TRACE_IT(24718); return count; }
 #endif
 
         static int HandleException(LPEXCEPTION_POINTERS pEP, Recycler* recycler) throw();
@@ -183,16 +183,16 @@ namespace MarkStack
         //
         VAEList _allocations;
         VirtualAllocationEntry* CheckAllocationEntryExists(void* address)
-        {
+        {TRACE_IT(24719);
             VAEList::Iterator iterator(&this->_allocations);
 
             while (iterator.Next())
-            {
+            {TRACE_IT(24720);
                 VirtualAllocationEntry& entry = iterator.Data();
 
                 // Make sure we don't already have the new address isn't in range of existing allocations
                 if (entry.address <= address && address < ((char*)entry.address) + entry.size)
-                {
+                {TRACE_IT(24721);
                     return (&entry);
                 }
             }

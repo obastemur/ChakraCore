@@ -10,7 +10,7 @@ HRESULT JsInitializeJITServer(
     __in UUID* connectionUuid,
     __in_opt void* securityDescriptor,
     __in_opt void* alpcSecurityDescriptor)
-{
+{TRACE_IT(27354);
     RPC_STATUS status;
     RPC_BINDING_VECTOR* bindingVector = NULL;
     UUID_VECTOR uuidVector;
@@ -23,7 +23,7 @@ HRESULT JsInitializeJITServer(
         RPC_C_PROTSEQ_MAX_REQS_DEFAULT,
         alpcSecurityDescriptor);
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27355);
         return status;
     }
 
@@ -48,13 +48,13 @@ HRESULT JsInitializeJITServer(
         securityDescriptor);
 #endif
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27356);
         return status;
     }
 
     status = RpcServerInqBindings(&bindingVector);
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27357);
         return status;
     }
 
@@ -67,14 +67,14 @@ HRESULT JsInitializeJITServer(
         &uuidVector,
         NULL);
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27358);
         return status;
     }
 
     status = RpcBindingVectorFree(&bindingVector);
 
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27359);
         return status;
     }
 
@@ -85,10 +85,10 @@ HRESULT JsInitializeJITServer(
 
 HRESULT
 ShutdownCommon()
-{
+{TRACE_IT(27360);
     HRESULT status = RpcMgmtStopServerListening(NULL);
     if (status != RPC_S_OK)
-    {
+    {TRACE_IT(27361);
         return status;
     }
 
@@ -102,7 +102,7 @@ ShutdownCommon()
 HRESULT
 ServerShutdown(
     /* [in] */ handle_t binding)
-{
+{TRACE_IT(27362);
     return ShutdownCommon();
 }
 
@@ -120,38 +120,38 @@ __RPC_USER PSCRIPTCONTEXT_HANDLE_rundown(__RPC__in PSCRIPTCONTEXT_HANDLE phConte
 }
 
 HRESULT CheckModuleAddress(HANDLE process, LPCVOID remoteImageBase, LPCVOID localImageBase)
-{
+{TRACE_IT(27363);
     byte remoteImageHeader[0x1000];
     MEMORY_BASIC_INFORMATION remoteImageInfo;
     SIZE_T resultBytes = VirtualQueryEx(process, (LPCVOID)remoteImageBase, &remoteImageInfo, sizeof(remoteImageInfo));
     if (resultBytes != sizeof(remoteImageInfo))
-    {
+    {TRACE_IT(27364);
         return E_ACCESSDENIED;
     }
     if (remoteImageInfo.BaseAddress != (PVOID)remoteImageBase)
-    {
+    {TRACE_IT(27365);
         return E_ACCESSDENIED;
     }
     if (remoteImageInfo.Type != MEM_IMAGE)
-    {
+    {TRACE_IT(27366);
         return E_ACCESSDENIED;
     }
     if (remoteImageInfo.State != MEM_COMMIT)
-    {
+    {TRACE_IT(27367);
         return E_ACCESSDENIED;
     }
 
     if (remoteImageInfo.RegionSize < sizeof(remoteImageHeader))
-    {
+    {TRACE_IT(27368);
         return E_ACCESSDENIED;
     }
 
     if (!ReadProcessMemory(process, remoteImageBase, remoteImageHeader, sizeof(remoteImageHeader), &resultBytes))
-    {
+    {TRACE_IT(27369);
         return HRESULT_FROM_WIN32(GetLastError());
     }
     if (resultBytes < sizeof(remoteImageHeader))
-    {
+    {TRACE_IT(27370);
         return E_ACCESSDENIED;
     }
     PIMAGE_DOS_HEADER localDosHeader = (PIMAGE_DOS_HEADER)localImageBase;
@@ -163,24 +163,24 @@ HRESULT CheckModuleAddress(HANDLE process, LPCVOID remoteImageBase, LPCVOID loca
     uintptr_t remoteHeaderMax = (uintptr_t)remoteImageHeader + sizeof(remoteImageHeader);
     uintptr_t remoteMaxRead = (uintptr_t)remoteNtHeader + sizeof(IMAGE_NT_HEADERS);
     if (remoteMaxRead >= remoteHeaderMax || remoteMaxRead < (uintptr_t)remoteImageHeader)
-    {
+    {TRACE_IT(27371);
         return E_ACCESSDENIED;
     }
 
     if (localNtHeader->FileHeader.NumberOfSections != remoteNtHeader->FileHeader.NumberOfSections)
-    {
+    {TRACE_IT(27372);
         return E_ACCESSDENIED;
     }
     if (localNtHeader->FileHeader.NumberOfSymbols != remoteNtHeader->FileHeader.NumberOfSymbols)
-    {
+    {TRACE_IT(27373);
         return E_ACCESSDENIED;
     }
     if (localNtHeader->OptionalHeader.CheckSum != remoteNtHeader->OptionalHeader.CheckSum)
-    {
+    {TRACE_IT(27374);
         return E_ACCESSDENIED;
     }
     if (localNtHeader->OptionalHeader.SizeOfImage != remoteNtHeader->OptionalHeader.SizeOfImage)
-    {
+    {TRACE_IT(27375);
         return E_ACCESSDENIED;
     }
 
@@ -195,9 +195,9 @@ ServerInitializeThreadContext(
     /* [in] */ __RPC__in ThreadContextDataIDL * threadContextData,
     /* [out] */ __RPC__deref_out_opt PPTHREADCONTEXT_HANDLE threadContextInfoAddress,
     /* [out] */ __RPC__out intptr_t *prereservedRegionAddr)
-{
+{TRACE_IT(27376);
     if (threadContextInfoAddress == nullptr || prereservedRegionAddr == nullptr)
-    {
+    {TRACE_IT(27377);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -207,13 +207,13 @@ ServerInitializeThreadContext(
 
     ServerThreadContext * contextInfo = nullptr;
     try
-    {
+    {TRACE_IT(27378);
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(static_cast<ExceptionType>(ExceptionType_OutOfMemory));
         contextInfo = HeapNew(ServerThreadContext, threadContextData);
         ServerContextManager::RegisterThreadContext(contextInfo);
     }
     catch (Js::OutOfMemoryException)
-    {
+    {TRACE_IT(27379);
         CloseHandle((HANDLE)threadContextData->processHandle);
         return E_OUTOFMEMORY;
     }
@@ -226,23 +226,23 @@ ServerInitializeThreadContext(
         CallAttributes.Flags = RPC_QUERY_CLIENT_PID;
         HRESULT hr = HRESULT_FROM_WIN32(RpcServerInqCallAttributes(binding, &CallAttributes));
         if (FAILED(hr))
-        {
+        {TRACE_IT(27380);
             return hr;
         }
         if (CallAttributes.ClientPID != (HANDLE)contextInfo->GetRuntimePid())
-        {
+        {TRACE_IT(27381);
             return E_ACCESSDENIED;
         }
         hr = CheckModuleAddress(contextInfo->GetProcessHandle(), (LPCVOID)contextInfo->GetRuntimeChakraBaseAddress(), (LPCVOID)AutoSystemInfo::Data.dllLoadAddress);
         if (FAILED(hr))
-        {
+        {TRACE_IT(27382);
             return hr;
         }
         if (contextInfo->GetUCrtC99MathApis()->IsAvailable())
-        {
+        {TRACE_IT(27383);
             hr = CheckModuleAddress(contextInfo->GetProcessHandle(), (LPCVOID)contextInfo->GetRuntimeCRTBaseAddress(), (LPCVOID)contextInfo->GetJITCRTBaseAddress());
             if (FAILED(hr))
-            {
+            {TRACE_IT(27384);
                 return hr;
             }
         }
@@ -260,9 +260,9 @@ ServerInitializeScriptContext(
     /* [in] */ __RPC__in ScriptContextDataIDL * scriptContextData,
     /* [in] */ __RPC__in PTHREADCONTEXT_HANDLE threadContextInfoAddress,
     /* [out] */ __RPC__deref_out_opt PPSCRIPTCONTEXT_HANDLE scriptContextInfoAddress)
-{
+{TRACE_IT(27385);
     if (scriptContextInfoAddress == nullptr || threadContextInfoAddress == nullptr)
-    {
+    {TRACE_IT(27386);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -289,15 +289,15 @@ HRESULT
 ServerCleanupThreadContext(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__deref_inout_opt PPTHREADCONTEXT_HANDLE threadContextInfoAddress)
-{
+{TRACE_IT(27387);
     if (threadContextInfoAddress == nullptr)
-    {
+    {TRACE_IT(27388);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
     ServerThreadContext * threadContextInfo = (ServerThreadContext*)DecodePointer(*threadContextInfoAddress);
     if (threadContextInfo == nullptr)
-    {
+    {TRACE_IT(27389);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -319,11 +319,11 @@ ServerUpdatePropertyRecordMap(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PTHREADCONTEXT_HANDLE threadContextInfoAddress,
     /* [in] */ __RPC__in_opt BVSparseNodeIDL * updatedPropsBVHead)
-{
+{TRACE_IT(27390);
     ServerThreadContext * threadContextInfo = (ServerThreadContext*)DecodePointer(threadContextInfoAddress);
 
     if (threadContextInfo == nullptr)
-    {
+    {TRACE_IT(27391);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -344,11 +344,11 @@ ServerAddDOMFastPathHelper(
     /* [in] */ __RPC__in PSCRIPTCONTEXT_HANDLE scriptContextInfoAddress,
     /* [in] */ intptr_t funcInfoAddr,
     /* [in] */ int helper)
-{
+{TRACE_IT(27392);
     ServerScriptContext * scriptContextInfo = (ServerScriptContext*)DecodePointer(scriptContextInfoAddress);
 
     if (scriptContextInfo == nullptr)
-    {
+    {TRACE_IT(27393);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -366,10 +366,10 @@ ServerAddModuleRecordInfo(
     /* [in] */ __RPC__in PSCRIPTCONTEXT_HANDLE scriptContextInfoAddress,
     /* [in] */ unsigned int moduleId,
     /* [in] */ intptr_t localExportSlotsAddr)
-{
+{TRACE_IT(27394);
     ServerScriptContext * serverScriptContext = (ServerScriptContext*)DecodePointer(scriptContextInfoAddress);
     if (serverScriptContext == nullptr)
-    {
+    {TRACE_IT(27395);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -387,11 +387,11 @@ ServerSetWellKnownHostTypeId(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PTHREADCONTEXT_HANDLE threadContextInfoAddress,
     /* [in] */ int typeId)
-{
+{TRACE_IT(27396);
     ServerThreadContext * threadContextInfo = (ServerThreadContext*)DecodePointer(threadContextInfoAddress);
 
     if (threadContextInfo == nullptr)
-    {
+    {TRACE_IT(27397);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -407,9 +407,9 @@ HRESULT
 ServerCleanupScriptContext(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__deref_inout_opt PPSCRIPTCONTEXT_HANDLE scriptContextInfoAddress)
-{
+{TRACE_IT(27398);
     if (scriptContextInfoAddress == nullptr)
-    {
+    {TRACE_IT(27399);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -417,7 +417,7 @@ ServerCleanupScriptContext(
     ServerScriptContext * scriptContextInfo = (ServerScriptContext*)DecodePointer(*scriptContextInfoAddress);
 
     if (scriptContextInfo == nullptr)
-    {
+    {TRACE_IT(27400);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -436,11 +436,11 @@ HRESULT
 ServerCloseScriptContext(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PSCRIPTCONTEXT_HANDLE scriptContextInfoAddress)
-{
+{TRACE_IT(27401);
     ServerScriptContext * scriptContextInfo = (ServerScriptContext*)DecodePointer(scriptContextInfoAddress);
 
     if (scriptContextInfo == nullptr)
-    {
+    {TRACE_IT(27402);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -450,7 +450,7 @@ ServerCloseScriptContext(
 #ifdef PROFILE_EXEC
         auto profiler = scriptContextInfo->GetCodeGenProfiler();
         if (profiler && profiler->IsInitialized())
-        {
+        {TRACE_IT(27403);
             profiler->ProfilePrint(Js::Configuration::Global.flags.Profile.GetFirstPhase());
         }
 #endif
@@ -466,11 +466,11 @@ ServerDecommitInterpreterBufferManager(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PSCRIPTCONTEXT_HANDLE scriptContextInfoAddress,
     /* [in] */ boolean asmJsManager)
-{
+{TRACE_IT(27404);
     ServerScriptContext * scriptContext = (ServerScriptContext *)DecodePointer((void*)scriptContextInfoAddress);
 
     if (scriptContext == nullptr)
-    {
+    {TRACE_IT(27405);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -493,7 +493,7 @@ ServerNewInterpreterThunkBlock(
 
     ServerScriptContext * scriptContext = (ServerScriptContext *)DecodePointer(scriptContextInfo);
     if (scriptContext == nullptr)
-    {
+    {TRACE_IT(27406);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -505,11 +505,11 @@ ServerNewInterpreterThunkBlock(
         class AutoLocalAlloc
         {
         public:
-            AutoLocalAlloc(ServerThreadContext * threadContext) : localAddress(nullptr), threadContext(threadContext) { }
+            AutoLocalAlloc(ServerThreadContext * threadContext) : localAddress(nullptr), threadContext(threadContext) {TRACE_IT(27407); }
             ~AutoLocalAlloc()
-            {
+            {TRACE_IT(27408);
                 if (localAddress)
-                {
+                {TRACE_IT(27409);
                     threadContext->GetCodePageAllocators()->FreeLocal(this->localAddress, this->segment);
                 }
             }
@@ -528,7 +528,7 @@ ServerNewInterpreterThunkBlock(
 
         localAlloc.localAddress = threadContext->GetCodePageAllocators()->AllocLocal((char*)runtimeAddress, InterpreterThunkEmitter::BlockSize, localAlloc.segment);
         if (!localAlloc.localAddress)
-        {
+        {TRACE_IT(27410);
             Js::Throw::OutOfMemory();
         }
 
@@ -554,7 +554,7 @@ ServerNewInterpreterThunkBlock(
         emitBufferManager->CommitBufferForInterpreter(alloc, runtimeAddress, InterpreterThunkEmitter::BlockSize);
         // Call to set VALID flag for CFG check
         if (CONFIG_FLAG(OOPCFGRegistration))
-        {
+        {TRACE_IT(27411);
             threadContext->SetValidCallTargetForCFG(runtimeAddress);
         }
 
@@ -577,17 +577,17 @@ ServerIsInterpreterThunkAddr(
     /* [in] */ intptr_t address,
     /* [in] */ boolean asmjsThunk,
     /* [out] */ __RPC__out boolean * result)
-{
+{TRACE_IT(27412);
     ServerScriptContext * context = (ServerScriptContext*)DecodePointer((void*)scriptContextInfoAddress);
 
     if (context == nullptr)
-    {
+    {TRACE_IT(27413);
         *result = false;
         return RPC_S_INVALID_ARG;
     }
     OOPEmitBufferManager * manager = context->GetEmitBufferManager(asmjsThunk != FALSE);
     if (manager == nullptr)
-    {
+    {TRACE_IT(27414);
         *result = false;
         return S_OK;
     }
@@ -603,11 +603,11 @@ ServerFreeAllocation(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PTHREADCONTEXT_HANDLE threadContextInfo,
     /* [in] */ intptr_t address)
-{
+{TRACE_IT(27415);
     ServerThreadContext * context = (ServerThreadContext*)DecodePointer(threadContextInfo);
 
     if (context == nullptr)
-    {
+    {TRACE_IT(27416);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -615,7 +615,7 @@ ServerFreeAllocation(
     return ServerCallWrapper(context, [&]()->HRESULT
     {
         if (CONFIG_FLAG(OOPCFGRegistration))
-        {
+        {TRACE_IT(27417);
             context->SetValidCallTargetForCFG((PVOID)address, false);
         }
         context->GetCodeGenAllocators()->emitBufferManager.FreeAllocation((void*)address);
@@ -629,9 +629,9 @@ ServerIsNativeAddr(
     /* [in] */ __RPC__in PTHREADCONTEXT_HANDLE threadContextInfo,
     /* [in] */ intptr_t address,
     /* [out] */ __RPC__out boolean * result)
-{
+{TRACE_IT(27418);
     if (result == nullptr)
-    {
+    {TRACE_IT(27419);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -640,7 +640,7 @@ ServerIsNativeAddr(
 
     ServerThreadContext * context = (ServerThreadContext*)DecodePointer(threadContextInfo);
     if (context == nullptr)
-    {
+    {TRACE_IT(27420);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -649,16 +649,16 @@ ServerIsNativeAddr(
     {
         PreReservedSectionAllocWrapper *preReservedAllocWrapper = context->GetPreReservedSectionAllocator();
         if (preReservedAllocWrapper->IsInRange((void*)address))
-        {
+        {TRACE_IT(27421);
             *result = true;
         }
         else if (!context->IsAllJITCodeInPreReservedRegion())
-        {
+        {TRACE_IT(27422);
             AutoCriticalSection autoLock(&context->GetCodePageAllocators()->cs);
             *result = context->GetCodePageAllocators()->IsInNonPreReservedPageAllocator((void*)address);
         }
         else
-        {
+        {TRACE_IT(27423);
             *result = false;
         }
 
@@ -671,11 +671,11 @@ ServerSetIsPRNGSeeded(
     /* [in] */ handle_t binding,
     /* [in] */ __RPC__in PSCRIPTCONTEXT_HANDLE scriptContextInfoAddress,
     /* [in] */ boolean value)
-{
+{TRACE_IT(27424);
     ServerScriptContext * scriptContextInfo = (ServerScriptContext*)DecodePointer(scriptContextInfoAddress);
 
     if (scriptContextInfo == nullptr)
-    {
+    {TRACE_IT(27425);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -699,7 +699,7 @@ ServerRemoteCodeGen(
     ServerScriptContext * scriptContextInfo = (ServerScriptContext*)DecodePointer(scriptContextInfoAddress);
 
     if (scriptContextInfo == nullptr)
-    {
+    {TRACE_IT(27426);
         Assert(false);
         return RPC_S_INVALID_ARG;
     }
@@ -708,7 +708,7 @@ ServerRemoteCodeGen(
     {
         LARGE_INTEGER start_time = { 0 };
         if (PHASE_TRACE1(Js::BackEndPhase))
-        {
+        {TRACE_IT(27427);
             QueryPerformanceCounter(&start_time);
         }
 
@@ -725,7 +725,7 @@ ServerRemoteCodeGen(
         JITTimeWorkItem * jitWorkItem = Anew(&jitArena, JITTimeWorkItem, workItemData);
 
         if (PHASE_VERBOSE_TRACE_RAW(Js::BackEndPhase, jitWorkItem->GetJITTimeInfo()->GetSourceContextId(), jitWorkItem->GetJITTimeInfo()->GetLocalFunctionId()))
-        {
+        {TRACE_IT(27428);
             LARGE_INTEGER freq;
             LARGE_INTEGER end_time;
             QueryPerformanceCounter(&end_time);
@@ -741,15 +741,15 @@ ServerRemoteCodeGen(
         auto profiler = scriptContextInfo->GetCodeGenProfiler();
 #ifdef PROFILE_EXEC
         if (profiler && !profiler->IsInitialized())
-        {
+        {TRACE_IT(27429);
             profiler->Initialize(pageAllocator, nullptr);
         }
 #endif
         if (jitWorkItem->GetWorkItemData()->xProcNumberPageSegment)
-        {
+        {TRACE_IT(27430);
             jitData->numberPageSegments = (XProcNumberPageSegment*)midl_user_allocate(sizeof(XProcNumberPageSegment));
             if (!jitData->numberPageSegments)
-            {
+            {TRACE_IT(27431);
                 return E_OUTOFMEMORY;
             }
             __analysis_assume(jitData->numberPageSegments);
@@ -776,13 +776,13 @@ ServerRemoteCodeGen(
 
 #ifdef PROFILE_EXEC
         if (profiler && profiler->IsInitialized())
-        {
+        {TRACE_IT(27432);
             profiler->ProfilePrint(Js::Configuration::Global.flags.Profile.GetFirstPhase());
         }
 #endif
 
         if (PHASE_VERBOSE_TRACE_RAW(Js::BackEndPhase, jitWorkItem->GetJITTimeInfo()->GetSourceContextId(), jitWorkItem->GetJITTimeInfo()->GetLocalFunctionId()))
-        {
+        {TRACE_IT(27433);
             LARGE_INTEGER freq;
             LARGE_INTEGER end_time;
             QueryPerformanceCounter(&end_time);
@@ -797,7 +797,7 @@ ServerRemoteCodeGen(
         }
         LARGE_INTEGER out_time = { 0 };
         if (PHASE_TRACE1(Js::BackEndPhase))
-        {
+        {TRACE_IT(27434);
             QueryPerformanceCounter(&out_time);
             jitData->startTime = out_time.QuadPart;
         }
@@ -816,23 +816,23 @@ SList<ServerContextManager::ClosedContextEntry<ServerScriptContext>*, NoThrowHea
 #endif
 
 void ServerContextManager::RegisterThreadContext(ServerThreadContext* threadContext)
-{
+{TRACE_IT(27435);
     AutoCriticalSection autoCS(&cs);
     threadContexts.Add(threadContext);
 }
 
 void ServerContextManager::UnRegisterThreadContext(ServerThreadContext* threadContext)
-{
+{TRACE_IT(27436);
     AutoCriticalSection autoCS(&cs);
     threadContexts.Remove(threadContext);
     auto iter = scriptContexts.GetIteratorWithRemovalSupport();
     while (iter.IsValid())
-    {
+    {TRACE_IT(27437);
         ServerScriptContext* scriptContext = iter.Current().Key();
         if (scriptContext->GetThreadContext() == threadContext)
-        {
+        {TRACE_IT(27438);
             if (!scriptContext->IsClosed())
-            {
+            {TRACE_IT(27439);
                 scriptContext->Close();
             }
             iter.RemoveCurrent();
@@ -842,24 +842,24 @@ void ServerContextManager::UnRegisterThreadContext(ServerThreadContext* threadCo
 }
 
 void ServerContextManager::RegisterScriptContext(ServerScriptContext* scriptContext)
-{
+{TRACE_IT(27440);
     AutoCriticalSection autoCS(&cs);
     scriptContexts.Add(scriptContext);
 }
 
 void ServerContextManager::UnRegisterScriptContext(ServerScriptContext* scriptContext)
-{
+{TRACE_IT(27441);
     AutoCriticalSection autoCS(&cs);
     scriptContexts.Remove(scriptContext);
 }
 
 bool ServerContextManager::CheckLivenessAndAddref(ServerScriptContext* context)
-{
+{TRACE_IT(27442);
     AutoCriticalSection autoCS(&cs);
     if (scriptContexts.LookupWithKey(context))
-    {
+    {TRACE_IT(27443);
         if (!context->IsClosed() && !context->GetThreadContext()->IsClosed())
-        {
+        {TRACE_IT(27444);
             context->AddRef();
             context->GetThreadContext()->AddRef();
             return true;
@@ -868,12 +868,12 @@ bool ServerContextManager::CheckLivenessAndAddref(ServerScriptContext* context)
     return false;
 }
 bool ServerContextManager::CheckLivenessAndAddref(ServerThreadContext* context)
-{
+{TRACE_IT(27445);
     AutoCriticalSection autoCS(&cs);
     if (threadContexts.LookupWithKey(context))
-    {
+    {TRACE_IT(27446);
         if (!context->IsClosed())
-        {
+        {TRACE_IT(27447);
             context->AddRef();
             return true;
         }
@@ -883,29 +883,29 @@ bool ServerContextManager::CheckLivenessAndAddref(ServerThreadContext* context)
 
 template<typename Fn>
 HRESULT ServerCallWrapper(ServerThreadContext* threadContextInfo, Fn fn)
-{
+{TRACE_IT(27448);
     MemoryOperationLastError::ClearLastError();
     HRESULT hr = S_OK;
     try
-    {
+    {TRACE_IT(27449);
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(static_cast<ExceptionType>(ExceptionType_OutOfMemory | ExceptionType_StackOverflow));
         AutoReleaseThreadContext autoThreadContext(threadContextInfo);
         hr = fn();
     }
     catch (ContextClosedException&)
-    {
+    {TRACE_IT(27450);
         hr = E_ACCESSDENIED;
     }
     catch (Js::OutOfMemoryException)
-    {
+    {TRACE_IT(27451);
         hr = E_OUTOFMEMORY;
     }
     catch (Js::StackOverflowException)
-    {
+    {TRACE_IT(27452);
         hr = VBSERR_OutOfStack;
     }
     catch (Js::OperationAbortedException)
-    {
+    {TRACE_IT(27453);
         hr = E_ABORT;
     }
     catch (...)
@@ -914,9 +914,9 @@ HRESULT ServerCallWrapper(ServerThreadContext* threadContextInfo, Fn fn)
     }
 
     if (hr == E_OUTOFMEMORY)
-    {
+    {TRACE_IT(27454);
         if (HRESULT_FROM_WIN32(MemoryOperationLastError::GetLastError()) != S_OK)
-        {
+        {TRACE_IT(27455);
             hr = HRESULT_FROM_WIN32(MemoryOperationLastError::GetLastError());
         }
     }
@@ -926,15 +926,15 @@ HRESULT ServerCallWrapper(ServerThreadContext* threadContextInfo, Fn fn)
 
 template<typename Fn>
 HRESULT ServerCallWrapper(ServerScriptContext* scriptContextInfo, Fn fn)
-{
+{TRACE_IT(27456);
     try
-    {
+    {TRACE_IT(27457);
         AutoReleaseScriptContext autoScriptContext(scriptContextInfo);
         ServerThreadContext* threadContextInfo = scriptContextInfo->GetThreadContext();
         return ServerCallWrapper(threadContextInfo, fn);
     }
     catch (ContextClosedException&)
-    {
+    {TRACE_IT(27458);
         return E_ACCESSDENIED;
     }
 }

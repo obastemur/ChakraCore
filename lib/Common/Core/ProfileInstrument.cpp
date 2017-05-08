@@ -28,7 +28,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     UnitData::UnitData()
-    {
+    {TRACE_IT(20398);
         this->incl  = 0;
         this->excl  = 0;
         this->max   = 0;
@@ -43,12 +43,12 @@ namespace Js
 
     void
     UnitData::Add(TimeStamp incl, TimeStamp excl)
-    {
+    {TRACE_IT(20399);
         this->incl      += incl;
         this->excl      += excl;
         this->count++;
         if (incl > this->max)
-        {
+        {TRACE_IT(20400);
             this->max = incl;
         }
     }
@@ -72,11 +72,11 @@ namespace Js
     Profiler::Profiler(ArenaAllocator * allocator) :
         alloc(allocator),
         rootNode(NULL)
-    {
+    {TRACE_IT(20401);
         this->curNode = &this->rootNode;
 
         for(int i = 0; i < PhaseCount; i++)
-        {
+        {TRACE_IT(20402);
             this->inclSumAtLevel[i] = 0;
         }
     }
@@ -107,11 +107,11 @@ namespace Js
 
     void
     Profiler::Suspend(Phase tag, SuspendRecord * suspendRecord)
-    {
+    {TRACE_IT(20403);
         suspendRecord->count = 0;
         Phase topTag;
         do
-        {
+        {TRACE_IT(20404);
             topTag = timeStack.Peek()->tag;
             Pop(TimeEntry(topTag, GetTime()));
             suspendRecord->phase[suspendRecord->count++] = topTag;
@@ -120,9 +120,9 @@ namespace Js
 
     void
     Profiler::Resume(SuspendRecord * suspendRecord)
-    {
+    {TRACE_IT(20405);
         while (suspendRecord->count)
-        {
+        {TRACE_IT(20406);
             suspendRecord->count--;
             Begin(suspendRecord->phase[suspendRecord->count]);
         }
@@ -139,10 +139,10 @@ namespace Js
 
     void
     Profiler::EndAllUpTo(Phase tag)
-    {
+    {TRACE_IT(20407);
         Phase topTag;
         do
-        {
+        {TRACE_IT(20408);
             topTag = timeStack.Peek()->tag;
             Pop(TimeEntry(topTag, GetTime()));
         } while(topTag != tag);
@@ -159,12 +159,12 @@ namespace Js
 
     void
     Profiler::Push(TimeEntry entry)
-    {
+    {TRACE_IT(20409);
         AssertMsg(NULL != curNode, "Profiler Stack Corruption");
 
         this->timeStack.Push(entry);
         if(!curNode->ChildExistsAt(entry.tag))
-        {
+        {TRACE_IT(20410);
             TypeNode * node = AnewNoThrow(this->alloc, TypeNode, curNode);
             // We crash if we run out of memory here and we don't care
             curNode->SetChildAt(entry.tag, node);
@@ -212,7 +212,7 @@ namespace Js
 
     void
     Profiler::Pop(TimeEntry curEntry)
-    {
+    {TRACE_IT(20411);
         int         curLevel                = this->timeStack.Count();
         TimeEntry   *entry                   = this->timeStack.Pop();
 
@@ -241,13 +241,13 @@ namespace Js
         {
             FixedStack<TimeEntry, MaxStackDepth> reverseStack;
             do
-            {
+            {TRACE_IT(20412);
                 reverseStack.Push(*profiler->timeStack.Pop());
             }
             while (profiler->timeStack.Count() > 1);
 
             do
-            {
+            {TRACE_IT(20413);
                 TimeEntry * entry = reverseStack.Pop();
                 this->Push(*entry);
                 profiler->timeStack.Push(*entry);
@@ -258,7 +258,7 @@ namespace Js
 
     void
     Profiler::MergeTree(TypeNode * toNode, TypeNode * fromNode)
-    {
+    {TRACE_IT(20414);
         UnitData * toData = toNode->GetValue();
         const UnitData * fromData = fromNode->GetValue();
 
@@ -266,22 +266,22 @@ namespace Js
         toData->incl += fromData->incl;
         toData->excl += fromData->excl;
         if (fromData->max > toData->max)
-        {
+        {TRACE_IT(20415);
             toData->max = fromData->max;
         }
         for (int i = 0; i < PhaseCount; i++)
-        {
+        {TRACE_IT(20416);
             if (fromNode->ChildExistsAt(i))
-            {
+            {TRACE_IT(20417);
                 TypeNode * fromChild = fromNode->GetChildAt(i);
                 TypeNode * toChild;
                 if (!toNode->ChildExistsAt(i))
-                {
+                {TRACE_IT(20418);
                     toChild = Anew(this->alloc, TypeNode, toNode);
                     toNode->SetChildAt(i, toChild);
                 }
                 else
-                {
+                {TRACE_IT(20419);
                     toChild = toNode->GetChildAt(i);
                 }
                 MergeTree(toChild, fromChild);
@@ -299,18 +299,18 @@ namespace Js
 
     void
     Profiler::PrintTree(TypeNode *node, TypeNode *baseNode, int column, TimeStamp freq)
-    {
+    {TRACE_IT(20420);
         const UnitData *base        = baseNode->GetValue();
 
         for(int i = 0; i < PhaseCount; i++)
-        {
+        {TRACE_IT(20421);
             if(node->ChildExistsAt(i))
-            {
+            {TRACE_IT(20422);
                 UnitData *data = node->GetChildAt(i)->GetValue();
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
                 if( int(data->incl * 100 / base->incl) >= Configuration::Global.flags.ProfileThreshold) // threshold
 #endif
-                {
+                {TRACE_IT(20423);
 
                     Output::SkipToColumn(column);
 
@@ -341,9 +341,9 @@ namespace Js
 
     void
     Profiler::Print(Phase baseTag)
-    {
+    {TRACE_IT(20424);
         if (baseTag == InvalidPhase)
-        {
+        {TRACE_IT(20425);
             baseTag = AllPhase;     // default to all phase
         }
         const TimeStamp freq = this->GetFrequency();
@@ -352,7 +352,7 @@ namespace Js
         ForEachNode(baseTag, &rootNode, [&](TypeNode *const baseNode, const Phase parentTag)
         {
             if(!foundNode)
-            {
+            {TRACE_IT(20426);
                 foundNode = true;
                 Output::Print(_u("%-*s:%7s %5s %7s %5s %7s %7s %5s\n"),
                                 (Profiler::PhaseNameWidth-0),
@@ -371,7 +371,7 @@ namespace Js
             UnitData *data      = baseNode->GetValue();
 
             if(0 == data->count)
-            {
+            {TRACE_IT(20427);
                 Output::Print(_u("The phase : %s was never started"), PhaseNames[baseTag]);
                 return;
             }
@@ -379,7 +379,7 @@ namespace Js
             int indent = 0;
 
             if(parentTag != InvalidPhase)
-            {
+            {TRACE_IT(20428);
                 TypeNode *const parentNode = baseNode->GetParent();
                 Assert(parentNode);
 
@@ -388,7 +388,7 @@ namespace Js
             }
 
             if(indent)
-            {
+            {TRACE_IT(20429);
                 Output::SkipToColumn(indent);
             }
             Output::Print(_u("%-*s %7.1f %5d %7.1f %5d %7.1f %7.1f %5d\n"),
@@ -408,7 +408,7 @@ namespace Js
         });
 
         if(foundNode)
-        {
+        {TRACE_IT(20430);
             Output::Print(_u("-------------------------------------------------------------------------------\n"));
             Output::Flush();
         }
@@ -425,13 +425,13 @@ namespace Js
     template<class FVisit>
     void
     Profiler::ForEachNode(Phase tag, TypeNode *node, FVisit visit, Phase parentTag)
-    {
+    {TRACE_IT(20431);
         AssertMsg(node != NULL, "Invalid usage: node must always be non null");
 
         for(int i = 0; i < PhaseCount; i++)
-        {
+        {TRACE_IT(20432);
             if(node->ChildExistsAt(i))
-            {
+            {TRACE_IT(20433);
                 TypeNode * child = node->GetChildAt(i);
                 if(i == tag)
                 {
@@ -453,13 +453,13 @@ namespace Js
 
     TimeStamp
     Profiler::GetTime()
-    {
+    {TRACE_IT(20434);
 #if !defined HIRES_PROFILER && (defined(_M_IX86) || defined(_M_X64))
         return __rdtsc();
 #else
         LARGE_INTEGER tmp;
         if(QueryPerformanceCounter(&tmp))
-        {
+        {TRACE_IT(20435);
             return tmp.QuadPart;
         }
         else
@@ -479,7 +479,7 @@ namespace Js
 
     TimeStamp
     Profiler::GetFrequency()
-    {
+    {TRACE_IT(20436);
 #if !defined HIRES_PROFILER && (defined(_M_IX86) || defined(_M_X64))
         long long start, end;
         int CPUInfo[4];
@@ -496,7 +496,7 @@ namespace Js
 #else
         LARGE_INTEGER tmp;
         if(QueryPerformanceFrequency(&tmp))
-        {
+        {TRACE_IT(20437);
             return tmp.QuadPart / FrequencyScale;
         }
         else

@@ -46,14 +46,14 @@ WebAssemblyModule::WebAssemblyModule(Js::ScriptContext* scriptContext, const byt
 /* static */
 bool
 WebAssemblyModule::Is(Var value)
-{
+{TRACE_IT(64465);
     return JavascriptOperators::GetTypeId(value) == TypeIds_WebAssemblyModule;
 }
 
 /* static */
 WebAssemblyModule *
 WebAssemblyModule::FromVar(Var value)
-{
+{TRACE_IT(64466);
     Assert(WebAssemblyModule::Is(value));
     return static_cast<WebAssemblyModule*>(value);
 }
@@ -74,12 +74,12 @@ WebAssemblyModule::NewInstance(RecyclableObject* function, CallInfo callInfo, ..
     Assert(isCtorSuperCall || !(callInfo.Flags & CallFlags_New) || args[0] == nullptr);
 
     if (!(callInfo.Flags & CallFlags_New) || (newTarget && JavascriptOperators::IsUndefinedObject(newTarget)))
-    {
+    {TRACE_IT(64467);
         JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassConstructorCannotBeCalledWithoutNew, _u("WebAssembly.Module"));
     }
 
     if (args.Info.Count < 2)
-    {
+    {TRACE_IT(64468);
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedBufferSource);
     }
     BYTE* buffer;
@@ -101,7 +101,7 @@ WebAssemblyModule::EntryExports(RecyclableObject* function, CallInfo callInfo, .
     Assert(!(callInfo.Flags & CallFlags_New));
 
     if (args.Info.Count < 2 || !WebAssemblyModule::Is(args[1]))
-    {
+    {TRACE_IT(64469);
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedModule);
     }
     WebAssemblyModule * module = WebAssemblyModule::FromVar(args[1]);
@@ -109,7 +109,7 @@ WebAssemblyModule::EntryExports(RecyclableObject* function, CallInfo callInfo, .
     Var exportArray = JavascriptOperators::NewJavascriptArrayNoArg(scriptContext);
 
     for (uint i = 0; i < module->GetExportCount(); ++i)
-    {
+    {TRACE_IT(64470);
         Wasm::WasmExport wasmExport = module->m_exports[i];
         Js::JavascriptString * kind = GetExternalKindString(scriptContext, wasmExport.kind);
         Js::JavascriptString * name = JavascriptString::NewCopySz(wasmExport.name, scriptContext);
@@ -133,7 +133,7 @@ WebAssemblyModule::EntryImports(RecyclableObject* function, CallInfo callInfo, .
     Assert(!(callInfo.Flags & CallFlags_New));
 
     if (args.Info.Count < 2 || !WebAssemblyModule::Is(args[1]))
-    {
+    {TRACE_IT(64471);
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedModule);
     }
 
@@ -141,7 +141,7 @@ WebAssemblyModule::EntryImports(RecyclableObject* function, CallInfo callInfo, .
 
     Var importArray = JavascriptOperators::NewJavascriptArrayNoArg(scriptContext);
     for (uint32 i = 0; i < module->GetImportCount(); ++i)
-    {
+    {TRACE_IT(64472);
         Wasm::WasmImport * import = module->GetImport(i);
         Js::JavascriptString * kind = GetExternalKindString(scriptContext, import->kind);
         Js::JavascriptString * moduleName = JavascriptString::NewCopySz(import->modName, scriptContext);
@@ -168,11 +168,11 @@ Var WebAssemblyModule::EntryCustomSections(RecyclableObject* function, CallInfo 
     Assert(!(callInfo.Flags & CallFlags_New));
 
     if (args.Info.Count < 2 || !WebAssemblyModule::Is(args[1]))
-    {
+    {TRACE_IT(64473);
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedModule);
     }
     if (args.Info.Count < 3)
-    {
+    {TRACE_IT(64474);
         JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedString, _u("sectionName"));
     }
 
@@ -183,16 +183,16 @@ Var WebAssemblyModule::EntryCustomSections(RecyclableObject* function, CallInfo 
 
     Var customSections = JavascriptOperators::NewJavascriptArrayNoArg(scriptContext);
     for (uint32 i = 0; i < module->GetCustomSectionCount(); ++i)
-    {
+    {TRACE_IT(64475);
         Wasm::CustomSection customSection = module->GetCustomSection(i);
         if (sectionNameLength == customSection.nameLength &&
             // can't use string compare because null-terminator is a valid character for custom section names
             memcmp(sectionNameBuf, customSection.name, sectionNameLength * sizeof(char16)) == 0)
-        {
+        {TRACE_IT(64476);
             const uint32 byteLength = customSection.payloadSize;
             ArrayBuffer* arrayBuffer = scriptContext->GetLibrary()->CreateArrayBuffer(byteLength);
             if (byteLength > 0)
-            {
+            {TRACE_IT(64477);
                 js_memcpy_s(arrayBuffer->GetBuffer(), byteLength, customSection.payload, byteLength);
             }
             JavascriptArray::Push(scriptContext, customSections, arrayBuffer);
@@ -208,7 +208,7 @@ WebAssemblyModule::CreateModule(
     ScriptContext* scriptContext,
     const byte* buffer,
     const uint lengthBytes)
-{
+{TRACE_IT(64478);
     AutoProfilingPhase wasmPhase(scriptContext, Js::WasmBytecodePhase);
     Unused(wasmPhase);
 
@@ -216,7 +216,7 @@ WebAssemblyModule::CreateModule(
     Wasm::WasmReaderInfo * readerInfo = nullptr;
     Js::FunctionBody * currentBody = nullptr;
     try
-    {
+    {TRACE_IT(64479);
         Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
         SourceContextInfo * sourceContextInfo = scriptContext->CreateSourceContextInfo(scriptContext->GetNextSourceContextId(), nullptr, 0, nullptr);
         SRCINFO si = {
@@ -248,10 +248,10 @@ WebAssemblyModule::CreateModule(
         webAssemblyModule = bytecodeGen.GenerateModule();
 
         for (uint i = 0; i < webAssemblyModule->GetWasmFunctionCount(); ++i)
-        {
+        {TRACE_IT(64480);
             currentBody = webAssemblyModule->GetWasmFunctionInfo(i)->GetBody();
             if (!PHASE_OFF(WasmDeferredPhase, currentBody))
-            {
+            {TRACE_IT(64481);
                 continue;
             }
             readerInfo = currentBody->GetAsmJsFunctionInfo()->GetWasmReaderInfo();
@@ -260,10 +260,10 @@ WebAssemblyModule::CreateModule(
         }
     }
     catch (Wasm::WasmCompilationException& ex)
-    {
+    {TRACE_IT(64482);
         Wasm::WasmCompilationException newEx = ex;
         if (currentBody != nullptr)
-        {
+        {TRACE_IT(64483);
             char16* originalMessage = ex.ReleaseErrorMessage();
             intptr_t offset = readerInfo->m_module->GetReader()->GetCurrentOffset();
             intptr_t start = readerInfo->m_funcInfo->m_readerInfo.startOffset;
@@ -291,12 +291,12 @@ WebAssemblyModule::ValidateModule(
     ScriptContext* scriptContext,
     const byte* buffer,
     const uint lengthBytes)
-{
+{TRACE_IT(64484);
     AutoProfilingPhase wasmPhase(scriptContext, Js::WasmBytecodePhase);
     Unused(wasmPhase);
 
     try
-    {
+    {TRACE_IT(64485);
         Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
         SRCINFO const * srcInfo = scriptContext->Cache()->noContextGlobalSourceInfo;
 
@@ -317,7 +317,7 @@ WebAssemblyModule::ValidateModule(
         WebAssemblyModule * webAssemblyModule = bytecodeGen.GenerateModule();
 
         for (uint i = 0; i < webAssemblyModule->GetWasmFunctionCount(); ++i)
-        {
+        {TRACE_IT(64486);
             Js::FunctionBody * body = webAssemblyModule->GetWasmFunctionInfo(i)->GetBody();
             Wasm::WasmReaderInfo * readerInfo = body->GetAsmJsFunctionInfo()->GetWasmReaderInfo();
 
@@ -326,7 +326,7 @@ WebAssemblyModule::ValidateModule(
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
             if (PHASE_ON(WasmValidatePrejitPhase, body))
-            {
+            {TRACE_IT(64487);
                 CONFIG_FLAG(MaxAsmJsInterpreterRunCount) = 0;
                 AsmJsScriptFunction * funcObj = scriptContext->GetLibrary()->CreateAsmJsScriptFunction(body);
                 FunctionEntryPointInfo * entypointInfo = (FunctionEntryPointInfo*)funcObj->GetEntryPointInfo();
@@ -337,7 +337,7 @@ WebAssemblyModule::ValidateModule(
         }
     }
     catch (Wasm::WasmCompilationException& ex)
-    {
+    {TRACE_IT(64488);
         char16* originalMessage = ex.ReleaseErrorMessage();
         SysFreeString(originalMessage);
 
@@ -349,19 +349,19 @@ WebAssemblyModule::ValidateModule(
 
 uint32
 WebAssemblyModule::GetMaxFunctionIndex() const
-{
+{TRACE_IT(64489);
     return GetWasmFunctionCount();
 }
 
 Wasm::FunctionIndexTypes::Type
 WebAssemblyModule::GetFunctionIndexType(uint32 funcIndex) const
-{
+{TRACE_IT(64490);
     if (funcIndex >= GetMaxFunctionIndex())
-    {
+    {TRACE_IT(64491);
         return Wasm::FunctionIndexTypes::Invalid;
     }
     if (funcIndex < GetImportedFunctionCount())
-    {
+    {TRACE_IT(64492);
         return Wasm::FunctionIndexTypes::ImportThunk;
     }
     return Wasm::FunctionIndexTypes::Function;
@@ -369,14 +369,14 @@ WebAssemblyModule::GetFunctionIndexType(uint32 funcIndex) const
 
 void
 WebAssemblyModule::InitializeMemory(uint32 minPage, uint32 maxPage)
-{
+{TRACE_IT(64493);
     if (m_hasMemory)
-    {
+    {TRACE_IT(64494);
         throw Wasm::WasmCompilationException(_u("Memory already allocated"));
     }
 
     if (maxPage < minPage)
-    {
+    {TRACE_IT(64495);
         throw Wasm::WasmCompilationException(_u("Memory: MaxPage (%d) must be greater than MinPage (%d)"), maxPage, minPage);
     }
     m_hasMemory = true;
@@ -386,21 +386,21 @@ WebAssemblyModule::InitializeMemory(uint32 minPage, uint32 maxPage)
 
 WebAssemblyMemory *
 WebAssemblyModule::CreateMemory() const
-{
+{TRACE_IT(64496);
     return WebAssemblyMemory::CreateMemoryObject(m_memoryInitSize, m_memoryMaxSize, GetScriptContext());
 }
 
 Wasm::WasmSignature *
 WebAssemblyModule::GetSignatures() const
-{
+{TRACE_IT(64497);
     return m_signatures;
 }
 
 Wasm::WasmSignature *
 WebAssemblyModule::GetSignature(uint32 index) const
-{
+{TRACE_IT(64498);
     if (index >= GetSignatureCount())
-    {
+    {TRACE_IT(64499);
         throw Wasm::WasmCompilationException(_u("Invalid signature index %u"), index);
     }
 
@@ -409,15 +409,15 @@ WebAssemblyModule::GetSignature(uint32 index) const
 
 uint32
 WebAssemblyModule::GetSignatureCount() const
-{
+{TRACE_IT(64500);
     return m_signaturesCount;
 }
 
 uint32
 WebAssemblyModule::GetEquivalentSignatureId(uint32 sigId) const
-{
+{TRACE_IT(64501);
     if (m_equivalentSignatureMap && sigId < GetSignatureCount())
-    {
+    {TRACE_IT(64502);
         return m_equivalentSignatureMap[sigId];
     }
     Assert(UNREACHED);
@@ -426,14 +426,14 @@ WebAssemblyModule::GetEquivalentSignatureId(uint32 sigId) const
 
 void
 WebAssemblyModule::InitializeTable(uint32 minEntries, uint32 maxEntries)
-{
+{TRACE_IT(64503);
     if (m_hasTable)
-    {
+    {TRACE_IT(64504);
         throw Wasm::WasmCompilationException(_u("Table already allocated"));
     }
 
     if (maxEntries < minEntries)
-    {
+    {TRACE_IT(64505);
         throw Wasm::WasmCompilationException(_u("Table: max entries (%d) is less than min entries (%d)"), maxEntries, minEntries);
     }
     m_hasTable = true;
@@ -443,25 +443,25 @@ WebAssemblyModule::InitializeTable(uint32 minEntries, uint32 maxEntries)
 
 WebAssemblyTable *
 WebAssemblyModule::CreateTable() const
-{
+{TRACE_IT(64506);
     return WebAssemblyTable::Create(m_tableInitSize, m_tableMaxSize, GetScriptContext());
 }
 
 bool
 WebAssemblyModule::IsValidTableImport(const WebAssemblyTable * table) const
-{
+{TRACE_IT(64507);
     return m_tableImport && table->GetInitialLength() >= m_tableInitSize && table->GetMaximumLength() <= m_tableMaxSize;
 }
 
 uint32
 WebAssemblyModule::GetWasmFunctionCount() const
-{
+{TRACE_IT(64508);
     return (uint32)m_functionsInfo->Count();
 }
 
 Wasm::WasmFunctionInfo*
 WebAssemblyModule::AddWasmFunctionInfo(Wasm::WasmSignature* sig)
-{
+{TRACE_IT(64509);
     uint32 functionId = GetWasmFunctionCount();
     // must be recycler memory, since it holds reference to the function body
     Wasm::WasmFunctionInfo* funcInfo = RecyclerNew(GetRecycler(), Wasm::WasmFunctionInfo, &m_alloc, sig, functionId);
@@ -471,9 +471,9 @@ WebAssemblyModule::AddWasmFunctionInfo(Wasm::WasmSignature* sig)
 
 Wasm::WasmFunctionInfo*
 WebAssemblyModule::GetWasmFunctionInfo(uint index) const
-{
+{TRACE_IT(64510);
     if (index >= GetWasmFunctionCount())
-    {
+    {TRACE_IT(64511);
         throw Wasm::WasmCompilationException(_u("Invalid function index %u"), index);
     }
 
@@ -482,14 +482,14 @@ WebAssemblyModule::GetWasmFunctionInfo(uint index) const
 
 void
 WebAssemblyModule::AllocateFunctionExports(uint32 entries)
-{
+{TRACE_IT(64512);
     m_exports = AnewArrayZ(&m_alloc, Wasm::WasmExport, entries);
     m_exportCount = entries;
 }
 
 void
 WebAssemblyModule::SetExport(uint32 iExport, uint32 funcIndex, const char16* exportName, uint32 nameLength, Wasm::ExternalKinds::ExternalKind kind)
-{
+{TRACE_IT(64513);
     m_exports[iExport].index = funcIndex;
     m_exports[iExport].nameLength = nameLength;
     m_exports[iExport].name = exportName;
@@ -498,9 +498,9 @@ WebAssemblyModule::SetExport(uint32 iExport, uint32 funcIndex, const char16* exp
 
 Wasm::WasmExport*
 WebAssemblyModule::GetExport(uint32 iExport) const
-{
+{TRACE_IT(64514);
     if (iExport >= m_exportCount)
-    {
+    {TRACE_IT(64515);
         return nullptr;
     }
     return &m_exports[iExport];
@@ -508,15 +508,15 @@ WebAssemblyModule::GetExport(uint32 iExport) const
 
 uint32
 WebAssemblyModule::GetImportCount() const
-{
+{TRACE_IT(64516);
     return (uint32)m_imports->Count();
 }
 
 void
 WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32 modNameLen, const char16* fnName, uint32 fnNameLen)
-{
+{TRACE_IT(64517);
     if (sigId >= GetSignatureCount())
-    {
+    {TRACE_IT(64518);
         throw Wasm::WasmCompilationException(_u("Function signature %u is out of bound"), sigId);
     }
 
@@ -534,7 +534,7 @@ WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32
     // Create the custom reader to generate the import thunk
     Wasm::WasmCustomReader* customReader = Anew(&m_alloc, Wasm::WasmCustomReader, &m_alloc);
     for (uint32 iParam = 0; iParam < signature->GetParamCount(); iParam++)
-    {
+    {TRACE_IT(64519);
         Wasm::WasmNode node;
         node.op = Wasm::wbGetLocal;
         node.var.num = iParam;
@@ -554,11 +554,11 @@ WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32
     uint32 bufferLength = 32;
     if (!UInt32Math::Add(modNameLen, bufferLength, &bufferLength) &&
         !UInt32Math::Add(fnNameLen, bufferLength, &bufferLength))
-    {
+    {TRACE_IT(64520);
         char16 * autoName = RecyclerNewArrayLeafZ(GetScriptContext()->GetRecycler(), char16, bufferLength);
         uint32 nameLength = swprintf_s(autoName, bufferLength, _u("%s.%s.Thunk[%u]"), modName, fnName, funcInfo->GetNumber());
         if (nameLength != (uint32)-1)
-        {
+        {TRACE_IT(64521);
             funcInfo->SetName(autoName, nameLength);
         }
         else
@@ -570,9 +570,9 @@ WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32
 
 Wasm::WasmImport*
 WebAssemblyModule::GetImport(uint32 i) const
-{
+{TRACE_IT(64522);
     if (i >= GetImportCount())
-    {
+    {TRACE_IT(64523);
         throw Wasm::WasmCompilationException(_u("Import index out of range"));
     }
     return m_imports->Item(i);
@@ -580,7 +580,7 @@ WebAssemblyModule::GetImport(uint32 i) const
 
 void
 WebAssemblyModule::AddGlobalImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
-{
+{TRACE_IT(64524);
     Wasm::WasmImport* wi = Anew(&m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Global;
     wi->importName = importName;
@@ -592,7 +592,7 @@ WebAssemblyModule::AddGlobalImport(const char16* modName, uint32 modNameLen, con
 
 void
 WebAssemblyModule::AddMemoryImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
-{
+{TRACE_IT(64525);
     Wasm::WasmImport* wi = Anew(&m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Memory;
     wi->importName = importName;
@@ -605,7 +605,7 @@ WebAssemblyModule::AddMemoryImport(const char16* modName, uint32 modNameLen, con
 
 void
 WebAssemblyModule::AddTableImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
-{
+{TRACE_IT(64526);
     Wasm::WasmImport* wi = Anew(&m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Table;
     wi->importName = importName;
@@ -618,13 +618,13 @@ WebAssemblyModule::AddTableImport(const char16* modName, uint32 modNameLen, cons
 
 uint
 WebAssemblyModule::GetOffsetFromInit(const Wasm::WasmNode& initExpr, const WebAssemblyEnvironment* env) const
-{
+{TRACE_IT(64527);
     try
-    {
+    {TRACE_IT(64528);
         ValidateInitExportForOffset(initExpr);
     }
     catch (Wasm::WasmCompilationException &e)
-    {
+    {TRACE_IT(64529);
         // Should have been checked at compile time
         Assert(UNREACHED);
         throw e;
@@ -632,11 +632,11 @@ WebAssemblyModule::GetOffsetFromInit(const Wasm::WasmNode& initExpr, const WebAs
 
     uint offset = 0;
     if (initExpr.op == Wasm::wbI32Const)
-    {
+    {TRACE_IT(64530);
         offset = initExpr.cnst.i32;
     }
     else if (initExpr.op == Wasm::wbGetGlobal)
-    {
+    {TRACE_IT(64531);
         Wasm::WasmGlobal* global = GetGlobal(initExpr.var.num);
         Assert(global->GetType() == Wasm::WasmTypes::I32);
         offset = env->GetGlobalValue(global).i32;
@@ -646,39 +646,39 @@ WebAssemblyModule::GetOffsetFromInit(const Wasm::WasmNode& initExpr, const WebAs
 
 void
 WebAssemblyModule::ValidateInitExportForOffset(const Wasm::WasmNode& initExpr) const
-{
+{TRACE_IT(64532);
     if (initExpr.op == Wasm::wbGetGlobal)
-    {
+    {TRACE_IT(64533);
         Wasm::WasmGlobal* global = GetGlobal(initExpr.var.num);
         if (global->GetType() != Wasm::WasmTypes::I32)
-        {
+        {TRACE_IT(64534);
             throw Wasm::WasmCompilationException(_u("global %u must be i32 for init_expr"), initExpr.var.num);
         }
     }
     else if (initExpr.op != Wasm::wbI32Const)
-    {
+    {TRACE_IT(64535);
         throw Wasm::WasmCompilationException(_u("Invalid init_expr for offset"));
     }
 }
 
 void
 WebAssemblyModule::AddGlobal(Wasm::GlobalReferenceTypes::Type refType, Wasm::WasmTypes::WasmType type, bool isMutable, Wasm::WasmNode init)
-{
+{TRACE_IT(64536);
     Wasm::WasmGlobal* global = Anew(&m_alloc, Wasm::WasmGlobal, refType, m_globalCounts[type]++, type, isMutable, init);
     m_globals->Add(global);
 }
 
 uint32
 WebAssemblyModule::GetGlobalCount() const
-{
+{TRACE_IT(64537);
     return (uint32)m_globals->Count();
 }
 
 Wasm::WasmGlobal*
 WebAssemblyModule::GetGlobal(uint32 index) const
-{
+{TRACE_IT(64538);
     if (index >= GetGlobalCount())
-    {
+    {TRACE_IT(64539);
         throw Wasm::WasmCompilationException(_u("Global index out of bounds %u"), index);
     }
     return m_globals->Item(index);
@@ -686,7 +686,7 @@ WebAssemblyModule::GetGlobal(uint32 index) const
 
 void
 WebAssemblyModule::AllocateDataSegs(uint32 count)
-{
+{TRACE_IT(64540);
     Assert(count != 0);
     m_datasegCount = count;
     m_datasegs = AnewArray(&m_alloc, Wasm::WasmDataSegment*, count);
@@ -694,16 +694,16 @@ WebAssemblyModule::AllocateDataSegs(uint32 count)
 
 void
 WebAssemblyModule::SetDataSeg(Wasm::WasmDataSegment* seg, uint32 index)
-{
+{TRACE_IT(64541);
     Assert(index < m_datasegCount);
     m_datasegs[index] = seg;
 }
 
 Wasm::WasmDataSegment*
 WebAssemblyModule::GetDataSeg(uint32 index) const
-{
+{TRACE_IT(64542);
     if (index >= m_datasegCount)
-    {
+    {TRACE_IT(64543);
         return nullptr;
     }
     return m_datasegs[index];
@@ -711,7 +711,7 @@ WebAssemblyModule::GetDataSeg(uint32 index) const
 
 void
 WebAssemblyModule::AllocateElementSegs(uint32 count)
-{
+{TRACE_IT(64544);
     Assert(count != 0);
     m_elementsegCount = count;
     m_elementsegs = AnewArrayZ(&m_alloc, Wasm::WasmElementSegment*, count);
@@ -719,16 +719,16 @@ WebAssemblyModule::AllocateElementSegs(uint32 count)
 
 void
 WebAssemblyModule::SetElementSeg(Wasm::WasmElementSegment* seg, uint32 index)
-{
+{TRACE_IT(64545);
     Assert(index < m_elementsegCount);
     m_elementsegs[index] = seg;
 }
 
 Wasm::WasmElementSegment*
 WebAssemblyModule::GetElementSeg(uint32 index) const
-{
+{TRACE_IT(64546);
     if (index >= m_elementsegCount)
-    {
+    {TRACE_IT(64547);
         throw Wasm::WasmCompilationException(_u("Invalid index for Element segment"));
     }
     return m_elementsegs[index];
@@ -736,9 +736,9 @@ WebAssemblyModule::GetElementSeg(uint32 index) const
 
 void
 WebAssemblyModule::SetStartFunction(uint32 i)
-{
+{TRACE_IT(64548);
     if (i >= GetWasmFunctionCount())
-    {
+    {TRACE_IT(64549);
         TRACE_WASM_DECODER(_u("Invalid start function index"));
         return;
     }
@@ -747,13 +747,13 @@ WebAssemblyModule::SetStartFunction(uint32 i)
 
 uint32
 WebAssemblyModule::GetStartFunction() const
-{
+{TRACE_IT(64550);
     return m_startFuncIndex;
 }
 
 void
 WebAssemblyModule::SetSignatureCount(uint32 count)
-{
+{TRACE_IT(64551);
     Assert(m_signaturesCount == 0 && m_signatures == nullptr);
     m_signaturesCount = count;
     m_signatures = RecyclerNewArrayZ(GetRecycler(), Wasm::WasmSignature, count);
@@ -761,7 +761,7 @@ WebAssemblyModule::SetSignatureCount(uint32 count)
 
 uint32
 WebAssemblyModule::GetModuleEnvironmentSize() const
-{
+{TRACE_IT(64552);
     static const uint DOUBLE_SIZE_IN_INTS = sizeof(double) / sizeof(int);
     // 1 each for memory, table, and signatures
     uint32 size = 3;
@@ -773,34 +773,34 @@ WebAssemblyModule::GetModuleEnvironmentSize() const
 
 void
 WebAssemblyModule::Finalize(bool isShutdown)
-{
+{TRACE_IT(64553);
     m_alloc.Clear();
 }
 
 void
 WebAssemblyModule::Dispose(bool isShutdown)
-{
+{TRACE_IT(64554);
     Assert(m_alloc.Size() == 0);
 }
 
 void
 WebAssemblyModule::Mark(Recycler * recycler)
-{
+{TRACE_IT(64555);
 }
 
 uint
 WebAssemblyModule::GetOffsetForGlobal(Wasm::WasmGlobal* global) const
-{
+{TRACE_IT(64556);
     Wasm::WasmTypes::WasmType type = global->GetType();
     if (type >= Wasm::WasmTypes::Limit)
-    {
+    {TRACE_IT(64557);
         throw Wasm::WasmCompilationException(_u("Invalid Global type"));
     }
 
     uint32 offset = WAsmJs::ConvertFromJsVarOffset<byte>(GetGlobalOffset());
 
     for (uint i = 1; i < (uint)type; i++)
-    {
+    {TRACE_IT(64558);
         offset = AddGlobalByteSizeToOffset((Wasm::WasmTypes::WasmType)i, offset);
     }
 
@@ -812,7 +812,7 @@ WebAssemblyModule::GetOffsetForGlobal(Wasm::WasmGlobal* global) const
 
 uint
 WebAssemblyModule::AddGlobalByteSizeToOffset(Wasm::WasmTypes::WasmType type, uint32 offset) const
-{
+{TRACE_IT(64559);
     uint32 typeSize = Wasm::WasmTypes::GetTypeByteSize(type);
     offset = ::Math::AlignOverflowCheck(offset, typeSize);
     uint32 sizeUsed = WAsmJs::ConvertOffset<byte>(m_globalCounts[type], typeSize);
@@ -822,7 +822,7 @@ WebAssemblyModule::AddGlobalByteSizeToOffset(Wasm::WasmTypes::WasmType type, uin
 
 JavascriptString *
 WebAssemblyModule::GetExternalKindString(ScriptContext * scriptContext, Wasm::ExternalKinds::ExternalKind kind)
-{
+{TRACE_IT(64560);
     switch (kind)
     {
     case Wasm::ExternalKinds::Function:
@@ -841,10 +841,10 @@ WebAssemblyModule::GetExternalKindString(ScriptContext * scriptContext, Wasm::Ex
 
 uint
 WebAssemblyModule::GetGlobalsByteSize() const
-{
+{TRACE_IT(64561);
     uint32 size = 0;
     for (Wasm::WasmTypes::WasmType type = (Wasm::WasmTypes::WasmType)(Wasm::WasmTypes::Void + 1); type < Wasm::WasmTypes::Limit; type = (Wasm::WasmTypes::WasmType)(type + 1))
-    {
+    {TRACE_IT(64562);
         size = AddGlobalByteSizeToOffset(type, size);
     }
     return size;
@@ -852,9 +852,9 @@ WebAssemblyModule::GetGlobalsByteSize() const
 
 void
 WebAssemblyModule::AddCustomSection(Wasm::CustomSection customSection)
-{
+{TRACE_IT(64563);
     if (!m_customSections)
-    {
+    {TRACE_IT(64564);
         m_customSections = Anew(&m_alloc, CustomSectionsList, &m_alloc);
     }
     m_customSections->Add(customSection);
@@ -862,15 +862,15 @@ WebAssemblyModule::AddCustomSection(Wasm::CustomSection customSection)
 
 uint32
 WebAssemblyModule::GetCustomSectionCount() const
-{
+{TRACE_IT(64565);
     return m_customSections ? (uint32)m_customSections->Count() : 0;
 }
 
 Wasm::CustomSection
 WebAssemblyModule::GetCustomSection(uint32 index) const
-{
+{TRACE_IT(64566);
     if (index >= GetCustomSectionCount())
-    {
+    {TRACE_IT(64567);
         throw Wasm::WasmCompilationException(_u("Custom section index out of bounds %u"), index);
     }
     return m_customSections->Item(index);

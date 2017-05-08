@@ -24,22 +24,22 @@
         enum _E : storage;                  \
                                             \
         inline name()                       \
-        {                                   \
+        {TRACE_IT(22487);                                   \
             _value = (storage) 0;            \
         }                                   \
                                             \
         inline name(_E src)                  \
-        {                                   \
+        {TRACE_IT(22488);                                   \
             _value = (storage) src;          \
         }                                   \
                                             \
         inline name(storage n)              \
-        {                                   \
+        {TRACE_IT(22489);                                   \
             _value = n;                      \
         }                                   \
                                             \
         inline name(int n)                  \
-        {                                   \
+        {TRACE_IT(22490);                                   \
             /*                                                                          */ \
             /* This is needed to enable operations such as "m_value &= ~Flags::Member;  */ \
             /*                                                                          */ \
@@ -49,72 +49,72 @@
         }                                   \
                                             \
         inline void operator =(_E e)         \
-        {                                   \
+        {TRACE_IT(22491);                                   \
             _value = (storage) e;            \
         }                                   \
                                             \
         inline void operator =(storage n)   \
-        {                                   \
+        {TRACE_IT(22492);                                   \
             _value = n;                      \
         }                                   \
                                             \
         inline bool operator ==(_E e) const  \
-        {                                   \
+        {TRACE_IT(22493);                                   \
             return ((_E) _value) == e;        \
         }                                   \
                                             \
         inline bool operator !=(_E e) const  \
-        {                                   \
+        {TRACE_IT(22494);                                   \
             return ((_E) _value) != e;        \
         }                                   \
                                             \
         inline bool operator <(_E e) const   \
-        {                                   \
+        {TRACE_IT(22495);                                   \
             return ((_E) _value) < e;         \
         }                                   \
                                             \
         inline bool operator <=(_E e) const  \
-        {                                   \
+        {TRACE_IT(22496);                                   \
             return ((_E) _value) <= e;        \
         }                                   \
                                             \
         inline bool operator >(_E e) const   \
-        {                                   \
+        {TRACE_IT(22497);                                   \
             return ((_E) _value) > e;         \
         }                                   \
                                             \
         inline bool operator >=(_E e) const  \
-        {                                   \
+        {TRACE_IT(22498);                                   \
             return ((_E) _value) >= e;        \
         }                                   \
                                             \
         inline _E operator &(_E e) const      \
-        {                                   \
+        {TRACE_IT(22499);                                   \
             return (_E) (((_E) _value) & e);   \
         }                                   \
                                             \
         inline _E operator |(name e) const   \
-        {                                   \
+        {TRACE_IT(22500);                                   \
             return (_E) (_value | e._value);   \
         }                                   \
                                             \
         inline void operator |=(name e)     \
-        {                                   \
+        {TRACE_IT(22501);                                   \
             _value = _value | e._value;        \
         }                                   \
                                             \
         inline void operator &=(name e)     \
-        {                                   \
+        {TRACE_IT(22502);                                   \
             _value = _value & e._value;        \
         }                                   \
                                             \
         inline void operator &=(_E e)        \
-        {                                   \
+        {TRACE_IT(22503);                                   \
             _value = _value & ((storage) e);  \
         }                                   \
                                             \
         inline operator _E() const           \
-        {                                   \
+        {TRACE_IT(22504);                                   \
             return (_E) _value;               \
         }                                   \
                                             \
@@ -208,7 +208,7 @@
 
 #define DECLARE_OBJECT(ClassName) \
     public: \
-        inline ClassName() { } \
+        inline ClassName() {TRACE_IT(22505); } \
     private: \
         ClassName(const ClassName & copy); \
         ClassName & operator =(const ClassName & rhs);

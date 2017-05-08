@@ -68,12 +68,12 @@ static int iJIT_DLL_is_missing = 0;
 
 ITT_EXTERN_C int JITAPI
 iJIT_NotifyEvent(iJIT_JVM_EVENT event_type, void *EventSpecificData)
-{
+{TRACE_IT(38119);
     int ReturnValue = 0;
 
     /* initialization part - the collector has not been loaded yet. */
     if (!FUNC_NotifyEvent)
-    {
+    {TRACE_IT(38120);
         if (iJIT_DLL_is_missing)
             return 0;
 
@@ -83,29 +83,29 @@ iJIT_NotifyEvent(iJIT_JVM_EVENT event_type, void *EventSpecificData)
 
     if (event_type == iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED ||
         event_type == iJVM_EVENT_TYPE_METHOD_UPDATE)
-    {
+    {TRACE_IT(38121);
         if (((piJIT_Method_Load)EventSpecificData)->method_id == 0)
             return 0;
     }
     else if (event_type == iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V2)
-    {
+    {TRACE_IT(38122);
         if (((piJIT_Method_Load_V2)EventSpecificData)->method_id == 0)
             return 0;
     }
     else if (event_type == iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V3)
-    {
+    {TRACE_IT(38123);
         if (((piJIT_Method_Load_V3)EventSpecificData)->method_id == 0)
             return 0;
     }
     else if (event_type == iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED)
-    {
+    {TRACE_IT(38124);
         if (((piJIT_Method_Inline_Load)EventSpecificData)->method_id == 0 ||
             ((piJIT_Method_Inline_Load)EventSpecificData)->parent_method_id == 0)
             return 0;
     }
 
     if (FUNC_NotifyEvent)
-    {
+    {TRACE_IT(38125);
         ReturnValue = (int)FUNC_NotifyEvent(event_type, EventSpecificData);
     }
 
@@ -113,9 +113,9 @@ iJIT_NotifyEvent(iJIT_JVM_EVENT event_type, void *EventSpecificData)
 }
 
 ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
-{
+{TRACE_IT(38126);
     if (!iJIT_DLL_is_missing)
-    {
+    {TRACE_IT(38127);
         loadiJIT_Funcs();
     }
 
@@ -129,7 +129,7 @@ ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
 #pragma prefast(push)
 #pragma prefast(disable:38020, "Not used in release build. VTune is sensitive to changes in this file.")
 static int loadiJIT_Funcs()
-{
+{TRACE_IT(38128);
     static int bDllWasLoaded = 0;
     char *dllName = (char*)rcsid; /* !! Just to avoid unused code elimination */
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
@@ -137,7 +137,7 @@ static int loadiJIT_Funcs()
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
     if(bDllWasLoaded)
-    {
+    {TRACE_IT(38129);
         /* dll was already loaded, no need to do it for the second time */
         return 1;
     }
@@ -147,7 +147,7 @@ static int loadiJIT_Funcs()
     FUNC_NotifyEvent = NULL;
 
     if (m_libHandle)
-    {
+    {TRACE_IT(38130);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
         FreeLibrary(m_libHandle);
 #else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
@@ -160,34 +160,34 @@ static int loadiJIT_Funcs()
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
     dNameLength = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, NULL, 0);
     if (dNameLength)
-    {
+    {TRACE_IT(38131);
         DWORD envret = 0;
         dllName = (char*)malloc(sizeof(char) * (dNameLength + 1));
         if(dllName != NULL)
-        {
+        {TRACE_IT(38132);
             envret = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, 
                                              dllName, dNameLength);
             if (envret)
-            {
+            {TRACE_IT(38133);
                 /* Try to load the dll from the PATH... */
                 m_libHandle = LoadLibraryExA(dllName, 
                                              NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
             }
             free(dllName);
         }
-    } else {
+    } else {TRACE_IT(38134);
         /* Try to use old VS_PROFILER variable */
         dNameLength = GetEnvironmentVariableA(DLL_ENVIRONMENT_VAR, NULL, 0);
         if (dNameLength)
-        {
+        {TRACE_IT(38135);
             DWORD envret = 0;
             dllName = (char*)malloc(sizeof(char) * (dNameLength + 1));
             if(dllName != NULL)
-            {
+            {TRACE_IT(38136);
                 envret = GetEnvironmentVariableA(DLL_ENVIRONMENT_VAR, 
                                                  dllName, dNameLength);
                 if (envret)
-                {
+                {TRACE_IT(38137);
                     /* Try to load the dll from the PATH... */
                     m_libHandle = LoadLibraryA(dllName);
                 }
@@ -204,14 +204,14 @@ static int loadiJIT_Funcs()
         dllName = ANDROID_JIT_AGENT_PATH;
 #endif
     if (dllName)
-    {
+    {TRACE_IT(38138);
         /* Try to load the dll from the PATH... */
         m_libHandle = dlopen(dllName, RTLD_LAZY);
     }
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
     if (!m_libHandle)
-    {
+    {TRACE_IT(38139);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
         m_libHandle = LoadLibraryA(DEFAULT_DLLNAME);
 #else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
@@ -221,7 +221,7 @@ static int loadiJIT_Funcs()
 
     /* if the dll wasn't loaded - exit. */
     if (!m_libHandle)
-    {
+    {TRACE_IT(38140);
         iJIT_DLL_is_missing = 1; /* don't try to initialize
                                   * JIT agent the second time
                                   */
@@ -234,7 +234,7 @@ static int loadiJIT_Funcs()
     FUNC_NotifyEvent = (TPNotify)dlsym(m_libHandle, "NotifyEvent");
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
     if (!FUNC_NotifyEvent) 
-    {
+    {TRACE_IT(38141);
         FUNC_Initialize = NULL;
         return 0;
     }
@@ -245,7 +245,7 @@ static int loadiJIT_Funcs()
     FUNC_Initialize = (TPInitialize)dlsym(m_libHandle, "Initialize");
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
     if (!FUNC_Initialize) 
-    {
+    {TRACE_IT(38142);
         FUNC_NotifyEvent = NULL;
         return 0;
     }
@@ -259,7 +259,7 @@ static int loadiJIT_Funcs()
 }
 
 ITT_EXTERN_C unsigned int JITAPI iJIT_GetNewMethodID()
-{
+{TRACE_IT(38143);
     static unsigned int methodID = 1;
 
     if (methodID == 0)

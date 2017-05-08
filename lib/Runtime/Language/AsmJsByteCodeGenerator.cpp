@@ -81,7 +81,7 @@ namespace Js
     };
 
 
-#define CheckNodeLocation(info,type) if(!mFunction->IsValidLocation<type>(&info)){\
+#define CheckNodeLocation(info,type) if(!mFunction->IsValidLocation<type>(&info)){TRACE_IT(45818);\
     throw AsmJsCompilationException( _u("Invalid Node location[%d] "), info.location ); }
 
 
@@ -93,7 +93,7 @@ namespace Js
         , mByteCodeGenerator(mCompiler->GetByteCodeGenerator())
         , mNestedCallCount(0)
         , mIsCallLegal(true)
-    {
+    {TRACE_IT(45819);
         mWriter.Create();
 
         const int32 astSize = func->GetFncNode()->sxFnc.astSize/AstBytecodeRatioEstimate;
@@ -107,13 +107,13 @@ namespace Js
     }
 
     bool AsmJSByteCodeGenerator::BlockHasOwnScope( ParseNode* pnodeBlock )
-    {
+    {TRACE_IT(45820);
         Assert( pnodeBlock->nop == knopBlock );
         return pnodeBlock->sxBlock.scope != nullptr && ( !( pnodeBlock->grfpn & fpnSyntheticNode ) );
     }
 
     template<typename T> byte* AsmJSByteCodeGenerator::SetConstsToTable(byte* byteTable, T zeroValue)
-    {
+    {TRACE_IT(45821);
         T* typedTable = (T*)byteTable;
         // Return Register
         *typedTable = zeroValue;
@@ -122,7 +122,7 @@ namespace Js
         JsUtil::BaseDictionary<T, RegSlot, ArenaAllocator, PowerOf2SizePolicy, AsmJsComparer> intMap = mFunction->GetRegisterSpace<T>().GetConstMap();
 
         for (auto it = intMap.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {TRACE_IT(45822);
             *typedTable = it.Current().Key();
             typedTable++;
         }
@@ -131,7 +131,7 @@ namespace Js
 
     // copy all constants from reg spaces to function body.
     void AsmJSByteCodeGenerator::LoadAllConstants()
-    {
+    {TRACE_IT(45823);
         FunctionBody *funcBody = mFunction->GetFuncBody();
         funcBody->CreateConstantTable();
         auto table = funcBody->GetConstTable();
@@ -139,19 +139,19 @@ namespace Js
 
         WAsmJs::TypedConstSourcesInfo constSourcesInfo = mFunction->GetTypedRegisterAllocator().GetConstSourceInfos();
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(45824);
             WAsmJs::Types type = (WAsmJs::Types)i;
             uint32 srcByteOffset = constSourcesInfo.srcByteOffsets[i];
             byte* byteTable = ((byte*)table) + srcByteOffset;
             if (srcByteOffset != Js::Constants::InvalidOffset)
-            {
+            {TRACE_IT(45825);
                 switch (type)
                 {
                 case WAsmJs::INT32: byteTable = SetConstsToTable<int>(byteTable, 0); break;
                 case WAsmJs::FLOAT32: byteTable = SetConstsToTable<float>(byteTable, 0); break;
                 case WAsmJs::FLOAT64: byteTable = SetConstsToTable<double>(byteTable, 0); break;
                 case WAsmJs::SIMD:
-                {
+                {TRACE_IT(45826);
                     AsmJsSIMDValue zeroValue;
                     zeroValue.f64[0] = 0; zeroValue.f64[1] = 0;
                     byteTable = SetConstsToTable<AsmJsSIMDValue>(byteTable, zeroValue);
@@ -162,7 +162,7 @@ namespace Js
                     break;
                 }
                 if (byteTable > tableEnd)
-                {
+                {TRACE_IT(45827);
                     Assert(UNREACHED);
                     Js::Throw::FatalInternalError();
                 }
@@ -171,14 +171,14 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::FinalizeRegisters( FunctionBody* byteCodeFunction )
-    {
+    {TRACE_IT(45828);
         mFunction->CommitToFunctionBody(byteCodeFunction);
 
         // add 3 for each of I0, F0, and D0
         RegSlot regCount = mInfo->RegCount() + 3 + AsmJsFunctionMemory::RequiredVarConstants;
 
         if (IsSimdjsEnabled())
-        {
+        {TRACE_IT(45829);
             // 1 return reg for SIMD
             regCount++;
         }
@@ -187,12 +187,12 @@ namespace Js
     }
 
     bool AsmJSByteCodeGenerator::EmitOneFunction()
-    {
+    {TRACE_IT(45830);
         Assert(mFunction->GetFncNode());
         Assert(mFunction->GetBodyNode());
         AsmJsFunctionCompilation autoCleanup( this );
         try
-        {
+        {TRACE_IT(45831);
             ParseNode* pnode = mFunction->GetFncNode();
             Assert( pnode && pnode->nop == knopFncDecl );
             Assert( mInfo != nullptr );
@@ -251,7 +251,7 @@ namespace Js
             functionBody->SetInitialDefaultEntryPoint();
         }
         catch( AsmJsCompilationException& e )
-        {
+        {TRACE_IT(45832);
             PrintAsmJsCompilationError( e.msg() );
             return false;
         }
@@ -260,12 +260,12 @@ namespace Js
 
 
     void AsmJSByteCodeGenerator::PrintAsmJsCompilationError(__out_ecount(256)  char16* msg)
-    {
+    {TRACE_IT(45833);
         uint offset = mWriter.GetCurrentOffset();
         ULONG line = 0;
         LONG col = 0;
         if (!mFunction->GetFuncBody()->GetLineCharOffset(offset, &line, &col))
-        {
+        {TRACE_IT(45834);
             line = 0;
             col = 0;
         }
@@ -277,7 +277,7 @@ namespace Js
         LPCOLESTR NoneName = _u("None");
         LPCOLESTR moduleName = NoneName;
         if(mCompiler->GetModuleFunctionName())
-        {
+        {TRACE_IT(45835);
             moduleName = mCompiler->GetModuleFunctionName()->Psz();
         }
 
@@ -287,11 +287,11 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::DefineLabels()
-    {
+    {TRACE_IT(45836);
         mInfo->singleExit=mWriter.DefineLabel();
         SList<ParseNode *>::Iterator iter(&mInfo->targetStatements);
         while (iter.Next())
-        {
+        {TRACE_IT(45837);
             ParseNode * node = iter.Data();
             node->sxStmt.breakLabel=mWriter.DefineLabel();
             node->sxStmt.continueLabel=mWriter.DefineLabel();
@@ -300,30 +300,30 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::EmitAsmJsFunctionBody()
-    {
+    {TRACE_IT(45838);
         ParseNode *pnodeBody = mFunction->GetBodyNode();
         ParseNode *varStmts = pnodeBody;
 
         // Emit local var declarations: Load of constants to variables.
         while (varStmts->nop == knopList)
-        {
+        {TRACE_IT(45839);
             ParseNode * pnode = ParserWrapper::GetBinaryLeft(varStmts);
             while (pnode && pnode->nop != knopEndCode)
-            {
+            {TRACE_IT(45840);
                 ParseNode * decl;
                 if (pnode->nop == knopList)
-                {
+                {TRACE_IT(45841);
                     decl = ParserWrapper::GetBinaryLeft(pnode);
                     pnode = ParserWrapper::GetBinaryRight(pnode);
                 }
                 else
-                {
+                {TRACE_IT(45842);
                     decl = pnode;
                     pnode = nullptr;
                 }
 
                 if (decl->nop != knopVarDecl)
-                {
+                {TRACE_IT(45843);
                     goto varDeclEnd;
                 }
 
@@ -333,22 +333,22 @@ namespace Js
                 AsmJsVar* var = (AsmJsVar*)mFunction->FindVar(ParserWrapper::VariableName(decl));
                 AnalysisAssert(var);
                 if (var->GetType().isInt())
-                {
+                {TRACE_IT(45844);
                     mWriter.AsmInt1Const1(Js::OpCodeAsmJs::Ld_IntConst, var->GetLocation(), var->GetIntInitialiser());
                 }
                 else
-                {
+                {TRACE_IT(45845);
                     AsmJsVar * initSource = nullptr;
                     if (decl->sxVar.pnodeInit->nop == knopName)
-                    {
+                    {TRACE_IT(45846);
                         AsmJsSymbol * initSym = mCompiler->LookupIdentifier(decl->sxVar.pnodeInit->name(), mFunction);
                         if (initSym->GetSymbolType() == AsmJsSymbol::Variable)
-                        {
+                        {TRACE_IT(45847);
                             // in this case we are initializing with value of a constant var
                             initSource = initSym->Cast<AsmJsVar>();
                         }
                         else
-                        {
+                        {TRACE_IT(45848);
                             Assert(initSym->GetSymbolType() == AsmJsSymbol::MathConstant);
                             Assert(initSym->GetType() == AsmJsType::Double);
                             AsmJsMathConst* initConst = initSym->Cast<AsmJsMathConst>();
@@ -356,21 +356,21 @@ namespace Js
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(45849);
                         initSource = var;
                     }
                     if (initSource)
-                    {
+                    {TRACE_IT(45850);
                         if (var->GetType().isDouble())
-                        {
+                        {TRACE_IT(45851);
                             mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Db, var->GetLocation(), mFunction->GetConstRegister<double>(initSource->GetDoubleInitialiser()));
                         }
                         else if (var->GetType().isFloat())
-                        {
+                        {TRACE_IT(45852);
                             mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Flt, var->GetLocation(), mFunction->GetConstRegister<float>(initSource->GetFloatInitialiser()));
                         }
                         else
-                        {
+                        {TRACE_IT(45853);
                             // SIMD_JS
                             Assert(var->GetType().isSIMDType());
                             Js::OpCodeAsmJs opcode = Js::OpCodeAsmJs::Simd128_Ld_F4;
@@ -428,7 +428,7 @@ namespace Js
         // get copied to the return register.
 
         while (varStmts->nop == knopList)
-        {
+        {TRACE_IT(45854);
             ParseNode *stmt = ParserWrapper::GetBinaryLeft(varStmts);
             EmitTopLevelStatement( stmt );
             varStmts = ParserWrapper::GetBinaryRight(varStmts);
@@ -437,16 +437,16 @@ namespace Js
 
         // if last statement isn't return, type must be void
         if (varStmts->nop != knopReturn)
-        {
+        {TRACE_IT(45855);
             mFunction->CheckAndSetReturnType(AsmJsRetType::Void);
         }
         EmitTopLevelStatement(varStmts);
     }
 
     void AsmJSByteCodeGenerator::EmitTopLevelStatement( ParseNode *stmt )
-    {
+    {TRACE_IT(45856);
         if( stmt->nop == knopFncDecl && stmt->sxFnc.IsDeclaration() )
-        {
+        {TRACE_IT(45857);
             throw AsmJsCompilationException( _u("Cannot declare functions inside asm.js functions") );
         }
         const EmitExpressionInfo& info = Emit( stmt );
@@ -455,34 +455,34 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::Emit( ParseNode *pnode )
-    {
+    {TRACE_IT(45858);
         if( !pnode )
-        {
+        {TRACE_IT(45859);
             return EmitExpressionInfo( AsmJsType::Void );
         }
         switch( pnode->nop )
         {
         case knopReturn:
             return EmitReturn( pnode );
-        case knopList:{
+        case knopList:{TRACE_IT(45860);
             while( pnode && pnode->nop == knopList )
-            {
+            {TRACE_IT(45861);
                 const EmitExpressionInfo& info = Emit( ParserWrapper::GetBinaryLeft( pnode ) );
                 mFunction->ReleaseLocationGeneric( &info );
                 pnode = ParserWrapper::GetBinaryRight( pnode );
             }
             return Emit( pnode );
         }
-        case knopComma:{
+        case knopComma:{TRACE_IT(45862);
             const EmitExpressionInfo& info = Emit( ParserWrapper::GetBinaryLeft( pnode ) );
             mFunction->ReleaseLocationGeneric( &info );
             return Emit( ParserWrapper::GetBinaryRight( pnode ) );
         }
         case knopBlock:
-        {
+        {TRACE_IT(45863);
             EmitExpressionInfo info = Emit(pnode->sxBlock.pnodeStmt);
             if (pnode->emitLabels)
-            {
+            {TRACE_IT(45864);
                 mWriter.MarkAsmJsLabel(pnode->sxStmt.breakLabel);
             }
             return info;
@@ -539,7 +539,7 @@ namespace Js
         case knopEndCode:
             StartStatement(pnode);
             if( mFunction->GetReturnType() == AsmJsRetType::Void )
-            {
+            {TRACE_IT(45865);
                 mWriter.AsmReg1( Js::OpCodeAsmJs::LdUndef, AsmJsFunctionMemory::ReturnRegister );
             }
             mWriter.MarkAsmJsLabel( mFunction->GetFuncInfo()->singleExit );
@@ -550,28 +550,28 @@ namespace Js
             return EmitAssignment( pnode );
         case knopFlt:
             if (ParserWrapper::IsMinInt(pnode))
-            {
+            {TRACE_IT(45866);
                 return EmitExpressionInfo(mFunction->GetConstRegister<int>(INT32_MIN), AsmJsType::Signed);
             }
             else if (ParserWrapper::IsUnsigned(pnode))
-            {
+            {TRACE_IT(45867);
                 return EmitExpressionInfo(mFunction->GetConstRegister<int>((uint32)pnode->sxFlt.dbl), AsmJsType::Unsigned);
             }
             else if (pnode->sxFlt.maybeInt)
-            {
+            {TRACE_IT(45868);
                 throw AsmJsCompilationException(_u("Int literal must be in the range [-2^31, 2^32)"));
             }
             else
-            {
+            {TRACE_IT(45869);
                 return EmitExpressionInfo(mFunction->GetConstRegister<double>(pnode->sxFlt.dbl), AsmJsType::DoubleLit);
             }
         case knopInt:
             if (pnode->sxInt.lw < 0)
-            {
+            {TRACE_IT(45870);
                 return EmitExpressionInfo(mFunction->GetConstRegister<int>(pnode->sxInt.lw), AsmJsType::Signed);
             }
             else
-            {
+            {TRACE_IT(45871);
                 return EmitExpressionInfo(mFunction->GetConstRegister<int>(pnode->sxInt.lw), AsmJsType::Fixnum);
             }
         case knopIf:
@@ -582,7 +582,7 @@ namespace Js
             return EmitSwitch( pnode );
         case knopFor:
             MaybeTodo( pnode->sxFor.pnodeInverted != NULL );
-            {
+            {TRACE_IT(45872);
                 const EmitExpressionInfo& initInfo = Emit( pnode->sxFor.pnodeInit );
                 mFunction->ReleaseLocationGeneric( &initInfo );
                 return EmitLoop( pnode,
@@ -607,7 +607,7 @@ namespace Js
             StartStatement(pnode);
             mWriter.AsmBr( pnode->sxJump.pnodeTarget->sxStmt.breakLabel );
             if( pnode->emitLabels )
-            {
+            {TRACE_IT(45873);
                 mWriter.MarkAsmJsLabel( pnode->sxStmt.breakLabel );
             }
             EndStatement(pnode);
@@ -632,7 +632,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitBinaryMultiType( ParseNode * pnode, EBinaryMathOpCodes op )
-    {
+    {TRACE_IT(45874);
         ParseNode* lhs = ParserWrapper::GetBinaryLeft(pnode);
         ParseNode* rhs = ParserWrapper::GetBinaryRight(pnode);
 
@@ -643,13 +643,13 @@ namespace Js
 
         // don't need coercion inside an a+b+c type expression
         if (op == BMO_ADD || op == BMO_SUB)
-        {
+        {TRACE_IT(45875);
             if (lType.GetWhich() == AsmJsType::Intish && (lhs->nop == knopAdd || lhs->nop == knopSub))
-            {
+            {TRACE_IT(45876);
                 lType = AsmJsType::Int;
             }
             if (rType.GetWhich() == AsmJsType::Intish && (rhs->nop == knopAdd || rhs->nop == knopSub))
-            {
+            {TRACE_IT(45877);
                 rType = AsmJsType::Int;
             }
         }
@@ -663,10 +663,10 @@ namespace Js
             // because fixnum can be either signed or unsigned, use both lhs and rhs to infer sign
             auto opType = (lType.isSigned() && rType.isSigned()) ? BMOT_Int : BMOT_UInt;
             if (op == BMO_REM || op == BMO_DIV)
-            {
+            {TRACE_IT(45878);
                 // div and rem must have explicit sign
                 if (!(lType.isSigned() && rType.isSigned()) && !(lType.isUnsigned() && rType.isUnsigned()))
-                {
+                {TRACE_IT(45879);
                     throw AsmJsCompilationException(_u("arguments to / or %% must both be double?, float?, signed, or unsigned; %s and %s given"), lType.toChars(), rType.toChars());
                 }
             }
@@ -687,9 +687,9 @@ namespace Js
             emitInfo.location = dbReg;
         }
         else if (lType.isMaybeFloat() && rType.isMaybeFloat())
-        {
+        {TRACE_IT(45880);
             if (BinaryMathOpCodes[op][BMOT_Float] == OpCodeAsmJs::Nop)
-            {
+            {TRACE_IT(45881);
                 throw AsmJsCompilationException(_u("invalid Binary float operation"));
             }
 
@@ -702,7 +702,7 @@ namespace Js
             emitInfo.type = AsmJsType::Floatish;
         }
         else
-        {
+        {TRACE_IT(45882);
             throw AsmJsCompilationException( _u("Unsupported math operation") );
         }
         EndStatement(pnode);
@@ -710,16 +710,16 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitBinaryInt( ParseNode * pnode, OpCodeAsmJs op )
-    {
+    {TRACE_IT(45883);
         ParseNode* lhs = ParserWrapper::GetBinaryLeft( pnode );
         ParseNode* rhs = ParserWrapper::GetBinaryRight( pnode );
         const bool isRhs0 = rhs->nop == knopInt && rhs->sxInt.lw == 0;
         const bool isOr0Operation = op == OpCodeAsmJs::Or_Int && isRhs0;
         if( isOr0Operation && lhs->nop == knopCall )
-        {
+        {TRACE_IT(45884);
             EmitExpressionInfo info = EmitCall(lhs, AsmJsRetType::Signed);
             if (!info.type.isIntish())
-            {
+            {TRACE_IT(45885);
                 throw AsmJsCompilationException(_u("Invalid type for [| & ^ >> << >>>] left and right operand must be of type intish"));
             }
             info.type = AsmJsType::Signed;
@@ -730,7 +730,7 @@ namespace Js
         const AsmJsType& lType = lhsEmit.type;
         const AsmJsType& rType = rhsEmit.type;
         if( !lType.isIntish() || !rType.isIntish() )
-        {
+        {TRACE_IT(45886);
             throw AsmJsCompilationException( _u("Invalid type for [| & ^ >> << >>>] left and right operand must be of type intish") );
         }
         CheckNodeLocation( lhsEmit, int );
@@ -738,18 +738,18 @@ namespace Js
         StartStatement(pnode);
         EmitExpressionInfo emitInfo( AsmJsType::Signed );
         if( op == OpCodeAsmJs::Shr_UInt )
-        {
+        {TRACE_IT(45887);
             emitInfo.type = AsmJsType::Unsigned;
         }
         // ignore this specific operation, useful for non asm.js
         if( !isRhs0 || op == OpCodeAsmJs::And_Int )
-        {
+        {TRACE_IT(45888);
             RegSlot dstReg = GetAndReleaseBinaryLocations<int>( &lhsEmit, &rhsEmit );
             mWriter.AsmReg3( op, dstReg, lhsEmit.location, rhsEmit.location );
             emitInfo.location = dstReg;
         }
         else
-        {
+        {TRACE_IT(45889);
             mFunction->ReleaseLocation<int>( &rhsEmit );
             emitInfo.location = lhsEmit.location;
         }
@@ -758,15 +758,15 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitReturn( ParseNode * pnode )
-    {
+    {TRACE_IT(45890);
         ParseNode* expr = pnode->sxReturn.pnodeExpr;
         // return is always the beginning of a statement
         AsmJsRetType retType;
         EmitExpressionInfo emitInfo( Constants::NoRegister, AsmJsType::Void );
         if( !expr )
-        {
+        {TRACE_IT(45891);
             if( !mFunction->CheckAndSetReturnType( AsmJsRetType::Void ) )
-            {
+            {TRACE_IT(45892);
                 throw AsmJsCompilationException( _u("Different return type for the function") );
             }
             retType = AsmJsRetType::Void;
@@ -774,7 +774,7 @@ namespace Js
             mWriter.AsmReg1(Js::OpCodeAsmJs::LdUndef, AsmJsFunctionMemory::ReturnRegister);
         }
         else
-        {
+        {TRACE_IT(45893);
             EmitExpressionInfo info = Emit(expr);
             StartStatement(pnode);
             if (info.type.isSubType(AsmJsType::Double))
@@ -871,14 +871,14 @@ namespace Js
                 retType = AsmJsRetType::Int8x16;
             }
             else
-            {
+            {TRACE_IT(45894);
                 throw AsmJsCompilationException(_u("Expression for return must be subtype of Signed, Double, or Float"));
             }
             EndStatement(pnode);
         }
         // check if we saw another return already with a different type
         if (!mFunction->CheckAndSetReturnType(retType))
-        {
+        {TRACE_IT(45895);
             throw AsmJsCompilationException(_u("Different return type for the function %s"), mFunction->GetName()->Psz());
         }
         mWriter.AsmBr( mFunction->GetFuncInfo()->singleExit );
@@ -886,12 +886,12 @@ namespace Js
     }
 
     bool AsmJSByteCodeGenerator::IsFRound(AsmJsMathFunction* sym)
-    {
+    {TRACE_IT(45896);
         return (sym && sym->GetMathBuiltInFunction() == AsmJSMathBuiltin_fround);
     }
 
     bool AsmJSByteCodeGenerator::IsValidSimdFcnRetType(AsmJsSIMDFunction& simdFunction, const AsmJsRetType& expectedType, const AsmJsRetType& retType)
-    {
+    {TRACE_IT(45897);
         // Return types of simd builtins can be coereced to other asmjs types when a valid coercion exists
         // e.g.
         //     float    -> double           var d = 0.0; d = +float32x4ExtractLane(...)
@@ -902,11 +902,11 @@ namespace Js
         // All SIMD ops are allowed without coercion except a few that return bool. E.g. b4anyTrue()
         // Unsigned and Bools are represented as Signed in AsmJs
         if (expectedType == AsmJsRetType::Void)
-        {
+        {TRACE_IT(45898);
             return true;
         }
         else if (expectedType == retType)
-        {
+        {TRACE_IT(45899);
             Assert(expectedType == AsmJsRetType::Float   ||
                    expectedType == AsmJsRetType::Signed  ||
                    expectedType == AsmJsRetType::Unsigned||
@@ -914,13 +914,13 @@ namespace Js
             return true;
         }
         else if (expectedType == AsmJsRetType::Double)
-        {
+        {TRACE_IT(45900);
             return (retType == AsmJsRetType::Float  ||
                     retType == AsmJsRetType::Signed ||
                     retType == AsmJsRetType::Unsigned);
         }
         else if (expectedType == AsmJsRetType::Signed)
-        {
+        {TRACE_IT(45901);
             //Unsigned and Bools are represented as Signed in AsmJs
             return (retType == AsmJsRetType::Unsigned ||
                     simdFunction.ReturnsBool());
@@ -952,7 +952,7 @@ namespace Js
     };
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitCall(ParseNode * pnode, AsmJsRetType expectedType /*= AsmJsType::Void*/)
-    {
+    {TRACE_IT(45902);
         Assert( pnode->nop == knopCall );
 
         ParseNode* identifierNode = pnode->sxCall.pnodeTarget;
@@ -960,58 +960,58 @@ namespace Js
 
         // Function table
         if( pnode->sxCall.pnodeTarget->nop == knopIndex )
-        {
+        {TRACE_IT(45903);
             identifierNode = ParserWrapper::GetBinaryLeft( pnode->sxCall.pnodeTarget );
             ParseNode* indexNode = ParserWrapper::GetBinaryRight( pnode->sxCall.pnodeTarget );
 
             // check for table size annotation
             if( indexNode->nop != knopAnd )
-            {
+            {TRACE_IT(45904);
                 throw AsmJsCompilationException( _u("Function table call must be of format identifier[expr & NumericLiteral](...)") );
             }
 
             ParseNode* tableSizeNode = ParserWrapper::GetBinaryRight( indexNode );
             if( tableSizeNode->nop != knopInt )
-            {
+            {TRACE_IT(45905);
                 throw AsmJsCompilationException( _u("Function table call must be of format identifier[expr & NumericLiteral](...)") );
             }
             if (tableSizeNode->sxInt.lw < 0)
-            {
+            {TRACE_IT(45906);
                 throw AsmJsCompilationException(_u("Function table size must be positive"));
             }
             const uint tableSize = tableSizeNode->sxInt.lw+1;
             if( !::Math::IsPow2(tableSize) )
-            {
+            {TRACE_IT(45907);
                 throw AsmJsCompilationException( _u("Function table size must be a power of 2") );
             }
 
             // Check for function table identifier
             if( !ParserWrapper::IsNameDeclaration( identifierNode ) )
-            {
+            {TRACE_IT(45908);
                 throw AsmJsCompilationException( _u("Function call must be of format identifier(...) or identifier[expr & size](...)") );
             }
             PropertyName funcName = identifierNode->name();
             AsmJsFunctionDeclaration* sym = mCompiler->LookupFunction( funcName );
             if( !sym )
-            {
+            {TRACE_IT(45909);
                 throw AsmJsCompilationException( _u("Unable to find function table %s"), funcName->Psz() );
             }
             else
-            {
+            {TRACE_IT(45910);
                 if( sym->GetSymbolType() != AsmJsSymbol::FuncPtrTable )
-                {
+                {TRACE_IT(45911);
                     throw AsmJsCompilationException( _u("Identifier %s is not a function table"), funcName->Psz() );
                 }
                 AsmJsFunctionTable* funcTable = sym->Cast<AsmJsFunctionTable>();
                 if( funcTable->GetSize() != tableSize )
-                {
+                {TRACE_IT(45912);
                     throw AsmJsCompilationException( _u("Trying to load from Function table %s of size [%d] with size [%d]"), funcName->Psz(), funcTable->GetSize(), tableSize );
                 }
             }
 
             const EmitExpressionInfo& indexInfo = Emit( indexNode );
             if( !indexInfo.type.isInt() )
-            {
+            {TRACE_IT(45913);
                 throw AsmJsCompilationException( _u("Array Buffer View index must be type int") );
             }
             CheckNodeLocation( indexInfo, int );
@@ -1019,33 +1019,33 @@ namespace Js
         }
 
         if( !ParserWrapper::IsNameDeclaration( identifierNode ) )
-        {
+        {TRACE_IT(45914);
             throw AsmJsCompilationException( _u("Function call must be of format identifier(...) or identifier[expr & size](...)") );
         }
         PropertyName funcName = identifierNode->name();
         AsmJsFunctionDeclaration* sym = mCompiler->LookupFunction(funcName);
         if( !sym )
-        {
+        {TRACE_IT(45915);
             throw AsmJsCompilationException( _u("Undefined function %s"), funcName );
         }
 
 
         if (sym->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction)
-        {
+        {TRACE_IT(45916);
             AsmJsSIMDFunction *simdFun = sym->Cast<AsmJsSIMDFunction>();
             if (simdFun->IsSimdLoadFunc() || simdFun->IsSimdStoreFunc())
-            {
+            {TRACE_IT(45917);
                 return EmitSimdLoadStoreBuiltin(pnode, sym->Cast<AsmJsSIMDFunction>(), expectedType);
             }
             else
-            {
+            {TRACE_IT(45918);
                 return EmitSimdBuiltin(pnode, sym->Cast<AsmJsSIMDFunction>(), expectedType);
             }
         }
 
 
         if (IsFRound((AsmJsMathFunction*)sym))
-        {
+        {TRACE_IT(45919);
             expectedType = AsmJsRetType::Float;
         }
 
@@ -1053,17 +1053,17 @@ namespace Js
         const bool isFFI = sym->GetSymbolType() == AsmJsSymbol::ImportFunction;
         const bool isMathBuiltin = sym->GetSymbolType() == AsmJsSymbol::MathBuiltinFunction;
         if( isMathBuiltin )
-        {
+        {TRACE_IT(45920);
             return EmitMathBuiltin( pnode, sym->Cast<AsmJsMathFunction>(), expectedType );
         }
 
         // math builtins have different requirements for call-site coercion
         if (!sym->CheckAndSetReturnType(expectedType))
-        {
+        {TRACE_IT(45921);
             throw AsmJsCompilationException(_u("Different return type found for function %s"), funcName->Psz());
         }
         if (!mIsCallLegal)
-        {
+        {TRACE_IT(45922);
             Assert(!isMathBuiltin); // math builtins cannot change heap, so they are specifically excluded from this rule
             throw AsmJsCompilationException(_u("Call is not legal at this location"));
         }
@@ -1088,14 +1088,14 @@ namespace Js
 
         bool patchStartCall = sym->GetArgCount() == Constants::InvalidArgSlot;
         if (patchStartCall)
-        {
+        {TRACE_IT(45923);
             // we will not know the types of the arguments for the first call to a deferred function,
             // so we put a placeholder instr in the bytecode and then patch it with correct arg size
             // once we evaluate the arguments
             mWriter.AsmStartCall(callOpCode[funcOpCode][StartCallIndex], Constants::InvalidArgSlot);
         }
         else
-        {
+        {TRACE_IT(45924);
             // args size + 1 pointer
             const ArgSlot argByteSize = UInt16Math::Add(sym->GetArgByteSize(argCount), sizeof(Var));
             mWriter.AsmStartCall(callOpCode[funcOpCode][StartCallIndex], argByteSize);
@@ -1103,17 +1103,17 @@ namespace Js
         AutoArrayPtr<AsmJsType> types(nullptr, 0);
         int maxDepthForLevel = mFunction->GetArgOutDepth();
         if( argCount > 0 )
-        {
+        {TRACE_IT(45925);
             ParseNode* argNode = pnode->sxCall.pnodeArgs;
             uint16 regSlotLocation = 1;
             types.Set(HeapNewArray( AsmJsType, argCount ), argCount);
 
             for(ArgSlot i = 0; i < argCount; i++)
-            {
+            {TRACE_IT(45926);
                 // Get i arg node
                 ParseNode* arg = argNode;
                 if( argNode->nop == knopList )
-                {
+                {TRACE_IT(45927);
                     arg = ParserWrapper::GetBinaryLeft( argNode );
                     argNode = ParserWrapper::GetBinaryRight( argNode );
                 }
@@ -1126,12 +1126,12 @@ namespace Js
                 {
                     CheckNodeLocation( argInfo, double );
                     if (callOpCode[funcOpCode][ArgOut_DbIndex] == OpCodeAsmJs::ArgOut_Db)
-                    {
+                    {TRACE_IT(45928);
                         mWriter.AsmReg2(callOpCode[funcOpCode][ArgOut_DbIndex], regSlotLocation, argInfo.location);
                         regSlotLocation++; // in case of external calls this is boxed and converted to a Var
                     }
                     else
-                    {
+                    {TRACE_IT(45929);
                         mWriter.AsmReg2(callOpCode[funcOpCode][ArgOut_DbIndex], regSlotLocation, argInfo.location);
                         regSlotLocation += sizeof(double) / sizeof(Var);// in case of internal calls we will pass this arg as double
                     }
@@ -1141,7 +1141,7 @@ namespace Js
                 {
                     CheckNodeLocation(argInfo, float);
                     if (isFFI)
-                    {
+                    {TRACE_IT(45930);
                         throw AsmJsCompilationException(_u("FFI function %s doesn't support float arguments"), funcName->Psz());
                     }
                     mWriter.AsmReg2(OpCodeAsmJs::I_ArgOut_Flt, regSlotLocation, argInfo.location);
@@ -1156,9 +1156,9 @@ namespace Js
                     mFunction->ReleaseLocation<int>( &argInfo );
                 }
                 else if (argInfo.type.isSIMDType())
-                {
+                {TRACE_IT(45931);
                     if (isFFI)
-                    {
+                    {TRACE_IT(45932);
                         throw AsmJsCompilationException(_u("FFI function %s doesn't support SIMD arguments"), funcName->Psz());
                     }
 
@@ -1204,12 +1204,12 @@ namespace Js
                     mFunction->ReleaseLocation<AsmJsSIMDValue>(&argInfo);
                 }
                 else
-                {
+                {TRACE_IT(45933);
                     throw AsmJsCompilationException(_u("Function %s doesn't support argument of type %s"), funcName->Psz(), argInfo.type.toChars());
                 }
                 // if there are nested calls, track whichever is the deepest
                 if (maxDepthForLevel < mFunction->GetArgOutDepth())
-                {
+                {TRACE_IT(45934);
                     maxDepthForLevel = mFunction->GetArgOutDepth();
                 }
             }
@@ -1218,7 +1218,7 @@ namespace Js
         AsmJsRetType retType;
         const bool supported = sym->SupportsArgCall( argCount, types, retType );
         if( !supported )
-        {
+        {TRACE_IT(45935);
             throw AsmJsCompilationException( _u("Function %s doesn't support arguments"), funcName->Psz() );
         }
 
@@ -1226,7 +1226,7 @@ namespace Js
         // but return a different type, i.e.: abs(int) -> int, but expecting double
         // don't validate the return type for foreign import functions
         if( !isFFI && retType != expectedType )
-        {
+        {TRACE_IT(45936);
             throw AsmJsCompilationException( _u("Function %s returns different type"), funcName->Psz() );
         }
 
@@ -1234,7 +1234,7 @@ namespace Js
         // +1 is for function object
         ArgSlot runtimeArg = UInt16Math::Add(argCount, 1);
         if (funcOpCode == 1) // for non import functions runtimeArg is calculated from argByteSize
-        {
+        {TRACE_IT(45937);
             runtimeArg = (ArgSlot)(::ceil((double)(argByteSize / sizeof(Var)))) + 1;
         }
 
@@ -1243,17 +1243,17 @@ namespace Js
 
         // Make sure we have enough memory allocated for OutParameters
         if (mNestedCallCount > 1)
-        {
+        {TRACE_IT(45938);
             mFunction->SetArgOutDepth(maxDepthForLevel);
         }
         else
-        {
+        {TRACE_IT(45939);
             mFunction->SetArgOutDepth(0);
         }
         mFunction->UpdateMaxArgOutDepth(maxDepthForLevel);
 
         if (patchStartCall)
-        {
+        {TRACE_IT(45940);
             uint latestOffset = mWriter.GetCurrentOffset();
             auto latestChunk = mWriter.GetCurrentChunk();
             uint latestChunkOffset = latestChunk->GetCurrentOffset();
@@ -1297,21 +1297,21 @@ namespace Js
             // do nothing
             break;
         case AsmJsRetType::Signed:
-        {
+        {TRACE_IT(45941);
             RegSlot intReg = mFunction->AcquireTmpRegister<int>();
             mWriter.AsmReg2( callOpCode[funcOpCode][Conv_VTIIndex], intReg, AsmJsFunctionMemory::CallReturnRegister );
             info.location = intReg;
             break;
         }
         case AsmJsRetType::Double:
-        {
+        {TRACE_IT(45942);
             RegSlot dbReg = mFunction->AcquireTmpRegister<double>();
             mWriter.AsmReg2( callOpCode[funcOpCode][Conv_VTDIndex], dbReg, AsmJsFunctionMemory::CallReturnRegister );
             info.location = dbReg;
             break;
         }
         case AsmJsRetType::Float:
-        {
+        {TRACE_IT(45943);
             Assert(!isFFI); //check spec
             RegSlot fltReg = mFunction->AcquireTmpRegister<float>();
             mWriter.AsmReg2(callOpCode[funcOpCode][Conv_VTFIndex], fltReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1319,7 +1319,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Float32x4:
-        {
+        {TRACE_IT(45944);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTF4, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1327,7 +1327,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Int32x4:
-        {
+        {TRACE_IT(45945);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTI4, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1336,7 +1336,7 @@ namespace Js
         }
 #if 0
         case AsmJsRetType::Float64x2:
-        {
+        {TRACE_IT(45946);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTD2, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1346,7 +1346,7 @@ namespace Js
 #endif // 0
 
         case AsmJsRetType::Int16x8:
-        {
+        {TRACE_IT(45947);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTI8, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1354,7 +1354,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Int8x16:
-        {
+        {TRACE_IT(45948);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTI16, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1362,7 +1362,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Uint32x4:
-        {
+        {TRACE_IT(45949);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTU4, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1370,7 +1370,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Uint16x8:
-        {
+        {TRACE_IT(45950);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTU8, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1378,7 +1378,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Uint8x16:
-        {
+        {TRACE_IT(45951);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTU16, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1386,7 +1386,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Bool32x4:
-        {
+        {TRACE_IT(45952);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTB4, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1394,7 +1394,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Bool16x8:
-        {
+        {TRACE_IT(45953);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTB8, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1402,7 +1402,7 @@ namespace Js
             break;
         }
         case AsmJsRetType::Bool8x16:
-        {
+        {TRACE_IT(45954);
             Assert(!isFFI);
             RegSlot simdReg = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             mWriter.AsmReg2(OpCodeAsmJs::Simd128_I_Conv_VTB16, simdReg, AsmJsFunctionMemory::CallReturnRegister);
@@ -1420,31 +1420,31 @@ namespace Js
     }
 
     EmitExpressionInfo* AsmJSByteCodeGenerator::EmitSimdBuiltinArguments(ParseNode* pnode, AsmJsFunctionDeclaration* func, __out_ecount(pnode->sxCall.argCount) AsmJsType *argsTypes, EmitExpressionInfo *argsInfo)
-    {
+    {TRACE_IT(45955);
         const uint16 argCount = pnode->sxCall.argCount;
         Assert(argsTypes);
         Assert(argsInfo);
 
         if (argCount > 0)
-        {
+        {TRACE_IT(45956);
             ParseNode* argNode = pnode->sxCall.pnodeArgs;
 
             for (ArgSlot i = 0; i < argCount; i++)
-            {
+            {TRACE_IT(45957);
                 // Get i arg node
                 ParseNode* arg = argNode;
 
                 if (argNode->nop == knopList)
-                {
+                {TRACE_IT(45958);
                     arg = ParserWrapper::GetBinaryLeft(argNode);
                     argNode = ParserWrapper::GetBinaryRight(argNode);
                 }
                 if (func->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction)
-                {
+                {TRACE_IT(45959);
                     AsmJsSIMDFunction *simdFunc = func->Cast<AsmJsSIMDFunction>();
 
                     if (arg->nop == knopCall)
-                    {
+                    {TRACE_IT(45960);
                         // REVIEW: Is this exactly according to spec ?
                         // This enforces Asm.js rule that all arg calls to user-functions have to be coerced.
                         // Generic calls have to be coerced unless used in a SIMD coercion.
@@ -1466,14 +1466,14 @@ namespace Js
                         AsmJsFunctionDeclaration* argCall = mCompiler->LookupFunction(argCallTarget);
 
                         if (!argCall)
-                        {
+                        {TRACE_IT(45961);
                             throw AsmJsCompilationException(_u("Undefined function %s."), argCallTarget->Psz());
                         }
 
                         EmitExpressionInfo argInfo;
 
                         if (simdFunc->IsTypeCheck())
-                        {
+                        {TRACE_IT(45962);
                             // type check. Any call is allowed as argument.
                             argInfo = EmitCall(arg, simdFunc->GetReturnType());
                         }
@@ -1482,24 +1482,24 @@ namespace Js
                         else if ((simdFunc->IsConstructor() && simdFunc->GetSimdBuiltInFunction() == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4) ||  /*float32x4 all args*/
                                   simdFunc->GetSimdBuiltInFunction() == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float32x4_splat ||                                /*splat all args*/
                                  (i == 2 && simdFunc->GetSimdBuiltInFunction() == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float32x4_replaceLane))
-                        {
+                        {TRACE_IT(45963);
 
                             if (argCall && argCall->GetSymbolType() == AsmJsSymbol::MathBuiltinFunction && IsFRound(argCall->Cast<AsmJsMathFunction>()))
-                            {
+                            {TRACE_IT(45964);
                                 argInfo = EmitCall(arg, AsmJsRetType::Float);
                             }
                             else
-                            {
+                            {TRACE_IT(45965);
                                 throw AsmJsCompilationException(_u("Invalid call as SIMD argument. Expecting fround."));
                             }
                         }
                         else if (argCall->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction  &&  argCall->Cast<AsmJsSIMDFunction>()->GetReturnType().toType() == simdFunc->GetArgType(i))
-                        {
+                        {TRACE_IT(45966);
                             // any other simd operation. call arguments have to be SIMD operations of expected arg type.
                             argInfo = EmitCall(arg, simdFunc->GetArgType(i).toRetType());
                         }
                         else
-                        {
+                        {TRACE_IT(45967);
                             throw AsmJsCompilationException(_u("Invalid call as SIMD argument"));
                         }
 
@@ -1510,7 +1510,7 @@ namespace Js
                         continue;
                     }
                     else if (simdFunc->IsFloat32x4Func() && arg->nop == knopFlt)
-                    {
+                    {TRACE_IT(45968);
                         // Any floating point constant as float32x4 op arg is considered DoubleLit
                         // For all float32x4 operations, if the arg type is DoubleLit, regSlot should be in Float reg space.
                         argsTypes[i] = AsmJsType::DoubleLit;
@@ -1520,24 +1520,24 @@ namespace Js
                         continue;
                     }
                     else if (simdFunc->IsLaneAccessFunc())
-                    {
+                    {TRACE_IT(45969);
                         if (i == 0 && !simdFunc->GetArgType(i).isSIMDType())
-                        {
+                        {TRACE_IT(45970);
                             throw AsmJsCompilationException(_u("Invalid arguments to ExtractLane/ReplaceLane, SIMD type expected for first argument."));
                         }
                         if (i == 1)    //lane index
-                        {
+                        {TRACE_IT(45971);
                             Assert(simdFunc->GetArgType(i) == AsmJsType::Int);
                             int lane = (int)arg->sxInt.lw;
                             if (arg->nop == knopInt)
-                            {
+                            {TRACE_IT(45972);
                                 if (lane < 0 || lane >= (int)simdFunc->LanesCount())
-                                {
+                                {TRACE_IT(45973);
                                     throw AsmJsCompilationException(_u("Invalid arguments to ExtractLane/ReplaceLane, out of range lane indices."));
                                 }
                             }
                             else
-                            {
+                            {TRACE_IT(45974);
                                 throw AsmJsCompilationException(_u("Invalid arguments to extractLane/replaceLane, expecting literals for lane indices."));
                             }
                             Assert(argCount == 2 || argCount == 3);
@@ -1549,10 +1549,10 @@ namespace Js
 
                     }
                     else if ((simdFunc->IsShuffleFunc() || simdFunc->IsSwizzleFunc()) && simdFunc->GetArgType(i) == AsmJsType::Int)
-                    {
+                    {TRACE_IT(45975);
                         /* Int args to shuffle/swizzle should be literals and in-range */
                         if (arg->nop == knopInt)
-                        {
+                        {TRACE_IT(45976);
                             // E.g.
                             // f4shuffle(v1, v2, [0-7], [0-7], [0-7], [0-7])
                             // f4swizzle(v1, [0-3], [0-3], [0-3], [0-3])
@@ -1599,7 +1599,7 @@ namespace Js
                                 Assert(UNREACHED);
                             }
                             if (!valid)
-                            {
+                            {TRACE_IT(45977);
                                 throw AsmJsCompilationException(_u("Invalid arguments to shuffle, out of range lane indices."));
                             }
 
@@ -1610,7 +1610,7 @@ namespace Js
                             continue;
                         }
                         else
-                        {
+                        {TRACE_IT(45978);
                             throw AsmJsCompilationException(_u("Invalid arguments to swizzle/shuffle, expecting literals for lane indices."));
                         }
                     }
@@ -1627,7 +1627,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitSimdBuiltin(ParseNode* pnode, AsmJsSIMDFunction* simdFunction, AsmJsRetType expectedType)
-    {
+    {TRACE_IT(45979);
         Assert(pnode->nop == knopCall);
         // StartCall
         const uint16 argCount = pnode->sxCall.argCount;
@@ -1636,7 +1636,7 @@ namespace Js
         AutoArrayPtr<EmitExpressionInfo> argsInfo(nullptr, 0);
 
         if (argCount > 0)
-        {
+        {TRACE_IT(45980);
             types.Set(HeapNewArray(AsmJsType, argCount), argCount);
             argsInfo.Set(HeapNewArray(EmitExpressionInfo, argCount), argCount);
 
@@ -1648,18 +1648,18 @@ namespace Js
         const bool supported = simdFunction->SupportsSIMDCall(argCount, types, op, retType);
 
         if (!supported)
-        {
+        {TRACE_IT(45981);
             throw AsmJsCompilationException(_u("SIMD builtin function doesn't support arguments"));
         }
 
         if (!IsValidSimdFcnRetType(*simdFunction, expectedType, retType))
-        {
+        {TRACE_IT(45982);
             throw AsmJsCompilationException(_u("SIMD builtin function returns wrong type"));
         }
 
         // Release all used location before acquiring a new tmp register
         for (int i = argCount - 1; i >= 0; i--)
-        {
+        {TRACE_IT(45983);
             mFunction->ReleaseLocationGeneric(&argsInfo[i]);
         }
 
@@ -1686,7 +1686,7 @@ namespace Js
         }
         EmitExpressionInfo emitInfo(dst, retType.toType());
         if (dstType != AsmJsType::Void)
-        {
+        {TRACE_IT(45984);
             emitInfo.type = dstType;
         }
 
@@ -1747,7 +1747,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitSimdLoadStoreBuiltin(ParseNode* pnode, AsmJsSIMDFunction* simdFunction, AsmJsRetType expectedType)
-    {
+    {TRACE_IT(45985);
         Assert(pnode->nop == knopCall);
         Assert(simdFunction->IsSimdLoadFunc() || simdFunction->IsSimdStoreFunc());
 
@@ -1755,7 +1755,7 @@ namespace Js
 
         // Check number of arguments
         if ( argCount != simdFunction->GetArgCount())
-        {
+        {TRACE_IT(45986);
             throw AsmJsCompilationException(_u("SIMD builtin function doesn't support arguments"));
         }
 
@@ -1766,7 +1766,7 @@ namespace Js
         argNode = ParserWrapper::GetBinaryRight(argNode);
 
         if (!ParserWrapper::IsNameDeclaration(arrayNameNode))
-        {
+        {TRACE_IT(45987);
             throw AsmJsCompilationException(_u("Invalid symbol "));
         }
 
@@ -1774,7 +1774,7 @@ namespace Js
 
         AsmJsSymbol* sym = mCompiler->LookupIdentifier(name, mFunction);
         if (!sym || sym->GetSymbolType() != AsmJsSymbol::ArrayView)
-        {
+        {TRACE_IT(45988);
             throw AsmJsCompilationException(_u("Invalid identifier %s"), name->Psz());
         }
         AsmJsArrayView* arrayView = sym->Cast<AsmJsArrayView>();
@@ -1784,7 +1784,7 @@ namespace Js
         ParseNode* indexNode = argNode;
         ParseNode* valueNode = nullptr;
         if (simdFunction->IsSimdStoreFunc())
-        {
+        {TRACE_IT(45989);
             indexNode = ParserWrapper::GetBinaryLeft(argNode);
             valueNode = ParserWrapper::GetBinaryRight(argNode);
         }
@@ -1804,7 +1804,7 @@ namespace Js
         OpCodeAsmJs opcode = simdFunction->GetOpcode();
 
         if (op == OpCodeAsmJs::LdArrConst || op == OpCodeAsmJs::StArrConst)
-        {
+        {TRACE_IT(45990);
             switch (opcode)
             {
             case OpCodeAsmJs::Simd128_LdArr_I4:
@@ -1921,20 +1921,20 @@ namespace Js
 
         EmitExpressionInfo emitInfo;
         if (simdFunction->IsSimdStoreFunc()) //Store
-        {
+        {TRACE_IT(45991);
             // Arg3 - Value to Store. Builtin returns the value being stored.
             Assert(valueNode);
             emitInfo = Emit(valueNode);
 
             if (emitInfo.type != simdFunction->GetArgType(2))
-            {
+            {TRACE_IT(45992);
                 throw AsmJsCompilationException(_u("Invalid value to SIMD store "));
             }
             // write opcode
             mWriter.AsmSimdTypedArr(opcode, emitInfo.location, indexSlot, dataWidth, viewType);
         }
         else //Load
-        {
+        {TRACE_IT(45993);
             emitInfo.location = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
             emitInfo.type = simdFunction->GetReturnType().toType();
             mWriter.AsmSimdTypedArr(opcode, emitInfo.location, indexSlot, dataWidth, viewType);
@@ -1945,9 +1945,9 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitMathBuiltin(ParseNode* pnode, AsmJsMathFunction* mathFunction, AsmJsRetType expectedType)
-    {
+    {TRACE_IT(45994);
         if (mathFunction->GetMathBuiltInFunction() == AsmJSMathBuiltinFunction::AsmJSMathBuiltin_max || mathFunction->GetMathBuiltInFunction() == AsmJSMathBuiltinFunction::AsmJSMathBuiltin_min)
-        {
+        {TRACE_IT(45995);
             return EmitMinMax(pnode, mathFunction, expectedType);
         }
 
@@ -1958,21 +1958,21 @@ namespace Js
 
         // for fround, if we have a fround(NumericLiteral), we want to just emit Ld_Flt NumericLiteral
         if (argCount == 1 && IsFRound(mathFunction) && ParserWrapper::IsFroundNumericLiteral(argNode))
-        {
+        {TRACE_IT(45996);
             Assert(expectedType == AsmJsRetType::Float);
             StartStatement(pnode);
             RegSlot dst = mFunction->AcquireTmpRegister<float>();
             EmitExpressionInfo emitInfo(dst, expectedType.toType());
             if (argNode->nop == knopFlt)
-            {
+            {TRACE_IT(45997);
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Flt, dst, mFunction->GetConstRegister<float>((float)argNode->sxFlt.dbl));
             }
             else if (argNode->nop == knopInt)
-            {
+            {TRACE_IT(45998);
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Flt, dst, mFunction->GetConstRegister<float>((float)argNode->sxInt.lw));
             }
             else
-            {
+            {TRACE_IT(45999);
                 Assert(ParserWrapper::IsNegativeZero(argNode));
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Flt, dst, mFunction->GetConstRegister<float>(-0.0f));
             }
@@ -1987,17 +1987,17 @@ namespace Js
         AutoArrayPtr<EmitExpressionInfo> argsInfo(nullptr, 0);
         int maxDepthForLevel = mFunction->GetArgOutDepth();
         if( argCount > 0 )
-        {
+        {TRACE_IT(46000);
             types.Set(HeapNewArray(AsmJsType, argCount), argCount);
             argsInfo.Set(HeapNewArray(EmitExpressionInfo, argCount), argCount);
 
             for(ArgSlot i = 0; i < argCount; i++)
-            {
+            {TRACE_IT(46001);
                 // Get i arg node
                 ParseNode* arg = argNode;
                 // Special case for fround(abs()) call
                 if (argNode->nop == knopCall && mathFunction->GetMathBuiltInFunction() == AsmJSMathBuiltinFunction::AsmJSMathBuiltin_fround)
-                {
+                {TRACE_IT(46002);
                     // Emit argument
                     const EmitExpressionInfo& argInfo = EmitCall(arg, AsmJsRetType::Float);
                     types[i] = argInfo.type;
@@ -2005,9 +2005,9 @@ namespace Js
                     argsInfo[i].location = argInfo.location;
                 }
                 else
-                {
+                {TRACE_IT(46003);
                     if (argNode->nop == knopList)
-                    {
+                    {TRACE_IT(46004);
                         arg = ParserWrapper::GetBinaryLeft(argNode);
                         argNode = ParserWrapper::GetBinaryRight(argNode);
                     }
@@ -2019,7 +2019,7 @@ namespace Js
                 }
                 // if there are nested calls, track whichever is the deepest
                 if (maxDepthForLevel < mFunction->GetArgOutDepth())
-                {
+                {TRACE_IT(46005);
                     maxDepthForLevel = mFunction->GetArgOutDepth();
                 }
             }
@@ -2030,13 +2030,13 @@ namespace Js
         OpCodeAsmJs op;
         const bool supported = mathFunction->SupportsMathCall( argCount, types, op, retType );
         if( !supported )
-        {
+        {TRACE_IT(46006);
             throw AsmJsCompilationException( _u("Math builtin function doesn't support arguments") );
         }
 
         // Release all used location before acquiring a new tmp register
         for (int i = argCount - 1; i >= 0 ; i--)
-        {
+        {TRACE_IT(46007);
             mFunction->ReleaseLocationGeneric( &argsInfo[i] );
         }
 
@@ -2048,11 +2048,11 @@ namespace Js
 
         // Make sure we have enough memory allocated for OutParameters
         if (mNestedCallCount > 1)
-        {
+        {TRACE_IT(46008);
             mFunction->SetArgOutDepth(maxDepthForLevel);
         }
         else
-        {
+        {TRACE_IT(46009);
             mFunction->SetArgOutDepth(0);
         }
         mFunction->UpdateMaxArgOutDepth(maxDepthForLevel);
@@ -2063,15 +2063,15 @@ namespace Js
 
         RegSlot dst;
         if( isInt )
-        {
+        {TRACE_IT(46010);
             dst = mFunction->AcquireTmpRegister<int>();
         }
         else if (isFloatish)
-        {
+        {TRACE_IT(46011);
             dst = mFunction->AcquireTmpRegister<float>();
         }
         else
-        {
+        {TRACE_IT(46012);
             dst = mFunction->AcquireTmpRegister<double>();
         }
 
@@ -2090,17 +2090,17 @@ namespace Js
         }
 #if DBG
         for (int i = 0; i < argCount; i++)
-        {
+        {TRACE_IT(46013);
             if (argsInfo[i].type.isSubType(AsmJsType::Floatish))
-            {
+            {TRACE_IT(46014);
                 CheckNodeLocation(argsInfo[i], float);
             }
             else if (argsInfo[i].type.isSubType(AsmJsType::MaybeDouble))
-            {
+            {TRACE_IT(46015);
                 CheckNodeLocation(argsInfo[i], double);
             }
             else if (argsInfo[i].type.isSubType(AsmJsType::Intish))
-            {
+            {TRACE_IT(46016);
                 CheckNodeLocation(argsInfo[i], int);
             }
         }
@@ -2111,7 +2111,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitMinMax(ParseNode* pnode, AsmJsMathFunction* mathFunction, AsmJsRetType expectedType)
-    {
+    {TRACE_IT(46017);
         Assert(mathFunction->GetArgCount() == 2);
         ++mNestedCallCount;
 
@@ -2119,7 +2119,7 @@ namespace Js
         ParseNode* argNode = pnode->sxCall.pnodeArgs;
 
         if (argCount < 2)
-        {
+        {TRACE_IT(46018);
             throw AsmJsCompilationException(_u("Math builtin function doesn't support arguments"));
         }
 
@@ -2137,14 +2137,14 @@ namespace Js
 
         EmitExpressionInfo dstInfo;
         for (int i = 1; i < argCount; i++)
-        {
+        {TRACE_IT(46019);
             if (argNode->nop == knopList)
-            {
+            {TRACE_IT(46020);
                 arg = ParserWrapper::GetBinaryLeft(argNode);
                 argNode = ParserWrapper::GetBinaryRight(argNode);
             }
             else
-            {
+            {TRACE_IT(46021);
                 arg = argNode;
             }
             // arg1 will always be the next arg in the argList
@@ -2153,7 +2153,7 @@ namespace Js
 
             // if there are nested calls, track whichever is the deepest
             if (maxDepthForLevel < mFunction->GetArgOutDepth())
-            {
+            {TRACE_IT(46022);
                 maxDepthForLevel = mFunction->GetArgOutDepth();
             }
 
@@ -2162,7 +2162,7 @@ namespace Js
             OpCodeAsmJs op;
             const bool supported = mathFunction->SupportsMathCall(mathFunction->GetArgCount(), types, op, retType);
             if (!supported)
-            {
+            {TRACE_IT(46023);
                 throw AsmJsCompilationException(_u("Math builtin function doesn't support arguments"));
             }
 
@@ -2174,11 +2174,11 @@ namespace Js
 
             // Make sure we have enough memory allocated for OutParameters
             if (mNestedCallCount > 1)
-            {
+            {TRACE_IT(46024);
                 mFunction->SetArgOutDepth(maxDepthForLevel);
             }
             else
-            {
+            {TRACE_IT(46025);
                 mFunction->SetArgOutDepth(0);
             }
             mFunction->UpdateMaxArgOutDepth(maxDepthForLevel);
@@ -2188,11 +2188,11 @@ namespace Js
 
             dstInfo.type = retType.toType();
             if (retType.toType().isSigned())
-            {
+            {TRACE_IT(46026);
                 dstInfo.location = mFunction->AcquireTmpRegister<int>();
             }
             else
-            {
+            {TRACE_IT(46027);
                 Assert(retType.toType().isDouble());
                 dstInfo.location = mFunction->AcquireTmpRegister<double>();
             }
@@ -2202,17 +2202,17 @@ namespace Js
             argsInfo[0] = dstInfo;
 #if DBG
             for (uint j = 0; j < mathFunction->GetArgCount(); j++)
-            {
+            {TRACE_IT(46028);
                 if (argsInfo[j].type.isSubType(AsmJsType::MaybeDouble))
-                {
+                {TRACE_IT(46029);
                     CheckNodeLocation(argsInfo[j], double);
                 }
                 else if (argsInfo[j].type.isSubType(AsmJsType::Intish))
-                {
+                {TRACE_IT(46030);
                     CheckNodeLocation(argsInfo[j], int);
                 }
                 else
-                {
+                {TRACE_IT(46031);
                     Assert(UNREACHED);
                 }
             }
@@ -2223,39 +2223,39 @@ namespace Js
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitIdentifier( ParseNode * pnode )
-    {
+    {TRACE_IT(46032);
         Assert( ParserWrapper::IsNameDeclaration( pnode ) );
         PropertyName name = pnode->name();
         AsmJsLookupSource::Source source;
         AsmJsSymbol* sym = mCompiler->LookupIdentifier( name, mFunction, &source );
         if( !sym )
-        {
+        {TRACE_IT(46033);
             throw AsmJsCompilationException( _u("Undefined identifier %s"), name->Psz() );
         }
 
         switch( sym->GetSymbolType() )
         {
         case AsmJsSymbol::Variable:
-        {
+        {TRACE_IT(46034);
             AsmJsVar * var = sym->Cast<AsmJsVar>();
             if (!var->isMutable())
-            {
+            {TRACE_IT(46035);
                 // currently const is only allowed for variables at module scope
                 Assert(source == AsmJsLookupSource::AsmJsModule);
 
                 EmitExpressionInfo emitInfo(var->GetType());
                 if (var->GetVarType().isInt())
-                {
+                {TRACE_IT(46036);
                     emitInfo.location = mFunction->AcquireTmpRegister<int>();
                     mWriter.AsmInt1Const1(Js::OpCodeAsmJs::Ld_IntConst, emitInfo.location, var->GetIntInitialiser());
                 }
                 else if (var->GetVarType().isFloat())
-                {
+                {TRACE_IT(46037);
                     emitInfo.location = mFunction->AcquireTmpRegister<float>();
                     mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Flt, emitInfo.location, mFunction->GetConstRegister<float>(var->GetFloatInitialiser()));
                 }
                 else
-                {
+                {TRACE_IT(46038);
                     Assert(var->GetVarType().isDouble());
                     emitInfo.location = mFunction->AcquireTmpRegister<double>();
                     mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Db, emitInfo.location, mFunction->GetConstRegister<double>(var->GetDoubleInitialiser()));
@@ -2266,38 +2266,38 @@ namespace Js
         }
         case AsmJsSymbol::Argument:
         case AsmJsSymbol::ConstantImport:
-        {
+        {TRACE_IT(46039);
             AsmJsVarBase* var = sym->Cast<AsmJsVarBase>();
             if( source == AsmJsLookupSource::AsmJsFunction )
-            {
+            {TRACE_IT(46040);
                 return EmitExpressionInfo( var->GetLocation(), var->GetType() );
             }
             else
-            {
+            {TRACE_IT(46041);
                 Assert( source == AsmJsLookupSource::AsmJsModule );
                 EmitExpressionInfo emitInfo(var->GetType());
                 if (var->GetVarType().isInt())
-                {
+                {TRACE_IT(46042);
                     emitInfo.location = mFunction->AcquireTmpRegister<int>();
                     LoadModuleInt(emitInfo.location, var->GetLocation());
                 }
                 else if (var->GetVarType().isFloat())
-                {
+                {TRACE_IT(46043);
                     emitInfo.location = mFunction->AcquireTmpRegister<float>();
                     LoadModuleFloat(emitInfo.location, var->GetLocation());
                 }
                 else if (var->GetVarType().isDouble())
-                {
+                {TRACE_IT(46044);
                     emitInfo.location = mFunction->AcquireTmpRegister<double>();
                     LoadModuleDouble(emitInfo.location, var->GetLocation());
                 }
                 else if (var->GetVarType().isSIMD())
-                {
+                {TRACE_IT(46045);
                     emitInfo.location = mFunction->AcquireTmpRegister<AsmJsSIMDValue>();
                     LoadModuleSimd( emitInfo.location, var->GetLocation(), var->GetVarType());
                 }
                 else
-                {
+                {TRACE_IT(46046);
                     Assert(UNREACHED);
                 }
                 return emitInfo;
@@ -2305,7 +2305,7 @@ namespace Js
             break;
         }
         case AsmJsSymbol::MathConstant:
-        {
+        {TRACE_IT(46047);
             AsmJsMathConst* mathConst = sym->Cast<AsmJsMathConst>();
             Assert(mathConst->GetType().isDouble());
             RegSlot loc = mFunction->AcquireTmpRegister<double>();
@@ -2331,43 +2331,43 @@ namespace Js
     };
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitTypedArrayIndex(ParseNode* indexNode, OpCodeAsmJs &op, uint32 &indexSlot, ArrayBufferView::ViewType viewType, TypedArrayEmitType emitType)
-    {
+    {TRACE_IT(46048);
         mCompiler->SetUsesHeapBuffer(true);
         bool isConst = false;
         uint32 slot = 0;
         if(indexNode->nop == knopName)
-        {
+        {TRACE_IT(46049);
             AsmJsSymbol * declSym = mCompiler->LookupIdentifier(indexNode->name(), mFunction);
             if (declSym && !declSym->isMutable() && declSym->GetSymbolType() == AsmJsSymbol::Variable)
-            {
+            {TRACE_IT(46050);
                 AsmJsVar * definition = declSym->Cast<AsmJsVar>();
                 if(definition->GetVarType().isInt())
-                {
+                {TRACE_IT(46051);
                     slot = (uint32)definition->GetIntInitialiser();
                     isConst = true;
                 }
             }
         }
         if (indexNode->nop == knopInt || indexNode->nop == knopFlt || isConst)
-        {
+        {TRACE_IT(46052);
             // Emit a different opcode for numerical literal
             if (!isConst)
-            {
+            {TRACE_IT(46053);
                 if (indexNode->nop == knopInt)
-                {
+                {TRACE_IT(46054);
                     slot = (uint32)indexNode->sxInt.lw;
                 }
                 else if (ParserWrapper::IsMinInt(indexNode))
-                {
+                {TRACE_IT(46055);
                     // this is going to be an error, but we can do this to allow it to get same error message as invalid int
                     slot = (uint32)INT32_MIN;
                 }
                 else if (ParserWrapper::IsUnsigned(indexNode))
-                {
+                {TRACE_IT(46056);
                     slot = (uint32)indexNode->sxFlt.dbl;
                 }
                 else
-                {
+                {TRACE_IT(46057);
                     EmitExpressionInfo indexInfo = Emit(indexNode);
                     throw AsmJsCompilationException(_u("Array Index must be intish; %s given"), indexInfo.type.toChars());
                 }
@@ -2378,7 +2378,7 @@ namespace Js
             case Js::ArrayBufferView::TYPE_INT16:
             case Js::ArrayBufferView::TYPE_UINT16:
                 if (slot & 0x80000000)
-                {
+                {TRACE_IT(46058);
                     throw AsmJsCompilationException(_u("Numeric literal for heap16 must be within 0 <= n < 2^31; %d given"), slot);
                 }
                 slot <<= 1;
@@ -2387,14 +2387,14 @@ namespace Js
             case Js::ArrayBufferView::TYPE_UINT32:
             case Js::ArrayBufferView::TYPE_FLOAT32:
                 if (slot & 0xC0000000)
-                {
+                {TRACE_IT(46059);
                     throw AsmJsCompilationException(_u("Numeric literal for heap32 must be within 0 <= n < 2^30; %d given"), slot);
                 }
                 slot <<= 2;
                 break;
             case Js::ArrayBufferView::TYPE_FLOAT64:
                 if (slot & 0xE0000000)
-                {
+                {TRACE_IT(46060);
                     throw AsmJsCompilationException(_u("Numeric literal for heap64 must be within 0 <= n < 2^29; %d given"), slot);
                 }
                 slot <<= 3;
@@ -2406,20 +2406,20 @@ namespace Js
             op = typedArrayOp[emitType][0];
         }
         else
-        {
+        {TRACE_IT(46061);
             EmitExpressionInfo indexInfo;
             if (indexNode->nop != knopRsh && viewType != Js::ArrayBufferView::TYPE_INT8 && viewType != Js::ArrayBufferView::TYPE_UINT8)
-            {
+            {TRACE_IT(46062);
                 throw AsmJsCompilationException( _u("index expression isn't shifted; must be an Int8/Uint8 access") );
             }
             int val = 0;
             uint32 mask = (uint32)~0;
             ParseNode* index;
             if (indexNode->nop == knopRsh)
-            {
+            {TRACE_IT(46063);
                 ParseNode* rhsNode = ParserWrapper::GetBinaryRight(indexNode);
                 if (!rhsNode || rhsNode->nop != knopInt)
-                {
+                {TRACE_IT(46064);
                     throw AsmJsCompilationException(_u("shift amount must be constant"));
                 }
                 switch (viewType)
@@ -2448,25 +2448,25 @@ namespace Js
                     Assume(UNREACHED);
                 }
                 if (rhsNode->sxInt.lw != val)
-                {
+                {TRACE_IT(46065);
                     throw AsmJsCompilationException(_u("shift amount must be %d"), val);
                 }
                 index = ParserWrapper::GetBinaryLeft(indexNode);
             }
             else
-            {
+            {TRACE_IT(46066);
                 index = indexNode;
             }
 
             isConst = false;
             if (index->nop == knopName)
-            {
+            {TRACE_IT(46067);
                 AsmJsSymbol * declSym = mCompiler->LookupIdentifier(index->name(), mFunction);
                 if (declSym && !declSym->isMutable() && declSym->GetSymbolType() == AsmJsSymbol::Variable)
-                {
+                {TRACE_IT(46068);
                     AsmJsVar * definition = declSym->Cast<AsmJsVar>();
                     if (definition->GetVarType().isInt())
-                    {
+                    {TRACE_IT(46069);
                         slot = (uint32)definition->GetIntInitialiser();
                         slot &= mask;
                         op = typedArrayOp[emitType][0];
@@ -2476,7 +2476,7 @@ namespace Js
                 }
             }
             if( ParserWrapper::IsUInt( index) )
-            {
+            {TRACE_IT(46070);
                 slot = ParserWrapper::GetUInt(index);
                 slot &= mask;
                 op = typedArrayOp[emitType][0];
@@ -2484,10 +2484,10 @@ namespace Js
                 mCompiler->UpdateMaxHeapAccess(slot);
             }
             else if (!isConst)
-            {
+            {TRACE_IT(46071);
                 indexInfo = Emit( index );
                 if( !indexInfo.type.isIntish() )
-                {
+                {TRACE_IT(46072);
                     throw AsmJsCompilationException( _u("Left operand of >> must be intish; %s given"), indexInfo.type.toChars() );
                 }
                 indexSlot = indexInfo.location;
@@ -2500,18 +2500,18 @@ namespace Js
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitLdArrayBuffer( ParseNode * pnode )
-    {
+    {TRACE_IT(46073);
         ParseNode* arrayNameNode = ParserWrapper::GetBinaryLeft( pnode );
         ParseNode* indexNode = ParserWrapper::GetBinaryRight( pnode );
         if( !ParserWrapper::IsNameDeclaration( arrayNameNode ) )
-        {
+        {TRACE_IT(46074);
             throw AsmJsCompilationException( _u("Invalid symbol ") );
         }
 
         PropertyName name = arrayNameNode->name();
         AsmJsSymbol* sym = mCompiler->LookupIdentifier(name, mFunction);
         if( !sym || sym->GetSymbolType() != AsmJsSymbol::ArrayView )
-        {
+        {TRACE_IT(46075);
             throw AsmJsCompilationException( _u("Invalid identifier %s"), name->Psz() );
         }
         AsmJsArrayView* arrayView = sym->Cast<AsmJsArrayView>();
@@ -2528,15 +2528,15 @@ namespace Js
 
         EmitExpressionInfo info( arrayView->GetType() );
         if( info.type.isIntish() )
-        {
+        {TRACE_IT(46076);
             info.location = mFunction->AcquireTmpRegister<int>();
         }
         else if (info.type.isMaybeFloat())
-        {
+        {TRACE_IT(46077);
             info.location = mFunction->AcquireTmpRegister<float>();
         }
         else
-        {
+        {TRACE_IT(46078);
             Assert(info.type.isMaybeDouble());
             info.location = mFunction->AcquireTmpRegister<double>();
         }
@@ -2546,13 +2546,13 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitAssignment( ParseNode * pnode )
-    {
+    {TRACE_IT(46079);
         StartStatement(pnode);
         ParseNode* lhs = ParserWrapper::GetBinaryLeft( pnode );
         ParseNode* rhs = ParserWrapper::GetBinaryRight(pnode);
         EmitExpressionInfo rhsEmit;
         if( ParserWrapper::IsNameDeclaration( lhs ) )
-        {
+        {TRACE_IT(46080);
             rhsEmit = Emit(rhs);
             const AsmJsType& rType = rhsEmit.type;
 
@@ -2560,18 +2560,18 @@ namespace Js
             AsmJsLookupSource::Source source;
             AsmJsSymbol* sym = mCompiler->LookupIdentifier( name, mFunction, &source );
             if( !sym )
-            {
+            {TRACE_IT(46081);
                 throw AsmJsCompilationException( _u("Undefined identifier %s"), name->Psz() );
             }
 
             if( !sym->isMutable() )
-            {
+            {TRACE_IT(46082);
                 throw AsmJsCompilationException( _u("Cannot assign to identifier %s"), name->Psz() );
             }
 
             AsmJsVarBase* var = sym->Cast<AsmJsVarBase>();
             if( !var->GetType().isSuperType( rType ) )
-            {
+            {TRACE_IT(46083);
                 throw AsmJsCompilationException( _u("Cannot assign this type to identifier %s"), name->Psz() );
             }
 
@@ -2599,7 +2599,7 @@ namespace Js
                     SetModuleSimd(var->GetLocation(), rhsEmit.location, var->GetVarType());
                 }
                 else
-                {
+                {TRACE_IT(46084);
                     Assert(UNREACHED);
                 }
                 break;
@@ -2625,7 +2625,7 @@ namespace Js
                     LoadSimd(var->GetLocation(), rhsEmit.location, var->GetVarType());
                 }
                 else
-                {
+                {TRACE_IT(46085);
                     Assert(UNREACHED);
                 }
                 break;
@@ -2635,18 +2635,18 @@ namespace Js
 
         }
         else if( lhs->nop == knopIndex )
-        {
+        {TRACE_IT(46086);
             ParseNode* arrayNameNode = ParserWrapper::GetBinaryLeft( lhs );
             ParseNode* indexNode = ParserWrapper::GetBinaryRight( lhs );
             if( !ParserWrapper::IsNameDeclaration( arrayNameNode ) )
-            {
+            {TRACE_IT(46087);
                 throw AsmJsCompilationException( _u("Invalid symbol ") );
             }
 
             PropertyName name = arrayNameNode->name();
             AsmJsSymbol* sym = mCompiler->LookupIdentifier(name, mFunction);
             if( !sym || sym->GetSymbolType() != AsmJsSymbol::ArrayView )
-            {
+            {TRACE_IT(46088);
                 throw AsmJsCompilationException( _u("Invalid identifier %s"), name->Psz() );
             }
             // must emit index expr first in case it has side effects
@@ -2663,9 +2663,9 @@ namespace Js
             mIsCallLegal = wasCallLegal;
 
             if (viewType == ArrayBufferView::TYPE_FLOAT32)
-            {
+            {TRACE_IT(46089);
                 if (!rhsEmit.type.isFloatish() && !rhsEmit.type.isMaybeDouble())
-                {
+                {TRACE_IT(46090);
                     throw AsmJsCompilationException(_u("Cannot assign value to TYPE_FLOAT32 ArrayBuffer"));
                 }
                 // do the conversion to float only for double
@@ -2680,9 +2680,9 @@ namespace Js
                 }
             }
             else if (viewType == ArrayBufferView::TYPE_FLOAT64)
-            {
+            {TRACE_IT(46091);
                 if (!rhsEmit.type.isMaybeFloat() && !rhsEmit.type.isMaybeDouble())
-                {
+                {TRACE_IT(46092);
                     throw AsmJsCompilationException(_u("Cannot assign value to TYPE_FLOAT64 ArrayBuffer"));
                 }
                 // do the conversion to double only for float
@@ -2697,7 +2697,7 @@ namespace Js
                 }
             }
             else if (!rhsEmit.type.isSubType(arrayView->GetType()))
-            {
+            {TRACE_IT(46093);
                 throw AsmJsCompilationException( _u("Cannot assign value ArrayBuffer") );
             }
 
@@ -2708,17 +2708,17 @@ namespace Js
             mFunction->ReleaseLocationGeneric(&indexInfo);
             RegSlot newRhsReg;
             if (rhsEmit.type.isMaybeDouble())
-            {
+            {TRACE_IT(46094);
                 newRhsReg = mFunction->AcquireTmpRegister<double>();
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Db, newRhsReg, rhsReg);
             }
             else if (rhsEmit.type.isFloatish())
-            {
+            {TRACE_IT(46095);
                 newRhsReg = mFunction->AcquireTmpRegister<float>();
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Flt, newRhsReg, rhsReg);
             }
             else
-            {
+            {TRACE_IT(46096);
                 newRhsReg = mFunction->AcquireTmpRegister<int>();
                 mWriter.AsmReg2(OpCodeAsmJs::Ld_Int, newRhsReg, rhsReg);
             }
@@ -2727,7 +2727,7 @@ namespace Js
 
         }
         else
-        {
+        {TRACE_IT(46097);
             throw AsmJsCompilationException( _u("Can only assign to an identifier or an ArrayBufferView") );
         }
         EndStatement(pnode);
@@ -2735,7 +2735,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitBinaryComparator( ParseNode * pnode, EBinaryComparatorOpCodes op )
-    {
+    {TRACE_IT(46098);
         ParseNode* lhs = ParserWrapper::GetBinaryLeft( pnode );
         ParseNode* rhs = ParserWrapper::GetBinaryRight( pnode );
         const EmitExpressionInfo& lhsEmit = Emit( lhs );
@@ -2779,7 +2779,7 @@ namespace Js
             compOp = BinaryComparatorOpCodes[op][BCOT_Float];
         }
         else
-        {
+        {TRACE_IT(46099);
             throw AsmJsCompilationException( _u("Type not supported for comparison") );
         }
         mWriter.AsmReg3( compOp, emitInfo.location, lhsEmit.location, rhsEmit.location );
@@ -2788,15 +2788,15 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitUnaryPos( ParseNode * pnode )
-    {
+    {TRACE_IT(46100);
         ParseNode* rhs = ParserWrapper::GetUnaryNode( pnode );
         EmitExpressionInfo rhsEmit ;
         if (rhs->nop == knopCall)
-        {
+        {TRACE_IT(46101);
             rhsEmit = EmitCall(rhs, AsmJsRetType::Double);
         }
         else
-        {
+        {TRACE_IT(46102);
             rhsEmit = Emit(rhs);
         }
         const AsmJsType& rType = rhsEmit.type;
@@ -2830,7 +2830,7 @@ namespace Js
             mFunction->ReleaseLocation<float>(&rhsEmit);
         }
         else
-        {
+        {TRACE_IT(46103);
             throw AsmJsCompilationException( _u("Type not supported for unary +") );
         }
         emitInfo.location = dst;
@@ -2839,7 +2839,7 @@ namespace Js
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitUnaryNeg( ParseNode * pnode )
-    {
+    {TRACE_IT(46104);
         ParseNode* rhs = ParserWrapper::GetUnaryNode( pnode );
         const EmitExpressionInfo& rhsEmit = Emit( rhs );
         const AsmJsType& rType = rhsEmit.type;
@@ -2870,7 +2870,7 @@ namespace Js
             emitInfo.location = dst;
         }
         else
-        {
+        {TRACE_IT(46105);
             throw AsmJsCompilationException( _u("Type not supported for unary -") );
         }
         EndStatement(pnode);
@@ -2878,11 +2878,11 @@ namespace Js
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitUnaryNot( ParseNode * pnode )
-    {
+    {TRACE_IT(46106);
         ParseNode* rhs = ParserWrapper::GetUnaryNode( pnode );
         int count = 1;
         while( rhs->nop == knopNot )
-        {
+        {TRACE_IT(46107);
             ++count;
             rhs = ParserWrapper::GetUnaryNode( rhs );
         }
@@ -2914,7 +2914,7 @@ namespace Js
             rhsEmit.location = dst;
         }
         if( rType.isIntish() )
-        {
+        {TRACE_IT(46108);
             if( count & 1 )
             {
                 CheckNodeLocation( rhsEmit, int );
@@ -2926,7 +2926,7 @@ namespace Js
             rhsEmit.type = AsmJsType::Signed;
         }
         else
-        {
+        {TRACE_IT(46109);
             throw AsmJsCompilationException( _u("Type not supported for unary ~") );
         }
         EndStatement(pnode);
@@ -2934,11 +2934,11 @@ namespace Js
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitUnaryLogNot( ParseNode * pnode )
-    {
+    {TRACE_IT(46110);
         ParseNode* rhs = ParserWrapper::GetUnaryNode( pnode );
         int count = 1;
         while( rhs->nop == knopLogNot )
-        {
+        {TRACE_IT(46111);
             ++count;
             rhs = ParserWrapper::GetUnaryNode( rhs );
         }
@@ -2952,19 +2952,19 @@ namespace Js
             CheckNodeLocation( rhsEmit, int );
             RegSlot dst = GetAndReleaseUnaryLocations<int>( &rhsEmit );
             if( count & 1 )
-            {
+            {TRACE_IT(46112);
                 // do the conversion only if we have an odd number of the operator
                 mWriter.AsmReg2( OpCodeAsmJs::LogNot_Int, dst, rhsEmit.location );
             }
             else
-            {
+            {TRACE_IT(46113);
                 // otherwise, make sure the result is 0|1
                 mWriter.AsmReg2( OpCodeAsmJs::Conv_ITB, dst, rhsEmit.location );
             }
             emitInfo.location = dst;
         }
         else
-        {
+        {TRACE_IT(46114);
             throw AsmJsCompilationException( _u("Type not supported for unary !") );
         }
         EndStatement(pnode);
@@ -2973,10 +2973,10 @@ namespace Js
 
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitBooleanExpression( ParseNode* expr, Js::ByteCodeLabel trueLabel, Js::ByteCodeLabel falseLabel )
-    {
+    {TRACE_IT(46115);
         switch( expr->nop )
         {
-        case knopLogNot:{
+        case knopLogNot:{TRACE_IT(46116);
             const EmitExpressionInfo& info = EmitBooleanExpression( expr->sxUni.pnode1, falseLabel, trueLabel );
             return info;
             break;
@@ -3006,7 +3006,7 @@ namespace Js
         default:{
             const EmitExpressionInfo& info = Emit( expr );
             if( !info.type.isInt() )
-            {
+            {TRACE_IT(46117);
                 throw AsmJsCompilationException( _u("Comparison expressions must be type signed") );
             }
             mWriter.AsmBrReg1( Js::OpCodeAsmJs::BrTrue_Int, trueLabel, info.location );
@@ -3018,7 +3018,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitIf( ParseNode * pnode )
-    {
+    {TRACE_IT(46118);
         Js::ByteCodeLabel trueLabel = mWriter.DefineLabel();
         Js::ByteCodeLabel falseLabel = mWriter.DefineLabel();
         const EmitExpressionInfo& boolInfo = EmitBooleanExpression( pnode->sxIf.pnodeCond, trueLabel, falseLabel );
@@ -3031,7 +3031,7 @@ namespace Js
         mFunction->ReleaseLocationGeneric( &trueInfo );
 
         if( pnode->sxIf.pnodeFalse != nullptr )
-        {
+        {TRACE_IT(46119);
             // has else clause
             Js::ByteCodeLabel skipLabel = mWriter.DefineLabel();
 
@@ -3050,18 +3050,18 @@ namespace Js
 
         }
         else
-        {
+        {TRACE_IT(46120);
             mWriter.MarkAsmJsLabel( falseLabel );
         }
         if( pnode->emitLabels )
-        {
+        {TRACE_IT(46121);
             mWriter.MarkAsmJsLabel( pnode->sxStmt.breakLabel );
         }
         return EmitExpressionInfo( AsmJsType::Void );
     }
 
     Js::EmitExpressionInfo AsmJSByteCodeGenerator::EmitLoop( ParseNode *loopNode, ParseNode *cond, ParseNode *body, ParseNode *incr, BOOL doWhile /*= false */ )
-    {
+    {TRACE_IT(46122);
         // Need to increment loop count whether we are going to profile or not for HasLoop()
         StartStatement(loopNode);
         Js::ByteCodeLabel loopEntrance = mWriter.DefineLabel();
@@ -3071,24 +3071,24 @@ namespace Js
         loopNode->sxLoop.loopId = loopId;
         EndStatement(loopNode);
         if( doWhile )
-        {
+        {TRACE_IT(46123);
             const EmitExpressionInfo& bodyInfo = Emit( body );
             mFunction->ReleaseLocationGeneric( &bodyInfo );
 
             if( loopNode->emitLabels )
-            {
+            {TRACE_IT(46124);
                 mWriter.MarkAsmJsLabel( loopNode->sxStmt.continueLabel );
             }
             if( !ByteCodeGenerator::IsFalse( cond ) )
-            {
+            {TRACE_IT(46125);
                 const EmitExpressionInfo& condInfo = EmitBooleanExpression( cond, loopEntrance, continuePastLoop );
                 mFunction->ReleaseLocationGeneric( &condInfo );
             }
         }
         else
-        {
+        {TRACE_IT(46126);
             if( cond )
-            {
+            {TRACE_IT(46127);
                 Js::ByteCodeLabel trueLabel = mWriter.DefineLabel();
                 const EmitExpressionInfo& condInfo = EmitBooleanExpression( cond, trueLabel, continuePastLoop );
                 mFunction->ReleaseLocationGeneric( &condInfo );
@@ -3098,11 +3098,11 @@ namespace Js
             mFunction->ReleaseLocationGeneric( &bodyInfo );
 
             if( loopNode->emitLabels )
-            {
+            {TRACE_IT(46128);
                 mWriter.MarkAsmJsLabel( loopNode->sxStmt.continueLabel );
             }
             if( incr != NULL )
-            {
+            {TRACE_IT(46129);
                 const EmitExpressionInfo& incrInfo = Emit( incr );
                 mFunction->ReleaseLocationGeneric( &incrInfo );
             }
@@ -3110,7 +3110,7 @@ namespace Js
         }
         mWriter.MarkAsmJsLabel( continuePastLoop );
         if( loopNode->emitLabels )
-        {
+        {TRACE_IT(46130);
             mWriter.MarkAsmJsLabel( loopNode->sxStmt.breakLabel );
         }
 
@@ -3122,7 +3122,7 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitQMark( ParseNode * pnode )
-    {
+    {TRACE_IT(46131);
         StartStatement(pnode->sxTri.pnode1);
         Js::ByteCodeLabel trueLabel = mWriter.DefineLabel();
         Js::ByteCodeLabel falseLabel = mWriter.DefineLabel();
@@ -3141,7 +3141,7 @@ namespace Js
         const EmitExpressionInfo& trueInfo = Emit( pnode->sxTri.pnode2 );
         StartStatement(pnode->sxTri.pnode2);
         if( trueInfo.type.isInt() )
-        {
+        {TRACE_IT(46132);
             mWriter.AsmReg2( Js::OpCodeAsmJs::Ld_Int, intReg, trueInfo.location );
             mFunction->ReleaseLocation<int>( &trueInfo );
             mFunction->ReleaseTmpRegister<double>(doubleReg);
@@ -3150,7 +3150,7 @@ namespace Js
             emitInfo.type = AsmJsType::Int;
         }
         else if( trueInfo.type.isDouble() )
-        {
+        {TRACE_IT(46133);
             mWriter.AsmReg2( Js::OpCodeAsmJs::Ld_Db, doubleReg, trueInfo.location );
             mFunction->ReleaseLocation<double>( &trueInfo );
             mFunction->ReleaseTmpRegister<int>( intReg );
@@ -3159,7 +3159,7 @@ namespace Js
             emitInfo.type = AsmJsType::Double;
         }
         else if (trueInfo.type.isFloat())
-        {
+        {TRACE_IT(46134);
             mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Flt, floatReg, trueInfo.location);
             mFunction->ReleaseLocation<float>(&trueInfo);
             mFunction->ReleaseTmpRegister<int>(intReg);
@@ -3168,7 +3168,7 @@ namespace Js
             emitInfo.type = AsmJsType::Float;
         }
         else
-        {
+        {TRACE_IT(46135);
             throw AsmJsCompilationException(_u("Conditional expressions must be of type int, double, or float"));
         }
         mWriter.AsmBr( skipLabel );
@@ -3177,34 +3177,34 @@ namespace Js
         const EmitExpressionInfo& falseInfo = Emit( pnode->sxTri.pnode3 );
         StartStatement(pnode->sxTri.pnode3);
         if( falseInfo.type.isInt() )
-        {
+        {TRACE_IT(46136);
             if( !trueInfo.type.isInt() )
-            {
+            {TRACE_IT(46137);
                 throw AsmJsCompilationException( _u("Conditional expressions results must be the same type") );
             }
             mWriter.AsmReg2( Js::OpCodeAsmJs::Ld_Int, intReg, falseInfo.location );
             mFunction->ReleaseLocation<int>( &falseInfo );
         }
         else if( falseInfo.type.isDouble() )
-        {
+        {TRACE_IT(46138);
             if( !trueInfo.type.isDouble() )
-            {
+            {TRACE_IT(46139);
                 throw AsmJsCompilationException( _u("Conditional expressions results must be the same type") );
             }
             mWriter.AsmReg2( Js::OpCodeAsmJs::Ld_Db, doubleReg, falseInfo.location );
             mFunction->ReleaseLocation<double>( &falseInfo );
         }
         else if(falseInfo.type.isFloat())
-        {
+        {TRACE_IT(46140);
             if (!trueInfo.type.isFloat())
-            {
+            {TRACE_IT(46141);
                 throw AsmJsCompilationException(_u("Conditional expressions results must be the same type"));
             }
             mWriter.AsmReg2(Js::OpCodeAsmJs::Ld_Flt, floatReg, falseInfo.location);
             mFunction->ReleaseLocation<float>(&falseInfo);
         }
         else
-        {
+        {TRACE_IT(46142);
             throw AsmJsCompilationException(_u("Conditional expressions must be of type int, double, or float"));
         }
         mWriter.MarkAsmJsLabel( skipLabel );
@@ -3213,13 +3213,13 @@ namespace Js
     }
 
     EmitExpressionInfo AsmJSByteCodeGenerator::EmitSwitch( ParseNode * pnode )
-    {
+    {TRACE_IT(46143);
         BOOL fHasDefault = false;
         Assert( pnode->sxSwitch.pnodeVal != NULL );
         const EmitExpressionInfo& valInfo = Emit( pnode->sxSwitch.pnodeVal );
 
         if( !valInfo.type.isSigned() )
-        {
+        {TRACE_IT(46144);
             throw AsmJsCompilationException( _u("Switch value must be type Signed, FixNum") );
         }
 
@@ -3233,18 +3233,18 @@ namespace Js
 
         ParseNode *pnodeCase;
         for( pnodeCase = pnode->sxSwitch.pnodeCases; pnodeCase; pnodeCase = pnodeCase->sxCase.pnodeNext )
-        {
+        {TRACE_IT(46145);
             // Jump to the first case body if this one doesn't match. Make sure any side-effects of the case
             // expression take place regardless.
             pnodeCase->sxCase.labelCase = mWriter.DefineLabel();
             if( pnodeCase == pnode->sxSwitch.pnodeDefault )
-            {
+            {TRACE_IT(46146);
                 fHasDefault = true;
                 continue;
             }
             ParseNode* caseExpr = pnodeCase->sxCase.pnodeExpr;
             if ((caseExpr->nop != knopInt || (caseExpr->sxInt.lw >> 31) > 1) && !ParserWrapper::IsMinInt(caseExpr))
-            {
+            {TRACE_IT(46147);
                 throw AsmJsCompilationException( _u("Switch case value must be int in the range [-2^31, 2^31)") );
             }
 
@@ -3255,20 +3255,20 @@ namespace Js
 
         // No explicit case value matches. Jump to the default arm (if any) or break out altogether.
         if( fHasDefault )
-        {
+        {TRACE_IT(46148);
             mWriter.AsmBr( pnode->sxSwitch.pnodeDefault->sxCase.labelCase, OpCodeAsmJs::EndSwitch_Int );
         }
         else
-        {
+        {TRACE_IT(46149);
             if( !pnode->emitLabels )
-            {
+            {TRACE_IT(46150);
                 pnode->sxStmt.breakLabel = mWriter.DefineLabel();
             }
             mWriter.AsmBr( pnode->sxStmt.breakLabel, OpCodeAsmJs::EndSwitch_Int );
         }
         // Now emit the case arms to which we jump on matching a case value.
         for( pnodeCase = pnode->sxSwitch.pnodeCases; pnodeCase; pnodeCase = pnodeCase->sxCase.pnodeNext )
-        {
+        {TRACE_IT(46151);
             mWriter.MarkAsmJsLabel( pnodeCase->sxCase.labelCase );
             const EmitExpressionInfo& caseBodyInfo = Emit( pnodeCase->sxCase.pnodeBody );
             mFunction->ReleaseLocationGeneric( &caseBodyInfo );
@@ -3277,7 +3277,7 @@ namespace Js
         mFunction->ReleaseTmpRegister<int>( regVal );
 
         if( !fHasDefault || pnode->emitLabels )
-        {
+        {TRACE_IT(46152);
             mWriter.MarkAsmJsLabel( pnode->sxStmt.breakLabel );
         }
 
@@ -3285,7 +3285,7 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::EmitEmptyByteCode(FuncInfo * funcInfo, ByteCodeGenerator * byteCodeGen, ParseNode * functionNode)
-    {
+    {TRACE_IT(46153);
         funcInfo->byteCodeFunction->SetGrfscr(byteCodeGen->GetFlags());
         funcInfo->byteCodeFunction->SetSourceInfo(byteCodeGen->GetCurrentSourceIndex(),
             funcInfo->root,
@@ -3301,17 +3301,17 @@ namespace Js
             ByteCodeGenerator * mByteCodeGen;
         public:
             AutoCleanup(FunctionBody * functionBody, ByteCodeGenerator * byteCodeGen) : mFunctionBody(functionBody), mByteCodeGen(byteCodeGen)
-            {
+            {TRACE_IT(46154);
             }
 
             void Done()
-            {
+            {TRACE_IT(46155);
                 mFunctionBody = nullptr;
             }
             ~AutoCleanup()
-            {
+            {TRACE_IT(46156);
                 if (mFunctionBody)
-                {
+                {TRACE_IT(46157);
                     mFunctionBody->ResetByteCodeGenState();
                     mByteCodeGen->Writer()->Reset();
                 }
@@ -3330,14 +3330,14 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::StartStatement(ParseNode* pnode)
-    {
+    {TRACE_IT(46158);
         mWriter.StartStatement(pnode, 0);
         //         Output::Print( _u("%*s+%d\n"),tab, " ", pnode->ichMin );
         //         ++tab;
     }
 
     void AsmJSByteCodeGenerator::EndStatement(ParseNode* pnode)
-    {
+    {TRACE_IT(46159);
         mWriter.EndStatement(pnode);
         //         Output::Print( _u("%*s-%d\n"),tab, " ", pnode->ichMin );
         //         --tab;
@@ -3345,51 +3345,51 @@ namespace Js
 
    // int tab = 0;
     void AsmJSByteCodeGenerator::LoadModuleInt( RegSlot dst, RegSlot index )
-    {
+    {TRACE_IT(46160);
         mWriter.AsmSlot(OpCodeAsmJs::LdSlot_Int, dst, AsmJsFunctionMemory::ModuleEnvRegister, index + (int32)(mCompiler->GetIntOffset() / WAsmJs::INT_SLOTS_SPACE + 0.5));
     }
     void AsmJSByteCodeGenerator::LoadModuleFloat(RegSlot dst, RegSlot index)
-    {
+    {TRACE_IT(46161);
         mWriter.AsmSlot(OpCodeAsmJs::LdSlot_Flt, dst, AsmJsFunctionMemory::ModuleEnvRegister, index + (int32)(mCompiler->GetFloatOffset() / WAsmJs::FLOAT_SLOTS_SPACE + 0.5));
     }
     void AsmJSByteCodeGenerator::LoadModuleDouble( RegSlot dst, RegSlot index )
-    {
+    {TRACE_IT(46162);
         mWriter.AsmSlot(OpCodeAsmJs::LdSlot_Db, dst, AsmJsFunctionMemory::ModuleEnvRegister, index + mCompiler->GetDoubleOffset() / WAsmJs::DOUBLE_SLOTS_SPACE);
     }
 
     void AsmJSByteCodeGenerator::LoadModuleFFI( RegSlot dst, RegSlot index )
-    {
+    {TRACE_IT(46163);
         mWriter.AsmSlot(OpCodeAsmJs::LdSlot, dst, AsmJsFunctionMemory::ModuleEnvRegister, index + mCompiler->GetFFIOffset());
     }
 
     void AsmJSByteCodeGenerator::LoadModuleFunction( RegSlot dst, RegSlot index )
-    {
+    {TRACE_IT(46164);
         mWriter.AsmSlot(OpCodeAsmJs::LdSlot, dst, AsmJsFunctionMemory::ModuleEnvRegister, index + mCompiler->GetFuncOffset());
     }
 
     void AsmJSByteCodeGenerator::LoadModuleFunctionTable( RegSlot dst, RegSlot FuncTableIndex, RegSlot FuncIndexLocation )
-    {
+    {TRACE_IT(46165);
         mWriter.AsmSlot( OpCodeAsmJs::LdSlotArr, AsmJsFunctionMemory::ModuleSlotRegister, AsmJsFunctionMemory::ModuleEnvRegister, FuncTableIndex+mCompiler->GetFuncPtrOffset() );
         mWriter.AsmSlot( OpCodeAsmJs::LdArr_Func, dst, AsmJsFunctionMemory::ModuleSlotRegister, FuncIndexLocation );
     }
 
     void AsmJSByteCodeGenerator::SetModuleInt( Js::RegSlot dst, RegSlot src )
-    {
+    {TRACE_IT(46166);
         mWriter.AsmSlot(OpCodeAsmJs::StSlot_Int, src, AsmJsFunctionMemory::ModuleEnvRegister, dst + (int32)(mCompiler->GetIntOffset() / WAsmJs::INT_SLOTS_SPACE + 0.5));
     }
 
     void AsmJSByteCodeGenerator::SetModuleFloat(Js::RegSlot dst, RegSlot src)
-    {
+    {TRACE_IT(46167);
         mWriter.AsmSlot(OpCodeAsmJs::StSlot_Flt, src, AsmJsFunctionMemory::ModuleEnvRegister, dst + (int32)(mCompiler->GetFloatOffset() / WAsmJs::FLOAT_SLOTS_SPACE + 0.5));
     }
 
     void AsmJSByteCodeGenerator::SetModuleDouble( Js::RegSlot dst, RegSlot src )
-    {
+    {TRACE_IT(46168);
         mWriter.AsmSlot(OpCodeAsmJs::StSlot_Db, src, AsmJsFunctionMemory::ModuleEnvRegister, dst + mCompiler->GetDoubleOffset() / WAsmJs::DOUBLE_SLOTS_SPACE);
     }
 
     void AsmJSByteCodeGenerator::LoadModuleSimd(RegSlot dst, RegSlot index, AsmJsVarType type)
-    {
+    {TRACE_IT(46169);
         OpCodeAsmJs opcode = OpCodeAsmJs::Simd128_LdSlot_I4;
         switch (type.which())
         {
@@ -3435,7 +3435,7 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::SetModuleSimd(RegSlot index, RegSlot src, AsmJsVarType type)
-    {
+    {TRACE_IT(46170);
         OpCodeAsmJs opcode = OpCodeAsmJs::Simd128_StSlot_I4;
         switch (type.which())
         {
@@ -3481,7 +3481,7 @@ namespace Js
     }
 
     void AsmJSByteCodeGenerator::LoadSimd(RegSlot dst, RegSlot src, AsmJsVarType type)
-    {
+    {TRACE_IT(46171);
         OpCodeAsmJs opcode = OpCodeAsmJs::Simd128_Ld_I4;
         switch (type.which())
         {
@@ -3527,12 +3527,12 @@ namespace Js
     }
 
     void AsmJsFunctionCompilation::CleanUp()
-    {
+    {TRACE_IT(46172);
         if( mGenerator && mGenerator->mInfo )
-        {
+        {TRACE_IT(46173);
             FunctionBody* body = mGenerator->mFunction->GetFuncBody();
             if( body )
-            {
+            {TRACE_IT(46174);
                 body->ResetByteCodeGenState();
             }
             mGenerator->mWriter.Reset();

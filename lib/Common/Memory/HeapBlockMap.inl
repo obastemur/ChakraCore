@@ -9,30 +9,30 @@ template <bool interlocked>
 inline
 bool
 HeapBlockMap32::MarkInternal(L2MapChunk * chunk, void * candidate)
-{
+{TRACE_IT(23849);
     uint bitIndex = chunk->GetMarkBitIndex(candidate);
 
     if (interlocked)
-    {
+    {TRACE_IT(23850);
         // Use an interlocked BTS instruction to ensure atomicity.
         // Since this is expensive, do a non-interlocked test first.
         // Mark bits never go from set to clear during marking, so if we find the bit is already set, we're done.
         if (chunk->markBits.TestIntrinsic(bitIndex))
-        {
+        {TRACE_IT(23851);
             // Already marked; no further processing needed
             return true;
         }
 
         if (chunk->markBits.TestAndSetInterlocked(bitIndex))
-        {
+        {TRACE_IT(23852);
             // Already marked; no further processing needed
             return true;
         }
     }
     else
-    {
+    {TRACE_IT(23853);
         if (chunk->markBits.TestAndSet(bitIndex))
-        {
+        {TRACE_IT(23854);
             // Already marked; no further processing needed
             return true;
         }
@@ -56,20 +56,20 @@ template <bool interlocked, bool doSpecialMark>
 inline
 void
 HeapBlockMap32::Mark(void * candidate, MarkContext * markContext)
-{
+{TRACE_IT(23855);
     uint id1 = GetLevel1Id(candidate);
 
     L2MapChunk * chunk = map[id1];
     if (chunk == nullptr)
-    {
+    {TRACE_IT(23856);
         // False reference; no further processing needed.
         return;
     }
 
     if (MarkInternal<interlocked>(chunk, candidate))
-    {
+    {TRACE_IT(23857);
         if (doSpecialMark)
-        {
+        {TRACE_IT(23858);
             this->OnSpecialMark(chunk, candidate);
         }
         return;
@@ -77,7 +77,7 @@ HeapBlockMap32::Mark(void * candidate, MarkContext * markContext)
 
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-    {
+    {TRACE_IT(23859);
         Recycler::WBVerifyBitIsSet((char*)markContext->parentRef, (char*)candidate);
     }
 #endif
@@ -103,15 +103,15 @@ HeapBlockMap32::Mark(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::SmallNormalBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23860);
             byte bucketIndex = chunk->blockInfo[id2].bucketIndex;
 
             // See if it's an invalid offset using the invalid bit vector and if so, do nothing.
             if (!HeapInfo::GetInvalidBitVectorForBucket<SmallAllocationBlockAttributes>(bucketIndex)->Test(SmallHeapBlock::GetAddressBitIndex(candidate)))
-            {
+            {TRACE_IT(23861);
                 uint objectSize = HeapInfo::GetObjectSizeForBucketIndex<SmallAllocationBlockAttributes>(bucketIndex);
                 if (!markContext->AddMarkedObject(candidate, objectSize))
-                {
+                {TRACE_IT(23862);
                     // Failed to mark due to OOM.
                     ((SmallHeapBlock *)chunk->map[id2])->SetNeedOOMRescan(markContext->GetRecycler());
                 }
@@ -122,14 +122,14 @@ HeapBlockMap32::Mark(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::MediumNormalBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23863);
             byte bucketIndex = chunk->blockInfo[id2].bucketIndex;
             // See if it's an invalid offset using the invalid bit vector and if so, do nothing.
             if (!HeapInfo::GetInvalidBitVectorForBucket<MediumAllocationBlockAttributes>(bucketIndex)->Test(MediumHeapBlock::GetAddressBitIndex(candidate)))
-            {
+            {TRACE_IT(23864);
                 uint objectSize = HeapInfo::GetObjectSizeForBucketIndex<MediumAllocationBlockAttributes>(bucketIndex);
                 if (!markContext->AddMarkedObject(candidate, objectSize))
-                {
+                {TRACE_IT(23865);
                     // Failed to mark due to OOM.
                     ((MediumHeapBlock *)chunk->map[id2])->SetNeedOOMRescan(markContext->GetRecycler());
                 }
@@ -167,7 +167,7 @@ HeapBlockMap32::Mark(void * candidate, MarkContext * markContext)
 inline
 void
 HeapBlockMap32::OnSpecialMark(L2MapChunk * chunk, void * candidate)
-{
+{TRACE_IT(23866);
     uint id2 = GetLevel2Id(candidate);
     HeapBlock::HeapBlockType blockType = chunk->blockInfo[id2].blockType;
 
@@ -183,7 +183,7 @@ HeapBlockMap32::OnSpecialMark(L2MapChunk * chunk, void * candidate)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::SmallFinalizableBlockWithBarrierType:
 #endif
-    {
+    {TRACE_IT(23867);
         SmallFinalizableHeapBlock *smallBlock = (SmallFinalizableHeapBlock*)chunk->map[id2];
         success = smallBlock->TryGetAttributes(candidate, &attributes);
         break;
@@ -193,14 +193,14 @@ HeapBlockMap32::OnSpecialMark(L2MapChunk * chunk, void * candidate)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::MediumFinalizableBlockWithBarrierType:
 #endif
-    {
+    {TRACE_IT(23868);
         MediumFinalizableHeapBlock *mediumBlock = (MediumFinalizableHeapBlock*)chunk->map[id2];
         success = mediumBlock->TryGetAttributes(candidate, &attributes);
         break;
     }
 
     case HeapBlock::HeapBlockType::LargeBlockType:
-    {
+    {TRACE_IT(23869);
         LargeHeapBlock *largeBlock = (LargeHeapBlock*)chunk->map[id2];
         success = largeBlock->TryGetAttributes(candidate, &attributes);
         break;
@@ -211,7 +211,7 @@ HeapBlockMap32::OnSpecialMark(L2MapChunk * chunk, void * candidate)
     }
 
     if (success && (attributes & FinalizeBit))
-    {   
+    {TRACE_IT(23870);   
         FinalizableObject *trackedObject = (FinalizableObject*)candidate;
         trackedObject->OnMark();
     }
@@ -221,21 +221,21 @@ template <bool interlocked, bool largeBlockType>
 inline
 bool
 HeapBlockMap32::MarkInteriorInternal(MarkContext * markContext, L2MapChunk *& chunk, void * originalCandidate, void * realCandidate)
-{
+{TRACE_IT(23871);
     if (originalCandidate == realCandidate)
-    {
+    {TRACE_IT(23872);
         // The initial mark performed was correct (we had a base pointer)
         return false;
     }
 
     if (realCandidate == nullptr)
-    {
+    {TRACE_IT(23873);
         // We had an invalid interior pointer, so we bail out
         return true;
     }
 
     if (largeBlockType)
-    {
+    {TRACE_IT(23874);
 
 #if defined(_M_IX86_OR_ARM32)
         // we only check the first MaxLargeObjectMarkOffset byte for marking purpuse. 
@@ -245,7 +245,7 @@ HeapBlockMap32::MarkInteriorInternal(MarkContext * markContext, L2MapChunk *& ch
 
 #if defined(_M_X64_OR_ARM64)
         if (HeapBlockMap64::GetNodeIndex(originalCandidate) != HeapBlockMap64::GetNodeIndex(realCandidate))
-        {
+        {TRACE_IT(23875);
             // We crossed a node boundary (very rare) so we should just re-start from the real candidate.
             // In this case we are no longer marking an interior reference.
             markContext->GetRecycler()->heapBlockMap.Mark<interlocked, false>(realCandidate, markContext);
@@ -266,20 +266,20 @@ template <bool interlocked>
 inline
 void
 HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
-{
+{TRACE_IT(23876);
     // Align the candidate to object granularity
     candidate = reinterpret_cast<void*>(reinterpret_cast<size_t>(candidate) & ~HeapInfo::ObjectAlignmentMask);
     uint id1 = GetLevel1Id(candidate);
 
     L2MapChunk * chunk = map[id1];
     if (chunk == nullptr)
-    {
+    {TRACE_IT(23877);
         // False reference; no further processing needed.
         return;
     }
 
     if (MarkInternal<interlocked>(chunk, candidate))
-    {
+    {TRACE_IT(23878);
         // Already marked (mark internal-then-actual first)
         return;
     }
@@ -303,17 +303,17 @@ HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::SmallNormalBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23879);
             byte bucketIndex = chunk->blockInfo[id2].bucketIndex;
             uint objectSize = HeapInfo::GetObjectSizeForBucketIndex<SmallAllocationBlockAttributes>(bucketIndex);
             void * realCandidate = SmallHeapBlock::GetRealAddressFromInterior(candidate, objectSize, bucketIndex);
             if (MarkInteriorInternal<interlocked, false>(markContext, chunk, candidate, realCandidate))
-            {
+            {TRACE_IT(23880);
                 break;
             }
 
             if (!markContext->AddMarkedObject(realCandidate, objectSize))
-            {
+            {TRACE_IT(23881);
                 // Failed to mark due to OOM.
                 ((SmallHeapBlock *)chunk->map[id2])->SetNeedOOMRescan(markContext->GetRecycler());
             }
@@ -323,17 +323,17 @@ HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::MediumNormalBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23882);
             byte bucketIndex = chunk->blockInfo[id2].bucketIndex;
             uint objectSize = HeapInfo::GetObjectSizeForBucketIndex<MediumAllocationBlockAttributes>(bucketIndex);
             void * realCandidate = MediumHeapBlock::GetRealAddressFromInterior(candidate, objectSize, bucketIndex);
             if (MarkInteriorInternal<interlocked, false>(markContext, chunk, candidate, realCandidate))
-            {
+            {TRACE_IT(23883);
                 break;
             }
 
             if (!markContext->AddMarkedObject(realCandidate, objectSize))
-            {
+            {TRACE_IT(23884);
                 // Failed to mark due to OOM.
                 ((MediumHeapBlock *)chunk->map[id2])->SetNeedOOMRescan(markContext->GetRecycler());
             }
@@ -343,10 +343,10 @@ HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::SmallFinalizableBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23885);
             void * realCandidate = ((SmallFinalizableHeapBlock*)chunk->map[id2])->GetRealAddressFromInterior(candidate);
             if (MarkInteriorInternal<interlocked, false>(markContext, chunk, candidate, realCandidate))
-            {
+            {TRACE_IT(23886);
                 break;
             }
 
@@ -357,10 +357,10 @@ HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
 #ifdef RECYCLER_WRITE_BARRIER
     case HeapBlock::HeapBlockType::MediumFinalizableBlockWithBarrierType:
 #endif
-        {
+        {TRACE_IT(23887);
             void * realCandidate = ((MediumFinalizableHeapBlock*)chunk->map[id2])->GetRealAddressFromInterior(candidate);
             if (MarkInteriorInternal<interlocked, false>(markContext, chunk, candidate, realCandidate))
-            {
+            {TRACE_IT(23888);
                 break;
             }
 
@@ -369,10 +369,10 @@ HeapBlockMap32::MarkInterior(void * candidate, MarkContext * markContext)
         break;
 
     case HeapBlock::HeapBlockType::LargeBlockType:
-        {
+        {TRACE_IT(23889);
             void * realCandidate = ((LargeHeapBlock*)chunk->map[id2])->GetRealAddressFromInterior(candidate);
             if (MarkInteriorInternal<interlocked, true>(markContext, chunk, candidate, realCandidate))
-            {
+            {TRACE_IT(23890);
                 break;
             }
 
@@ -402,14 +402,14 @@ template <bool interlocked, bool doSpecialMark>
 inline
 void
 HeapBlockMap64::Mark(void * candidate, MarkContext * markContext)
-{
+{TRACE_IT(23891);
     uint index = GetNodeIndex(candidate);
 
     Node * node = list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23892);
         if (node->nodeIndex == index)
-        {
+        {TRACE_IT(23893);
             // Found the correct Node.
             // Process the mark and return.
             node->map.Mark<interlocked, doSpecialMark>(candidate, markContext);
@@ -426,14 +426,14 @@ template <bool interlocked>
 inline
 void
 HeapBlockMap64::MarkInterior(void * candidate, MarkContext * markContext)
-{
+{TRACE_IT(23894);
     uint index = GetNodeIndex(candidate);
 
     Node * node = list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23895);
         if (node->nodeIndex == index)
-        {
+        {TRACE_IT(23896);
             // Found the correct Node.
             // Process the mark and return.
             node->map.MarkInterior<interlocked>(candidate, markContext);

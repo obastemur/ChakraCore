@@ -13,13 +13,13 @@ JsUtil::BackgroundJobProcessor * ThreadBoundThreadContextManager::s_sharedJobPro
 CriticalSection ThreadBoundThreadContextManager::s_sharedJobProcessorCreationLock;
 
 ThreadContext * ThreadBoundThreadContextManager::EnsureContextForCurrentThread()
-{
+{TRACE_IT(36910);
     AutoCriticalSection lock(ThreadContext::GetCriticalSection());
 
     ThreadContextTLSEntry * entry = ThreadContextTLSEntry::GetEntryForCurrentThread();
 
     if (entry == NULL)
-    {
+    {TRACE_IT(36911);
         ThreadContextTLSEntry::CreateEntryForCurrentThread();
         entry = ThreadContextTLSEntry::GetEntryForCurrentThread();
         entries.Prepend(entry);
@@ -32,11 +32,11 @@ ThreadContext * ThreadBoundThreadContextManager::EnsureContextForCurrentThread()
     // but the library didn't get unloaded because someone is holding onto ref count via LoadLibrary.
     // Just reinitialize the thread context.
     if (threadContext == nullptr)
-    {
+    {TRACE_IT(36912);
         threadContext = HeapNew(ThreadContext);
         threadContext->SetIsThreadBound();
         if (!ThreadContextTLSEntry::TrySetThreadContext(threadContext))
-        {
+        {TRACE_IT(36913);
             HeapDelete(threadContext);
             return NULL;
         }
@@ -48,13 +48,13 @@ ThreadContext * ThreadBoundThreadContextManager::EnsureContextForCurrentThread()
 }
 
 void ThreadBoundThreadContextManager::DestroyContextAndEntryForCurrentThread()
-{
+{TRACE_IT(36914);
     AutoCriticalSection lock(ThreadContext::GetCriticalSection());
 
     ThreadContextTLSEntry * entry = ThreadContextTLSEntry::GetEntryForCurrentThread();
 
     if (entry == NULL)
-    {
+    {TRACE_IT(36915);
         return;
     }
 
@@ -62,7 +62,7 @@ void ThreadBoundThreadContextManager::DestroyContextAndEntryForCurrentThread()
     entries.Remove(entry);
 
     if (threadContext != NULL && threadContext->IsThreadBound())
-    {
+    {TRACE_IT(36916);
         ShutdownThreadContext(threadContext);
     }
 
@@ -70,7 +70,7 @@ void ThreadBoundThreadContextManager::DestroyContextAndEntryForCurrentThread()
 }
 
 void ThreadBoundThreadContextManager::DestroyAllContexts()
-{
+{TRACE_IT(36917);
 #if ENABLE_BACKGROUND_JOB_PROCESSOR
     JsUtil::BackgroundJobProcessor * jobProcessor = NULL;
 #endif
@@ -81,35 +81,35 @@ void ThreadBoundThreadContextManager::DestroyAllContexts()
         ThreadContextTLSEntry * currentEntry = ThreadContextTLSEntry::GetEntryForCurrentThread();
 
         if (currentEntry == NULL)
-        {
+        {TRACE_IT(36918);
             // We need a current thread entry so that we can use it to release any thread contexts
             // we find below.
             try
-            {
+            {TRACE_IT(36919);
                 AUTO_NESTED_HANDLED_EXCEPTION_TYPE(ExceptionType_OutOfMemory);
                 currentEntry = ThreadContextTLSEntry::CreateEntryForCurrentThread();
                 entries.Prepend(currentEntry);
             }
             catch (Js::OutOfMemoryException)
-            {
+            {TRACE_IT(36920);
                 return;
             }
         }
         else
-        {
+        {TRACE_IT(36921);
             // We need to clear out the current thread entry so that we can use it to release any
             // thread contexts we find below.
             ThreadContext * threadContext = static_cast<ThreadContext *>(currentEntry->GetThreadContext());
 
             if (threadContext != NULL)
-            {
+            {TRACE_IT(36922);
                 if (threadContext->IsThreadBound())
-                {
+                {TRACE_IT(36923);
                     ShutdownThreadContext(threadContext);
                     ThreadContextTLSEntry::ClearThreadContext(currentEntry, false);
                 }
                 else
-                {
+                {TRACE_IT(36924);
                     ThreadContextTLSEntry::ClearThreadContext(currentEntry, true);
                 }
             }
@@ -118,12 +118,12 @@ void ThreadBoundThreadContextManager::DestroyAllContexts()
         EntryList::Iterator iter(&entries);
 
         while (iter.Next())
-        {
+        {TRACE_IT(36925);
             ThreadContextTLSEntry * entry = iter.Data();
             ThreadContext * threadContext =  static_cast<ThreadContext *>(entry->GetThreadContext());
 
             if (threadContext != nullptr)
-            {
+            {TRACE_IT(36926);
                 // Found a thread context. Remove it from the containing entry.
                 ThreadContextTLSEntry::ClearThreadContext(entry, true);
                 // Now set it to our thread's entry.
@@ -141,7 +141,7 @@ void ThreadBoundThreadContextManager::DestroyAllContexts()
 
 #if ENABLE_BACKGROUND_JOB_PROCESSOR
         if (s_sharedJobProcessor != NULL)
-        {
+        {TRACE_IT(36927);
             jobProcessor = s_sharedJobProcessor;
             s_sharedJobProcessor = NULL;
 
@@ -152,29 +152,29 @@ void ThreadBoundThreadContextManager::DestroyAllContexts()
 
 #if ENABLE_BACKGROUND_JOB_PROCESSOR
     if (jobProcessor != NULL)
-    {
+    {TRACE_IT(36928);
         HeapDelete(jobProcessor);
     }
 #endif
 }
 
 void ThreadBoundThreadContextManager::DestroyAllContextsAndEntries()
-{
+{TRACE_IT(36929);
     AutoCriticalSection lock(ThreadContext::GetCriticalSection());
 
     while (!entries.Empty())
-    {
+    {TRACE_IT(36930);
         ThreadContextTLSEntry * entry = entries.Head();
         ThreadContext * threadContext =  static_cast<ThreadContext *>(entry->GetThreadContext());
 
         entries.RemoveHead();
 
         if (threadContext != nullptr)
-        {
+        {TRACE_IT(36931);
 #if DBG
             PageAllocator* pageAllocator = threadContext->GetPageAllocator();
             if (pageAllocator)
-            {
+            {TRACE_IT(36932);
                 pageAllocator->SetConcurrentThreadId(::GetCurrentThreadId());
             }
 #endif
@@ -189,7 +189,7 @@ void ThreadBoundThreadContextManager::DestroyAllContextsAndEntries()
 
 #if ENABLE_BACKGROUND_JOB_PROCESSOR
     if (s_sharedJobProcessor != NULL)
-    {
+    {TRACE_IT(36933);
         s_sharedJobProcessor->Close();
 
         HeapDelete(s_sharedJobProcessor);
@@ -199,17 +199,17 @@ void ThreadBoundThreadContextManager::DestroyAllContextsAndEntries()
 }
 
 JsUtil::JobProcessor * ThreadBoundThreadContextManager::GetSharedJobProcessor()
-{
+{TRACE_IT(36934);
 #if ENABLE_BACKGROUND_JOB_PROCESSOR
     if (s_sharedJobProcessor == NULL)
-    {
+    {TRACE_IT(36935);
         // Don't use ThreadContext::GetCriticalSection() because it's also locked during thread detach while the loader lock is
         // held, and that may prevent the background job processor's thread from being started due to contention on the loader
         // lock, leading to a deadlock
         AutoCriticalSection lock(&s_sharedJobProcessorCreationLock);
 
         if (s_sharedJobProcessor == NULL)
-        {
+        {TRACE_IT(36936);
             // We don't need to have allocation policy manager for web worker.
             s_sharedJobProcessor = HeapNew(JsUtil::BackgroundJobProcessor, NULL, NULL, false /*disableParallelThreads*/);
         }
@@ -222,7 +222,7 @@ JsUtil::JobProcessor * ThreadBoundThreadContextManager::GetSharedJobProcessor()
 }
 
 void RentalThreadContextManager::DestroyThreadContext(ThreadContext* threadContext)
-{
+{TRACE_IT(36937);
     bool deleteThreadContext = true;
 
 #ifdef CHAKRA_STATIC_LIBRARY
@@ -236,19 +236,19 @@ void RentalThreadContextManager::DestroyThreadContext(ThreadContext* threadConte
 
 void ThreadContextManagerBase::ShutdownThreadContext(
     ThreadContext* threadContext, bool deleteThreadContext /*= true*/)
-{
+{TRACE_IT(36938);
 
 #if DBG
     PageAllocator* pageAllocator = threadContext->GetPageAllocator();
     if (pageAllocator)
-    {
+    {TRACE_IT(36939);
         pageAllocator->SetConcurrentThreadId(::GetCurrentThreadId());
     }
 #endif
     threadContext->ShutdownThreads();
 
     if (deleteThreadContext)
-    {
+    {TRACE_IT(36940);
         HeapDelete(threadContext);
     }
 }

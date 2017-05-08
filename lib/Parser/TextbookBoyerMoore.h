@@ -26,9 +26,9 @@ namespace UnifiedRegex
             LinearScheme
         };
 
-        TextbookBoyerMooreSetup(Char const * pat, CharCount patLen) : pat(pat), patLen(patLen) { Init(); }
+        TextbookBoyerMooreSetup(Char const * pat, CharCount patLen) : pat(pat), patLen(patLen) {TRACE_IT(32977); Init(); }
 
-        Scheme GetScheme() const { return scheme; }
+        Scheme GetScheme() const {TRACE_IT(32978); return scheme; }
 
         static int32 * GetGoodSuffix(ArenaAllocator* allocator, const Char * pat, CharCount patLen, int skip = 1);
     private:
@@ -60,7 +60,7 @@ namespace UnifiedRegex
 
     public:
 
-        inline TextbookBoyerMooreWithLinearMap() : lastOccurrence(-1), goodSuffix(0) {}
+        inline TextbookBoyerMooreWithLinearMap() : lastOccurrence(-1), goodSuffix(0) {TRACE_IT(32979);}
 
         // Construct Boyer-Moore tables for pattern pat:
         //  - pat must be of length patLen * skip
@@ -88,7 +88,7 @@ namespace UnifiedRegex
             ) const;
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-        static char16 const * GetName() { return _u("linear map Boyer-Moore"); }
+        static char16 const * GetName() {TRACE_IT(32980); return _u("linear map Boyer-Moore"); }
 #endif
      };
 
@@ -110,7 +110,7 @@ namespace UnifiedRegex
 
     public:
 
-        inline TextbookBoyerMoore() : lastOccurrence(-1), goodSuffix(nullptr) {}
+        inline TextbookBoyerMoore() : lastOccurrence(-1), goodSuffix(nullptr) {TRACE_IT(32981);}
 
         // Construct Boyer-Moore tables for pattern pat:
         //  - pat must be of length patLen * skip
@@ -135,7 +135,7 @@ namespace UnifiedRegex
             , RegexStats* stats
 #endif
             ) const
-        {
+        {TRACE_IT(32982);
             return Match<equivClassSize, equivClassSize>(input, inputLength, inputOffset, pat, patLen
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 , stats
@@ -156,7 +156,7 @@ namespace UnifiedRegex
             ) const;
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-        static char16 const * GetName() { return _u("full map Boyer-Moore"); }
+        static char16 const * GetName() {TRACE_IT(32983); return _u("full map Boyer-Moore"); }
 #endif
     };
 }

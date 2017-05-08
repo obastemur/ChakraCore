@@ -149,7 +149,7 @@ namespace UnifiedRegex
             , isNotSpeculative(false)
             , isNotNegated(false)
             , hasInitialHardFailBOI(false)
-        {
+        {TRACE_IT(31549);
         }
 
         //
@@ -232,13 +232,13 @@ namespace UnifiedRegex
 
         CharCount EmitScanFirstSet(Compiler& compiler);
 
-        inline bool IsObviouslyDeterministic() { return (features & (HasAlt | HasLoop)) == 0; }
-        inline bool ContainsAssertion() { return (features & (HasBOL | HasEOL | HasWordBoundary | HasAssertion)) != 0; }
-        inline bool ContainsDefineGroup() { return (features & HasDefineGroup) != 0; }
-        inline bool ContainsMatchGroup() { return (features & HasMatchGroup) != 0; }
-        inline bool IsSimple() { return !ContainsAssertion() && !ContainsDefineGroup(); }
-        inline bool IsSimpleOneChar() { return IsSimple() && !isThisIrrefutable && isFirstExact && thisConsumes.IsExact(1); }
-        inline bool IsEmptyOnly() { return IsSimple() && isThisIrrefutable && thisConsumes.IsExact(0); }
+        inline bool IsObviouslyDeterministic() {TRACE_IT(31550); return (features & (HasAlt | HasLoop)) == 0; }
+        inline bool ContainsAssertion() {TRACE_IT(31551); return (features & (HasBOL | HasEOL | HasWordBoundary | HasAssertion)) != 0; }
+        inline bool ContainsDefineGroup() {TRACE_IT(31552); return (features & HasDefineGroup) != 0; }
+        inline bool ContainsMatchGroup() {TRACE_IT(31553); return (features & HasMatchGroup) != 0; }
+        inline bool IsSimple() {TRACE_IT(31554); return !ContainsAssertion() && !ContainsDefineGroup(); }
+        inline bool IsSimpleOneChar() {TRACE_IT(31555); return IsSimple() && !isThisIrrefutable && isFirstExact && thisConsumes.IsExact(1); }
+        inline bool IsEmptyOnly() {TRACE_IT(31556); return IsSimple() && isThisIrrefutable && thisConsumes.IsExact(0); }
 
         static bool IsBetterSyncronizingNode(Compiler& compiler, Node* curr, Node* proposed);
 
@@ -319,7 +319,7 @@ namespace UnifiedRegex
     {
         inline SimpleNode(NodeTag tag)
             : Node(tag)
-        {
+        {TRACE_IT(31557);
         }
 
         NODE_DECL
@@ -336,7 +336,7 @@ namespace UnifiedRegex
             , isNegation(isNegation)
             , mustIncludeEntering(false)
             , mustIncludeLeaving(false)
-        {
+        {TRACE_IT(31558);
         }
 
         NODE_DECL
@@ -355,7 +355,7 @@ namespace UnifiedRegex
             , offset(offset)
             , length(length)
             , isEquivClass(false)
-        {
+        {TRACE_IT(31559);
         }
 
         NODE_DECL
@@ -372,7 +372,7 @@ namespace UnifiedRegex
         inline MatchCharNode(Char c)
             : Node(MatchChar)
             , isEquivClass(false)
-        {
+        {TRACE_IT(31560);
             cs[0] = c;
 #if DBG
             for (int i = 1; i < CaseInsensitive::EquivClassSize; i++)
@@ -406,7 +406,7 @@ namespace UnifiedRegex
             : Node(MatchSet)
             , isNegation(isNegation)
             , needsEquivClass(true)
-        {
+        {TRACE_IT(31561);
         }
 
         NODE_DECL
@@ -421,7 +421,7 @@ namespace UnifiedRegex
             : Node(Concat)
             , head(head)
             , tail(tail)
-        {
+        {TRACE_IT(31562);
         }
 
         NODE_DECL
@@ -457,7 +457,7 @@ namespace UnifiedRegex
             , runtimeTrie(0)
             , isOptional(false)
             , switchSize(0)
-        {
+        {TRACE_IT(31563);
         }
 
         NODE_DECL
@@ -485,7 +485,7 @@ namespace UnifiedRegex
             , body(body)
             , scheme(BeginEnd)
             , noNeedToSave(false)
-        {
+        {TRACE_IT(31564);
         }
 
         NODE_DECL
@@ -498,7 +498,7 @@ namespace UnifiedRegex
         inline MatchGroupNode(int groupId)
             : Node(MatchGroup)
             , groupId(groupId)
-        {
+        {TRACE_IT(31565);
         }
 
         NODE_DECL
@@ -541,7 +541,7 @@ namespace UnifiedRegex
             , followFirst(MaxChar)
             , body(body)
             , scheme(BeginEnd)
-        {
+        {TRACE_IT(31566);
         }
 
         NODE_DECL
@@ -567,7 +567,7 @@ namespace UnifiedRegex
             , isNegation(isNegation)
             , body(body)
             , scheme(BeginEnd)
-        {
+        {TRACE_IT(31567);
         }
 
         NODE_DECL
@@ -621,48 +621,48 @@ namespace UnifiedRegex
         // The instruction buffer may move, so we need to remember label fixup's relative to the instruction base
         // rather than as machine addresses
         inline Label GetFixup(Label* pLabel)
-        {
+        {TRACE_IT(31568);
             Assert((uint8*)pLabel >= instBuf && (uint8*)pLabel < instBuf + instNext);
             return (Label)((uint8*)pLabel - instBuf);
         }
 
         inline void DoFixup(Label fixup, Label label)
-        {
+        {TRACE_IT(31569);
             Assert(fixup < instNext);
             Assert(label <= instNext);
             *(Label*)(instBuf + fixup) = label;
         }
 
         inline Label CurrentLabel()
-        {
+        {TRACE_IT(31570);
             return instNext;
         }
 
         template <typename T>
         inline T* LabelToInstPointer(Inst::InstTag tag, Label label)
-        {
+        {TRACE_IT(31571);
             Assert(label + sizeof(T) <= instNext);
             Assert(((Inst*)(instBuf + label))->tag == tag);
             return (T*)(instBuf + label);
         }
 
         inline int NextLoopId()
-        {
+        {TRACE_IT(31572);
             return nextLoopId++;
         }
 
         inline Js::ScriptContext *GetScriptContext() const
-        {
+        {TRACE_IT(31573);
             return scriptContext;
         }
 
         inline Program *GetProgram() const
-        {
+        {TRACE_IT(31574);
             return program;
         }
 
         void SetBOIInstructionsProgramTag()
-        {
+        {TRACE_IT(31575);
             Assert(this->program->tag == Program::InstructionsTag
                 || this->program->tag == Program::BOIInstructionsTag);
             Assert(this->CurrentLabel() == 0);
@@ -670,7 +670,7 @@ namespace UnifiedRegex
         }
 
         void SetBOIInstructionsProgramForStickyFlagTag()
-        {
+        {TRACE_IT(31576);
             Assert(this->program->tag == Program::InstructionsTag
                 || this->program->tag == Program::BOIInstructionsForStickyFlagTag);
             Assert(this->CurrentLabel() == 0);

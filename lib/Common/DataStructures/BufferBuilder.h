@@ -31,7 +31,7 @@ namespace Js
     protected:
         LPCWSTR clue;
         BufferBuilder(LPCWSTR clue)
-            : clue(clue), offset(0xffffffff) { }
+            : clue(clue), offset(0xffffffff) {TRACE_IT(20872); }
     public:
         uint32 offset;
         virtual uint32 FixOffset(uint32 offset) = 0;
@@ -71,16 +71,16 @@ namespace Js
 
         BufferBuilderOf(LPCWSTR clue, const T & value)
             : BufferBuilder(clue), value(value)
-        { }
+        {TRACE_IT(20873); }
 
         //  Assume that the value is 0- for negative values of value, we'll just use the default encoding
         bool UseOneByte() const
-        {
+        {TRACE_IT(20874);
             return value >= 0 && value <= ONE_BYTE_MAX;
         }
 
         bool UseTwoBytes() const
-        {
+        {TRACE_IT(20875);
             return value > ONE_BYTE_MAX && value <= TWO_BYTE_MAX;
         }
 
@@ -89,62 +89,62 @@ namespace Js
             this->offset = offset;
 
             if (useVariableIntEncoding)
-            {
+            {TRACE_IT(20876);
                 if (UseOneByte())
-                {
+                {TRACE_IT(20877);
                     return this->offset + sizeof(serialization_alignment byte);
                 }
                 else if (UseTwoBytes())
-                {
+                {TRACE_IT(20878);
                     return this->offset + sizeof(serialization_alignment uint16) + SENTINEL_BYTE_COUNT;
                 }
 
                 return this->offset + sizeof(serialization_alignment T) + SENTINEL_BYTE_COUNT;
             }
             else
-            {
+            {TRACE_IT(20879);
                 return this->offset + sizeof(serialization_alignment T);
             }
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20880);
             DebugOnly(uint32 size = sizeof(T));
 
 #if INSTRUMENT_BUFFER_INTS
             if (value < ((1 << 8)))
-            {
+            {TRACE_IT(20881);
                 Counts[0]++;
             }
             else if (value < ((1 << 16)))
-            {
+            {TRACE_IT(20882);
                 Counts[1]++;
             }
             else if (value < ((1 << 24)))
-            {
+            {TRACE_IT(20883);
                 Counts[2]++;
             }
             else
-            {
+            {TRACE_IT(20884);
                 Counts[3]++;
             }
 #endif
 
             if (useVariableIntEncoding)
-            {
+            {TRACE_IT(20885);
                 if (UseOneByte())
-                {
+                {TRACE_IT(20886);
                     if (bufferSize - this->offset<sizeof(serialization_alignment byte))
-                    {
+                    {TRACE_IT(20887);
                         Throw::FatalInternalError();
                     }
                     DebugOnly(size = sizeof(byte));
                     *(serialization_alignment byte*)(buffer + this->offset) = (byte) value;
                 }
                 else if (UseTwoBytes())
-                {
+                {TRACE_IT(20888);
                     if (bufferSize - this->offset<sizeof(serialization_alignment uint16))
-                    {
+                    {TRACE_IT(20889);
                         Throw::FatalInternalError();
                     }
                     DebugOnly(size = sizeof(uint16) + 1);
@@ -152,9 +152,9 @@ namespace Js
                     *(serialization_alignment uint16*)(buffer + this->offset + SENTINEL_BYTE_COUNT) = (uint16) this->value;
                 }
                 else
-                {
+                {TRACE_IT(20890);
                     if (bufferSize - this->offset<sizeof(serialization_alignment T))
-                    {
+                    {TRACE_IT(20891);
                         Throw::FatalInternalError();
                     }
                     *(serialization_alignment byte*)(buffer + this->offset) = FOUR_BYTE_SENTINEL;
@@ -166,9 +166,9 @@ namespace Js
                 }
             }
             else
-            {
+            {TRACE_IT(20892);
                 if (bufferSize - this->offset<sizeof(serialization_alignment T))
-                {
+                {TRACE_IT(20893);
                     Throw::FatalInternalError();
                 }
                 *(serialization_alignment T*)(buffer + this->offset) = value;
@@ -185,7 +185,7 @@ namespace Js
 
         BufferBuilderOf(LPCWSTR clue, const T & value)
             : BufferBuilder(clue), value(value)
-        { }
+        {TRACE_IT(20894); }
 
         uint32 FixOffset(uint32 offset) override
         {
@@ -195,9 +195,9 @@ namespace Js
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20895);
             if (bufferSize - this->offset<sizeof(serialization_alignment T))
-            {
+            {TRACE_IT(20896);
                 Throw::FatalInternalError();
             }
 
@@ -212,7 +212,7 @@ namespace Js
     {
         ConstantSizedBufferBuilderOf(LPCWSTR clue, const T & value)
         : BufferBuilderOf<T, false>(clue, value)
-        { }
+        {TRACE_IT(20897); }
     };
 
 #if VARIABLE_INT_ENCODING
@@ -237,7 +237,7 @@ namespace Js
         regex::ImmutableList<BufferBuilder*> * list;
         BufferBuilderList(LPCWSTR clue)
             : BufferBuilder(clue), list(nullptr)
-        { }
+        {TRACE_IT(20898); }
 
         uint32 FixOffset(uint32 offset) override
         {
@@ -248,7 +248,7 @@ namespace Js
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20899);
             return list->Iterate([&](BufferBuilder * builder) {
                 builder->Write(buffer, bufferSize);
             });
@@ -265,10 +265,10 @@ namespace Js
         uint32 additionalOffset;
         BufferBuilderRelativeOffset(LPCWSTR clue, BufferBuilder * pointsTo, uint32 additionalOffset)
             : BufferBuilder(clue), pointsTo(pointsTo), additionalOffset(additionalOffset)
-        { }
+        {TRACE_IT(20900); }
         BufferBuilderRelativeOffset(LPCWSTR clue, BufferBuilder * pointsTo)
             : BufferBuilder(clue), pointsTo(pointsTo), additionalOffset(0)
-        { }
+        {TRACE_IT(20901); }
 
         uint32 FixOffset(uint32 offset) override
         {
@@ -277,9 +277,9 @@ namespace Js
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20902);
             if (bufferSize - this->offset<sizeof(int))
-            {
+            {TRACE_IT(20903);
                 Throw::FatalInternalError();
             }
 
@@ -296,7 +296,7 @@ namespace Js
         const byte * raw;
         BufferBuilderRaw(LPCWSTR clue, __in uint32 size, __in_bcount(size) const byte * raw)
             : BufferBuilder(clue), size(size), raw(raw)
-        { }
+        {TRACE_IT(20904); }
 
         uint32 FixOffset(uint32 offset) override
         {
@@ -305,9 +305,9 @@ namespace Js
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20905);
             if (bufferSize - this->offset<size)
-            {
+            {TRACE_IT(20906);
                 Throw::FatalInternalError();
             }
 
@@ -325,7 +325,7 @@ namespace Js
 
         BufferBuilderAligned(LPCWSTR clue, BufferBuilder * content, uint32 alignment)
             : BufferBuilder(clue), content(content), alignment(alignment), padding(0)
-        { }
+        {TRACE_IT(20907); }
 
         uint32 FixOffset(uint32 offset) override
         {
@@ -340,14 +340,14 @@ namespace Js
         }
 
         void Write(__in_bcount(bufferSize) byte * buffer, __in uint32 bufferSize) const
-        {
+        {TRACE_IT(20908);
             if (bufferSize - this->offset < this->padding)
-            {
+            {TRACE_IT(20909);
                 Throw::FatalInternalError();
             }
 
             for (uint32 i = 0; i < this->padding; i++)
-            {
+            {TRACE_IT(20910);
                 buffer[this->offset + i] = 0;
             }
 

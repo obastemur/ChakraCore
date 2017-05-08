@@ -9,8 +9,8 @@ namespace Js
 {
     struct ByteCodeReader
     {
-        static uint32 GetStartLocationOffset() { return offsetof(ByteCodeReader, m_startLocation); }
-        static uint32 GetCurrentLocationOffset() { return offsetof(ByteCodeReader, m_currentLocation); }
+        static uint32 GetStartLocationOffset() {TRACE_IT(40766); return offsetof(ByteCodeReader, m_startLocation); }
+        static uint32 GetCurrentLocationOffset() {TRACE_IT(40767); return offsetof(ByteCodeReader, m_currentLocation); }
 
     private:
         // TODO: (leish)(swb) this is not always stack allocated now
@@ -50,7 +50,7 @@ namespace Js
         OpCodeAsmJs ReadAsmJsOp(LayoutSize& layoutSize);
         OpCode ReadPrefixedOp(LayoutSize& layoutSize, OpCode prefix);
         OpCode PeekOp(LayoutSize& layoutSize) const;
-        OpCode PeekOp() const { LayoutSize layoutSize; return PeekOp(layoutSize); }
+        OpCode PeekOp() const {TRACE_IT(40768); LayoutSize layoutSize; return PeekOp(layoutSize); }
         OpCode PeekOp(const byte * ip, LayoutSize& layoutSize);
 
         static OpCode PeekByteOp(const byte*  ip);
@@ -93,7 +93,7 @@ namespace Js
 
     template<typename LayoutType>
     inline const unaligned LayoutType * ByteCodeReader::GetLayout()
-    {
+    {TRACE_IT(40769);
         size_t layoutSize = sizeof(LayoutType);
 
         AssertMsg((layoutSize > 0) && (layoutSize < 100), "Ensure valid layout size");
@@ -108,7 +108,7 @@ namespace Js
 
     template<>
     inline const unaligned OpLayoutEmpty * ByteCodeReader::GetLayout<OpLayoutEmpty>()
-    {
+    {TRACE_IT(40770);
         return nullptr;
     }
 

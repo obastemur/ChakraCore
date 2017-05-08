@@ -7,17 +7,17 @@
 namespace Js
 {
     Var JavascriptBoolean::OP_LdTrue(ScriptContext*scriptContext)
-    {
+    {TRACE_IT(58186);
         return scriptContext->GetLibrary()->GetTrue();
     }
 
     Var JavascriptBoolean::OP_LdFalse(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58187);
         return scriptContext->GetLibrary()->GetFalse();
     }
 
     Js::Var JavascriptBoolean::ToVar(BOOL fValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58188);
         return
             fValue ?
             scriptContext->GetLibrary()->GetTrue() :
@@ -43,16 +43,16 @@ namespace Js
         BOOL value;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(58189);
             value = JavascriptConversion::ToBoolean(args[1], scriptContext) ? true : false;
         }
         else
-        {
+        {TRACE_IT(58190);
             value = false;
         }
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {TRACE_IT(58191);
             RecyclableObject* pNew = scriptContext->GetLibrary()->CreateBooleanObject(value);
             return isCtorSuperCall ?
                 JavascriptOperators::OrdinaryCreateFromConstructor(RecyclableObject::FromVar(newTarget), pNew, nullptr, scriptContext) :
@@ -73,16 +73,16 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if(JavascriptBoolean::Is(args[0]))
-        {
+        {TRACE_IT(58192);
             return args[0];
         }
         else if (JavascriptBooleanObject::Is(args[0]))
-        {
+        {TRACE_IT(58193);
             JavascriptBooleanObject* booleanObject = JavascriptBooleanObject::FromVar(args[0]);
             return scriptContext->GetLibrary()->CreateBoolean(booleanObject->GetValue());
         }
         else
-        {
+        {TRACE_IT(58194);
             return TryInvokeRemotelyOrThrow(EntryValueOf, scriptContext, args, JSERR_This_NeedBoolean, _u("Boolean.prototype.valueOf"));
         }
     }
@@ -101,16 +101,16 @@ namespace Js
         BOOL bval;
         Var aValue = args[0];
         if(JavascriptBoolean::Is(aValue))
-        {
+        {TRACE_IT(58195);
             bval = JavascriptBoolean::FromVar(aValue)->GetValue();
         }
         else if (JavascriptBooleanObject::Is(aValue))
-        {
+        {TRACE_IT(58196);
             JavascriptBooleanObject* booleanObject = JavascriptBooleanObject::FromVar(aValue);
             bval = booleanObject->GetValue();
         }
         else
-        {
+        {TRACE_IT(58197);
             return TryInvokeRemotelyOrThrow(EntryToString, scriptContext, args, JSERR_This_NeedBoolean, _u("Boolean.prototype.toString"));
         }
 
@@ -118,42 +118,42 @@ namespace Js
     }
 
     RecyclableObject * JavascriptBoolean::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(58198);
         if (this->GetValue())
-        {
+        {TRACE_IT(58199);
             return requestContext->GetLibrary()->GetTrue();
         }
         return requestContext->GetLibrary()->GetFalse();
     }
 
     Var JavascriptBoolean::TryInvokeRemotelyOrThrow(JavascriptMethod entryPoint, ScriptContext * scriptContext, Arguments & args, int32 errorCode, PCWSTR varName)
-    {
+    {TRACE_IT(58200);
         if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(58201);
             Var result;
             if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(entryPoint, args, &result))
-            {
+            {TRACE_IT(58202);
                 return result;
             }
         }
         // Don't error if we disabled implicit calls
         if(scriptContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(58203);
             JavascriptError::ThrowTypeError(scriptContext, errorCode, varName);
         }
         else
-        {
+        {TRACE_IT(58204);
             return scriptContext->GetLibrary()->GetUndefined();
         }
     }
 
     BOOL JavascriptBoolean::Equals(Var other, BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(58205);
         return JavascriptBoolean::Equals(this, other, value, requestContext);
     }
 
     BOOL JavascriptBoolean::Equals(JavascriptBoolean* left, Var right, BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(58206);
         switch (JavascriptOperators::GetTypeId(right))
         {
         case TypeIds_Integer:
@@ -193,14 +193,14 @@ namespace Js
     }
 
     BOOL JavascriptBoolean::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(58207);
         if (this->GetValue())
-        {
+        {TRACE_IT(58208);
             JavascriptString* trueDisplayString = GetLibrary()->GetTrueDisplayString();
             stringBuilder->Append(trueDisplayString->GetString(), trueDisplayString->GetLength());
         }
         else
-        {
+        {TRACE_IT(58209);
             JavascriptString* falseDisplayString = GetLibrary()->GetFalseDisplayString();
             stringBuilder->Append(falseDisplayString->GetString(), falseDisplayString->GetLength());
         }
@@ -208,18 +208,18 @@ namespace Js
     }
 
     BOOL JavascriptBoolean::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(58210);
         stringBuilder->AppendCppLiteral(_u("Boolean"));
         return TRUE;
     }
 
     RecyclableObject* JavascriptBoolean::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(58211);
         return requestContext->GetLibrary()->CreateBooleanObject(this->GetValue() ? true : false);
     }
 
     Var JavascriptBoolean::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {TRACE_IT(58212);
         return requestContext->GetLibrary()->GetBooleanTypeDisplayString();
     }
 } // namespace Js

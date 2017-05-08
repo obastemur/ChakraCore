@@ -8,13 +8,13 @@ namespace Js
 {
     JavascriptSIMDObject::JavascriptSIMDObject(DynamicType * type)
         : DynamicObject(type), value(Js::TaggedInt::ToVarUnchecked(0))
-    {
+    {TRACE_IT(61501);
         Assert(type->GetTypeId() == TypeIds_SIMDObject);
     }
 
     JavascriptSIMDObject::JavascriptSIMDObject(Var value,  DynamicType * type, TypeId typeDescriptor)
         : DynamicObject(type), typeDescriptor(typeDescriptor), value(value)
-    {
+    {TRACE_IT(61502);
         Assert(type->GetTypeId() == TypeIds_SIMDObject);
         switch (typeDescriptor)
         {
@@ -44,7 +44,7 @@ namespace Js
         }
     }
     void JavascriptSIMDObject::SetTypeDescriptor(TypeId tid)
-    {
+    {TRACE_IT(61503);
         Assert(tid != TypeIds_SIMDObject);
 
         typeDescriptor = tid;
@@ -72,7 +72,7 @@ namespace Js
     }
 
     bool JavascriptSIMDObject::Is(Var aValue)
-    {
+    {TRACE_IT(61504);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_SIMDObject;
     }
 
@@ -84,12 +84,12 @@ namespace Js
     }
 
     Var JavascriptSIMDObject::Unwrap() const
-    {        
+    {TRACE_IT(61505);        
         return value;
     }
 
     Var JavascriptSIMDObject::ToString(ScriptContext* scriptContext) const
-    {
+    {TRACE_IT(61506);
         Assert(scriptContext);
         Assert(typeDescriptor != TypeIds_SIMDObject);
 
@@ -149,19 +149,19 @@ namespace Js
     template <typename T, size_t N>
     Var JavascriptSIMDObject::ToLocaleString(const Var* args, uint numArgs, const char16 *typeString, const T(&laneValues)[N],
         CallInfo* callInfo, ScriptContext* scriptContext) const
-    {
+    {TRACE_IT(61507);
         Assert(args);
         Assert(N == 4 || N == 8 || N == 16);
         if (typeDescriptor == TypeIds_SIMDBool8x16 ||
             typeDescriptor == TypeIds_SIMDBool16x8 ||
             typeDescriptor == TypeIds_SIMDBool32x4)
-        {
+        {TRACE_IT(61508);
             return ToString(scriptContext);   //Boolean types does not have toLocaleString.
         }
 
         // Clamp to the first 3 arguments - we'll ignore more.
         if (numArgs > 3)
-        {
+        {TRACE_IT(61509);
             numArgs = 3;
         }
 
@@ -171,11 +171,11 @@ namespace Js
         CallInfo newCallInfo((ushort)numArgs);
 
         if (numArgs > 1)
-        {
+        {TRACE_IT(61510);
             newArgs[1] = args[1];
         }
         if (numArgs > 2)
-        {
+        {TRACE_IT(61511);
             newArgs[2] = args[2];
         }
 
@@ -191,9 +191,9 @@ namespace Js
         result = JavascriptString::NewCopySzFromArena(stringBuffer, scriptContext, scriptContext->GeneralAllocator());
 
         if (typeDescriptor == TypeIds_SIMDFloat32x4)
-        {
+        {TRACE_IT(61512);
             for (; idx < numLanes - 1; ++idx)
-            {
+            {TRACE_IT(61513);
                 laneVar = JavascriptNumber::ToVarWithCheck(laneValues[idx], scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -205,9 +205,9 @@ namespace Js
             result = JavascriptString::Concat(result, JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext));
         }
         else if (typeDescriptor == TypeIds_SIMDInt8x16 || typeDescriptor == TypeIds_SIMDInt16x8 || typeDescriptor == TypeIds_SIMDInt32x4)
-        {
+        {TRACE_IT(61514);
             for (; idx < numLanes - 1; ++idx)
-            {
+            {TRACE_IT(61515);
                 laneVar = JavascriptNumber::ToVar(static_cast<int>(laneValues[idx]), scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -219,10 +219,10 @@ namespace Js
             result = JavascriptString::Concat(result, JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext));
         }
         else
-        {
+        {TRACE_IT(61516);
             Assert((typeDescriptor == TypeIds_SIMDUint8x16 || typeDescriptor == TypeIds_SIMDUint16x8 || typeDescriptor == TypeIds_SIMDUint32x4));
             for (; idx < numLanes - 1; ++idx)
-            {
+            {TRACE_IT(61517);
                 laneVar = JavascriptNumber::ToVar(static_cast<uint>(laneValues[idx]), scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -252,7 +252,7 @@ namespace Js
         const uint8(&laneValues)[16], CallInfo* callInfo, ScriptContext* scriptContext) const;
 
     Var JavascriptSIMDObject::GetValue() const
-    {
+    {TRACE_IT(61518);
         Assert(SIMDUtils::IsSimdType(value));
         return value;
     }

@@ -47,20 +47,20 @@ static const ubyte DWARF_RegNum[] =
 static const ubyte DWARF_RegRA = 16;
 
 ubyte GetDwarfRegNum(ubyte regNum)
-{
+{TRACE_IT(1659);
     return DWARF_RegNum[regNum];
 }
 
 // Encode into ULEB128 (Unsigned Little Endian Base 128)
 BYTE* EmitLEB128(BYTE* pc, unsigned value)
-{
+{TRACE_IT(1660);
     do
-    {
+    {TRACE_IT(1661);
         BYTE b = value & 0x7F; // low order 7 bits
         value >>= 7;
 
         if (value)  // more bytes to come
-        {
+        {TRACE_IT(1662);
             b |= 0x80;
         }
 
@@ -73,7 +73,7 @@ BYTE* EmitLEB128(BYTE* pc, unsigned value)
 
 // Encode into signed LEB128 (Signed Little Endian Base 128)
 BYTE* EmitLEB128(BYTE* pc, int value)
-{
+{TRACE_IT(1663);
     static const int size = sizeof(value) * 8;
     static const bool isLogicShift = (-1 >> 1) != -1;
 
@@ -81,22 +81,22 @@ BYTE* EmitLEB128(BYTE* pc, int value)
 
     bool more = true;
     while (more)
-    {
+    {TRACE_IT(1664);
         BYTE b = value & 0x7F; // low order 7 bits
         value >>= 7;
 
         if (signExtend)
-        {
+        {TRACE_IT(1665);
             value |= - (1 << (size - 7)); // sign extend
         }
 
         const bool signBit = (b & 0x40) != 0;
         if ((value == 0 && !signBit) || (value == -1 && signBit))
-        {
+        {TRACE_IT(1666);
             more = false;
         }
         else
-        {
+        {TRACE_IT(1667);
             b |= 0x80;
         }
 
@@ -108,7 +108,7 @@ BYTE* EmitLEB128(BYTE* pc, int value)
 
 
 void EhFrame::Entry::Begin()
-{
+{TRACE_IT(1668);
     Assert(beginOffset == -1);
     beginOffset = writer->Count();
 
@@ -118,13 +118,13 @@ void EhFrame::Entry::Begin()
 }
 
 void EhFrame::Entry::End()
-{
+{TRACE_IT(1669);
     Assert(beginOffset != -1); // Must have called Begin()
 
     // padding
     size_t padding = (MachPtr - writer->Count() % MachPtr) % MachPtr;
     for (size_t i = 0; i < padding; i++)
-    {
+    {TRACE_IT(1670);
         cfi_nop();
     }
 
@@ -135,27 +135,27 @@ void EhFrame::Entry::End()
 }
 
 void EhFrame::Entry::cfi_advance(uword advance)
-{
+{TRACE_IT(1671);
     if (advance <= 0x3F)        // 6-bits
-    {
+    {TRACE_IT(1672);
         cfi_advance_loc(static_cast<ubyte>(advance));
     }
     else if (advance <= 0xFF)   // 1-byte
-    {
+    {TRACE_IT(1673);
         cfi_advance_loc1(static_cast<ubyte>(advance));
     }
     else if (advance <= 0xFFFF) // 2-byte
-    {
+    {TRACE_IT(1674);
         cfi_advance_loc2(static_cast<uword>(advance));
     }
     else                        // 4-byte
-    {
+    {TRACE_IT(1675);
         cfi_advance_loc4(advance);
     }
 }
 
 void EhFrame::CIE::Begin()
-{
+{TRACE_IT(1676);
     Assert(writer->Count() == 0);
     Entry::Begin();
 
@@ -180,7 +180,7 @@ void EhFrame::CIE::Begin()
 
 
 void EhFrame::FDE::Begin()
-{
+{TRACE_IT(1677);
     Entry::Begin();
 
     const uword cie_id = writer->Count();
@@ -194,7 +194,7 @@ void EhFrame::FDE::Begin()
 }
 
 void EhFrame::FDE::UpdateAddressRange(const void* pcBegin, size_t pcRange)
-{
+{TRACE_IT(1678);
     writer->Write(pcBeginOffset, pcBegin);
     writer->Write(pcBeginOffset + sizeof(pcBegin),
         reinterpret_cast<const void*>(pcRange));
@@ -203,7 +203,7 @@ void EhFrame::FDE::UpdateAddressRange(const void* pcBegin, size_t pcRange)
 
 EhFrame::EhFrame(BYTE* buffer, size_t size)
         : writer(buffer, size), fde(&writer)
-{
+{TRACE_IT(1679);
     CIE cie(&writer);
     cie.Begin();
 
@@ -219,7 +219,7 @@ EhFrame::EhFrame(BYTE* buffer, size_t size)
 }
 
 void EhFrame::End()
-{
+{TRACE_IT(1680);
     fde.End();
 
     // Write length 0 to mark terminate entry

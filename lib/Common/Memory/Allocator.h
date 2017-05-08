@@ -34,14 +34,14 @@ namespace Memory
 #ifdef TRACK_ALLOC
 struct TrackAllocData
 {
-    void Clear() { typeinfo = nullptr; plusSize = 0; count = 0; }
-    bool IsEmpty() { return typeinfo == nullptr && plusSize == 0 && count == 0; }
-    type_info const * GetTypeInfo() const { return typeinfo; }
-    size_t GetPlusSize() const { return plusSize; }
-    size_t GetCount() const { return count; }
+    void Clear() {TRACE_IT(22635); typeinfo = nullptr; plusSize = 0; count = 0; }
+    bool IsEmpty() {TRACE_IT(22636); return typeinfo == nullptr && plusSize == 0 && count == 0; }
+    type_info const * GetTypeInfo() const {TRACE_IT(22637); return typeinfo; }
+    size_t GetPlusSize() const {TRACE_IT(22638); return plusSize; }
+    size_t GetCount() const {TRACE_IT(22639); return count; }
 
     static TrackAllocData CreateTrackAllocData(type_info const& typeinfo, size_t size, size_t count, char const * const filename, DWORD line)
-    {
+    {TRACE_IT(22640);
         TrackAllocData data;
         data.typeinfo = &typeinfo;
         data.plusSize = size;
@@ -71,7 +71,7 @@ namespace Js {
 extern void PostAllocationCallbackForHeapEnumValidation(const type_info&, Js::DynamicObject*);
 template <typename T>
 inline T* PostAllocationCallback(const type_info& objType, T *obj)
-{
+{TRACE_IT(22641);
     if (__is_base_of(Js::DynamicObject, T))
     {
         PostAllocationCallbackForHeapEnumValidation(objType, (Js::DynamicObject*)obj);
@@ -179,17 +179,17 @@ public:
     typedef void(TAllocator::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(22642);
         return &TAllocator::Alloc;
     }
 
     static AllocFuncType GetAllocZeroFunc()
-    {
+    {TRACE_IT(22643);
         return &TAllocator::AllocZero;
     }
 
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(22644);
         return &TAllocator::Free;
     }
 };
@@ -204,11 +204,11 @@ public:
     typedef void(TAllocator::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(22645);
         return isLeaf ? &TAllocator::AllocLeaf: &TAllocator::Alloc;
     }
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(22646);
         return &TAllocator::Free;
     }
 };
@@ -246,21 +246,21 @@ enum class AllocatorDeleteFlags
 template <typename T, AllocatorDeleteFlags deleteFlags>
 struct _AllocatorDelete
 {
-    static size_t Size() { return sizeof(T); }
-    static size_t Size(size_t plusSize) { return sizeof(T) + plusSize; }
+    static size_t Size() {TRACE_IT(22647); return sizeof(T); }
+    static size_t Size(size_t plusSize) {TRACE_IT(22648); return sizeof(T) + plusSize; }
 };
 template <typename T>
 struct _AllocatorDelete<T, AllocatorDeleteFlags::UnknownSize>
 {
-    static size_t Size() { return (size_t)-1; }
-    static size_t Size(size_t plusSize) { return (size_t)-1; }
+    static size_t Size() {TRACE_IT(22649); return (size_t)-1; }
+    static size_t Size(size_t plusSize) {TRACE_IT(22650); return (size_t)-1; }
 };
 
 template <typename TAllocator,
           AllocatorDeleteFlags deleteFlags = AllocatorDeleteFlags::None,
           typename T>
 void DeleteObject(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocator, T * obj)
-{
+{TRACE_IT(22651);
     obj->~T();
 
     auto freeFunc = AllocatorInfo<TAllocator, T>::InstAllocatorFunc::GetFreeFunc(); // Use InstAllocatorFunc
@@ -278,7 +278,7 @@ void DeleteObject(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocat
 
 template <typename TAllocator, typename T>
 void DeleteObjectInline(TAllocator * allocator, T * obj)
-{
+{TRACE_IT(22652);
     obj->~T();
     allocator->FreeInline(obj, sizeof(T));
 }
@@ -287,7 +287,7 @@ template <typename TAllocator,
           AllocatorDeleteFlags deleteFlags = AllocatorDeleteFlags::None,
           typename T>
 void DeleteObject(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocator, T * obj, size_t plusSize)
-{
+{TRACE_IT(22653);
     obj->~T();
 
     // DeleteObject can only be called when an object is allocated successfully.
@@ -303,7 +303,7 @@ template <typename TAllocator,
           AllocatorDeleteFlags deleteFlags = AllocatorDeleteFlags::None,
           typename T>
 void DeleteObject(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocator, T * obj, size_t plusSize, bool prefix)
-{
+{TRACE_IT(22654);
     Assert(prefix);
     obj->~T();
 
@@ -323,9 +323,9 @@ void DeleteObject(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocat
 template <typename TAllocator, typename T, bool nothrow>
 _When_(nothrow, _Ret_writes_to_maybenull_(count, 0)) _When_(!nothrow, _Ret_writes_to_(count, 0))
 inline T * AllocateArray(TAllocator * allocator, char * (TAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t count)
-{
+{TRACE_IT(22655);
     if (count == 0 && TAllocator::FakeZeroLengthArray)
-    {
+    {TRACE_IT(22656);
 #ifdef TRACK_ALLOC
         allocator->ClearTrackAllocInfo();
 #endif
@@ -334,7 +334,7 @@ inline T * AllocateArray(TAllocator * allocator, char * (TAllocator::*AllocFunc)
         return (T *)ZERO_LENGTH_ARRAY;
     }
     if (nothrow)
-    {
+    {TRACE_IT(22657);
         return new (allocator, nothrow, AllocFunc) T[count];
     }
     return new (allocator, AllocFunc) T[count];
@@ -359,9 +359,9 @@ struct _DestructArray
 {
     template <typename T>
     static void Destruct(size_t count, T* obj)
-    {
+    {TRACE_IT(22658);
         for (size_t i = 0; i < count; i++)
-        {
+        {TRACE_IT(22659);
             obj[i].~T();
         }
     }
@@ -370,20 +370,20 @@ template <>
 struct _DestructArray</*trivial_destructor*/true>
 {
     template <typename T>
-    static void Destruct(size_t count, T* obj) {}
+    static void Destruct(size_t count, T* obj) {TRACE_IT(22660);}
 };
 
 template <typename T>
 void DestructArray(size_t count, T* obj)
-{
+{TRACE_IT(22661);
     _DestructArray<_has_trivial_destructor<T>::value>::Destruct(count, obj);
 }
 
 template <typename TAllocator, typename T>
 void DeleteArray(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocator, size_t count, T * obj)
-{
+{TRACE_IT(22662);
     if (count == 0)
-    {
+    {TRACE_IT(22663);
         return;
     }
 
@@ -405,9 +405,9 @@ void DeleteArray(typename AllocatorInfo<TAllocator, T>::AllocatorType * allocato
 class Allocator
 {
 public:
-    Allocator(void (*outOfMemoryFunc)(), void (*recoverMemoryFunc)() = JsUtil::ExternalApi::RecoverUnusedMemory) : outOfMemoryFunc(outOfMemoryFunc), recoverMemoryFunc(recoverMemoryFunc) {}
+    Allocator(void (*outOfMemoryFunc)(), void (*recoverMemoryFunc)() = JsUtil::ExternalApi::RecoverUnusedMemory) : outOfMemoryFunc(outOfMemoryFunc), recoverMemoryFunc(recoverMemoryFunc) {TRACE_IT(22664);}
     void Move(Allocator *srcAllocator)
-    {
+    {TRACE_IT(22665);
         Assert(srcAllocator != nullptr);
         AllocatorFieldMove(this, srcAllocator, outOfMemoryFunc);
     }
@@ -418,11 +418,11 @@ public:
 
 template <typename T>
 void AssertValue(void * mem, T value, uint byteCount)
-{
+{TRACE_IT(22666);
 #if DBG
     Assert(byteCount % sizeof(T) == 0);
     for (uint i = 0; i < byteCount; i += sizeof(T))
-    {
+    {TRACE_IT(22667);
         Assert(*(T *)(((char *)mem) + i) == value);
     }
 #endif
@@ -446,7 +446,7 @@ NO_EXPORT(inline void *) __cdecl
 operator new(
 DECLSPEC_GUARD_OVERFLOW size_t byteSize,
 _In_ void * previousAllocation) throw()
-{
+{TRACE_IT(22668);
     return previousAllocation;
 }
 
@@ -456,7 +456,7 @@ operator delete(
 void * allocationToFree,                // Allocation to free
 void * previousAllocation               // Previously allocated memory
 ) throw()
-{
+{TRACE_IT(22669);
 
 }
 
@@ -469,7 +469,7 @@ template <typename TAllocator>
 _Ret_notnull_
 NO_EXPORT(void *) __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, char * (TAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(22670);
     AssertCanHandleOutOfMemory();
     Assert(byteSize != 0);
     void * buffer = (alloc->*AllocFunc)(byteSize);
@@ -481,7 +481,7 @@ template <typename TAllocator>
 _Ret_notnull_
 NO_EXPORT(inline void *) __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, char * (TAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(22671);
     AssertCanHandleOutOfMemory();
     Assert(byteSize != 0 || !TAllocator::FakeZeroLengthArray);
     void * buffer = (alloc->*AllocFunc)(byteSize);
@@ -493,7 +493,7 @@ template <typename TAllocator>
 _Ret_notnull_
 NO_EXPORT(inline void *) __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, char * (TAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t plusSize)
-{
+{TRACE_IT(22672);
     AssertCanHandleOutOfMemory();
     Assert(byteSize != 0);
     //Assert(plusSize != 0);
@@ -511,7 +511,7 @@ template <typename TAllocator>
 _Ret_maybenull_
 NO_EXPORT(inline void *) __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, bool nothrow, char * (TAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(22673);
     Assert(nothrow);
     Assert(byteSize != 0);
     void * buffer = (alloc->*AllocFunc)(byteSize);
@@ -522,7 +522,7 @@ template <typename TAllocator>
 _Ret_maybenull_
 NO_EXPORT(inline void *) __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, bool nothrow, char * (TAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(22674);
     Assert(nothrow);
     Assert(byteSize != 0 || !TAllocator::FakeZeroLengthArray);
     void * buffer = (alloc->*AllocFunc)(byteSize);
@@ -533,7 +533,7 @@ template <typename TAllocator>
 _Ret_maybenull_
 NO_EXPORT(inline void *) __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, bool nothrow, char * (TAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t plusSize)
-{
+{TRACE_IT(22675);
     Assert(nothrow);
     Assert(byteSize != 0);
     //Assert(plusSize != 0);
@@ -547,7 +547,7 @@ template <typename TAllocator>
 _Ret_maybenull_
 NO_EXPORT(inline void *) __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, TAllocator * alloc, bool nothrow, char * (TAllocator::*AllocFunc)(size_t), DECLSPEC_GUARD_OVERFLOW size_t plusSize, bool prefix)
-{
+{TRACE_IT(22676);
     Assert(nothrow);
     Assert(prefix);
     Assert(byteSize != 0);

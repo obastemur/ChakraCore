@@ -38,41 +38,41 @@ public:
 #endif
 
     uint GetFunctionNumber() const
-    {
+    {TRACE_IT(1587);
         return this->functionBody->GetFunctionNumber();
     }
 
     ExecutionMode GetJitMode() const
-    {
+    {TRACE_IT(1588);
         return static_cast<ExecutionMode>(this->jitData.jitMode);
     }
 
     CodeGenWorkItemIDL * GetJITData()
-    {
+    {TRACE_IT(1589);
         return &this->jitData;
     }
 
-    CodeGenWorkItemType Type() const { return static_cast<CodeGenWorkItemType>(this->jitData.type); }
+    CodeGenWorkItemType Type() const {TRACE_IT(1590); return static_cast<CodeGenWorkItemType>(this->jitData.type); }
 
     Js::ScriptContext* GetScriptContext()
-    {
+    {TRACE_IT(1591);
         return functionBody->GetScriptContext();
     }
 
     Js::FunctionBody* GetFunctionBody() const
-    {
+    {TRACE_IT(1592);
         return functionBody;
     }
 
-    void SetCodeAddress(size_t codeAddress) { this->codeAddress = codeAddress; }
-    size_t GetCodeAddress() { return codeAddress; }
+    void SetCodeAddress(size_t codeAddress) {TRACE_IT(1593); this->codeAddress = codeAddress; }
+    size_t GetCodeAddress() {TRACE_IT(1594); return codeAddress; }
 
-    void SetCodeSize(ptrdiff_t codeSize) { this->codeSize = codeSize; }
-    ptrdiff_t GetCodeSize() { return codeSize; }
+    void SetCodeSize(ptrdiff_t codeSize) {TRACE_IT(1595); this->codeSize = codeSize; }
+    ptrdiff_t GetCodeSize() {TRACE_IT(1596); return codeSize; }
 
 protected:
     virtual uint GetLoopNumber() const
-    {
+    {TRACE_IT(1597);
         return Js::LoopHeader::NoLoop;
     }
 
@@ -97,9 +97,9 @@ public:
     Js::ScriptContext *irViewerRequestContext;  // keep track of the request context
 
     Js::DynamicObject * GetIRViewerOutput(Js::ScriptContext *scriptContext)
-    {
+    {TRACE_IT(1598);
         if (!irViewerOutput)
-        {
+        {TRACE_IT(1599);
             irViewerOutput = scriptContext->GetLibrary()->CreateObject();
         }
 
@@ -107,27 +107,27 @@ public:
     }
 
     void SetIRViewerOutput(Js::DynamicObject *output)
-    {
+    {TRACE_IT(1600);
         irViewerOutput = output;
     }
 #endif
 private:
     // REVIEW: can we delete this?
-    EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> *GetAllocation() { return allocation; }
+    EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> *GetAllocation() {TRACE_IT(1601); return allocation; }
 
 public:
     Js::EntryPointInfo* GetEntryPoint() const
-    {
+    {TRACE_IT(1602);
         return this->entryPointInfo;
     }
 
     Js::CodeGenRecyclableData *RecyclableData() const
-    {
+    {TRACE_IT(1603);
         return recyclableData;
     }
 
     void SetRecyclableData(Js::CodeGenRecyclableData *const recyclableData)
-    {
+    {TRACE_IT(1604);
         Assert(recyclableData);
         Assert(!this->recyclableData);
 
@@ -135,24 +135,24 @@ public:
     }
 
     void SetEntryPointInfo(Js::EntryPointInfo* entryPointInfo)
-    {
+    {TRACE_IT(1605);
         this->entryPointInfo = entryPointInfo;
     }
 
 public:
     void ResetJitMode()
-    {
+    {TRACE_IT(1606);
         this->jitData.jitMode = static_cast<uint8>(ExecutionMode::Interpreter);
     }
 
     void SetJitMode(const ExecutionMode jitMode)
-    {
+    {TRACE_IT(1607);
         this->jitData.jitMode = static_cast<uint8>(jitMode);
         VerifyJitMode();
     }
 
     void VerifyJitMode() const
-    {
+    {TRACE_IT(1608);
         Assert(GetJitMode() == ExecutionMode::SimpleJit || GetJitMode() == ExecutionMode::FullJit);
         Assert(GetJitMode() != ExecutionMode::SimpleJit || GetFunctionBody()->DoSimpleJit());
         Assert(GetJitMode() != ExecutionMode::FullJit || !PHASE_OFF(Js::FullJitPhase, GetFunctionBody()));
@@ -168,19 +168,19 @@ private:
 
 public:
     bool IsInJitQueue() const
-    {
+    {TRACE_IT(1609);
         return isInJitQueue;
     }
 
     bool IsJitInDebugMode() const
-    {
+    {TRACE_IT(1610);
         return jitData.isJitInDebugMode != 0;
     }
 
     void OnWorkItemProcessFail(NativeCodeGenerator *codeGen);
 
     void RecordNativeThrowMap(Js::SmallSpanSequenceIter& iter, uint32 nativeOffset, uint32 statementIndex)
-    {
+    {TRACE_IT(1611);
         this->functionBody->RecordNativeThrowMap(iter, nativeOffset, statementIndex, this->GetEntryPoint(), GetLoopNumber());
     }
 
@@ -199,7 +199,7 @@ struct JsFunctionCodeGen sealed : public CodeGenWorkItem
         Js::EntryPointInfo* entryPointInfo,
         bool isJitInDebugMode)
         : CodeGenWorkItem(manager, functionBody, entryPointInfo, isJitInDebugMode, JsFunctionType)
-    {
+    {TRACE_IT(1612);
         this->jitData.loopNumber = GetLoopNumber();
     }
 
@@ -215,7 +215,7 @@ public:
         size_t nameSizeInChars = wcslen(name) + 1;
         size_t sizeInBytes = nameSizeInChars * sizeof(WCHAR);
         if(displayName == NULL || sizeInChars < nameSizeInChars)
-        {
+        {TRACE_IT(1613);
            return nameSizeInChars;
         }
         js_memcpy_s(displayName, sizeInChars * sizeof(WCHAR), name, sizeInBytes);
@@ -268,7 +268,7 @@ struct JsLoopBodyCodeGen sealed : public CodeGenWorkItem
         Js::EntryPointInfo* entryPointInfo, bool isJitInDebugMode, Js::LoopHeader * loopHeader) :
         CodeGenWorkItem(manager, functionBody, entryPointInfo, isJitInDebugMode, JsLoopBodyWorkItemType),
         loopHeader(loopHeader)
-    {
+    {TRACE_IT(1614);
         this->jitData.loopNumber = GetLoopNumber();
     }
 
@@ -327,9 +327,9 @@ struct JsLoopBodyCodeGen sealed : public CodeGenWorkItem
     }
 
     ~JsLoopBodyCodeGen()
-    {
+    {TRACE_IT(1615);
         if (this->jitData.symIdToValueTypeMap != nullptr)
-        {
+        {TRACE_IT(1616);
             HeapDeleteArray(this->jitData.symIdToValueTypeMapCount, this->jitData.symIdToValueTypeMap);
             this->jitData.symIdToValueTypeMap = nullptr;
         }

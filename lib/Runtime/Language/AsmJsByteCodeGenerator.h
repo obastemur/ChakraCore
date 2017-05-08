@@ -15,10 +15,10 @@ namespace Js
     {
         EmitExpressionInfo( RegSlot location_, const AsmJsType& type_ ) :
             WAsmJs::EmitInfoBase( location_ ), type( type_ )
-        {
+        {TRACE_IT(46175);
         }
-        EmitExpressionInfo( const AsmJsType& type_ ) : type( type_ ) {}
-        EmitExpressionInfo(): type( AsmJsType::Void ) {}
+        EmitExpressionInfo( const AsmJsType& type_ ) : type( type_ ) {TRACE_IT(46176);}
+        EmitExpressionInfo(): type( AsmJsType::Void ) {TRACE_IT(46177);}
 
         AsmJsType type;
     };
@@ -30,18 +30,18 @@ namespace Js
     public:
         AsmJsFunctionCompilation( AsmJSByteCodeGenerator* gen ) :
             mGenerator( gen )
-        {
+        {TRACE_IT(46178);
 
         }
         ~AsmJsFunctionCompilation()
-        {
+        {TRACE_IT(46179);
             CleanUp();
         }
 
         void CleanUp();
 
         void FinishCompilation()
-        {
+        {TRACE_IT(46180);
             mGenerator = nullptr;
         }
 
@@ -137,32 +137,32 @@ namespace Js
         bool IsValidSimdFcnRetType(AsmJsSIMDFunction& simdFunction, const AsmJsRetType& expectedType, const AsmJsRetType& retType);
         /// TODO:: Finish removing references to old bytecode generator
         ByteCodeGenerator* GetOldByteCodeGenerator() const
-        {
+        {TRACE_IT(46181);
             return mByteCodeGenerator;
         }
 
         bool IsSimdjsEnabled()
-        {
+        {TRACE_IT(46182);
             return mFunction->GetFuncBody()->GetScriptContext()->GetConfig()->IsSimdjsEnabled();
         }
         // try to reuse a tmp register or acquire a new one
         // also takes care of releasing tmp register
         template<typename T>
         RegSlot GetAndReleaseBinaryLocations( const EmitExpressionInfo* lhs, const EmitExpressionInfo* rhs )
-        {
+        {TRACE_IT(46183);
             RegSlot tmpRegToUse;
             if( mFunction->IsTmpLocation<T>( lhs ) )
-            {
+            {TRACE_IT(46184);
                 tmpRegToUse = lhs->location;
                 mFunction->ReleaseLocation<T>( rhs );
             }
             else if( mFunction->IsTmpLocation<T>( rhs ) )
-            {
+            {TRACE_IT(46185);
                 tmpRegToUse = rhs->location;
                 mFunction->ReleaseLocation<T>( lhs );
             }
             else
-            {
+            {TRACE_IT(46186);
                 tmpRegToUse = mFunction->AcquireTmpRegister<T>();
                 mFunction->ReleaseLocation<T>( rhs );
                 mFunction->ReleaseLocation<T>( lhs );
@@ -172,14 +172,14 @@ namespace Js
 
         template<typename T>
         RegSlot GetAndReleaseUnaryLocations( const EmitExpressionInfo* rhs )
-        {
+        {TRACE_IT(46187);
             RegSlot tmpRegToUse;
             if( mFunction->IsTmpLocation<T>( rhs ) )
-            {
+            {TRACE_IT(46188);
                 tmpRegToUse = rhs->location;
             }
             else
-            {
+            {TRACE_IT(46189);
                 tmpRegToUse = mFunction->AcquireTmpRegister<T>();
                 mFunction->ReleaseLocation<T>( rhs );
             }

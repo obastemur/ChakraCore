@@ -16,13 +16,13 @@ Js::Amd64StackFrame::Amd64StackFrame()
       hasCallerContext(false),
       callerContext(nullptr),
       addressOfCodeAddr(nullptr)
-{
+{TRACE_IT(53300);
 }
 
 Js::Amd64StackFrame::~Amd64StackFrame()
-{
+{TRACE_IT(53301);
     if (currentContext)
-    {
+    {TRACE_IT(53302);
         scriptContext->GetThreadContext()->GetAmd64ContextsManager()->Release(currentContext);
     }
 }
@@ -35,7 +35,7 @@ Js::Amd64StackFrame::~Amd64StackFrame()
 //                   then create new frames (e.g. for Next()) and unwind stack in them.
 
 bool Js::Amd64StackFrame::InitializeByReturnAddress(void *returnAddress, ScriptContext* scriptContext)
-{
+{TRACE_IT(53303);
     CONTEXT* pair = scriptContext->GetThreadContext()->GetAmd64ContextsManager()->Allocate();
     this->scriptContext = scriptContext;
     this->currentContext = pair;
@@ -63,19 +63,19 @@ bool Js::Amd64StackFrame::InitializeByReturnAddress(void *returnAddress, ScriptC
 }
 
 bool Js::Amd64StackFrame::Next()
-{
+{TRACE_IT(53304);
     if (hasCallerContext)
-    {
+    {TRACE_IT(53305);
         *currentContext = *callerContext;
         OnCurrentContextUpdated();
         return true;
     }
 
     if (JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))
-    {
+    {TRACE_IT(53306);
         this->addressOfCodeAddr = this->GetAddressOfReturnAddress(true /*isCurrentContextNative*/, false /*shouldCheckForNativeAddr*/);
         if (NextFromNativeAddress(this->currentContext))
-        {
+        {TRACE_IT(53307);
             OnCurrentContextUpdated();
             return true;
         }
@@ -85,7 +85,7 @@ bool Js::Amd64StackFrame::Next()
     EnsureFunctionEntry();
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     if (Next(currentContext, imageBase, functionEntry))
-    {
+    {TRACE_IT(53308);
         OnCurrentContextUpdated();
         return true;
     }
@@ -94,19 +94,19 @@ bool Js::Amd64StackFrame::Next()
 }
 
 VOID *Js::Amd64StackFrame::GetInstructionPointer()
-{
+{TRACE_IT(53309);
     return (VOID *)currentContext->Rip;
 }
 
 void *Js::Amd64StackFrame::GetFrame() const
-{
+{TRACE_IT(53310);
     return (void *)currentContext->Rbp;
 }
 
 VOID **Js::Amd64StackFrame::GetArgv(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{TRACE_IT(53311);
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {TRACE_IT(53312);
         return (VOID **)callerContext->Rsp;
     }
 
@@ -114,9 +114,9 @@ VOID **Js::Amd64StackFrame::GetArgv(bool isCurrentContextNative, bool shouldChec
 }
 
 VOID *Js::Amd64StackFrame::GetReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{TRACE_IT(53313);
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {TRACE_IT(53314);
         return (VOID *)callerContext->Rip;
     }
 
@@ -124,9 +124,9 @@ VOID *Js::Amd64StackFrame::GetReturnAddress(bool isCurrentContextNative, bool sh
 }
 
 void *Js::Amd64StackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{TRACE_IT(53315);
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {TRACE_IT(53316);
         return (void*)((VOID **)callerContext->Rsp - 1);
     }
 
@@ -134,7 +134,7 @@ void *Js::Amd64StackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative
 }
 
 bool Js::Amd64StackFrame::Next(CONTEXT *context, ULONG64 imageBase, RUNTIME_FUNCTION *functionEntry)
-{
+{TRACE_IT(53317);
     Assert(context);
 
     VOID *handlerData = nullptr;
@@ -155,7 +155,7 @@ bool Js::Amd64StackFrame::Next(CONTEXT *context, ULONG64 imageBase, RUNTIME_FUNC
                          nullptr);
     }
     else
-    {
+    {TRACE_IT(53318);
         // Leaf frames are not listed in the PDATA section because they
         // don't use the stack.
         // Manually crawl to the next frame.
@@ -168,9 +168,9 @@ bool Js::Amd64StackFrame::Next(CONTEXT *context, ULONG64 imageBase, RUNTIME_FUNC
 
 bool
 Js::Amd64StackFrame::NextFromNativeAddress(CONTEXT * context)
-{
+{TRACE_IT(53319);
     if (!context->Rip)
-    {
+    {TRACE_IT(53320);
         return false;
     }
 
@@ -193,12 +193,12 @@ Js::Amd64StackFrame::NextFromNativeAddress(CONTEXT * context)
 
 bool
 Js::Amd64StackFrame::SkipToFrame(void * returnAddress)
-{
+{TRACE_IT(53321);
     bool found = false;
     while (Next())
-    {
+    {TRACE_IT(53322);
         if (((PVOID)currentContext->Rip) == returnAddress)
-        {
+        {TRACE_IT(53323);
             found = true;
             break;
         }
@@ -213,26 +213,26 @@ Js::Amd64StackFrame::SkipToFrame(void * returnAddress)
 
 bool
 Js::Amd64StackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{TRACE_IT(53324);
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 
 Js::Amd64ContextsManager::Amd64ContextsManager()
     : curIndex(GENERAL_CONTEXT)
-{
+{TRACE_IT(53325);
 }
 
 _Ret_writes_(CONTEXT_PAIR_COUNT)
 CONTEXT* Js::Amd64ContextsManager::InternalGet(
     _In_range_(GENERAL_CONTEXT, OOM_CONTEXT) ContextsIndex index)
-{
+{TRACE_IT(53326);
     Assert(index < NUM_CONTEXTS);
     return &contexts[CONTEXT_PAIR_COUNT * index];
 }
 
 _Ret_writes_(CONTEXT_PAIR_COUNT)
 CONTEXT* Js::Amd64ContextsManager::Allocate()
-{
+{TRACE_IT(53327);
     CONTEXT* pair = NULL;
 
     switch(curIndex)
@@ -245,7 +245,7 @@ CONTEXT* Js::Amd64ContextsManager::Allocate()
     case OOM_CONTEXT: //1
         pair = HeapNewNoThrowArray(CONTEXT, CONTEXT_PAIR_COUNT);
         if (!pair)
-        {
+        {TRACE_IT(53328);
             pair = InternalGet(curIndex++);
             Assert(curIndex == NUM_CONTEXTS); // Used up all stock contexts
         }
@@ -262,7 +262,7 @@ CONTEXT* Js::Amd64ContextsManager::Allocate()
 }
 
 void Js::Amd64ContextsManager::Release(_In_ CONTEXT* contexts)
-{
+{TRACE_IT(53329);
     switch(curIndex)
     {
     case GENERAL_CONTEXT:
@@ -275,7 +275,7 @@ void Js::Amd64ContextsManager::Release(_In_ CONTEXT* contexts)
             HeapDeleteArray(CONTEXT_PAIR_COUNT, contexts);
         }
         else
-        {
+        {TRACE_IT(53330);
             --curIndex;
             Assert(curIndex == GENERAL_CONTEXT); // GENERAL_CONTEXT is now available
         }

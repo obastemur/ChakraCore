@@ -7,7 +7,7 @@
 namespace Js
 {
     char16* BufferStringBuilder::WritableString::SafeCopyAndAdvancePtr(__out_ecount(cchDst) char16* dst, charcount_t& cchDst, __in_ecount(cch) const char16* ptr, charcount_t cch)
-    {
+    {TRACE_IT(54512);
         Assert( IsValidCharCount(cch) );
         Assert( dst != nullptr);
         Assert( ptr != nullptr);
@@ -22,7 +22,7 @@ namespace Js
             const char16* prefix, charcount_t cchPrefix,
             const char16* content, charcount_t cchContent,
             const char16* suffix, charcount_t cchSuffix)
-    {
+    {TRACE_IT(54513);
         char16* dst = GetWritableBuffer();
 
         charcount_t cchRemain = GetLength();
@@ -32,7 +32,7 @@ namespace Js
     }
 
     BufferStringBuilder::WritableString* BufferStringBuilder::WritableString::New(charcount_t length, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(54514);
         Recycler* recycler = scriptContext->GetRecycler();
 
         // Allocate recycler memory to store the string plus a terminating NUL
@@ -49,7 +49,7 @@ namespace Js
     }
 
     JavascriptString* BufferStringBuilder::ToString()
-    {
+    {TRACE_IT(54515);
         DbgAssertNotFrozen();
 
         char16* buffer = DangerousGetWritableBuffer();
@@ -60,7 +60,7 @@ namespace Js
 #if 0
 
         for( charcount_t i = 0; i != length; ++i )
-        {
+        {TRACE_IT(54516);
             // This could be tripped if the buffer actually contains a char
             // with the debug fill value. In that case, this assert may
             // need to be downgraded to a warning.

@@ -13,20 +13,20 @@ struct XDataAllocation sealed : public SecondaryAllocation
         pdataCount(0)
         , functionTable(NULL)
         , xdataSize(0)
-    {}
+    {TRACE_IT(27229);}
 
     RUNTIME_FUNCTION* GetPdataArray() const
-    {
+    {TRACE_IT(27230);
         return reinterpret_cast<RUNTIME_FUNCTION*>(address + xdataSize);
     }
 
     bool IsFreed() const
-    {
+    {TRACE_IT(27231);
         return address == nullptr;
     }
 
     void Free()
-    {
+    {TRACE_IT(27232);
         address = nullptr;
         pdataCount = 0;
         functionTable = nullptr;
@@ -55,7 +55,7 @@ public:
     void Release(const SecondaryAllocation& address);
     bool CanAllocate();
     static DWORD GetAllocSize(ushort pdataCount, ushort xdataSize)
-    {
+    {TRACE_IT(27233);
         __debugbreak();
         return 0;
     }

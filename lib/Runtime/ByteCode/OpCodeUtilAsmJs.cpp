@@ -23,15 +23,15 @@ namespace Js
     };
 
     char16 const * OpCodeUtilAsmJs::GetOpCodeName(OpCodeAsmJs op)
-    {
+    {TRACE_IT(41742);
         if (op <= Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-        {
+        {TRACE_IT(41743);
             Assert(op < _countof(OpCodeAsmJsNames));
             __analysis_assume(op < _countof(OpCodeAsmJsNames));
             return OpCodeAsmJsNames[(int)op];
         }
         else if (op < Js::OpCodeAsmJs::ByteCodeLast)
-        {
+        {TRACE_IT(41744);
             uint opIndex = op - (Js::OpCodeAsmJs::MaxByteSizedOpcodes + 1);
             Assert(opIndex < _countof(ExtendedOpCodeAsmJsNames));
             __analysis_assume(opIndex < _countof(ExtendedOpCodeAsmJsNames));
@@ -42,7 +42,7 @@ namespace Js
 
 #else
     wchar const * OpCodeUtilAsmJs::GetOpCodeName(OpCodeAsmJs op)
-    {
+    {TRACE_IT(41745);
         return _u("<NotAvail>");
     }
 #endif
@@ -60,9 +60,9 @@ namespace Js
     };
 
     OpLayoutTypeAsmJs OpCodeUtilAsmJs::GetOpCodeLayout(OpCodeAsmJs op)
-    {
+    {TRACE_IT(41746);
         if ((uint)op <= (uint)Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-        {
+        {TRACE_IT(41747);
             Assert(op < _countof(OpCodeAsmJsLayouts));
             __analysis_assume(op < _countof(OpCodeAsmJsLayouts));
             return OpCodeAsmJsLayouts[(uint)op];
@@ -75,7 +75,7 @@ namespace Js
     }
 
     bool OpCodeUtilAsmJs::IsValidByteCodeOpcode(OpCodeAsmJs op)
-    {
+    {TRACE_IT(41748);
         // These OpCodes must have the same value for asm.js and normal javascript.
         // This CompileAssert will make sure to update both lists if any changes are made
         CompileAssert((uint)OpCodeAsmJs::EndOfBlock                 == (uint)OpCode::EndOfBlock);
@@ -93,7 +93,7 @@ namespace Js
     }
 
     bool OpCodeUtilAsmJs::IsValidOpcode(OpCodeAsmJs op)
-    {
+    {TRACE_IT(41749);
         return IsValidByteCodeOpcode(op)
             || (op > Js::OpCodeAsmJs::ByteCodeLast && op < Js::OpCodeAsmJs::Count);
     }

@@ -161,7 +161,7 @@
 
 #ifdef __cplusplus
 #  define ITT_EXTERN_C extern "C"
-#  define ITT_EXTERN_C_BEGIN extern "C" {
+#  define ITT_EXTERN_C_BEGIN extern "C" {TRACE_IT(38097);
 #  define ITT_EXTERN_C_END }
 #else
 #  define ITT_EXTERN_C /* nothing */
@@ -172,7 +172,7 @@
 #define ITT_TO_STR_AUX(x) #x
 #define ITT_TO_STR(x)     ITT_TO_STR_AUX(x)
 
-#define __ITT_BUILD_ASSERT(expr, suffix) do { \
+#define __ITT_BUILD_ASSERT(expr, suffix) do {TRACE_IT(38098); \
     static char __itt_build_check_##suffix[(expr) ? 1 : -1]; \
     __itt_build_check_##suffix[0] = 0; \
 } while(0)
@@ -238,13 +238,13 @@ typedef pthread_mutex_t   mutex_t;
 ITT_INLINE long
 __itt_interlocked_increment(volatile long* ptr) ITT_INLINE_ATTRIBUTE;
 ITT_INLINE long __itt_interlocked_increment(volatile long* ptr)
-{
+{TRACE_IT(38099);
     return InterlockedIncrement(ptr);
 }
 #endif /* ITT_SIMPLE_INIT */
 #else /* ITT_PLATFORM!=ITT_PLATFORM_WIN */
 #define __itt_get_proc(lib, name) dlsym(lib, name)
-#define __itt_mutex_init(mutex)   {\
+#define __itt_mutex_init(mutex)   {TRACE_IT(38100);\
     pthread_mutexattr_t mutex_attr;                                         \
     int error_code = pthread_mutexattr_init(&mutex_attr);                   \
     if (error_code)                                                         \
@@ -296,7 +296,7 @@ ITT_INLINE long __itt_interlocked_increment(volatile long* ptr)
 ITT_INLINE long
 __TBB_machine_fetchadd4(volatile void* ptr, long addend) ITT_INLINE_ATTRIBUTE;
 ITT_INLINE long __TBB_machine_fetchadd4(volatile void* ptr, long addend)
-{
+{TRACE_IT(38101);
     long result;
     __asm__ __volatile__("lock\nxadd %0,%1"
                           : "=r"(result),"=m"(*(int*)ptr)
@@ -311,7 +311,7 @@ ITT_INLINE long __TBB_machine_fetchadd4(volatile void* ptr, long addend)
 ITT_INLINE long
 __itt_interlocked_increment(volatile long* ptr) ITT_INLINE_ATTRIBUTE;
 ITT_INLINE long __itt_interlocked_increment(volatile long* ptr)
-{
+{TRACE_IT(38102);
     return __TBB_machine_fetchadd4(ptr, 1) + 1L;
 }
 #endif /* ITT_SIMPLE_INIT */
@@ -412,9 +412,9 @@ typedef struct ___itt_global
 
 #pragma pack(pop)
 
-#define NEW_THREAD_INFO_W(gptr,h,h_tail,t,s,n) { \
+#define NEW_THREAD_INFO_W(gptr,h,h_tail,t,s,n) {TRACE_IT(38103); \
     h = (__itt_thread_info*)malloc(sizeof(__itt_thread_info)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38104); \
         h->tid    = t; \
         h->nameA  = NULL; \
         h->nameW  = n ? _wcsdup(n) : NULL; \
@@ -429,9 +429,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_THREAD_INFO_A(gptr,h,h_tail,t,s,n) { \
+#define NEW_THREAD_INFO_A(gptr,h,h_tail,t,s,n) {TRACE_IT(38105); \
     h = (__itt_thread_info*)malloc(sizeof(__itt_thread_info)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38106); \
         h->tid    = t; \
         h->nameA  = n ? __itt_fstrdup(n) : NULL; \
         h->nameW  = NULL; \
@@ -446,9 +446,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_DOMAIN_W(gptr,h,h_tail,name) { \
+#define NEW_DOMAIN_W(gptr,h,h_tail,name) {TRACE_IT(38107); \
     h = (__itt_domain*)malloc(sizeof(__itt_domain)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38108); \
         h->flags  = 1;    /* domain is enabled by default */ \
         h->nameA  = NULL; \
         h->nameW  = name ? _wcsdup(name) : NULL; \
@@ -462,9 +462,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_DOMAIN_A(gptr,h,h_tail,name) { \
+#define NEW_DOMAIN_A(gptr,h,h_tail,name) {TRACE_IT(38109); \
     h = (__itt_domain*)malloc(sizeof(__itt_domain)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38110); \
         h->flags  = 1;    /* domain is enabled by default */ \
         h->nameA  = name ? __itt_fstrdup(name) : NULL; \
         h->nameW  = NULL; \
@@ -478,9 +478,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_STRING_HANDLE_W(gptr,h,h_tail,name) { \
+#define NEW_STRING_HANDLE_W(gptr,h,h_tail,name) {TRACE_IT(38111); \
     h = (__itt_string_handle*)malloc(sizeof(__itt_string_handle)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38112); \
         h->strA   = NULL; \
         h->strW   = name ? _wcsdup(name) : NULL; \
         h->extra1 = 0;    /* reserved */ \
@@ -493,9 +493,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_STRING_HANDLE_A(gptr,h,h_tail,name) { \
+#define NEW_STRING_HANDLE_A(gptr,h,h_tail,name) {TRACE_IT(38113); \
     h = (__itt_string_handle*)malloc(sizeof(__itt_string_handle)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38114); \
         h->strA   = name ? __itt_fstrdup(name) : NULL; \
         h->strW   = NULL; \
         h->extra1 = 0;    /* reserved */ \
@@ -508,9 +508,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_COUNTER_W(gptr,h,h_tail,name,domain,type) { \
+#define NEW_COUNTER_W(gptr,h,h_tail,name,domain,type) {TRACE_IT(38115); \
     h = (__itt_counter_info_t*)malloc(sizeof(__itt_counter_info_t)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38116); \
         h->nameA   = NULL; \
         h->nameW   = name ? _wcsdup(name) : NULL; \
         h->domainA   = NULL; \
@@ -525,9 +525,9 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_COUNTER_A(gptr,h,h_tail,name,domain,type) { \
+#define NEW_COUNTER_A(gptr,h,h_tail,name,domain,type) {TRACE_IT(38117); \
     h = (__itt_counter_info_t*)malloc(sizeof(__itt_counter_info_t)); \
-    if (h != NULL) { \
+    if (h != NULL) {TRACE_IT(38118); \
         h->nameA   = name ? __itt_fstrdup(name) : NULL; \
         h->nameW   = NULL; \
         h->domainA   = domain ? __itt_fstrdup(domain) : NULL; \

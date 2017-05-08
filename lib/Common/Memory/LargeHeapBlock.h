@@ -79,7 +79,7 @@ public:
         next(nullptr),
         entries(nullptr),
         heapBlock(heapBlock)
-    {
+    {TRACE_IT(24528);
     }
 
     LargeHeapBlockFreeList* previous;
@@ -110,20 +110,20 @@ public:
     virtual size_t GetObjectSize(void* object) override;
     bool FindImplicitRootObject(void* objectAddress, Recycler * recycler, RecyclerHeapObjectInfo& heapObject);
 
-    size_t GetPageCount() const { return pageCount; }
-    LargeHeapBlock * GetNextBlock() { return next; }
-    void SetNextBlock(LargeHeapBlock * next) { this->next = next; }
-    size_t GetFreeSize() const { return addressEnd - allocAddressEnd; }
+    size_t GetPageCount() const {TRACE_IT(24529); return pageCount; }
+    LargeHeapBlock * GetNextBlock() {TRACE_IT(24530); return next; }
+    void SetNextBlock(LargeHeapBlock * next) {TRACE_IT(24531); this->next = next; }
+    size_t GetFreeSize() const {TRACE_IT(24532); return addressEnd - allocAddressEnd; }
     static LargeHeapBlock * New(__in char * address, DECLSPEC_GUARD_OVERFLOW size_t pageCount, Segment * segment, DECLSPEC_GUARD_OVERFLOW uint objectCount, LargeHeapBucket* bucket);
     static void Delete(LargeHeapBlock * heapBlock);
-    bool IsInPendingDisposeList() { return isInPendingDisposeList; }
-    void SetIsInPendingDisposeList(bool isInPendingDisposeList) { this->isInPendingDisposeList = isInPendingDisposeList; }
+    bool IsInPendingDisposeList() {TRACE_IT(24533); return isInPendingDisposeList; }
+    void SetIsInPendingDisposeList(bool isInPendingDisposeList) {TRACE_IT(24534); this->isInPendingDisposeList = isInPendingDisposeList; }
 
 #if DBG
-    void SetHasDisposeBeenCalled(bool hasDisposeBeenCalled) { this->hasDisposeBeenCalled = hasDisposeBeenCalled; }
+    void SetHasDisposeBeenCalled(bool hasDisposeBeenCalled) {TRACE_IT(24535); this->hasDisposeBeenCalled = hasDisposeBeenCalled; }
 #endif
 
-    LargeHeapBlockFreeList* GetFreeList() { return &this->freeList; }
+    LargeHeapBlockFreeList* GetFreeList() {TRACE_IT(24536); return &this->freeList; }
 
     ~LargeHeapBlock();
 
@@ -149,8 +149,8 @@ public:
     void FinalizeObjects(Recycler* recycler);
     void FinalizeAllObjects();
 
-    char* GetBeginAddress() const { return address; }
-    char* GetEndAddress() const { return addressEnd; }
+    char* GetBeginAddress() const {TRACE_IT(24537); return address; }
+    char* GetEndAddress() const {TRACE_IT(24538); return addressEnd; }
 
     bool TryGetAttributes(void* objectAddress, unsigned char * pAttr);
     bool TryGetAttributes(LargeObjectHeader *objectHeader, unsigned char * pAttr);
@@ -191,12 +191,12 @@ private:
     LargeObjectHeader * GetHeader(void * address);
     LargeObjectHeader ** HeaderList();
     LargeObjectHeader * GetHeader(uint index)
-    {
+    {TRACE_IT(24539);
         Assert(index < this->allocCount);
         LargeObjectHeader * header = this->HeaderList()[index];
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
         if (IsPartialSweptHeader(header))
-        {
+        {TRACE_IT(24540);
             return nullptr;
         }
 #endif
@@ -205,7 +205,7 @@ private:
 
     uint GetMarkCount();
     bool GetObjectHeader(void* objectAddress, LargeObjectHeader** ppHeader);
-    BOOL IsNewHeapBlock() const { return lastCollectAllocCount == 0; }
+    BOOL IsNewHeapBlock() const {TRACE_IT(24541); return lastCollectAllocCount == 0; }
     static size_t GetAllocPlusSize(DECLSPEC_GUARD_OVERFLOW uint objectCount);
     char * AllocFreeListEntry(DECLSPEC_GUARD_OVERFLOW size_t size, ObjectInfoBits attributes, LargeHeapBlockFreeListEntry* entry);
 
@@ -228,7 +228,7 @@ private:
     void FillFreeMemory(Recycler * recycler, __in_bcount(size) void * address, size_t size);
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
     bool IsPartialSweptHeader(LargeObjectHeader * header) const
-    {
+    {TRACE_IT(24542);
         Assert(this->hasPartialFreeObjects || (((size_t)header & PartialFreeBit) != PartialFreeBit));
         return ((size_t)header & PartialFreeBit) == PartialFreeBit;
     }
@@ -277,7 +277,7 @@ private:
 #endif
     
 public:
-    inline bool InPageHeapMode() const { return pageHeapMode != PageHeapMode::PageHeapModeOff; }
+    inline bool InPageHeapMode() const {TRACE_IT(24543); return pageHeapMode != PageHeapMode::PageHeapModeOff; }
 
     void CapturePageHeapAllocStack();
     void CapturePageHeapFreeStack();

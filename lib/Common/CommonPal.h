@@ -78,7 +78,7 @@
 
 #if defined(__clang__)
 __forceinline void  __int2c()
-{
+{TRACE_IT(19569);
     __asm int 0x2c
 }
 #endif
@@ -118,7 +118,7 @@ typedef GUID UUID;
 // xplat-todo: verify below is correct
 #include <cpuid.h>
 inline int get_cpuid(int cpuInfo[4], int function_id)
-{
+{TRACE_IT(19570);
     return __get_cpuid(
             static_cast<unsigned int>(function_id),
             reinterpret_cast<unsigned int*>(&cpuInfo[0]),
@@ -128,7 +128,7 @@ inline int get_cpuid(int cpuInfo[4], int function_id)
 }
 #elif defined(_ARM_)
 inline int get_cpuid(int cpuInfo[4], int function_id)
-{
+{TRACE_IT(19571);
     int empty[4] = {0};
     memcpy(cpuInfo, empty, sizeof(int) * 4);
     // xplat-todo: implement me!!
@@ -136,7 +136,7 @@ inline int get_cpuid(int cpuInfo[4], int function_id)
 #endif
 
 inline void DebugBreak()
-{
+{TRACE_IT(19572);
     __builtin_trap();
 }
 
@@ -379,7 +379,7 @@ template <class T>
 inline T InterlockedExchangeAdd(
     IN OUT T volatile *Addend,
     IN T Value)
-{
+{TRACE_IT(19573);
     return __sync_fetch_and_add(Addend, Value);
 }
 
@@ -387,26 +387,26 @@ template <class T>
 inline T InterlockedExchangeSubtract(
     IN OUT T volatile *Addend,
     IN T Value)
-{
+{TRACE_IT(19574);
     return __sync_fetch_and_sub(Addend, Value);
 }
 
 template <class T>
 inline T InterlockedIncrement(
     IN OUT T volatile *Addend)
-{
+{TRACE_IT(19575);
     return __sync_add_and_fetch(Addend, T(1));
 }
 
 template <class T>
 inline T InterlockedDecrement(
     IN OUT T volatile *Addend)
-{
+{TRACE_IT(19576);
     return __sync_sub_and_fetch(Addend, T(1));
 }
 
 inline __int64 _abs64(__int64 n)
-{
+{TRACE_IT(19577);
     return n < 0 ? -n : n;
 }
 
@@ -416,28 +416,28 @@ bool IsAddressOnStack(ULONG_PTR address);
 errno_t rand_s(unsigned int* randomValue);
 
 inline char16* wmemset(char16* wcs, char16 wc, size_t n)
-{
+{TRACE_IT(19578);
     while (n)
-    {
+    {TRACE_IT(19579);
         wcs[--n] = wc;
     }
     return wcs;
 }
 
 inline errno_t wmemcpy_s(char16* dest, size_t destSize, const char16* src, size_t count)
-{
+{TRACE_IT(19580);
     return memcpy_s(dest, sizeof(char16) * destSize, src, sizeof(char16) * count);
 }
 
 inline int _wunlink(const char16* filename)
-{
+{TRACE_IT(19581);
     // WARN: does not set errno when fail
     return DeleteFile(filename) ? 0 : -1;
 }
 
 template <size_t size>
 inline errno_t _wcserror_s(char16 (&buffer)[size], int errnum)
-{
+{TRACE_IT(19582);
     const char* str = strerror(errnum);
     // WARN: does not return detail errno when fail
     return MultiByteToWideChar(CP_ACP, 0, str, -1, buffer, size) ? 0 : -1;
@@ -446,7 +446,7 @@ inline errno_t _wcserror_s(char16 (&buffer)[size], int errnum)
 #define midl_user_allocate(size) \
     HeapAlloc(GetProcessHeap(), 0, (size))
 #define midl_user_free(ptr) \
-    if (ptr != NULL) { HeapFree(GetProcessHeap(), NULL, ptr); }
+    if (ptr != NULL) {TRACE_IT(19583); HeapFree(GetProcessHeap(), NULL, ptr); }
 
 DWORD __cdecl CharLowerBuffW(const char16* lpsz, DWORD  cchLength);
 DWORD __cdecl CharUpperBuffW(const char16* lpsz, DWORD  cchLength);
@@ -497,7 +497,7 @@ extern "C" void * _AddressOfReturnAddress(void);
 #elif defined(__GNUC__) || defined(__clang__)
 #define _ReturnAddress() __builtin_return_address(0)
 __forceinline void * _AddressOfReturnAddress()
-{
+{TRACE_IT(19584);
     return (void*)((char*) __builtin_frame_address(0) + sizeof(void*));
 }
 #else
@@ -541,16 +541,16 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
 // Provide the definitions for non-windows platforms
 #ifndef _MSC_VER
 STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszFormat, va_list argList)
-{
+{TRACE_IT(19585);
     HRESULT hr = S_OK;
 
     if (cchDest == 0)
-    {
+    {TRACE_IT(19586);
         // can not null terminate a zero-byte dest buffer
         hr = STRSAFE_E_INVALID_PARAMETER;
     }
     else
-    {
+    {TRACE_IT(19587);
         int iRet;
         size_t cchMax;
 
@@ -561,7 +561,7 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
         // ASSERT((iRet < 0) || (((size_t)iRet) <= cchMax));
 
         if ((iRet < 0) || (((size_t)iRet) > cchMax))
-        {
+        {TRACE_IT(19588);
             // need to null terminate the string
             pszDest += cchMax;
             *pszDest = _u('\0');
@@ -570,7 +570,7 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
             hr = STRSAFE_E_INSUFFICIENT_BUFFER;
         }
         else if (((size_t)iRet) == cchMax)
-        {
+        {TRACE_IT(19589);
             // need to null terminate the string
             pszDest += cchMax;
             *pszDest = _u('\0');
@@ -585,11 +585,11 @@ STRSAFEAPI StringCchPrintfW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszForm
     HRESULT hr;
 
     if (cchDest > STRSAFE_MAX_CCH)
-    {
+    {TRACE_IT(19590);
         hr = STRSAFE_E_INVALID_PARAMETER;
     }
     else
-    {
+    {TRACE_IT(19591);
         va_list argList;
 
         va_start(argList, pszFormat);
@@ -613,14 +613,14 @@ HRESULT ULongMult(ULONG ulMultiplicand, ULONG ulMultiplier, ULONG* pulResult);
  */
 template <class TryFunc, class FinallyFunc>
 void TryFinally(const TryFunc& tryFunc, const FinallyFunc& finallyFunc)
-{
+{TRACE_IT(19592);
     class FinallyObject
     {
     public:
-        FinallyObject(const FinallyFunc& finallyFunc) : finallyFunc(finallyFunc), abnormalTermination(true) {}
-        ~FinallyObject() { finallyFunc(abnormalTermination); }
+        FinallyObject(const FinallyFunc& finallyFunc) : finallyFunc(finallyFunc), abnormalTermination(true) {TRACE_IT(19593);}
+        ~FinallyObject() {TRACE_IT(19594); finallyFunc(abnormalTermination); }
 
-        void SetHasNoAbnormalTermination() { abnormalTermination = false; }
+        void SetHasNoAbnormalTermination() {TRACE_IT(19595); abnormalTermination = false; }
     private:
         const FinallyFunc& finallyFunc;
         bool abnormalTermination;
@@ -643,7 +643,7 @@ void TryFinally(const TryFunc& tryFunc, const FinallyFunc& finallyFunc)
 namespace PlatformAgnostic
 {
     __forceinline unsigned char _BitTestAndSet(LONG *_BitBase, int _BitPos)
-    {
+    {TRACE_IT(19596);
 #if defined(__clang__) && !defined(_ARM_)
         // Clang doesn't expand _bittestandset intrinic to bts, and it's implemention also doesn't work for _BitPos >= 32
         unsigned char retval = 0;
@@ -661,7 +661,7 @@ namespace PlatformAgnostic
     }
 
     __forceinline unsigned char _BitTest(LONG *_BitBase, int _BitPos)
-    {
+    {TRACE_IT(19597);
 #if defined(__clang__) && !defined(_ARM_)
         // Clang doesn't expand _bittest intrinic to bt, and it's implemention also doesn't work for _BitPos >= 32
         unsigned char retval;
@@ -679,7 +679,7 @@ namespace PlatformAgnostic
     }
 
     __forceinline unsigned char _InterlockedBitTestAndSet(volatile LONG *_BitBase, int _BitPos)
-    {
+    {TRACE_IT(19598);
 #if defined(__clang__) && !defined(_ARM_)
         // Clang doesn't expand _interlockedbittestandset intrinic to lock bts, and it's implemention also doesn't work for _BitPos >= 32
         unsigned char retval;
@@ -697,7 +697,7 @@ namespace PlatformAgnostic
     }
 
     __forceinline unsigned char _InterlockedBitTestAndReset(volatile LONG *_BitBase, int _BitPos)
-    {
+    {TRACE_IT(19599);
 #if defined(__clang__) && !defined(_ARM_)
         // Clang doesn't expand _interlockedbittestandset intrinic to lock btr, and it's implemention also doesn't work for _BitPos >= 32
         unsigned char retval;

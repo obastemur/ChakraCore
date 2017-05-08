@@ -29,7 +29,7 @@ namespace JsUtil
             Field(int) dictionaryDataIndex;
 
             MruListEntry(const TKey &key, const TValue &value) : key(key), value(value), dictionaryDataIndex(0)
-            {
+            {TRACE_IT(21906);
             }
 
             PREVENT_COPY(MruListEntry);
@@ -44,11 +44,11 @@ namespace JsUtil
 
         public:
             MruDictionaryData() : entry(nullptr)
-            {
+            {TRACE_IT(21907);
             }
 
             MruDictionaryData &operator =(const void *const nullValue)
-            {
+            {TRACE_IT(21908);
                 // Needed to support KeyValueEntry::Clear for dictionaries
                 Assert(!nullValue);
 
@@ -58,26 +58,26 @@ namespace JsUtil
             }
 
             MruListEntry *Entry() const
-            {
+            {TRACE_IT(21909);
                 return entry;
             }
 
             const TValue &Value() const
-            {
+            {TRACE_IT(21910);
                 Assert(!entry);
 
                 return value;
             }
 
             void OnAddedToMruList(MruListEntry *const entry)
-            {
+            {TRACE_IT(21911);
                 Assert(!this->entry);
 
                 this->entry = entry;
             }
 
             void OnRemovedFromMruList()
-            {
+            {TRACE_IT(21912);
                 Assert(entry);
 
                 value = entry->value;
@@ -106,26 +106,26 @@ namespace JsUtil
     public:
         MruDictionary(AllocatorType *const allocator, const int mruListCapacity)
             : mruListCapacity(mruListCapacity), mruListCount(0), dictionary(allocator)
-        {
+        {TRACE_IT(21913);
             Assert(allocator);
             Assert(mruListCapacity > 0);
         }
 
         static MruDictionary *New(TAllocator *const allocator, DECLSPEC_GUARD_OVERFLOW const int mruListCapacity)
-        {
+        {TRACE_IT(21914);
             return AllocatorNew(TAllocator, allocator, MruDictionary, allocator, mruListCapacity);
         }
 
     private:
         void AddToDictionary(MruListEntry *const entry)
-        {
+        {TRACE_IT(21915);
             const auto dictionaryDataIndex = dictionary.Add(entry->key, MruDictionaryData());
             dictionary.GetReferenceAt(dictionaryDataIndex)->OnAddedToMruList(entry);
             entry->dictionaryDataIndex = dictionaryDataIndex;
         }
 
         void ReuseLeastRecentlyUsedEntry(const TKey &key, const TValue &value, const int dictionaryDataIndex)
-        {
+        {TRACE_IT(21916);
             Assert(mruListCount == mruListCapacity);
 
             // Reuse the least recently used entry for this key/value pair and make it the most recently used
@@ -140,7 +140,7 @@ namespace JsUtil
 
     public:
         bool TryGetValue(const TKey &key, TValue *const value)
-        {
+        {TRACE_IT(21917);
             MruDictionaryData *dictionaryData;
             int dictionaryDataIndex;
             if(!dictionary.TryGetReference(key, &dictionaryData, &dictionaryDataIndex))
@@ -148,7 +148,7 @@ namespace JsUtil
 
             const auto entry = dictionaryData->Entry();
             if(entry)
-            {
+            {TRACE_IT(21918);
                 // Make this the most recently used entry
                 entries.MoveToBeginning(entry);
                 *value = entry->value;
@@ -165,7 +165,7 @@ namespace JsUtil
         }
 
         void Add(const TKey &key, const TValue &value)
-        {
+        {TRACE_IT(21919);
             Assert(!dictionary.ContainsKey(key));
             Assert(mruListCount <= mruListCapacity);
 
@@ -182,12 +182,12 @@ namespace JsUtil
         }
 
         void RemoveRecentlyUnusedItems()
-        {
+        {TRACE_IT(21920);
             if(dictionary.Count() == mruListCount)
                 return;
 
             if(dictionary.Count() / 2 <= mruListCount)
-            {
+            {TRACE_IT(21921);
                 dictionary.MapAndRemoveIf(
                     [](const typename TDictionary::EntryType &dictionaryEntry) -> bool
                     {

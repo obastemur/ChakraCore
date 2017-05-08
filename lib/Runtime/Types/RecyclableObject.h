@@ -30,16 +30,16 @@ namespace Js {
         bool allowResizingPolymorphicInlineCache;
 
         void Set(RecyclableObject* instance, PropertyIndex propertyIndex, PropertyAttributes attributes, InlineCacheFlags flags)
-        {
+        {TRACE_IT(66927);
             m_instance = instance;
             m_propertyIndex = propertyIndex;
             m_attributes = attributes;
             this->flags = flags;
         }
 
-        void SetInfoFlag(CacheInfoFlag newFlag)  { cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag | newFlag); }
-        void ClearInfoFlag(CacheInfoFlag newFlag)  { cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag & ~newFlag); }
-        BOOL IsInfoFlagSet(CacheInfoFlag checkFlag) const { return (cacheInfoFlag & checkFlag) == checkFlag; }
+        void SetInfoFlag(CacheInfoFlag newFlag)  {TRACE_IT(66928); cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag | newFlag); }
+        void ClearInfoFlag(CacheInfoFlag newFlag)  {TRACE_IT(66929); cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag & ~newFlag); }
+        BOOL IsInfoFlagSet(CacheInfoFlag checkFlag) const {TRACE_IT(66930); return (cacheInfoFlag & checkFlag) == checkFlag; }
 
     public:
         PropertyValueInfo()
@@ -47,24 +47,24 @@ namespace Js {
             cacheInfoFlag(CacheInfoFlag::defaultInfoFlags), inlineCache(NULL), polymorphicInlineCache(NULL), functionBody(NULL),
             inlineCacheIndex(Constants::NoInlineCacheIndex),
             allowResizingPolymorphicInlineCache(true)
-        {
+        {TRACE_IT(66931);
         }
 
-        RecyclableObject* GetInstance() const       { return m_instance; }
-        PropertyIndex GetPropertyIndex() const      { return m_propertyIndex; }
-        bool IsWritable() const                     { return (m_attributes & PropertyWritable) != 0; }
-        bool IsEnumerable() const                   { return (m_attributes & PropertyEnumerable) != 0; }
-        bool IsNoCache() const                      { return m_instance && m_propertyIndex == Constants::NoSlot; }
-        void AddFlags(InlineCacheFlags newFlag)     { flags = (InlineCacheFlags)(flags | newFlag); }
-        InlineCacheFlags GetFlags() const           { return flags; }
-        PropertyAttributes GetAttributes() const    { return m_attributes; }
+        RecyclableObject* GetInstance() const       {TRACE_IT(66932); return m_instance; }
+        PropertyIndex GetPropertyIndex() const      {TRACE_IT(66933); return m_propertyIndex; }
+        bool IsWritable() const                     {TRACE_IT(66934); return (m_attributes & PropertyWritable) != 0; }
+        bool IsEnumerable() const                   {TRACE_IT(66935); return (m_attributes & PropertyEnumerable) != 0; }
+        bool IsNoCache() const                      {TRACE_IT(66936); return m_instance && m_propertyIndex == Constants::NoSlot; }
+        void AddFlags(InlineCacheFlags newFlag)     {TRACE_IT(66937); flags = (InlineCacheFlags)(flags | newFlag); }
+        InlineCacheFlags GetFlags() const           {TRACE_IT(66938); return flags; }
+        PropertyAttributes GetAttributes() const    {TRACE_IT(66939); return m_attributes; }
 
         // Set property index and IsWritable cache info
         static void Set(PropertyValueInfo* info, RecyclableObject* instance, PropertyIndex propertyIndex, PropertyAttributes attributes = PropertyWritable,
             InlineCacheFlags flags = InlineCacheNoFlags)
-        {
+        {TRACE_IT(66940);
             if (info)
-            {
+            {TRACE_IT(66941);
                 info->Set(instance, propertyIndex, attributes, flags);
             }
         }
@@ -75,27 +75,27 @@ namespace Js {
         static void ClearCacheInfo(PropertyValueInfo* info);
 
         inline InlineCache * GetInlineCache() const
-        {
+        {TRACE_IT(66942);
             return this->inlineCache;
         }
 
         inline PolymorphicInlineCache * GetPolymorphicInlineCache() const
-        {
+        {TRACE_IT(66943);
             return this->polymorphicInlineCache;
         }
 
         inline FunctionBody * GetFunctionBody() const
-        {
+        {TRACE_IT(66944);
             return this->functionBody;
         }
 
         inline uint GetInlineCacheIndex() const
-        {
+        {TRACE_IT(66945);
             return this->inlineCacheIndex;
         }
 
         bool AllowResizingPolymorphicInlineCache() const
-        {
+        {TRACE_IT(66946);
             return allowResizingPolymorphicInlineCache;
         }
 
@@ -106,33 +106,33 @@ namespace Js {
         }
 
         static void DisablePrototypeCache(PropertyValueInfo* info, RecyclableObject* instance)
-        {
+        {TRACE_IT(66947);
             if (info)
-            {
+            {TRACE_IT(66948);
                 info->SetInfoFlag(disablePrototypeCacheFlag);
             }
         }
 
         static bool PrototypeCacheDisabled(const PropertyValueInfo* info)
-        {
+        {TRACE_IT(66949);
             return (info != NULL) && !!info->IsInfoFlagSet(disablePrototypeCacheFlag);
         }
 
         static void DisableStoreFieldCache(PropertyValueInfo* info)
-        {
+        {TRACE_IT(66950);
             if (info)
-            {
+            {TRACE_IT(66951);
                 info->ClearInfoFlag(enableStoreFieldCacheFlag);
             }
         }
 
         static bool IsStoreFieldCacheEnabled(const PropertyValueInfo* info)
-        {
+        {TRACE_IT(66952);
             return (info != NULL) && !!info->IsInfoFlagSet(enableStoreFieldCacheFlag);
         }
 
         bool IsStoreFieldCacheEnabled() const
-        {
+        {TRACE_IT(66953);
             return IsStoreFieldCacheEnabled(this);
         }
 
@@ -242,17 +242,17 @@ namespace Js {
         // which will emit an error.
         static Var DefaultEntryPoint(RecyclableObject* function, CallInfo callInfo, ...);
 
-        virtual PropertyId GetPropertyId(PropertyIndex index) { return Constants::NoProperty; }
-        virtual PropertyId GetPropertyId(BigPropertyIndex index) { return Constants::NoProperty; }
-        virtual PropertyIndex GetPropertyIndex(PropertyId propertyId) { return Constants::NoSlot; }
+        virtual PropertyId GetPropertyId(PropertyIndex index) {TRACE_IT(66956); return Constants::NoProperty; }
+        virtual PropertyId GetPropertyId(BigPropertyIndex index) {TRACE_IT(66957); return Constants::NoProperty; }
+        virtual PropertyIndex GetPropertyIndex(PropertyId propertyId) {TRACE_IT(66958); return Constants::NoSlot; }
         virtual int GetPropertyCount() { return 0; }
         virtual BOOL HasProperty(PropertyId propertyId);
         virtual BOOL HasOwnProperty( PropertyId propertyId);
         virtual BOOL HasOwnPropertyNoHostObject( PropertyId propertyId);
-        virtual BOOL HasOwnPropertyCheckNoRedecl( PropertyId propertyId) { Assert(FALSE); return FALSE; }
-        virtual BOOL UseDynamicObjectForNoHostObjectAccess() { return FALSE; }
-        virtual DescriptorFlags GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) { return None; }
-        virtual DescriptorFlags GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) { return None; }
+        virtual BOOL HasOwnPropertyCheckNoRedecl( PropertyId propertyId) {TRACE_IT(66960); Assert(FALSE); return FALSE; }
+        virtual BOOL UseDynamicObjectForNoHostObjectAccess() {TRACE_IT(66961); return FALSE; }
+        virtual DescriptorFlags GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) {TRACE_IT(66962); return None; }
+        virtual DescriptorFlags GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) {TRACE_IT(66963); return None; }
         virtual BOOL GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
         virtual BOOL GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
         virtual BOOL GetInternalProperty(Var instance, PropertyId internalPropertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
@@ -274,7 +274,7 @@ namespace Js {
         virtual BOOL HasOwnItem(uint32 index);
         virtual BOOL GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext);
         virtual BOOL GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext);
-        virtual DescriptorFlags GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext) { return None; }
+        virtual DescriptorFlags GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext) {TRACE_IT(66964); return None; }
         virtual BOOL SetItem(uint32 index, Var value, PropertyOperationFlags flags);
         virtual BOOL DeleteItem(uint32 index, PropertyOperationFlags flags);
         virtual BOOL GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache = nullptr);
@@ -282,27 +282,27 @@ namespace Js {
         virtual BOOL SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags = PropertyOperation_None);
         virtual BOOL Equals(__in Var other, __out BOOL* value, ScriptContext* requestContext);
         virtual BOOL StrictEquals(__in Var other, __out BOOL* value, ScriptContext* requestContext);
-        virtual BOOL IsWritable(PropertyId propertyId) { return false; }
-        virtual BOOL IsConfigurable(PropertyId propertyId) { return false; }
-        virtual BOOL IsEnumerable(PropertyId propertyId) { return false; }
-        virtual BOOL IsExtensible() { return false; }
-        virtual BOOL IsProtoImmutable() const { return false; }
-        virtual BOOL PreventExtensions() { return false; };     // Sets [[Extensible]] flag of instance to false
+        virtual BOOL IsWritable(PropertyId propertyId) {TRACE_IT(66965); return false; }
+        virtual BOOL IsConfigurable(PropertyId propertyId) {TRACE_IT(66966); return false; }
+        virtual BOOL IsEnumerable(PropertyId propertyId) {TRACE_IT(66967); return false; }
+        virtual BOOL IsExtensible() {TRACE_IT(66968); return false; }
+        virtual BOOL IsProtoImmutable() const {TRACE_IT(66969); return false; }
+        virtual BOOL PreventExtensions() {TRACE_IT(66970); return false; };     // Sets [[Extensible]] flag of instance to false
         virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor);
-        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {}
+        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {TRACE_IT(66971);}
         virtual BOOL GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor);
-        virtual BOOL Seal() { return false; }                   // Seals the instance, no additional property can be added or deleted
-        virtual BOOL Freeze() { return false; }                 // Freezes the instance, no additional property can be added or deleted or written
-        virtual BOOL IsSealed() { return false; }
-        virtual BOOL IsFrozen() { return false; }
-        virtual BOOL SetWritable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) { return false; }
+        virtual BOOL Seal() {TRACE_IT(66972); return false; }                   // Seals the instance, no additional property can be added or deleted
+        virtual BOOL Freeze() {TRACE_IT(66973); return false; }                 // Freezes the instance, no additional property can be added or deleted or written
+        virtual BOOL IsSealed() {TRACE_IT(66974); return false; }
+        virtual BOOL IsFrozen() {TRACE_IT(66975); return false; }
+        virtual BOOL SetWritable(PropertyId propertyId, BOOL value) {TRACE_IT(66976); return false; }
+        virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) {TRACE_IT(66977); return false; }
+        virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) {TRACE_IT(66978); return false; }
+        virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) {TRACE_IT(66979); return false; }
 
-        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) { return false; }
-        virtual uint GetSpecialPropertyCount() const { return 0; }
-        virtual PropertyId const * GetSpecialPropertyIds() const { return nullptr; }
+        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) {TRACE_IT(66980); return false; }
+        virtual uint GetSpecialPropertyCount() const {TRACE_IT(66981); return 0; }
+        virtual PropertyId const * GetSpecialPropertyIds() const {TRACE_IT(66982); return nullptr; }
         virtual RecyclableObject* GetThisObjectOrUnWrap(); // Due to the withScope object there are times we need to unwrap
 
         virtual BOOL HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache = NULL);
@@ -311,14 +311,14 @@ namespace Js {
         BOOL CanHaveInterceptors() const;
         BOOL IsExternal() const;
         // Used only in JsVarToExtension where it may be during dispose and the type is not available
-        virtual BOOL IsExternalVirtual() const { return FALSE; }
+        virtual BOOL IsExternalVirtual() const {TRACE_IT(66983); return FALSE; }
 
-        virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) { return GetPrototype(); }
+        virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) {TRACE_IT(66984); return GetPrototype(); }
         virtual Js::JavascriptString* GetClassName(ScriptContext * requestContext);
         virtual RecyclableObject* GetProxiedObjectForHeapEnum();
 
 #if DBG
-        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) { Assert(false); return false; };
+        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) {TRACE_IT(66985); Assert(false); return false; };
 #endif
 
         virtual void RemoveFromPrototype(ScriptContext * requestContext) { AssertMsg(false, "Shouldn't call this implementation."); }
@@ -328,7 +328,7 @@ namespace Js {
         virtual BOOL ToString(Js::Var* value, Js::ScriptContext* scriptContext) { AssertMsg(FALSE, "Do not use this function."); return false; }
 
         // don't need cross-site: in HostDispatch it's IDispatchEx based; in CustomExternalObject we have marshalling code explicitly.
-        virtual Var GetNamespaceParent(Js::Var aChild) { return nullptr; }
+        virtual Var GetNamespaceParent(Js::Var aChild) {TRACE_IT(66986); return nullptr; }
         virtual HRESULT QueryObjectInterface(REFIID riid, void **ppvObj);
 
         virtual BOOL GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext);
@@ -343,7 +343,7 @@ namespace Js {
         // Only implemented by the HostDispatch object for cross-thread support
         // Only supports a subset of entry points to be called remotely.
         // For a list of supported entry points see the BuiltInOperation enum defined in JscriptInfo.idl
-        virtual BOOL InvokeBuiltInOperationRemotely(JavascriptMethod entryPoint, Arguments args, Var* result) { return FALSE; };
+        virtual BOOL InvokeBuiltInOperationRemotely(JavascriptMethod entryPoint, Arguments args, Var* result) {TRACE_IT(66987); return FALSE; };
 
         // don't need cross-site: only supported in HostDispatch.
         virtual DynamicObject* GetRemoteObject();
@@ -367,16 +367,16 @@ namespace Js {
         }
         virtual void Mark(Recycler *recycler) override { AssertMsg(false, "Mark called on object that isn't TrackableObject"); }
 
-        static uint32 GetOffsetOfType() { return offsetof(RecyclableObject, type); }
+        static uint32 GetOffsetOfType() {TRACE_IT(66988); return offsetof(RecyclableObject, type); }
 
-        virtual void InvalidateCachedScope() { return; }
-        virtual BOOL HasDeferredTypeHandler() const { return false; }
+        virtual void InvalidateCachedScope() {TRACE_IT(66989); return; }
+        virtual BOOL HasDeferredTypeHandler() const {TRACE_IT(66990); return false; }
 #if DBG
     public:
         // Used to Assert that the object may safely be cast to a DynamicObject
-        virtual bool DbgIsDynamicObject() const { return false; }
-        virtual BOOL DbgSkipsPrototype() const { return FALSE; }
-        virtual BOOL DbgCanHaveInterceptors() const { return false; }
+        virtual bool DbgIsDynamicObject() const {TRACE_IT(66991); return false; }
+        virtual BOOL DbgSkipsPrototype() const {TRACE_IT(66992); return FALSE; }
+        virtual BOOL DbgCanHaveInterceptors() const {TRACE_IT(66993); return false; }
 #endif
 #if defined(PROFILE_RECYCLER_ALLOC) && defined(RECYCLER_DUMP_OBJECT_GRAPH)
     public:
@@ -387,13 +387,13 @@ namespace Js {
     public:
         //Do any additional marking that is needed for a TT snapshotable object
         virtual void MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-        {
+        {TRACE_IT(66994);
             ;
         }
 
         //Do the path processing for our "core path" computation to find wellknown objects in a brute force manner.
         virtual void ProcessCorePaths()
-        {
+        {TRACE_IT(66995);
             ;
         }
 
@@ -417,8 +417,8 @@ namespace Js {
     private:
         UINT m_heapEnumValidationCookie;
     public:
-        void SetHeapEnumValidationCookie(int cookie ) { m_heapEnumValidationCookie = cookie; }
-        int GetHeapEnumValidationCookie() { return m_heapEnumValidationCookie; }
+        void SetHeapEnumValidationCookie(int cookie ) {TRACE_IT(66996); m_heapEnumValidationCookie = cookie; }
+        int GetHeapEnumValidationCookie() {TRACE_IT(66997); return m_heapEnumValidationCookie; }
 #endif
     };
 }

@@ -13,12 +13,12 @@ template <typename T>
 struct DefaultComparer
 {
     inline static bool Equals(const T &x, const T &y)
-    {
+    {TRACE_IT(20964);
         return x == y;
     }
 
     inline static hash_t GetHashCode(const T &i)
-    {
+    {TRACE_IT(20965);
         return (hash_t)i;
     }
 };
@@ -27,12 +27,12 @@ template <>
 struct DefaultComparer<double>
 {
     inline static bool Equals(double x, double y)
-    {
+    {TRACE_IT(20966);
         return x == y;
     }
 
     inline static hash_t GetHashCode(double d)
-    {
+    {TRACE_IT(20967);
         __int64 i64 = *(__int64*)&d;
         return (uint)((i64>>32) ^ (uint)i64);
     }
@@ -42,12 +42,12 @@ template <typename T>
 struct DefaultComparer<T *>
 {
     inline static bool Equals(T * x, T * y)
-    {
+    {TRACE_IT(20968);
         return x == y;
     }
 
     inline static hash_t GetHashCode(T * i)
-    {
+    {TRACE_IT(20969);
         // Shifting helps us eliminate any sameness due to our alignment strategy.
         // TODO: This works for Arena memory only. Recycler memory is 16 byte aligned.
         // Find a good universal hash for pointers.
@@ -60,12 +60,12 @@ template <>
 struct DefaultComparer<size_t>
 {
     inline static bool Equals(size_t x, size_t y)
-    {
+    {TRACE_IT(20970);
         return x == y;
     }
 
     inline static uint GetHashCode(size_t i)
-    {
+    {TRACE_IT(20971);
 #if _WIN64
         // For 64 bits we want all 64 bits of the pointer to be represented in the hash code.
         uint32 hi = ((UINT_PTR) i >> 32);
@@ -78,17 +78,17 @@ struct DefaultComparer<size_t>
     }
 
     static int Compare(size_t i1, size_t i2)
-    {
+    {TRACE_IT(20972);
         if (i1 < i2)
-        {
+        {TRACE_IT(20973);
             return -1;
         }
         else if (i1 > i2)
-        {
+        {TRACE_IT(20974);
             return 1;
         }
         else
-        {
+        {TRACE_IT(20975);
             return 0;
         }
     }
@@ -100,12 +100,12 @@ template <typename T>
 struct RecyclerPointerComparer
 {
     inline static bool Equals(T x, T y)
-    {
+    {TRACE_IT(20976);
         return x == y;
     }
 
     inline static hash_t GetHashCode(T i)
-    {
+    {TRACE_IT(20977);
         // Shifting helps us eliminate any sameness due to our alignment strategy.
         // TODO: This works for Recycler memory only. Arena memory is 8 byte aligned.
         // Find a good universal hash for pointers.
@@ -118,16 +118,16 @@ template <>
 struct DefaultComparer<GUID>
 {
     inline static bool Equals(GUID const& x, GUID const& y)
-    {
+    {TRACE_IT(20978);
         return x == y;
     }
 
      inline static hash_t GetHashCode(GUID const& guid)
-     {
+     {TRACE_IT(20979);
         char* p = (char*)&guid;
         int hash = 0;
         for (int i = 0; i < sizeof(GUID); i++)
-        {
+        {TRACE_IT(20980);
             hash = _rotl(hash, 7);
             hash ^= (uint32)(p[i]);
         }
@@ -139,15 +139,15 @@ template<typename T>
 struct StringComparer
 {
     inline static bool Equals(T str1, T str2)
-    {
+    {TRACE_IT(20981);
         return ::wcscmp(str1, str2) == 0;
     }
 
     inline static hash_t GetHashCode(T str)
-    {
+    {TRACE_IT(20982);
         int hash = 0;
         while (*str)
-        {
+        {TRACE_IT(20983);
             hash = _rotl(hash, 7);
             hash ^= *str;
             str++;
@@ -156,7 +156,7 @@ struct StringComparer
     }
 
     inline static int Compare(T str1, T str2)
-    {
+    {TRACE_IT(20984);
         return ::wcscmp(str1, str2);
     }
 };

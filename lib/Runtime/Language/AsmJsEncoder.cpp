@@ -19,15 +19,15 @@
 
 namespace Js
 {
-    template<> int AsmJsEncoder::GetOffset<int>() const{return mIntOffset;}
-    template<> int AsmJsEncoder::GetOffset<Var>() const{return AsmJsJitTemplate::Globals::StackVarCount * sizeof( Var );}
-    template<> int AsmJsEncoder::GetOffset<double>() const{ return mDoubleOffset; }
-    template<> int AsmJsEncoder::GetOffset<float>() const{ return mFloatOffset; }
-    template<> int AsmJsEncoder::GetOffset<AsmJsSIMDValue>() const{ return mSimdOffset; }
+    template<> int AsmJsEncoder::GetOffset<int>() const{TRACE_IT(46194);return mIntOffset;}
+    template<> int AsmJsEncoder::GetOffset<Var>() const{TRACE_IT(46195);return AsmJsJitTemplate::Globals::StackVarCount * sizeof( Var );}
+    template<> int AsmJsEncoder::GetOffset<double>() const{TRACE_IT(46196); return mDoubleOffset; }
+    template<> int AsmJsEncoder::GetOffset<float>() const{TRACE_IT(46197); return mFloatOffset; }
+    template<> int AsmJsEncoder::GetOffset<AsmJsSIMDValue>() const{TRACE_IT(46198); return mSimdOffset; }
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::SmallLayout>( OpCodeAsmJs op )
-    {
+    {TRACE_IT(46199);
         switch( op )
         {
 #define DEF2(x, op, func) PROCESS_ENCODE_##x(op, func)
@@ -55,7 +55,7 @@ namespace Js
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::MediumLayout>( OpCodeAsmJs op )
-    {
+    {TRACE_IT(46200);
         switch( op )
         {
 #define DEF2_WMS(x, op, func) PROCESS_ENCODE_##x##_COMMON(op, func, _Medium)
@@ -79,7 +79,7 @@ namespace Js
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::LargeLayout>( OpCodeAsmJs op )
-    {
+    {TRACE_IT(46201);
         switch( op )
         {
 #define DEF2_WMS(x, op, func) PROCESS_ENCODE_##x##_COMMON(op, func, _Large)
@@ -102,7 +102,7 @@ namespace Js
     }
 
     bool AsmJsEncoder::ReadOp()
-    {
+    {TRACE_IT(46202);
 #if DBG_DUMP
         int bytecodeoffset = mReader.GetCurrentOffset();
 #endif
@@ -111,13 +111,13 @@ namespace Js
         ip = mReader.GetIP();
 #if DBG_DUMP
         if (PHASE_TRACE(Js::AsmjsEncoderPhase, mFunctionBody))
-        {
+        {TRACE_IT(46203);
             Output::Print(_u("%d.%d:Encoding "),
                            this->mFunctionBody->GetSourceContextId(),
                            this->mFunctionBody->GetLocalFunctionId());
             AsmJsByteCodeDumper::DumpOp( op, layoutSize, mReader, mFunctionBody );
             if( ip != mReader.GetIP() )
-            {
+            {TRACE_IT(46204);
                 mReader.SetIP( ip );
             }
             Output::Print(_u("  at offset 0x%X (buffer size = 0x%X)\n"),
@@ -126,7 +126,7 @@ namespace Js
         }
 #endif
         if( op == OpCodeAsmJs::EndOfBlock )
-        {
+        {TRACE_IT(46205);
             Assert(mReader.GetCurrentOffset() == mFunctionBody->GetByteCode()->GetLength());
             // last bytecode
             return false;
@@ -148,7 +148,7 @@ namespace Js
         return true;
     }
     uint32 AsmJsEncoder::GetEncodeBufferSize(FunctionBody* functionBody)
-    {
+    {TRACE_IT(46206);
         // TODO: Make a good heuristic; this is completely arbitrary. As we emit each bytecode we can calculate the max instruction size.
         return UInt32Math::Add(
             UInt32Math::Mul(functionBody->GetByteCodeCount(), 30),
@@ -157,7 +157,7 @@ namespace Js
     }
 
     void* AsmJsEncoder::Encode( FunctionBody* functionBody )
-    {
+    {TRACE_IT(46207);
         Assert( functionBody );
         mFunctionBody = functionBody;
 #if DBG_DUMP
@@ -184,7 +184,7 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if( PHASE_TRACE( Js::AsmjsEncoderPhase, mFunctionBody ) )
-        {
+        {TRACE_IT(46208);
             Output::Print( _u("\n\n") );
             functionBody->DumpFullFunctionName();
             Output::Print( _u("\n StackSize = %d , Offsets: Var = %d, Int = %d, Double = %d\n"), mFunctionBody->GetAsmJsFunctionInfo()->GetTotalSizeinBytes(), GetOffset<Var>(), GetOffset<int>(), GetOffset<double>() );
@@ -192,7 +192,7 @@ namespace Js
 #endif
 
         AsmJsJitTemplate::FunctionEntry::ApplyTemplate( this, mPc );
-        while( ReadOp() ){}
+        while( ReadOp() ){TRACE_IT(46209);}
         AsmJsJitTemplate::FunctionExit::ApplyTemplate( this, mPc );
 
         AsmJsJitTemplate::FreeTemplateData( mTemplateData );
@@ -203,7 +203,7 @@ namespace Js
 
         ptrdiff_t codeSize = mPc - mEncodeBuffer;
         if( codeSize > 0 )
-        {
+        {TRACE_IT(46210);
             Assert( ::Math::FitsInDWord( codeSize ) );
 
             BYTE *buffer;
@@ -211,12 +211,12 @@ namespace Js
             functionBody->GetAsmJsFunctionInfo()->mTJBeginAddress = buffer;
 
             if (buffer == nullptr)
-            {
+            {TRACE_IT(46211);
                 Js::Throw::OutOfMemory();
             }
 
             if (!GetCodeGenAllocator()->emitBufferManager.CommitBuffer(allocation, buffer, codeSize, mEncodeBuffer))
-            {
+            {TRACE_IT(46212);
                 Js::Throw::OutOfMemory();
             }
 
@@ -251,14 +251,14 @@ namespace Js
 
 
     void Js::AsmJsEncoder::AddReloc( const int labelOffset, BYTE* patchAddr )
-    {
+    {TRACE_IT(46213);
         EncoderRelocLabel* label = nullptr;
         if( mRelocLabelMap->TryGetReference( labelOffset, &label ) )
-        {
+        {TRACE_IT(46214);
             EncoderReloc::New( label, patchAddr, mPc, mLocalAlloc );
         }
         else
-        {
+        {TRACE_IT(46215);
             EncoderRelocLabel newLabel;
             EncoderReloc::New( &newLabel, patchAddr, mPc, mLocalAlloc );
             mRelocLabelMap->AddNew( labelOffset, newLabel );
@@ -266,14 +266,14 @@ namespace Js
     }
 
     void AsmJsEncoder::ApplyRelocs()
-    {
+    {TRACE_IT(46216);
         const int size = mRelocLabelMap->Count();
         for (int i = 0; i < size ; i++)
-        {
+        {TRACE_IT(46217);
             EncoderRelocLabel* label = mRelocLabelMap->GetReferenceAt( i );
 #if DBG_DUMP
             if( !label->labelSeen )
-            {
+            {TRACE_IT(46218);
                 Output::Print( _u("Label expected at bytecode offset 0x%x\n"), mRelocLabelMap->GetKeyAt( i ) );
                 Output::Flush();
             }
@@ -284,7 +284,7 @@ namespace Js
             ptrdiff_t offset1 = label->pc - mEncodeBuffer;
             this->GetAsmJsFunctionInfo()->mbyteCodeTJMap->AddNew(mRelocLabelMap->GetKeyAt(i), offset1);
             while( reloc )
-            {
+            {TRACE_IT(46219);
                 ptrdiff_t offset = label->pc - reloc->pc;
                 *(ptrdiff_t*)reloc->patchAddr = offset;
                 reloc = reloc->next;
@@ -293,7 +293,7 @@ namespace Js
     }
 
     void AsmJsEncoder::EncoderReloc::New( EncoderRelocLabel* label, BYTE* _patchAddr, BYTE* _pc, ArenaAllocator* allocator )
-    {
+    {TRACE_IT(46220);
         AsmJsEncoder::EncoderReloc* reloc = AnewStruct( allocator, AsmJsEncoder::EncoderReloc );
         reloc->next = label->relocList;
         label->relocList = reloc;

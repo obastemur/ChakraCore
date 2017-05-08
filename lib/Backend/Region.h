@@ -21,32 +21,32 @@ public:
                start(NULL), end(NULL),
                writeThroughSymbolsSet(nullptr),
                ehBailoutData(nullptr), bailoutReturnThunkLabel(nullptr), returnThunkEmitted(false),
-               exceptionObjectSym(nullptr) {}
+               exceptionObjectSym(nullptr) {TRACE_IT(15132);}
     static Region * New(RegionType, Region *, Func *);
 
 public:
-    inline RegionType GetType() const                   { return this->type; }
-    inline void SetType(RegionType type)                { this->type = type; }
+    inline RegionType GetType() const                   {TRACE_IT(15133); return this->type; }
+    inline void SetType(RegionType type)                {TRACE_IT(15134); this->type = type; }
 
-    inline Region * GetParent() const                   { return this->parent; }
-    inline void SetParent(Region* parent)               { this->parent = parent; }
+    inline Region * GetParent() const                   {TRACE_IT(15135); return this->parent; }
+    inline void SetParent(Region* parent)               {TRACE_IT(15136); this->parent = parent; }
 
-    inline Region * GetMatchingTryRegion() const        { return this->matchingTryRegion; }
-    inline void SetMatchingTryRegion(Region* tryRegion) { this->matchingTryRegion = tryRegion; }
+    inline Region * GetMatchingTryRegion() const        {TRACE_IT(15137); return this->matchingTryRegion; }
+    inline void SetMatchingTryRegion(Region* tryRegion) {TRACE_IT(15138); this->matchingTryRegion = tryRegion; }
 
-    inline Region * GetMatchingCatchRegion() const      { return this->matchingCatchRegion; }
-    inline void SetMatchingCatchRegion(Region* catchRegion) { this->matchingCatchRegion = catchRegion; }
+    inline Region * GetMatchingCatchRegion() const      {TRACE_IT(15139); return this->matchingCatchRegion; }
+    inline void SetMatchingCatchRegion(Region* catchRegion) {TRACE_IT(15140); this->matchingCatchRegion = catchRegion; }
 
-    inline Region * GetMatchingFinallyRegion() const    { return this->matchingFinallyRegion; }
-    inline void SetMatchingFinallyRegion(Region* finallyRegion) { this->matchingFinallyRegion = finallyRegion; }
+    inline Region * GetMatchingFinallyRegion() const    {TRACE_IT(15141); return this->matchingFinallyRegion; }
+    inline void SetMatchingFinallyRegion(Region* finallyRegion) {TRACE_IT(15142); this->matchingFinallyRegion = finallyRegion; }
 
-    inline IR::Instr * GetStart() const                 { return this->start; }
-    inline void SetStart(IR::Instr * instr)             { this->start = instr; }
-    inline IR::Instr * GetEnd() const                   { return this->end; }
-    inline void SetEnd(IR::Instr * instr)               { this->end = instr; }
-    inline IR::LabelInstr * GetBailoutReturnThunkLabel() const { return this->bailoutReturnThunkLabel; }
-    inline StackSym * GetExceptionObjectSym() const     { return this->exceptionObjectSym; }
-    inline void SetExceptionObjectSym(StackSym * sym)   { this->exceptionObjectSym = sym; }
+    inline IR::Instr * GetStart() const                 {TRACE_IT(15143); return this->start; }
+    inline void SetStart(IR::Instr * instr)             {TRACE_IT(15144); this->start = instr; }
+    inline IR::Instr * GetEnd() const                   {TRACE_IT(15145); return this->end; }
+    inline void SetEnd(IR::Instr * instr)               {TRACE_IT(15146); this->end = instr; }
+    inline IR::LabelInstr * GetBailoutReturnThunkLabel() const {TRACE_IT(15147); return this->bailoutReturnThunkLabel; }
+    inline StackSym * GetExceptionObjectSym() const     {TRACE_IT(15148); return this->exceptionObjectSym; }
+    inline void SetExceptionObjectSym(StackSym * sym)   {TRACE_IT(15149); this->exceptionObjectSym = sym; }
     void   AllocateEHBailoutData(Func * func, IR::Instr * tryInstr);
     Region * GetSelfOrFirstTryAncestor();
 

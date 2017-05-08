@@ -43,7 +43,7 @@ namespace Js
 #define CreateTemplate(name,...)  \
         struct name\
         {\
-            static int ApplyTemplate( TemplateContext context, BYTE*& buffer,##__VA_ARGS__ ) { __debugbreak(); return 0; }\
+            static int ApplyTemplate( TemplateContext context, BYTE*& buffer,##__VA_ARGS__ ) {TRACE_IT(46390); __debugbreak(); return 0; }\
         }
 #endif
 

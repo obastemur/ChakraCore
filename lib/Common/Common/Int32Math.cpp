@@ -6,7 +6,7 @@
 
 bool
 Int32Math::Add(int32 left, int32 right, int32 *pResult)
-{
+{TRACE_IT(18839);
 #if __has_builtin(__builtin_add_overflow) || TARGET_32
     return IntMathCommon<int32>::Add(left, right, pResult);
 #else
@@ -21,7 +21,7 @@ Int32Math::Add(int32 left, int32 right, int32 *pResult)
 
 bool
 Int32Math::Mul(int32 left, int32 right, int32 *pResult)
-{
+{TRACE_IT(18840);
 #if __has_builtin(__builtin_mul_overflow) && !(defined(_ARM_) && defined(__clang__))
     return IntMathCommon<int32>::Mul(left, right, pResult);
 #else
@@ -51,7 +51,7 @@ Int32Math::Mul(int32 left, int32 right, int32 *pResult)
 
 bool
 Int32Math::Mul(int32 left, int32 right, int32 *pResult, int32* pOverflowValue)
-{
+{TRACE_IT(18841);
     bool fOverflow;
 #if _M_IX86
     __asm
@@ -78,21 +78,21 @@ Int32Math::Mul(int32 left, int32 right, int32 *pResult, int32* pOverflowValue)
 
 bool
 Int32Math::Shl(int32 left, int32 right, int32 *pResult)
-{
+{TRACE_IT(18842);
     *pResult = left << (right & 0x1F);
     return (left != (int32)((uint32)*pResult >> right));
 }
 
 bool
 Int32Math::Shr(int32 left, int32 right, int32 *pResult)
-{
+{TRACE_IT(18843);
     *pResult = left >> (right & 0x1F);
     return false;
 }
 
 bool
 Int32Math::ShrU(int32 left, int32 right, int32 *pResult)
-{
+{TRACE_IT(18844);
     uint32 uResult = ((uint32)left) >> (right & 0x1F);
     *pResult = uResult;
     return false;

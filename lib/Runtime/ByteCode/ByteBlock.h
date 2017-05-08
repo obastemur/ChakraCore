@@ -21,20 +21,20 @@ namespace Js
     public:
         ByteBlock(uint size, byte * content)
             : m_contentSize(size), m_content(content)
-        { }
+        {TRACE_IT(38366); }
         ByteBlock(uint size, Recycler *alloc) : m_contentSize(size)
-        {
+        {TRACE_IT(38367);
             // The New function below will copy over a buffer into this so
             // we don't need to zero it out
             m_content = RecyclerNewArrayLeaf(alloc, byte, size);
         }
 
         ByteBlock(uint size, ArenaAllocator* alloc) : m_contentSize(size)
-        {
+        {TRACE_IT(38368);
             m_content = AnewArray(alloc, byte, size);
         }
 
-        static DWORD GetBufferOffset() { return offsetof(ByteBlock, m_content); }
+        static DWORD GetBufferOffset() {TRACE_IT(38369); return offsetof(ByteBlock, m_content); }
 
         static ByteBlock* New(Recycler* alloc, const byte * initialContent, int initialContentSize);
 

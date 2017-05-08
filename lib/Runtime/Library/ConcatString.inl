@@ -14,7 +14,7 @@ namespace Js
     /////////////////////// ConcatStringBase //////////////////////////
     template <typename ConcatStringType>
     inline const char16* ConcatStringBase::GetSzImpl()
-    {
+    {TRACE_IT(54797);
         AssertCanHandleOutOfMemory();
         Assert(!this->IsFinalized());
         Assert(!this->IsFinalized());
@@ -38,7 +38,7 @@ namespace Js
     template<int N>
     ConcatStringN<N>::ConcatStringN(StaticType* stringTypeStatic, bool doZeroSlotsAndLength) :
         ConcatStringBase(stringTypeStatic)
-    {
+    {TRACE_IT(54798);
         Assert(stringTypeStatic);
 
         if (doZeroSlotsAndLength)
@@ -51,7 +51,7 @@ namespace Js
     // static
     template<int N>
     ConcatStringN<N>* ConcatStringN<N>::New(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(54799);
         Assert(scriptContext);
         return RecyclerNew(scriptContext->GetRecycler(), ConcatStringN<N>, scriptContext->GetLibrary()->GetStringTypeStatic());
     }
@@ -59,14 +59,14 @@ namespace Js
     // Set the slot at specified index to specified value.
     template<int N>
     void ConcatStringN<N>::SetItem(_In_range_(0, N - 1) int index, JavascriptString* value)
-    {
+    {TRACE_IT(54800);
         Assert(index >= 0 && index < N);
         // Note: value can be NULL. // TODO: should we just assert for non-zero?
 
         charcount_t oldItemLen = m_slots[index] ? m_slots[index]->GetLength() : 0;
         charcount_t newItemLen = value ? value->GetLength() : 0;
         if (value)
-        {
+        {TRACE_IT(54801);
             value = CompoundString::GetImmutableOrScriptUnreferencedString(value);
         }
         m_slots[index] = value;
@@ -76,7 +76,7 @@ namespace Js
 
     template<int N>
     inline const char16 * ConcatStringN<N>::GetSz()
-    {
+    {TRACE_IT(54802);
         const char16 * sz = GetSzImpl<ConcatStringN>();
 
         // Allow slots to be garbage collected if no more refs.
@@ -91,13 +91,13 @@ namespace Js
     ConcatStringWrapping<L, R>::ConcatStringWrapping(JavascriptString* inner) :
         ConcatStringBase(inner->GetLibrary()->GetStringTypeStatic()),
         m_inner(CompoundString::GetImmutableOrScriptUnreferencedString(inner))
-    {
+    {TRACE_IT(54803);
         this->SetLength(inner->GetLength() + 2); // does not include null character
     }
 
     template<char16 L, char16 R>
     ConcatStringWrapping<L, R>* ConcatStringWrapping<L, R>::New(JavascriptString* inner)
-    {
+    {TRACE_IT(54804);
         Recycler* recycler = inner->GetRecycler();
         //return RecyclerNew(recycler, ConcatStringWrapping<L, R>, inner);
         // Expand the RecyclerNew macro as it breaks for more than one template arguments.
@@ -111,7 +111,7 @@ namespace Js
 
     template<char16 L, char16 R>
     inline const char16 * ConcatStringWrapping<L, R>::GetSz()
-    {
+    {TRACE_IT(54805);
         const char16 * sz = GetSzImpl<ConcatStringWrapping>();
         m_inner = nullptr;
         ClearArray(m_slots);
@@ -120,7 +120,7 @@ namespace Js
 
     template<char16 L, char16 R>
     inline JavascriptString* ConcatStringWrapping<L, R>::GetFirstItem() const
-    {
+    {TRACE_IT(54806);
         Assert(m_inner);
         char16 lBuf[2] = { L, '\0' };
         return this->GetLibrary()->CreateStringFromCppLiteral(lBuf);
@@ -128,7 +128,7 @@ namespace Js
 
     template<char16 L, char16 R>
     inline JavascriptString* ConcatStringWrapping<L, R>::GetLastItem() const
-    {
+    {TRACE_IT(54807);
         Assert(m_inner);
         char16 rBuf[2] = { R, '\0' };
         return this->GetLibrary()->CreateStringFromCppLiteral(rBuf);

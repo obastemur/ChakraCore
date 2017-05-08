@@ -8,18 +8,18 @@
 
 #define BEGIN_INTERCEPTOR(scriptContext) \
     BEGIN_LEAVE_SCRIPT(scriptContext) \
-    try {
+    try {TRACE_IT(28399);
 
 #define END_INTERCEPTOR(scriptContext) \
     } \
     catch (...) \
-    { \
+    {TRACE_IT(28400); \
         Assert(false); \
     } \
     END_LEAVE_SCRIPT(scriptContext) \
     \
     if (scriptContext->HasRecordedException()) \
-    { \
+    {TRACE_IT(28401); \
         scriptContext->RethrowRecordedException(NULL); \
     }
 
@@ -27,11 +27,11 @@
 class JsrtExternalType sealed : public Js::DynamicType
 {
 public:
-    JsrtExternalType(JsrtExternalType *type) : Js::DynamicType(type), jsFinalizeCallback(type->jsFinalizeCallback) {}
+    JsrtExternalType(JsrtExternalType *type) : Js::DynamicType(type), jsFinalizeCallback(type->jsFinalizeCallback) {TRACE_IT(28402);}
     JsrtExternalType(Js::ScriptContext* scriptContext, JsFinalizeCallback finalizeCallback);
 
     //Js::PropertyId GetNameId() const { return ((Js::PropertyRecord *)typeDescription.className)->GetPropertyId(); }
-    JsFinalizeCallback GetJsFinalizeCallback() const { return this->jsFinalizeCallback; }
+    JsFinalizeCallback GetJsFinalizeCallback() const {TRACE_IT(28403); return this->jsFinalizeCallback; }
 
 private:
     FieldNoBarrier(JsFinalizeCallback) jsFinalizeCallback;
@@ -51,7 +51,7 @@ public:
     static JsrtExternalObject * FromVar(Js::Var value);
     static JsrtExternalObject * Create(void *data, JsFinalizeCallback finalizeCallback, Js::ScriptContext *scriptContext);
 
-    JsrtExternalType * GetExternalType() const { return (JsrtExternalType *)this->GetType(); }
+    JsrtExternalType * GetExternalType() const {TRACE_IT(28404); return (JsrtExternalType *)this->GetType(); }
 
     void Finalize(bool isShutdown) override;
     void Dispose(bool isShutdown) override;

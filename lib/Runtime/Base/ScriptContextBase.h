@@ -23,18 +23,18 @@ namespace Js
             javascriptLibrary(nullptr),
             globalObject(nullptr),
             isClosed(false),
-            pActiveScriptDirect(nullptr) {}
-        JavascriptLibrary* GetLibrary() const { return javascriptLibrary; }
-        void SetLibrary(JavascriptLibrary* library) { javascriptLibrary = library;}
+            pActiveScriptDirect(nullptr) {TRACE_IT(36793);}
+        JavascriptLibrary* GetLibrary() const {TRACE_IT(36794); return javascriptLibrary; }
+        void SetLibrary(JavascriptLibrary* library) {TRACE_IT(36795); javascriptLibrary = library;}
         void SetGlobalObject(GlobalObject *globalObject);
-        GlobalObject* GetGlobalObject() const { return globalObject; }
+        GlobalObject* GetGlobalObject() const {TRACE_IT(36796); return globalObject; }
         IActiveScriptDirect* GetActiveScriptDirect()
-        {
+        {TRACE_IT(36797);
             return this->pActiveScriptDirect;
         }
 
         void SetActiveScriptDirect(IActiveScriptDirect* pActiveScriptDirect)
-        {
+        {TRACE_IT(36798);
             this->pActiveScriptDirect = pActiveScriptDirect;
         }
 

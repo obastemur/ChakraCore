@@ -8,7 +8,7 @@ struct LargeStackBlock {
     int index;
     int itemCount;
 
-    static LargeStackBlock<T>* Make(ArenaAllocator* alloc,int itemCount) {
+    static LargeStackBlock<T>* Make(ArenaAllocator* alloc,int itemCount) {TRACE_IT(21747);
         LargeStackBlock<T>* block = AnewStruct(alloc, LargeStackBlock<T>);
         block->itemCount=itemCount;
         block->items = AnewArray(alloc, T, itemCount);
@@ -16,15 +16,15 @@ struct LargeStackBlock {
         return block;
     }
 
-    BOOL Full() { return index>=itemCount; }
-    BOOL Empty() { return index==0; }
+    BOOL Full() {TRACE_IT(21748); return index>=itemCount; }
+    BOOL Empty() {TRACE_IT(21749); return index==0; }
 
-    void Push(T item) {
+    void Push(T item) {TRACE_IT(21750);
         AssertMsg(!Full(),"can't push to full stack block");
         items[index++]=item;
     }
 
-    T Pop() {
+    T Pop() {TRACE_IT(21751);
         AssertMsg(!Empty(),"can't pop empty stack block");
         index--;
         return items[index];
@@ -46,23 +46,23 @@ class LargeStack {
     }
 public:
     static LargeStack * New(ArenaAllocator* alloc)
-    {
+    {TRACE_IT(21752);
         return Anew(alloc, LargeStack, alloc);
     }
 
-    void Push(T item) {
+    void Push(T item) {TRACE_IT(21753);
         LargeStackBlock<T>* top=blockStack->Top();
-        if (top->Full()) {
+        if (top->Full()) {TRACE_IT(21754);
             top=LargeStackBlock<T>::Make(alloc,top->itemCount+GrowSize);
             blockStack->Push(top);
         }
         top->Push(item);
     }
 
-    BOOL Empty() {
+    BOOL Empty() {TRACE_IT(21755);
         LargeStackBlock<T>* top=blockStack->Top();
-        if (top->Empty()) {
-            if (blockStack->HasOne()) {
+        if (top->Empty()) {TRACE_IT(21756);
+            if (blockStack->HasOne()) {TRACE_IT(21757);
                 // Avoid popping the last empty block to reduce freelist overhead.
                 return true;
             }
@@ -73,9 +73,9 @@ public:
         else return false;
     }
 
-    T Pop() {
+    T Pop() {TRACE_IT(21758);
         LargeStackBlock<T>* top=blockStack->Top();
-        if (top->Empty()) {
+        if (top->Empty()) {TRACE_IT(21759);
             blockStack->Pop();
             AssertMsg(!blockStack->Empty(),"can't pop empty block stack");
             top=blockStack->Top();

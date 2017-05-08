@@ -455,7 +455,7 @@ typedef enum tagIFORM
     FORM_NOMORE     = -1
 }IFORM;
 
-#define FT(_form, _inst, _steps)  { FORM_ ## _form, _inst, _steps }
+#define FT(_form, _inst, _steps)  {TRACE_IT(16631); FORM_ ## _form, _inst, _steps }
 
 static const FormTable Forms_ADD [] =
 {

@@ -27,42 +27,42 @@ namespace UnifiedRegex
 
     public:
         inline static bool IsWord(Char c)
-        {
+        {TRACE_IT(32871);
             return (classes[CTU(c)] & Word) != 0;
         }
 
         inline static bool IsNewline(Char c)
-        {
+        {TRACE_IT(32872);
             return (classes[CTU(c)] & Newline) != 0;
         }
 
         inline static bool IsWhitespace(Char c)
-        {
+        {TRACE_IT(32873);
             return (classes[CTU(c)] & Whitespace) != 0;
         }
 
         inline static bool IsLetter(Char c)
-        {
+        {TRACE_IT(32874);
             return (classes[CTU(c)] & Letter) != 0;
         }
 
         inline static bool IsDigit(Char c)
-        {
+        {TRACE_IT(32875);
             return (classes[CTU(c)] & Digit) != 0;
         }
 
         inline static bool IsOctal(Char c)
-        {
+        {TRACE_IT(32876);
             return (classes[CTU(c)] & Octal) != 0;
         }
 
         inline static bool IsHex(Char c)
-        {
+        {TRACE_IT(32877);
             return (classes[CTU(c)] & Hex) != 0;
         }
 
         inline static uint DigitValue(Char c)
-        {
+        {TRACE_IT(32878);
             return values[CTU(c)];
         }
     };
@@ -71,45 +71,45 @@ namespace UnifiedRegex
     class StandardChars<uint8> : Chars<uint8>
     {
     public:
-        inline StandardChars(ArenaAllocator* allocator) {}
+        inline StandardChars(ArenaAllocator* allocator) {TRACE_IT(32879);}
 
         inline bool IsWord(Char c) const
-        {
+        {TRACE_IT(32880);
             return ASCIIChars::IsWord(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsNewline(Char c) const
-        {
+        {TRACE_IT(32881);
             return ASCIIChars::IsNewline(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsWhitespaceOrNewline(Char c) const
-        {
+        {TRACE_IT(32882);
             return ASCIIChars::IsWhitespace(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsLetter(Char c) const
-        {
+        {TRACE_IT(32883);
             return ASCIIChars::IsLetter(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsDigit(Char c) const
-        {
+        {TRACE_IT(32884);
             return ASCIIChars::IsDigit(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsOctal(Char c) const
-        {
+        {TRACE_IT(32885);
             return ASCIIChars::IsOctal(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsHex(Char c) const
-        {
+        {TRACE_IT(32886);
             return ASCIIChars::IsHex(ASCIIChars::UTC(CTU(c)));
         }
 
         inline uint DigitValue(Char c) const
-        {
+        {TRACE_IT(32887);
             return ASCIIChars::DigitValue(ASCIIChars::UTC(CTU(c)));
         }
     };
@@ -121,7 +121,7 @@ namespace UnifiedRegex
         CaseMapper(ArenaAllocator *allocator, CaseInsensitive::MappingSource mappingSource, const FallbackCaseMapper *fallbackMapper) :
             toEquivs((uint64) -1),
             fallbackMapper(fallbackMapper)
-        {
+        {TRACE_IT(32888);
             CompileAssert(sizeof(char16) == 2);
             CompileAssert(sizeof(uint) > sizeof(char16));
 
@@ -129,20 +129,20 @@ namespace UnifiedRegex
             uint l = 0;
             uint h = maxUChar;
             uint tblidx = 0;
-            do {
+            do {TRACE_IT(32889);
                 uint acth;
                 char16 equivl[CaseInsensitive::EquivClassSize];
                 bool isNonTrivial = CaseInsensitive::RangeToEquivClassOnlyInSource(mappingSource, tblidx, l, h, acth, equivl);
                 if (isNonTrivial)
-                {
+                {TRACE_IT(32890);
                     __assume(acth <= maxUChar); // property of algorithm: acth never greater than h
                     do
-                    {
+                    {TRACE_IT(32891);
                         uint64 r = 0;
                         CompileAssert(sizeof(r) >= sizeof(char16) * CaseInsensitive::EquivClassSize);
 
                         for (int i = CaseInsensitive::EquivClassSize - 1; i >= 0; i--)
-                        {
+                        {TRACE_IT(32892);
                             __assume(equivl[i] <= maxUChar); // property of algorithm: never map outside of range
                             r <<= 16;
                             r |= Chars<char16>::CTU(equivl[i]++);
@@ -152,7 +152,7 @@ namespace UnifiedRegex
                     while (l <= acth);
                 }
                 else
-                {
+                {TRACE_IT(32893);
                     l = acth + 1;
                 }
             }
@@ -160,23 +160,23 @@ namespace UnifiedRegex
         }
 
         inline char16 ToCanonical(char16 c) const
-        {
+        {TRACE_IT(32894);
             uint64 r = toEquivs.Get(c);
             return r == EQUIV_MISSING ? fallbackMapper->ToCanonical(c) : Chars<char16>::UTC(r & 0xffff);
         }
 
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
         inline bool ToEquivs(char16 c, __out_ecount(4) char16* equivs) const
-        {
+        {TRACE_IT(32895);
             uint64 r = toEquivs.Get(c);
             if (r == EQUIV_MISSING)
-            {
+            {TRACE_IT(32896);
                 return fallbackMapper->ToEquivs(c, equivs);
             }
             else
-            {
+            {TRACE_IT(32897);
                 for (int i = 0; i < CaseInsensitive::EquivClassSize; i++)
-                {
+                {TRACE_IT(32898);
                     equivs[i] = Chars<char16>::UTC(r & 0xffff);
                     r >>= 16;
                 }
@@ -185,9 +185,9 @@ namespace UnifiedRegex
         }
 
         inline bool IsTrivialString(const char16* str, CharCount strLen) const
-        {
+        {TRACE_IT(32899);
             for (CharCount i = 0; i < strLen; i++)
-            {
+            {TRACE_IT(32900);
                 if (toEquivs.Get(str[i]) != EQUIV_MISSING)
                     return false;
             }
@@ -208,27 +208,27 @@ namespace UnifiedRegex
     {
     public:
         inline char16 ToCanonical(char16 c) const
-        {
+        {TRACE_IT(32901);
             return c;
         }
 
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
         inline bool ToEquivs(char16 c, __out_ecount(4) char16* equivs) const
-        {
+        {TRACE_IT(32902);
             for (int i = 0; i < CaseInsensitive::EquivClassSize; i++)
                 equivs[i] = c;
             return false;
         }
 
         inline bool IsTrivialString(const char16* str, CharCount strLen) const
-        {
+        {TRACE_IT(32903);
             return true;
         }
 
         // This class is instantiated as a global const instance
         // C++ requires that a default constructor be provided in that case
         // See http://stackoverflow.com/questions/7411515/why-does-c-require-a-user-provided-default-constructor-to-default-construct-a
-        TrivialCaseMapper() {}
+        TrivialCaseMapper() {TRACE_IT(32904);}
 
         static const TrivialCaseMapper Instance;
     };
@@ -269,17 +269,17 @@ namespace UnifiedRegex
         StandardChars(ArenaAllocator* allocator);
 
         inline bool IsWord(Char c) const
-        {
+        {TRACE_IT(32905);
             return CTU(c) < ASCIIChars::NumChars && ASCIIChars::IsWord(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsNewline(Char c) const
-        {
+        {TRACE_IT(32906);
             return CTU(c) < ASCIIChars::NumChars ? ASCIIChars::IsNewline(ASCIIChars::UTC(CTU(c))) : (CTU(c) & 0xfffe) == 0x2028;
         }
 
         inline bool IsWhitespaceOrNewline(Char c) const
-        {
+        {TRACE_IT(32907);
             if (CTU(c) < ASCIIChars::NumChars)
                 return ASCIIChars::IsWhitespace(ASCIIChars::UTC(CTU(c)));
             else
@@ -289,27 +289,27 @@ namespace UnifiedRegex
         }
 
         inline bool IsLetter(Char c) const
-        {
+        {TRACE_IT(32908);
             return CTU(c) < ASCIIChars::NumChars && ASCIIChars::IsLetter(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsDigit(Char c) const
-        {
+        {TRACE_IT(32909);
             return CTU(c) < ASCIIChars::NumChars && ASCIIChars::IsDigit(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsOctal(Char c) const
-        {
+        {TRACE_IT(32910);
             return CTU(c) < ASCIIChars::NumChars && ASCIIChars::IsOctal(ASCIIChars::UTC(CTU(c)));
         }
 
         inline bool IsHex(Char c) const
-        {
+        {TRACE_IT(32911);
             return CTU(c) < ASCIIChars::NumChars && ASCIIChars::IsHex(ASCIIChars::UTC(CTU(c)));
         }
 
         inline uint DigitValue(Char c) const
-        {
+        {TRACE_IT(32912);
             return CTU(c) < ASCIIChars::NumChars ? ASCIIChars::DigitValue(ASCIIChars::UTC(CTU(c))) : 0;
         }
 
@@ -333,13 +333,13 @@ namespace UnifiedRegex
         CharSet<Char>* GetSurrogateUpperRange();
 
         inline Char ToCanonical(CaseInsensitive::MappingSource mappingSource, Char c) const
-        {
+        {TRACE_IT(32913);
             if (mappingSource == CaseInsensitive::MappingSource::UnicodeData)
-            {
+            {TRACE_IT(32914);
                 return unicodeDataCaseMapper.ToCanonical(c);
             }
             else
-            {
+            {TRACE_IT(32915);
                 Assert(mappingSource == CaseInsensitive::MappingSource::CaseFolding);
                 return caseFoldingCaseMapper.ToCanonical(c);
             }
@@ -347,26 +347,26 @@ namespace UnifiedRegex
 
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
         inline bool ToEquivs(CaseInsensitive::MappingSource mappingSource, Char c, __out_ecount(4) Char* equivs) const
-        {
+        {TRACE_IT(32916);
             if (mappingSource == CaseInsensitive::MappingSource::UnicodeData)
-            {
+            {TRACE_IT(32917);
                 return unicodeDataCaseMapper.ToEquivs(c, equivs);
             }
             else
-            {
+            {TRACE_IT(32918);
                 Assert(mappingSource == CaseInsensitive::MappingSource::CaseFolding);
                 return caseFoldingCaseMapper.ToEquivs(c, equivs);
             }
         }
 
         inline bool IsTrivialString(CaseInsensitive::MappingSource mappingSource, const Char* str, CharCount strLen) const
-        {
+        {TRACE_IT(32919);
             if (mappingSource == CaseInsensitive::MappingSource::UnicodeData)
-            {
+            {TRACE_IT(32920);
                 return unicodeDataCaseMapper.IsTrivialString(str, strLen);
             }
             else
-            {
+            {TRACE_IT(32921);
                 Assert(mappingSource == CaseInsensitive::MappingSource::CaseFolding);
                 return caseFoldingCaseMapper.IsTrivialString(str, strLen);
             }

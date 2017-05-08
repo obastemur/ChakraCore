@@ -16,12 +16,12 @@ namespace Js
         IndexPropertyDescriptor(PropertyAttributes attributes = PropertyDynamicTypeDefaults,
             Var getter = NULL, Var setter = NULL)
             : Attributes(attributes), Getter(getter), Setter(setter)
-        {
+        {TRACE_IT(66331);
         }
 
         IndexPropertyDescriptor(Var getter, Var setter)
             : Attributes(PropertyDynamicTypeDefaults), Getter(getter), Setter(setter)
-        {
+        {TRACE_IT(66332);
         }
     };
 
@@ -54,29 +54,29 @@ namespace Js
         uint32 DeleteDownTo(uint32 firstKey);
 
         int Count() const
-        {
+        {TRACE_IT(66333);
             return indexPropertyMap->Count();
         }
         uint32 GetKeyAt(int i) const
-        {
+        {TRACE_IT(66334);
             return indexPropertyMap->GetKeyAt(i);
         }
         IndexPropertyDescriptor* GetReferenceAt(int i) const
-        {
+        {TRACE_IT(66335);
             return indexPropertyMap->GetReferenceAt(i);
         }
         bool ContainsKey(uint32 key) const
-        {
+        {TRACE_IT(66336);
             return indexPropertyMap->ContainsKey(key);
         }
         bool TryGetReference(uint32 key, IndexPropertyDescriptor** value) const
-        {
+        {TRACE_IT(66337);
             return indexPropertyMap->TryGetReference(key, value);
         }
 
     private:
         static int __cdecl CompareIndex(const void* left, const void* right)
-        {
+        {TRACE_IT(66338);
             return *static_cast<const uint32*>(left) - *static_cast<const uint32*>(right);
         }
     };
@@ -120,7 +120,7 @@ namespace Js
             indexPropertyMap(typeHandler->indexPropertyMap),
             dataItemAttributes(typeHandler->dataItemAttributes),
             lengthWritable(typeHandler->lengthWritable)
-        {
+        {TRACE_IT(66339);
         }
 
         void SetInstanceTypeHandler(DynamicObject * instance, bool hasChanged = true);

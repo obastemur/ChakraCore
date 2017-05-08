@@ -47,7 +47,7 @@ namespace Wasm
 #if DBG_DUMP
         void PrintOps();
 #endif
-        intptr_t GetCurrentOffset() const { return m_pc - m_start; }
+        intptr_t GetCurrentOffset() const {TRACE_IT(68223); return m_pc - m_start; }
     private:
         struct ReaderState
         {

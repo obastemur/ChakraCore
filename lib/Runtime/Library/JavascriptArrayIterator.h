@@ -39,6 +39,6 @@ namespace Js
         static Var EntryNext(RecyclableObject* function, CallInfo callInfo, ...);
 
     public:
-        Var GetIteratorObjectForHeapEnum() { return m_iterableObject; }
+        Var GetIteratorObjectForHeapEnum() {TRACE_IT(58185); return m_iterableObject; }
     };
 } // namespace Js

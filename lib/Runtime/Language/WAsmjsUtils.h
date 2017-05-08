@@ -22,26 +22,26 @@ namespace WAsmJs
 
     uint32 ConvertOffset(uint32 ptr, uint32 fromSize, uint32 toSize);
     template<typename ToType> uint32 ConvertOffset(uint32 ptr, uint32 fromSize)
-    {
+    {TRACE_IT(53257);
         return ConvertOffset(ptr, fromSize, sizeof(ToType));
     }
     template<typename FromType, typename ToType> uint32 ConvertOffset(uint32 ptr)
-    {
+    {TRACE_IT(53258);
         return ConvertOffset(ptr, sizeof(FromType), sizeof(ToType));
     }
     template<typename T> uint32 ConvertToJsVarOffset(uint32 ptr)
-    {
+    {TRACE_IT(53259);
         return ConvertOffset<T, Js::Var>(ptr);
     }
     template<typename T> uint32 ConvertFromJsVarOffset(uint32 ptr)
-    {
+    {TRACE_IT(53260);
         return ConvertOffset<Js::Var, T>(ptr);
     }
 
     struct EmitInfoBase
     {
-        EmitInfoBase(RegSlot location_) : location(location_) {}
-        EmitInfoBase() : location(Js::Constants::NoRegister) {}
+        EmitInfoBase(RegSlot location_) : location(location_) {TRACE_IT(53261);}
+        EmitInfoBase() : location(Js::Constants::NoRegister) {TRACE_IT(53262);}
 
         RegSlot location;
     };
@@ -86,23 +86,23 @@ namespace WAsmJs
             , mFirstTmpReg( reservedSlotsCount )
             , mNextLocation( reservedSlotsCount )
             , mNbConst( reservedSlotsCount )
-        {
+        {TRACE_IT(53263);
         }
         // Get the number of const allocated
-        RegSlot GetConstCount() const      { return mNbConst; }
+        RegSlot GetConstCount() const      {TRACE_IT(53264); return mNbConst; }
         // Get the location of the first temporary register
-        RegSlot GetFirstTmpRegister() const{ return mFirstTmpReg; }
+        RegSlot GetFirstTmpRegister() const{TRACE_IT(53265); return mFirstTmpReg; }
         // Get the total number of temporary register allocated
-        RegSlot GetTmpCount() const        { return mRegisterCount-mFirstTmpReg; }
+        RegSlot GetTmpCount() const        {TRACE_IT(53266); return mRegisterCount-mFirstTmpReg; }
         // Get number of local variables
-        RegSlot GetVarCount() const        { return mFirstTmpReg - mNbConst; }
+        RegSlot GetVarCount() const        {TRACE_IT(53267); return mFirstTmpReg - mNbConst; }
         // Get the total number of variable allocated ( including temporaries )
-        RegSlot GetTotalVarCount() const   { return mRegisterCount - mNbConst; }
-        RegSlot GetRegisterCount() const   { return mRegisterCount; }
+        RegSlot GetTotalVarCount() const   {TRACE_IT(53268); return mRegisterCount - mNbConst; }
+        RegSlot GetRegisterCount() const   {TRACE_IT(53269); return mRegisterCount; }
 
         // Acquire a location for a register. Use only for arguments and Variables
         RegSlot AcquireRegister()
-        {
+        {TRACE_IT(53270);
             // Makes sure no temporary register have been allocated yet
             Assert(mFirstTmpReg == mRegisterCount && mNextLocation == mFirstTmpReg);
             ++mFirstTmpReg;
@@ -112,20 +112,20 @@ namespace WAsmJs
 
         // Acquire a location for a constant
         RegSlot AcquireConstRegister()
-        {
+        {TRACE_IT(53271);
             ++mNbConst;
             return AcquireRegister();
         }
 
         // Acquire a location for a temporary register
         RegSlot AcquireTmpRegister()
-        {
+        {TRACE_IT(53272);
             // Make sure this function is called correctly
             Assert(mNextLocation <= mRegisterCount && mNextLocation >= mFirstTmpReg);
 
             // Allocate a new temp pseudo-register, increasing the locals count if necessary.
             if(mNextLocation == mRegisterCount)
-            {
+            {TRACE_IT(53273);
                 ++mRegisterCount;
             }
 #if DBG_DUMP
@@ -136,13 +136,13 @@ namespace WAsmJs
 
         // Release a location for a temporary register, must be the last location acquired
         void ReleaseTmpRegister( RegSlot tmpReg )
-        {
+        {TRACE_IT(53274);
             // make sure the location released is valid
             Assert(tmpReg != Js::Constants::NoRegister);
 
             // Put this reg back on top of the temp stack (if it's a temp).
             if( this->IsTmpReg( tmpReg ) )
-            {
+            {TRACE_IT(53275);
                 Assert( tmpReg == this->mNextLocation - 1 );
 #if DBG_DUMP
                 PrintTmpRegisterAllocation(mNextLocation - 1, true);
@@ -153,21 +153,21 @@ namespace WAsmJs
 
         // Checks if the register is a temporary register
         bool IsTmpReg(RegSlot tmpReg)
-        {
+        {TRACE_IT(53276);
             Assert(mFirstTmpReg != Js::Constants::NoRegister);
             return !IsConstReg(tmpReg) && tmpReg >= mFirstTmpReg;
         }
 
         // Checks if the register is a const register
         bool IsConstReg(RegSlot reg)
-        {
+        {TRACE_IT(53277);
             // a register is const if it is between the first register and the end of consts
             return reg < mNbConst && reg != 0;
         }
 
         // Checks if the register is a variable register
         bool IsVarReg(RegSlot reg)
-        {
+        {TRACE_IT(53278);
             // a register is a var if it is between the last const and the end
             // equivalent to  reg>=mNbConst && reg<mRegisterCount
             // forcing unsigned, if reg < mNbConst then reg-mNbConst = 0xFFFFF..
@@ -176,19 +176,19 @@ namespace WAsmJs
 
         // Releases a location if its a temporary, safe to call with any expression
         void ReleaseLocation(const EmitInfoBase *pnode)
-        {
+        {TRACE_IT(53279);
             // Release the temp assigned to this expression so it can be re-used.
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {TRACE_IT(53280);
                 ReleaseTmpRegister(pnode->location);
             }
         }
 
         // Checks if the location points to a temporary register
         bool IsTmpLocation(const EmitInfoBase* pnode)
-        {
+        {TRACE_IT(53281);
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {TRACE_IT(53282);
                 return IsTmpReg(pnode->location);
             }
             return false;
@@ -196,9 +196,9 @@ namespace WAsmJs
 
         // Checks if the location points to a constant register
         bool IsConstLocation(const EmitInfoBase* pnode)
-        {
+        {TRACE_IT(53283);
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {TRACE_IT(53284);
                 return IsConstReg(pnode->location);
             }
             return false;
@@ -206,9 +206,9 @@ namespace WAsmJs
 
         // Checks if the location points to a variable register
         bool IsVarLocation(const EmitInfoBase* pnode)
-        {
+        {TRACE_IT(53285);
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {TRACE_IT(53286);
                 return IsVarReg(pnode->location);
             }
             return false;
@@ -216,9 +216,9 @@ namespace WAsmJs
 
         // Checks if the location is valid (within bounds of already allocated registers)
         bool IsValidLocation(const EmitInfoBase* pnode)
-        {
+        {TRACE_IT(53287);
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {TRACE_IT(53288);
                 return pnode->location < mRegisterCount;
             }
             return false;
@@ -241,7 +241,7 @@ namespace WAsmJs
 
     struct TypedSlotInfo
     {
-        TypedSlotInfo(): constCount(0), varCount(0), tmpCount(0), byteOffset(0), constSrcByteOffset(0) { }
+        TypedSlotInfo(): constCount(0), varCount(0), tmpCount(0), byteOffset(0), constSrcByteOffset(0) {TRACE_IT(53289); }
         Field(uint32) constCount;
         Field(uint32) varCount;
         Field(uint32) tmpCount;

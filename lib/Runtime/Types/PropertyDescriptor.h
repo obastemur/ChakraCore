@@ -25,7 +25,7 @@ namespace Js
             Enumerable(other.Enumerable),
             Configurable(other.Configurable),
             fromProxy(other.fromProxy)
-        {
+        {TRACE_IT(66820);
         }
 
     private:
@@ -47,39 +47,39 @@ namespace Js
         Field(bool) fromProxy;
 
     public:
-        bool IsDataDescriptor() const { return writableSpecified | valueSpecified;}
-        bool IsAccessorDescriptor() const { return getterSpecified | setterSpecified;}
-        bool IsGenericDescriptor() const { return !IsAccessorDescriptor() && !IsDataDescriptor(); }
+        bool IsDataDescriptor() const {TRACE_IT(66821); return writableSpecified | valueSpecified;}
+        bool IsAccessorDescriptor() const {TRACE_IT(66822); return getterSpecified | setterSpecified;}
+        bool IsGenericDescriptor() const {TRACE_IT(66823); return !IsAccessorDescriptor() && !IsDataDescriptor(); }
         void SetEnumerable(bool value);
         void SetWritable(bool value);
         void SetConfigurable(bool value);
 
         void SetValue(Var value);
-        Var GetValue() const { return Value; }
+        Var GetValue() const {TRACE_IT(66824); return Value; }
 
         void SetGetter(Var getter);
-        Var GetGetter() const { Assert(getterSpecified || Getter == nullptr);  return Getter; }
+        Var GetGetter() const {TRACE_IT(66825); Assert(getterSpecified || Getter == nullptr);  return Getter; }
         void SetSetter(Var setter);
-        Var GetSetter() const { Assert(setterSpecified || Setter == nullptr); return Setter; }
+        Var GetSetter() const {TRACE_IT(66826); Assert(setterSpecified || Setter == nullptr); return Setter; }
 
         PropertyAttributes GetAttributes() const;
 
-        bool IsFromProxy() const { return fromProxy; }
-        void SetFromProxy(bool value) { fromProxy = value; }
+        bool IsFromProxy() const {TRACE_IT(66827); return fromProxy; }
+        void SetFromProxy(bool value) {TRACE_IT(66828); fromProxy = value; }
 
-        void SetOriginal(Var original) { originalVar = original; }
-        Var GetOriginal() const { return originalVar; }
+        void SetOriginal(Var original) {TRACE_IT(66829); originalVar = original; }
+        Var GetOriginal() const {TRACE_IT(66830); return originalVar; }
 
-        bool ValueSpecified() const { return valueSpecified; }
-        bool WritableSpecified() const { return writableSpecified; };
-        bool ConfigurableSpecified() const { return configurableSpecified; }
-        bool EnumerableSpecified() const { return enumerableSpecified; }
-        bool GetterSpecified() const { return getterSpecified; }
-        bool SetterSpecified() const { return setterSpecified; }
+        bool ValueSpecified() const {TRACE_IT(66831); return valueSpecified; }
+        bool WritableSpecified() const {TRACE_IT(66832); return writableSpecified; };
+        bool ConfigurableSpecified() const {TRACE_IT(66833); return configurableSpecified; }
+        bool EnumerableSpecified() const {TRACE_IT(66834); return enumerableSpecified; }
+        bool GetterSpecified() const {TRACE_IT(66835); return getterSpecified; }
+        bool SetterSpecified() const {TRACE_IT(66836); return setterSpecified; }
 
-        bool IsWritable() const { Assert(writableSpecified);  return Writable; }
-        bool IsEnumerable() const { Assert(enumerableSpecified); return Enumerable; }
-        bool IsConfigurable() const { Assert(configurableSpecified);  return Configurable; }
+        bool IsWritable() const {TRACE_IT(66837); Assert(writableSpecified);  return Writable; }
+        bool IsEnumerable() const {TRACE_IT(66838); Assert(enumerableSpecified); return Enumerable; }
+        bool IsConfigurable() const {TRACE_IT(66839); Assert(configurableSpecified);  return Configurable; }
 
         // Set configurable/enumerable/writable.
         // attributes: attribute values.

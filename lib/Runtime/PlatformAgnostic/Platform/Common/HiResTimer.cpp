@@ -14,13 +14,13 @@ namespace DateTime
 {
     // This method is expected to return UTC time (See MSDN GetSystemTime)
     inline static double GetSystemTimeREAL()
-    {
+    {TRACE_IT(64925);
 #ifndef __APPLE__
         struct timespec fast_time;
         // method below returns UTC time. So, nothing else is needed
         // we use clock_gettime first due to expectation of better accuracy
         if (clock_gettime(CLOCK_REALTIME, &fast_time) == 0)
-        {
+        {TRACE_IT(64926);
             return (fast_time.tv_sec * DateTimeTicks_PerSecond)
             + (int32_t) (fast_time.tv_nsec / 1e6);
         }
@@ -41,7 +41,7 @@ namespace DateTime
 
         size_t milliseconds = 0;
         if(timeofday_retval != -1)
-        {
+        {TRACE_IT(64927);
             milliseconds = timeval.tv_usec / DateTimeTicks_PerSecond;
 
             int old_sec = utc_tm.tm_sec;
@@ -50,7 +50,7 @@ namespace DateTime
             // just in case we reached the next
             // second in the interval between time() and gettimeofday()
             if(old_sec != new_sec)
-            {
+            {TRACE_IT(64928);
                 milliseconds = 999;
             }
         }
@@ -67,17 +67,17 @@ namespace DateTime
 // Important! When you update 5ms below to any other number, also update test/Date/xplatInterval.js 0->5 range
 #define INTERVAL_FOR_TICK_BACKUP 5
     double HiResTimer::GetSystemTime()
-    {
+    {TRACE_IT(64929);
         ULONGLONG current = GetTickCount64();
         ULONGLONG diff = current - data.cacheTick;
 
         if (diff <= data.previousDifference || diff >= INTERVAL_FOR_TICK_BACKUP) // max *ms to respond system time changes
-        {
+        {TRACE_IT(64930);
             double currentTime = GetSystemTimeREAL();
 
             // in case the system time wasn't updated backwards, and cache is still beyond...
             if (currentTime >= data.cacheSysTime && currentTime < data.cacheSysTime + INTERVAL_FOR_TICK_BACKUP)
-            {
+            {TRACE_IT(64931);
                 data.previousDifference = (ULONGLONG) -1; // Make sure next request won't use cache
                 return data.cacheSysTime + INTERVAL_FOR_TICK_BACKUP; // wait for real time
             }
@@ -96,7 +96,7 @@ namespace DateTime
 #undef INTERVAL_FOR_TICK_BACKUP
 
     double HiResTimer::Now()
-    {
+    {TRACE_IT(64932);
         return GetSystemTime();
     }
 

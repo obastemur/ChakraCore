@@ -19,7 +19,7 @@ void LeavePinnedScope();
 #define ENTER_PINNED_SCOPE(T, var) \
     T * var; \
     EnterPinnedScope((volatile void**)& ## var); \
-    {
+    {TRACE_IT(27263);
 
 #define LEAVE_PINNED_SCOPE() \
     LeavePinnedScope(); \

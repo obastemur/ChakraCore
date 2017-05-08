@@ -25,7 +25,7 @@
     DECLARE_ARGS_VARARRAY_N(va, _count_args(__VA_ARGS__))
 
 inline Js::Var* _get_va(void* addrOfReturnAddress, int n)
-{
+{TRACE_IT(45605);
     // All args are right after ReturnAddress by custom calling convention
     Js::Var* pArgs = reinterpret_cast<Js::Var*>(addrOfReturnAddress) + 1;
 #ifdef _ARM_
@@ -35,29 +35,29 @@ inline Js::Var* _get_va(void* addrOfReturnAddress, int n)
 }
 
 inline int _count_args(Js::CallInfo callInfo)
-{
+{TRACE_IT(45606);
     // This is to support typical runtime "ARGUMENTS(args, callInfo)" usage.
     // Only "callInfo" listed, but we have 2 known args "function, callInfo".
     return 2;
 }
 template <class T1>
 inline int _count_args(const T1&, Js::CallInfo callInfo)
-{
+{TRACE_IT(45607);
     return 2;
 }
 template <class T1, class T2>
 inline int _count_args(const T1&, const T2&, Js::CallInfo callInfo)
-{
+{TRACE_IT(45608);
     return 3;
 }
 template <class T1, class T2, class T3>
 inline int _count_args(const T1&, const T2&, const T3&, Js::CallInfo callInfo)
-{
+{TRACE_IT(45609);
     return 4;
 }
 template <class T1, class T2, class T3, class T4>
 inline int _count_args(const T1&, const T2&, const T3&, const T4&, Js::CallInfo callInfo)
-{
+{TRACE_IT(45610);
     return 5;
 }
 #endif
@@ -112,18 +112,18 @@ namespace Js
     {
     public:
         Arguments(CallInfo callInfo, Var* values) :
-            Info(callInfo), Values(values) {}
+            Info(callInfo), Values(values) {TRACE_IT(45611);}
 
         Arguments(ushort count, Var* values) :
-            Info(count), Values(values) {}
+            Info(count), Values(values) {TRACE_IT(45612);}
 
-        Arguments(VirtualTableInfoCtorEnum v) : Info(v) {}
+        Arguments(VirtualTableInfoCtorEnum v) : Info(v) {TRACE_IT(45613);}
 
-        Arguments(const Arguments& other) : Info(other.Info), Values(other.Values) {}
+        Arguments(const Arguments& other) : Info(other.Info), Values(other.Values) {TRACE_IT(45614);}
 
-        Var operator [](int idxArg) { return const_cast<Var>(static_cast<const Arguments&>(*this)[idxArg]); }
+        Var operator [](int idxArg) {TRACE_IT(45615); return const_cast<Var>(static_cast<const Arguments&>(*this)[idxArg]); }
         const Var operator [](int idxArg) const
-        {
+        {TRACE_IT(45616);
             AssertMsg((idxArg < (int)Info.Count) && (idxArg >= 0), "Ensure a valid argument index");
             return Values[idxArg];
         }
@@ -133,8 +133,8 @@ namespace Js
         FieldNoBarrier(CallInfo) Info;
         FieldNoBarrier(Var*) Values;
 
-        static uint32 GetCallInfoOffset() { return offsetof(Arguments, Info); }
-        static uint32 GetValuesOffset() { return offsetof(Arguments, Values); }
+        static uint32 GetCallInfoOffset() {TRACE_IT(45617); return offsetof(Arguments, Info); }
+        static uint32 GetValuesOffset() {TRACE_IT(45618); return offsetof(Arguments, Values); }
 
         // Prevent heap/recycler allocation, so we don't need write barrier for this
         static void* operator new   (size_t)    = delete;
@@ -147,16 +147,16 @@ namespace Js
     {
         ArgumentReader(CallInfo *callInfo, Var* values)
             : Arguments(*callInfo, values)
-        {
+        {TRACE_IT(45619);
             AdjustArguments(callInfo);
         }
 
     private:
         void AdjustArguments(CallInfo *callInfo)
-        {
+        {TRACE_IT(45620);
             AssertMsg(!(Info.Flags & Js::CallFlags_NewTarget) || (Info.Flags & Js::CallFlags_ExtraArg), "NewTarget flag must be used together with ExtraArg.");
             if (Info.Flags & Js::CallFlags_ExtraArg)
-            {
+            {TRACE_IT(45621);
                 // If "calling eval" is set, then the last param is the frame display, which only
                 // the eval built-in should see.
                 Assert(Info.Count > 0);

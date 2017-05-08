@@ -10,7 +10,7 @@
 namespace Js
 {
     SIMDValue SIMDUint32x4Operation::OpUint32x4(unsigned int x, unsigned int y, unsigned int z, unsigned int w)
-    {
+    {TRACE_IT(52516);
         SIMDValue result;
 
         result.u32[SIMD_X] = x;
@@ -22,7 +22,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpSplat(unsigned int x)
-    {
+    {TRACE_IT(52517);
         SIMDValue result;
 
         result.u32[SIMD_X] = result.u32[SIMD_Y] = result.u32[SIMD_Z] = result.u32[SIMD_W] = x;
@@ -31,7 +31,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52518);
         SIMDValue result;
 
         count = count & SIMDUtils::SIMDGetShiftAmountMask(4);
@@ -45,18 +45,18 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpFromFloat32x4(const SIMDValue& v, bool &throws)
-    {
+    {TRACE_IT(52519);
         SIMDValue result = {0};
         const int MIN_UINT = -1, MAX_UINT = 0xFFFFFFFF;
 
         for (int i = 0; i < 4; i++)
-        {
+        {TRACE_IT(52520);
             if (v.f32[i] > MIN_UINT && v.f32[i] <= MAX_UINT)
-            {
+            {TRACE_IT(52521);
                 result.u32[i] = (unsigned int)(v.f32[i]);
             }
             else
-            {
+            {TRACE_IT(52522);
                 // out of range. Caller should throw.
                 throws = true;
                 return result;
@@ -66,7 +66,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52523);
         SIMDValue result;
         result.u32[SIMD_X] = (aValue.u32[SIMD_X] < bValue.u32[SIMD_X]) ? aValue.u32[SIMD_X] : bValue.u32[SIMD_X];
         result.u32[SIMD_Y] = (aValue.u32[SIMD_Y] < bValue.u32[SIMD_Y]) ? aValue.u32[SIMD_Y] : bValue.u32[SIMD_Y];
@@ -77,12 +77,12 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52524);
         return OpMin(bValue, aValue); // swap args
     }
 
     SIMDValue SIMDUint32x4Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52525);
         SIMDValue result;
 
         result.u32[SIMD_X] = (aValue.u32[SIMD_X] < bValue.u32[SIMD_X]) ? 0xffffffff : 0x0;
@@ -94,7 +94,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52526);
         SIMDValue result;
 
         result.u32[SIMD_X] = (aValue.u32[SIMD_X] <= bValue.u32[SIMD_X]) ? 0xffffffff : 0x0;
@@ -106,7 +106,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52527);
         SIMDValue result;
         result = SIMDUint32x4Operation::OpLessThan(aValue, bValue);
         result = SIMDInt32x4Operation::OpNot(result);
@@ -114,7 +114,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint32x4Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52528);
         SIMDValue result;
         result = SIMDUint32x4Operation::OpLessThanOrEqual(aValue, bValue);
         result = SIMDInt32x4Operation::OpNot(result);

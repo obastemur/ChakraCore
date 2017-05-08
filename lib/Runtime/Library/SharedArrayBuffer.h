@@ -51,7 +51,7 @@ namespace Js
         ArrayBufferAllocationType allocationType;
         SharableState(SharedContents *c, ArrayBufferAllocationType t)
             : DetachedStateBase(TypeIds_SharedArrayBuffer), contents(c), allocationType(t)
-        { }
+        {TRACE_IT(63098); }
 
         virtual void ClearSelfOnly() override
         {
@@ -102,18 +102,18 @@ namespace Js
         virtual uint32 GetByteLength() const override;
         virtual BYTE* GetBuffer() const override;
 
-        static int GetByteLengthOffset() { Assert(false); return 0; }
-        static int GetBufferOffset() { Assert(false); return 0; }
+        static int GetByteLengthOffset() {TRACE_IT(63099); Assert(false); return 0; }
+        static int GetBufferOffset() {TRACE_IT(63100); Assert(false); return 0; }
         virtual bool IsArrayBuffer() override { return false; }
         virtual bool IsSharedArrayBuffer() override { return true; }
-        virtual ArrayBuffer * GetAsArrayBuffer() { return nullptr; }
+        virtual ArrayBuffer * GetAsArrayBuffer() {TRACE_IT(63101); return nullptr; }
         virtual SharedArrayBuffer * GetAsSharedArrayBuffer() override { return SharedArrayBuffer::FromVar(this); }
 
         static SharedArrayBuffer* NewFromSharedState(DetachedStateBase* state, JavascriptLibrary *library);
         static DetachedStateBase* GetSharableState(Var object);
 
         WaiterList *GetWaiterList(uint index);
-        SharedContents *GetSharedContents() { return sharedContents; }
+        SharedContents *GetSharedContents() {TRACE_IT(63102); return sharedContents; }
 
 #if _WIN64
         //maximum 2G -1  for amd64
@@ -122,7 +122,7 @@ namespace Js
         // maximum 1G to avoid arithmetic overflow.
         static const uint32 MaxSharedArrayBufferLength = 1 << 30;
 #endif
-        virtual bool IsValidVirtualBufferLength(uint length) { return false; }
+        virtual bool IsValidVirtualBufferLength(uint length) {TRACE_IT(63103); return false; }
 
     protected:
         FieldNoBarrier(SharedContents *) sharedContents;
@@ -151,8 +151,8 @@ namespace Js
     struct AgentOfBuffer
     {
     public:
-        AgentOfBuffer() :identity(NULL), event(NULL) {}
-        AgentOfBuffer(DWORD_PTR agent, HANDLE e) :identity(agent), event(e) {}
+        AgentOfBuffer() :identity(NULL), event(NULL) {TRACE_IT(63104);}
+        AgentOfBuffer(DWORD_PTR agent, HANDLE e) :identity(agent), event(e) {TRACE_IT(63105);}
         static bool AgentCanSuspend(ScriptContext *scriptContext);
 
         DWORD_PTR identity;
@@ -171,7 +171,7 @@ namespace Js
         void RemoveWaiter(DWORD_PTR waiter);
         uint32 RemoveAndWakeWaiters(int32 count);
 
-        CriticalSection * GetCriticalSectionForAccess() { return &csForAccess; }
+        CriticalSection * GetCriticalSectionForAccess() {TRACE_IT(63106); return &csForAccess; }
 
     private:
         void InitWaiterList();

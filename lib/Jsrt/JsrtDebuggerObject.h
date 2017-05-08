@@ -24,19 +24,19 @@ public:
     JsrtDebuggerObjectBase(JsrtDebuggerObjectType type, JsrtDebuggerObjectsManager* debuggerObjectsManager);
     virtual ~JsrtDebuggerObjectBase();
 
-    JsrtDebuggerObjectType GetType() { return type; }
-    uint GetHandle() const { return handle; }
+    JsrtDebuggerObjectType GetType() {TRACE_IT(28307); return type; }
+    uint GetHandle() const {TRACE_IT(28308); return handle; }
     JsrtDebuggerObjectsManager* GetDebuggerObjectsManager();
     virtual Js::DynamicObject* GetJSONObject(Js::ScriptContext* scriptContext) = 0;
     virtual Js::DynamicObject* GetChildren(Js::ScriptContext* scriptContext, uint fromCount, uint totalCount);
 
     template<class JsrtDebuggerObjectType, class PostFunction>
     static void CreateDebuggerObject(JsrtDebuggerObjectsManager* debuggerObjectsManager, Js::ResolvedObject resolvedObject, Js::ScriptContext* scriptContext, PostFunction postFunction)
-    {
+    {TRACE_IT(28309);
         AutoPtr<WeakArenaReference<Js::IDiagObjectModelDisplay>> objectDisplayWeakRef(resolvedObject.GetObjectDisplay());
         Js::IDiagObjectModelDisplay* objectDisplay = objectDisplayWeakRef->GetStrongReference();
         if (objectDisplay != nullptr)
-        {
+        {TRACE_IT(28310);
             JsrtDebuggerObjectBase* debuggerObject = JsrtDebuggerObjectType::Make(debuggerObjectsManager, objectDisplayWeakRef);
             Js::DynamicObject* object = debuggerObject->GetJSONObject(resolvedObject.scriptContext);
             Assert(object != nullptr);
@@ -121,7 +121,7 @@ public:
     Js::DynamicObject* GetJSONObject(Js::ScriptContext* scriptContext);
     Js::DynamicObject* GetLocalsObject(Js::ScriptContext* scriptContext);
     bool Evaluate(Js::ScriptContext* scriptContext, const char16 *source, int sourceLength, bool isLibraryCode, Js::DynamicObject** evalResult);
-    uint GetIndex() const { return this->frameIndex; }
+    uint GetIndex() const {TRACE_IT(28311); return this->frameIndex; }
 
 private:
     uint frameIndex;
@@ -153,9 +153,9 @@ public:
     ~JsrtDebuggerObjectsManager();
 
     void ClearAll();
-    JsrtDebugManager* GetJsrtDebugManager() { return this->jsrtDebugManager; };
+    JsrtDebugManager* GetJsrtDebugManager() {TRACE_IT(28312); return this->jsrtDebugManager; };
     ArenaAllocator* GetDebugObjectArena();
-    uint GetNextHandle() { return ++handleId; }
+    uint GetNextHandle() {TRACE_IT(28313); return ++handleId; }
 
     void AddToDebuggerObjectsDictionary(JsrtDebuggerObjectBase* debuggerObject);
     bool TryGetDebuggerObjectFromHandle(uint handle, JsrtDebuggerObjectBase** debuggerObject);

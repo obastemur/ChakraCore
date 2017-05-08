@@ -78,13 +78,13 @@ namespace TTD
 
         template<typename Fn, typename T, size_t allocSize>
         static void EmitListHelper(Fn emitFunc, const UnorderedArrayList<T, allocSize>& list, FileWriter* snapwriter)
-        {
+        {TRACE_IT(45336);
             snapwriter->WriteLengthValue(list.Count(), NSTokens::Separator::CommaAndBigSpaceSeparator);
             snapwriter->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaAndBigSpaceSeparator);
             snapwriter->AdjustIndent(1);
             bool firstElement = true;
             for(auto iter = list.GetIterator(); iter.IsValid(); iter.MoveNext())
-            {
+            {TRACE_IT(45337);
                 (*emitFunc)(iter.Current(), snapwriter, firstElement ? NSTokens::Separator::BigSpaceSeparator : NSTokens::Separator::CommaAndBigSpaceSeparator);
                 firstElement = false;
             }
@@ -94,11 +94,11 @@ namespace TTD
 
         template<typename Fn, typename T, size_t allocSize>
         static void ParseListHelper(Fn parseFunc, UnorderedArrayList<T, allocSize>& list, FileReader* snapreader, SlabAllocator& alloc)
-        {
+        {TRACE_IT(45338);
             uint32 count = snapreader->ReadLengthValue(true);
             snapreader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < count; ++i)
-            {
+            {TRACE_IT(45339);
                 T* into = list.NextOpenEntry();
                 (*parseFunc)(into, i != 0, snapreader, alloc);
             }
@@ -107,11 +107,11 @@ namespace TTD
 
         template<typename Fn, typename T, typename U, size_t allocSize>
         static void ParseListHelper_WMap(Fn parseFunc, UnorderedArrayList<T, allocSize>& list, FileReader* snapreader, SlabAllocator& alloc, const TTDIdentifierDictionary<TTD_PTR_ID, U>& infoMap)
-        {
+        {TRACE_IT(45340);
             uint32 count = snapreader->ReadLengthValue(true);
             snapreader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < count; ++i)
-            {
+            {TRACE_IT(45341);
                 T* into = list.NextOpenEntry();
                 (*parseFunc)(into, i != 0, snapreader, alloc, infoMap);
             }

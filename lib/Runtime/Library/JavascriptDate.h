@@ -20,7 +20,7 @@ namespace Js
 
         static bool Is(Var aValue);
 
-        double GetTime() { return m_date.GetMilliSeconds(); }
+        double GetTime() {TRACE_IT(58399); return m_date.GetMilliSeconds(); }
         static JavascriptDate* FromVar(Var aValue);
 
         class EntryInfo

@@ -43,7 +43,7 @@ NoReleaseAllocator::NoReleaseAllocator(int32 cbFirst, int32 cbMax)
 }
 
 void * NoReleaseAllocator::Alloc(int32 cb)
-{
+{TRACE_IT(28541);
     Assert(cb > 0);
     if (cb <= 0)
         return NULL;
@@ -52,17 +52,17 @@ void * NoReleaseAllocator::Alloc(int32 cb)
     void * pv;
 
     if (cb > m_ibMax - m_ibCur)
-    {
+    {TRACE_IT(28542);
         int32 cbBlock;
         int32 cbAlloc;
         NraBlock * pblk;
 
         if (cb >= m_cbMaxBlock)
-        {
+        {TRACE_IT(28543);
             // check for integer overflow before allocating (See WindowsSE #88972)
             cbAlloc = cb + kcbHead;
             if (cbAlloc < cb)
-            {
+            {TRACE_IT(28544);
                 Assert(FALSE); // too big!
                 return NULL;
             }
@@ -78,14 +78,14 @@ void * NoReleaseAllocator::Alloc(int32 cb)
             m_cblk++;
 #endif //DEBUG
             if (m_ibCur < m_ibMax)
-            {
+            {TRACE_IT(28545);
                 // There is still room in current block, so put the new block
                 // after the current block.
                 pblk->pblkNext = m_pblkList->pblkNext;
                 m_pblkList->pblkNext = pblk;
             }
             else
-            {
+            {TRACE_IT(28546);
                 // Link into front of the list.
                 // Don't need to adjust m_ibCur and m_ibMax, because they
                 // already have the correct relationship for this full block
@@ -107,7 +107,7 @@ void * NoReleaseAllocator::Alloc(int32 cb)
         if (cbBlock > m_cbMaxBlock)   // no larger than the max
             cbBlock = m_cbMaxBlock;
         if (cb > cbBlock)             // guarantee it's big enough
-        {
+        {TRACE_IT(28547);
             Assert(("Request too large", FALSE));
             return NULL;
         }
@@ -115,7 +115,7 @@ void * NoReleaseAllocator::Alloc(int32 cb)
         // check for integer overflow before allocating (See WindowsSE #88972)
         cbAlloc = cbBlock + kcbHead;
         if ((cbAlloc < cbBlock) || (cbAlloc < cb))
-        {
+        {TRACE_IT(28548);
             Assert(FALSE); // too big!
             return NULL ;
         }
@@ -150,10 +150,10 @@ void * NoReleaseAllocator::Alloc(int32 cb)
 }
 
 void NoReleaseAllocator::FreeAll(void)
-{
+{TRACE_IT(28549);
     // Free all of the allocated blocks
     while (NULL != m_pblkList)
-    {
+    {TRACE_IT(28550);
         NraBlock * pblk = m_pblkList;
 #pragma prefast(suppress:6001, "Not sure why it is complaining *m_plkList is uninitialized")
         m_pblkList = pblk->pblkNext;

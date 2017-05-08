@@ -13,14 +13,14 @@ namespace Js
     struct FastEvalMapStringComparer
     {
         static bool Equals(T left, T right)
-        {
+        {TRACE_IT(48136);
             return (left.hash == right.hash) &&
                 (left.moduleID == right.moduleID) &&
                 (left.IsStrict() == right.IsStrict());
         }
 
         static hash_t GetHashCode(T t)
-        {
+        {TRACE_IT(48137);
             return (hash_t)t;
         }
     };
@@ -35,18 +35,18 @@ namespace Js
             singleValue(true), value(newValue) {}
 
         TwoLevelHashRecord() :
-            singleValue(true), value(nullptr) {}
+            singleValue(true), value(nullptr) {TRACE_IT(48138);}
 
         SecondaryDictionary* GetDictionary()
-        {
+        {TRACE_IT(48139);
             Assert(!singleValue);
             return nestedMap;
         }
 
         bool TryGetValue(TKey& key, TValue* value)
-        {
+        {TRACE_IT(48140);
             if (IsValue())
-            {
+            {TRACE_IT(48141);
                 *value = GetValue();
                 return true;
             }
@@ -54,21 +54,21 @@ namespace Js
         }
 
         void Add(const TKey& key, const TValue& newValue)
-        {
+        {TRACE_IT(48142);
             Assert(!singleValue);
             NestedKey nestedKey;
             ConvertKey(key, nestedKey);
             nestedMap->Item(nestedKey, newValue);
 #ifdef PROFILE_EVALMAP
             if (Configuration::Global.flags.ProfileEvalMap)
-            {
+            {TRACE_IT(48143);
                 Output::Print(_u("EvalMap fastcache collision:\t key = %d count = %d\n"), (hash_t)key, nestedMap->Count());
             }
 #endif
         }
 
         void Remove(const TKey& key)
-        {
+        {TRACE_IT(48144);
             Assert(!singleValue);
             NestedKey nestedKey;
             ConvertKey(key, nestedKey);
@@ -76,7 +76,7 @@ namespace Js
         }
 
         void ConvertToDictionary(TKey& key, Recycler* recycler)
-        {
+        {TRACE_IT(48145);
             Assert(singleValue);
             SecondaryDictionary* dictionary = RecyclerNew(recycler, SecondaryDictionary, recycler);
             auto newValue = value;
@@ -85,9 +85,9 @@ namespace Js
             Add(key, newValue);
         }
 
-        bool IsValue() const { return singleValue; }
-        TValue GetValue() const { Assert(singleValue); return value; }
-        bool IsDictionaryEntry() const { return !singleValue; }
+        bool IsValue() const {TRACE_IT(48146); return singleValue; }
+        TValue GetValue() const {TRACE_IT(48147); Assert(singleValue); return value; }
+        bool IsDictionaryEntry() const {TRACE_IT(48148); return !singleValue; }
 
     private:
         Field(bool) singleValue;
@@ -109,11 +109,11 @@ namespace Js
         public:
             AutoRestoreSetInAdd(T* instance, Value value) :
                 instance(instance), value(value)
-            {
+            {TRACE_IT(48149);
                 instance->SetIsInAdd(value);
             }
             ~AutoRestoreSetInAdd()
-            {
+            {TRACE_IT(48150);
                 instance->SetIsInAdd(!value);
             }
 
@@ -126,48 +126,48 @@ namespace Js
         TwoLevelHashDictionary(TopLevelDictionary* cache, Recycler* recycler) :
             dictionary(cache),
             recycler(recycler)
-        {
+        {TRACE_IT(48151);
         }
 
         bool TryGetValue(const Key& key, Value* value)
-        {
+        {TRACE_IT(48152);
             EntryRecord* const * entryRecord;
             Key cachedKey;
             int index;
             bool success = dictionary->TryGetReference(key, &entryRecord, &index);
             if (success && ((*entryRecord) != nullptr))
-            {
+            {TRACE_IT(48153);
                 cachedKey = dictionary->GetKeyAt(index);
                 if ((*entryRecord)->IsValue())
-                {
+                {TRACE_IT(48154);
                     success = (cachedKey == key);
                     if (success)
-                    {
+                    {TRACE_IT(48155);
                         *value = (*entryRecord)->GetValue();
                     }
                 }
                 else
-                {
+                {TRACE_IT(48156);
                     NestedKey nestedKey;
                     ConvertKey(key, nestedKey);
                     success = (*entryRecord)->GetDictionary()->TryGetValue(nestedKey, value);
                 }
             }
             else
-            {
+            {TRACE_IT(48157);
                 success = false;
             }
             return success;
         }
 
-        TopLevelDictionary* GetDictionary() const { return dictionary; }
+        TopLevelDictionary* GetDictionary() const {TRACE_IT(48158); return dictionary; }
         void NotifyAdd(const Key& key)
-        {
+        {TRACE_IT(48159);
             dictionary->NotifyAdd(key);
         }
 
         void Add(const Key& key, Value value)
-        {
+        {TRACE_IT(48160);
             EntryRecord* const * entryRecord;
             int index;
             bool success = dictionary->TryGetReference(key, &entryRecord, &index);
@@ -175,19 +175,19 @@ namespace Js
             {
                 AutoRestoreSetInAdd<TopLevelDictionary, bool> autoRestoreSetInAdd(this->dictionary, true);
                 if ((*entryRecord)->IsValue())
-                {
+                {TRACE_IT(48161);
                     Key oldKey = dictionary->GetKeyAt(index);
                     (*entryRecord)->ConvertToDictionary(oldKey, recycler);
                 }
                 (*entryRecord)->Add(key, value);
             }
             else
-            {
+            {TRACE_IT(48162);
                 EntryRecord* newRecord = RecyclerNew(recycler, EntryRecord, value);
                 dictionary->Add(key, newRecord);
 #ifdef PROFILE_EVALMAP
                 if (Configuration::Global.flags.ProfileEvalMap)
-                {
+                {TRACE_IT(48163);
                     Output::Print(_u("EvalMap fastcache set:\t key = %d \n"), (hash_t)key);
                 }
 #endif

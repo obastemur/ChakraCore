@@ -68,13 +68,13 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return !ChangeTypeOnProto() && !(GetIsOrMayBecomeShared() && IsolatePrototypes()); }
+        virtual bool SupportsPrototypeInstances() const {TRACE_IT(67648); return !ChangeTypeOnProto() && !(GetIsOrMayBecomeShared() && IsolatePrototypes()); }
         virtual bool CanStorePropertyValueDirectly(const DynamicObject* instance, PropertyId propertyId, bool allowLetConst) override;
 #endif
 
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded() const
-        {
+        {TRACE_IT(67649);
             // If we add support for fixed fields to this type handler we will have to update this implementation.
             return true;
         }

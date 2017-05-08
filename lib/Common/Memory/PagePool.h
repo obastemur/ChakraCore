@@ -18,11 +18,11 @@ private:
 
 public:
     static PagePoolPage * New(PageAllocator * pageAllocator, bool isReserved = false)
-    {
+    {TRACE_IT(25171);
         PageSegment * pageSegment;
         PagePoolPage * newPage = (PagePoolPage *)pageAllocator->AllocPages(1, &pageSegment);
         if (newPage == nullptr)
-        {
+        {TRACE_IT(25172);
             return nullptr;
         }
 
@@ -34,12 +34,12 @@ public:
     }
 
     void Free()
-    {
+    {TRACE_IT(25173);
         this->pageAllocator->ReleasePages(this, 1, this->pageSegment);
     }
 
     bool IsReserved()
-    {
+    {TRACE_IT(25174);
         return isReserved;
     }
 };
@@ -70,17 +70,17 @@ public:
             PageAllocator::DefaultMaxAllocPageCount, 0, true),
         freePageList(nullptr),
         reservedPageList(nullptr)
-    {
+    {TRACE_IT(25175);
     }
 
     void ReservePages(uint reservedPageCount)
-    {
+    {TRACE_IT(25176);
         for (uint i = 0; i < reservedPageCount; i++)
-        {
+        {TRACE_IT(25177);
             PagePoolPage* page = PagePoolPage::New(&pageAllocator, true);
 
             if (page == nullptr)
-            {
+            {TRACE_IT(25178);
                 Js::Throw::OutOfMemory();
             }
             FreeReservedPage(page);
@@ -88,13 +88,13 @@ public:
     }
 
     ~PagePool()
-    {
+    {TRACE_IT(25179);
         Assert(freePageList == nullptr);
 
         if (reservedPageList != nullptr)
-        {
+        {TRACE_IT(25180);
             while (reservedPageList != nullptr)
-            {
+            {TRACE_IT(25181);
                 PagePoolFreePage * page = reservedPageList;
                 Assert(page->IsReserved());
                 reservedPageList = reservedPageList->nextFreePage;
@@ -103,12 +103,12 @@ public:
         }
     }
 
-    PageAllocator * GetPageAllocator() { return &this->pageAllocator; }
+    PageAllocator * GetPageAllocator() {TRACE_IT(25182); return &this->pageAllocator; }
 
     PagePoolPage * GetPage(bool useReservedPages = false)
-    {
+    {TRACE_IT(25183);
         if (freePageList != nullptr)
-        {
+        {TRACE_IT(25184);
             PagePoolPage * page = freePageList;
             freePageList = freePageList->nextFreePage;
             Assert(!page->IsReserved());
@@ -116,7 +116,7 @@ public:
         }
 
         if (useReservedPages && reservedPageList != nullptr)
-        {
+        {TRACE_IT(25185);
             PagePoolPage * page = reservedPageList;
             reservedPageList = reservedPageList->nextFreePage;
             Assert(page->IsReserved());
@@ -127,10 +127,10 @@ public:
     }
 
     void FreePage(PagePoolPage * page)
-    {
+    {TRACE_IT(25186);
         PagePoolFreePage * freePage = (PagePoolFreePage *)page;
         if (freePage->IsReserved())
-        {
+        {TRACE_IT(25187);
             return FreeReservedPage(page);
 
         }
@@ -140,9 +140,9 @@ public:
     }
 
     void ReleaseFreePages()
-    {
+    {TRACE_IT(25188);
         while (freePageList != nullptr)
-        {
+        {TRACE_IT(25189);
             PagePoolFreePage * page = freePageList;
             Assert(!page->IsReserved());
             freePageList = freePageList->nextFreePage;
@@ -151,17 +151,17 @@ public:
     }
 
     void Decommit()
-    {
+    {TRACE_IT(25190);
         pageAllocator.DecommitNow();
     }
 
 #if DBG
-    bool IsEmpty() const { return (freePageList == nullptr); }
+    bool IsEmpty() const {TRACE_IT(25191); return (freePageList == nullptr); }
 #endif
 
 private:
     void FreeReservedPage(PagePoolPage * page)
-    {
+    {TRACE_IT(25192);
         Assert(page->IsReserved());
         PagePoolFreePage * freePage = (PagePoolFreePage *)page;
 

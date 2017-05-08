@@ -14,7 +14,7 @@ namespace PlatformAgnostic
                                         unsigned ( *start_address )( void * ),
                                         void* arg_list,
                                         ThreadInitFlag init_flag)
-    {
+    {TRACE_IT(65043);
         unsigned int flag = 0;
 
         switch (init_flag)

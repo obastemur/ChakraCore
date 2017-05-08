@@ -17,12 +17,12 @@ struct EmitBufferAllocation
     bool   recorded;
     EmitBufferAllocation<TAlloc, TPreReservedAlloc> * nextAllocation;
 
-    BYTE * GetUnused() const            { return (BYTE*) allocation->address + bytesUsed; }
-    BYTE * GetUncommitted() const       { return (BYTE*) allocation->address + bytesCommitted; }
-    size_t GetBytesUsed() const       { return bytesUsed; }
+    BYTE * GetUnused() const            {TRACE_IT(1766); return (BYTE*) allocation->address + bytesUsed; }
+    BYTE * GetUncommitted() const       {TRACE_IT(1767); return (BYTE*) allocation->address + bytesCommitted; }
+    size_t GetBytesUsed() const       {TRACE_IT(1768); return bytesUsed; }
 
     // Truncation to DWORD okay here
-    DWORD BytesFree() const    { return static_cast<DWORD>(this->bytesCommitted - this->bytesUsed); }
+    DWORD BytesFree() const    {TRACE_IT(1769); return static_cast<DWORD>(this->bytesCommitted - this->bytesUsed); }
 };
 typedef void* NativeMethod;
 

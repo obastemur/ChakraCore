@@ -19,7 +19,7 @@ namespace Js
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(ActivationObject);
     public:
         ActivationObject(DynamicType * type) : DynamicObject(type)
-        {}
+        {TRACE_IT(65279);}
 
         virtual BOOL HasOwnPropertyCheckNoRedecl(PropertyId propertyId) override;
         virtual BOOL SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info) override;
@@ -50,18 +50,18 @@ namespace Js
         DEFINE_VTABLE_CTOR(BlockActivationObject, ActivationObject);
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(BlockActivationObject);
     public:
-        BlockActivationObject(DynamicType * type) : ActivationObject(type) {}
+        BlockActivationObject(DynamicType * type) : ActivationObject(type) {TRACE_IT(65280);}
 
         virtual BOOL EnsureProperty(PropertyId propertyId) override;
         virtual BOOL EnsureNoRedeclProperty(PropertyId propertyId) override;
         virtual BOOL InitPropertyScoped(PropertyId propertyId, Var value) override;
         virtual BOOL InitFuncScoped(PropertyId propertyId, Var value) override;
         static bool Is(void* instance)
-        {
+        {TRACE_IT(65281);
             return VirtualTableInfo<Js::BlockActivationObject>::HasVirtualTable(instance);
         }
         static BlockActivationObject* FromVar(Var value)
-        {
+        {TRACE_IT(65282);
             Assert(BlockActivationObject::Is(value));
             return static_cast<BlockActivationObject*>(DynamicObject::FromVar(value));
         }
@@ -82,14 +82,14 @@ namespace Js
         DEFINE_VTABLE_CTOR(PseudoActivationObject, ActivationObject);
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(PseudoActivationObject);
     public:
-        PseudoActivationObject(DynamicType * type) : ActivationObject(type) {}
+        PseudoActivationObject(DynamicType * type) : ActivationObject(type) {TRACE_IT(65283);}
 
         virtual BOOL EnsureProperty(PropertyId propertyId) override;
         virtual BOOL EnsureNoRedeclProperty(PropertyId propertyId) override;
         virtual BOOL InitFuncScoped(PropertyId propertyId, Var value) override;
         virtual BOOL InitPropertyScoped(PropertyId propertyId, Var value) override;
         static bool Is(void* instance)
-        {
+        {TRACE_IT(65284);
             return VirtualTableInfo<Js::PseudoActivationObject>::HasVirtualTable(instance);
         }
 
@@ -106,7 +106,7 @@ namespace Js
         DEFINE_VTABLE_CTOR(ConsoleScopeActivationObject, ActivationObject);
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(ConsoleScopeActivationObject);
     public:
-        ConsoleScopeActivationObject(DynamicType * type) : ActivationObject(type) {}
+        ConsoleScopeActivationObject(DynamicType * type) : ActivationObject(type) {TRACE_IT(65285);}
 
         // A dummy function to have a different vtable
         virtual void DummyVirtualFunc(void)
@@ -115,7 +115,7 @@ namespace Js
         }
 
         static bool Is(void* instance)
-        {
+        {TRACE_IT(65286);
             return VirtualTableInfo<Js::ConsoleScopeActivationObject>::HasVirtualTable(instance);
         }
 
@@ -142,9 +142,9 @@ namespace Js
               firstFuncSlot(firstFuncSlot),
               lastFuncSlot(lastFuncSlot),
               committed(false)
-        {
+        {TRACE_IT(65287);
             if (cachedFuncCount != 0)
-            {
+            {TRACE_IT(65288);
                 cache[0].func = nullptr;
             }
         }
@@ -154,24 +154,24 @@ namespace Js
         virtual BOOL GetPropertyReference(Var originalInstance, PropertyId propertyId, Var *value, PropertyValueInfo *info, ScriptContext *requestContext) override;
         virtual void InvalidateCachedScope() override sealed;
 
-        bool IsCommitted() const { return committed; }
-        void SetCommit(bool set) { committed = set; }
-        ScriptFunction *GetParentFunc() const { return parentFunc; }
-        uint GetFirstFuncSlot() const { return firstFuncSlot; }
-        uint GetLastFuncSlot() const { return lastFuncSlot; }
-        bool HasCachedFuncs() const { return cachedFuncCount != 0 && cache[0].func != nullptr; }
+        bool IsCommitted() const {TRACE_IT(65289); return committed; }
+        void SetCommit(bool set) {TRACE_IT(65290); committed = set; }
+        ScriptFunction *GetParentFunc() const {TRACE_IT(65291); return parentFunc; }
+        uint GetFirstFuncSlot() const {TRACE_IT(65292); return firstFuncSlot; }
+        uint GetLastFuncSlot() const {TRACE_IT(65293); return lastFuncSlot; }
+        bool HasCachedFuncs() const {TRACE_IT(65294); return cachedFuncCount != 0 && cache[0].func != nullptr; }
 
         void SetCachedFunc(uint i, ScriptFunction *func);
 
         FuncCacheEntry *GetFuncCacheEntry(uint i)
-        {
+        {TRACE_IT(65295);
             Assert(i < cachedFuncCount);
             return &cache[i];
         }
 
-        static uint32 GetOffsetOfCache() { return offsetof(ActivationObjectEx, cache); }
-        static uint32 GetOffsetOfCommitFlag() { return offsetof(ActivationObjectEx, committed); }
-        static uint32 GetOffsetOfParentFunc() { return offsetof(ActivationObjectEx, parentFunc); }
+        static uint32 GetOffsetOfCache() {TRACE_IT(65296); return offsetof(ActivationObjectEx, cache); }
+        static uint32 GetOffsetOfCommitFlag() {TRACE_IT(65297); return offsetof(ActivationObjectEx, committed); }
+        static uint32 GetOffsetOfParentFunc() {TRACE_IT(65298); return offsetof(ActivationObjectEx, parentFunc); }
 
         static const PropertyId *GetCachedScopeInfo(const PropertyIdArray *propIds);
 
@@ -182,29 +182,29 @@ namespace Js
         // [3] - literal object reference
 
         static PropertyId GetCachedFuncCount(const PropertyIdArray *propIds)
-        {
+        {TRACE_IT(65299);
             return ActivationObjectEx::GetCachedScopeInfo(propIds)[0];
         }
 
         static PropertyId GetFirstFuncSlot(const PropertyIdArray *propIds)
-        {
+        {TRACE_IT(65300);
             return ActivationObjectEx::GetCachedScopeInfo(propIds)[1];
         }
 
         static PropertyId GetFirstVarSlot(const PropertyIdArray *propIds)
-        {
+        {TRACE_IT(65301);
             return ActivationObjectEx::GetCachedScopeInfo(propIds)[2];
         }
 
         static PropertyId GetLiteralObjectRef(const PropertyIdArray *propIds)
-        {
+        {TRACE_IT(65302);
             return ActivationObjectEx::GetCachedScopeInfo(propIds)[3];
         }
 
-        static byte ExtraSlotCount() { return 4; }
+        static byte ExtraSlotCount() {TRACE_IT(65303); return 4; }
 
         static bool Is(void* instance)
-        {
+        {TRACE_IT(65304);
             return VirtualTableInfo<Js::ActivationObjectEx>::HasVirtualTable(instance);
         }
 

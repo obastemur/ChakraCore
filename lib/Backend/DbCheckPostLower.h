@@ -14,7 +14,7 @@ private:
     void        Check(IR::RegOpnd *regOpnd);
 
 public:
-    DbCheckPostLower(Func *func) : func(func) { }
+    DbCheckPostLower(Func *func) : func(func) {TRACE_IT(1655); }
     void        Check();
 };
 

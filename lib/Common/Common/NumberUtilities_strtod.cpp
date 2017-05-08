@@ -8,7 +8,7 @@
 namespace Js
 {
 static inline BOOL FNzDigit(int ch)
-{ return ch >= '1' && ch <= '9'; }
+{TRACE_IT(19209); return ch >= '1' && ch <= '9'; }
 
 static const int32 klwMaxExp10 = 310;     // Upper bound on base 10 exponent
 static const int32 klwMinExp10 = -325;    // Lower bound on base 10 exponent
@@ -25,7 +25,7 @@ static const double g_rgdblTens[] =
 };
 
 static inline char16 ToDigit(int32 wVal)
-{
+{TRACE_IT(19210);
     //return reinterpret_cast<char16>((wVal < 10) ? '0' + (ushort) wVal : 'a' - 10 + (ushort) wVal);
     return (ushort)((wVal < 10) ? '0' + (ushort) wVal : 'a' - 10 + (ushort) wVal);
 }
@@ -47,7 +47,7 @@ struct BIGNUM
 
     // Test to see if the num is zero. This works even if we're not normalized.
     BOOL FZero(void)
-    { return m_lu2 == 0 && m_lu1 == 0 && m_lu0 == 0; }
+    {TRACE_IT(19211); return m_lu2 == 0 && m_lu1 == 0 && m_lu0 == 0; }
 
     // Normalize the big number - make sure the high bit is 1 or
     // everything is zero (including the exponent).
@@ -55,10 +55,10 @@ struct BIGNUM
 
     // Round based on the given extra data using IEEE round to nearest rule.
     void Round(uint32 luExtra)
-    {
+    {TRACE_IT(19212);
         if (0 == (luExtra & 0x80000000) ||
             (0 == (luExtra & 0x7FFFFFFF) && 0 == (m_lu0 & 1)))
-        {
+        {TRACE_IT(19213);
             if (luExtra)
                 m_luError++;
             return;
@@ -69,7 +69,7 @@ struct BIGNUM
         if (Js::NumberUtilities::AddLu(&m_lu0, 1) &&
             Js::NumberUtilities::AddLu(&m_lu1, 1) &&
             Js::NumberUtilities::AddLu(&m_lu2, 1))
-        {
+        {TRACE_IT(19214);
             Assert(0 == m_lu0);
             Assert(0 == m_lu1);
             Assert(0 == m_lu2);
@@ -93,7 +93,7 @@ struct BIGNUM
 
     // Lop off the integer part and return it.
     uint32 LuMod1(void)
-    {
+    {TRACE_IT(19215);
         if (m_wExp <= 0)
             return 0;
         Assert(m_wExp <= 32);
@@ -105,7 +105,7 @@ struct BIGNUM
 
     // If m_luError is not zero, add it and set m_luError to zero.
     void MakeUpperBound(void)
-    {
+    {TRACE_IT(19216);
         Assert(m_luError < 0xFFFFFFFF);
         uint32 luT = (m_luError + 1) >> 1;
 
@@ -113,7 +113,7 @@ struct BIGNUM
             Js::NumberUtilities::AddLu(&m_lu0, luT) &&
             Js::NumberUtilities::AddLu(&m_lu1, 1) &&
             Js::NumberUtilities::AddLu(&m_lu2, 1))
-        {
+        {TRACE_IT(19217);
             Assert(m_lu2 == 0);
             Assert(m_lu1 == 0);
             m_lu2 = 0x80000000;
@@ -125,14 +125,14 @@ struct BIGNUM
 
     // If m_luError is not zero, subtract it and set m_luError to zero.
     void MakeLowerBound(void)
-    {
+    {TRACE_IT(19218);
         Assert(m_luError < 0xFFFFFFFF);
         uint32 luT = (m_luError + 1) >> 1;
 
         if (luT &&
             !Js::NumberUtilities::AddLu(&m_lu0, (uint32)-(int32)luT) &&
             !Js::NumberUtilities::AddLu(&m_lu1, 0xFFFFFFFF))
-        {
+        {TRACE_IT(19219);
             Js::NumberUtilities::AddLu(&m_lu2, 0xFFFFFFFF);
             if (0 == (0x80000000 & m_lu2))
                 Normalize();
@@ -246,16 +246,16 @@ static const BIGNUM g_rgnumNeg[46] =
 
 
 void BIGNUM::Normalize(void)
-{
+{TRACE_IT(19220);
     int w1, w2;
 
     // Normalize mantissa
     if (m_lu2 == 0)
-    {
+    {TRACE_IT(19221);
         if (m_lu1 == 0)
-        {
+        {TRACE_IT(19222);
             if (m_lu0 == 0)
-            {
+            {TRACE_IT(19223);
                 m_wExp = 0;
                 return;
             }
@@ -264,7 +264,7 @@ void BIGNUM::Normalize(void)
             m_wExp -= 64;
         }
         else
-        {
+        {TRACE_IT(19224);
             m_lu2 = m_lu1;
             m_lu1 = m_lu0;
             m_lu0 = 0;
@@ -273,7 +273,7 @@ void BIGNUM::Normalize(void)
     }
 
     if (0 != (w1 = Js::NumberUtilities::CbitZeroLeft(m_lu2)))
-    {
+    {TRACE_IT(19225);
         w2 = 32 - w1;
         m_lu2 = (m_lu2 << w1) | (m_lu1 >> w2);
         m_lu1 = (m_lu1 << w1) | (m_lu0 >> w2);
@@ -284,7 +284,7 @@ void BIGNUM::Normalize(void)
 
 
 void BIGNUM::MulTenAdd(byte bAdd, uint32 *pluExtra)
-{
+{TRACE_IT(19226);
     Assert(bAdd <= 9);
     Assert(m_lu2 & 0x80000000);
 
@@ -297,22 +297,22 @@ void BIGNUM::MulTenAdd(byte bAdd, uint32 *pluExtra)
     // Initialize the carry values based on bAdd and m_wExp.
     memset(rglu, 0, sizeof(rglu));
     if (0 != bAdd)
-    {
+    {TRACE_IT(19227);
         int ilu = 3 - (m_wExp >> 5);
         if (ilu < 0)
             rglu[0] = 1;
         else
-        {
+        {TRACE_IT(19228);
             int ibit = m_wExp & 0x1F;
             if (ibit < 4)
-            {
+            {TRACE_IT(19229);
                 Assert(ilu < 4);
                 rglu[ilu + 1] = bAdd >> ibit;
                 if (ibit > 0)
                     rglu[ilu] = (uint32)bAdd << (32 - ibit);
             }
             else
-            {
+            {TRACE_IT(19230);
                 Assert(ilu < 5);
                 rglu[ilu] = (uint32)bAdd << (32 - ibit);
             }
@@ -331,7 +331,7 @@ void BIGNUM::MulTenAdd(byte bAdd, uint32 *pluExtra)
 
     // Handle the final carry.
     if (rglu[4])
-    {
+    {TRACE_IT(19231);
         Assert(rglu[4] == 1);
         rglu[0] = (rglu[0] >> 1) | (rglu[0] & 1) | (m_lu0 << 31);
         m_lu0 = (m_lu0 >> 1) | (m_lu1 << 31);
@@ -345,7 +345,7 @@ void BIGNUM::MulTenAdd(byte bAdd, uint32 *pluExtra)
 
 template<typename EncodedChar>
 void BIGNUM::SetFromRgchExp(const EncodedChar *prgch, int32 cch, int32 lwExp)
-{
+{TRACE_IT(19232);
     Assert(cch > 0);
     AssertArrMemR(prgch, cch);
 
@@ -365,18 +365,18 @@ void BIGNUM::SetFromRgchExp(const EncodedChar *prgch, int32 cch, int32 lwExp)
     Normalize();
 
     while (++prgch < pchLim)
-    {
+    {TRACE_IT(19233);
         if (*prgch == '.')
             continue;
         Assert(Js::NumberUtilities::IsDigit(*prgch));
         MulTenAdd((byte) (*prgch - '0'), &luExtra);
         lwExp--;
         if (0 != luExtra)
-        {
+        {TRACE_IT(19234);
             // We've filled up our precision.
             Round(luExtra);
             if (prgch < pchLim + 1)
-            {
+            {TRACE_IT(19235);
                 // There are more digits, so add another error bit just for
                 // safety's sake.
                 m_luError++;
@@ -390,7 +390,7 @@ void BIGNUM::SetFromRgchExp(const EncodedChar *prgch, int32 cch, int32 lwExp)
         return;
 
     if (lwExp < 0)
-    {
+    {TRACE_IT(19236);
         prgnum = g_rgnumNeg;
         lwExp = -lwExp;
     }
@@ -409,7 +409,7 @@ void BIGNUM::SetFromRgchExp(const EncodedChar *prgch, int32 cch, int32 lwExp)
 
 
 void BIGNUM::Mul(const BIGNUM *pnumOp)
-{
+{TRACE_IT(19237);
     uint32 rglu[6];
 
     Assert(m_lu2 & 0x80000000);
@@ -495,7 +495,7 @@ LDigit3:
     int wCarry;
 
     if (0 != (luT = m_lu0))
-    {
+    {TRACE_IT(19238);
         luLo = Js::NumberUtilities::MulLu(luT, pnumOp->m_lu0, &luHi);
         rglu[0] = luLo;
         rglu[1] = luHi;
@@ -512,7 +512,7 @@ LDigit3:
     }
 
     if (0 != (luT = m_lu1))
-    {
+    {TRACE_IT(19239);
         luLo = Js::NumberUtilities::MulLu(luT, pnumOp->m_lu0, &luHi);
         Assert(luHi < 0xFFFFFFFF);
         wCarry = Js::NumberUtilities::AddLu(&rglu[1], luLo);
@@ -565,15 +565,15 @@ LDigit3:
 
     // Handle rounding and normalize.
     if (0 == (rglu[5] & 0x80000000))
-    {
+    {TRACE_IT(19240);
         if (0 != (rglu[2] & 0x40000000) &&
             (0 != (rglu[2] & 0xBFFFFFFF) || 0 != rglu[1] || 0 != rglu[0]))
-        {
+        {TRACE_IT(19241);
             // Round up by 1
             if (Js::NumberUtilities::AddLu(&rglu[2], 0x40000000) &&
                 Js::NumberUtilities::AddLu(&rglu[3], 1) &&
                 Js::NumberUtilities::AddLu(&rglu[4], 1))
-            {
+            {TRACE_IT(19242);
                 Js::NumberUtilities::AddLu(&rglu[5], 1);
                 if (rglu[5] & 0x80000000)
                     goto LNormalized;
@@ -593,16 +593,16 @@ LDigit3:
             m_luError++;
     }
     else
-    {
+    {TRACE_IT(19243);
         if (0 != (rglu[2] & 0x80000000) &&
             (0 != (rglu[3] & 1) || 0 != (rglu[2] & 0x7FFFFFFF) ||
             0 != rglu[1] || 0 != rglu[0]))
-        {
+        {TRACE_IT(19244);
             // Round up by 1
             if (Js::NumberUtilities::AddLu(&rglu[3], 1) &&
                 Js::NumberUtilities::AddLu(&rglu[4], 1) &&
                 Js::NumberUtilities::AddLu(&rglu[5], 1))
-            {
+            {TRACE_IT(19245);
                 Assert(0 == rglu[3]);
                 Assert(0 == rglu[4]);
                 Assert(0 == rglu[5]);
@@ -624,7 +624,7 @@ LNormalized:
 
 
 double BIGNUM::GetDbl(void)
-{
+{TRACE_IT(19246);
     double dbl;
     uint32 luEx;
     int wExp;
@@ -633,7 +633,7 @@ double BIGNUM::GetDbl(void)
 
     wExp = m_wExp + 1022;
     if (wExp >= 2047)
-    {
+    {TRACE_IT(19247);
         Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
         Js::NumberUtilities::LuLoDbl(dbl) = 0;
         return dbl;
@@ -643,14 +643,14 @@ double BIGNUM::GetDbl(void)
     // if there are any extra non-zero bits. This is for breaking the tie when
     // deciding whether to round up or down.
     if (wExp > 0)
-    {
+    {TRACE_IT(19248);
         // Normalized.
         Js::NumberUtilities::LuHiDbl(dbl) = ((uint32)wExp << 20) | ((m_lu2 & 0x7FFFFFFF) >> 11);
         Js::NumberUtilities::LuLoDbl(dbl) = m_lu2 << 21 | m_lu1 >> 11;
         luEx = m_lu1 << 21 | (m_lu0 != 0);
     }
     else if (wExp > -20)
-    {
+    {TRACE_IT(19249);
         // Denormal with some high bits.
         int wT = 12 - wExp;
         Assert(wT >= 12 && wT < 32);
@@ -660,14 +660,14 @@ double BIGNUM::GetDbl(void)
         luEx = (m_lu1 << (32 - wT)) | (m_lu0 != 0);
     }
     else if (wExp == -20)
-    {
+    {TRACE_IT(19250);
         // Denormal with no high bits.
         Js::NumberUtilities::LuHiDbl(dbl) = 0;
         Js::NumberUtilities::LuLoDbl(dbl) = m_lu2;
         luEx = m_lu1 | (m_lu0 != 0);
     }
     else if (wExp > -52)
-    {
+    {TRACE_IT(19251);
         // Denormal with no high bits.
         int wT = -wExp - 20;
         Assert(wT > 0 && wT < 32);
@@ -678,7 +678,7 @@ double BIGNUM::GetDbl(void)
             (m_lu0 != 0);
     }
     else if (wExp == -52)
-    {
+    {TRACE_IT(19252);
         // Zero unless we round up below.
         Js::NumberUtilities::LuHiDbl(dbl) = 0;
         Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -689,7 +689,7 @@ double BIGNUM::GetDbl(void)
 
     // Handle rounding
     if ((luEx & 0x80000000) && ((luEx & 0x7FFFFFFF) || (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-    {
+    {TRACE_IT(19253);
         // Round up. Note that this works even when we overflow into the
         // exponent.
         if (Js::NumberUtilities::AddLu(&Js::NumberUtilities::LuLoDbl(dbl), 1))
@@ -718,7 +718,7 @@ and re-compare.
 ***************************************************************************/
 template <typename EncodedChar>
 static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 lwExp)
-{
+{TRACE_IT(19254);
     Js::BigInt biDec, biDbl;
     int32 c2Dec, c2Dbl;
     int32 c5Dec, c5Dbl;
@@ -736,12 +736,12 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
     // lwExp is a base 10 exponent.
     if (lwExp >= 0)
-    {
+    {TRACE_IT(19255);
         c5Dec = c2Dec = lwExp;
         c5Dbl = c2Dbl = 0;
     }
     else
-    {
+    {TRACE_IT(19256);
         c5Dec = c2Dec = 0;
         c5Dbl = c2Dbl = -lwExp;
     }
@@ -752,10 +752,10 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
     rglu[0] = Js::NumberUtilities::LuLoDbl(dbl);
     wAddHi = 1;
     if (0 != wExp2)
-    {
+    {TRACE_IT(19257);
         // Normal, so add implicit bit.
         if (0 == rglu[1] && 0 == rglu[0] && 1 != wExp2)
-        {
+        {TRACE_IT(19258);
             // Power of 2 (and not adjacent to the first denormal), so the
             // adjacent low value is closer than the high value.
             wAddHi = 2;
@@ -791,7 +791,7 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
     // Eliminate common powers of 2.
     if (c2Dbl > c2Dec)
-    {
+    {TRACE_IT(19259);
         c2Dbl -= c2Dec;
         c2Dec = 0;
 
@@ -805,13 +805,13 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
         for (iT = 0; iT < c2Dbl && 0 == (luT & (1L << iT)); iT++)
             ;
         if (iT > 0)
-        {
+        {TRACE_IT(19260);
             c2Dbl -= iT;
             biDec.ShiftRight(iT);
         }
     }
     else
-    {
+    {TRACE_IT(19261);
         c2Dec -= c2Dbl;
         c2Dbl = 0;
     }
@@ -822,7 +822,7 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
     // Fold in the powers of 5.
     if (c5Dbl > 0)
-    {
+    {TRACE_IT(19262);
         if (!biDbl.FMulPow5(c5Dbl))
             goto LFail;
     }
@@ -831,7 +831,7 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
     // Fold in the powers of 2.
     if (c2Dbl > 0)
-    {
+    {TRACE_IT(19263);
         if (!biDbl.FShiftLeft(c2Dbl))
             goto LFail;
     }
@@ -844,7 +844,7 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
     if (0 == wT)
         return dbl;
     if (wT > 0)
-    {
+    {TRACE_IT(19264);
         // biDbl is greater. Recompute with the dbl minus half the distance
         // to the next smaller double.
         if (!Js::NumberUtilities::AddLu(&rglu[0], 0xFFFFFFFF))
@@ -857,14 +857,14 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
         wT = biDbl.Compare(&biDec);
         if (wT > 0 || (0 == wT && 0 != (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19265);
             // Return the next lower value.
             if (!Js::NumberUtilities::AddLu(&Js::NumberUtilities::LuLoDbl(dbl), 0xFFFFFFFF))
                 Js::NumberUtilities::AddLu(&Js::NumberUtilities::LuHiDbl(dbl), 0xFFFFFFFF);
         }
     }
     else
-    {
+    {TRACE_IT(19266);
         // biDbl is smaller. Recompute with the dbl plus half the distance
         // to the next larger double.
         if (Js::NumberUtilities::AddLu(&rglu[0], wAddHi))
@@ -877,7 +877,7 @@ static double AdjustDbl(double dbl, const EncodedChar *prgch, int32 cch, int32 l
 
         wT = biDbl.Compare(&biDec);
         if (wT < 0 || (0 == wT && 0 != (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19267);
             // Return the next higher value.
             if (Js::NumberUtilities::AddLu(&Js::NumberUtilities::LuLoDbl(dbl), 1))
                 Js::NumberUtilities::AddLu(&Js::NumberUtilities::LuHiDbl(dbl), 1);
@@ -894,7 +894,7 @@ String to Double.
 ***************************************************************************/
 template <typename EncodedChar>
 double Js::NumberUtilities::StrToDbl( const EncodedChar *psz, const EncodedChar **ppchLim, bool& likelyInt )
-{
+{TRACE_IT(19268);
     uint32 lu;
     BIGNUM num;
     BIGNUM numHi;
@@ -938,7 +938,7 @@ LRestart:
     case 'I':
         // Check for the special case of [+|-]Infinity.
         if (pch[1] == 'n' && pch[2] == 'f' && pch[3] == 'i' && pch[4] == 'n' && pch[5] == 'i' && pch[6] == 't' && pch[7] == 'y')
-        {
+        {TRACE_IT(19269);
             *ppchLim = pch + 8;
             Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -977,7 +977,7 @@ LRestart:
 LGetLeft:
     // Get digits to the left of the decimal point
     if (Js::NumberUtilities::IsDigit(*pch))
-    {
+    {TRACE_IT(19270);
 LGetLeftDig:
         pchMinDig = pch;
         for (cchDig = 1; Js::NumberUtilities::IsDigit(*++pch); cchDig++)
@@ -998,13 +998,13 @@ LGetRight:
     likelyInt = false;
     pch++;
     if (NULL == pchMinDig)
-    {
+    {TRACE_IT(19271);
         for ( ; *pch == '0'; pch++)
             lwAdj--;
         pchMinDig = pch;
     }
     for( ; Js::NumberUtilities::IsDigit(*pch); pch++)
-    {
+    {TRACE_IT(19272);
         cchDig++;
         lwAdj--;
     }
@@ -1038,7 +1038,7 @@ LGetExp:
 
 LGetExpDigits:
     for( ; Js::NumberUtilities::IsDigit(*pch); pch++)
-    {
+    {TRACE_IT(19273);
         lwExp = lwExp * 10 + (*pch - '0');
         if (lwExp > 100000000)
             lwExp = 100000000;
@@ -1047,7 +1047,7 @@ LGetExpDigits:
 LEnd:
     *ppchLim = pch;
     if (cchDig == 0)
-    {
+    {TRACE_IT(19274);
         dbl = 0;
         goto LDone;
     }
@@ -1060,7 +1060,7 @@ LEnd:
 
     // Limit to kcchMaxSig digits.
     if (cchDig > kcchMaxSig)
-    {
+    {TRACE_IT(19275);
         // cchDig - number of digits from the first nonzero digit in the input
         // pchLimDig - at this point, this points to the character after the last digit in the input, and after the decimal
         //             point if the number ends with a decimal point
@@ -1079,7 +1079,7 @@ LEnd:
         // pchLimDig would only need to jump over a decimal point if it exists.
         if (-lwAdj <= numExcessiveDigits &&
             (lwAdj != 0 || pchLimDig[-1] == _u('.')))
-        {
+        {TRACE_IT(19276);
             // Need to jump over the decimal point
             --pchLimDig;
         }
@@ -1096,9 +1096,9 @@ LEnd:
     // Remove trailing zero's from mantissa
     Assert(FNzDigit(*pchMinDig));
     for (;;)
-    {
+    {TRACE_IT(19277);
         if (*--pchLimDig == '0')
-        {
+        {TRACE_IT(19278);
             cchDig--;
             lwAdj++;
         }
@@ -1118,13 +1118,13 @@ LEnd:
 
     // See if we can just use IEEE double arithmetic.
     if (cchDig <= 15 && lwExp >= -22 && lwExp + cchDig <= 37)
-    {
+    {TRACE_IT(19279);
         // These calculations are all exact since cchDig <= 15.
         if (cchDig <= 9)
-        {
+        {TRACE_IT(19280);
             // Can use the ALU.
             for (lu = 0, pch = pchMinDig; pch < pchLimDig; pch++)
-            {
+            {TRACE_IT(19281);
                 if (*pch != '.')
                 {
                     Assert(Js::NumberUtilities::IsDigit(*pch));
@@ -1134,9 +1134,9 @@ LEnd:
             dbl = lu;
         }
         else
-        {
+        {TRACE_IT(19282);
             for (dbl = 0, pch = pchMinDig; pch < pchLimDig; pch++)
-            {
+            {TRACE_IT(19283);
                 if (*pch != '.')
                 {
                     Assert(Js::NumberUtilities::IsDigit(*pch));
@@ -1148,9 +1148,9 @@ LEnd:
         // This is the only (potential) rounding operation and we assume
         // the compiler does the correct IEEE rounding.
         if (lwExp > 0)
-        {
+        {TRACE_IT(19284);
             if (lwExp > 22)
-            {
+            {TRACE_IT(19285);
                 // This one is exact. We're using the fact that cchDig < 15
                 // to handle exponents bigger than 22.
                 dbl *= g_rgdblTens[15 - cchDig];
@@ -1175,7 +1175,7 @@ LEnd:
 
     lwExp += cchDig;
     if (lwExp >= klwMaxExp10)
-    {
+    {TRACE_IT(19286);
         // Overflow to infinity.
         Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
         Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -1183,7 +1183,7 @@ LEnd:
     }
 
     if (lwExp <= klwMinExp10)
-    {
+    {TRACE_IT(19287);
         // Underflow to 0.
         dbl = 0;
         goto LDone;
@@ -1195,7 +1195,7 @@ LEnd:
 
     // If there is no error in the big number, just convert it to a double.
     if (0 == num.m_luError)
-    {
+    {TRACE_IT(19288);
         dbl = num.GetDbl();
 #if DBG
         Assert(pchLimDig - pchMinDig >= 0 && pchLimDig - pchMinDig <= LONG_MAX);
@@ -1216,7 +1216,7 @@ LEnd:
     dbl = numHi.GetDbl();
     dblLo = numLo.GetDbl();
     if (dbl == dblLo)
-    {
+    {TRACE_IT(19289);
 #if DBG
         Assert(dbl == num.GetDbl());
         Assert(pchLimDig - pchMinDig >= 0 && pchLimDig - pchMinDig <= LONG_MAX);
@@ -1245,7 +1245,7 @@ LDone:
 
 #if DBG
     if(canUseLowPrec)
-    {
+    {TRACE_IT(19290);
         // Use the same final behavior in debug builds as for non-debug builds by using the low-precision value
         dbl = dblLowPrec;
     }
@@ -1264,7 +1264,7 @@ Uses big integer arithmetic to get the sequence of digits.
 ***************************************************************************/
 _Success_(return)
 static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int *pwExp10, byte **ppbLim, int normalizeHBound = 1)
-{
+{TRACE_IT(19291);
     byte bT;
     BOOL fPow2;
     int ib;
@@ -1292,7 +1292,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
     clu = 2;
     fPow2 = FALSE;
     if (wExp2 == -1075)
-    {
+    {TRACE_IT(19292);
         // dbl is denormalized.
         Assert(0 == (Js::NumberUtilities::LuHiDbl(dbl) & 0x7FF00000));
         if (0 == rglu[1])
@@ -1315,7 +1315,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         wExp2++;
     }
     else
-    {
+    {TRACE_IT(19293);
         // Get dblT such that dbl / dblT is a power of 2 and 1 <= dblT < 2.
         // First multiply by a power of 2 to get a normalized value.
         dblT = dbl;
@@ -1326,7 +1326,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         w1 = wExp2 + 52;
 
         if (0 == rglu[0] && 0 == rglu[1] && wExp2 > -1074)
-        {
+        {TRACE_IT(19294);
             // Power of 2 bigger than smallest normal. The next smaller
             // representable value is closer than the next larger value.
             rglu[1] = 0x00200000;
@@ -1334,7 +1334,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
             fPow2 = TRUE;
         }
         else
-        {
+        {TRACE_IT(19295);
             // Normalized and not a power of 2 or the smallest normal. The
             // representable values on either side are the same distance away.
             rglu[1] |= 0x00100000;
@@ -1351,31 +1351,31 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         wExp10--;
 
     if (wExp2 >= 0)
-    {
+    {TRACE_IT(19296);
         c2Num = wExp2;
         c2Den = 0;
     }
     else
-    {
+    {TRACE_IT(19297);
         c2Num = 0;
         c2Den = -wExp2;
     }
 
     if (wExp10 >= 0)
-    {
+    {TRACE_IT(19298);
         c5Num = 0;
         c5Den = wExp10;
         c2Den += wExp10;
     }
     else
-    {
+    {TRACE_IT(19299);
         c2Num -= wExp10;
         c5Num = -wExp10;
         c5Den = 0;
     }
 
     if (c2Num > 0 && c2Den > 0)
-    {
+    {TRACE_IT(19300);
         w1 = c2Num < c2Den ? c2Num : c2Den;
         c2Num -= w1;
         c2Den -= w1;
@@ -1386,25 +1386,25 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
     // Initialize biNum and multiply by powers of 5.
     if (c5Num > 0)
-    {
+    {TRACE_IT(19301);
         Assert(0 == c5Den);
         if (!biHi.FMulPow5(c5Num))
             goto LFail;
         if (!biNum.FInitFromBigint(&biHi))
             goto LFail;
         if (clu == 1)
-        {
+        {TRACE_IT(19302);
             if (!biNum.FMulAdd(rglu[0], 0))
                 goto LFail;
         }
         else
-        {
+        {TRACE_IT(19303);
             if (!biNum.FMulAdd(rglu[1], 0))
                 goto LFail;
             if (!biNum.FShiftLeft(32))
                 goto LFail;
             if (rglu[0] != 0)
-            {
+            {TRACE_IT(19304);
                 if (!biT.FInitFromBigint(&biHi))
                     goto LFail;
                 if (!biT.FMulAdd(rglu[0], 0))
@@ -1415,7 +1415,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         }
     }
     else
-    {
+    {TRACE_IT(19305);
         Assert(clu <= 2);
         AssertVerify(biNum.FInitFromRglu(rglu, clu));
         if (c5Den > 0 && !biDen.FMulPow5(c5Den))
@@ -1443,7 +1443,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
     // Get pbiLo and handle the power of 2 case where biHi needs to be doubled.
     if (fPow2)
-    {
+    {TRACE_IT(19306);
         pbiLo = &biLo;
         if (!pbiLo->FInitFromBigint(&biHi))
             goto LFail;
@@ -1454,10 +1454,10 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         pbiLo = &biHi;
 
     for (ib = 0; ib < kcbMaxRgb; )
-    {
+    {TRACE_IT(19307);
         bT = (byte)biNum.DivRem(&biDen);
         if (ib == 0 && bT == 0)
-        {
+        {TRACE_IT(19308);
             // Our estimate of wExp10 was too big. Oh well.
             wExp10--;
             goto LSkip;
@@ -1470,7 +1470,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
         if (biDen.Compare(&biHi) < 0)
             w2 = 1;
         else
-        {
+        {TRACE_IT(19309);
             // REVIEW : is there a faster way to do this?
             biT.FInitFromBigint(&biDen);
             biT.Subtract(&biHi);
@@ -1479,7 +1479,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
         // if (biNum + biHi == biDen && even)
         if (0 == w2 && 0 == (Js::NumberUtilities::LuLoDbl(dbl) & 1))
-        {
+        {TRACE_IT(19310);
             // Rounding up this digit produces exactly (biNum + biHi) which
             // StrToDbl will round down to dbl.
             if (bT == 9)
@@ -1493,10 +1493,10 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
         // if (biNum < *pbiLo || biNum == *pbiLo && even)
         if (w1 < 0 || (0 == w1 && 0 == (Js::NumberUtilities::LuLoDbl(dbl) & 1)))
-        {
+        {TRACE_IT(19311);
             // if (biNum + biHi > biDen)
             if (w2 > 0)
-            {
+            {TRACE_IT(19312);
                 // Decide whether to round up.
                 if (!biNum.FShiftLeft(1))
                     goto LFail;
@@ -1511,10 +1511,10 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
         // if (biNum + biHi > biDen)
         if (w2 > 0)
-        {
+        {TRACE_IT(19313);
             // Round up and be done with it.
             if (bT != 9)
-            {
+            {TRACE_IT(19314);
                 Assert(ib < kcbMaxRgb);
                 // Do not always push to higherBound
                 // See Js::NumberUtilities::FDblToStr for the exception
@@ -1523,9 +1523,9 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
             }
 LRoundUp9:
             while (ib > 0)
-            {
+            {TRACE_IT(19315);
                 if (prgb[--ib] != 9)
-                {
+                {TRACE_IT(19316);
                     prgb[ib++]++;
                     goto LReturn;
                 }
@@ -1566,7 +1566,7 @@ Get mantissa bytes (BCD).
 _Success_(return)
 static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb)) byte *prgb,
                           int *pwExp10, byte **ppbLim, const int nDigits = -1)
-{
+{TRACE_IT(19317);
     int ib;
     int iT;
     uint32 luT;
@@ -1587,7 +1587,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
     // representable value (in a double).
     wExp2 = (int)((Js::NumberUtilities::LuHiDbl(dbl) >> 20) & 0x07FF);
     if (wExp2 > 0)
-    {
+    {TRACE_IT(19318);
         // See if dbl is a small integer.
         if (wExp2 >= 1023 && wExp2 <= 1075 && dbl == floor(dbl))
             goto LSmallInt;
@@ -1607,26 +1607,26 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
         // Get the lower bound. A power of 2 must be special cased.
         numLL = numBase;
         if (0x80000000 == numLL.m_lu2 && 0 == numLL.m_lu1)
-        {
+        {TRACE_IT(19319);
             // Subtract (0x00000000, 0x00000200, 0x00000000). Same as adding
             // (0xFFFFFFFF, 0xFFFFFE00, 0x00000000)
             luT = 0xFFFFFE00;
         }
         else
-        {
+        {TRACE_IT(19320);
             // Subtract (0x00000000, 0x00000400, 0x00000000). Same as adding
             // (0xFFFFFFFF, 0xFFFFFC00, 0x00000000)
             luT = 0xFFFFFC00;
         }
         if (!Js::NumberUtilities::AddLu(&numLL.m_lu1, luT))
-        {
+        {TRACE_IT(19321);
             Js::NumberUtilities::AddLu(&numLL.m_lu2, 0xFFFFFFFF);
             if (0 == (0x80000000 & numLL.m_lu2))
                 numLL.Normalize();
         }
     }
     else
-    {
+    {TRACE_IT(19322);
         // Denormal
         numBase.m_lu2 = Js::NumberUtilities::LuHiDbl(dbl) & 0x000FFFFF;
         numBase.m_lu1 = Js::NumberUtilities::LuLoDbl(dbl);
@@ -1650,12 +1650,12 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
 
     // Multiply by powers of ten until 0 < numHH.m_wExp < 32.
     if (numHH.m_wExp >= 32)
-    {
+    {TRACE_IT(19323);
         iT = (numHH.m_wExp - 25) * 15 / -g_rgnumNeg[45].m_wExp;
         Assert(iT >= 0 && iT < 16);
         __analysis_assume(iT >= 0 && iT < 16);
         if (iT > 0)
-        {
+        {TRACE_IT(19324);
             pnum = &g_rgnumNeg[30 + iT];
             Assert(numHH.m_wExp + pnum->m_wExp > 1);
             numHH.Mul(pnum);
@@ -1664,7 +1664,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
         }
 
         if (numHH.m_wExp >= 32)
-        {
+        {TRACE_IT(19325);
             iT = (numHH.m_wExp - 25) * 32 / -g_rgnumNeg[31].m_wExp;
             Assert(iT > 0 && iT <= 32);
             pnum = &g_rgnumNeg[iT - 1];
@@ -1675,12 +1675,12 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
         }
     }
     else if (numHH.m_wExp < 1)
-    {
+    {TRACE_IT(19326);
         iT = (25 - numHH.m_wExp) * 15 / g_rgnumPos[45].m_wExp;
         Assert(iT >= 0 && iT < 16);
         __analysis_assume(iT >= 0 && iT < 16);
         if (iT > 0)
-        {
+        {TRACE_IT(19327);
             pnum = &g_rgnumPos[30 + iT];
             Assert(numHH.m_wExp + pnum->m_wExp <= 32);
             numHH.Mul(pnum);
@@ -1689,7 +1689,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
         }
 
         if (numHH.m_wExp < 1)
-        {
+        {TRACE_IT(19328);
             iT = (25 - numHH.m_wExp) * 32 / g_rgnumPos[31].m_wExp;
             Assert(iT > 0 && iT <= 32);
             pnum = &g_rgnumPos[iT - 1];
@@ -1718,25 +1718,25 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
     // Find the starting scale
     luScale = 1;
     if (luHH >= 100000000)
-    {
+    {TRACE_IT(19329);
         luScale = 100000000;
         wExp10 += 8;
     }
     else
-    {
+    {TRACE_IT(19330);
         if (luHH >= 10000)
-        {
+        {TRACE_IT(19331);
             luScale = 10000;
             wExp10 += 4;
         }
         if (luHH >= 100 * luScale)
-        {
+        {TRACE_IT(19332);
             luScale *= 100;
             wExp10 += 2;
         }
     }
     if (luHH >= 10 * luScale)
-    {
+    {TRACE_IT(19333);
         luScale *= 10;
         wExp10++;
     }
@@ -1744,7 +1744,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
     Assert(luHH >= luScale && luHH / luScale < 10);
 
     for (ib = 0; ib < kcbMaxRgb; )
-    {
+    {TRACE_IT(19334);
         Assert(luLL <= luHH);
         bHH = (byte)(luHH / luScale);
         luHH %= luScale;
@@ -1759,7 +1759,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
         prgb[ib++] = bHH;
 
         if (1 == luScale)
-        {
+        {TRACE_IT(19335);
             // Multiply by 10^8.
             luScale = 10000000;
 
@@ -1802,7 +1802,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
     if (0 == bLH && 0 == luLH && numLH.FZero() && 0 == (Js::NumberUtilities::LuLoDbl(dbl) & 1))
         ;
     else if (bHL - bLH > 1)
-    {
+    {TRACE_IT(19336);
         Assert(ib < kcbMaxRgb);
         if(!(ib < kcbMaxRgb))
             goto LFail;
@@ -1813,7 +1813,7 @@ static BOOL FDblToRgbFast(double dbl, _Out_writes_to_(kcbMaxRgb, (*ppbLim - prgb
     }
 
     else if (0 != luHL || !numHL.FZero() || 0 == (Js::NumberUtilities::LuLoDbl(dbl) & 1))
-    {
+    {TRACE_IT(19337);
         Assert(ib < kcbMaxRgb);
         if(!(ib < kcbMaxRgb))
             goto LFail;
@@ -1865,7 +1865,7 @@ LSmallInt:
     *pwExp10 = iT + 1;
 
     for (ib = 0; 0 != dbl && ib < kcbMaxRgb && 0 <= iT; iT--)
-    {
+    {TRACE_IT(19338);
         Assert(iT >= 0);
         bHH = (byte)(dbl / g_rgdblTens[iT]);
         dbl -= bHH * g_rgdblTens[iT];
@@ -1886,7 +1886,7 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
     AnalysisAssert(pbLim > pbSrc);
 
     if (pbLim <= pbSrc)
-    {
+    {TRACE_IT(19339);
         Assert(0);
         return FALSE;
     }
@@ -1894,7 +1894,7 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
     // check the expected size of the resulting string...
     size_t nCount;
     if ((wExp10 <= -6) ||(wExp10 > 21))
-    {
+    {TRACE_IT(19340);
         nCount = (pbLim - pbSrc) + 6;
         if (wExp10 >= 100)
             nCount += 2;
@@ -1906,19 +1906,19 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
     else
         nCount = (pbLim - pbSrc) + 1 + wExp10;
     if ((int)nCount >= cchDst)
-    {
+    {TRACE_IT(19341);
         Assert(0);
         return FALSE;
     }
 
 
     if (wExp10 <= -6 || wExp10 > 21)
-    {
+    {TRACE_IT(19342);
         // Exponential notation - first digit
         *pchDst++ = *pbSrc++ + '0';
 
         if (pbSrc < pbLim)
-        {
+        {TRACE_IT(19343);
             // Decimal point and remaining digits
             *pchDst++ = '.';
             while (pbSrc < pbLim)
@@ -1928,7 +1928,7 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
         // 'e' and exponent sign
         *pchDst++ = 'e';
         if (--wExp10 < 0)
-        {
+        {TRACE_IT(19344);
             *pchDst++ = '-';
             wExp10 = -wExp10;
         }
@@ -1938,14 +1938,14 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
         // Exponent Digits
         Assert(wExp10 < 1000);
         if (wExp10 >= 100)
-        {
+        {TRACE_IT(19345);
             *pchDst++ = (char16)('0' + wExp10 / 100);
             wExp10 %= 100;
             *pchDst++ = (char16)('0' + wExp10 / 10);
             wExp10 %= 10;
         }
         else if (wExp10 >= 10)
-        {
+        {TRACE_IT(19346);
             *pchDst++ = (char16)('0' + wExp10 / 10);
             wExp10 %= 10;
         }
@@ -1954,7 +1954,7 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
         *pchDst = 0;
     }
     else if (wExp10 <= 0)
-    {
+    {TRACE_IT(19347);
         // Just fractional stuff
         *pchDst++ = '0';
 #pragma prefast(suppress:26014, "We have calculate the check the buffer size above already")
@@ -1966,10 +1966,10 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
         *pchDst = 0;
     }
     else
-    {
+    {TRACE_IT(19348);
         // Stuff to the left of the decimal point
         while (pbSrc < pbLim)
-        {
+        {TRACE_IT(19349);
             *pchDst++ = *pbSrc++ + '0';
             if (--wExp10 == 0 && pbSrc < pbLim)
                 *pchDst++ = '.';
@@ -1984,7 +1984,7 @@ static BOOL FormatDigits(_In_reads_(pbLim - pbSrc) byte *pbSrc, byte *pbLim, int
 __success(return <= nDstBufSize)
 #pragma prefast(suppress:6101, "when return value is > nDstBufSize, the pchDst is not initialized.  Prefast doesn't seems to pick that up in the annotation")
 static int FormatDigitsFixed(byte *pbSrc, byte *pbLim, int wExp10, int nFractionDigits, __out_ecount_part(nDstBufSize, return) char16 *pchDst, int nDstBufSize)
-{
+{TRACE_IT(19350);
     AnalysisAssert(pbLim > pbSrc);
     AssertArrMem(pbSrc, pbLim - pbSrc);
     AnalysisAssert(nFractionDigits >= -1);
@@ -1993,10 +1993,10 @@ static int FormatDigitsFixed(byte *pbSrc, byte *pbLim, int wExp10, int nFraction
     int n = 1; // the no. of chars. in the result.
 
     if (wExp10 <= 0)
-    {
+    {TRACE_IT(19351);
         // Just fractional stuff
         if( nFractionDigits < 0 )
-        {
+        {TRACE_IT(19352);
             // Set nFractionDigits such that we get all the significant digits and no trailing zeros
             AnalysisAssert(pbLim - pbSrc < INT_MAX);
             nFractionDigits = -wExp10 + (int)(pbLim - pbSrc);
@@ -2004,16 +2004,16 @@ static int FormatDigitsFixed(byte *pbSrc, byte *pbLim, int wExp10, int nFraction
 
         n++; // for '0'
         if( nFractionDigits > 0 )
-        {
+        {TRACE_IT(19353);
             n += nFractionDigits + 1;
         }
 
         if( nDstBufSize >= n )
-        {
+        {TRACE_IT(19354);
             *pchDst++ = '0';
 
             if( nFractionDigits > 0 )
-            {
+            {TRACE_IT(19355);
                 *pchDst++ = '.';
                 for( ; wExp10 < 0 && nFractionDigits > 0; wExp10++, nFractionDigits--)
                     *pchDst++ = '0';
@@ -2026,10 +2026,10 @@ static int FormatDigitsFixed(byte *pbSrc, byte *pbLim, int wExp10, int nFraction
         }
     }
     else
-    {
+    {TRACE_IT(19356);
         n += wExp10; // chars to the left of the decimal point.
         if( nFractionDigits < 0 )
-        {
+        {TRACE_IT(19357);
             // Set nFractionDigits such that we get all the significant digits and no trailing zeros
             nFractionDigits = (pbLim - pbSrc <= wExp10) ? 0 : (int)(pbLim - pbSrc) - wExp10;
         }
@@ -2037,25 +2037,25 @@ static int FormatDigitsFixed(byte *pbSrc, byte *pbLim, int wExp10, int nFraction
             n += nFractionDigits + 1;
 
         if( nDstBufSize >= n )
-        {
+        {TRACE_IT(19358);
             // Stuff to the left of the decimal point
             for (;pbSrc < pbLim && wExp10 > 0; wExp10-- )
-            {
+            {TRACE_IT(19359);
                 *pchDst++ = *pbSrc++ + '0';
             }
 
             if(wExp10 > 0)
-            {
+            {TRACE_IT(19360);
                 for( ; wExp10 > 0; wExp10--)
                     *pchDst++ = '0';
             }
 
             //Stuff to the right of the decimal point
             if (nFractionDigits > 0)
-            {
+            {TRACE_IT(19361);
                 *pchDst++ = '.';
                 for (;pbSrc < pbLim && nFractionDigits > 0; nFractionDigits-- )
-                {
+                {TRACE_IT(19362);
                     *pchDst++ = *pbSrc++ + '0';
                 }
                 // Pad with 0's at the end to get the required number of fractional digits
@@ -2079,7 +2079,7 @@ static int FormatDigitsExponential(
                                     int      nFractionDigits,
     _Out_writes_to_(cchDst, return) char16 * pchDst,
                                     int      cchDst)
-{
+{TRACE_IT(19363);
     AnalysisAssert(pbLim > pbSrc);
     Assert(pbLim - pbSrc <= kcbMaxRgb);
     AssertArrMem(pbSrc, pbLim - pbSrc);
@@ -2089,15 +2089,15 @@ static int FormatDigitsExponential(
     int n = 1; // first digit
 
     if (nFractionDigits < 0) // output as many fractional digits as we can
-    {
+    {TRACE_IT(19364);
         int cch = (int)(pbLim - (1 + pbSrc)); // 1 == first digit
         if (cch > 0)
-        {
+        {TRACE_IT(19365);
             n += (1 + cch); // 1 == '.'
         }
     }
     else if (nFractionDigits > 0)
-    {
+    {TRACE_IT(19366);
         n += (1 + nFractionDigits); // 1 == '.'
     }
 
@@ -2107,15 +2107,15 @@ static int FormatDigitsExponential(
     // Exponent Digits
     int wExp10Abs = ((wExp10-1) >= 0) ? (wExp10-1) : -(wExp10-1);
     if (wExp10Abs >= 100)
-    {
+    {TRACE_IT(19367);
         n += 3;
     }
     else if (wExp10Abs >= 10)
-    {
+    {TRACE_IT(19368);
         n += 2;
     }
     else
-    {
+    {TRACE_IT(19369);
         n += 1;
     }
     n++; // null terminator
@@ -2130,19 +2130,19 @@ static int FormatDigitsExponential(
     *pchDst++ = '0' + *pbSrc++;
 
     if (nFractionDigits < 0) // output as many fractional digits as we can
-    {
+    {TRACE_IT(19370);
         if (pbSrc < pbLim)
-        {
+        {TRACE_IT(19371);
             // Decimal point and remaining digits
             *pchDst++ = '.';
             do
-            {
+            {TRACE_IT(19372);
                 *pchDst++ = '0' + *pbSrc++;
             } while (pbSrc < pbLim);
         }
     }
     else if (nFractionDigits > 0)
-    {
+    {TRACE_IT(19373);
         // Decimal point and remaining digits
         *pchDst++ = '.';
         for ( ; pbSrc < pbLim && nFractionDigits > 0; nFractionDigits--)
@@ -2155,7 +2155,7 @@ static int FormatDigitsExponential(
     // 'e' and exponent sign
     *pchDst++ = 'e';
     if (--wExp10 < 0)
-    {
+    {TRACE_IT(19374);
         *pchDst++ = '-';
         wExp10 = -wExp10;
     }
@@ -2164,14 +2164,14 @@ static int FormatDigitsExponential(
 
     // Exponent Digits
     if (wExp10 >= 100)
-    {
+    {TRACE_IT(19375);
         *pchDst++ = (char16)('0' + wExp10 / 100);
         wExp10 %= 100;
         *pchDst++ = (char16)('0' + wExp10 / 10);
         wExp10 %= 10;
     }
     else if (wExp10 >= 10)
-    {
+    {TRACE_IT(19376);
         *pchDst++ = (char16)('0' + wExp10 / 10);
         wExp10 %= 10;
     }
@@ -2193,7 +2193,7 @@ static int FormatDigitsExponential(
 */
 #pragma prefast(suppress:6101)
 static int RoundTo(byte *pbSrc, byte *pbLim, int nDigits, __out_bcount(nDigits+1) byte *pbDst, byte **ppbLimRes )
-{
+{TRACE_IT(19377);
     AnalysisAssert(pbLim > pbSrc);
     AssertArrMem(pbSrc, pbLim - pbSrc);
     AnalysisAssert(nDigits >= 0);
@@ -2201,7 +2201,7 @@ static int RoundTo(byte *pbSrc, byte *pbLim, int nDigits, __out_bcount(nDigits+1
     int retVal = 0;
 
     if ((pbLim - pbSrc) < 0)
-    {
+    {TRACE_IT(19378);
         AnalysisAssert(FALSE);
         return 0;
     }
@@ -2213,25 +2213,25 @@ static int RoundTo(byte *pbSrc, byte *pbLim, int nDigits, __out_bcount(nDigits+1
         *ppbLimRes = pbDst + (pbLim - pbSrc);
     }
     else
-    {
+    {TRACE_IT(19379);
         int i = nDigits;
 
         if( pbSrc[i] >= 5 )
-        {
+        {TRACE_IT(19380);
             // Add 1 to the BCD representation.
             for( i = nDigits - 1; i >= 0; i-- )
-            {
+            {TRACE_IT(19381);
 
                 if( pbSrc[i] + 1 > 9 )
                     pbDst[i] = 0;
                 else
-                {
+                {TRACE_IT(19382);
                     pbDst[i] = pbSrc[i] + 1;
                     break;
                 }
             }
             if( i < 0 && pbDst[0] == 0 )
-            {
+            {TRACE_IT(19383);
                 // An extra leading '1' is required. Move the number in pbDst to the right
                 // and tack it on.
                 memmove(pbDst + 1, pbDst, nDigits);
@@ -2260,31 +2260,31 @@ static int RoundTo(byte *pbSrc, byte *pbLim, int nDigits, __out_bcount(nDigits+1
 */
 
 int Js::NumberUtilities::FDblToStr(double dbl, Js::NumberUtilities::FormatType ft, int nDigits, __out_ecount(cchDst) char16 *pchDst, int cchDst)
-{
+{TRACE_IT(19384);
     int n = 0; // the no. of chars in the result.
     int wExp10;
     byte rgb[kcbMaxRgb];
     byte *pbLim;
 
     if (!Js::NumberUtilities::IsFinite(dbl))
-    {
+    {TRACE_IT(19385);
         if (Js::NumberUtilities::IsNan(dbl))
-        {
+        {TRACE_IT(19386);
             n = 4; //(int)wcslen(OLESTR("NaN")) + 1;
             if( cchDst >= n )
                 wcscpy_s(pchDst, cchDst, _u("NaN"));
         }
         else
-        {
+        {TRACE_IT(19387);
             n = 9; //(int)wcslen(OLESTR("Infinity")) + 1;
             int neg = 0;
             if (dbl < 0 )
-            {
+            {TRACE_IT(19388);
                 neg = 1;
                 n++;
             }
             if( cchDst >= n )
-            {
+            {TRACE_IT(19389);
                 if (neg)
                     *pchDst++ = '-';
                 wcscpy_s(pchDst, cchDst - neg, _u("Infinity"));
@@ -2293,19 +2293,19 @@ int Js::NumberUtilities::FDblToStr(double dbl, Js::NumberUtilities::FormatType f
         return n;
     }
     if (0 == dbl)
-    {
+    {TRACE_IT(19390);
         rgb[0] = 0;
         pbLim = &rgb[1];
         wExp10 = 1;
     }
     else
-    {
+    {TRACE_IT(19391);
         // Handle the sign.
         if (Js::NumberUtilities::LuHiDbl(dbl) & 0x80000000)
-        {
+        {TRACE_IT(19392);
             n++;
             if(cchDst >= n)
-            {
+            {TRACE_IT(19393);
                 *pchDst++ = '-';
                 cchDst--;
             }
@@ -2330,18 +2330,18 @@ int Js::NumberUtilities::FDblToStr(double dbl, Js::NumberUtilities::FormatType f
     {
     case Js::NumberUtilities::FormatFixed:
         if( nDigits >= 0 )
-        {
+        {TRACE_IT(19394);
             //Either session pointer is null or session is in compat mode switch to compat handling
             if ((wExp10 + nDigits) > 0)
-            {
+            {TRACE_IT(19395);
                 AnalysisAssert(wExp10 + nDigits + 1 <= kcbMaxRgb);
                 wExp10 += RoundTo(rgb, pbLim, wExp10 + nDigits, rgbAdj, &pbLimAdj);
             }
             else
-            {
+            {TRACE_IT(19396);
                 //Special case: When negative power of 10 is more than most significant digit.
                 if( rgb[0] >= 5 )
-                {
+                {TRACE_IT(19397);
                     rgbAdj[0] = 1;
                     wExp10 += 1;
                 }
@@ -2357,7 +2357,7 @@ int Js::NumberUtilities::FDblToStr(double dbl, Js::NumberUtilities::FormatType f
 
     case Js::NumberUtilities::FormatExponential:
         if (nDigits >= 0)
-        {
+        {TRACE_IT(19398);
             AnalysisAssert(nDigits + 2 <= kcbMaxRgb);
             wExp10 += RoundTo(rgb, pbLim, nDigits + 1, rgbAdj, &pbLimAdj);
         }
@@ -2381,15 +2381,15 @@ int Js::NumberUtilities::FDblToStr(double dbl, Js::NumberUtilities::FormatType f
 }
 
 BOOL Js::NumberUtilities::FDblToStr(double dbl, __out_ecount(cchDst) char16 *pchDst, int cchDst)
-{
+{TRACE_IT(19399);
     if (!Js::NumberUtilities::IsFinite(dbl))
-    {
+    {TRACE_IT(19400);
         if (Js::NumberUtilities::IsNan(dbl))
             return 0 == wcscpy_s(pchDst, cchDst, _u("NaN"));
         else
-        {
+        {TRACE_IT(19401);
             if (dbl < 0)
-            {
+            {TRACE_IT(19402);
                 if (cchDst < 10) return FALSE;
                 *pchDst++ = '-';
                 cchDst--;
@@ -2400,7 +2400,7 @@ BOOL Js::NumberUtilities::FDblToStr(double dbl, __out_ecount(cchDst) char16 *pch
     }
 
     if (0 == dbl)
-    {
+    {TRACE_IT(19403);
         if (cchDst < 2) return FALSE;
         *pchDst++ = '0';
         *pchDst = 0;
@@ -2411,7 +2411,7 @@ BOOL Js::NumberUtilities::FDblToStr(double dbl, __out_ecount(cchDst) char16 *pch
 }
 
 BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, __out_ecount(cchDst) OLECHAR *pchDst, int cchDst)
-{
+{TRACE_IT(19404);
     int wExp10;
     byte rgb[kcbMaxRgb];
     byte *pbLim;
@@ -2421,7 +2421,7 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, __out_ecount(cchDst
 
     // Handle the sign.
     if (Js::NumberUtilities::LuHiDbl(dbl) & 0x80000000)
-    {
+    {TRACE_IT(19405);
         if (cchDst < 2) return FALSE;
         *pchDst++ = '-';
         cchDst--;
@@ -2436,7 +2436,7 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, __out_ecount(cchDst
     if (FDblToRgbPrecise(dbl, rgb, &wExp10, &pbLim))
     {
         if (FormatDigits(rgb, pbLim, wExp10, pchDst, cchDst))
-        {
+        {TRACE_IT(19406);
             bool likelyInt = true;
             dblT = StrToDbl<char16>(pchDst, &pch,likelyInt);
             Assert(0 == *pch);
@@ -2486,7 +2486,7 @@ static const int g_rgcchSig[] =
 //
 _Success_(return)
 BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) int radix, _Out_writes_(nDstBufSize) WCHAR* psz, int nDstBufSize)
-{
+{TRACE_IT(19407);
     Assert(!Js::NumberUtilities::IsNan(dbl));
     Assert(dbl != 0);
     Assert(Js::NumberUtilities::IsFinite(dbl));
@@ -2505,7 +2505,7 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
     char16 * ppsz = psz;
 
     if (0x80000000 & Js::NumberUtilities::LuHiDbl(dbl))
-    {
+    {TRACE_IT(19408);
         *ppsz++ = '-';
         len--;
         Js::NumberUtilities::LuHiDbl(dbl) &= 0x7FFFFFFF;
@@ -2529,22 +2529,22 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
     __analysis_assume(maxOutDigits > 0);
 
     if (wExp2 < -60 || wExp2 > 60)
-    {
+    {TRACE_IT(19409);
         // Use exponential notation. Get the exponent and normalize.
         if (cbitDigit != 0)
-        {
+        {TRACE_IT(19410);
             // Power of 2. These computations are exact.
             wExp = wExp2 / cbitDigit;
             wExp2 = wExp * cbitDigit;
 
             // Avoid overflow and underflow.
             if (wExp2 > 0)
-            {
+            {TRACE_IT(19411);
                 wExp2 -= cbitDigit;
                 dbl /= radix;
             }
             else
-            {
+            {TRACE_IT(19412);
                 wExp2 += cbitDigit;
                 dbl *= radix;
             }
@@ -2553,22 +2553,22 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
             Js::NumberUtilities::LuLoDbl(valueT) = 0;
         }
         else
-        {
+        {TRACE_IT(19413);
             wExp = (int)floor(log(dbl) / log((double)radix) + 1.0);
             valueT = pow((double)radix, wExp);
             if (!Js::NumberUtilities::IsFinite(valueT))
-            {
+            {TRACE_IT(19414);
                 valueT = pow((double)radix, --wExp);
             }
             else if (0 == valueT)
-            {
+            {TRACE_IT(19415);
                 valueT = pow((double)radix, ++wExp);
             }
         }
         dbl = dbl / valueT;
 
         while (dbl < 1)
-        {
+        {TRACE_IT(19416);
             dbl *= radix;
             wExp--;
         }
@@ -2577,7 +2577,7 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
         // First digit.
         wDig = (int)dbl;
         if (len < 2)
-        {
+        {TRACE_IT(19417);
             return FALSE; //We run out of buffer size.
         }
         len--;
@@ -2587,19 +2587,19 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
 
         // Radix point and remaining digits.
         if (0 != dbl)
-        {
+        {TRACE_IT(19418);
             if (len < maxOutDigits + 2)
-            {
+            {TRACE_IT(19419);
                 return FALSE; //We run out of buffer size.
             }
             len -= maxOutDigits + 1;
             *ppsz++ = '.';
             while (dbl != 0 && maxOutDigits-- > 0)
-            {
+            {TRACE_IT(19420);
                 dbl *= radix;
                 wDig = (int)dbl;
                 if (wDig >= radix)
-                {
+                {TRACE_IT(19421);
                     wDig = radix - 1;
                 }
                 *ppsz++ = ToDigit(wDig);
@@ -2609,26 +2609,26 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
 
         // Exponent.
         if (len < 9) // NOTE: may actually need less room
-        {
+        {TRACE_IT(19422);
             return FALSE; //We run out of buffer size.
         }
         *ppsz++ = '(';
         *ppsz++ = 'e';
         if (wExp < 0)
-        {
+        {TRACE_IT(19423);
             *ppsz++ = '-';
             wExp = -wExp;
         }
         else
-        {
+        {TRACE_IT(19424);
             *ppsz++ = '+';
         }
         if (wExp >= 10)
-        {
+        {TRACE_IT(19425);
             if (wExp >= 100)
-            {
+            {TRACE_IT(19426);
                 if (wExp >= 1000)
-                {
+                {TRACE_IT(19427);
                     *ppsz++ = (char16)('0' + wExp / 1000);
                     wExp %= 1000;
                 }
@@ -2647,9 +2647,9 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
 
     // Output the integer portion.
     if (1 <= dbl)
-    {
+    {TRACE_IT(19428);
         if (0 != cbitDigit)
-        {
+        {TRACE_IT(19429);
             wExp = wExp2 / cbitDigit;
             wExp2 = wExp * cbitDigit;
 
@@ -2658,10 +2658,10 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
             cchSig = abs(wExp) + 1;
         }
         else
-        {
+        {TRACE_IT(19430);
             cchSig = 1;
             for (valueDen = 1; (valueT = valueDen * radix) <= dbl; valueDen = valueT)
-            {
+            {TRACE_IT(19431);
                 cchSig++;
             }
         }
@@ -2670,15 +2670,15 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
         __analysis_assume(cchSig >= 0);
 
         if (len < cchSig + 1)
-        {
+        {TRACE_IT(19432);
             return FALSE; //We run out of buffer size.
         }
         len -= cchSig;
         for (cch = 0; cch < cchSig; cch++)
-        {
+        {TRACE_IT(19433);
             wDig = (int)(dbl / valueDen);
             if (wDig >= radix)
-            {
+            {TRACE_IT(19434);
                 wDig = radix - 1;
             }
             *ppsz++ = ToDigit(wDig);
@@ -2687,9 +2687,9 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
         }
     }
     else
-    {
+    {TRACE_IT(19435);
         if (len < 2)
-        {
+        {TRACE_IT(19436);
             return FALSE; //We run out of buffer size.
         }
         len--;
@@ -2699,38 +2699,38 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
 
     // Output the fractional portion.
     if (0 != dbl && cchSig < maxOutDigits)
-    {
+    {TRACE_IT(19437);
         // Output the radix point.
         if (len < 3)
-        {
+        {TRACE_IT(19438);
             return FALSE; //We run out of buffer size.
         }
         len--;
         *ppsz++ = '.';
         do
-        {
+        {TRACE_IT(19439);
             dbl *= radix;
             wDig = (int)dbl;
             if (wDig >= radix)
-            {
+            {TRACE_IT(19440);
                 wDig = radix - 1;
             }
             if (len < 2)
-            {
+            {TRACE_IT(19441);
                 return FALSE; //We run out of buffer size.
             }
             len--;
             *ppsz++ = ToDigit(wDig);
             dbl -= wDig;
             if (0 != wDig || 0 != cchSig)
-            {
+            {TRACE_IT(19442);
                 cchSig++;
             }
         } while (0 != dbl && cchSig < maxOutDigits);
     }
 
     if (len < 1)
-    {
+    {TRACE_IT(19443);
         return FALSE; //We run out of buffer size.
     }
     *ppsz = 0;
@@ -2742,19 +2742,19 @@ BOOL Js::NumberUtilities::FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) i
 static const int64 ci64_2to64 = 0x43F0000000000000;
 static const double cdbl_2to64 = *(double*)&ci64_2to64;
 double Js::NumberUtilities::DblFromDecimal(DECIMAL * pdecIn)
-{
+{TRACE_IT(19444);
     double dblRet;
 
     Assert(pdecIn->scale >= 0 && pdecIn->scale < 29);
     __analysis_assume(pdecIn->scale >= 0 && pdecIn->scale < 29);
     if ((LONG)pdecIn->Mid32 < 0)
-    {
+    {TRACE_IT(19445);
 
         dblRet = (cdbl_2to64 + (double)(LONGLONG)pdecIn->Lo64 +
             (double)pdecIn->Hi32 * cdbl_2to64) / g_rgdblTens[pdecIn->scale];
     }
     else
-    {
+    {TRACE_IT(19446);
         dblRet = ((double)(LONGLONG)pdecIn->Lo64 +
             (double)pdecIn->Hi32 * cdbl_2to64) / g_rgdblTens[pdecIn->scale];
     }
@@ -2766,7 +2766,7 @@ double Js::NumberUtilities::DblFromDecimal(DECIMAL * pdecIn)
 }
 
 void Js::NumberUtilities::CodePointAsSurrogatePair(codepoint_t codePointValue, __out char16* first, __out char16* second)
-{
+{TRACE_IT(19447);
     AssertMsg(first != nullptr && second != nullptr, "Null ptr's passed in for out.");
     AssertMsg(IsInSupplementaryPlane(codePointValue), "Code point is not a surrogate pair.");
     codePointValue -= 0x10000;
@@ -2775,23 +2775,23 @@ void Js::NumberUtilities::CodePointAsSurrogatePair(codepoint_t codePointValue, _
 }
 
 codepoint_t Js::NumberUtilities::SurrogatePairAsCodePoint(codepoint_t first, codepoint_t second)
-{
+{TRACE_IT(19448);
     AssertMsg(IsSurrogateLowerPart(first) && IsSurrogateUpperPart(second), "Characters don't form a surrogate pair.");
     return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000;
 }
 
 bool Js::NumberUtilities::IsSurrogateUpperPart(codepoint_t codePointValue)
-{
+{TRACE_IT(19449);
     return codePointValue >= 0xDC00 && codePointValue <= 0xDFFF;
 }
 
 bool Js::NumberUtilities::IsSurrogateLowerPart(codepoint_t codePointValue)
-{
+{TRACE_IT(19450);
     return codePointValue >= 0xD800 && codePointValue <= 0xDBFF;
 }
 
 bool Js::NumberUtilities::IsInSupplementaryPlane(codepoint_t codePointValue)
-{
+{TRACE_IT(19451);
     Assert(codePointValue <= 0x10FFFF);
     return codePointValue >= 0x10000;
 }

@@ -109,7 +109,7 @@ namespace UnifiedRegex
 
     ParseError::ParseError(bool isBody, CharCount pos, CharCount encodedPos, HRESULT error)
         : isBody(isBody), pos(pos), encodedPos(encodedPos), error(error)
-    {
+    {TRACE_IT(31577);
     }
 
     template <typename P, const bool IsLiteral>
@@ -150,7 +150,7 @@ namespace UnifiedRegex
         , valueOfLastSurrogate(INVALID_CODEPOINT)
         , deferredIfNotUnicodeError(nullptr)
         , deferredIfUnicodeError(nullptr)
-    {
+    {TRACE_IT(31578);
         if (isFromExternalSource)
             this->FromExternalSource();
     }
@@ -161,7 +161,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::SetPosition(const EncodedChar* input, const EncodedChar* inputLim, bool inBody)
-    {
+    {TRACE_IT(31579);
         this->input = input;
         this->inputLim = inputLim;
         next = input;
@@ -171,7 +171,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline CharCount Parser<P, IsLiteral>::Pos()
-    {
+    {TRACE_IT(31580);
         CharCount nextOffset = Chars<EncodedChar>::OSB(next, input);
         Assert(nextOffset >= this->m_cMultiUnits);
         return nextOffset - (CharCount) this->m_cMultiUnits;
@@ -179,19 +179,19 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline bool Parser<P, IsLiteral>::IsEOF()
-    {
+    {TRACE_IT(31581);
         return next >= inputLim;
     }
 
     template <typename P, const bool IsLiteral>
     inline bool Parser<P, IsLiteral>::ECCanConsume(CharCount n /*= 1*/)
-    {
+    {TRACE_IT(31582);
         return next + n <= inputLim;
     }
 
     template <typename P, const bool IsLiteral>
     inline typename P::EncodedChar Parser<P, IsLiteral>::ECLookahead(CharCount n /*= 0*/)
-    {
+    {TRACE_IT(31583);
         // Ok to look ahead to terminating 0
         Assert(next + n <= inputLim);
         return next[n];
@@ -199,7 +199,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline typename P::EncodedChar Parser<P, IsLiteral>::ECLookback(CharCount n /*= 0*/)
-    {
+    {TRACE_IT(31584);
         // Ok to look ahead to terminating 0
         Assert(n + input <= next);
         return *(next - n);
@@ -207,7 +207,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline void Parser<P, IsLiteral>::ECConsume(CharCount n /*= 1*/)
-    {
+    {TRACE_IT(31585);
         Assert(next + n <= inputLim);
 #if DBG
         for (CharCount i = 0; i < n; i++)
@@ -218,14 +218,14 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline void Parser<P, IsLiteral>::ECConsumeMultiUnit(CharCount n /*= 1*/)
-    {
+    {TRACE_IT(31586);
         Assert(next + n <= inputLim);
         next += n;
     }
 
     template <typename P, const bool IsLiteral>
     inline void Parser<P, IsLiteral>::ECRevert(CharCount n /*= 1*/)
-    {
+    {TRACE_IT(31587);
         Assert(n + input <= next);
         next -= n;
     }
@@ -235,14 +235,14 @@ namespace UnifiedRegex
     //
     template <typename P, const bool IsLiteral>
     int Parser<P, IsLiteral>::TryParseExtendedUnicodeEscape(Char& c, bool& previousSurrogatePart, bool trackSurrogatePair /* = false */)
-    {
+    {TRACE_IT(31588);
         if (!scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-        {
+        {TRACE_IT(31589);
             return 0;
         }
 
         if (!ECCanConsume(2) || ECLookahead(0) !='{' || !standardEncodedChars->IsHex(ECLookahead(1)))
-        {
+        {TRACE_IT(31590);
             return 0;
         }
 
@@ -252,12 +252,12 @@ namespace UnifiedRegex
         int i = 2;
 
         while(ECCanConsume(i + 1) && standardEncodedChars->IsHex(ECLookahead(i)))
-        {
+        {TRACE_IT(31591);
             codePoint <<= 4;
             codePoint += standardEncodedChars->DigitValue(ECLookahead(i));
 
             if (codePoint > 0x10FFFF)
-            {
+            {TRACE_IT(31592);
                 return 0;
             }
             i++;
@@ -282,18 +282,18 @@ namespace UnifiedRegex
         // If the character is made up of two characters then we emit the first and backtrack to the start of th escape sequence;
         // Following that we check if we have already seen the first character, and if so emit the second and consume the entire escape sequence.
         if (codePoint < 0x10000)
-        {
+        {TRACE_IT(31593);
             c = UTC(codePoint);
             ECConsumeMultiUnit(consumptionNumber);
         }
         else if (previousSurrogatePart)
-        {
+        {TRACE_IT(31594);
             previousSurrogatePart = false;
             Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &other, &c);
             ECConsumeMultiUnit(consumptionNumber);
         }
         else
-        {
+        {TRACE_IT(31595);
             previousSurrogatePart = true;
             Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &c, &other);
             Assert(ECLookback(1) == 'u' && ECLookback(2) == '\\');
@@ -312,20 +312,20 @@ namespace UnifiedRegex
     //       This can't be asserted directly, and has to be followed by callers. Term pass can reset with each iteration, as well as this method in cases it needs.
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>:: TrackIfSurrogatePair(codepoint_t codePoint,  const EncodedChar* location, uint32 consumptionLength)
-    {
+    {TRACE_IT(31596);
         Assert(codePoint < 0x110000);
         Assert(location != nullptr);
         Assert(location != this->tempLocationOfSurrogatePair);
 
         if (Js::NumberUtilities::IsSurrogateLowerPart(codePoint))
-        {
+        {TRACE_IT(31597);
             this->tempLocationOfSurrogatePair = location;
             this->codePointAtTempLocation = codePoint;
         }
         else
-        {
+        {TRACE_IT(31598);
             if(Js::NumberUtilities::IsSurrogateUpperPart(codePoint) && this->tempLocationOfSurrogatePair != nullptr)
-            {
+            {TRACE_IT(31599);
                 Assert(Js::NumberUtilities::IsSurrogateLowerPart(codePointAtTempLocation));
                 consumptionLength = (uint32)(location - this->tempLocationOfSurrogatePair) + consumptionLength;
                 codePoint = Js::NumberUtilities::SurrogatePairAsCodePoint(codePointAtTempLocation, codePoint);
@@ -337,23 +337,23 @@ namespace UnifiedRegex
         }
 
         if (codePoint > 0xFFFF)
-        {
+        {TRACE_IT(31600);
             this->positionAfterLastSurrogate = location + consumptionLength;
             this->valueOfLastSurrogate = codePoint;
 
             // When parsing without AST we aren't given an allocator. In addition, only the 2 lines above are used during Pass 0;
             // while the bottom is used during Pass 1 (which isn't done when ParseNoAST)
             if(this->ctAllocator != nullptr)
-            {
+            {TRACE_IT(31601);
                 SurrogatePairTracker* node = Anew(this->ctAllocator, SurrogatePairTracker, location, this->tempLocationOfRange, codePoint, consumptionLength, this->m_cMultiUnits);
                 if (surrogatePairList == nullptr)
-                {
+                {TRACE_IT(31602);
                     Assert(currentSurrogatePairNode == nullptr);
                     surrogatePairList = node;
                     currentSurrogatePairNode = node;
                 }
                 else
-                {
+                {TRACE_IT(31603);
                     Assert(currentSurrogatePairNode != nullptr);
                     currentSurrogatePairNode->next = node;
                     currentSurrogatePairNode = node;
@@ -363,7 +363,7 @@ namespace UnifiedRegex
     }
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::CreateSurrogatePairAtom(char16 lower, char16 upper)
-    {
+    {TRACE_IT(31604);
         MatchLiteralNode * literalNode = Anew(this->ctAllocator, MatchLiteralNode, 0, 0);
         MatchCharNode lowerNode(lower);
         MatchCharNode upperNode(upper);
@@ -399,7 +399,7 @@ namespace UnifiedRegex
     // full range is between _ and ^
     template <typename P, const bool IsLiteral>
     AltNode* Parser<P, IsLiteral>::AppendSurrogateRangeToDisjunction(codepoint_t minorCodePoint, codepoint_t majorCodePoint, AltNode *lastAltNode)
-    {
+    {TRACE_IT(31605);
         Assert(minorCodePoint < majorCodePoint);
         Assert(minorCodePoint >= 0x10000u);
         Assert(majorCodePoint >= 0x10000u);
@@ -425,7 +425,7 @@ namespace UnifiedRegex
         // This pair will be represented in single range set.
         const bool singleRange = minorBoundary > majorBoundary;
         if (singleRange)
-        {
+        {TRACE_IT(31606);
             Assert(majorCodePoint - minorCodePoint < 0x400u);
             Assert(lowerMinorCodeUnit == lowerMajorCodeUnit);
 
@@ -437,18 +437,18 @@ namespace UnifiedRegex
             tailToAdd = Anew(ctAllocator, AltNode, concatNode, nullptr);
         }
         else
-        {
+        {TRACE_IT(31607);
             Node* prefixNode = nullptr, *suffixNode = nullptr;
             const bool twoConsecutiveRanges = minorBoundary == majorBoundary;
 
             // For minorBoundary,
             if (minorBoundary - minorCodePoint == 1) // Single character in minor range
-            {
+            {TRACE_IT(31608);
                 // The prefix is only a surrogate pair atom
                 prefixNode = CreateSurrogatePairAtom(lowerMinorCodeUnit, upperMinorCodeUnit);
             }
             else if (minorCodePoint != minorBoundary - 0x400u) // Minor range isn't full
-            {
+            {TRACE_IT(31609);
                 Assert(minorBoundary - minorCodePoint < 0x400u);
                 MatchCharNode* lowerCharNode = Anew(ctAllocator, MatchCharNode, (Char)lowerMinorCodeUnit);
                 MatchSetNode* upperSetNode = Anew(ctAllocator, MatchSetNode, false);
@@ -456,18 +456,18 @@ namespace UnifiedRegex
                 prefixNode = Anew(ctAllocator, ConcatNode, lowerCharNode, Anew(ctAllocator, ConcatNode, upperSetNode, nullptr));
             }
             else // Full minor range
-            {
+            {TRACE_IT(31610);
                 minorBoundary -= 0x400u;
             }
 
             if (majorBoundary == majorCodePoint) // Single character in major range
-            {
+            {TRACE_IT(31611);
                 // The suffix is only a surrogate pair atom
                 suffixNode = CreateSurrogatePairAtom(lowerMajorCodeUnit, upperMajorCodeUnit);
                 majorBoundary -= 0x400u;
             }
             else if (majorBoundary + 0x3FFu != majorCodePoint) // Major range isn't full
-            {
+            {TRACE_IT(31612);
                 Assert(majorCodePoint - majorBoundary < 0x3FFu);
                 MatchCharNode* lowerCharNode = Anew(ctAllocator, MatchCharNode, (Char)lowerMajorCodeUnit);
                 MatchSetNode* upperSetNode = Anew(ctAllocator, MatchSetNode, false, false);
@@ -478,7 +478,7 @@ namespace UnifiedRegex
 
             const bool nonFullConsecutiveRanges = twoConsecutiveRanges && prefixNode != nullptr && suffixNode != nullptr;
             if (nonFullConsecutiveRanges)
-            {
+            {TRACE_IT(31613);
                 Assert(suffixNode != nullptr);
                 Assert(minorCodePoint != minorBoundary - 0x400u);
                 Assert(majorBoundary + 0x3FFu != majorCodePoint);
@@ -489,7 +489,7 @@ namespace UnifiedRegex
                 tailToAdd = Anew(ctAllocator, AltNode, prefixNode, Anew(ctAllocator, AltNode, suffixNode, nullptr));
             }
             else
-            {
+            {TRACE_IT(31614);
                 // We have 3 sets of ranges, comprising of prefix, full and suffix.
                 Assert(majorCodePoint - minorCodePoint >= 0x400u);
                 Assert((prefixNode != nullptr && suffixNode != nullptr) // Spanning more than two ranges
@@ -502,12 +502,12 @@ namespace UnifiedRegex
 
                 bool singleFullRange = majorBoundary == minorBoundary;
                 if (singleFullRange)
-                {
+                {TRACE_IT(31615);
                     // The lower part of the full range is simple a surrogate lower char
                     lowerOfFullRange = Anew(ctAllocator, MatchCharNode, (Char)lowerMinorBoundary);
                 }
                 else
-                {
+                {TRACE_IT(31616);
 
                     Js::NumberUtilities::CodePointAsSurrogatePair(majorBoundary, &lowerMajorBoundary, &ignore);
                     MatchSetNode* setNode = Anew(ctAllocator, MatchSetNode, false, false);
@@ -520,11 +520,11 @@ namespace UnifiedRegex
                 // These are added in the following order [full] [prefix][suffix]
                 // This is doing by prepending, so in reverse.
                 if (suffixNode != nullptr)
-                {
+                {TRACE_IT(31617);
                     tailToAdd = Anew(ctAllocator, AltNode, suffixNode, tailToAdd);
                 }
                 if (prefixNode != nullptr)
-                {
+                {TRACE_IT(31618);
                     tailToAdd = Anew(ctAllocator, AltNode, prefixNode, tailToAdd);
                 }
                 tailToAdd = Anew(ctAllocator, AltNode, Anew(ctAllocator, ConcatNode, lowerOfFullRange, Anew(ctAllocator, ConcatNode, fullUpperRange, nullptr)), tailToAdd);
@@ -532,7 +532,7 @@ namespace UnifiedRegex
         }
 
         if (lastAltNode != nullptr)
-        {
+        {TRACE_IT(31619);
             Assert(lastAltNode->tail == nullptr);
             lastAltNode->tail = tailToAdd;
         }
@@ -542,14 +542,14 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     AltNode* Parser<P, IsLiteral>::AppendSurrogatePairToDisjunction(codepoint_t codePoint, AltNode *lastAltNode)
-    {
+    {TRACE_IT(31620);
         char16 lower, upper;
         Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &lower, &upper);
 
         AltNode* tailNode = Anew(ctAllocator, AltNode, CreateSurrogatePairAtom(lower, upper), nullptr);
 
         if (lastAltNode != nullptr)
-        {
+        {TRACE_IT(31621);
             lastAltNode->tail = tailNode;
         }
 
@@ -562,17 +562,17 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::Fail(HRESULT error)
-    {
+    {TRACE_IT(31622);
         throw ParseError(inBody, Pos(), Chars<EncodedChar>::OSB(next, input), error);
     }
 
     // This doesn't throw, but stores first error code for throwing later
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::DeferredFailIfUnicode(HRESULT error)
-    {
+    {TRACE_IT(31623);
         Assert(this->scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled());
         if (this->deferredIfUnicodeError == nullptr)
-        {
+        {TRACE_IT(31624);
             this->deferredIfUnicodeError = Anew(ctAllocator, ParseError, inBody, Pos(), Chars<EncodedChar>::OSB(next, input), error);
         }
     }
@@ -580,17 +580,17 @@ namespace UnifiedRegex
     // This doesn't throw, but stores first error code for throwing later
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::DeferredFailIfNotUnicode(HRESULT error)
-    {
+    {TRACE_IT(31625);
         Assert(this->scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled());
         if (this->deferredIfNotUnicodeError == nullptr)
-        {
+        {TRACE_IT(31626);
             this->deferredIfNotUnicodeError = Anew(ctAllocator, ParseError, inBody, Pos(), Chars<EncodedChar>::OSB(next, input), error);
         }
     }
 
     template <typename P, const bool IsLiteral>
     inline void Parser<P, IsLiteral>::ECMust(EncodedChar ec, HRESULT error)
-    {
+    {TRACE_IT(31627);
         // We never look for 0
         Assert(ec != 0);
         if (ECLookahead() != ec)
@@ -600,7 +600,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline char16 Parser<P, IsLiteral>::NextChar()
-    {
+    {TRACE_IT(31628);
         Assert(!IsEOF());
         // Could be an embedded 0
         Char c = this->template ReadFull<true>(next, inputLim);
@@ -616,7 +616,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::PatternPass0()
-    {
+    {TRACE_IT(31629);
         this->positionAfterLastSurrogate = nullptr;
         this->deferredIfNotUnicodeError = nullptr;
         this->deferredIfUnicodeError = nullptr;
@@ -625,24 +625,24 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::PatternPass1()
-    {
+    {TRACE_IT(31630);
         return DisjunctionPass1();
     }
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::UnionNodes(Node* prev, Node* curr)
-    {
+    {TRACE_IT(31631);
         if (prev->tag == Node::MatchChar)
-        {
+        {TRACE_IT(31632);
             MatchCharNode* prevChar = (MatchCharNode*)prev;
             if (curr->tag == Node::MatchChar)
-            {
+            {TRACE_IT(31633);
                 MatchCharNode* currChar = (MatchCharNode*)curr;
                 if (prevChar->cs[0] == currChar->cs[0])
                     // Just ignore current node
                     return prevChar;
                 else
-                {
+                {TRACE_IT(31634);
                     // Union chars into new set
                     MatchSetNode* setNode = Anew(ctAllocator, MatchSetNode, false);
                     setNode->set.Set(ctAllocator, prevChar->cs[0]);
@@ -651,13 +651,13 @@ namespace UnifiedRegex
                 }
             }
             else if (curr->tag == Node::MatchSet)
-            {
+            {TRACE_IT(31635);
                 MatchSetNode* currSet = (MatchSetNode*)curr;
                 if (currSet->isNegation)
                     // Can't merge
                     return 0;
                 else
-                {
+                {TRACE_IT(31636);
                     // Union chars into new set
                     MatchSetNode* setNode = Anew(ctAllocator, MatchSetNode, false);
                     setNode->set.Set(ctAllocator, prevChar->cs[0]) ;
@@ -670,26 +670,26 @@ namespace UnifiedRegex
                 return 0;
         }
         else if (prev->tag == Node::MatchSet)
-        {
+        {TRACE_IT(31637);
             MatchSetNode* prevSet = (MatchSetNode*)prev;
             if (prevSet->isNegation)
                 // Can't merge
                 return 0;
             else if (curr->tag == Node::MatchChar)
-            {
+            {TRACE_IT(31638);
                 MatchCharNode* currChar = (MatchCharNode*)curr;
                 // Include char in prev set
                 prevSet->set.Set(ctAllocator, currChar->cs[0]);
                 return prevSet;
             }
             else if (curr->tag == Node::MatchSet)
-            {
+            {TRACE_IT(31639);
                 MatchSetNode* currSet = (MatchSetNode*)curr;
                 if (currSet->isNegation)
                     // Can't merge
                     return 0;
                 else
-                {
+                {TRACE_IT(31640);
                     // Include chars in prev set
                     prevSet->set.UnionInPlace(ctAllocator, currSet->set);
                     return prevSet;
@@ -706,10 +706,10 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::DisjunctionPass0(int depth)
-    {
+    {TRACE_IT(31641);
         AlternativePass0(depth);
         while (true)
-        {
+        {TRACE_IT(31642);
             // Could be terminating 0
             if (ECLookahead() != '|')
                 return;
@@ -720,7 +720,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::DisjunctionPass1()
-    {
+    {TRACE_IT(31643);
         // Maintain the invariants:
         //  - alt lists have two or more items
         //  - alt list items are never alt lists (so we must inline them)
@@ -730,13 +730,13 @@ namespace UnifiedRegex
         AltNode* last = 0;
         // First node may be an alternative
         if (node->tag == Node::Alt)
-        {
+        {TRACE_IT(31644);
             last = (AltNode*)node;
             while (last->tail != 0)
                 last = last->tail;
         }
         while (true)
-        {
+        {TRACE_IT(31645);
             // Could be terminating 0
             if (ECLookahead() != '|')
                 return node;
@@ -745,7 +745,7 @@ namespace UnifiedRegex
             AnalysisAssert(next != nullptr);
             Node* revisedPrev = UnionNodes(last == 0 ? node : last->head, next);
             if (revisedPrev != 0)
-            {
+            {TRACE_IT(31646);
                 // Can merge next into previously seen alternative
                 if (last == 0)
                     node = revisedPrev;
@@ -753,12 +753,12 @@ namespace UnifiedRegex
                     last->head = revisedPrev;
             }
             else if (next->tag == Node::Alt)
-            {
+            {TRACE_IT(31647);
                 AltNode* nextList = (AltNode*)next;
                 // Append inner list to current list
                 revisedPrev = UnionNodes(last == 0 ? node : last->head, nextList->head);
                 if (revisedPrev != 0)
-                {
+                {TRACE_IT(31648);
                     // Can merge head of list into previously seen alternative
                     if (last ==0)
                         node = revisedPrev;
@@ -776,7 +776,7 @@ namespace UnifiedRegex
                 last = nextList;
             }
             else
-            {
+            {TRACE_IT(31649);
                 // Append node
                 AltNode* cons = Anew(ctAllocator, AltNode, next, 0);
                 if (last == 0)
@@ -790,7 +790,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     inline bool Parser<P, IsLiteral>::IsEndOfAlternative()
-    {
+    {TRACE_IT(31650);
         EncodedChar ec = ECLookahead();
         // Could be terminating 0, but embedded 0 is part of alternative
         return (ec == 0 && IsEOF()) || ec == ')' || ec == '|' || (IsLiteral && ec == '/');
@@ -798,9 +798,9 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::EnsureLitbuf(CharCount size)
-    {
+    {TRACE_IT(31651);
         if (litbufLen - litbufNext < size)
-        {
+        {TRACE_IT(31652);
             CharCount newLen = max(litbufLen, initLitbufSize);
             while (newLen < litbufNext + size)
                 newLen *= 2;
@@ -811,13 +811,13 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::AccumLiteral(MatchLiteralNode* deferredLiteralNode, Node* charOrLiteralNode)
-    {
+    {TRACE_IT(31653);
         Assert(charOrLiteralNode->tag == Node::MatchChar || charOrLiteralNode->tag == Node::MatchLiteral);
         CharCount addLen = charOrLiteralNode->LiteralLength();
         Assert(addLen > 0);
 
         if (deferredLiteralNode->length == 0)
-        {
+        {TRACE_IT(31654);
             // Start a new literal
             EnsureLitbuf(addLen);
             deferredLiteralNode->offset = litbufNext;
@@ -825,7 +825,7 @@ namespace UnifiedRegex
             charOrLiteralNode->AppendLiteral(litbufNext, litbufLen, litbuf);
         }
         else if (deferredLiteralNode->offset + deferredLiteralNode->length == litbufNext)
-        {
+        {TRACE_IT(31655);
             // Keep growing the current literal
             EnsureLitbuf(addLen);
             charOrLiteralNode->AppendLiteral(litbufNext, litbufLen, litbuf);
@@ -833,12 +833,12 @@ namespace UnifiedRegex
 
         }
         else if (charOrLiteralNode->tag == Node::MatchLiteral && deferredLiteralNode->offset + deferredLiteralNode->length == ((MatchLiteralNode*)charOrLiteralNode)->offset)
-        {
+        {TRACE_IT(31656);
             // Absorb next literal into current literal since they are adjacent
             deferredLiteralNode->length += addLen;
         }
         else
-        {
+        {TRACE_IT(31657);
             // Abandon current literal and start a fresh one (leaves gap)
             EnsureLitbuf(deferredLiteralNode->length + addLen);
             js_wmemcpy_s(litbuf + litbufNext, litbufLen - litbufNext, litbuf + deferredLiteralNode->offset, deferredLiteralNode->length);
@@ -851,9 +851,9 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::FinalTerm(Node* node, MatchLiteralNode* deferredLiteralNode)
-    {
+    {TRACE_IT(31658);
         if (node == deferredLiteralNode)
-        {
+        {TRACE_IT(31659);
 #if DBG
             if (deferredLiteralNode->length == 0)
                 Assert(false);
@@ -861,7 +861,7 @@ namespace UnifiedRegex
             Assert(deferredLiteralNode->offset < litbufNext);
             Assert(deferredLiteralNode->offset + deferredLiteralNode->length <= litbufNext);
             if (deferredLiteralNode->length == 1)
-            {
+            {TRACE_IT(31660);
                 node = Anew(ctAllocator, MatchCharNode, litbuf[deferredLiteralNode->offset]);
                 if (deferredLiteralNode->offset + deferredLiteralNode->length == litbufNext)
                     // Reclaim last added character
@@ -878,14 +878,14 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::AlternativePass0(int depth)
-    {
+    {TRACE_IT(31661);
         while (!IsEndOfAlternative())
             TermPass0(depth);
     }
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::AlternativePass1()
-    {
+    {TRACE_IT(31662);
         if (IsEndOfAlternative())
             return Anew(ctAllocator, SimpleNode, Node::Empty);
 
@@ -902,14 +902,14 @@ namespace UnifiedRegex
         ConcatNode* last = 0;
         // First node may be a concat
         if (node->tag == Node::Concat)
-        {
+        {TRACE_IT(31663);
             last = (ConcatNode*)node;
             while (last->tail != 0)
                 last = last->tail;
         }
 
         if (last == 0)
-        {
+        {TRACE_IT(31664);
             if (node->LiteralLength() > 0)
             {
                 // Begin a new literal
@@ -918,7 +918,7 @@ namespace UnifiedRegex
             }
         }
         else
-        {
+        {TRACE_IT(31665);
             if (last->head->LiteralLength() > 0)
             {
                 // Begin a new literal
@@ -928,7 +928,7 @@ namespace UnifiedRegex
         }
 
         while (!IsEndOfAlternative())
-        {
+        {TRACE_IT(31666);
             Node* next = TermPass1(&deferredCharNode, previousSurrogatePart);
             AnalysisAssert(next != nullptr);
             if (next->LiteralLength() > 0)
@@ -936,9 +936,9 @@ namespace UnifiedRegex
                 // Begin a new literal or grow the existing literal
                 AccumLiteral(&deferredLiteralNode, next);
                 if (last == 0)
-                {
+                {TRACE_IT(31667);
                     if (node != &deferredLiteralNode)
-                    {
+                    {TRACE_IT(31668);
                         // So far we have first item and the current literal
                         ConcatNode* cons = Anew(ctAllocator, ConcatNode, &deferredLiteralNode, 0);
                         node = Anew(ctAllocator, ConcatNode, node, cons);
@@ -947,9 +947,9 @@ namespace UnifiedRegex
                     // else: keep growing first literal
                 }
                 else
-                {
+                {TRACE_IT(31669);
                     if (last->head != &deferredLiteralNode)
-                    {
+                    {TRACE_IT(31670);
                         // Append a new literal node
                         ConcatNode* cons = Anew(ctAllocator, ConcatNode, &deferredLiteralNode, 0);
                         last->tail = cons;
@@ -959,7 +959,7 @@ namespace UnifiedRegex
                 }
             }
             else if (next->tag == Node::Concat)
-            {
+            {TRACE_IT(31671);
                 // Append this list to accumulated list
                 ConcatNode* nextList = (ConcatNode*)next;
                 if (nextList->head->LiteralLength() > 0 &&
@@ -978,7 +978,7 @@ namespace UnifiedRegex
                 if (last == 0)
                     node = Anew(ctAllocator, ConcatNode, FinalTerm(node, &deferredLiteralNode), nextList);
                 else
-                {
+                {TRACE_IT(31672);
                     last->head = FinalTerm(last->head, &deferredLiteralNode);
                     last->tail = nextList;
                 }
@@ -997,13 +997,13 @@ namespace UnifiedRegex
                 }
             }
             else
-            {
+            {TRACE_IT(31673);
                 // Append this node to accumulated list
                 ConcatNode* cons = Anew(ctAllocator, ConcatNode, next, 0);
                 if (last == 0)
                     node = Anew(ctAllocator, ConcatNode, FinalTerm(node, &deferredLiteralNode), cons);
                 else
-                {
+                {TRACE_IT(31674);
                     last->head = FinalTerm(last->head, &deferredLiteralNode);
                     last->tail = cons;
                 }
@@ -1028,7 +1028,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::NewLoopNode(CharCount lower, CharCountOrFlag upper, bool isGreedy, Node* body)
-    {
+    {TRACE_IT(31675);
         //
         // NOTE: We'd like to represent r? (i.e. r{0,1}) as r|<empty> since the loop representation has high overhead.
         //       HOWEVER if r contains a group definition and could match empty then we must execute as a loop
@@ -1049,7 +1049,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::AtQuantifier()
-    {
+    {TRACE_IT(31676);
         // Could be terminating 0
         switch (ECLookahead())
         {
@@ -1058,7 +1058,7 @@ namespace UnifiedRegex
         case '?':
             return true;
         case '{':
-            {
+            {TRACE_IT(31677);
                 CharCount lookahead = 1;
                 while (ECCanConsume(lookahead + 1) && standardEncodedChars->IsDigit(ECLookahead(lookahead)))
                     lookahead++;
@@ -1071,7 +1071,7 @@ namespace UnifiedRegex
                     if (ECCanConsume(lookahead + 1) && ECLookahead(lookahead) == '}')
                         return true;
                     else
-                    {
+                    {TRACE_IT(31678);
                         CharCount saved = lookahead;
                         while (ECCanConsume(lookahead + 1) && standardEncodedChars->IsDigit(ECLookahead(lookahead)))
                             lookahead++;
@@ -1092,7 +1092,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::OptNonGreedy()
-    {
+    {TRACE_IT(31679);
         // Could be terminating 0
         if (ECLookahead() != '?')
             return true;
@@ -1102,15 +1102,15 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     CharCount Parser<P, IsLiteral>::RepeatCount()
-    {
+    {TRACE_IT(31680);
         CharCount n = 0;
         int digits = 0;
         while (true)
-        {
+        {TRACE_IT(31681);
             // Could be terminating 0
             EncodedChar ec = ECLookahead();
             if (!standardEncodedChars->IsDigit(ec))
-            {
+            {TRACE_IT(31682);
                 if (digits == 0)
                     Fail(JSERR_RegExpSyntax);
                 return n;
@@ -1210,7 +1210,7 @@ namespace UnifiedRegex
                 Fail(JSERR_RegExpSyntax);
             // else fall-through for embedded 0
         default:
-            {
+            {TRACE_IT(31683);
                 const EncodedChar* current = next;
                 Char c = NextChar();
                 if (scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
@@ -1224,13 +1224,13 @@ namespace UnifiedRegex
         }
 
         if (clearLocationIfPresent && this->tempLocationOfSurrogatePair != nullptr)
-        {
+        {TRACE_IT(31684);
             this->tempLocationOfSurrogatePair = nullptr;
             this->codePointAtTempLocation = 0;
         }
 
         if (AtQuantifier())
-        {
+        {TRACE_IT(31685);
             switch (ECLookahead())
             {
             case '*':
@@ -1240,7 +1240,7 @@ namespace UnifiedRegex
                 OptNonGreedy();
                 break;
             case '{':
-                {
+                {TRACE_IT(31686);
                     ECConsume();
                     CharCount lower = RepeatCount();
                     switch (ECLookahead())
@@ -1248,12 +1248,12 @@ namespace UnifiedRegex
                     case ',':
                         ECConsume();
                         if (ECLookahead() == '}')
-                        {
+                        {TRACE_IT(31687);
                             ECConsume();
                             OptNonGreedy();
                         }
                         else
-                        {
+                        {TRACE_IT(31688);
                             CharCount upper = RepeatCount();
                             if (upper < lower)
                                 Fail(JSERR_RegExpSyntax);
@@ -1297,11 +1297,11 @@ namespace UnifiedRegex
         case '\\':
             ECConsume();
             if(SurrogatePairPass1(node, deferredCharNode, previousSurrogatePart))
-            {
+            {TRACE_IT(31689);
                 break; // For quantifier
             }
             else if (AtomEscapePass1(node, deferredCharNode, previousSurrogatePart))
-            {
+            {TRACE_IT(31690);
                 return node; // No quantifier allowed
             }
             break; // else: fall-through for opt quantifier
@@ -1333,7 +1333,7 @@ namespace UnifiedRegex
                     ECConsume(); // )
                     break; // fall-through for opt quantifier
                 default:
-                    {
+                    {TRACE_IT(31691);
                         // ? not yet consumed
                         int thisGroupId = nextGroupId++;
                         node = DisjunctionPass1();
@@ -1357,7 +1357,7 @@ namespace UnifiedRegex
             }
             break;
         case '.':
-            {
+            {TRACE_IT(31692);
                 ECConsume();
                 node = GetNodeWithValidCharacterSet('.');
                 break; // fall-through for opt quantifier
@@ -1365,7 +1365,7 @@ namespace UnifiedRegex
         case '[':
             ECConsume();
             if (unicodeFlagPresent)
-            {
+            {TRACE_IT(31693);
                 containsSurrogatePair = this->currentSurrogatePairNode != nullptr && this->currentSurrogatePairNode->rangeLocation == next;
             }
 
@@ -1399,11 +1399,11 @@ namespace UnifiedRegex
             // else fall-through for embedded 0
         default:
             if(SurrogatePairPass1(node, deferredCharNode, previousSurrogatePart))
-            {
+            {TRACE_IT(31694);
                 break; //For quantifier
             }
             else
-            {
+            {TRACE_IT(31695);
                 deferredCharNode->cs[0] = NextChar();
                 node = deferredCharNode;
                 break; // fall-through for opt quantifier
@@ -1413,7 +1413,7 @@ namespace UnifiedRegex
         Assert(node != 0);
 
         if (AtQuantifier())
-        {
+        {TRACE_IT(31696);
             switch (ECLookahead())
             {
             case '*':
@@ -1432,7 +1432,7 @@ namespace UnifiedRegex
                 ECConsume();
                 return NewLoopNode(0, 1, OptNonGreedy(), node);
             case '{':
-                {
+                {TRACE_IT(31697);
                     if (node == deferredCharNode)
                         node = Anew(ctAllocator, MatchCharNode, *deferredCharNode);
                     ECConsume();
@@ -1442,12 +1442,12 @@ namespace UnifiedRegex
                     case ',':
                         ECConsume();
                         if (ECLookahead() == '}')
-                        {
+                        {TRACE_IT(31698);
                             ECConsume();
                             return NewLoopNode(lower, CharCountFlag, OptNonGreedy(), node);
                         }
                         else
-                        {
+                        {TRACE_IT(31699);
                             CharCount upper = RepeatCount();
                             Assert(lower <= upper);
                             Assert(ECLookahead() == '}');
@@ -1476,31 +1476,31 @@ namespace UnifiedRegex
 #pragma warning(disable:4702)   // unreachable code
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::AtomEscapePass0()
-    {
+    {TRACE_IT(31700);
         EncodedChar ec = ECLookahead();
         if (ec == 0 && IsEOF())
-        {
+        {TRACE_IT(31701);
             // Terminating 0
             Fail(JSERR_RegExpSyntax);
             return false;
         }
         else if (standardEncodedChars->IsDigit(ec))
-        {
+        {TRACE_IT(31702);
             do
-            {
+            {TRACE_IT(31703);
                 ECConsume();
             }
             while (standardEncodedChars->IsDigit(ECLookahead())); // terminating 0 is not a digit
             return false;
         }
         else if (ECLookahead() == 'c')
-        {
+        {TRACE_IT(31704);
             if (standardEncodedChars->IsLetter(ECLookahead(1))) // terminating 0 is not a letter
                 ECConsume(2);
             return false;
         }
         else
-        {
+        {TRACE_IT(31705);
             const EncodedChar *current = next;
             // An escaped '/' is ok
             Char c = NextChar();
@@ -1520,9 +1520,9 @@ namespace UnifiedRegex
                 bool surrogateEncountered = false;
                 int lengthOfSurrogate = TryParseExtendedUnicodeEscape(c, surrogateEncountered, true);
                 if (lengthOfSurrogate > 0)
-                {
+                {TRACE_IT(31706);
                     if (surrogateEncountered)
-                    {
+                    {TRACE_IT(31707);
                         // If we don't have an allocator, we don't create nodes
                         // Asserts in place as extra checks for when we do have an allocator
                         Assert(this->ctAllocator == nullptr || this->currentSurrogatePairNode != nullptr);
@@ -1537,9 +1537,9 @@ namespace UnifiedRegex
                     standardEncodedChars->IsHex(ECLookahead(1)) &&
                     standardEncodedChars->IsHex(ECLookahead(2)) &&
                     standardEncodedChars->IsHex(ECLookahead(3)))
-                {
+                {TRACE_IT(31708);
                     if (this->scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-                    {
+                    {TRACE_IT(31709);
                         codepoint_t value = (standardEncodedChars->DigitValue(ECLookahead(0)) << 12) |
                                             (standardEncodedChars->DigitValue(ECLookahead(1)) << 8) |
                                             (standardEncodedChars->DigitValue(ECLookahead(2)) << 4) |
@@ -1559,36 +1559,36 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::AtomEscapePass1(Node*& node, MatchCharNode* deferredCharNode, bool& previousSurrogatePart)
-    {
+    {TRACE_IT(31710);
         Assert(!IsEOF()); // checked for terminating 0 in pass 0
         if (standardEncodedChars->IsDigit(ECLookahead()))
-        {
+        {TRACE_IT(31711);
             // As per Annex B, allow octal escapes as well as group references, disambiguate based on known
             // number of groups.
             if (ECLookahead() == '0')
-            {
+            {TRACE_IT(31712);
                 // fall through for octal
             }
             else
-            {
+            {TRACE_IT(31713);
                 // Could be a group reference, but only if between 1 and 5 digits which resolve to a valid group number
                 int n = 0;
                 CharCount digits = 0;
                 do
-                {
+                {TRACE_IT(31714);
                     n = n * 10 + (int)standardEncodedChars->DigitValue(ECLookahead(digits));
                     digits++;
                 }
                 while (digits < 5 && ECCanConsume(digits + 1) && standardEncodedChars->IsDigit(ECLookahead(digits)));
                 if (n >= numGroups ||
                     (ECCanConsume(digits + 1) && standardEncodedChars->IsDigit(ECLookahead(digits))))
-                {
+                {TRACE_IT(31715);
                     if (standardEncodedChars->IsOctal(ECLookahead()))
-                    {
+                    {TRACE_IT(31716);
                         // fall through for octal
                     }
                     else
-                    {
+                    {TRACE_IT(31717);
                         // \8 and \9 are identity escapes
                         deferredCharNode->cs[0] = Chars<EncodedChar>::CTW(ECLookahead());
                         ECConsume();
@@ -1597,7 +1597,7 @@ namespace UnifiedRegex
                     }
                 }
                 else
-                {
+                {TRACE_IT(31718);
                     ECConsume(digits);
                     node = Anew(ctAllocator, MatchGroupNode, n);
                     return false; // not an assertion
@@ -1609,7 +1609,7 @@ namespace UnifiedRegex
             uint n = 0;
             CharCount digits = 0;
             do
-            {
+            {TRACE_IT(31719);
                 uint m = n * 8  + standardEncodedChars->DigitValue(ECLookahead());
                 if (m > Chars<uint8>::MaxUChar) // Regex octal codes only support single byte (ASCII) characters.
                     break;
@@ -1624,15 +1624,15 @@ namespace UnifiedRegex
             return false; // not an assertion
         }
         else if (ECLookahead() == 'c')
-        {
+        {TRACE_IT(31720);
             Char c;
             if (standardEncodedChars->IsLetter(ECLookahead(1))) // terminating 0 is not a letter
-            {
+            {TRACE_IT(31721);
                 c = UTC(Chars<EncodedChar>::CTU(ECLookahead(1)) % 32);
                 ECConsume(2);
             }
             else
-            {
+            {TRACE_IT(31722);
                 // SPEC DEVIATION: For non-letters or EOF, take the leading '\' to be itself, and
                 //                 don't consume the 'c' or letter.
                 c = '\\';
@@ -1642,7 +1642,7 @@ namespace UnifiedRegex
             return false; // not an assertion
         }
         else
-        {
+        {TRACE_IT(31723);
             Char c = NextChar();
             switch (c)
             {
@@ -1668,45 +1668,45 @@ namespace UnifiedRegex
                 c = '\v';
                 break; // fall-through for identity escape
             case 'd':
-                {
+                {TRACE_IT(31724);
                     MatchSetNode *setNode = Anew(ctAllocator, MatchSetNode, false, false);
                     standardChars->SetDigits(ctAllocator, setNode->set);
                     node = setNode;
                     return false; // not an assertion
                 }
             case 'D':
-                {
+                {TRACE_IT(31725);
                     node = GetNodeWithValidCharacterSet('D');
                     return false; // not an assertion
                 }
             case 's':
-                {
+                {TRACE_IT(31726);
                     MatchSetNode *setNode = Anew(ctAllocator, MatchSetNode, false, false);
                     standardChars->SetWhitespace(ctAllocator, setNode->set);
                     node = setNode;
                     return false; // not an assertion
                 }
             case 'S':
-                {
+                {TRACE_IT(31727);
                     node = GetNodeWithValidCharacterSet('S');
                     return false; // not an assertion
                 }
             case 'w':
-                {
+                {TRACE_IT(31728);
                     MatchSetNode *setNode = Anew(ctAllocator, MatchSetNode, false, false);
                     if (this->unicodeFlagPresent && this->caseInsensitiveFlagPresent)
-                    {
+                    {TRACE_IT(31729);
                         standardChars->SetWordIUChars(ctAllocator, setNode->set);
                     }
                     else
-                    {
+                    {TRACE_IT(31730);
                         standardChars->SetWordChars(ctAllocator, setNode->set);
                     }
                     node = setNode;
                     return false; // not an assertion
                 }
             case 'W':
-                {
+                {TRACE_IT(31731);
                     node = GetNodeWithValidCharacterSet('W');
                     return false; // not an assertion
                 }
@@ -1715,7 +1715,7 @@ namespace UnifiedRegex
                 if (ECCanConsume(2) &&
                     standardEncodedChars->IsHex(ECLookahead(0)) &&
                     standardEncodedChars->IsHex(ECLookahead(1)))
-                {
+                {TRACE_IT(31732);
                     c = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 4) |
                         (standardEncodedChars->DigitValue(ECLookahead(1))));
                     ECConsume(2);
@@ -1731,7 +1731,7 @@ namespace UnifiedRegex
                     standardEncodedChars->IsHex(ECLookahead(1)) &&
                     standardEncodedChars->IsHex(ECLookahead(2)) &&
                     standardEncodedChars->IsHex(ECLookahead(3)))
-                {
+                {TRACE_IT(31733);
                     c = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 12) |
                             (standardEncodedChars->DigitValue(ECLookahead(1)) << 8) |
                             (standardEncodedChars->DigitValue(ECLookahead(2)) << 4) |
@@ -1755,14 +1755,14 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::SurrogatePairPass1(Node*& node, MatchCharNode* deferredCharNode, bool& previousSurrogatePart)
-    {
+    {TRACE_IT(31734);
         if (!this->scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled() || !unicodeFlagPresent)
-        {
+        {TRACE_IT(31735);
             return false;
         }
 
         if (this->currentSurrogatePairNode != nullptr && this->currentSurrogatePairNode->location == this->next)
-        {
+        {TRACE_IT(31736);
             AssertMsg(!this->currentSurrogatePairNode->IsInsideRange(), "Should not be calling this pass if we are currently inside a range.");
             char16 lower, upper;
 
@@ -1770,31 +1770,31 @@ namespace UnifiedRegex
             codepoint_t equivClass[CaseInsensitive::EquivClassSize];
 
             if (caseInsensitiveFlagPresent && CaseInsensitive::RangeToEquivClass(tableIndex, this->currentSurrogatePairNode->value, this->currentSurrogatePairNode->value, actualHigh, equivClass))
-            {
+            {TRACE_IT(31737);
                 Node *equivNode[CaseInsensitive::EquivClassSize];
                 int indexForNextNode = 0;
                 for (int i = 0; i < CaseInsensitive::EquivClassSize; i++)
-                {
+                {TRACE_IT(31738);
                     bool alreadyAdded = false;
 
                     for (int j = 0; j < i; j++)
-                    {
+                    {TRACE_IT(31739);
                         if (equivClass[i] == equivClass[j])
-                        {
+                        {TRACE_IT(31740);
                             alreadyAdded = true;
                             break;
                         }
                     }
 
                     if (!alreadyAdded)
-                    {
+                    {TRACE_IT(31741);
                         if (Js::NumberUtilities::IsInSupplementaryPlane(equivClass[i]))
-                        {
+                        {TRACE_IT(31742);
                             Js::NumberUtilities::CodePointAsSurrogatePair(equivClass[i], &lower, &upper);
                             equivNode[indexForNextNode] = CreateSurrogatePairAtom(lower, upper);
                         }
                         else
-                        {
+                        {TRACE_IT(31743);
                             equivNode[indexForNextNode] = Anew(ctAllocator, MatchCharNode, (Char)equivClass[i]);
                         }
                         indexForNextNode ++;
@@ -1802,15 +1802,15 @@ namespace UnifiedRegex
                 }
                 Assert(indexForNextNode > 0);
                 if (indexForNextNode == 1)
-                {
+                {TRACE_IT(31744);
                     node = equivNode[0];
                 }
                 else
-                {
+                {TRACE_IT(31745);
                     AltNode *altNode = Anew(ctAllocator, AltNode, equivNode[0], nullptr);
                     AltNode *altNodeTail = altNode;
                     for (int i = 1; i < indexForNextNode; i++)
-                    {
+                    {TRACE_IT(31746);
                         altNodeTail->tail = Anew(ctAllocator, AltNode, equivNode[i], nullptr);
                         altNodeTail = altNodeTail->tail;
                     }
@@ -1818,7 +1818,7 @@ namespace UnifiedRegex
                 }
             }
             else
-            {
+            {TRACE_IT(31747);
                 Js::NumberUtilities::CodePointAsSurrogatePair(this->currentSurrogatePairNode->value, &lower, &upper);
                 node = CreateSurrogatePairAtom(lower, upper);
             }
@@ -1842,10 +1842,10 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::AtSecondSingletonClassAtom()
-    {
+    {TRACE_IT(31748);
         Assert(ECLookahead() == '-');
         if (ECLookahead(1) == '\\')
-        {
+        {TRACE_IT(31749);
             switch (ECLookahead(2))
             {
             case 'd':
@@ -1866,7 +1866,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::CharacterClassPass0()
-    {
+    {TRACE_IT(31750);
         // Could be terminating 0
         if (ECLookahead() == '^')
             ECConsume();
@@ -1882,43 +1882,43 @@ namespace UnifiedRegex
             current = next;
 
             if (nextChar == '\0' && IsEOF())
-            {
+            {TRACE_IT(31751);
                 // Report as unclosed '['
                 Fail(JSERR_RegExpNoBracket);
                 return;
             } // Otherwise embedded '\0' is ok
             else if (nextChar == '\\')
-            {
+            {TRACE_IT(31752);
                 // Consume, as classescapepass0 expects for it to be consumed
                 Char outChar = NextChar();
                 // If previousSurrogatePart = true upon leaving this method, then we are going to pass through here twice
                 // This is because \u{} escape sequence was encountered that is actually 2 characters, the second time we will pass consuming entire character
                 if (ClassEscapePass0(outChar, previousSurrogatePart))
-                {
+                {TRACE_IT(31753);
                     lastCodepoint = outChar;
                 }
                 else
-                {
+                {TRACE_IT(31754);
                     // Last codepoint isn't a singleton, so no codepoint tracking for the sake of ranges is needed.
                     lastCodepoint = INVALID_CODEPOINT;
                     // Unless we have a possible range end, cancel our range tracking.
                     if (pendingRangeEnd == INVALID_CODEPOINT)
-                    {
+                    {TRACE_IT(31755);
                         pendingRangeStart = INVALID_CODEPOINT;
                     }
                 }
             }
             else if (nextChar == '-')
-            {
+            {TRACE_IT(31756);
                 if (pendingRangeStart != INVALID_CODEPOINT || lastCodepoint == INVALID_CODEPOINT)
-                {
+                {TRACE_IT(31757);
                     // '-' is the upper part of the range, with pendingRangeStart codepoint is the lower. Set  lastCodePoint to '-' to check at the end of the while statement
                     // OR
                     // '-' is just a char, consume it and set as last char
                     lastCodepoint = NextChar();
                 }
                 else
-                {
+                {TRACE_IT(31758);
                     pendingRangeStart = this->next == this->positionAfterLastSurrogate
                         ? this->valueOfLastSurrogate
                         : lastCodepoint;
@@ -1944,7 +1944,7 @@ namespace UnifiedRegex
                 Assert(!previousSurrogatePart);
             }
             else
-            {
+            {TRACE_IT(31759);
                 lastCodepoint = NextChar();
 
                 if (scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
@@ -1954,14 +1954,14 @@ namespace UnifiedRegex
             }
 
             if (!scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-            {
+            {TRACE_IT(31760);
                 // This is much easier to handle.
                 if (pendingRangeStart != INVALID_CODEPOINT && lastCodepoint != INVALID_CODEPOINT)
-                {
+                {TRACE_IT(31761);
                     Assert(pendingRangeStart < 0x10000);
                     Assert(pendingRangeEnd == INVALID_CODEPOINT);
                     if (pendingRangeStart > lastCodepoint)
-                    {
+                    {TRACE_IT(31762);
                         Fail(JSERR_RegExpBadRange);
                     }
                     pendingRangeStart = lastCodepoint = INVALID_CODEPOINT;
@@ -1969,11 +1969,11 @@ namespace UnifiedRegex
             }
             // We have a candidate for range end, and we have a range start.
             else if (pendingRangeStart != INVALID_CODEPOINT && (lastCodepoint != INVALID_CODEPOINT || pendingRangeEnd != INVALID_CODEPOINT))
-            {
+            {TRACE_IT(31763);
                 // The following will be true at the end of each surrogate pair parse.
                 // Note, the escape sequence \u{} is a two time parse, so this will be true on the second time around.
                 if (this->next == this->positionAfterLastSurrogate)
-                {
+                {TRACE_IT(31764);
                     lastCodepoint = this->valueOfLastSurrogate;
                     Assert(!previousSurrogatePart);
                     pendingRangeEnd = lastCodepoint;
@@ -1983,48 +1983,48 @@ namespace UnifiedRegex
                 // If we the next character is the end of range ']', then we can't have a surrogate pair.
                 // The current character is the range end, if we don't already have a candidate.
                 else if (ECLookahead() == ']' && pendingRangeEnd == INVALID_CODEPOINT)
-                {
+                {TRACE_IT(31765);
                     pendingRangeEnd = lastCodepoint;
                 }
 
                 //If we get here, and pendingRangeEnd is set. Then one of the above has caused it to be set, or the previous iteration of the loop.
                 if (pendingRangeEnd != INVALID_CODEPOINT)
-                {
+                {TRACE_IT(31766);
                     char16 leftSingleChar, rightSingleChar, ignore;
 
                     if (pendingRangeStart >= 0x10000)
-                    {
+                    {TRACE_IT(31767);
                         Js::NumberUtilities::CodePointAsSurrogatePair(pendingRangeStart, &ignore, &leftSingleChar);
                     }
                     else
-                    {
+                    {TRACE_IT(31768);
                         leftSingleChar = (char16)pendingRangeStart;
                     }
 
                     if (pendingRangeEnd >= 0x10000)
-                    {
+                    {TRACE_IT(31769);
                         Js::NumberUtilities::CodePointAsSurrogatePair(pendingRangeEnd, &rightSingleChar, &ignore);
                     }
                     else
-                    {
+                    {TRACE_IT(31770);
                         rightSingleChar = (char16)pendingRangeEnd;
                     }
 
                     // Here it is a bit tricky, we don't know if we have a unicode option specified.
                     // If it is, then \ud800\udc00 - \ud800\udc01 is valid, otherwise invalid.
                     if (pendingRangeStart < 0x10000 && pendingRangeEnd < 0x10000 && pendingRangeStart > pendingRangeEnd)
-                    {
+                    {TRACE_IT(31771);
                         Fail(JSERR_RegExpBadRange);
                     }
                     else
-                    {
+                    {TRACE_IT(31772);
                         if(leftSingleChar > rightSingleChar)
-                        {
+                        {TRACE_IT(31773);
                             DeferredFailIfNotUnicode(JSERR_RegExpBadRange);
                         }
 
                         if (pendingRangeStart > pendingRangeEnd)
-                        {
+                        {TRACE_IT(31774);
                             DeferredFailIfUnicode(JSERR_RegExpBadRange);
                         }
                     }
@@ -2033,7 +2033,7 @@ namespace UnifiedRegex
                 }
                 // The current char < 0x10000 is a candidate for the range end, but we need to iterate one more time.
                 else
-                {
+                {TRACE_IT(31775);
                     pendingRangeEnd = lastCodepoint;
                 }
             }
@@ -2048,7 +2048,7 @@ namespace UnifiedRegex
     template <typename P, const bool IsLiteral>
     template <bool containsSurrogates>
     Node* Parser<P, IsLiteral>::CharacterClassPass1()
-    {
+    {TRACE_IT(31776);
         Assert(containsSurrogates ? unicodeFlagPresent : true);
 
         CharSet<codepoint_t> codePointSet;
@@ -2059,7 +2059,7 @@ namespace UnifiedRegex
         bool isNegation = false;
 
         if (ECLookahead() == '^')
-        {
+        {TRACE_IT(31777);
             isNegation = true;
             ECConsume();
         }
@@ -2076,12 +2076,12 @@ namespace UnifiedRegex
 
             // Consume ahead of time if we have two backslashes, both cases below (previously Tracked surrogate pair, and ClassEscapePass1) assume it is.
             if (nextChar == '\\')
-            {
+            {TRACE_IT(31778);
                 ECConsume();
             }
             // These if-blocks are the logical ClassAtomPass1, they weren't grouped into a method to simplify dealing with multiple out parameters.
             if (containsSurrogates && this->currentSurrogatePairNode != nullptr && this->currentSurrogatePairNode->location == this->next)
-            {
+            {TRACE_IT(31779);
                 codePointToSet = pendingCodePoint;
 
                 pendingCodePoint = this->currentSurrogatePairNode->value;
@@ -2091,55 +2091,55 @@ namespace UnifiedRegex
                 this->currentSurrogatePairNode = this->currentSurrogatePairNode->next;
             }
             else if (nextChar == '\\')
-            {
+            {TRACE_IT(31780);
                 Node* returnedNode = ClassEscapePass1(&deferredCharNode, &deferredSetNode, previousWasASurrogate);
 
                 if (returnedNode->tag == Node::MatchSet)
-                {
+                {TRACE_IT(31781);
                     codePointToSet = pendingCodePoint;
                     pendingCodePoint = INVALID_CODEPOINT;
                     if (pendingRangeStart != INVALID_CODEPOINT)
-                    {
+                    {TRACE_IT(31782);
                         codePointSet.Set(ctAllocator, '-');
                     }
                     pendingRangeStart = INVALID_CODEPOINT;
                     codePointSet.UnionInPlace(ctAllocator, deferredSetNode.set);
                 }
                 else
-                {
+                {TRACE_IT(31783);
                     // Just a character
                     codePointToSet = pendingCodePoint;
                     pendingCodePoint = deferredCharNode.cs[0];
                 }
             }
             else if (nextChar == '-')
-            {
+            {TRACE_IT(31784);
                 if (pendingRangeStart != INVALID_CODEPOINT || pendingCodePoint == INVALID_CODEPOINT || ECLookahead(1) == ']')
-                {
+                {TRACE_IT(31785);
                     // - is just a char, or end of a range.
                     codePointToSet = pendingCodePoint;
                     pendingCodePoint = '-';
                     ECConsume();
                 }
                 else
-                {
+                {TRACE_IT(31786);
                     pendingRangeStart = pendingCodePoint;
                     ECConsume();
                 }
             }
             else
-            {
+            {TRACE_IT(31787);
                 // Just a character, consume it
                 codePointToSet = pendingCodePoint;
                 pendingCodePoint = NextChar();
             }
 
             if (codePointToSet != INVALID_CODEPOINT)
-            {
+            {TRACE_IT(31788);
                 if (pendingRangeStart != INVALID_CODEPOINT)
-                {
+                {TRACE_IT(31789);
                     if (pendingRangeStart > pendingCodePoint)
-                    {
+                    {TRACE_IT(31790);
                         //We have no unicodeFlag, but current range contains surrogates, thus we may end up having to throw a "Syntax" error here
                         //This breaks the notion of Pass0 check for valid syntax, because we don't know if we have a unicode option
                         Assert(!unicodeFlagPresent);
@@ -2149,7 +2149,7 @@ namespace UnifiedRegex
                     pendingRangeStart = pendingCodePoint = INVALID_CODEPOINT;
                 }
                 else
-                {
+                {TRACE_IT(31791);
                     codePointSet.Set(ctAllocator, codePointToSet);
                 }
             }
@@ -2158,7 +2158,7 @@ namespace UnifiedRegex
         }
 
         if (pendingCodePoint != INVALID_CODEPOINT)
-        {
+        {TRACE_IT(31792);
             codePointSet.Set(ctAllocator, pendingCodePoint);
         }
 
@@ -2174,7 +2174,7 @@ namespace UnifiedRegex
         // The simple case, is when the unicode flag isn't specified, we can go ahead and return the simple set.
         // Negations and case mappings will be handled later.
         if (!unicodeFlagPresent)
-        {
+        {TRACE_IT(31793);
             Assert(codePointSet.SimpleCharCount() == codePointSet.Count());
             MatchSetNode *simpleToReturn = Anew(ctAllocator, MatchSetNode, isNegation);
             codePointSet.CloneSimpleCharsTo(ctAllocator, simpleToReturn->set);
@@ -2185,7 +2185,7 @@ namespace UnifiedRegex
         Assert(scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled());
 
         if (codePointSet.IsEmpty())
-        {
+        {TRACE_IT(31794);
             return Anew(ctAllocator, MatchSetNode, false, false);
         }
 
@@ -2197,16 +2197,16 @@ namespace UnifiedRegex
         // If a singleton, return a simple character
         bool isSingleton = !this->caseInsensitiveFlagPresent && !isNegation && codePointSet.IsSingleton();
         if (isSingleton)
-        {
+        {TRACE_IT(31795);
             codepoint_t singleton = codePointSet.Singleton();
             Node* toReturn = nullptr;
 
             if (singleton < 0x10000)
-            {
+            {TRACE_IT(31796);
                 toReturn = Anew(ctAllocator, MatchCharNode, (char16)singleton);
             }
             else
-            {
+            {TRACE_IT(31797);
                 Assert(unicodeFlagPresent);
                 char16 lowerSurrogate, upperSurrogate;
                 Js::NumberUtilities::CodePointAsSurrogatePair(singleton, &lowerSurrogate, &upperSurrogate);
@@ -2222,9 +2222,9 @@ namespace UnifiedRegex
         CharSet<codepoint_t> negatedSet;
 
         if (!this->caseInsensitiveFlagPresent)
-        {
+        {TRACE_IT(31798);
             if (isNegation)
-            {
+            {TRACE_IT(31799);
                 // Complement all characters, and use it as the set toTranslate
                 codePointSet.ToComplement(ctAllocator, negatedSet);
             }
@@ -2232,13 +2232,13 @@ namespace UnifiedRegex
             toUseForTranslation = isNegation ? &negatedSet : &codePointSet;
 
             if (isNegation)
-            {
+            {TRACE_IT(31800);
                 // Clear this, as we will no longer need this.
                 codePointSet.FreeBody(ctAllocator);
             }
         }
         else
-        {
+        {TRACE_IT(31801);
             CharSet<codepoint_t> caseEquivalent;
             codePointSet.ToEquivClass(ctAllocator, caseEquivalent);
             // Equiv set can't have a reduced count of chars
@@ -2248,13 +2248,13 @@ namespace UnifiedRegex
             // The range might also be negated. If it is negated, we can go ahead and negate
             // the entire set as well as fill in cases, as optimizations wouldn't kick in anyways.
             if (isNegation)
-            {
+            {TRACE_IT(31802);
                 codePointSet.Clear(ctAllocator);
                 caseEquivalent.ToComplement(ctAllocator, codePointSet);
                 caseEquivalent.FreeBody(ctAllocator);
             }
             else
-            {
+            {TRACE_IT(31803);
                 codePointSet.CloneFrom(ctAllocator, caseEquivalent);
             }
 
@@ -2264,22 +2264,22 @@ namespace UnifiedRegex
         uint totalCodePointsCount = toUseForTranslation->Count();
         uint simpleCharsCount = toUseForTranslation->SimpleCharCount();
         if (totalCodePointsCount == simpleCharsCount)
-        {
+        {TRACE_IT(31804);
             MatchSetNode *simpleToReturn = Anew(ctAllocator, MatchSetNode, isNegation);
             toUseForTranslation->CloneSimpleCharsTo(ctAllocator, simpleToReturn->set);
             return simpleToReturn;
         }
 
         if  (simpleCharsCount > 0)
-        {
+        {TRACE_IT(31805);
             if (!toUseForTranslation->ContainSurrogateCodeUnits())
-            {
+            {TRACE_IT(31806);
                 MatchSetNode *node = Anew(ctAllocator, MatchSetNode, false, false);
                 toUseForTranslation->CloneSimpleCharsTo(ctAllocator, node->set);
                 prefixNode = node;
             }
             else
-            {
+            {TRACE_IT(31807);
                 MatchSetNode *node = Anew(ctAllocator, MatchSetNode, false, false);
                 toUseForTranslation->CloneNonSurrogateCodeUnitsTo(ctAllocator, node->set);
                 prefixNode = node;
@@ -2296,37 +2296,37 @@ namespace UnifiedRegex
         codepoint_t charRangeSearchIndex = 0x10000, lowerCharOfRange = 0, upperCharOfRange = 0;
 
         while (toUseForTranslation->GetNextRange(charRangeSearchIndex, &lowerCharOfRange, &upperCharOfRange))
-        {
+        {TRACE_IT(31808);
             if (lowerCharOfRange == upperCharOfRange)
-            {
+            {TRACE_IT(31809);
                 currentTail = this->AppendSurrogatePairToDisjunction(lowerCharOfRange, currentTail);
             }
             else
-            {
+            {TRACE_IT(31810);
                 currentTail = this->AppendSurrogateRangeToDisjunction(lowerCharOfRange, upperCharOfRange, currentTail);
             }
 
             if (headToReturn == nullptr)
-            {
+            {TRACE_IT(31811);
                 headToReturn = currentTail;
             }
 
             AnalysisAssert(currentTail != nullptr);
             while (currentTail->tail != nullptr)
-            {
+            {TRACE_IT(31812);
                 currentTail = currentTail->tail;
             }
             charRangeSearchIndex = upperCharOfRange + 1;
         }
 
         if (suffixNode != nullptr)
-        {
+        {TRACE_IT(31813);
             currentTail->tail = Anew(ctAllocator, AltNode, suffixNode, nullptr);
         }
         toUseForTranslation->Clear(ctAllocator);
 
         if (headToReturn != nullptr && headToReturn->tail == nullptr)
-        {
+        {TRACE_IT(31814);
             return headToReturn->head;
         }
         return headToReturn;
@@ -2336,20 +2336,20 @@ namespace UnifiedRegex
 #pragma warning(disable:4702)   // unreachable code
     template <typename P, const bool IsLiteral>
     bool Parser<P, IsLiteral>::ClassEscapePass0(Char& singleton, bool& previousSurrogatePart)
-    {
+    {TRACE_IT(31815);
         // Could be terminating 0
         EncodedChar ec = ECLookahead();
         if (ec == 0 && IsEOF())
-        {
+        {TRACE_IT(31816);
             Fail(JSERR_RegExpSyntax);
             return false;
         }
         else if (standardEncodedChars->IsOctal(ec))
-        {
+        {TRACE_IT(31817);
             uint n = 0;
             CharCount digits = 0;
             do
-            {
+            {TRACE_IT(31818);
                 uint m = n * 8  + standardEncodedChars->DigitValue(ECLookahead());
                 if (m > Chars<uint8>::MaxUChar) //Regex octal codes only support single byte (ASCII) characters.
                     break;
@@ -2364,7 +2364,7 @@ namespace UnifiedRegex
             return true;
         }
         else
-        {
+        {TRACE_IT(31819);
             const EncodedChar* location = this->tempLocationOfSurrogatePair;
             // Clear it for now, otherwise to many branches to clear it on.
             this->tempLocationOfSurrogatePair = nullptr;
@@ -2399,14 +2399,14 @@ namespace UnifiedRegex
                 return false;
             case 'c':
                 if (standardEncodedChars->IsLetter(ECLookahead())) // terminating 0 is not a letter
-                {
+                {TRACE_IT(31820);
                     singleton = UTC(Chars<EncodedChar>::CTU(ECLookahead()) % 32);
                     ECConsume();
                 }
                 else
-                {
+                {TRACE_IT(31821);
                     if (!IsEOF())
-                    {
+                    {TRACE_IT(31822);
                         EncodedChar ecLookahead = ECLookahead();
                         switch (ecLookahead)
                         {
@@ -2428,7 +2428,7 @@ namespace UnifiedRegex
                 if (ECCanConsume(2) &&
                     standardEncodedChars->IsHex(ECLookahead(0)) &&
                     standardEncodedChars->IsHex(ECLookahead(1)))
-                {
+                {TRACE_IT(31823);
                     singleton = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 4) |
                             (standardEncodedChars->DigitValue(ECLookahead(1))));
                     ECConsume(2);
@@ -2445,7 +2445,7 @@ namespace UnifiedRegex
                     standardEncodedChars->IsHex(ECLookahead(1)) &&
                     standardEncodedChars->IsHex(ECLookahead(2)) &&
                     standardEncodedChars->IsHex(ECLookahead(3)))
-                {
+                {TRACE_IT(31824);
                     singleton = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 12) |
                             (standardEncodedChars->DigitValue(ECLookahead(1)) << 8) |
                             (standardEncodedChars->DigitValue(ECLookahead(2)) << 4) |
@@ -2472,17 +2472,17 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::ClassEscapePass1(MatchCharNode* deferredCharNode, MatchSetNode* deferredSetNode, bool& previousSurrogatePart)
-    {
+    {TRACE_IT(31825);
         // Checked for terminating 0 is pass 0
         Assert(!IsEOF());
         if (standardEncodedChars->IsOctal(ECLookahead()))
-        {
+        {TRACE_IT(31826);
             // As per Annex B, allow octal escapes instead of just \0 (and \8 and \9 are identity escapes).
             // Must be between 1 and 3 octal digits.
             uint n = 0;
             CharCount digits = 0;
             do
-            {
+            {TRACE_IT(31827);
                 uint m = n * 8  + standardEncodedChars->DigitValue(ECLookahead());
                 if (m > Chars<uint8>::MaxUChar) //Regex octal codes only support single byte (ASCII) characters.
                     break;
@@ -2495,7 +2495,7 @@ namespace UnifiedRegex
             return deferredCharNode;
         }
         else
-        {
+        {TRACE_IT(31828);
             Char c = NextChar();
             switch (c)
             {
@@ -2537,17 +2537,17 @@ namespace UnifiedRegex
                 return deferredSetNode;
             case 'c':
                 if (standardEncodedChars->IsLetter(ECLookahead())) // terminating 0 is not a letter
-                {
+                {TRACE_IT(31829);
                     c = UTC(Chars<EncodedChar>::CTU(ECLookahead()) % 32);
                     ECConsume();
                     // fall-through for identity escape
                 }
                 else
-                {
+                {TRACE_IT(31830);
                     // SPEC DEVIATION: For non-letters, still take lower 5 bits, e.g. [\c1] == [\x11].
                     //                 However, '-', ']', and EOF make the \c just a 'c'.
                     if (!IsEOF())
-                    {
+                    {TRACE_IT(31831);
                         EncodedChar ec = ECLookahead();
                         switch (ec)
                         {
@@ -2569,7 +2569,7 @@ namespace UnifiedRegex
                 if (ECCanConsume(2) &&
                     standardEncodedChars->IsHex(ECLookahead(0)) &&
                     standardEncodedChars->IsHex(ECLookahead(1)))
-                {
+                {TRACE_IT(31832);
                     c = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 4) |
                             (standardEncodedChars->DigitValue(ECLookahead(1))));
                     ECConsume(2);
@@ -2585,7 +2585,7 @@ namespace UnifiedRegex
                     standardEncodedChars->IsHex(ECLookahead(1)) &&
                     standardEncodedChars->IsHex(ECLookahead(2)) &&
                     standardEncodedChars->IsHex(ECLookahead(3)))
-                {
+                {TRACE_IT(31833);
                     c = UTC((standardEncodedChars->DigitValue(ECLookahead(0)) << 12) |
                             (standardEncodedChars->DigitValue(ECLookahead(1)) << 8) |
                             (standardEncodedChars->DigitValue(ECLookahead(2)) << 4) |
@@ -2612,9 +2612,9 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::Options(RegexFlags& flags)
-    {
+    {TRACE_IT(31834);
         while (true)
-        {
+        {TRACE_IT(31835);
             // Could be terminating 0
             EncodedChar ec = ECLookahead();
             CharCount consume;
@@ -2631,14 +2631,14 @@ namespace UnifiedRegex
                 standardEncodedChars->IsHex(ECLookahead(3)) &&
                 standardEncodedChars->IsHex(ECLookahead(4)) &&
                 standardEncodedChars->IsHex(ECLookahead(5)))
-            {
+            {TRACE_IT(31836);
                 if (scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-                {
+                {TRACE_IT(31837);
                     Fail(JSERR_RegExpSyntax);
                     return;
                 }
                 else
-                {
+                {TRACE_IT(31838);
                     uint32 n = (standardEncodedChars->DigitValue(ECLookahead(2)) << 12) |
                                (standardEncodedChars->DigitValue(ECLookahead(3)) << 8) |
                                (standardEncodedChars->DigitValue(ECLookahead(4)) << 4) |
@@ -2648,7 +2648,7 @@ namespace UnifiedRegex
                 }
             }
             else
-            {
+            {TRACE_IT(31839);
                 c = Chars<EncodedChar>::CTW(ec);
                 consume = 1;
             }
@@ -2656,21 +2656,21 @@ namespace UnifiedRegex
             switch (c) {
             case 'i':
                 if ((flags & IgnoreCaseRegexFlag) != 0)
-                {
+                {TRACE_IT(31840);
                     Fail(JSERR_RegExpSyntax);
                 }
                 flags = (RegexFlags)(flags | IgnoreCaseRegexFlag);
                 break;
             case 'g':
                 if ((flags & GlobalRegexFlag) != 0)
-                {
+                {TRACE_IT(31841);
                     Fail(JSERR_RegExpSyntax);
                 }
                 flags = (RegexFlags)(flags | GlobalRegexFlag);
                 break;
             case 'm':
                 if ((flags & MultilineRegexFlag) != 0)
-                {
+                {TRACE_IT(31842);
                     Fail(JSERR_RegExpSyntax);
                 }
                 flags = (RegexFlags)(flags | MultilineRegexFlag);
@@ -2678,9 +2678,9 @@ namespace UnifiedRegex
             case 'u':
                 // If we don't have unicode enabled, fall through to default
                 if (scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-                {
+                {TRACE_IT(31843);
                     if ((flags & UnicodeRegexFlag) != 0)
-                    {
+                    {TRACE_IT(31844);
                         Fail(JSERR_RegExpSyntax);
                     }
                     flags = (RegexFlags)(flags | UnicodeRegexFlag);
@@ -2691,9 +2691,9 @@ namespace UnifiedRegex
                 }
             case 'y':
                 if (scriptContext->GetConfig()->IsES6RegExStickyEnabled())
-                {
+                {TRACE_IT(31845);
                     if ((flags & StickyRegexFlag) != 0)
-                    {
+                    {TRACE_IT(31846);
                         Fail(JSERR_RegExpSyntax);
                     }
                     flags = (RegexFlags)(flags | StickyRegexFlag);
@@ -2704,7 +2704,7 @@ namespace UnifiedRegex
                 }
             default:
                 if (standardChars->IsWord(c))
-                {
+                {TRACE_IT(31847);
                     // Outer context could never parse this character. Signal the syntax error as
                     // being part of the regex.
                     Fail(JSERR_RegExpSyntax);
@@ -2727,7 +2727,7 @@ namespace UnifiedRegex
         , const EncodedChar* opts
         , const EncodedChar* optsLim
         , RegexFlags& flags )
-    {
+    {TRACE_IT(31848);
         Assert(!IsLiteral);
         Assert(body != 0);
         Assert(bodyLim >= body && *bodyLim == 0);
@@ -2752,18 +2752,18 @@ namespace UnifiedRegex
             Assert(!this->unicodeFlagPresent || scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled());
         }
         else
-        {
+        {TRACE_IT(31849);
             this->unicodeFlagPresent = false;
             this->caseInsensitiveFlagPresent = false;
         }
 
         // If this HR has been set, that means we have an earlier failure than the one caught above.
         if (this->deferredIfNotUnicodeError != nullptr && !this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31850);
             throw ParseError(*deferredIfNotUnicodeError);
         }
         else if(this->deferredIfUnicodeError != nullptr && this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31851);
             throw ParseError(*deferredIfUnicodeError);
         }
 
@@ -2787,7 +2787,7 @@ namespace UnifiedRegex
         , CharCount& outBodyChars
         , CharCount& outTotalChars
         , RegexFlags& flags )
-    {
+    {TRACE_IT(31852);
         Assert(IsLiteral);
         Assert(input != 0);
         Assert(inputLim >= input); // *inputLim need not be 0 because of deferred parsing
@@ -2812,11 +2812,11 @@ namespace UnifiedRegex
 
         // If this HR has been set, that means we have an earlier failure than the one caught above.
         if (this->deferredIfNotUnicodeError != nullptr && !this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31853);
             throw ParseError(*deferredIfNotUnicodeError);
         }
         else if(this->deferredIfUnicodeError != nullptr && this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31854);
             throw ParseError(*deferredIfUnicodeError);
         }
 
@@ -2846,7 +2846,7 @@ namespace UnifiedRegex
         , CharCount& outTotalEncodedChars
         , CharCount& outBodyChars
         , CharCount& outTotalChars )
-    {
+    {TRACE_IT(31855);
         Assert(IsLiteral);
         Assert(input != 0);
         Assert(inputLim >= input); // *inputLim need not be 0 because of deferred parsing
@@ -2868,11 +2868,11 @@ namespace UnifiedRegex
 
         // If this HR has been set, that means we have an earlier failure than the one caught above.
         if (this->deferredIfNotUnicodeError != nullptr && !this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31856);
             throw ParseError(*deferredIfNotUnicodeError);
         }
         else if(this->deferredIfUnicodeError != nullptr && this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31857);
             throw ParseError(*deferredIfUnicodeError);
         }
     }
@@ -2887,13 +2887,13 @@ namespace UnifiedRegex
           const CharCount bodyEncodedChars,
           const CharCount totalChars,
           const RegexFlags flags )
-    {
+    {TRACE_IT(31858);
         Assert(IsLiteral);
 
         Program* program = nullptr;
 
         if (buildAST)
-        {
+        {TRACE_IT(31859);
             const auto recycler = this->scriptContext->GetRecycler();
             program = Program::New(recycler, flags);
             this->CaptureSourceAndGroups(recycler, program, currentCharacter, bodyChars, bodyEncodedChars);
@@ -2903,7 +2903,7 @@ namespace UnifiedRegex
         Assert(GetMultiUnits() == totalLen - totalChars);
 
         if (!buildAST)
-        {
+        {TRACE_IT(31860);
             return nullptr;
         }
 
@@ -2912,12 +2912,12 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
         RegexStats* stats = 0;
         if (REGEX_CONFIG_FLAG(RegexProfile))
-        {
+        {TRACE_IT(31861);
             stats = this->scriptContext->GetRegexStatsDatabase()->GetRegexStats(pattern);
             this->scriptContext->GetRegexStatsDatabase()->EndProfile(stats, RegexStats::Parse);
         }
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {TRACE_IT(31862);
             DebugWriter* tw = this->scriptContext->GetRegexDebugWriter();
             tw->Print(_u("// REGEX COMPILE "));
             pattern->Print(tw);
@@ -2957,7 +2957,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::CaptureEmptySourceAndNoGroups(Program* program)
-    {
+    {TRACE_IT(31863);
         Assert(program->source == 0);
 
         program->source = const_cast<Char*>(_u(""));
@@ -2970,7 +2970,7 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::CaptureSourceAndGroups(Recycler* recycler, Program* program, const EncodedChar* body, CharCount bodyChars, CharCount bodyEncodedChars)
-    {
+    {TRACE_IT(31864);
         Assert(program->source == 0);
         Assert(body != 0);
 
@@ -2989,10 +2989,10 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     Node* Parser<P, IsLiteral>::GetNodeWithValidCharacterSet(EncodedChar cc)
-    {
+    {TRACE_IT(31865);
         Node* nodeToReturn = nullptr;
         if (this->scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled() && this->unicodeFlagPresent)
-        {
+        {TRACE_IT(31866);
             MatchSetNode *lowerRangeNode = Anew(ctAllocator, MatchSetNode, false, false);
             lowerRangeNode->set.SetRange(ctAllocator, (Char)0xD800, (Char)0xDBFF);
             MatchSetNode *upperRangeNode = Anew(ctAllocator, MatchSetNode, false, false);
@@ -3016,11 +3016,11 @@ namespace UnifiedRegex
                 break;
             case 'W':
                 if (this->caseInsensitiveFlagPresent)
-                {
+                {TRACE_IT(31867);
                     standardChars->SetNonWordIUChars(ctAllocator, partialPrefixSetNode->set);
                 }
                 else
-                {
+                {TRACE_IT(31868);
                     standardChars->SetNonWordChars(ctAllocator, partialPrefixSetNode->set);
                 }
                 break;
@@ -3037,7 +3037,7 @@ namespace UnifiedRegex
             nodeToReturn = altNode;
         }
         else
-        {
+        {TRACE_IT(31869);
             MatchSetNode* setNode = Anew(ctAllocator, MatchSetNode, false, false);
             switch (cc)
             {
@@ -3064,9 +3064,9 @@ namespace UnifiedRegex
 
     template <typename P, const bool IsLiteral>
     void Parser<P, IsLiteral>::FreeBody()
-    {
+    {TRACE_IT(31870);
         if (litbuf != 0)
-        {
+        {TRACE_IT(31871);
             ctAllocator->Free(litbuf, litbufLen);
             litbuf = nullptr;
             litbufLen = 0;

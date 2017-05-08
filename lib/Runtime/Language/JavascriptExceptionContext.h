@@ -23,13 +23,13 @@ namespace Js {
             Field(StackTraceArguments) argumentTypes;
 
         public:
-            StackFrame() {}
+            StackFrame() {TRACE_IT(49719);}
             StackFrame(JavascriptFunction* func, const JavascriptStackWalker& walker, bool initArgumentTypes);
             StackFrame(const StackFrame& other)
                 :functionBody(other.functionBody), name(other.name), argumentTypes(other.argumentTypes)
-            {}
+            {TRACE_IT(49720);}
             StackFrame& operator=(const StackFrame& other)
-            {
+            {TRACE_IT(49721);
                 functionBody = other.functionBody;
                 name = other.name;
                 argumentTypes = other.argumentTypes;
@@ -38,7 +38,7 @@ namespace Js {
 
             bool IsScriptFunction() const;
             FunctionBody* GetFunctionBody() const;
-            uint32 GetByteCodeOffset() const { return byteCodeOffset; }
+            uint32 GetByteCodeOffset() const {TRACE_IT(49722); return byteCodeOffset; }
             LPCWSTR GetFunctionName() const;
             HRESULT GetFunctionNameWithArguments(_In_ LPCWSTR *outResult) const;
         };
@@ -51,18 +51,18 @@ namespace Js {
             m_throwingFunctionByteCodeOffset(0),
             m_stackTrace(nullptr),
             m_originalStackTrace(nullptr)
-        {
+        {TRACE_IT(49723);
         }
 
-        JavascriptFunction* ThrowingFunction() const { return m_throwingFunction; }
-        uint32 ThrowingFunctionByteCodeOffset() const { return m_throwingFunctionByteCodeOffset; }
+        JavascriptFunction* ThrowingFunction() const {TRACE_IT(49724); return m_throwingFunction; }
+        uint32 ThrowingFunctionByteCodeOffset() const {TRACE_IT(49725); return m_throwingFunctionByteCodeOffset; }
         void SetThrowingFunction(JavascriptFunction* function, uint32 byteCodeOffset, void * returnAddress);
 
-        bool HasStackTrace() const { return m_stackTrace && m_stackTrace->Count() > 0; }
-        StackTrace* GetStackTrace() const { return m_stackTrace; }
-        void SetStackTrace(StackTrace *stackTrace) { m_stackTrace = stackTrace; }
-        void SetOriginalStackTrace(StackTrace *stackTrace) { Assert(m_originalStackTrace == nullptr); m_originalStackTrace = stackTrace; }
-        StackTrace* GetOriginalStackTrace() const { return m_originalStackTrace; }
+        bool HasStackTrace() const {TRACE_IT(49726); return m_stackTrace && m_stackTrace->Count() > 0; }
+        StackTrace* GetStackTrace() const {TRACE_IT(49727); return m_stackTrace; }
+        void SetStackTrace(StackTrace *stackTrace) {TRACE_IT(49728); m_stackTrace = stackTrace; }
+        void SetOriginalStackTrace(StackTrace *stackTrace) {TRACE_IT(49729); Assert(m_originalStackTrace == nullptr); m_originalStackTrace = stackTrace; }
+        StackTrace* GetOriginalStackTrace() const {TRACE_IT(49730); return m_originalStackTrace; }
 
     private:
         Field(JavascriptFunction*) m_throwingFunction;

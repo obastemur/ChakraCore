@@ -222,7 +222,7 @@ namespace Js {
         AsmJsSIMDFunction *LookupSimdTypeCheck(PropertyName name);
         AsmJsSIMDFunction *LookupSimdOperation(PropertyName name);
 
-        void AddSimdBuiltinUse(int index){ mAsmSimdBuiltinUsedBV.Set(index); }
+        void AddSimdBuiltinUse(int index){TRACE_IT(46834); mAsmSimdBuiltinUsedBV.Set(index); }
         // adds SIMD constant var to module
         bool AddSimdValueVar(PropertyName name, ParseNode* pnode, AsmJsSIMDFunction* simdFunc);
 
@@ -234,18 +234,18 @@ namespace Js {
         void PrintCompileTrace() const;
 
         // A valid module may have a NULL name
-        inline PropertyName GetModuleFunctionName() const{return mModuleFunctionName;}
-        inline ParseNode *GetModuleFunctionNode() const{return mModuleFunctionNode;}
+        inline PropertyName GetModuleFunctionName() const{TRACE_IT(46835);return mModuleFunctionName;}
+        inline ParseNode *GetModuleFunctionNode() const{TRACE_IT(46836);return mModuleFunctionNode;}
 
-        inline ArenaAllocator* GetAllocator() {return &mAllocator;}
-        inline int32 GetMaxAstSize() const{return mMaxAstSize;}
-        inline void UpdateMaxAstSize( int32 val ){mMaxAstSize = val>mMaxAstSize?val:mMaxAstSize;}
+        inline ArenaAllocator* GetAllocator() {TRACE_IT(46837);return &mAllocator;}
+        inline int32 GetMaxAstSize() const{TRACE_IT(46838);return mMaxAstSize;}
+        inline void UpdateMaxAstSize( int32 val ){TRACE_IT(46839);mMaxAstSize = val>mMaxAstSize?val:mMaxAstSize;}
 
         //Mutable interface
-        inline void InitModuleName( PropertyName name ){mModuleFunctionName = name;}
-        inline void InitModuleNode( AsmJSParser &parser ){mModuleFunctionNode = parser;}
-        inline AsmJSParser& GetCurrentParserNode(){return mCurrentParserNode;}
-        inline void SetCurrentParseNode( AsmJSParser & val ){mCurrentParserNode = val;}
+        inline void InitModuleName( PropertyName name ){TRACE_IT(46840);mModuleFunctionName = name;}
+        inline void InitModuleNode( AsmJSParser &parser ){TRACE_IT(46841);mModuleFunctionNode = parser;}
+        inline AsmJSParser& GetCurrentParserNode(){TRACE_IT(46842);return mCurrentParserNode;}
+        inline void SetCurrentParseNode( AsmJSParser & val ){TRACE_IT(46843);mCurrentParserNode = val;}
 
         void InitStdLibArgName( PropertyName n );
         void InitForeignArgName( PropertyName n );
@@ -254,9 +254,9 @@ namespace Js {
         PropertyName GetForeignArgName() const;
         PropertyName GetStdLibArgName()  const;
         BVStatic<ASMMATH_BUILTIN_SIZE> GetAsmMathBuiltinUsedBV();
-        void AddMathBuiltinUse(int index){ mAsmMathBuiltinUsedBV.Set(index); }
+        void AddMathBuiltinUse(int index){TRACE_IT(46844); mAsmMathBuiltinUsedBV.Set(index); }
         BVStatic<ASMARRAY_BUILTIN_SIZE> GetAsmArrayBuiltinUsedBV();
-        void AddArrayBuiltinUse(int index){ mAsmArrayBuiltinUsedBV.Set(index); }
+        void AddArrayBuiltinUse(int index){TRACE_IT(46845); mAsmArrayBuiltinUsedBV.Set(index); }
         bool LookupStandardLibraryMathName(PropertyName name, MathBuiltin *mathBuiltin) const;
         bool LookupStandardLibraryArrayName(PropertyName name, TypedArrayBuiltin *builtin) const;
 
@@ -283,11 +283,11 @@ namespace Js {
         bool Fail( ParseNode* usepn, const wchar *error );
 
         bool AreAllFuncTableDefined();
-        bool UsesChangeHeap() { return mUsesChangeHeap; }
-        bool UsesHeapBuffer() { return mUsesHeapBuffer; }
-        void SetUsesHeapBuffer(bool val) { mUsesHeapBuffer = val; }
+        bool UsesChangeHeap() {TRACE_IT(46846); return mUsesChangeHeap; }
+        bool UsesHeapBuffer() {TRACE_IT(46847); return mUsesHeapBuffer; }
+        void SetUsesHeapBuffer(bool val) {TRACE_IT(46848); mUsesHeapBuffer = val; }
         void UpdateMaxHeapAccess(uint index);
-        uint GetMaxHeapAccess() { return mMaxHeapAccess; }
+        uint GetMaxHeapAccess() {TRACE_IT(46849); return mMaxHeapAccess; }
         // Compile/Validate function name and arguments (define their types)
         bool CompileFunction(AsmJsFunc * func, int funcIndex);
         bool CompileAllFunctions();
@@ -300,16 +300,16 @@ namespace Js {
 
 
         void InitMemoryOffsets           ();
-        inline int32 GetIntOffset        () const{return mModuleMemory.mIntOffset;}
-        inline int32 GetFloatOffset        () const{return mModuleMemory.mFloatOffset;}
-        inline int32 GetFuncPtrOffset    () const{return mModuleMemory.mFuncPtrOffset;}
-        inline int32 GetFFIOffset        () const{return mModuleMemory.mFFIOffset;}
-        inline int32 GetFuncOffset       () const{return mModuleMemory.mFuncOffset;}
-        inline int32 GetDoubleOffset     () const{return mModuleMemory.mDoubleOffset; }
-        inline int32 GetSimdOffset       () const{ return mModuleMemory.mSimdOffset;  }
+        inline int32 GetIntOffset        () const{TRACE_IT(46850);return mModuleMemory.mIntOffset;}
+        inline int32 GetFloatOffset        () const{TRACE_IT(46851);return mModuleMemory.mFloatOffset;}
+        inline int32 GetFuncPtrOffset    () const{TRACE_IT(46852);return mModuleMemory.mFuncPtrOffset;}
+        inline int32 GetFFIOffset        () const{TRACE_IT(46853);return mModuleMemory.mFFIOffset;}
+        inline int32 GetFuncOffset       () const{TRACE_IT(46854);return mModuleMemory.mFuncOffset;}
+        inline int32 GetDoubleOffset     () const{TRACE_IT(46855);return mModuleMemory.mDoubleOffset; }
+        inline int32 GetSimdOffset       () const{TRACE_IT(46856); return mModuleMemory.mSimdOffset;  }
 
-        inline int32 GetFuncPtrTableCount() const{return mFuncPtrTableCount;}
-        inline void SetFuncPtrTableCount ( int32 val ){mFuncPtrTableCount = val;}
+        inline int32 GetFuncPtrTableCount() const{TRACE_IT(46857);return mFuncPtrTableCount;}
+        inline void SetFuncPtrTableCount ( int32 val ){TRACE_IT(46858);mFuncPtrTableCount = val;}
 
     private:
         void RevertFunction(int funcIndex);
@@ -322,7 +322,7 @@ namespace Js {
         bool AddStandardLibraryArrayName(PropertyId id, AsmJsTypedArrayFunction * func, AsmJSTypedArrayBuiltinFunction mathLibFunctionName);
         bool CheckByteLengthCall(ParseNode * node, ParseNode * newBufferDecl);
         bool ValidateSimdConstructor(ParseNode* pnode, AsmJsSIMDFunction* simdFunc, AsmJsSIMDValue& value);
-        bool IsSimdjsEnabled() { return GetScriptContext()->GetConfig()->IsSimdjsEnabled(); }
+        bool IsSimdjsEnabled() {TRACE_IT(46859); return GetScriptContext()->GetConfig()->IsSimdjsEnabled(); }
     };
 
     struct AsmJsSlot
@@ -431,191 +431,191 @@ namespace Js {
             , mUsesChangeHeap(false)
             , mIsProcessed(false)
             , mSlotMap(nullptr)
-        {
+        {TRACE_IT(46860);
 
         }
 
         ModuleVar& GetVar( int i )
-        {
+        {TRACE_IT(46861);
             Assert( i < mVarCount );
             return mVars[i];
         }
 
         void SetVar(int i, ModuleVar var)
-        {
+        {TRACE_IT(46862);
             Assert(i < mVarCount);
             mVars[i] = var;
         }
 
         ModuleVarImport& GetVarImport( int i )
-        {
+        {TRACE_IT(46863);
             Assert( i < mVarImportCount );
             return mVarImports[i];
         }
 
         void SetVarImport(int i, ModuleVarImport var)
-        {
+        {TRACE_IT(46864);
             Assert(i < mVarImportCount);
             mVarImports[i] = var;
         }
 
         ModuleFunctionImport& GetFunctionImport( int i )
-        {
+        {TRACE_IT(46865);
             Assert( i < mFunctionImportCount );
             return mFunctionImports[i];
         }
         void SetFunctionImport(int i, ModuleFunctionImport var)
-        {
+        {TRACE_IT(46866);
             Assert(i < mFunctionImportCount);
             mFunctionImports[i] = var;
         }
         ModuleFunction& GetFunction( int i )
-        {
+        {TRACE_IT(46867);
             Assert( i < mFunctionCount );
             return mFunctions[i];
         }
         void SetFunction(int i, ModuleFunction var)
-        {
+        {TRACE_IT(46868);
             Assert(i < mFunctionCount);
             mFunctions[i] = var;
         }
         ModuleFunctionTable& GetFunctionTable( int i )
-        {
+        {TRACE_IT(46869);
             Assert( i < mFunctionTableCount );
             return mFunctionTables[i];
         }
         void SetFunctionTable(int i, ModuleFunctionTable var)
-        {
+        {TRACE_IT(46870);
             Assert(i < mFunctionTableCount);
             mFunctionTables[i] = var;
         }
         void SetFunctionTableSize( int index, uint size );
         ModuleExport GetExport( int i )
-        {
+        {TRACE_IT(46871);
             ModuleExport ex;
             ex.id = &mExports->elements[i];
             ex.location = &mExportsFunctionLocation[i];
             return ex;
         }
         RegSlot* GetExportsFunctionLocation() const
-        {
+        {TRACE_IT(46872);
             return mExportsFunctionLocation;
         }
         PropertyIdArray* GetExportsIdArray() const
-        {
+        {TRACE_IT(46873);
             return mExports;
         }
 
         AsmJsSlotMap* GetAsmJsSlotMap()
-        {
+        {TRACE_IT(46874);
             return mSlotMap;
         }
 
         // Accessors
     public:
-        inline Js::RegSlot GetExportFunctionIndex() const{return mExportFunctionIndex;}
-        inline void SetExportFunctionIndex( Js::RegSlot val ){mExportFunctionIndex = val;}
+        inline Js::RegSlot GetExportFunctionIndex() const{TRACE_IT(46875);return mExportFunctionIndex;}
+        inline void SetExportFunctionIndex( Js::RegSlot val ){TRACE_IT(46876);mExportFunctionIndex = val;}
         void SetExportsCount(int count);
         inline int GetExportsCount()const
-        {
+        {TRACE_IT(46877);
             return mExportsCount;
         }
         inline int GetArgInCount() const
-        {
+        {TRACE_IT(46878);
             return mArgInCount;
         }
         inline void SetArgInCount( int val )
-        {
+        {TRACE_IT(46879);
             mArgInCount = val;
         }
         inline int GetFunctionCount() const
-        {
+        {TRACE_IT(46880);
             return mFunctionCount;
         }
         void SetFunctionCount( int val );
         inline int GetFunctionTableCount() const
-        {
+        {TRACE_IT(46881);
             return mFunctionTableCount;
         }
         void SetFunctionTableCount( int val );
         inline int GetFunctionImportCount() const
-        {
+        {TRACE_IT(46882);
             return mFunctionImportCount;
         }
         void SetFunctionImportCount( int val );
         inline int GetVarImportCount() const
-        {
+        {TRACE_IT(46883);
             return mVarImportCount;
         }
         void SetVarImportCount( int val );
         inline int GetVarCount() const
-        {
+        {TRACE_IT(46884);
             return mVarCount;
         }
         void SetVarCount( int val );
 
         inline int GetSlotsCount() const
-        {
+        {TRACE_IT(46885);
             return mSlotsCount;
         }
         void InitializeSlotMap(int val);
         inline bool IsRuntimeProcessed() const
-        {
+        {TRACE_IT(46886);
             return mIsProcessed;
         }
         void SetIsRuntimeProcessed(bool val)
-        {
+        {TRACE_IT(46887);
             mIsProcessed = val;
         }
         inline AsmJsModuleMemory& GetModuleMemory()
-        {
+        {TRACE_IT(46888);
             return mModuleMemory;
         }
         inline void SetModuleMemory( const AsmJsModuleMemory& val )
-        {
+        {TRACE_IT(46889);
             mModuleMemory = val;
         }
         inline void SetAsmMathBuiltinUsed(const BVStatic<ASMMATH_BUILTIN_SIZE> val)
-        {
+        {TRACE_IT(46890);
             mAsmMathBuiltinUsed = val;
         }
         inline BVStatic<ASMMATH_BUILTIN_SIZE> GetAsmMathBuiltinUsed()const
-        {
+        {TRACE_IT(46891);
             return mAsmMathBuiltinUsed;
         }
         inline void SetAsmArrayBuiltinUsed(const BVStatic<ASMARRAY_BUILTIN_SIZE> val)
-        {
+        {TRACE_IT(46892);
             mAsmArrayBuiltinUsed = val;
         }
         inline BVStatic<ASMARRAY_BUILTIN_SIZE> GetAsmArrayBuiltinUsed()const
-        {
+        {TRACE_IT(46893);
             return mAsmArrayBuiltinUsed;
         }
         void SetUsesChangeHeap(bool val)
-        {
+        {TRACE_IT(46894);
             mUsesChangeHeap = val;
         }
         inline bool GetUsesChangeHeap() const
-        {
+        {TRACE_IT(46895);
             return mUsesChangeHeap;
         }
         void SetMaxHeapAccess(uint val)
-        {
+        {TRACE_IT(46896);
             mMaxHeapAccess = val;
         }
         inline uint GetMaxHeapAccess() const
-        {
+        {TRACE_IT(46897);
             return mMaxHeapAccess;
         }
 
-        inline void SetSimdRegCount(int val) { mSimdRegCount = val;  }
-        inline int GetSimdRegCount() const   { return mSimdRegCount; }
+        inline void SetSimdRegCount(int val) {TRACE_IT(46898); mSimdRegCount = val;  }
+        inline int GetSimdRegCount() const   {TRACE_IT(46899); return mSimdRegCount; }
         inline void SetAsmSimdBuiltinUsed(const BVStatic<ASMSIMD_BUILTIN_SIZE> val)
-        {
+        {TRACE_IT(46900);
             mAsmSimdBuiltinUsed = val;
         }
         inline BVStatic<ASMSIMD_BUILTIN_SIZE> GetAsmSimdBuiltinUsed()const
-        {
+        {TRACE_IT(46901);
             return mAsmSimdBuiltinUsed;
         }
 

@@ -34,19 +34,19 @@ namespace Js
         BOOL GetStatementLocation(int32 ibos, StatementLocation* plocation);
 
         virtual bool HasDocumentText() const
-        {
+        {TRACE_IT(42218);
             Assert(false);
             return false;
         }
         virtual void* GetDocumentText() const
-        {
+        {TRACE_IT(42219);
             Assert(false);
             return nullptr;
         };
 
         Js::FunctionBody * GetFunctionBodyAt(int32 ibos);
 
-        Utf8SourceInfo* GetUtf8SourceInfo() { return this->utf8SourceInfo; }
+        Utf8SourceInfo* GetUtf8SourceInfo() {TRACE_IT(42220); return this->utf8SourceInfo; }
 
     private:
         Utf8SourceInfo* utf8SourceInfo;

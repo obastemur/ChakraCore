@@ -48,7 +48,7 @@ namespace Js
     {
         PropertyCacheOperationInfo()
             : cacheType(CacheType_None), slotType(SlotType_None), isPolymorphic(false)
-        {
+        {TRACE_IT(48397);
         }
 
         CacheType cacheType;
@@ -63,7 +63,7 @@ namespace Js
         static const int RequiredAuxSlotCapacityBitCount = 15;
         static const bool IsPolymorphic = false;
 
-        InlineCache() {}
+        InlineCache() {TRACE_IT(48398);}
 
         union
         {
@@ -136,69 +136,69 @@ namespace Js
         InlineCache** invalidationListSlotPtr;
 
         bool IsEmpty() const
-        {
+        {TRACE_IT(48399);
             return u.local.type == nullptr;
         }
 
         bool IsLocal() const
-        {
+        {TRACE_IT(48400);
             return u.local.isLocal;
         }
 
         bool IsProto() const
-        {
+        {TRACE_IT(48401);
             return u.proto.isProto;
         }
 
         DynamicObject * GetPrototypeObject() const
-        {
+        {TRACE_IT(48402);
             Assert(IsProto());
             return u.proto.prototypeObject;
         }
 
         DynamicObject * GetAccessorObject() const
-        {
+        {TRACE_IT(48403);
             Assert(IsAccessor());
             return u.accessor.object;
         }
 
         bool IsAccessor() const
-        {
+        {TRACE_IT(48404);
             return u.accessor.isAccessor;
         }
 
         bool IsAccessorOnProto() const
-        {
+        {TRACE_IT(48405);
             return IsAccessor() && u.accessor.isOnProto;
         }
 
         bool IsGetterAccessor() const
-        {
+        {TRACE_IT(48406);
             return IsAccessor() && !!(u.accessor.flags & InlineCacheGetterFlag);
         }
 
         bool IsGetterAccessorOnProto() const
-        {
+        {TRACE_IT(48407);
             return IsGetterAccessor() && u.accessor.isOnProto;
         }
 
         bool IsSetterAccessor() const
-        {
+        {TRACE_IT(48408);
             return IsAccessor() && !!(u.accessor.flags & InlineCacheSetterFlag);
         }
 
         bool IsSetterAccessorOnProto() const
-        {
+        {TRACE_IT(48409);
             return IsSetterAccessor() && u.accessor.isOnProto;
         }
 
         Type* GetRawType() const
-        {
+        {TRACE_IT(48410);
             return IsLocal() ? u.local.type : (IsProto() ? u.proto.type : (IsAccessor() ? u.accessor.type : nullptr));
         }
 
         Type* GetType() const
-        {
+        {TRACE_IT(48411);
             return TypeWithoutAuxSlotTag(GetRawType());
         }
 
@@ -206,19 +206,19 @@ namespace Js
         bool HasDifferentType(const bool isProto, const Type * type, const Type * typeWithoutProperty) const;
 
         bool HasType_Flags(const Type * type) const
-        {
+        {TRACE_IT(48412);
             return u.accessor.type == type || u.accessor.type == TypeWithAuxSlotTag(type);
         }
 
         bool HasDifferentType(const Type * type) const
-        {
+        {TRACE_IT(48413);
             return !IsEmpty() && GetType() != type;
         }
 
         bool RemoveFromInvalidationList()
-        {
+        {TRACE_IT(48414);
             if (this->invalidationListSlotPtr == nullptr)
-            {
+            {TRACE_IT(48415);
                 return false;
             }
 
@@ -229,17 +229,17 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         const char16 *LayoutString() const
-        {
+        {TRACE_IT(48416);
             if (IsEmpty())
-            {
+            {TRACE_IT(48417);
                 return _u("Empty");
             }
             if (IsLocal())
-            {
+            {TRACE_IT(48418);
                 return _u("Local");
             }
             if (IsAccessor())
-            {
+            {TRACE_IT(48419);
                 return _u("Accessor");
             }
             return _u("Proto");
@@ -324,19 +324,19 @@ namespace Js
         bool GetCallApplyTarget(RecyclableObject* obj, RecyclableObject **callee);
 
         static uint GetGetterFlagMask()
-        {
+        {TRACE_IT(48420);
             // First bit is marked for isAccessor in the accessor cache layout.
             return  InlineCacheGetterFlag << 1;
         }
 
         static uint GetSetterFlagMask()
-        {
+        {TRACE_IT(48421);
             // First bit is marked for isAccessor in the accessor cache layout.
             return  InlineCacheSetterFlag << 1;
         }
 
         static uint GetGetterSetterFlagMask()
-        {
+        {TRACE_IT(48422);
             // First bit is marked for isAccessor in the accessor cache layout.
             return  (InlineCacheGetterFlag | InlineCacheSetterFlag) << 1;
         }
@@ -392,7 +392,7 @@ namespace Js
 
         PolymorphicInlineCache(InlineCache * inlineCaches, uint16 size, FunctionBody * functionBody)
             : inlineCaches(inlineCaches), functionBody(functionBody), size(size), ignoreForEquivalentObjTypeSpec(false), cloneForJitTimeUse(true), inlineCachesFillInfo(0), next(nullptr), prev(nullptr)
-        {
+        {TRACE_IT(48423);
             Assert((size == 0 && inlineCaches == nullptr) ||
                 (inlineCaches != nullptr && size >= MinPolymorphicInlineCacheSize && size <= MaxPolymorphicInlineCacheSize));
         }
@@ -400,16 +400,16 @@ namespace Js
     public:
         static PolymorphicInlineCache * New(uint16 size, FunctionBody * functionBody);
 
-        static uint16 GetInitialSize() { return MinPolymorphicInlineCacheSize; }
-        bool CanAllocateBigger() { return GetSize() < MaxPolymorphicInlineCacheSize; }
+        static uint16 GetInitialSize() {TRACE_IT(48424); return MinPolymorphicInlineCacheSize; }
+        bool CanAllocateBigger() {TRACE_IT(48425); return GetSize() < MaxPolymorphicInlineCacheSize; }
         static uint16 GetNextSize(uint16 currentSize)
-        {
+        {TRACE_IT(48426);
             if (currentSize == MaxPolymorphicInlineCacheSize)
-            {
+            {TRACE_IT(48427);
                 return 0;
             }
             else
-            {
+            {TRACE_IT(48428);
                 Assert(currentSize >= MinPolymorphicInlineCacheSize && currentSize <= (MaxPolymorphicInlineCacheSize / 2));
                 return currentSize * 2;
             }
@@ -419,14 +419,14 @@ namespace Js
         bool HasDifferentType(const bool isProto, const Type * type, const Type * typeWithoutProperty) const;
         bool HasType_Flags(const Type * type) const;
 
-        InlineCache * GetInlineCaches() const { return inlineCaches; }
-        uint16 GetSize() const { return size; }
-        PolymorphicInlineCache * GetNext() { return next; }
-        bool GetIgnoreForEquivalentObjTypeSpec() const { return this->ignoreForEquivalentObjTypeSpec; }
-        void SetIgnoreForEquivalentObjTypeSpec(bool value) { this->ignoreForEquivalentObjTypeSpec = value; }
-        bool GetCloneForJitTimeUse() const { return this->cloneForJitTimeUse; }
-        void SetCloneForJitTimeUse(bool value) { this->cloneForJitTimeUse = value; }
-        uint32 GetInlineCachesFillInfo() { return this->inlineCachesFillInfo; }
+        InlineCache * GetInlineCaches() const {TRACE_IT(48429); return inlineCaches; }
+        uint16 GetSize() const {TRACE_IT(48430); return size; }
+        PolymorphicInlineCache * GetNext() {TRACE_IT(48431); return next; }
+        bool GetIgnoreForEquivalentObjTypeSpec() const {TRACE_IT(48432); return this->ignoreForEquivalentObjTypeSpec; }
+        void SetIgnoreForEquivalentObjTypeSpec(bool value) {TRACE_IT(48433); this->ignoreForEquivalentObjTypeSpec = value; }
+        bool GetCloneForJitTimeUse() const {TRACE_IT(48434); return this->cloneForJitTimeUse; }
+        void SetCloneForJitTimeUse(bool value) {TRACE_IT(48435); this->cloneForJitTimeUse = value; }
+        uint32 GetInlineCachesFillInfo() {TRACE_IT(48436); return this->inlineCachesFillInfo; }
         void UpdateInlineCachesFillInfo(uint32 index, bool set);
         bool IsFull();
 
@@ -503,15 +503,15 @@ namespace Js
 #endif
 
         uint GetInlineCacheIndexForType(const Type * type) const
-        {
+        {TRACE_IT(48437);
             return (((size_t)type) >> PolymorphicInlineCacheShift) & (GetSize() - 1);
         }
 
     private:
         uint GetNextInlineCacheIndex(uint index) const
-        {
+        {TRACE_IT(48438);
             if (++index == GetSize())
-            {
+            {TRACE_IT(48439);
                 index = 0;
             }
             return index;
@@ -526,12 +526,12 @@ namespace Js
 #endif
 #if INTRUSIVE_TESTTRACE_PolymorphicInlineCache
         uint GetEntryCount()
-        {
+        {TRACE_IT(48440);
             uint count = 0;
             for (uint i = 0; i < size; ++i)
-            {
+            {TRACE_IT(48441);
                 if (!inlineCaches[i].IsEmpty())
-                {
+                {TRACE_IT(48442);
                     count++;
                 }
             }
@@ -552,7 +552,7 @@ namespace Js
         EquivalentTypeSet(RecyclerJITTypeHolder * types, uint16 count);
 
         uint16 GetCount() const
-        {
+        {TRACE_IT(48443);
             return this->count;
         }
 
@@ -561,7 +561,7 @@ namespace Js
         JITTypeHolder GetType(uint16 index) const;
 
         bool GetSortedAndDuplicatesRemoved() const
-        {
+        {TRACE_IT(48444);
             return this->sortedAndDuplicatesRemoved;
         }
         bool Contains(const JITTypeHolder type, uint16 * pIndex = nullptr);
@@ -642,7 +642,7 @@ namespace Js
 
     public:
         ConstructorCache()
-        {
+        {TRACE_IT(48445);
             this->content.type = nullptr;
             this->content.scriptContext = nullptr;
             this->content.slotCount = 0;
@@ -660,7 +660,7 @@ namespace Js
         }
 
         ConstructorCache(ConstructorCache const * other)
-        {
+        {TRACE_IT(48446);
             Assert(other != nullptr);
             this->content.type = other->content.type;
             this->content.scriptContext = other->content.scriptContext;
@@ -678,11 +678,11 @@ namespace Js
             Assert(IsConsistent());
         }
 
-        static size_t const GetOffsetOfGuardValue() { return offsetof(Js::ConstructorCache, guard.value); }
-        static size_t const GetSizeOfGuardValue() { return sizeof(((Js::ConstructorCache*)nullptr)->guard.value); }
+        static size_t const GetOffsetOfGuardValue() {TRACE_IT(48447); return offsetof(Js::ConstructorCache, guard.value); }
+        static size_t const GetSizeOfGuardValue() {TRACE_IT(48448); return sizeof(((Js::ConstructorCache*)nullptr)->guard.value); }
 
         void Populate(DynamicType* type, ScriptContext* scriptContext, bool ctorHasNoExplicitReturnValue, bool updateAfterCtor)
-        {
+        {TRACE_IT(48449);
             Assert(scriptContext == type->GetScriptContext());
             Assert(type->GetIsShared());
             Assert(IsConsistent());
@@ -699,7 +699,7 @@ namespace Js
         }
 
         void PopulateForSkipDefaultNewObject(ScriptContext* scriptContext)
-        {
+        {TRACE_IT(48450);
             Assert(IsConsistent());
             Assert(!this->content.isPopulated);
             this->content.isPopulated = true;
@@ -710,7 +710,7 @@ namespace Js
         }
 
         bool TryUpdateAfterConstructor(DynamicType* type, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(48451);
             Assert(scriptContext == type->GetScriptContext());
             Assert(type->GetTypeHandler()->GetMayBecomeShared());
             Assert(IsConsistent());
@@ -720,12 +720,12 @@ namespace Js
             Assert(this->content.ctorHasNoExplicitReturnValue);
 
             if (type->GetTypeHandler()->GetSlotCapacity() > MaxCachedSlotCount)
-            {
+            {TRACE_IT(48452);
                 return false;
             }
 
             if (type->GetIsShared())
-            {
+            {TRACE_IT(48453);
                 this->content.type = type;
                 this->content.typeIsFinal = true;
                 this->content.pendingType = nullptr;
@@ -744,7 +744,7 @@ namespace Js
         }
 
         void UpdateInlineSlotCount()
-        {
+        {TRACE_IT(48454);
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(IsEnabled() || NeedsTypeUpdate());
@@ -760,7 +760,7 @@ namespace Js
         }
 
         void EnableAfterTypeUpdate()
-        {
+        {TRACE_IT(48455);
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(!IsEnabled());
@@ -777,137 +777,137 @@ namespace Js
         }
 
         intptr_t GetRawGuardValue() const
-        {
+        {TRACE_IT(48456);
             return static_cast<intptr_t>(this->guard.value);
         }
 
         DynamicType* GetGuardValueAsType() const
-        {
+        {TRACE_IT(48457);
             return reinterpret_cast<DynamicType*>(this->guard.value & ~CtorCacheGuardValues::TagFlag);
         }
 
         DynamicType* GetType() const
-        {
+        {TRACE_IT(48458);
             Assert(static_cast<intptr_t>(this->guard.value & CtorCacheGuardValues::TagFlag) == 0);
             return this->content.type;
         }
 
         DynamicType* GetPendingType() const
-        {
+        {TRACE_IT(48459);
             return this->content.pendingType;
         }
 
         ScriptContext* GetScriptContext() const
-        {
+        {TRACE_IT(48460);
             return this->content.scriptContext;
         }
 
         int GetSlotCount() const
-        {
+        {TRACE_IT(48461);
             return this->content.slotCount;
         }
 
         int16 GetInlineSlotCount() const
-        {
+        {TRACE_IT(48462);
             return this->content.inlineSlotCount;
         }
 
         static bool IsDefault(const ConstructorCache* constructorCache)
-        {
+        {TRACE_IT(48463);
             return constructorCache == &ConstructorCache::DefaultInstance;
         }
 
         bool IsDefault() const
-        {
+        {TRACE_IT(48464);
             return IsDefault(this);
         }
 
         bool IsPopulated() const
-        {
+        {TRACE_IT(48465);
             Assert(IsConsistent());
             return this->content.isPopulated;
         }
 
         bool IsEmpty() const
-        {
+        {TRACE_IT(48466);
             Assert(IsConsistent());
             return !this->content.isPopulated;
         }
 
         bool IsPolymorphic() const
-        {
+        {TRACE_IT(48467);
             Assert(IsConsistent());
             return this->content.isPolymorphic;
         }
 
         bool GetSkipDefaultNewObject() const
-        {
+        {TRACE_IT(48468);
             return this->content.skipDefaultNewObject;
         }
 
         bool GetCtorHasNoExplicitReturnValue() const
-        {
+        {TRACE_IT(48469);
             return this->content.ctorHasNoExplicitReturnValue;
         }
 
         bool GetUpdateCacheAfterCtor() const
-        {
+        {TRACE_IT(48470);
             return this->content.updateAfterCtor;
         }
 
         bool GetTypeUpdatePending() const
-        {
+        {TRACE_IT(48471);
             return this->content.typeUpdatePending;
         }
 
         bool IsEnabled() const
-        {
+        {TRACE_IT(48472);
             return GetGuardValueAsType() != nullptr;
         }
 
         bool IsInvalidated() const
-        {
+        {TRACE_IT(48473);
             return this->guard.value == CtorCacheGuardValues::Invalid && this->content.isPopulated;
         }
 
         bool NeedsTypeUpdate() const
-        {
+        {TRACE_IT(48474);
             return this->guard.value == CtorCacheGuardValues::Special && this->content.typeUpdatePending;
         }
 
         uint8 CallCount() const
-        {
+        {TRACE_IT(48475);
             return content.callCount;
         }
 
         void IncCallCount()
-        {
+        {TRACE_IT(48476);
             ++content.callCount;
             Assert(content.callCount != 0);
         }
 
         bool NeedsUpdateAfterCtor() const
-        {
+        {TRACE_IT(48477);
             return this->content.updateAfterCtor;
         }
 
         bool IsNormal() const
-        {
+        {TRACE_IT(48478);
             return this->guard.value != CtorCacheGuardValues::Invalid && static_cast<intptr_t>(this->guard.value & CtorCacheGuardValues::TagFlag) == 0;
         }
 
         bool SkipDefaultNewObject() const
-        {
+        {TRACE_IT(48479);
             return this->guard.value == CtorCacheGuardValues::Special && this->content.skipDefaultNewObject;
         }
 
         bool IsSetUpForJit() const
-        {
+        {TRACE_IT(48480);
             return GetRawGuardValue() != NULL && !IsPolymorphic() && !NeedsUpdateAfterCtor() && (IsNormal() || SkipDefaultNewObject());
         }
 
         void ClearUpdateAfterCtor()
-        {
+        {TRACE_IT(48481);
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(this->content.updateAfterCtor);
@@ -918,17 +918,17 @@ namespace Js
         static ConstructorCache* EnsureValidInstance(ConstructorCache* currentCache, ScriptContext* scriptContext);
 
         const void* GetAddressOfGuardValue() const
-        {
+        {TRACE_IT(48482);
             return reinterpret_cast<const void*>(&this->guard.value);
         }
 
         static uint32 GetOffsetOfUpdateAfterCtor()
-        {
+        {TRACE_IT(48483);
             return offsetof(ConstructorCache, content.updateAfterCtor);
         }
 
         void InvalidateAsGuard()
-        {
+        {TRACE_IT(48484);
             Assert(!IsDefault(this));
             this->guard.value = CtorCacheGuardValues::Invalid;
             // Make sure we don't leak the types.
@@ -940,7 +940,7 @@ namespace Js
 
 #if DBG
         bool IsConsistent() const
-        {
+        {TRACE_IT(48485);
             return this->guard.value == CtorCacheGuardValues::Invalid ||
                 (this->content.isPopulated && (
                     (this->guard.value == CtorCacheGuardValues::Special && !this->content.updateAfterCtor && this->content.skipDefaultNewObject && !this->content.typeUpdatePending && this->content.slotCount == 0 && this->content.inlineSlotCount == 0 && this->content.pendingType == nullptr) ||
@@ -966,7 +966,7 @@ namespace Js
         IsInstInlineCache * next;       // Used to link together caches that have the same function operand
 
     public:
-        bool IsEmpty() const { return type == nullptr; }
+        bool IsEmpty() const {TRACE_IT(48486); return type == nullptr; }
         bool TryGetResult(Var instance, JavascriptFunction * function, JavascriptBoolean ** result);
         void Cache(Type * instanceType, JavascriptFunction * function, JavascriptBoolean * result, ScriptContext * scriptContext);
         void Unregister(ScriptContext * scriptContext);
@@ -995,24 +995,24 @@ namespace Js
             result0(FALSE),
             result1(FALSE),
             lastAccess(1)
-        {
+        {TRACE_IT(48487);
         }
 
         bool TryGetIsConcatSpreadable(Type *type, _Out_ BOOL *result)
-        {
+        {TRACE_IT(48488);
             Assert(type != nullptr);
             Assert(result != nullptr);
 
             *result = FALSE;
             if (type0 == type)
-            {
+            {TRACE_IT(48489);
                 *result = result0;
                 lastAccess = 0;
                 return true;
             }
 
             if (type1 == type)
-            {
+            {TRACE_IT(48490);
                 *result = result1;
                 lastAccess = 1;
                 return true;
@@ -1022,17 +1022,17 @@ namespace Js
         }
 
         void CacheIsConcatSpreadable(Type *type, BOOL result)
-        {
+        {TRACE_IT(48491);
             Assert(type != nullptr);
 
             if (lastAccess == 0)
-            {
+            {TRACE_IT(48492);
                 type1 = type;
                 result1 = result;
                 lastAccess = 1;
             }
             else
-            {
+            {TRACE_IT(48493);
                 type0 = type;
                 result0 = result;
                 lastAccess = 0;
@@ -1040,7 +1040,7 @@ namespace Js
         }
 
         void Invalidate()
-        {
+        {TRACE_IT(48494);
             type0 = nullptr;
             type1 = nullptr;
         }

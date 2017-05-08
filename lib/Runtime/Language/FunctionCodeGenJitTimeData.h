@@ -78,11 +78,11 @@ namespace Js
         FunctionBody *GetFunctionBody() const;
         Var GetGlobalThisObject() const;
         FunctionBodyDataIDL *GetJITBody() const;
-        FunctionCodeGenJitTimeData *GetNext() const { return next; }
+        FunctionCodeGenJitTimeData *GetNext() const {TRACE_IT(48187); return next; }
 
-        const ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() const { return &this->objTypeSpecFldInfoArray; }
-        ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() { return &this->objTypeSpecFldInfoArray; }
-        EntryPointInfo* GetEntryPointInfo() const { return this->entryPointInfo; }
+        const ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() const {TRACE_IT(48188); return &this->objTypeSpecFldInfoArray; }
+        ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() {TRACE_IT(48189); return &this->objTypeSpecFldInfoArray; }
+        EntryPointInfo* GetEntryPointInfo() const {TRACE_IT(48190); return this->entryPointInfo; }
 
     public:
         const FunctionCodeGenJitTimeData *GetInlinee(const ProfileId profiledCallSiteId) const;
@@ -94,17 +94,17 @@ namespace Js
             bool isInlined = true);
         uint InlineeCount() const;
         uint LdFldInlineeCount() const;
-        bool IsLdFldInlineePresent() const { return ldFldInlineeCount != 0; }
+        bool IsLdFldInlineePresent() const {TRACE_IT(48191); return ldFldInlineeCount != 0; }
 
-        RecyclerWeakReference<FunctionBody> *GetWeakFuncRef() const { return this->weakFuncRef; }
+        RecyclerWeakReference<FunctionBody> *GetWeakFuncRef() const {TRACE_IT(48192); return this->weakFuncRef; }
         void SetWeakFuncRef(RecyclerWeakReference<FunctionBody> *weakFuncRef)
-        {
+        {TRACE_IT(48193);
             Assert(this->weakFuncRef == nullptr || weakFuncRef == nullptr || this->weakFuncRef == weakFuncRef);
             this->weakFuncRef = weakFuncRef;
         }
 
         void SetPolymorphicInlineInfo(PolymorphicInlineCacheInfoIDL* inlineeInfo, PolymorphicInlineCacheInfoIDL* selfInfo, PolymorphicInlineCacheIDL* polymorphicInlineCaches)
-        {
+        {TRACE_IT(48194);
             this->inlineeInfo = inlineeInfo;
             this->selfInfo = selfInfo;
             this->polymorphicInlineCaches = polymorphicInlineCaches;
@@ -120,47 +120,47 @@ namespace Js
         // This can return null, if the functionInfo doesn't match.
         const FunctionCodeGenJitTimeData *GetJitTimeDataFromFunctionInfo(FunctionInfo *polyFunctioInfoy) const;
 
-        uint GetGlobalObjTypeSpecFldInfoCount() const { return this->globalObjTypeSpecFldInfoCount; }
-        Field(ObjTypeSpecFldInfo*)* GetGlobalObjTypeSpecFldInfoArray() const {return this->globalObjTypeSpecFldInfoArray; }
+        uint GetGlobalObjTypeSpecFldInfoCount() const {TRACE_IT(48195); return this->globalObjTypeSpecFldInfoCount; }
+        Field(ObjTypeSpecFldInfo*)* GetGlobalObjTypeSpecFldInfoArray() const {TRACE_IT(48196);return this->globalObjTypeSpecFldInfoArray; }
 
         ObjTypeSpecFldInfo* GetGlobalObjTypeSpecFldInfo(uint propertyInfoId) const
-        {
+        {TRACE_IT(48197);
             Assert(this->globalObjTypeSpecFldInfoArray != nullptr && propertyInfoId < this->globalObjTypeSpecFldInfoCount);
             return this->globalObjTypeSpecFldInfoArray[propertyInfoId];
         }
 
         void SetGlobalObjTypeSpecFldInfo(uint propertyInfoId, ObjTypeSpecFldInfo* info) const
-        {
+        {TRACE_IT(48198);
             Assert(this->globalObjTypeSpecFldInfoArray != nullptr && propertyInfoId < this->globalObjTypeSpecFldInfoCount);
             this->globalObjTypeSpecFldInfoArray[propertyInfoId] = info;
         }
 
         void SetGlobalObjTypeSpecFldInfoArray(Field(ObjTypeSpecFldInfo*)* array, uint count)
-        {
+        {TRACE_IT(48199);
             Assert(array != nullptr);
             this->globalObjTypeSpecFldInfoArray = array;
             this->globalObjTypeSpecFldInfoCount = count;
         }
 
         bool GetIsInlined() const
-        {
+        {TRACE_IT(48200);
             return isInlined;
         }
         bool GetIsAggressiveInliningEnabled() const
-        {
+        {TRACE_IT(48201);
             return isAggressiveInliningEnabled;
         }
         void SetIsAggressiveInliningEnabled()
-        {
+        {TRACE_IT(48202);
             isAggressiveInliningEnabled = true;
         }
 
         void SetupRecursiveInlineeChain(
             Recycler *const recycler,
             const ProfileId profiledCallSiteId)
-        {
+        {TRACE_IT(48203);
             if (!inlinees)
-            {
+            {TRACE_IT(48204);
                 inlinees = RecyclerNewArrayZ(recycler, Field(FunctionCodeGenJitTimeData *), GetFunctionBody()->GetProfiledCallSiteCount());
             }
             inlinees[profiledCallSiteId] = this;

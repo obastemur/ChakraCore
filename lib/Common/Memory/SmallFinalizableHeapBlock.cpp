@@ -8,7 +8,7 @@
 template <class TBlockAttributes>
 SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>*
 SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>> * bucket)
-{
+{TRACE_IT(26838);
     CompileAssert(TBlockAttributes::MaxObjectSize <= USHRT_MAX);
     Assert(bucket->sizeCat <= TBlockAttributes::MaxObjectSize);
     Assert((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) / bucket->sizeCat <= USHRT_MAX);
@@ -21,7 +21,7 @@ SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallFi
 template <class TBlockAttributes>
 void
 SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>::Delete(SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>* heapBlock)
-{
+{TRACE_IT(26839);
     Assert(heapBlock->IsAnyFinalizableBlock());
     Assert(heapBlock->IsWithBarrier());
 
@@ -32,7 +32,7 @@ SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>::Delete(SmallFinalizable
 template <class TBlockAttributes>
 SmallFinalizableHeapBlockT<TBlockAttributes> *
 SmallFinalizableHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallFinalizableHeapBlockT<TBlockAttributes>> * bucket)
-{
+{TRACE_IT(26840);
     CompileAssert(TBlockAttributes::MaxObjectSize <= USHRT_MAX);
     Assert(bucket->sizeCat <= TBlockAttributes::MaxObjectSize);
     Assert((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) / bucket->sizeCat <= USHRT_MAX);
@@ -45,7 +45,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallFinalizableHe
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::Delete(SmallFinalizableHeapBlockT<TBlockAttributes> * heapBlock)
-{
+{TRACE_IT(26841);
     Assert(heapBlock->IsFinalizableBlock());
     NoMemProtectHeapDeletePlusPrefix(Base::GetAllocPlusSize(heapBlock->objectCount), heapBlock);
 }
@@ -53,7 +53,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::Delete(SmallFinalizableHeapBlockT<
 template <>
 SmallFinalizableHeapBlockT<SmallAllocationBlockAttributes>::SmallFinalizableHeapBlockT(HeapBucketT<SmallFinalizableHeapBlockT<SmallAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, HeapBlock::SmallFinalizableBlockType)
-{
+{TRACE_IT(26842);
     // We used AllocZ
     Assert(this->finalizeCount == 0);
     Assert(this->pendingDisposeCount == 0);
@@ -65,7 +65,7 @@ SmallFinalizableHeapBlockT<SmallAllocationBlockAttributes>::SmallFinalizableHeap
 template <>
 SmallFinalizableHeapBlockT<MediumAllocationBlockAttributes>::SmallFinalizableHeapBlockT(HeapBucketT<SmallFinalizableHeapBlockT<MediumAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, MediumFinalizableBlockType)
-{
+{TRACE_IT(26843);
     // We used AllocZ
     Assert(this->finalizeCount == 0);
     Assert(this->pendingDisposeCount == 0);
@@ -78,7 +78,7 @@ SmallFinalizableHeapBlockT<MediumAllocationBlockAttributes>::SmallFinalizableHea
 template <class TBlockAttributes>
 SmallFinalizableHeapBlockT<TBlockAttributes>::SmallFinalizableHeapBlockT(HeapBucketT<SmallFinalizableWithBarrierHeapBlockT<TBlockAttributes>> * bucket, ushort objectSize, ushort objectCount, HeapBlockType blockType)
     : SmallNormalHeapBlockT<TBlockAttributes>(bucket, objectSize, objectCount, blockType)
-{
+{TRACE_IT(26844);
     // We used AllocZ
     Assert(this->finalizeCount == 0);
     Assert(this->pendingDisposeCount == 0);
@@ -91,7 +91,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::SmallFinalizableHeapBlockT(HeapBuc
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::SetAttributes(void * address, unsigned char attributes)
-{
+{TRACE_IT(26845);
     Assert((attributes & FinalizeBit) != 0);
     __super::SetAttributes(address, attributes);
     finalizeCount++;
@@ -106,10 +106,10 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::SetAttributes(void * address, unsi
 template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::TryGetAttributes(void* objectAddress, unsigned char * pAttr)
-{
+{TRACE_IT(26846);
     unsigned char * attributes = nullptr;
     if (this->TryGetAddressOfAttributes(objectAddress, &attributes))
-    {
+    {TRACE_IT(26847);
         *pAttr = *attributes;
         return true;
     }
@@ -119,11 +119,11 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::TryGetAttributes(void* objectAddre
 template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::TryGetAddressOfAttributes(void* objectAddress, unsigned char ** ppAttrs)
-{
+{TRACE_IT(26848);
     ushort objectIndex = this->GetAddressIndex(objectAddress);
 
     if (objectIndex == SmallHeapBlockT<TBlockAttributes>::InvalidAddressBit)
-    {
+    {TRACE_IT(26849);
         // Not a valid offset within the block.  No further processing necessary.
         return false;
     }
@@ -137,10 +137,10 @@ template <bool doSpecialMark>
 _NOINLINE
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::ProcessMarkedObject(void* objectAddress, MarkContext * markContext)
-{
+{TRACE_IT(26850);
     unsigned char * attributes = nullptr;
     if (!this->TryGetAddressOfAttributes(objectAddress, &attributes))
-    {
+    {TRACE_IT(26851);
         return;
     }
 
@@ -157,7 +157,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::ProcessMarkedObject(void* objectAd
 template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::CanRescanFullBlock()
-{
+{TRACE_IT(26852);
     // Finalizable block need to rescan object one at a time.
     return false;
 }
@@ -167,16 +167,16 @@ template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::RescanObject(SmallFinalizableHeapBlockT<TBlockAttributes> * block, __in_ecount(localObjectSize) char * objectAddress, uint localObjectSize,
     uint objectIndex, Recycler * recycler)
-{
+{TRACE_IT(26853);
     unsigned char const attributes = block->ObjectInfo(objectIndex);
     Assert(block->IsAnyFinalizableBlock());
 
     if ((attributes & LeafBit) == 0)
-    {
+    {TRACE_IT(26854);
         Assert(block->GetAddressIndex(objectAddress) != SmallHeapBlockT<TBlockAttributes>::InvalidAddressBit);
 
         if (!recycler->AddMark(objectAddress, localObjectSize))
-        {
+        {TRACE_IT(26855);
             // Failed to add to the mark stack due to OOM.
             return false;
         }
@@ -193,16 +193,16 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::RescanObject(SmallFinalizableHeapB
     // because of OOM.  In those case, the page is forced to be rescan, and we will
     // try to process those again here.
     if ((attributes & (TrackBit | NewTrackBit)) == (TrackBit | NewTrackBit))
-    {
+    {TRACE_IT(26856);
         if (!block->RescanTrackedObject((FinalizableObject*) objectAddress, objectIndex, recycler))
-        {
+        {TRACE_IT(26857);
             // Failed to add to the mark stack due to OOM.
             return false;
         }
     }
 #ifdef RECYCLER_STATS
     else if (attributes & FinalizeBit)
-    {
+    {TRACE_IT(26858);
         // Concurrent thread mark the object before the attribute is set and missed the finalize count
         // For finalized object, we will always write a dummy vtable before returning to the call,
         // so the page will always need to be rescanned, and we can count those here.
@@ -221,21 +221,21 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::RescanObject(SmallFinalizableHeapB
 template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::RescanTrackedObject(FinalizableObject * object, uint objectIndex, Recycler * recycler)
-{
+{TRACE_IT(26859);
     RecyclerVerboseTrace(recycler->GetRecyclerFlagsTable(), _u("Marking 0x%08x during rescan\n"), object);
 #if ENABLE_CONCURRENT_GC
 #if ENABLE_PARTIAL_GC
     if (recycler->inPartialCollectMode)
-    {
+    {TRACE_IT(26860);
         Assert(!recycler->DoQueueTrackedObject());
     }
     else
 #endif
-    {
+    {TRACE_IT(26861);
         Assert(recycler->DoQueueTrackedObject());
 
         if (!recycler->QueueTrackedObject(object))
-        {
+        {TRACE_IT(26862);
             // Failed to add to track stack due to OOM.
             return false;
         }
@@ -258,7 +258,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::RescanTrackedObject(FinalizableObj
 template <class TBlockAttributes>
 SweepState
 SmallFinalizableHeapBlockT<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep, bool allocable)
-{
+{TRACE_IT(26863);
     Assert(!recyclerSweep.IsBackground());
     Assert(!queuePendingSweep);
 
@@ -271,7 +271,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::Sweep(RecyclerSweep& recyclerSweep
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::DisposeObjects()
-{
+{TRACE_IT(26864);
     Assert(this->isPendingDispose);
     Assert(HasAnyDisposeObjects());
 
@@ -321,7 +321,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::DisposeObjects()
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::TransferDisposedObjects()
-{
+{TRACE_IT(26865);
     // CONCURRENT-TODO: we don't allocate on pending disposed blocks during concurrent sweep or disable dispose
     // So the free bit vector must be valid
     Assert(this->IsFreeBitsValid());
@@ -344,15 +344,15 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::TransferDisposedObjects()
 template <class TBlockAttributes>
 ushort
 SmallFinalizableHeapBlockT<TBlockAttributes>::AddDisposedObjectFreeBitVector(SmallHeapBlockBitVector * free)
-{
+{TRACE_IT(26866);
     // all the finalized object are considered freed, but not allocable yet
     ushort freeCount = 0;
     FreeObject * freeObject = this->disposedObjectList;
 
     if (freeObject != nullptr)
-    {
+    {TRACE_IT(26867);
         while (true)
-        {
+        {TRACE_IT(26868);
             uint bitIndex = this->GetAddressBitIndex(freeObject);
             Assert(this->IsValidBitIndex(bitIndex));
 
@@ -364,7 +364,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::AddDisposedObjectFreeBitVector(Sma
             freeCount++;
 
             if (freeObject == this->disposedObjectListTail)
-            {
+            {TRACE_IT(26869);
                 break;
             }
             freeObject = freeObject->GetNext();
@@ -376,9 +376,9 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::AddDisposedObjectFreeBitVector(Sma
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::FinalizeAllObjects()
-{
+{TRACE_IT(26870);
     if (this->finalizeCount != 0)
-    {
+    {TRACE_IT(26871);
         DebugOnly(uint processedCount = 0);
         this->ForEachAllocatedObject(FinalizeBit, [&](uint index, void * objectAddress)
         {
@@ -410,7 +410,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::FinalizeAllObjects()
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::Init(ushort objectSize, ushort objectCount)
-{
+{TRACE_IT(26872);
     Assert(this->disposedObjectList == nullptr);
     Assert(this->disposedObjectListTail == nullptr);
     Assert(this->finalizeCount == 0);
@@ -422,7 +422,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::Init(ushort objectSize, ushort obj
 template <class TBlockAttributes>
 void
 SmallFinalizableHeapBlockT<TBlockAttributes>::FinishPartialCollect()
-{
+{TRACE_IT(26873);
     Assert(this->disposedObjectList == nullptr);
     Assert(this->disposedObjectListTail == nullptr);
     __super::FinishPartialCollect();
@@ -434,15 +434,15 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::FinishPartialCollect()
 template <class TBlockAttributes>
 uint
 SmallFinalizableHeapBlockT<TBlockAttributes>::CheckDisposedObjectFreeBitVector()
-{
+{TRACE_IT(26874);
     uint verifyFreeCount = 0;
     // all the finalized object are considered freed, but not allocable yet
     FreeObject *freeObject = this->disposedObjectList;
     if (freeObject != nullptr)
-    {
+    {TRACE_IT(26875);
         SmallHeapBlockBitVector * free = this->GetFreeBitVector();
         while (true)
-        {
+        {TRACE_IT(26876);
             uint bitIndex = this->GetAddressBitIndex(freeObject);
             Assert(this->IsValidBitIndex(bitIndex));
             Assert(!this->GetDebugFreeBitVector()->Test(bitIndex));
@@ -450,7 +450,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::CheckDisposedObjectFreeBitVector()
             verifyFreeCount++;
 
             if (freeObject == this->disposedObjectListTail)
-            {
+            {TRACE_IT(26877);
                 break;
             }
             freeObject = freeObject->GetNext();
@@ -462,7 +462,7 @@ SmallFinalizableHeapBlockT<TBlockAttributes>::CheckDisposedObjectFreeBitVector()
 template <class TBlockAttributes>
 bool
 SmallFinalizableHeapBlockT<TBlockAttributes>::GetFreeObjectListOnAllocator(FreeObject ** freeObjectList)
-{
+{TRACE_IT(26878);
     return this->template GetFreeObjectListOnAllocatorImpl<SmallFinalizableHeapBlockT<TBlockAttributes>>(freeObjectList);
 }
 

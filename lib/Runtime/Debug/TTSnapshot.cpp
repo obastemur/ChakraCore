@@ -9,7 +9,7 @@
 namespace TTD
 {
     void SnapShot::EmitSnapshotToFile(FileWriter* writer, ThreadContext* threadContext) const
-    {
+    {TRACE_IT(45222);
         TTDTimer timer;
         double startWrite = timer.Now();
 
@@ -31,7 +31,7 @@ namespace TTD
         writer->AdjustIndent(1);
         bool firstCtx = true;
         for(auto iter = this->m_ctxList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45223);
             NSSnapValues::EmitSnapContext(iter.Current(), writer, firstCtx ? NSTokens::Separator::BigSpaceSeparator : NSTokens::Separator::CommaAndBigSpaceSeparator);
 
             firstCtx = false;
@@ -43,7 +43,7 @@ namespace TTD
         writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
         bool firstTCSymbol = true;
         for(auto iter = this->m_tcSymbolRegistrationMapContents.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45224);
             writer->WriteNakedUInt32((uint32)*iter.Current(), firstTCSymbol ? NSTokens::Separator::NoSeparator : NSTokens::Separator::CommaSeparator);
 
             firstTCSymbol = false;
@@ -64,7 +64,7 @@ namespace TTD
         writer->AdjustIndent(1);
         bool firstBody = true;
         for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45225);
             NSSnapValues::EmitFunctionBodyInfo(iter.Current(), writer, firstBody ? NSTokens::Separator::BigSpaceSeparator : NSTokens::Separator::CommaAndBigSpaceSeparator);
 
             firstBody = false;
@@ -79,7 +79,7 @@ namespace TTD
         writer->AdjustIndent(1);
         bool firstObj = true;
         for(auto iter = this->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45226);
             NSSnapObjects::EmitObject(iter.Current(), writer, firstObj ? NSTokens::Separator::BigSpaceSeparator : NSTokens::Separator::CommaAndBigSpaceSeparator, this->m_snapObjectVTableArray, threadContext);
 
             firstObj = false;
@@ -100,7 +100,7 @@ namespace TTD
     }
 
     SnapShot* SnapShot::ParseSnapshotFromFile(FileReader* reader)
-    {
+    {TRACE_IT(45227);
         reader->ReadRecordStart();
 
         reader->ReadDouble(NSTokens::Key::timeTotal);
@@ -114,7 +114,7 @@ namespace TTD
         uint32 ctxCount = reader->ReadLengthValue(true);
         reader->ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < ctxCount; ++i)
-        {
+        {TRACE_IT(45228);
             NSSnapValues::SnapContext* snpCtx = snap->m_ctxList.NextOpenEntry();
             NSSnapValues::ParseSnapContext(snpCtx, i != 0, reader, snap->GetSnapshotSlabAllocator());
         }
@@ -123,7 +123,7 @@ namespace TTD
         uint32 tcSymbolCount = reader->ReadLengthValue(true);
         reader->ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < tcSymbolCount; ++i)
-        {
+        {TRACE_IT(45229);
             Js::PropertyId* symid = snap->m_tcSymbolRegistrationMapContents.NextOpenEntry();
             *symid = reader->ReadNakedUInt32(i != 0);
         }
@@ -140,7 +140,7 @@ namespace TTD
         TTDIdentifierDictionary<TTD_PTR_ID, NSSnapType::SnapHandler*> handlerMap;
         handlerMap.Initialize(snap->m_handlerList.Count());
         for(auto iter = snap->m_handlerList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45230);
             handlerMap.AddItem(iter.Current()->HandlerId, iter.Current());
         }
 
@@ -149,7 +149,7 @@ namespace TTD
         typeMap.Initialize(snap->m_typeList.Count());
 
         for(auto iter = snap->m_typeList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45231);
             typeMap.AddItem(iter.Current()->TypePtrId, iter.Current());
         }
 
@@ -157,7 +157,7 @@ namespace TTD
         uint32 bodyCount = reader->ReadLengthValue(true);
         reader->ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < bodyCount; ++i)
-        {
+        {TRACE_IT(45232);
             NSSnapValues::FunctionBodyResolveInfo* into = snap->m_functionBodyList.NextOpenEntry();
             NSSnapValues::ParseFunctionBodyInfo(into, i != 0, reader, snap->GetSnapshotSlabAllocator());
         }
@@ -168,7 +168,7 @@ namespace TTD
         uint32 objCount = reader->ReadLengthValue(true);
         reader->ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < objCount; ++i)
-        {
+        {TRACE_IT(45233);
             NSSnapObjects::SnapObject* into = snap->m_compoundObjectList.NextOpenEntry();
             NSSnapObjects::ParseObject(into, i != 0, reader, snap->GetSnapshotSlabAllocator(), snap->m_snapObjectVTableArray, typeMap);
         }
@@ -186,16 +186,16 @@ namespace TTD
     }
 
     void SnapShot::InflateSingleObject(const NSSnapObjects::SnapObject* snpObject, InflateMap* inflator, const TTDIdentifierDictionary<TTD_PTR_ID, NSSnapObjects::SnapObject*>& idToSnpObjectMap) const
-    {
+    {TRACE_IT(45234);
         if(inflator->IsObjectAlreadyInflated(snpObject->ObjectPtrId))
-        {
+        {TRACE_IT(45235);
             return;
         }
 
         if(snpObject->OptDependsOnInfo != nullptr)
-        {
+        {TRACE_IT(45236);
             for(uint32 i = 0; i < snpObject->OptDependsOnInfo->DepOnCount; ++i)
-            {
+            {TRACE_IT(45237);
                 const NSSnapObjects::SnapObject* depOnObj = idToSnpObjectMap.LookupKnownItem(snpObject->OptDependsOnInfo->DepOnPtrArray[i]);
 
                 //This is recursive but should be shallow
@@ -205,7 +205,7 @@ namespace TTD
 
         Js::RecyclableObject* res = nullptr;
         if(snpObject->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN)
-        {
+        {TRACE_IT(45238);
             Js::ScriptContext* ctx = inflator->LookupScriptContext(snpObject->SnapType->ScriptContextLogId);
             res = ctx->TTDWellKnownInfo->LookupKnownObjectFromPath(snpObject->OptWellKnownToken);
 
@@ -214,7 +214,7 @@ namespace TTD
             TTDAssert(res != nullptr, "Should always produce a result!!!");
         }
         else
-        {
+        {TRACE_IT(45239);
             //lookup the inflator function for this object and call it
             NSSnapObjects::fPtr_DoObjectInflation inflateFPtr = this->m_snapObjectVTableArray[(uint32)snpObject->SnapObjectTag].InflationFunc;
             TTDAssert(inflateFPtr != nullptr, "We probably forgot to update the vtable with a tag we added.");
@@ -223,11 +223,11 @@ namespace TTD
         }
 
         if(Js::DynamicType::Is(snpObject->SnapType->JsTypeId))
-        {
+        {TRACE_IT(45240);
             //Always ok to be x-site but if snap was x-site then we must be too
             Js::DynamicObject* dynObj = Js::DynamicObject::FromVar(res);
             if(snpObject->IsCrossSite && !dynObj->IsCrossSiteObject())
-            {
+            {TRACE_IT(45241);
                 Js::CrossSite::MarshalCrossSite_TTDInflate(dynObj);
             }
         }
@@ -236,24 +236,24 @@ namespace TTD
     }
 
     void SnapShot::ReLinkThreadContextInfo(InflateMap* inflator, ThreadContextTTD* intoCtx) const
-    {
+    {TRACE_IT(45242);
         for(auto iter = this->m_globalRootList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45243);
             const SnapRootPinEntry* rootEntry = iter.Current();
             Js::RecyclableObject* rootObj = inflator->LookupObject(rootEntry->LogObject);
 
             if(ThreadContextTTD::IsSpecialRootObject(rootObj))
-            {
+            {TRACE_IT(45244);
                 intoCtx->AddTrackedRootSpecial(rootEntry->LogId, rootObj);
             }
             else
-            {
+            {TRACE_IT(45245);
                 intoCtx->AddTrackedRootGeneral(rootEntry->LogId, rootObj);
             }
         }
 
         for(auto iter = this->m_localRootList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45246);
             const SnapRootPinEntry* rootEntry = iter.Current();
             Js::RecyclableObject* rootObj = inflator->LookupObject(rootEntry->LogObject);
 
@@ -261,18 +261,18 @@ namespace TTD
         }
 
         if(this->m_activeScriptContext == TTD_INVALID_LOG_PTR_ID)
-        {
+        {TRACE_IT(45247);
             intoCtx->TTDExternalObjectFunctions.pfSetActiveJsRTContext(intoCtx->GetRuntimeHandle(), nullptr);
         }
         else
-        {
+        {TRACE_IT(45248);
             Js::ScriptContext* ctx = inflator->LookupScriptContext(this->m_activeScriptContext);
             intoCtx->TTDExternalObjectFunctions.pfSetActiveJsRTContext(intoCtx->GetRuntimeHandle(), ctx);
         }
     }
 
     void SnapShot::SnapRootPinEntryEmit(const SnapRootPinEntry* spe, FileWriter* snapwriter, NSTokens::Separator separator)
-    {
+    {TRACE_IT(45249);
         snapwriter->WriteRecordStart(separator);
         snapwriter->WriteLogTag(NSTokens::Key::logTag, spe->LogId);
         snapwriter->WriteAddr(NSTokens::Key::objectId, spe->LogObject, NSTokens::Separator::CommaSeparator);
@@ -280,7 +280,7 @@ namespace TTD
     }
 
     void SnapShot::SnapRootPinEntryParse(SnapRootPinEntry* spe, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-    {
+    {TRACE_IT(45250);
         reader->ReadRecordStart(readSeperator);
         spe->LogId = reader->ReadLogTag(NSTokens::Key::logTag);
         spe->LogObject = reader->ReadAddr(NSTokens::Key::objectId, true);
@@ -288,7 +288,7 @@ namespace TTD
     }
 
     void SnapShot::ComputeSnapshotMemory(uint64* usedSpace, uint64* reservedSpace) const
-    {
+    {TRACE_IT(45251);
         return this->m_slabAllocator.ComputeMemoryUsed(usedSpace, reservedSpace);
     }
 
@@ -301,7 +301,7 @@ namespace TTD
         m_scopeEntries(&this->m_slabAllocator), m_slotArrayEntries(&this->m_slabAllocator),
         m_snapObjectVTableArray(nullptr),
         MarkTime(0.0), ExtractTime(0.0)
-    {
+    {TRACE_IT(45252);
         this->m_snapObjectVTableArray = this->m_slabAllocator.SlabAllocateArray<NSSnapObjects::SnapObjectVTable>((uint32)NSSnapObjects::SnapObjectType::Limit);
         memset(this->m_snapObjectVTableArray, 0, sizeof(NSSnapObjects::SnapObjectVTable) * (uint32)NSSnapObjects::SnapObjectType::Limit);
 
@@ -358,55 +358,55 @@ namespace TTD
     }
 
     SnapShot::~SnapShot()
-    {
+    {TRACE_IT(45253);
        ;
     }
 
     uint32 SnapShot::ContextCount() const
-    {
+    {TRACE_IT(45254);
         return this->m_ctxList.Count();
     }
 
     uint32 SnapShot::HandlerCount() const
-    {
+    {TRACE_IT(45255);
         return this->m_handlerList.Count();
     }
 
     uint32 SnapShot::TypeCount() const
-    {
+    {TRACE_IT(45256);
         return this->m_typeList.Count();
     }
 
     uint32 SnapShot::BodyCount() const
-    {
+    {TRACE_IT(45257);
         return this->m_functionBodyList.Count();
     }
 
     uint32 SnapShot::PrimitiveCount() const
-    {
+    {TRACE_IT(45258);
         return this->m_primitiveObjectList.Count();
     }
 
     uint32 SnapShot::ObjectCount() const
-    {
+    {TRACE_IT(45259);
         return this->m_compoundObjectList.Count();
     }
 
     uint32 SnapShot::EnvCount() const
-    {
+    {TRACE_IT(45260);
         return this->m_scopeEntries.Count();
     }
 
     uint32 SnapShot::SlotArrayCount() const
-    {
+    {TRACE_IT(45261);
         return this->m_slotArrayEntries.Count();
     }
 
     uint32 SnapShot::GetDbgScopeCountNonTopLevel() const
-    {
+    {TRACE_IT(45262);
         uint32 dbgScopeCount = 0;
         for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext()) 
-        {
+        {TRACE_IT(45263);
             dbgScopeCount += iter.Current()->ScopeChainInfo.ScopeCount;
         }
 
@@ -414,92 +414,92 @@ namespace TTD
     }
 
     UnorderedArrayList<NSSnapValues::SnapContext, TTD_ARRAY_LIST_SIZE_XSMALL>& SnapShot::GetContextList()
-    {
+    {TRACE_IT(45264);
         return this->m_ctxList;
     }
 
     const UnorderedArrayList<NSSnapValues::SnapContext, TTD_ARRAY_LIST_SIZE_XSMALL>& SnapShot::GetContextList() const
-    {
+    {TRACE_IT(45265);
         return this->m_ctxList;
     }
 
     UnorderedArrayList<Js::PropertyId, TTD_ARRAY_LIST_SIZE_XSMALL>& SnapShot::GetTCSymbolMapInfoList()
-    {
+    {TRACE_IT(45266);
         return this->m_tcSymbolRegistrationMapContents;
     }
 
     TTD_LOG_PTR_ID SnapShot::GetActiveScriptContext() const
-    {
+    {TRACE_IT(45267);
         return this->m_activeScriptContext;
     }
 
     void SnapShot::SetActiveScriptContext(TTD_LOG_PTR_ID activeCtx)
-    {
+    {TRACE_IT(45268);
         this->m_activeScriptContext = activeCtx;
     }
 
     UnorderedArrayList<SnapRootPinEntry, TTD_ARRAY_LIST_SIZE_MID>& SnapShot::GetGlobalRootList()
-    {
+    {TRACE_IT(45269);
         return this->m_globalRootList;
     }
 
     UnorderedArrayList<SnapRootPinEntry, TTD_ARRAY_LIST_SIZE_SMALL>& SnapShot::GetLocalRootList()
-    {
+    {TRACE_IT(45270);
         return this->m_localRootList;
     }
 
     NSSnapType::SnapHandler* SnapShot::GetNextAvailableHandlerEntry()
-    {
+    {TRACE_IT(45271);
         return this->m_handlerList.NextOpenEntry();
     }
 
     NSSnapType::SnapType* SnapShot::GetNextAvailableTypeEntry()
-    {
+    {TRACE_IT(45272);
         return this->m_typeList.NextOpenEntry();
     }
 
     NSSnapValues::FunctionBodyResolveInfo* SnapShot::GetNextAvailableFunctionBodyResolveInfoEntry()
-    {
+    {TRACE_IT(45273);
         return this->m_functionBodyList.NextOpenEntry();
     }
 
     NSSnapValues::SnapPrimitiveValue* SnapShot::GetNextAvailablePrimitiveObjectEntry()
-    {
+    {TRACE_IT(45274);
         return this->m_primitiveObjectList.NextOpenEntry();
     }
 
     NSSnapObjects::SnapObject* SnapShot::GetNextAvailableCompoundObjectEntry()
-    {
+    {TRACE_IT(45275);
         return this->m_compoundObjectList.NextOpenEntry();
     }
 
     NSSnapValues::ScriptFunctionScopeInfo* SnapShot::GetNextAvailableFunctionScopeEntry()
-    {
+    {TRACE_IT(45276);
         return this->m_scopeEntries.NextOpenEntry();
     }
 
     NSSnapValues::SlotArrayInfo* SnapShot::GetNextAvailableSlotArrayEntry()
-    {
+    {TRACE_IT(45277);
         return this->m_slotArrayEntries.NextOpenEntry();
     }
 
     SlabAllocator& SnapShot::GetSnapshotSlabAllocator()
-    {
+    {TRACE_IT(45278);
         return this->m_slabAllocator;
     }
 
     bool SnapShot::AllWellKnownObjectsReusable(InflateMap* inflator) const
-    {
+    {TRACE_IT(45279);
         for(auto iter = this->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45280);
             const NSSnapObjects::SnapObject* snpObj = iter.Current();
             if(snpObj->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {TRACE_IT(45281);
                 Js::RecyclableObject* rObj = inflator->FindReusableObject_WellKnowReuseCheck(snpObj->ObjectPtrId);
                 bool blocking = NSSnapObjects::DoesObjectBlockScriptContextReuse(snpObj, Js::DynamicObject::FromVar(rObj), inflator);
 
                 if(blocking)
-                {
+                {TRACE_IT(45282);
                     return false;
                 }
             }
@@ -519,7 +519,7 @@ namespace TTD
         idToSnpBodyMap.Initialize(this->m_functionBodyList.Count());
 
         for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45283);
             idToSnpBodyMap.AddItem(iter.Current()->FunctionBodyId, iter.Current());
         }
 
@@ -528,7 +528,7 @@ namespace TTD
         idToSnpObjectMap.Initialize(this->m_compoundObjectList.Count());
 
         for(auto iter = this->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45284);
             idToSnpObjectMap.AddItem(iter.Current()->ObjectPtrId, iter.Current());
         }
 
@@ -536,28 +536,28 @@ namespace TTD
 
         //inflate all the function bodies
         for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45285);
             const NSSnapValues::FunctionBodyResolveInfo* fbInfo = iter.Current();
             NSSnapValues::InflateFunctionBody(fbInfo, inflator, idToSnpBodyMap);
         }
 
         //inflate all the primitive objects
         for(auto iter = this->m_primitiveObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45286);
             const NSSnapValues::SnapPrimitiveValue* pSnap = iter.Current();
             NSSnapValues::InflateSnapPrimitiveValue(pSnap, inflator);
         }
 
         //inflate all the regular objects
         for(auto iter = this->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45287);
             const NSSnapObjects::SnapObject* sObj = iter.Current();
             this->InflateSingleObject(sObj, inflator, idToSnpObjectMap);
         }
 
         //take care of all the slot arrays
         for(auto iter = this->m_slotArrayEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45288);
             const NSSnapValues::SlotArrayInfo* sai = iter.Current();
             Js::Var* slots = NSSnapValues::InflateSlotArrayInfo(sai, inflator);
 
@@ -566,7 +566,7 @@ namespace TTD
 
         //and the scope entries
         for(auto iter = this->m_scopeEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45289);
             const NSSnapValues::ScriptFunctionScopeInfo* sfsi = iter.Current();
             Js::FrameDisplay* frame = NSSnapValues::InflateScriptFunctionScopeInfo(sfsi, inflator);
 
@@ -575,7 +575,7 @@ namespace TTD
 
         //Link up the object pointers
         for(auto iter = this->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45290);
             const NSSnapObjects::SnapObject* sobj = iter.Current();
             Js::RecyclableObject* iobj = inflator->LookupObject(sobj->ObjectPtrId);
 
@@ -586,7 +586,7 @@ namespace TTD
             }
 
             if(Js::DynamicType::Is(sobj->SnapType->JsTypeId))
-            {
+            {TRACE_IT(45291);
                 NSSnapObjects::StdPropertyRestore(sobj, Js::DynamicObject::FromVar(iobj), inflator);
             }
         }
@@ -594,7 +594,7 @@ namespace TTD
         this->ReLinkThreadContextInfo(inflator, tCtx);
 
         for(auto iter = this->m_ctxList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45292);
             const NSSnapValues::SnapContext* snpCtx = iter.Current();
             Js::ScriptContext* sctx = inflator->LookupScriptContext(snpCtx->ScriptContextLogId);
 
@@ -606,7 +606,7 @@ namespace TTD
         tcSymbolRegistrationMap->Clear();
 
         for(auto iter = this->m_tcSymbolRegistrationMapContents.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45293);
             Js::PropertyId pid = *iter.Current();
             const Js::PropertyRecord* pRecord = tCtx->GetThreadContext()->GetPropertyName(pid);
 
@@ -615,7 +615,7 @@ namespace TTD
     }
 
     void SnapShot::EmitSnapshot(int64 snapId, ThreadContext* threadContext) const
-    {
+    {TRACE_IT(45294);
         char asciiResourceName[64];
         sprintf_s(asciiResourceName, 64, "snap_%I64i.snp", snapId);
 
@@ -630,7 +630,7 @@ namespace TTD
     }
 
     SnapShot* SnapShot::Parse(int64 snapId, ThreadContext* threadContext)
-    {
+    {TRACE_IT(45295);
         char asciiResourceName[64];
         sprintf_s(asciiResourceName, 64, "snap_%I64i.snp", snapId);
 
@@ -646,106 +646,106 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
     void SnapShot::InitializeForSnapshotCompare(const SnapShot* snap1, const SnapShot* snap2, TTDCompareMap& compareMap)
-    {
+    {TRACE_IT(45296);
         ////
         //Initialize all of the maps
 
         //top-level functions
         for(auto iter = snap1->m_ctxList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45297);
             const NSSnapValues::SnapContext* ctx = iter.Current();
 
             for(uint32 i = 0; i < ctx->LoadedTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45298);
                 compareMap.H1FunctionTopLevelLoadMap.AddNew(ctx->LoadedTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->LoadedTopLevelScriptArray[i].TopLevelBodyCtr);
             }
 
             for(uint32 i = 0; i < ctx->NewFunctionTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45299);
                 compareMap.H1FunctionTopLevelNewMap.AddNew(ctx->NewFunctionTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->NewFunctionTopLevelScriptArray[i].TopLevelBodyCtr);
             }
 
             for(uint32 i = 0; i < ctx->EvalTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45300);
                 compareMap.H1FunctionTopLevelEvalMap.AddNew(ctx->EvalTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->EvalTopLevelScriptArray[i].TopLevelBodyCtr);
             }
         }
 
         for(auto iter = snap2->m_ctxList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45301);
             const NSSnapValues::SnapContext* ctx = iter.Current();
 
             for(uint32 i = 0; i < ctx->LoadedTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45302);
                 compareMap.H2FunctionTopLevelLoadMap.AddNew(ctx->LoadedTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->LoadedTopLevelScriptArray[i].TopLevelBodyCtr);
             }
 
             for(uint32 i = 0; i < ctx->NewFunctionTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45303);
                 compareMap.H2FunctionTopLevelNewMap.AddNew(ctx->NewFunctionTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->NewFunctionTopLevelScriptArray[i].TopLevelBodyCtr);
             }
 
             for(uint32 i = 0; i < ctx->EvalTopLevelScriptCount; ++i)
-            {
+            {TRACE_IT(45304);
                 compareMap.H2FunctionTopLevelEvalMap.AddNew(ctx->EvalTopLevelScriptArray[i].ContextSpecificBodyPtrId, ctx->EvalTopLevelScriptArray[i].TopLevelBodyCtr);
             }
         }
 
         //Values and things
         for(auto iter = snap1->m_primitiveObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45305);
             compareMap.H1ValueMap.AddNew(iter.Current()->PrimitiveValueId, iter.Current());
         }
 
         for(auto iter = snap2->m_primitiveObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45306);
             compareMap.H2ValueMap.AddNew(iter.Current()->PrimitiveValueId, iter.Current());
         }
 
         for(auto iter = snap1->m_slotArrayEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45307);
             compareMap.H1SlotArrayMap.AddNew(iter.Current()->SlotId, iter.Current());
         }
 
         for(auto iter = snap2->m_slotArrayEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45308);
             compareMap.H2SlotArrayMap.AddNew(iter.Current()->SlotId, iter.Current());
         }
 
         for(auto iter = snap1->m_scopeEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45309);
             compareMap.H1FunctionScopeInfoMap.AddNew(iter.Current()->ScopeId, iter.Current());
         }
 
         for(auto iter = snap2->m_scopeEntries.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45310);
             compareMap.H2FunctionScopeInfoMap.AddNew(iter.Current()->ScopeId, iter.Current());
         }
 
         //Bodies and objects
         for(auto iter = snap1->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45311);
             compareMap.H1FunctionBodyMap.AddNew(iter.Current()->FunctionBodyId, iter.Current());
         }
 
         for(auto iter = snap2->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45312);
             compareMap.H2FunctionBodyMap.AddNew(iter.Current()->FunctionBodyId, iter.Current());
         }
 
         for(auto iter = snap1->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45313);
             compareMap.H1ObjectMap.AddNew(iter.Current()->ObjectPtrId, iter.Current());
         }
 
         for(auto iter = snap2->m_compoundObjectList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {TRACE_IT(45314);
             compareMap.H2ObjectMap.AddNew(iter.Current()->ObjectPtrId, iter.Current());
         }
     }
 
     void SnapShot::DoSnapshotCompare(const SnapShot* snap1, const SnapShot* snap2, TTDCompareMap& compareMap)
-    {
+    {TRACE_IT(45315);
         //compare the roots to kick things off
         compareMap.DiagnosticAssert(snap1->m_globalRootList.Count() == snap2->m_globalRootList.Count());
 
@@ -754,7 +754,7 @@ namespace TTD
 
         JsUtil::BaseDictionary<TTD_LOG_PTR_ID, TTD_PTR_ID, HeapAllocator> globalRootMap1(&HeapAllocator::Instance);
         for(auto iter1 = snap1->m_globalRootList.GetIterator(); iter1.IsValid(); iter1.MoveNext())
-        {
+        {TRACE_IT(45316);
             const SnapRootPinEntry* rootEntry1 = iter1.Current();
             allRootMap1.AddNew(rootEntry1->LogId, rootEntry1->LogObject);
 
@@ -762,7 +762,7 @@ namespace TTD
         }
 
         for(auto iter2 = snap2->m_globalRootList.GetIterator(); iter2.IsValid(); iter2.MoveNext())
-        {
+        {TRACE_IT(45317);
             const SnapRootPinEntry* rootEntry2 = iter2.Current();
             allRootMap2.AddNew(rootEntry2->LogId, rootEntry2->LogObject);
 
@@ -774,10 +774,10 @@ namespace TTD
 
         JsUtil::BaseDictionary<TTD_LOG_PTR_ID, TTD_PTR_ID, HeapAllocator> localRootMap1(&HeapAllocator::Instance);
         for(auto iter1 = snap1->m_localRootList.GetIterator(); iter1.IsValid(); iter1.MoveNext())
-        {
+        {TRACE_IT(45318);
             const SnapRootPinEntry* rootEntry1 = iter1.Current();
             if(!allRootMap1.ContainsKey(rootEntry1->LogId))
-            {
+            {TRACE_IT(45319);
                 allRootMap1.AddNew(rootEntry1->LogId, rootEntry1->LogObject);
             }
 
@@ -785,10 +785,10 @@ namespace TTD
         }
 
         for(auto iter2 = snap2->m_localRootList.GetIterator(); iter2.IsValid(); iter2.MoveNext())
-        {
+        {TRACE_IT(45320);
             const SnapRootPinEntry* rootEntry2 = iter2.Current();
             if(!allRootMap2.ContainsKey(rootEntry2->LogId))
-            {
+            {TRACE_IT(45321);
                 allRootMap2.AddNew(rootEntry2->LogId, rootEntry2->LogObject);
             }
 
@@ -800,13 +800,13 @@ namespace TTD
         compareMap.DiagnosticAssert(snap1->m_activeScriptContext == snap2->m_activeScriptContext);
         compareMap.DiagnosticAssert(snap1->m_ctxList.Count() == snap2->m_ctxList.Count());
         for(auto iter1 = snap1->m_ctxList.GetIterator(); iter1.IsValid(); iter1.MoveNext())
-        {
+        {TRACE_IT(45322);
             const NSSnapValues::SnapContext* ctx1 = iter1.Current();
             const NSSnapValues::SnapContext* ctx2 = nullptr;
             for(auto iter2 = snap2->m_ctxList.GetIterator(); iter2.IsValid(); iter2.MoveNext())
-            {
+            {TRACE_IT(45323);
                 if(ctx1->ScriptContextLogId == iter2.Current()->ScriptContextLogId)
-                {
+                {TRACE_IT(45324);
                     ctx2 = iter2.Current();
                     break;
                 }
@@ -819,13 +819,13 @@ namespace TTD
         //compare the contents of the two thread context symbol maps
         compareMap.DiagnosticAssert(snap1->m_tcSymbolRegistrationMapContents.Count() == snap2->m_tcSymbolRegistrationMapContents.Count());
         for(auto iter1 = snap1->m_tcSymbolRegistrationMapContents.GetIterator(); iter1.IsValid(); iter1.MoveNext())
-        {
+        {TRACE_IT(45325);
             const Js::PropertyId pid1 = *iter1.Current();
             bool match = false;
             for(auto iter2 = snap2->m_tcSymbolRegistrationMapContents.GetIterator(); iter2.IsValid(); iter2.MoveNext())
-            {
+            {TRACE_IT(45326);
                 if(*iter2.Current() == pid1)
-                {
+                {TRACE_IT(45327);
                     match = true;
                     break;
                 }
@@ -844,9 +844,9 @@ namespace TTD
 
         compareMap.GetNextCompareInfo(&ctag, &ptrId1, &ptrId2);
         while(ctag != TTDCompareTag::Done)
-        {
+        {TRACE_IT(45328);
             if(ctag == TTDCompareTag::SlotArray)
-            {
+            {TRACE_IT(45329);
                 const NSSnapValues::SlotArrayInfo* sai1 = nullptr;
                 const NSSnapValues::SlotArrayInfo* sai2 = nullptr;
                 compareMap.GetCompareValues(ctag, ptrId1, &sai1, ptrId2, &sai2);
@@ -855,7 +855,7 @@ namespace TTD
                 comparedSlotArrays++;
             }
             else if(ctag == TTDCompareTag::FunctionScopeInfo)
-            {
+            {TRACE_IT(45330);
                 const NSSnapValues::ScriptFunctionScopeInfo* scope1 = nullptr;
                 const NSSnapValues::ScriptFunctionScopeInfo* scope2 = nullptr;
                 compareMap.GetCompareValues(ctag, ptrId1, &scope1, ptrId2, &scope2);
@@ -864,35 +864,35 @@ namespace TTD
                 comparedScopes++;
             }
             else if(ctag == TTDCompareTag::TopLevelLoadFunction)
-            {
+            {TRACE_IT(45331);
                 uint64 fload1 = 0;
                 uint64 fload2 = 0;
                 compareMap.GetCompareValues(ctag, ptrId1, &fload1, ptrId2, &fload2);
                 compareMap.DiagnosticAssert(fload1 == fload2);
             }
             else if(ctag == TTDCompareTag::TopLevelNewFunction)
-            {
+            {TRACE_IT(45332);
                 uint64 fnew1 = 0;
                 uint64 fnew2 = 0;
                 compareMap.GetCompareValues(ctag, ptrId1, &fnew1, ptrId2, &fnew2);
                 compareMap.DiagnosticAssert(fnew1 == fnew2);
             }
             else if(ctag == TTDCompareTag::TopLevelEvalFunction)
-            {
+            {TRACE_IT(45333);
                 uint64 feval1 = 0;
                 uint64 feval2 = 0;
                 compareMap.GetCompareValues(ctag, ptrId1, &feval1, ptrId2, &feval2);
                 compareMap.DiagnosticAssert(feval1 == feval2);
             }
             else if(ctag == TTDCompareTag::FunctionBody)
-            {
+            {TRACE_IT(45334);
                 const NSSnapValues::FunctionBodyResolveInfo* fb1 = nullptr;
                 const NSSnapValues::FunctionBodyResolveInfo* fb2 = nullptr;
                 compareMap.GetCompareValues(ctag, ptrId1, &fb1, ptrId2, &fb2);
                 NSSnapValues::AssertSnapEquiv(fb1, fb2, compareMap);
             }
             else if(ctag == TTDCompareTag::SnapObject)
-            {
+            {TRACE_IT(45335);
                 const NSSnapObjects::SnapObject* obj1 = nullptr;
                 const NSSnapObjects::SnapObject* obj2 = nullptr;
                 compareMap.GetCompareValues(ctag, ptrId1, &obj1, ptrId2, &obj2);

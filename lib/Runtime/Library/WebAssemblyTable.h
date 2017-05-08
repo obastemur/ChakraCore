@@ -44,8 +44,8 @@ namespace Js
         void DirectSetValue(uint index, Var val);
         Var DirectGetValue(uint index) const;
 
-        static uint32 GetOffsetOfValues() { return offsetof(WebAssemblyTable, m_values); }
-        static uint32 GetOffsetOfCurrentLength() { return offsetof(WebAssemblyTable, m_currentLength); }
+        static uint32 GetOffsetOfValues() {TRACE_IT(64614); return offsetof(WebAssemblyTable, m_values); }
+        static uint32 GetOffsetOfCurrentLength() {TRACE_IT(64615); return offsetof(WebAssemblyTable, m_currentLength); }
     private:
         Field(uint32) m_initialLength;
         Field(uint32) m_maxLength;

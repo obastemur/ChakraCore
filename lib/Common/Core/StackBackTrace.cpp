@@ -9,38 +9,38 @@
 #include "Core/DbgHelpSymbolManager.h"
 
 StackBackTrace::StackBackTrace(ULONG framesToSkip, ULONG framesToCapture) : requestedFramesToCapture(framesToCapture)
-{
+{TRACE_IT(20508);
     this->Capture(framesToSkip);
 }
 
 // Don't capture, just remember requestedFramesToCapture/allocate buffer for them.
 StackBackTrace::StackBackTrace(ULONG framesToCaptureLater) : requestedFramesToCapture(framesToCaptureLater), framesCount(0)
-{
+{TRACE_IT(20509);
 }
 
 StackBackTrace *
 StackBackTrace::Capture(char* buffer, size_t bufSize, ULONG framesToSkip)
-{
+{TRACE_IT(20510);
     return new (buffer) StackBackTrace(framesToSkip, (ULONG)(bufSize - offsetof(StackBackTrace, stackBackTrace)) / sizeof(void*));
 }
 
 // This can be called multiple times, together with Create, in which case we will use (overwrite) same buffer.
 ULONG StackBackTrace::Capture(ULONG framesToSkip)
-{
+{TRACE_IT(20511);
     this->framesCount = CaptureStackBackTrace(framesToSkip + BaseFramesToSkip, this->requestedFramesToCapture, this->stackBackTrace, NULL);
     return this->framesCount;
 }
 
 size_t
 StackBackTrace::Print()
-{
+{TRACE_IT(20512);
     size_t retValue = 0;
 
 #ifdef DBGHELP_SYMBOL_MANAGER
     DbgHelpSymbolManager::EnsureInitialized();
 
     for(ULONG i = 0; i < this->framesCount; i++)
-    {
+    {TRACE_IT(20513);
         PVOID address = this->stackBackTrace[i];
         retValue += Output::Print(_u(" "));
         retValue += DbgHelpSymbolManager::PrintSymbol(address);
@@ -49,9 +49,9 @@ StackBackTrace::Print()
 #else
     char** f = backtrace_symbols(this->stackBackTrace, this->framesCount);
     if (f)
-    {
+    {TRACE_IT(20514);
         for (ULONG i = 0; i < this->framesCount; i++)
-        {
+        {TRACE_IT(20515);
             retValue += Output::Print(_u(" %S\n"), f[i]);
         }
         free(f);
@@ -65,7 +65,7 @@ StackBackTrace::Print()
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 static uint _s_trace_ring_id = 0;
 uint _trace_ring_next_id()
-{
+{TRACE_IT(20516);
     return InterlockedIncrement(&_s_trace_ring_id);
 }
 #endif  // ENABLE_DEBUG_CONFIG_OPTIONS

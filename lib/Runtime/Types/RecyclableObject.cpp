@@ -11,7 +11,7 @@ DEFINE_VALIDATE_HAS_VTABLE_CTOR(Js::RecyclableObject);
 namespace Js
 {
     void PropertyValueInfo::SetCacheInfo(PropertyValueInfo* info, InlineCache *const inlineCache)
-    {
+    {TRACE_IT(66840);
         Assert(info);
         Assert(inlineCache);
 
@@ -28,7 +28,7 @@ namespace Js
         InlineCache *const inlineCache,
         const InlineCacheIndex inlineCacheIndex,
         const bool allowResizingPolymorphicInlineCache)
-    {
+    {TRACE_IT(66841);
         Assert(info);
         Assert(functionBody);
         Assert(inlineCache);
@@ -47,7 +47,7 @@ namespace Js
         PolymorphicInlineCache *const polymorphicInlineCache,
         const InlineCacheIndex inlineCacheIndex,
         const bool allowResizingPolymorphicInlineCache)
-    {
+    {TRACE_IT(66842);
         Assert(info);
         Assert(functionBody);
         Assert(polymorphicInlineCache);
@@ -61,9 +61,9 @@ namespace Js
     }
 
     void PropertyValueInfo::ClearCacheInfo(PropertyValueInfo* info)
-    {
+    {TRACE_IT(66843);
         if (info != NULL)
-        {
+        {TRACE_IT(66844);
             info->functionBody = nullptr;
             info->inlineCache = nullptr;
             info->polymorphicInlineCache = nullptr;
@@ -76,7 +76,7 @@ namespace Js
     // Used only by the GlobalObject, because it's typeHandler can't be fully initialized
     // with the globalobject which is currently being created.
     RecyclableObject::RecyclableObject(DynamicType * type, ScriptContext * scriptContext) : type(type)
-    {
+    {TRACE_IT(66845);
 #if DBG_EXTRAFIELD
         dtorCalled = false;
 #ifdef HEAP_ENUMERATION_VALIDATION
@@ -88,11 +88,11 @@ namespace Js
     }
 
     void RecyclableObject::RecordAllocation(ScriptContext * scriptContext)
-    {
+    {TRACE_IT(66846);
 #ifdef PROFILE_TYPES
         TypeId typeId = this->GetType()->GetTypeId();
         if (typeId < sizeof(scriptContext->instanceCount)/sizeof(int))
-        {
+        {TRACE_IT(66847);
             scriptContext->instanceCount[typeId]++;
         }
 #endif
@@ -100,7 +100,7 @@ namespace Js
 #endif
 
     RecyclableObject::RecyclableObject(Type * type) : type(type)
-    {
+    {TRACE_IT(66848);
 #if DBG_EXTRAFIELD
         dtorCalled = false;
 #ifdef HEAP_ENUMERATION_VALIDATION
@@ -111,51 +111,51 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
         if (!JITManager::GetJITManager()->IsOOPJITEnabled())
 #endif
-        {
+        {TRACE_IT(66849);
             RecordAllocation(type->GetScriptContext());
         }
 #endif
     }
 
     RecyclableObject* RecyclableObject::GetPrototype() const
-    {
+    {TRACE_IT(66850);
         Type* type = GetType();
         if (!type->HasSpecialPrototype())
-        {
+        {TRACE_IT(66851);
             return type->GetPrototype();
         }
         return const_cast<RecyclableObject*>(this)->GetPrototypeSpecial();
     }
 
     RecyclableObject* RecyclableObject::GetPrototypeSpecial()
-    {
+    {TRACE_IT(66852);
         AssertMsg(GetType()->GetTypeId() == TypeIds_Null, "Do not use this function.");
         return nullptr;
     }
 
     JavascriptMethod RecyclableObject::GetEntryPoint() const
-    {
+    {TRACE_IT(66853);
         return this->GetType()->GetEntryPoint();
     }
 
     Recycler* RecyclableObject::GetRecycler() const
-    {
+    {TRACE_IT(66854);
         return this->GetLibrary()->GetRecycler();
     }
 
     void RecyclableObject::SetIsPrototype()
-    {
+    {TRACE_IT(66855);
         if (DynamicType::Is(this->GetTypeId()))
-        {
+        {TRACE_IT(66856);
             DynamicObject* dynamicThis = DynamicObject::FromVar(this);
             dynamicThis->SetIsPrototype();      // Call the DynamicObject::SetIsPrototype
         }
     }
 
     bool RecyclableObject::HasOnlyWritableDataProperties()
-    {
+    {TRACE_IT(66857);
         if (DynamicType::Is(this->GetTypeId()))
-        {
+        {TRACE_IT(66858);
             DynamicObject* obj = DynamicObject::FromVar(this);
             return obj->GetTypeHandler()->GetHasOnlyWritableDataProperties() &&
                 (!obj->HasObjectArray() || obj->GetObjectArrayOrFlagsAsArray()->HasOnlyWritableDataProperties());
@@ -165,22 +165,22 @@ namespace Js
     }
 
     void RecyclableObject::ClearWritableDataOnlyDetectionBit()
-    {
+    {TRACE_IT(66859);
         if (DynamicType::Is(this->GetTypeId()))
-        {
+        {TRACE_IT(66860);
             DynamicObject* obj = DynamicObject::FromVar(this);
             obj->GetTypeHandler()->ClearWritableDataOnlyDetectionBit();
             if (obj->HasObjectArray())
-            {
+            {TRACE_IT(66861);
                 obj->GetObjectArrayOrFlagsAsArray()->ClearWritableDataOnlyDetectionBit();
             }
         }
     }
 
     bool RecyclableObject::IsWritableDataOnlyDetectionBitSet()
-    {
+    {TRACE_IT(66862);
         if (DynamicType::Is(this->GetTypeId()))
-        {
+        {TRACE_IT(66863);
             DynamicObject* obj = DynamicObject::FromVar(this);
             return obj->GetTypeHandler()->IsWritableDataOnlyDetectionBitSet() ||
                 (obj->HasObjectArray() && obj->GetObjectArrayOrFlagsAsArray()->IsWritableDataOnlyDetectionBitSet());
@@ -190,25 +190,25 @@ namespace Js
     }
 
     RecyclableObject* RecyclableObject::GetProxiedObjectForHeapEnum()
-    {
+    {TRACE_IT(66864);
         Assert(this->GetScriptContext()->IsHeapEnumInProgress());
         return NULL;
     }
 
     BOOL RecyclableObject::IsExternal() const
-    {
+    {TRACE_IT(66865);
         Assert(this->IsExternalVirtual() == this->GetType()->IsExternal());
         return this->GetType()->IsExternal();
     }
 
     BOOL RecyclableObject::SkipsPrototype() const
-    {
+    {TRACE_IT(66866);
         Assert(this->DbgSkipsPrototype() == this->GetType()->SkipsPrototype());
         return this->GetType()->SkipsPrototype();
     }
 
     RecyclableObject * RecyclableObject::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(66867);
         switch (JavascriptOperators::GetTypeId(this))
         {
         case TypeIds_Undefined:
@@ -225,9 +225,9 @@ namespace Js
 
 #if defined(PROFILE_RECYCLER_ALLOC) && defined(RECYCLER_DUMP_OBJECT_GRAPH)
     bool RecyclableObject::DumpObjectFunction(type_info const * typeinfo, bool isArray, void * objectAddress)
-    {
+    {TRACE_IT(66868);
         if (isArray)
-        {
+        {TRACE_IT(66869);
             // Don't deal with array
             return false;
         }
@@ -239,7 +239,7 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType RecyclableObject::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(66870);
         return TTD::NSSnapObjects::SnapObjectType::Invalid;
     }
 
@@ -250,7 +250,7 @@ namespace Js
 #endif
 
     BOOL RecyclableObject::SetPropertyWithAttributes(PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags, SideEffects possibleSideEffects)
-    {
+    {TRACE_IT(66871);
         // TODO: It appears as though this is never called. Some types (such as JavascriptNumber) don't override this, but they
         // also don't expect properties to be set on them. Need to review this and see if we can make this pure virtual or
         // Assert(false) here. In any case, this should be SetProperty, not InitProperty.
@@ -259,7 +259,7 @@ namespace Js
         bool isForce = (flags & PropertyOperation_Force) != 0;
         bool throwIfNotExtensible = (flags & PropertyOperation_ThrowIfNotExtensible) != 0;
         if (!isForce)
-        {
+        {TRACE_IT(66872);
             // throwIfNotExtensible is only relevant to DynamicObjects
             Assert(!throwIfNotExtensible);
         }
@@ -270,26 +270,26 @@ namespace Js
     }
 
     void RecyclableObject::ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor)
-    {
+    {TRACE_IT(66873);
         // Do nothing
     }
 
     BOOL RecyclableObject::GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor)
-    {
+    {TRACE_IT(66874);
         // By default, when GetOwnPropertyDescriptor is called for a nonexistent property,
         // return undefined.
         return false;
     }
 
     HRESULT RecyclableObject::QueryObjectInterface(REFIID riid, void **ppvObj)
-    {
+    {TRACE_IT(66875);
         Assert(!this->GetScriptContext()->GetThreadContext()->IsScriptActive());
         return E_NOINTERFACE;
     }
     RecyclableObject* RecyclableObject::GetThisObjectOrUnWrap()
-    {
+    {TRACE_IT(66876);
         if (WithScopeObject::Is(this))
-        {
+        {TRACE_IT(66877);
             return WithScopeObject::FromVar(this)->GetWrappedObject();
         }
         return this;
@@ -308,148 +308,148 @@ namespace Js
     }
 
     BOOL RecyclableObject::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(66878);
         return false;
     }
 
     BOOL RecyclableObject::HasOwnProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(66879);
         return false;
     }
 
     BOOL RecyclableObject::HasOwnPropertyNoHostObject(PropertyId propertyId)
-    {
+    {TRACE_IT(66880);
         return HasOwnProperty(propertyId);
     }
 
     BOOL RecyclableObject::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66881);
         return false;
     }
 
     BOOL RecyclableObject::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66882);
         return false;
     }
 
     BOOL RecyclableObject::GetInternalProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66883);
         return false;
     }
 
     BOOL RecyclableObject::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66884);
         return false;
     }
 
     BOOL RecyclableObject::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(66885);
         return false;
     }
 
     BOOL RecyclableObject::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(66886);
         return false;
     }
 
     BOOL RecyclableObject::SetInternalProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(66887);
         return false;
     }
 
     BOOL RecyclableObject::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(66888);
         return false;
     }
 
     BOOL RecyclableObject::InitPropertyScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(66889);
         return false;
     }
 
     BOOL RecyclableObject::InitFuncScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(66890);
         return false;
     }
 
     BOOL RecyclableObject::EnsureProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(66891);
         return false;
     }
 
     BOOL RecyclableObject::EnsureNoRedeclProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(66892);
         return false;
     }
 
     BOOL RecyclableObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66893);
         return true;
     }
 
     BOOL RecyclableObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66894);
         return true;
     }
 
     BOOL RecyclableObject::IsFixedProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(66895);
         return false;
     }
 
     BOOL RecyclableObject::HasItem(uint32 index)
-    {
+    {TRACE_IT(66896);
         return false;
     }
 
     BOOL RecyclableObject::HasOwnItem(uint32 index)
-    {
+    {TRACE_IT(66897);
         return false;
     }
 
     BOOL RecyclableObject::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(66898);
         return false;
     }
 
     BOOL RecyclableObject::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(66899);
         return false;
     }
 
     BOOL RecyclableObject::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66900);
         return false;
     }
 
     BOOL RecyclableObject::DeleteItem(uint32 index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66901);
         return true;
     }
 
     BOOL RecyclableObject::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache)
-    {
+    {TRACE_IT(66902);
         return false;
     }
 
     BOOL RecyclableObject::ToPrimitive(JavascriptHint hint, Var* value, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(66903);
         *value = NULL;
         return false;
     }
 
     BOOL RecyclableObject::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66904);
         return false;
     }
 
     BOOL RecyclableObject::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {TRACE_IT(66905);
         return false;
     }
 
     BOOL RecyclableObject::StrictEquals(__in Var aRight, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(66906);
         *value = false;
         //StrictEquals is handled in JavascriptOperators::StrictEqual
         Throw::InternalError();
@@ -457,10 +457,10 @@ namespace Js
 
 #pragma fenv_access (on)
     BOOL RecyclableObject::Equals(__in Var aRight, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(66907);
         Var aLeft = this;
         if (aLeft == aRight)
-        {
+        {TRACE_IT(66908);
             //In ES5 mode strict equals (===) on same instance of object type VariantDate succeeds.
             //Hence equals needs to succeed.
             //goto ReturnTrue;
@@ -475,7 +475,7 @@ namespace Js
 
     Redo:
         if (redoCount == 2)
-        {
+        {TRACE_IT(66909);
             goto ReturnFalse;
         }
 
@@ -509,7 +509,7 @@ namespace Js
                 *value = aLeft == aRight;
                 return TRUE;
             case TypeIds_Int64Number:
-            {
+            {TRACE_IT(66910);
                 int leftValue = TaggedInt::ToInt32(aLeft);
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 *value = leftValue == rightValue;
@@ -517,7 +517,7 @@ namespace Js
                 return TRUE;
             }
             case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(66911);
                 __int64 leftValue = TaggedInt::ToInt32(aLeft);
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 // TODO: yongqu to review whether we need to check for neg value
@@ -542,7 +542,7 @@ namespace Js
             switch (rightType)
             {
             case TypeIds_Integer:
-            {
+            {TRACE_IT(66912);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 int rightValue = TaggedInt::ToInt32(aRight);
                 *value = leftValue == rightValue;
@@ -554,14 +554,14 @@ namespace Js
                 dblRight = JavascriptNumber::GetValue(aRight);
                 goto CompareDoubles;
             case TypeIds_Int64Number:
-            {
+            {TRACE_IT(66913);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 *value = leftValue == rightValue;
                 return TRUE;
             }
             case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(66914);
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 // TODO: yongqu to review whether we need to check for neg value
@@ -574,7 +574,7 @@ namespace Js
             switch (rightType)
             {
             case TypeIds_Integer:
-            {
+            {TRACE_IT(66915);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = TaggedInt::ToInt32(aRight);
                 // TODO: yongqu to review whether we need to check for neg value
@@ -587,7 +587,7 @@ namespace Js
                 dblRight = JavascriptNumber::GetValue(aRight);
                 goto CompareDoubles;
             case TypeIds_Int64Number:
-            {
+            {TRACE_IT(66916);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 // TODO: yongqu to review whether we need to check for neg value
@@ -595,7 +595,7 @@ namespace Js
                 return TRUE;
             }
             case TypeIds_UInt64Number:
-            {
+            {TRACE_IT(66917);
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 *value = leftValue == rightValue;
@@ -689,7 +689,7 @@ namespace Js
 
         case TypeIds_Function:
             if (rightType == TypeIds_Function)
-            {
+            {TRACE_IT(66918);
                 goto ReturnFalse;
             }
             // Fall through to do normal object comparison on function object.
@@ -737,49 +737,49 @@ namespace Js
     }
 
     RecyclableObject* RecyclableObject::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(66919);
         AssertMsg(JavascriptOperators::IsObject(this), "bad type object in conversion ToObject");
         Assert(!CrossSite::NeedMarshalVar(this, requestContext));
         return this;
     }
 
     Var RecyclableObject::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {TRACE_IT(66920);
         return requestContext->GetLibrary()->GetUnknownDisplayString();
     }
 
     Var RecyclableObject::InvokePut(Arguments args)
-    {
+    {TRACE_IT(66921);
         // Handle x(y) = z.
         // Native jscript object behavior: throw an error in all such cases.
         JavascriptError::ThrowReferenceError(GetScriptContext(), JSERR_CantAsgCall);
     }
 
     BOOL RecyclableObject::GetRemoteTypeId(TypeId * typeId)
-    {
+    {TRACE_IT(66922);
         return FALSE;
     }
 
     DynamicObject* RecyclableObject::GetRemoteObject()
-    {
+    {TRACE_IT(66923);
         return NULL;
     }
 
     Var RecyclableObject::GetHostDispatchVar()
-    {
+    {TRACE_IT(66924);
         Assert(FALSE);
         return this->GetLibrary()->GetUndefined();
     }
 
     JavascriptString* RecyclableObject::GetClassName(ScriptContext * requestContext)
-    {
+    {TRACE_IT(66925);
         // we don't need this when not handling fastDOM.
         Assert(0);
         return NULL;
     }
 
     BOOL RecyclableObject::HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache)
-    {
+    {TRACE_IT(66926);
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedFunction, _u("instanceof") /* TODO-ERROR: get arg name - aClass */);
     }
 } // namespace Js

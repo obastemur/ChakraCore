@@ -47,12 +47,12 @@ enum MethodType : uint16
 #ifdef TEST_ETW_EVENTS
 #define WriteMethodEvent(EventName, ScriptContextID, MethodStartAddress, MethodSize, MethodID, MethodFlags, MethodAddressRangeID, SourceID, Line, Column, MethodName) \
     if(TestEtwEventSink::IsLoaded())   \
-    { \
+    {TRACE_IT(33809); \
         TestEtwEventSink::Instance->WriteMethodEvent(EventName,  ScriptContextID, MethodStartAddress, MethodSize, MethodID, MethodFlags, MethodAddressRangeID, SourceID, Line, Column, MethodName); \
     }
 #define WriteSourceEvent(EventName, SourceContext, ScriptContextID, SourceFlags, Url) \
     if(TestEtwEventSink::IsLoaded())   \
-    { \
+    {TRACE_IT(33810); \
         TestEtwEventSink::Instance->WriteSourceEvent(EventName, SourceContext, ScriptContextID, SourceFlags, Url); \
     }
 #else
@@ -83,19 +83,19 @@ enum MethodType : uint16
     bool deleteFunctionName = false;                                                                \
     const ExecutionMode jitMode = entryPoint->GetJitMode();                                         \
     if(jitMode == ExecutionMode::SimpleJit)                                                         \
-    {                                                                                               \
+    {TRACE_IT(33811);                                                                                               \
         requiredCharCapacity =                                                                      \
             GetSimpleJitFunctionName(Body, functionNameArray, _countof(functionNameArray));         \
         if(requiredCharCapacity == 0)                                                               \
-        {                                                                                           \
+        {TRACE_IT(33812);                                                                                           \
             functionName = functionNameArray;                                                       \
         }                                                                                           \
         else                                                                                        \
-        {                                                                                           \
+        {TRACE_IT(33813);                                                                                           \
             Assert(requiredCharCapacity > NameBufferLength);                                        \
             char16 *const allocatedFunctionName = HeapNewNoThrowArray(char16, requiredCharCapacity);\
             if(allocatedFunctionName)                                                               \
-            {                                                                                       \
+            {TRACE_IT(33814);                                                                                       \
                 const size_t newRequiredCharCapacity =                                              \
                     GetSimpleJitFunctionName(Body, allocatedFunctionName, requiredCharCapacity);    \
                 Assert(newRequiredCharCapacity == 0);                                               \
@@ -103,14 +103,14 @@ enum MethodType : uint16
                 deleteFunctionName = true;                                                          \
             }                                                                                       \
             else                                                                                    \
-            {                                                                                       \
+            {TRACE_IT(33815);                                                                                       \
                 functionNameArray[0] = _u('\0');                                                    \
                 functionName = functionNameArray;                                                   \
             }                                                                                       \
         }                                                                                           \
     }                                                                                               \
     else                                                                                            \
-    {                                                                                               \
+    {TRACE_IT(33816);                                                                                               \
         functionName = GetFunctionName(Body);                                                       \
     }                                                                                               \
     JS_ETW(Function(                                                                                \
@@ -172,14 +172,14 @@ enum MethodType : uint16
     WCHAR* loopBodyName = loopBodyNameArray;                                                               \
     size_t bufferSize = GetLoopBodyName(Body, loopHeader, loopBodyName, NameBufferLength);                 \
     if(bufferSize > NameBufferLength) /* insufficient buffer space*/                                       \
-    {                                                                                                      \
+    {TRACE_IT(33817);                                                                                                      \
         loopBodyName = HeapNewNoThrowArray(WCHAR, bufferSize);                                             \
         if(loopBodyName)                                                                                   \
         {                                                                                                  \
             GetLoopBodyName(Body, loopHeader, loopBodyName, bufferSize);                                   \
         }                                                                                                  \
         else                                                                                               \
-        {                                                                                                  \
+        {TRACE_IT(33818);                                                                                                  \
             loopBodyNameArray[0] = _u('\0');                                                               \
             loopBodyName = loopBodyNameArray;                                                              \
         }                                                                                                  \
@@ -218,14 +218,14 @@ enum MethodType : uint16
     WCHAR* loopBodyName = loopBodyNameArray;                                                               \
     size_t bufferSize = Body->GetLoopBodyName(loopNumber, loopBodyName, NameBufferLength);                 \
     if(bufferSize > NameBufferLength) /* insufficient buffer space*/                                       \
-    {                                                                                                      \
+    {TRACE_IT(33819);                                                                                                      \
         loopBodyName = HeapNewNoThrowArray(WCHAR, bufferSize);                                             \
         if(loopBodyName)                                                                                   \
         {                                                                                                  \
             GetLoopBodyName(Body, loopHeader, loopBodyName, bufferSize);                                   \
         }                                                                                                  \
         else                                                                                               \
-        {                                                                                                  \
+        {TRACE_IT(33820);                                                                                                  \
             loopBodyNameArray[0] = _u('\0');                                                               \
             loopBodyName = loopBodyNameArray;                                                              \
         }                                                                                                  \

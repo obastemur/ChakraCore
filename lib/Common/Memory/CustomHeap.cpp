@@ -37,14 +37,14 @@ Heap<TAlloc, TPreReservedAlloc>::Heap(ArenaAllocator * alloc, CodePageAllocators
 #endif
 {
     for (int i = 0; i < NumBuckets; i++)
-    {
+    {TRACE_IT(23004);
         this->buckets[i].Reset();
     }
 }
 
 template<typename TAlloc, typename TPreReservedAlloc>
 Heap<TAlloc, TPreReservedAlloc>::~Heap()
-{
+{TRACE_IT(23005);
 #if DBG
     inDtor = true;
 #endif
@@ -56,7 +56,7 @@ Heap<TAlloc, TPreReservedAlloc>::~Heap()
 #pragma region "Public routines"
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeAll()
-{
+{TRACE_IT(23006);
     AutoCriticalSection autoLock(&this->codePageAllocators->cs);
     FreeBuckets(false);
 
@@ -68,26 +68,26 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeAll()
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::Free(__in Allocation* object)
-{
+{TRACE_IT(23007);
     Assert(object != nullptr);
 
     if (object == nullptr)
-    {
+    {TRACE_IT(23008);
         return;
     }
 
     BucketId bucket = (BucketId) GetBucketForSize(object->size);
 
     if (bucket == BucketId::LargeObjectList)
-    {
+    {TRACE_IT(23009);
 #if PDATA_ENABLED
         if(!object->xdata.IsFreed())
-        {
+        {TRACE_IT(23010);
             FreeXdata(&object->xdata, object->largeObjectAllocation.segment);
         }
 #endif
         if (!object->largeObjectAllocation.isDecommitted)
-        {
+        {TRACE_IT(23011);
             FreeLargeObject(object);
         }
         return;
@@ -95,27 +95,27 @@ void Heap<TAlloc, TPreReservedAlloc>::Free(__in Allocation* object)
 
 #if PDATA_ENABLED
     if(!object->xdata.IsFreed())
-    {
+    {TRACE_IT(23012);
         FreeXdata(&object->xdata, object->page->segment);
     }
 #endif
 
     if (!object->page->isDecommitted)
-    {
+    {TRACE_IT(23013);
         FreeAllocation(object);
     }
 }
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
-{
+{TRACE_IT(23014);
     // This function doesn't really touch the page allocator data structure.
     // DecommitPages is merely a wrapper for VirtualFree
     // So no need to take the critical section to synchronize
 
     DListBase<Allocation>::EditingIterator i(&this->largeObjectAllocations);
     while (i.Next())
-    { 
+    {TRACE_IT(23015); 
         Allocation& allocation = i.Data();
         Assert(!allocation.largeObjectAllocation.isDecommitted);
 
@@ -127,7 +127,7 @@ void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
     for (int bucket = 0; bucket < BucketId::NumBuckets; bucket++)
     {
         FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, &(this->fullPages[bucket]), bucketIter1)
-        {
+        {TRACE_IT(23016);
             Assert(page.inFullList);
             this->codePageAllocators->DecommitPages(page.address, 1 /* pageCount */, page.segment);
             bucketIter1.MoveCurrentTo(&(this->decommittedPages));
@@ -136,7 +136,7 @@ void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
         NEXT_DLISTBASE_ENTRY_EDITING;
 
         FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, &(this->buckets[bucket]), bucketIter2)
-        {
+        {TRACE_IT(23017);
             Assert(!page.inFullList);
             this->codePageAllocators->DecommitPages(page.address, 1 /* pageCount */, page.segment);
             bucketIter2.MoveCurrentTo(&(this->decommittedPages));
@@ -148,13 +148,13 @@ void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Page> const& bucket, __in void * address)
-{
+{TRACE_IT(23018);
     DListBase<Page>::Iterator i(&bucket);
     while (i.Next())
-    {
+    {TRACE_IT(23019);
         Page& page = i.Data();
         if (page.address <= address && address < page.address + AutoSystemInfo::PageSize)
-        {
+        {TRACE_IT(23020);
             return true;
         }
     }
@@ -163,11 +163,11 @@ bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Page> const& bucket, __
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Page> const buckets[NumBuckets], __in void * address)
-{
+{TRACE_IT(23021);
     for (uint i = 0; i < NumBuckets; i++)
-    {
+    {TRACE_IT(23022);
         if (this->IsInHeap(buckets[i], address))
-        {
+        {TRACE_IT(23023);
             return true;
         }
     }
@@ -176,13 +176,13 @@ bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Page> const buckets[Num
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Allocation> const& allocations, __in void *address)
-{
+{TRACE_IT(23024);
     DListBase<Allocation>::Iterator i(&allocations);
     while (i.Next())
-    {
+    {TRACE_IT(23025);
         Allocation& allocation = i.Data();
         if (allocation.address <= address && address < allocation.address + allocation.size)
-        {
+        {TRACE_IT(23026);
             return true;
         }
     }
@@ -191,16 +191,16 @@ bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(DListBase<Allocation> const& allo
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::IsInHeap(__in void* address)
-{
+{TRACE_IT(23027);
     return IsInHeap(buckets, address) || IsInHeap(fullPages, address) || IsInHeap(largeObjectAllocations, address);
 }
 
 template<typename TAlloc, typename TPreReservedAlloc>
 Page * Heap<TAlloc, TPreReservedAlloc>::GetExistingPage(BucketId bucket, bool canAllocInPreReservedHeapPageSegment)
-{
+{TRACE_IT(23028);
     // TODO: this can get a non-prereserved page even if you want one
     if (!this->buckets[bucket].Empty())
-    {
+    {TRACE_IT(23029);
         Assert(!this->buckets[bucket].Head().inFullList);
         return &this->buckets[bucket].Head();
     }
@@ -217,7 +217,7 @@ Page * Heap<TAlloc, TPreReservedAlloc>::GetExistingPage(BucketId bucket, bool ca
  */
 template<typename TAlloc, typename TPreReservedAlloc>
 Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCount, ushort xdataSize, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode, _Inout_ bool* isAllJITCodeInPreReservedRegion)
-{
+{TRACE_IT(23030);
     Assert(bytes > 0);
     Assert((codePageAllocators->AllocXdata() || pdataCount == 0) && (!codePageAllocators->AllocXdata() || pdataCount > 0));
     Assert(pdataCount > 0 || (pdataCount == 0 && xdataSize == 0));
@@ -227,7 +227,7 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCou
     BucketId bucket = (BucketId) GetBucketForSize(bytesToAllocate);
 
     if (bucket == BucketId::LargeObjectList)
-    {
+    {TRACE_IT(23031);
         return AllocLargeObject(bytes, pdataCount, xdataSize, canAllocInPreReservedHeapPageSegment, isAnyJittedCode, isAllJITCodeInPreReservedRegion);
     }
 
@@ -235,25 +235,25 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCou
     VerboseHeapTrace(_u("Requested: %d bytes. Allocated: %d bytes\n"), bytes, bytesToAllocate);
 
     do
-    {
+    {TRACE_IT(23032);
         Page* page = GetExistingPage(bucket, canAllocInPreReservedHeapPageSegment);
         if (page == nullptr && UpdateFullPages())
-        {
+        {TRACE_IT(23033);
             page = GetExistingPage(bucket, canAllocInPreReservedHeapPageSegment);
         }
 
         if (page == nullptr)
-        {
+        {TRACE_IT(23034);
             page = AllocNewPage(bucket, canAllocInPreReservedHeapPageSegment, isAnyJittedCode, isAllJITCodeInPreReservedRegion);
         }
         else if (!canAllocInPreReservedHeapPageSegment && isAnyJittedCode)
-        {
+        {TRACE_IT(23035);
             *isAllJITCodeInPreReservedRegion = false;
         }
 
         // Out of memory
         if (page == nullptr)
-        {
+        {TRACE_IT(23036);
             return nullptr;
         }
 
@@ -261,9 +261,9 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCou
         MEMORY_BASIC_INFORMATION memBasicInfo;
         size_t resultBytes = VirtualQueryEx(this->processHandle, page->address, &memBasicInfo, sizeof(memBasicInfo));
         if (resultBytes == 0)
-        {
+        {TRACE_IT(23037);
             if (this->processHandle != GetCurrentProcess())
-            {
+            {TRACE_IT(23038);
                 MemoryOperationLastError::RecordLastErrorAndThrow();
             }
         }
@@ -272,7 +272,7 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCou
 
         Allocation* allocation = nullptr;
         if (AllocInPage(page, bytesToAllocate, pdataCount, xdataSize, &allocation))
-        {
+        {TRACE_IT(23039);
             return allocation;
         }
     } while (true);
@@ -280,15 +280,15 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::Alloc(size_t bytes, ushort pdataCou
 
 template<typename TAlloc, typename TPreReservedAlloc>
 BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocationWithExecuteReadWrite(Allocation *allocation, __in_opt char* addressInPage)
-{
+{TRACE_IT(23040);
     DWORD protectFlags = 0;
 
     if (AutoSystemInfo::Data.IsCFGEnabled())
-    {
+    {TRACE_IT(23041);
         protectFlags = PAGE_EXECUTE_RW_TARGETS_NO_UPDATE;
     }
     else
-    {
+    {TRACE_IT(23042);
         protectFlags = PAGE_EXECUTE_READWRITE;
     }
     return this->ProtectAllocation(allocation, protectFlags, PAGE_EXECUTE, addressInPage);
@@ -296,14 +296,14 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocationWithExecuteReadWrite(Allo
 
 template<typename TAlloc, typename TPreReservedAlloc>
 BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocationWithExecuteReadOnly(Allocation *allocation, __in_opt char* addressInPage)
-{
+{TRACE_IT(23043);
     DWORD protectFlags = 0;
     if (AutoSystemInfo::Data.IsCFGEnabled())
-    {
+    {TRACE_IT(23044);
         protectFlags = PAGE_EXECUTE_RO_TARGETS_NO_UPDATE;
     }
     else
-    {
+    {TRACE_IT(23045);
         protectFlags = PAGE_EXECUTE;
     }
     return this->ProtectAllocation(allocation, protectFlags, PAGE_EXECUTE_READWRITE, addressInPage);
@@ -311,7 +311,7 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocationWithExecuteReadOnly(Alloc
 
 template<typename TAlloc, typename TPreReservedAlloc>
 BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocation(__in Allocation* allocation, DWORD dwVirtualProtectFlags, DWORD desiredOldProtectFlag, __in_opt char* addressInPage)
-{
+{TRACE_IT(23046);
     // Allocate at the page level so that our protections don't
     // transcend allocation page boundaries. Here, allocation->address is page
     // aligned if the object is a large object allocation. If it isn't, in the else
@@ -327,19 +327,19 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocation(__in Allocation* allocat
     size_t pageCount;
     void * segment;
     if (allocation->IsLargeAllocation())
-    {
+    {TRACE_IT(23047);
 #if DBG_DUMP || defined(RECYCLER_TRACE)
         if (Js::Configuration::Global.flags.IsEnabled(Js::TraceProtectPagesFlag))
-        {
+        {TRACE_IT(23048);
             Output::Print(_u("Protecting large allocation\n"));
         }
 #endif
         segment = allocation->largeObjectAllocation.segment;
 
         if (addressInPage != nullptr)
-        {
+        {TRACE_IT(23049);
             if (addressInPage >= allocation->address + AutoSystemInfo::PageSize)
-            {
+            {TRACE_IT(23050);
                 size_t page = (addressInPage - allocation->address) / AutoSystemInfo::PageSize;
 
                 address = allocation->address + (page * AutoSystemInfo::PageSize);
@@ -347,7 +347,7 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocation(__in Allocation* allocat
             pageCount = 1;
         }
         else
-        {
+        {TRACE_IT(23051);
             pageCount = allocation->GetPageCount();
         }
 
@@ -355,10 +355,10 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocation(__in Allocation* allocat
         return this->codePageAllocators->ProtectPages(address, pageCount, segment, dwVirtualProtectFlags, desiredOldProtectFlag);
     }
     else
-    {
+    {TRACE_IT(23052);
 #if DBG_DUMP || defined(RECYCLER_TRACE)
         if (Js::Configuration::Global.flags.IsEnabled(Js::TraceProtectPagesFlag))
-        {
+        {TRACE_IT(23053);
             Output::Print(_u("Protecting small allocation\n"));
         }
 #endif
@@ -376,11 +376,11 @@ BOOL Heap<TAlloc, TPreReservedAlloc>::ProtectAllocation(__in Allocation* allocat
 #pragma region "Large object methods"
 template<typename TAlloc, typename TPreReservedAlloc>
 Allocation* Heap<TAlloc, TPreReservedAlloc>::AllocLargeObject(size_t bytes, ushort pdataCount, ushort xdataSize, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode, _Inout_ bool* isAllJITCodeInPreReservedRegion)
-{
+{TRACE_IT(23054);
     size_t pages = GetNumPagesForSize(bytes);
 
     if (pages == 0)
-    {
+    {TRACE_IT(23055);
         return nullptr;
     }
 
@@ -397,36 +397,36 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::AllocLargeObject(size_t bytes, usho
 
         // Out of memory
         if (address == nullptr)
-        {
+        {TRACE_IT(23056);
             return nullptr;
         }
 
         char* localAddr = this->codePageAllocators->AllocLocal(address, pages*AutoSystemInfo::PageSize, segment);
         if (!localAddr)
-        {
+        {TRACE_IT(23057);
             return nullptr;
         }
         FillDebugBreak((BYTE*)localAddr, pages*AutoSystemInfo::PageSize);
         this->codePageAllocators->FreeLocal(localAddr, segment);
 
         if (this->processHandle == GetCurrentProcess())
-        {
+        {TRACE_IT(23058);
             DWORD protectFlags = 0;
             if (AutoSystemInfo::Data.IsCFGEnabled())
-            {
+            {TRACE_IT(23059);
                 protectFlags = PAGE_EXECUTE_RO_TARGETS_NO_UPDATE;
             }
             else
-            {
+            {TRACE_IT(23060);
                 protectFlags = PAGE_EXECUTE;
             }
             this->codePageAllocators->ProtectPages(address, pages, segment, protectFlags /*dwVirtualProtectFlags*/, PAGE_READWRITE /*desiredOldProtectFlags*/);
         }
 #if PDATA_ENABLED
         if(pdataCount > 0)
-        {
+        {TRACE_IT(23061);
             if (!this->codePageAllocators->AllocSecondary(segment, (ULONG_PTR) address, bytes, pdataCount, xdataSize, &xdata))
-            {
+            {TRACE_IT(23062);
                 this->codePageAllocators->Release(address, pages, segment);
                 return nullptr;
             }
@@ -438,9 +438,9 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::AllocLargeObject(size_t bytes, usho
     MEMORY_BASIC_INFORMATION memBasicInfo;
     size_t resultBytes = VirtualQueryEx(this->processHandle, address, &memBasicInfo, sizeof(memBasicInfo));
     if (resultBytes == 0)
-    {
+    {TRACE_IT(23063);
         if (this->processHandle != GetCurrentProcess())
-        {
+        {TRACE_IT(23064);
             MemoryOperationLastError::RecordLastErrorAndThrow();
         }
     }
@@ -449,13 +449,13 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::AllocLargeObject(size_t bytes, usho
 
     Allocation* allocation = this->largeObjectAllocations.PrependNode(this->auxiliaryAllocator);
     if (allocation == nullptr)
-    {
+    {TRACE_IT(23065);
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         this->codePageAllocators->Release(address, pages, segment);
 
 #if PDATA_ENABLED
         if(pdataCount > 0)
-        {
+        {TRACE_IT(23066);
             this->codePageAllocators->ReleaseSecondary(xdata, segment);
         }
 #endif
@@ -475,11 +475,11 @@ Allocation* Heap<TAlloc, TPreReservedAlloc>::AllocLargeObject(size_t bytes, usho
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeDecommittedLargeObjects()
-{
+{TRACE_IT(23067);
     // CodePageAllocators is locked in FreeAll
     Assert(inDtor);
     FOREACH_DLISTBASE_ENTRY_EDITING(Allocation, allocation, &this->decommittedLargeObjects, largeObjectIter)
-    {
+    {TRACE_IT(23068);
         VerboseHeapTrace(_u("Decommitting large object at address 0x%p of size %u\n"), allocation.address, allocation.size);
 
         this->codePageAllocators->ReleaseDecommitted(allocation.address, allocation.GetPageCount(), allocation.largeObjectAllocation.segment);
@@ -492,37 +492,37 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeDecommittedLargeObjects()
 //Called during Free (while shutting down)
 template<typename TAlloc, typename TPreReservedAlloc>
 DWORD Heap<TAlloc, TPreReservedAlloc>::EnsurePageWriteable(Page* page)
-{
+{TRACE_IT(23069);
     return EnsurePageReadWrite<PAGE_READWRITE>(page);
 }
 
 // this get called when freeing the whole page
 template<typename TAlloc, typename TPreReservedAlloc>
 DWORD Heap<TAlloc, TPreReservedAlloc>::EnsureAllocationWriteable(Allocation* allocation)
-{
+{TRACE_IT(23070);
     return EnsureAllocationReadWrite<PAGE_READWRITE>(allocation);
 }
 
 // this get called when only freeing a part in the page
 template<typename TAlloc, typename TPreReservedAlloc>
 DWORD Heap<TAlloc, TPreReservedAlloc>::EnsureAllocationExecuteWriteable(Allocation* allocation)
-{
+{TRACE_IT(23071);
     if (AutoSystemInfo::Data.IsCFGEnabled())
-    {
+    {TRACE_IT(23072);
         return EnsureAllocationReadWrite<PAGE_EXECUTE_RW_TARGETS_NO_UPDATE>(allocation);
     }
     else
-    {
+    {TRACE_IT(23073);
         return EnsureAllocationReadWrite<PAGE_EXECUTE_READWRITE>(allocation);
     }
 }
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeLargeObjects()
-{
+{TRACE_IT(23074);
     AutoCriticalSection autoLock(&this->codePageAllocators->cs);
     FOREACH_DLISTBASE_ENTRY_EDITING(Allocation, allocation, &this->largeObjectAllocations, largeObjectIter)
-    {
+    {TRACE_IT(23075);
         EnsureAllocationWriteable(&allocation);
 #if PDATA_ENABLED
         Assert(allocation.xdata.IsFreed());
@@ -536,7 +536,7 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeLargeObjects()
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeLargeObject(Allocation* allocation)
-{
+{TRACE_IT(23076);
     AutoCriticalSection autoLock(&this->codePageAllocators->cs);
 
     EnsureAllocationWriteable(allocation);
@@ -554,10 +554,10 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeLargeObject(Allocation* allocation)
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, ushort pdataCount, ushort xdataSize, Allocation ** allocationOut)
-{
+{TRACE_IT(23077);
     Allocation * allocation = AnewNoThrowStruct(this->auxiliaryAllocator, Allocation);
     if (allocation == nullptr)
-    {
+    {TRACE_IT(23078);
         return true;
     }
 
@@ -567,7 +567,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
     BVIndex index = GetFreeIndexForPage(page, bytes);
     
     if (index == BVInvalidIndex)
-    {
+    {TRACE_IT(23079);
         CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
         return false;
     }
@@ -577,10 +577,10 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
 #if PDATA_ENABLED
     XDataAllocation xdata;
     if(pdataCount > 0)
-    {
+    {TRACE_IT(23080);
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         if (this->ShouldBeInFullList(page))
-        {
+        {TRACE_IT(23081);
             Adelete(this->auxiliaryAllocator, allocation);
             // If we run out of XData space with the segment, move the page to the full page list, and return false to try the next page.
             BucketId bucket = page->currentBucket;
@@ -593,7 +593,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
         }
 
         if (!this->codePageAllocators->AllocSecondary(page->segment, (ULONG_PTR)address, bytes, pdataCount, xdataSize, &xdata))
-        {
+        {TRACE_IT(23082);
             Adelete(this->auxiliaryAllocator, allocation);
             return true;
         }
@@ -616,7 +616,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
 
     //Section of the Page should already be freed.
     if (!page->freeBitVector.TestRange(index, length))
-    {
+    {TRACE_IT(23083);
         CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
         return false;
     }
@@ -630,7 +630,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
     VerboseHeapTrace(_u("\n"));
 
     if (this->ShouldBeInFullList(page))
-    {
+    {TRACE_IT(23084);
         BucketId bucket = page->currentBucket;
         VerboseHeapTrace(_u("Moving page from bucket %d to full list\n"), bucket);
 
@@ -649,7 +649,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::AllocInPage(Page* page, size_t bytes, usho
 
 template<typename TAlloc, typename TPreReservedAlloc>
 Page* Heap<TAlloc, TPreReservedAlloc>::AllocNewPage(BucketId bucket, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode, _Inout_ bool* isAllJITCodeInPreReservedRegion)
-{
+{TRACE_IT(23085);
     void* pageSegment = nullptr;
 
     char* address = nullptr;
@@ -658,14 +658,14 @@ Page* Heap<TAlloc, TPreReservedAlloc>::AllocNewPage(BucketId bucket, bool canAll
         address = this->codePageAllocators->AllocPages(1, &pageSegment, canAllocInPreReservedHeapPageSegment, isAnyJittedCode, isAllJITCodeInPreReservedRegion);
 
         if (address == nullptr)
-        {
+        {TRACE_IT(23086);
             return nullptr;
         }
     }
 
     char* localAddr = this->codePageAllocators->AllocLocal(address, AutoSystemInfo::PageSize, pageSegment);
     if (!localAddr)
-    {
+    {TRACE_IT(23087);
         return nullptr;
     }
     FillDebugBreak((BYTE*)localAddr, AutoSystemInfo::PageSize);
@@ -674,11 +674,11 @@ Page* Heap<TAlloc, TPreReservedAlloc>::AllocNewPage(BucketId bucket, bool canAll
     DWORD protectFlags = 0;
 
     if (AutoSystemInfo::Data.IsCFGEnabled())
-    {
+    {TRACE_IT(23088);
         protectFlags = PAGE_EXECUTE_RO_TARGETS_NO_UPDATE;
     }
     else
-    {
+    {TRACE_IT(23089);
         protectFlags = PAGE_EXECUTE;
     }
 
@@ -690,7 +690,7 @@ Page* Heap<TAlloc, TPreReservedAlloc>::AllocNewPage(BucketId bucket, bool canAll
     Page* page = this->buckets[bucket].PrependNode(this->auxiliaryAllocator, address, pageSegment, bucket);
 
     if (page == nullptr)
-    {
+    {TRACE_IT(23090);
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         this->codePageAllocators->ReleasePages(address, 1, pageSegment);
         return nullptr;
@@ -706,21 +706,21 @@ Page* Heap<TAlloc, TPreReservedAlloc>::AllocNewPage(BucketId bucket, bool canAll
 
 template<typename TAlloc, typename TPreReservedAlloc>
 Page* Heap<TAlloc, TPreReservedAlloc>::AddPageToBucket(Page* page, BucketId bucket, bool wasFull)
-{
+{TRACE_IT(23091);
     Assert(bucket > BucketId::InvalidBucket && bucket < BucketId::NumBuckets);
 
     BucketId oldBucket = page->currentBucket;
 
     page->currentBucket = bucket;
     if (wasFull)
-    {
+    {TRACE_IT(23092);
         #pragma prefast(suppress: __WARNING_UNCHECKED_LOWER_BOUND_FOR_ENUMINDEX, "targetBucket is always in range >= SmallObjectList, but an __in_range doesn't fix the warning.");
         Assert(page->inFullList);
         this->fullPages[oldBucket].MoveElementTo(page, &this->buckets[bucket]);
         page->inFullList = false;
     }
     else
-    {
+    {TRACE_IT(23093);
         Assert(!page->inFullList);
         #pragma prefast(suppress: __WARNING_UNCHECKED_LOWER_BOUND_FOR_ENUMINDEX, "targetBucket is always in range >= SmallObjectList, but an __in_range doesn't fix the warning.");
         this->buckets[oldBucket].MoveElementTo(page, &this->buckets[bucket]);
@@ -745,24 +745,24 @@ Page* Heap<TAlloc, TPreReservedAlloc>::AddPageToBucket(Page* page, BucketId buck
  */
 template<typename TAlloc, typename TPreReservedAlloc>
 Page* Heap<TAlloc, TPreReservedAlloc>::FindPageToSplit(BucketId targetBucket, bool findPreReservedHeapPages)
-{
+{TRACE_IT(23094);
     for (BucketId b = (BucketId)(targetBucket + 1); b < BucketId::NumBuckets; b = (BucketId) (b + 1))
-    {
+    {TRACE_IT(23095);
         #pragma prefast(suppress: __WARNING_UNCHECKED_LOWER_BOUND_FOR_ENUMINDEX, "targetBucket is always in range >= SmallObjectList, but an __in_range doesn't fix the warning.");
         FOREACH_DLISTBASE_ENTRY_EDITING(Page, pageInBucket, &this->buckets[b], bucketIter)
-        {
+        {TRACE_IT(23096);
             Assert(!pageInBucket.inFullList);
             if (findPreReservedHeapPages && !this->codePageAllocators->IsPreReservedSegment(pageInBucket.segment))
-            {
+            {TRACE_IT(23097);
                 //Find only pages that are pre-reserved using preReservedHeapPageAllocator
                 continue;
             }
 
             if (pageInBucket.CanAllocate(targetBucket))
-            {
+            {TRACE_IT(23098);
                 Page* page = &pageInBucket;
                 if (findPreReservedHeapPages)
-                {
+                {TRACE_IT(23099);
                     VerboseHeapTrace(_u("PRE-RESERVE: Found page for splitting in Pre Reserved Segment\n"));
                 }
                 VerboseHeapTrace(_u("Found page to split. Moving from bucket %d to %d\n"), b, targetBucket);
@@ -777,7 +777,7 @@ Page* Heap<TAlloc, TPreReservedAlloc>::FindPageToSplit(BucketId targetBucket, bo
 
 template<typename TAlloc, typename TPreReservedAlloc>
 BVIndex Heap<TAlloc, TPreReservedAlloc>::GetIndexInPage(__in Page* page, __in char* address)
-{
+{TRACE_IT(23100);
     Assert(page->address <= address && address < page->address + AutoSystemInfo::PageSize);
 
     return (BVIndex) ((address - page->address) / Page::Alignment);
@@ -791,7 +791,7 @@ BVIndex Heap<TAlloc, TPreReservedAlloc>::GetIndexInPage(__in Page* page, __in ch
 #pragma region "Freeing methods"
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
-{
+{TRACE_IT(23101);
     Page* page = object->page;
     void* segment = page->segment;
     size_t pageSize =  AutoSystemInfo::PageSize;
@@ -803,13 +803,13 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
 
     // Make sure that the section under interest or the whole page has not already been freed
     if (page->IsEmpty() || page->freeBitVector.TestAnyInRange(index, length))
-    {
+    {TRACE_IT(23102);
         CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
         return false;
     }
 
     if (page->inFullList)
-    {
+    {TRACE_IT(23103);
         VerboseHeapTrace(_u("Recycling page 0x%p because address 0x%p of size %d was freed\n"), page->address, object->address, object->size);
        
         // If the object being freed is equal to the page size, we're
@@ -819,13 +819,13 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
             AddPageToBucket(page, page->currentBucket, true);
         }
         else
-        {
+        {TRACE_IT(23104);
             EnsureAllocationWriteable(object);
 
             // Fill the old buffer with debug breaks
             char* localAddr = this->codePageAllocators->AllocLocal(object->address, object->size, page->segment);
             if (!localAddr)
-            {
+            {TRACE_IT(23105);
                 MemoryOperationLastError::CheckProcessAndThrowFatalError(this->processHandle);
                 return false;
             }
@@ -843,7 +843,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
             this->totalAllocationSize -= pageSize;
 #endif
             this->auxiliaryAllocator->Free(object, sizeof(Allocation));
-            {
+            {TRACE_IT(23106);
                 AutoCriticalSection autoLock(&this->codePageAllocators->cs);
                 this->codePageAllocators->ReleasePages(pageAddress, 1, segment);
             }
@@ -856,7 +856,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
     // to set it to executable and we don't expect to restore the
     // previous protection settings.
     if (freeBitsCount == BVUnit::BitsPerWord - length)
-    {
+    {TRACE_IT(23107);
         EnsureAllocationWriteable(object);
         FreeAllocationHelper(object, index, length);
         Assert(page->IsEmpty());
@@ -865,7 +865,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
         return false;
     }
     else
-    {
+    {TRACE_IT(23108);
         EnsureAllocationExecuteWriteable(object);
 
         FreeAllocationHelper(object, index, length);
@@ -875,11 +875,11 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
         DWORD protectFlags = 0;
 
         if (AutoSystemInfo::Data.IsCFGEnabled())
-        {
+        {TRACE_IT(23109);
             protectFlags = PAGE_EXECUTE_RO_TARGETS_NO_UPDATE;
         }
         else
-        {
+        {TRACE_IT(23110);
             protectFlags = PAGE_EXECUTE;
         }
 
@@ -891,18 +891,18 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeAllocationHelper(Allocation* object, BVIndex index, uint length)
-{
+{TRACE_IT(23111);
     Page* page = object->page;
 
     // Fill the old buffer with debug breaks
     char* localAddr = this->codePageAllocators->AllocLocal(object->address, object->size, page->segment);
     if (localAddr)
-    {
+    {TRACE_IT(23112);
         FillDebugBreak((BYTE*)localAddr, object->size);
         this->codePageAllocators->FreeLocal(localAddr, page->segment);
     }
     else
-    {
+    {TRACE_IT(23113);
         MemoryOperationLastError::CheckProcessAndThrowFatalError(this->processHandle);
     }
     VerboseHeapTrace(_u("Setting %d bits starting at bit %d, Free bit vector in page was "), length, index);
@@ -929,11 +929,11 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeAllocationHelper(Allocation* object, B
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeDecommittedBuckets()
-{
+{TRACE_IT(23114);
     // CodePageAllocators is locked in FreeAll
     Assert(inDtor);
     FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, &this->decommittedPages, iter)
-    {
+    {TRACE_IT(23115);
         this->codePageAllocators->TrackDecommittedPages(page.address, 1, page.segment);
         iter.RemoveCurrent(this->auxiliaryAllocator);
     }
@@ -942,7 +942,7 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeDecommittedBuckets()
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreePage(Page* page)
-{
+{TRACE_IT(23116);
     // CodePageAllocators is locked in FreeAll
     Assert(inDtor);
     DWORD pageSize = AutoSystemInfo::PageSize;
@@ -960,14 +960,14 @@ void Heap<TAlloc, TPreReservedAlloc>::FreePage(Page* page)
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeBucket(DListBase<Page>* bucket, bool freeOnlyEmptyPages)
-{
+{TRACE_IT(23117);
     // CodePageAllocators is locked in FreeAll
     Assert(inDtor);
     FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, bucket, pageIter)
-    {
+    {TRACE_IT(23118);
         // Templatize this to remove branches/make code more compact?
         if (!freeOnlyEmptyPages || page.IsEmpty())
-        {
+        {TRACE_IT(23119);
             FreePage(&page);
             pageIter.RemoveCurrent(this->auxiliaryAllocator);
         }
@@ -977,11 +977,11 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeBucket(DListBase<Page>* bucket, bool f
 
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeBuckets(bool freeOnlyEmptyPages)
-{
+{TRACE_IT(23120);
     // CodePageAllocators is locked in FreeAll
     Assert(inDtor);
     for (int i = 0; i < NumBuckets; i++)
-    {
+    {TRACE_IT(23121);
         FreeBucket(&this->buckets[i], freeOnlyEmptyPages);
         FreeBucket(&this->fullPages[i], freeOnlyEmptyPages);
     }
@@ -994,18 +994,18 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeBuckets(bool freeOnlyEmptyPages)
 
 template<typename TAlloc, typename TPreReservedAlloc>
 bool Heap<TAlloc, TPreReservedAlloc>::UpdateFullPages()
-{
+{TRACE_IT(23122);
     bool updated = false;
     if (this->codePageAllocators->HasSecondaryAllocStateChanged(&lastSecondaryAllocStateChangedCount))
-    {
+    {TRACE_IT(23123);
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         for (int bucket = 0; bucket < BucketId::NumBuckets; bucket++)
         {
             FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, &(this->fullPages[bucket]), bucketIter)
-            {
+            {TRACE_IT(23124);
                 Assert(page.inFullList);
                 if (!this->ShouldBeInFullList(&page))
-                {
+                {TRACE_IT(23125);
                     VerboseHeapTrace(_u("Recycling page 0x%p because XDATA was freed\n"), page.address);
                     bucketIter.MoveCurrentTo(&(this->buckets[bucket]));
                     page.inFullList = false;
@@ -1021,9 +1021,9 @@ bool Heap<TAlloc, TPreReservedAlloc>::UpdateFullPages()
 #if PDATA_ENABLED
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeXdata(XDataAllocation* xdata, void* segment)
-{
+{TRACE_IT(23126);
     Assert(!xdata->IsFreed()); 
-    {
+    {TRACE_IT(23127);
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         this->codePageAllocators->ReleaseSecondary(*xdata, segment);
         xdata->Free();
@@ -1034,7 +1034,7 @@ void Heap<TAlloc, TPreReservedAlloc>::FreeXdata(XDataAllocation* xdata, void* se
 #if DBG_DUMP
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::DumpStats()
-{
+{TRACE_IT(23128);
     HeapTrace(_u("Total allocation size: %d\n"), totalAllocationSize);
     HeapTrace(_u("Total free size: %d\n"), freeObjectSize);
     HeapTrace(_u("Total allocations since last compact: %d\n"), allocationsSinceLastCompact);
@@ -1043,11 +1043,11 @@ void Heap<TAlloc, TPreReservedAlloc>::DumpStats()
 
     HeapTrace(_u("Buckets: \n"));
     for (int i = 0; i < BucketId::NumBuckets; i++)
-    {
+    {TRACE_IT(23129);
         printf("\t%d => %u [", (1 << (i + 7)), buckets[i].Count());
 
         FOREACH_DLISTBASE_ENTRY_EDITING(Page, page, &this->buckets[i], bucketIter)
-        {
+        {TRACE_IT(23130);
             BVUnit usedBitVector = page.freeBitVector;
             usedBitVector.ComplimentAll(); // Get the actual used bit vector
             printf(" %u ", usedBitVector.Count() * Page::Alignment); // Print out the space used in this page
@@ -1066,15 +1066,15 @@ void Heap<TAlloc, TPreReservedAlloc>::DumpStats()
  */
 #pragma region "Helpers"
 inline unsigned int log2(size_t number)
-{
+{TRACE_IT(23131);
     const unsigned int b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
     const unsigned int S[] = {1, 2, 4, 8, 16};
 
     unsigned int result = 0;
     for (int i = 4; i >= 0; i--)
-    {
+    {TRACE_IT(23132);
         if (number & b[i])
-        {
+        {TRACE_IT(23133);
             number >>= S[i];
             result |= S[i];
         }
@@ -1084,9 +1084,9 @@ inline unsigned int log2(size_t number)
 }
 
 inline BucketId GetBucketForSize(size_t bytes)
-{
+{TRACE_IT(23134);
     if (bytes > Page::MaxAllocationSize)
-    {
+    {TRACE_IT(23135);
         return BucketId::LargeObjectList;
     }
 
@@ -1098,7 +1098,7 @@ inline BucketId GetBucketForSize(size_t bytes)
     Assert(bucket < BucketId::LargeObjectList);
 
     if (bucket < BucketId::SmallObjectList)
-    {
+    {TRACE_IT(23136);
         bucket = BucketId::SmallObjectList;
     }
 
@@ -1109,7 +1109,7 @@ inline BucketId GetBucketForSize(size_t bytes)
 // If there is any space left after that due to alignment, fill it with 0.
 // static
 void FillDebugBreak(_Out_writes_bytes_all_(byteCount) BYTE* buffer, _In_ size_t byteCount)
-{
+{TRACE_IT(23137);
 #if defined(_M_ARM)
     // On ARM there is breakpoint instruction (BKPT) which is 0xBEii, where ii (immediate 8) can be any value, 0xBE in particular.
     // While it could be easier to put 0xBE (same way as 0xCC on x86), BKPT is not recommended -- it may cause unexpected side effects.
@@ -1121,7 +1121,7 @@ void FillDebugBreak(_Out_writes_bytes_all_(byteCount) BYTE* buffer, _In_ size_t 
     BYTE * writeBuffer = buffer;
     wmemset((char16 *)writeBuffer, pattern, byteCount / 2);
     if (byteCount % 2)
-    {
+    {TRACE_IT(23138);
         // Note: this is valid scenario: in JIT mode, we may not be 2-byte-aligned in the end of unwind info.
         *(writeBuffer + byteCount - 1) = 0;  // Fill last remaining byte.
     }
@@ -1130,11 +1130,11 @@ void FillDebugBreak(_Out_writes_bytes_all_(byteCount) BYTE* buffer, _In_ size_t 
     CompileAssert(sizeof(DWORD) == 4);
     DWORD pattern = 0xd4200000 | (0xf000 << 5);
     for (size_t i = 0; i < byteCount / 4; i++)
-    {
+    {TRACE_IT(23139);
         reinterpret_cast<DWORD*>(buffer)[i] = pattern;
     }
     for (size_t i = (byteCount / 4) * 4; i < byteCount; i++)
-    {
+    {TRACE_IT(23140);
         // Note: this is valid scenario: in JIT mode, we may not be 2-byte-aligned in the end of unwind info.
         buffer[i] = 0;  // Fill last remaining bytes.
     }
@@ -1154,14 +1154,14 @@ template class Heap<SectionAllocWrapper, PreReservedSectionAllocWrapper>;
 template<>
 char *
 CodePageAllocators<VirtualAllocWrapper, PreReservedVirtualAllocWrapper>::AllocLocal(char * remoteAddr, size_t size, void * segment)
-{
+{TRACE_IT(23141);
     return remoteAddr;
 }
 
 template<>
 void
 CodePageAllocators<VirtualAllocWrapper, PreReservedVirtualAllocWrapper>::FreeLocal(char * localAddr, void * segment)
-{
+{TRACE_IT(23142);
     // do nothing in case we are in proc
 }
 
@@ -1169,16 +1169,16 @@ CodePageAllocators<VirtualAllocWrapper, PreReservedVirtualAllocWrapper>::FreeLoc
 template<>
 char *
 CodePageAllocators<SectionAllocWrapper, PreReservedSectionAllocWrapper>::AllocLocal(char * remoteAddr, size_t size, void * segment)
-{
+{TRACE_IT(23143);
     AutoCriticalSection autoLock(&this->cs);
     Assert(segment);
     LPVOID address = nullptr;
     if (IsPreReservedSegment(segment))
-    {
+    {TRACE_IT(23144);
         address = ((SegmentBase<PreReservedSectionAllocWrapper>*)segment)->GetAllocator()->GetVirtualAllocator()->AllocLocal(remoteAddr, size);
     }
     else
-    {
+    {TRACE_IT(23145);
         address = ((SegmentBase<SectionAllocWrapper>*)segment)->GetAllocator()->GetVirtualAllocator()->AllocLocal(remoteAddr, size);
     }
     return (char*)address;
@@ -1187,15 +1187,15 @@ CodePageAllocators<SectionAllocWrapper, PreReservedSectionAllocWrapper>::AllocLo
 template<>
 void
 CodePageAllocators<SectionAllocWrapper, PreReservedSectionAllocWrapper>::FreeLocal(char * localAddr, void * segment)
-{
+{TRACE_IT(23146);
     AutoCriticalSection autoLock(&this->cs);
     Assert(segment);
     if (IsPreReservedSegment(segment))
-    {
+    {TRACE_IT(23147);
         ((SegmentBase<PreReservedSectionAllocWrapper>*)segment)->GetAllocator()->GetVirtualAllocator()->FreeLocal(localAddr);
     }
     else
-    {
+    {TRACE_IT(23148);
         ((SegmentBase<SectionAllocWrapper>*)segment)->GetAllocator()->GetVirtualAllocator()->FreeLocal(localAddr);
     }
 }

@@ -7,7 +7,7 @@
 // PeepsMD::Init
 void
 PeepsMD::Init(Peeps *peeps)
-{
+{TRACE_IT(16607);
     this->peeps = peeps;
 }
 
@@ -15,28 +15,28 @@ PeepsMD::Init(Peeps *peeps)
 // Note: only do calls for now
 void
 PeepsMD::ProcessImplicitRegs(IR::Instr *instr)
-{
+{TRACE_IT(16608);
     if (LowererMD::IsCall(instr))
-    {
+    {TRACE_IT(16609);
 #define REGDAT(Name, Listing, Encode, Type, BitVec) \
         if (!((BitVec) & (RA_CALLEESAVE | RA_DONTALLOCATE))) \
-        { \
+        {TRACE_IT(16610); \
             this->peeps->ClearReg(Reg ## Name); \
         }
 #include "RegList.h"
     }
     else if (instr->m_opcode == Js::OpCode::IMUL)
-    {
+    {TRACE_IT(16611);
         this->peeps->ClearReg(RegRDX);
     }
     else if (instr->m_opcode == Js::OpCode::IDIV)
-    {
+    {TRACE_IT(16612);
         if (instr->GetDst()->AsRegOpnd()->GetReg() == RegRDX)
-        {
+        {TRACE_IT(16613);
             this->peeps->ClearReg(RegRAX);
         }
         else
-        {
+        {TRACE_IT(16614);
             Assert(instr->GetDst()->AsRegOpnd()->GetReg() == RegRAX);
             this->peeps->ClearReg(RegRDX);
         }
@@ -45,18 +45,18 @@ PeepsMD::ProcessImplicitRegs(IR::Instr *instr)
 
 void
 PeepsMD::PeepAssign(IR::Instr *instr)
-{
+{TRACE_IT(16615);
     IR::Opnd* dst = instr->GetDst();
     IR::Opnd* src = instr->GetSrc1();
     if(dst->IsRegOpnd() && instr->m_opcode == Js::OpCode::MOV)
-    {
+    {TRACE_IT(16616);
         if (src->IsImmediateOpnd() && src->GetImmediateValue(instr->m_func) == 0)
-        {
+        {TRACE_IT(16617);
             Assert(instr->GetSrc2() == NULL);
 
             // 32-bit XOR has a smaller encoding
             if (TySize[dst->GetType()] == MachPtr)
-            {
+            {TRACE_IT(16618);
                 dst->SetType(TyInt32);
             }
 
@@ -65,14 +65,14 @@ PeepsMD::PeepAssign(IR::Instr *instr)
             instr->SetSrc2(dst);
         }
         else if (!instr->isInlineeEntryInstr)
-        {
+        {TRACE_IT(16619);
             if(src->IsIntConstOpnd() && src->GetSize() <= TySize[TyUint32])
-            {
+            {TRACE_IT(16620);
                 dst->SetType(TyUint32);
                 src->SetType(TyUint32);
             }
             else if(src->IsAddrOpnd() && (((size_t)src->AsAddrOpnd()->m_address >> 32) == 0 ))
-            {
+            {TRACE_IT(16621);
                 instr->ReplaceSrc1(IR::IntConstOpnd::New(::Math::PointerCastToIntegral<UIntConstType>(src->AsAddrOpnd()->m_address), TyUint32, instr->m_func));
                 dst->SetType(TyUint32);
             }
@@ -86,12 +86,12 @@ PeepsMD::PeepAssign(IR::Instr *instr)
                 && src->IsRegOpnd()
                 && dst->IsRegOpnd())
         || (instr->m_opcode == Js::OpCode::MOVAPD))
-    {
+    {TRACE_IT(16622);
         // MOVAPS has 1 byte shorter encoding
         instr->m_opcode = Js::OpCode::MOVAPS;
     }
     else if (instr->m_opcode == Js::OpCode::MOVSD_ZERO)
-    {
+    {TRACE_IT(16623);
         instr->m_opcode = Js::OpCode::XORPS;
         instr->SetSrc1(dst);
         instr->SetSrc2(dst);

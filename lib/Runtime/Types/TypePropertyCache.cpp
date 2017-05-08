@@ -12,36 +12,36 @@ namespace Js
 
     TypePropertyCacheElement::TypePropertyCacheElement()
         : id(Constants::NoProperty), tag(1), index(0), prototypeObjectWithProperty(nullptr)
-    {
+    {TRACE_IT(68025);
     }
 
     PropertyId TypePropertyCacheElement::Id() const
-    {
+    {TRACE_IT(68026);
         return id;
     }
 
     PropertyIndex TypePropertyCacheElement::Index() const
-    {
+    {TRACE_IT(68027);
         return index;
     }
 
     bool TypePropertyCacheElement::IsInlineSlot() const
-    {
+    {TRACE_IT(68028);
         return isInlineSlot;
     }
 
     bool TypePropertyCacheElement::IsSetPropertyAllowed() const
-    {
+    {TRACE_IT(68029);
         return isSetPropertyAllowed;
     }
 
     bool TypePropertyCacheElement::IsMissing() const
-    {
+    {TRACE_IT(68030);
         return isMissing;
     }
 
     DynamicObject *TypePropertyCacheElement::PrototypeObjectWithProperty() const
-    {
+    {TRACE_IT(68031);
         return prototypeObjectWithProperty;
     }
 
@@ -50,7 +50,7 @@ namespace Js
         const PropertyIndex index,
         const bool isInlineSlot,
         const bool isSetPropertyAllowed)
-    {
+    {TRACE_IT(68032);
         Assert(id != Constants::NoProperty);
         Assert(index != Constants::NoSlot);
 
@@ -70,7 +70,7 @@ namespace Js
         const bool isMissing,
         DynamicObject *const prototypeObjectWithProperty,
         Type *const myParentType)
-    {
+    {TRACE_IT(68033);
         Assert(id != Constants::NoProperty);
         Assert(index != Constants::NoSlot);
         Assert(prototypeObjectWithProperty);
@@ -89,7 +89,7 @@ namespace Js
     }
 
     void TypePropertyCacheElement::Clear()
-    {
+    {TRACE_IT(68034);
         id = Constants::NoProperty;
     }
 
@@ -98,7 +98,7 @@ namespace Js
     // -------------------------------------------------------------------------------------------------------------------------
 
     size_t TypePropertyCache::ElementIndex(const PropertyId id)
-    {
+    {TRACE_IT(68035);
         Assert(id != Constants::NoProperty);
         Assert((TypePropertyCache_NumElements & TypePropertyCache_NumElements - 1) == 0);
 
@@ -112,7 +112,7 @@ namespace Js
         bool *const isInlineSlot,
         bool *const isMissing,
         DynamicObject * *const prototypeObjectWithProperty) const
-    {
+    {TRACE_IT(68036);
         Assert(index);
         Assert(isInlineSlot);
         Assert(isMissing);
@@ -133,7 +133,7 @@ namespace Js
         const PropertyId id,
         PropertyIndex *const index,
         bool *const isInlineSlot) const
-    {
+    {TRACE_IT(68037);
         Assert(index);
         Assert(isInlineSlot);
 
@@ -141,7 +141,7 @@ namespace Js
         if(element.Id() != id ||
             !element.IsSetPropertyAllowed() ||
             element.PrototypeObjectWithProperty())
-        {
+        {TRACE_IT(68038);
             return false;
         }
 
@@ -159,7 +159,7 @@ namespace Js
         ScriptContext *const requestContext,
         PropertyCacheOperationInfo *const operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(68039);
         Assert(propertyValueInfo);
         Assert(propertyValueInfo->GetInlineCache() || propertyValueInfo->GetPolymorphicInlineCache());
 
@@ -173,10 +173,10 @@ namespace Js
                 &isInlineSlot,
                 &isMissing,
                 &prototypeObjectWithProperty))
-        {
+        {TRACE_IT(68040);
         #if DBG_DUMP
             if(PHASE_TRACE1(TypePropertyCachePhase))
-            {
+            {TRACE_IT(68041);
                 CacheOperators::TraceCache(
                     static_cast<InlineCache *>(nullptr),
                     _u("TypePropertyCache get miss"),
@@ -189,10 +189,10 @@ namespace Js
         }
 
         if(!prototypeObjectWithProperty)
-        {
+        {TRACE_IT(68042);
         #if DBG_DUMP
             if(PHASE_TRACE1(TypePropertyCachePhase))
-            {
+            {TRACE_IT(68043);
                 CacheOperators::TraceCache(
                     static_cast<InlineCache *>(nullptr),
                     _u("TypePropertyCache get hit"),
@@ -217,7 +217,7 @@ namespace Js
                     ? DynamicObject::FromVar(propertyObject)->GetInlineSlot(propertyIndex)
                     : DynamicObject::FromVar(propertyObject)->GetAuxSlot(propertyIndex);
             if(propertyObject->GetScriptContext() == requestContext)
-            {
+            {TRACE_IT(68044);
                 Assert(*propertyValue == JavascriptOperators::GetProperty(propertyObject, propertyId, requestContext));
 
                 CacheOperators::Cache<false, true, false>(
@@ -240,7 +240,7 @@ namespace Js
             // Cannot use GetProperty and compare results since they may not compare equal when they're marshaled
 
             if(operationInfo)
-            {
+            {TRACE_IT(68045);
                 operationInfo->cacheType = CacheType_TypeProperty;
                 operationInfo->slotType = isInlineSlot ? SlotType_Inline : SlotType_Aux;
             }
@@ -249,7 +249,7 @@ namespace Js
 
     #if DBG_DUMP
         if(PHASE_TRACE1(TypePropertyCachePhase))
-        {
+        {TRACE_IT(68046);
             CacheOperators::TraceCache(
                 static_cast<InlineCache *>(nullptr),
                 _u("TypePropertyCache get hit prototype"),
@@ -273,11 +273,11 @@ namespace Js
                 ? prototypeObjectWithProperty->GetInlineSlot(propertyIndex)
                 : prototypeObjectWithProperty->GetAuxSlot(propertyIndex);
         if(prototypeObjectWithProperty->GetScriptContext() == requestContext)
-        {
+        {TRACE_IT(68047);
             Assert(*propertyValue == JavascriptOperators::GetProperty(propertyObject, propertyId, requestContext));
 
             if(propertyObject->GetScriptContext() != requestContext)
-            {
+            {TRACE_IT(68048);
                 return true;
             }
 
@@ -301,7 +301,7 @@ namespace Js
         // Cannot use GetProperty and compare results since they may not compare equal when they're marshaled
 
         if(operationInfo)
-        {
+        {TRACE_IT(68049);
             operationInfo->cacheType = CacheType_TypeProperty;
             operationInfo->slotType = isInlineSlot ? SlotType_Inline : SlotType_Aux;
         }
@@ -315,17 +315,17 @@ namespace Js
         ScriptContext *const requestContext,
         PropertyCacheOperationInfo *const operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(68050);
         Assert(propertyValueInfo);
         Assert(propertyValueInfo->GetInlineCache() || propertyValueInfo->GetPolymorphicInlineCache());
 
         PropertyIndex propertyIndex;
         bool isInlineSlot;
         if(!TryGetIndexForStore(propertyId, &propertyIndex, &isInlineSlot))
-        {
+        {TRACE_IT(68051);
         #if DBG_DUMP
             if(PHASE_TRACE1(TypePropertyCachePhase))
-            {
+            {TRACE_IT(68052);
                 CacheOperators::TraceCache(
                     static_cast<InlineCache *>(nullptr),
                     _u("TypePropertyCache set miss"),
@@ -339,7 +339,7 @@ namespace Js
 
     #if DBG_DUMP
         if(PHASE_TRACE1(TypePropertyCachePhase))
-        {
+        {TRACE_IT(68053);
             CacheOperators::TraceCache(
                 static_cast<InlineCache *>(nullptr),
                 _u("TypePropertyCache set hit"),
@@ -363,21 +363,21 @@ namespace Js
 
         ScriptContext *const objectScriptContext = object->GetScriptContext();
         if(objectScriptContext != requestContext)
-        {
+        {TRACE_IT(68054);
             propertyValue = CrossSite::MarshalVar(objectScriptContext, propertyValue);
         }
 
         if(isInlineSlot)
-        {
+        {TRACE_IT(68055);
             DynamicObject::FromVar(object)->SetInlineSlot(SetSlotArguments(propertyId, propertyIndex, propertyValue));
         }
         else
-        {
+        {TRACE_IT(68056);
             DynamicObject::FromVar(object)->SetAuxSlot(SetSlotArguments(propertyId, propertyIndex, propertyValue));
         }
 
         if(objectScriptContext == requestContext)
-        {
+        {TRACE_IT(68057);
             CacheOperators::Cache<false, false, false>(
                 false,
                 DynamicObject::FromVar(object),
@@ -395,7 +395,7 @@ namespace Js
         }
 
         if(operationInfo)
-        {
+        {TRACE_IT(68058);
             operationInfo->cacheType = CacheType_TypeProperty;
             operationInfo->slotType = isInlineSlot ? SlotType_Inline : SlotType_Aux;
         }
@@ -407,7 +407,7 @@ namespace Js
         const PropertyIndex index,
         const bool isInlineSlot,
         const bool isSetPropertyAllowed)
-    {
+    {TRACE_IT(68059);
         elements[ElementIndex(id)].Cache(id, index, isInlineSlot, isSetPropertyAllowed);
     }
 
@@ -419,7 +419,7 @@ namespace Js
         const bool isMissing,
         DynamicObject *const prototypeObjectWithProperty,
         Type *const myParentType)
-    {
+    {TRACE_IT(68060);
         Assert(myParentType);
         Assert(myParentType->GetPropertyCache() == this);
 
@@ -434,14 +434,14 @@ namespace Js
     }
 
     void TypePropertyCache::ClearIfPropertyIsOnAPrototype(const PropertyId id)
-    {
+    {TRACE_IT(68061);
         TypePropertyCacheElement &element = elements[ElementIndex(id)];
         if(element.Id() == id && element.PrototypeObjectWithProperty())
             element.Clear();
     }
 
     void TypePropertyCache::Clear(const PropertyId id)
-    {
+    {TRACE_IT(68062);
         TypePropertyCacheElement &element = elements[ElementIndex(id)];
         if(element.Id() == id)
             element.Clear();

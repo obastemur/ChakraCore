@@ -23,7 +23,7 @@ namespace Js
         // If we know the type of the object, use this to do a virtual table check instead of a virtual call
         template <typename T>
         static BOOL IsCrossSiteObjectTyped(T * obj)
-        {
+        {TRACE_IT(33607);
             BOOL ret = VirtualTableInfo<CrossSiteObject<T>>::HasVirtualTable(obj);
             Assert(ret || VirtualTableInfo<T>::HasVirtualTable(obj));
             Assert(ret == obj->IsCrossSiteObject());

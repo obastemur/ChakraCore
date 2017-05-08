@@ -16,7 +16,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::EmitBufferManager(Aren
     allocations(nullptr),
     scriptContext(scriptContext),
     processHandle(processHandle)
-{
+{TRACE_IT(1706);
 #if DBG_DUMP
     this->totalBytesCode = 0;
     this->totalBytesLoopBody = 0;
@@ -33,51 +33,51 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::EmitBufferManager(Aren
 //----------------------------------------------------------------------------
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::~EmitBufferManager()
-{
+{TRACE_IT(1707);
     Clear();
 }
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::Decommit()
-{
+{TRACE_IT(1708);
     FreeAllocations(false);
 }
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::Clear()
-{
+{TRACE_IT(1709);
     FreeAllocations(true);
 }
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocations(bool release)
-{
+{TRACE_IT(1710);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
 #if DBG_DUMP
     if (!release && PHASE_STATS1(Js::EmitterPhase))
-    {
+    {TRACE_IT(1711);
         this->DumpAndResetStats(Js::Configuration::Global.flags.Filename);
     }
 #endif
 
     TEmitBufferAllocation * allocation = this->allocations;
     while (allocation != nullptr)
-    {
+    {TRACE_IT(1712);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if(CONFIG_FLAG(CheckEmitBufferPermissions))
-        {
+        {TRACE_IT(1713);
             CheckBufferPermissions(allocation);
         }
 #endif
         if (release)
-        {
+        {TRACE_IT(1714);
             this->allocationHeap.Free(allocation->allocation);
         }
         else if ((scriptContext != nullptr) && allocation->recorded)
-        {
+        {TRACE_IT(1715);
             // In case of ThunkEmitter the script context would be null and we don't want to track that as code size.
             this->scriptContext->GetThreadContext()->SubCodeSize(allocation->bytesCommitted);
             allocation->recorded = false;
@@ -86,18 +86,18 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocations(bool r
         allocation = allocation->nextAllocation;
     }
     if (release)
-    {
+    {TRACE_IT(1716);
         this->allocations = nullptr;
     }
     else
-    {
+    {TRACE_IT(1717);
         this->allocationHeap.DecommitAll();
     }
 }
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsInHeap(__in void* address)
-{
+{TRACE_IT(1718);
     AutoRealOrFakeCriticalSection<SyncObject> autocs(&this->criticalSection);
     return this->allocationHeap.IsInHeap(address);
 }
@@ -109,19 +109,19 @@ public:
     AutoCustomHeapPointer(CustomHeap::Heap<TAlloc, TPreReservedAlloc> * allocationHeap, CustomHeap::Allocation* heapAllocation) :
         _allocationHeap(allocationHeap),
         _heapAllocation(heapAllocation)
-    {
+    {TRACE_IT(1719);
     }
 
     ~AutoCustomHeapPointer()
-    {
+    {TRACE_IT(1720);
         if (_heapAllocation)
-        {
+        {TRACE_IT(1721);
             _allocationHeap->Free(_heapAllocation);
         }
     }
 
     CustomHeap::Allocation* Detach()
-    {
+    {TRACE_IT(1722);
         CustomHeap::Allocation* allocation = _heapAllocation;
         Assert(allocation != nullptr);
         _heapAllocation = nullptr;
@@ -140,7 +140,7 @@ private:
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc> *
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t bytes, ushort pdataCount, ushort xdataSize, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode)
-{
+{TRACE_IT(1723);
     FAULTINJECT_MEMORY_THROW(_u("JIT"), bytes);
 
     Assert(this->criticalSection.IsLocked());
@@ -149,9 +149,9 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
     CustomHeap::Allocation* heapAllocation = this->allocationHeap.Alloc(bytes, pdataCount, xdataSize, canAllocInPreReservedHeapPageSegment, isAnyJittedCode, &isAllJITCodeInPreReservedRegion);
 
     if (heapAllocation  == nullptr)
-    {
+    {TRACE_IT(1724);
         if (!JITManager::GetJITManager()->IsJITServer())
-        {
+        {TRACE_IT(1725);
             // This is used in interpreter scenario, thus we need to try to recover memory, if possible.
             // Can't simply throw as in JIT scenario, for which throw is what we want in order to give more mem to interpreter.
             JsUtil::ExternalApi::RecoverUnusedMemory();
@@ -160,7 +160,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
     }
 
     if (heapAllocation  == nullptr)
-    {
+    {TRACE_IT(1726);
         Js::Throw::OutOfMemory();
     }
 
@@ -191,26 +191,26 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocation(void* address)
-{
+{TRACE_IT(1727);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     TEmitBufferAllocation* previous = nullptr;
     TEmitBufferAllocation* allocation = allocations;
     while(allocation != nullptr)
-    {
+    {TRACE_IT(1728);
         if (address >= allocation->allocation->address && address < (allocation->allocation->address + allocation->bytesUsed))
-        {
+        {TRACE_IT(1729);
             if (previous == nullptr)
-            {
+            {TRACE_IT(1730);
                 this->allocations = allocation->nextAllocation;
             }
             else
-            {
+            {TRACE_IT(1731);
                 previous->nextAllocation = allocation->nextAllocation;
             }
 
             if ((scriptContext != nullptr) && allocation->recorded)
-            {
+            {TRACE_IT(1732);
                 this->scriptContext->GetThreadContext()->SubCodeSize(allocation->bytesCommitted);
             }
 
@@ -233,16 +233,16 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocation(void* a
 //----------------------------------------------------------------------------
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FinalizeAllocation(TEmitBufferAllocation *allocation, BYTE * dstBuffer)
-{
+{TRACE_IT(1733);
     Assert(this->criticalSection.IsLocked());
 
     DWORD bytes = allocation->BytesFree();
     if(bytes > 0)
-    {
+    {TRACE_IT(1734);
         BYTE* buffer = nullptr;
         this->GetBuffer(allocation, bytes, &buffer);
         if (!this->CommitBuffer(allocation, dstBuffer, 0, /*sourceBuffer=*/ nullptr, /*alignPad=*/ bytes))
-        {
+        {TRACE_IT(1735);
             return false;
         }
 
@@ -257,14 +257,14 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FinalizeAllocatio
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc>*
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::GetBuffer(TEmitBufferAllocation *allocation, __in size_t bytes, __deref_bcount(bytes) BYTE** ppBuffer)
-{
+{TRACE_IT(1736);
     Assert(this->criticalSection.IsLocked());
 
     Assert(allocation->BytesFree() >= bytes);
 
     // In case of ThunkEmitter the script context would be null and we don't want to track that as code size.
     if (scriptContext && !allocation->recorded)
-    {
+    {TRACE_IT(1737);
         this->scriptContext->GetThreadContext()->AddCodeSize(allocation->bytesCommitted);
         allocation->recorded = true;
     }
@@ -284,7 +284,7 @@ template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc>*
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in size_t bytes, __deref_bcount(bytes) BYTE** ppBuffer, ushort pdataCount /*=0*/, ushort xdataSize  /*=0*/, bool canAllocInPreReservedHeapPageSegment /*=false*/,
     bool isAnyJittedCode /* = false*/)
-{
+{TRACE_IT(1738);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     Assert(ppBuffer != nullptr);
@@ -297,10 +297,10 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in si
     MEMORY_BASIC_INFORMATION memBasicInfo;
     size_t resultBytes = VirtualQueryEx(this->processHandle, allocation->allocation->address, &memBasicInfo, sizeof(memBasicInfo));
     if (resultBytes == 0) 
-    {
+    {TRACE_IT(1739);
         MemoryOperationLastError::RecordLastError();
         if (this->processHandle != GetCurrentProcess())
-        {            
+        {TRACE_IT(1740);            
             return nullptr;
         }
     }
@@ -313,20 +313,20 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in si
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckCommitFaultInjection()
-{
+{TRACE_IT(1741);
     if (Js::Configuration::Global.flags.ForceOOMOnEBCommit == 0)
-    {
+    {TRACE_IT(1742);
         return false;
     }
 
     commitCount++;
 
     if (Js::Configuration::Global.flags.ForceOOMOnEBCommit == -1)
-    {
+    {TRACE_IT(1743);
         Output::Print(_u("Commit count: %d\n"), commitCount);
     }
     else if (commitCount == Js::Configuration::Global.flags.ForceOOMOnEBCommit)
-    {
+    {TRACE_IT(1744);
         return true;
     }
 
@@ -338,7 +338,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckCommitFaultI
 #if DBG
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsBufferExecuteReadOnly(TEmitBufferAllocation * allocation)
-{
+{TRACE_IT(1745);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
     MEMORY_BASIC_INFORMATION memBasicInfo;
     size_t resultBytes = VirtualQuery(allocation->allocation->address, &memBasicInfo, sizeof(memBasicInfo));
@@ -348,7 +348,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsBufferExecuteRe
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::ProtectBufferWithExecuteReadWriteForInterpreter(TEmitBufferAllocation* allocation)
-{
+{TRACE_IT(1746);
     Assert(this->criticalSection.IsLocked());
     Assert(allocation != nullptr);
     return (this->allocationHeap.ProtectAllocationWithExecuteReadWrite(allocation->allocation) == TRUE);
@@ -358,7 +358,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::ProtectBufferWith
 // Returns false if we OOM
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForInterpreter(TEmitBufferAllocation* allocation, _In_reads_bytes_(bufferSize) BYTE* pBuffer, _In_ size_t bufferSize)
-{
+{TRACE_IT(1747);
     Assert(this->criticalSection.IsLocked());
 
     Assert(allocation != nullptr);
@@ -371,13 +371,13 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForIn
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     if (CheckCommitFaultInjection())
-    {
+    {TRACE_IT(1748);
         return false;
     }
 #endif
 
     if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadOnly(allocation->allocation))
-    {
+    {TRACE_IT(1749);
         return false;
     }
 
@@ -396,7 +396,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForIn
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBufferAllocation* allocation, __out_bcount(bytes) BYTE* destBuffer, __in size_t bytes, __in_bcount(bytes) const BYTE* sourceBuffer, __in DWORD alignPad)
-{
+{TRACE_IT(1750);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     Assert(destBuffer != nullptr);
@@ -411,7 +411,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
     // Copy the contents and set the alignment pad
     while(bytesLeft != 0)
-    {
+    {TRACE_IT(1751);
         DWORD spaceInCurrentPage = AutoSystemInfo::PageSize - ((size_t)currentDestBuffer & (AutoSystemInfo::PageSize - 1));
         size_t bytesToChange = bytesLeft > spaceInCurrentPage ? spaceInCurrentPage : bytesLeft;
 
@@ -422,17 +422,17 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (CheckCommitFaultInjection())
-        {
+        {TRACE_IT(1752);
             return false;
         }
 #endif
         if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadWrite(allocation->allocation, (char*)readWriteBuffer))
-        {
+        {TRACE_IT(1753);
             return false;
         }
 
         if (alignPad != 0)
-        {
+        {TRACE_IT(1754);
             DWORD alignBytes = alignPad < spaceInCurrentPage ? alignPad : spaceInCurrentPage;
             CustomHeap::FillDebugBreak(currentDestBuffer, alignBytes);
 
@@ -449,7 +449,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
         // If there are bytes still left to be copied then we should do the copy.
         if(bytesToChange > 0)
-        {
+        {TRACE_IT(1755);
             AssertMsg(alignPad == 0, "If we are copying right now - we should be done with setting alignment.");
 
             memcpy_s(currentDestBuffer, allocation->BytesFree(), sourceBuffer, bytesToChange);
@@ -463,7 +463,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
         Assert(readWriteBuffer + readWriteBytes == currentDestBuffer);
 
         if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadOnly(allocation->allocation, (char*)readWriteBuffer))
-        {
+        {TRACE_IT(1756);
             return false;
         }
     }
@@ -480,10 +480,10 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CompletePreviousAllocation(TEmitBufferAllocation* allocation)
-{
+{TRACE_IT(1757);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
     if (allocation != nullptr)
-    {
+    {TRACE_IT(1758);
         allocation->bytesUsed = allocation->bytesCommitted;
     }
 }
@@ -492,7 +492,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CompletePreviousAlloca
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions(TEmitBufferAllocation *allocation)
-{
+{TRACE_IT(1759);
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     if(allocation->bytesCommitted == 0)
@@ -504,16 +504,16 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
     SIZE_T size = allocation->bytesCommitted;
 
     while(1)
-    {
+    {TRACE_IT(1760);
         SIZE_T result = VirtualQuery(buffer, &memInfo, sizeof(memInfo));
         if(result == 0)
-        {
+        {TRACE_IT(1761);
             // VirtualQuery failed.  This is not an expected condition, but it would be benign for the purposes of this check.  Seems
             // to occur occasionally on process shutdown.
             break;
         }
         else if(memInfo.Protect == PAGE_EXECUTE_READWRITE)
-        {
+        {TRACE_IT(1762);
             Output::Print(_u("ERROR: Found PAGE_EXECUTE_READWRITE page!\n"));
 #ifdef DEBUG
             AssertMsg(FALSE, "Page was marked PAGE_EXECUTE_READWRITE");
@@ -525,7 +525,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
         // Figure out if we need to continue the query.  The returned size might be larger than the size we requested,
         // for instance if more pages were allocated directly afterward, with the same permissions.
         if(memInfo.RegionSize >= size)
-        {
+        {TRACE_IT(1763);
             break;
         }
 
@@ -546,9 +546,9 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::DumpAndResetStats(char16 const * filename)
-{
+{TRACE_IT(1764);
     if (this->totalBytesCommitted != 0)
-    {
+    {TRACE_IT(1765);
         size_t wasted = this->totalBytesCommitted - this->totalBytesCode - this->totalBytesAlignment;
         Output::Print(_u("Stats for %s: %s \n"), name, filename);
         Output::Print(_u("  Total code size      : %10d (%6.2f%% of committed)\n"), this->totalBytesCode,

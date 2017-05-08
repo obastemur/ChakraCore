@@ -22,25 +22,25 @@ private:
 public:
     static const LPCWSTR LibraryName;
 
-    UCrtC99MathApis() : m_pfnlog2(nullptr), m_pfnlog1p(nullptr), m_pfnexpm1(nullptr), m_pfnacosh(nullptr), m_pfnasinh(nullptr), m_pfnatanh(nullptr), m_pfntrunc(nullptr), m_pfncbrt(nullptr) { }
-    virtual ~UCrtC99MathApis() { }
+    UCrtC99MathApis() : m_pfnlog2(nullptr), m_pfnlog1p(nullptr), m_pfnexpm1(nullptr), m_pfnacosh(nullptr), m_pfnasinh(nullptr), m_pfnatanh(nullptr), m_pfntrunc(nullptr), m_pfncbrt(nullptr) {TRACE_IT(62537); }
+    virtual ~UCrtC99MathApis() {TRACE_IT(62538); }
 
     virtual LPCWSTR GetLibraryName() const override { return LibraryName; }
 
-    bool IsAvailable() { Ensure(); return DelayLoadLibrary::IsAvailable(); }
+    bool IsAvailable() {TRACE_IT(62539); Ensure(); return DelayLoadLibrary::IsAvailable(); }
 
     void Ensure();
 
-    HMODULE GetHandle() const { return m_hModule; }
+    HMODULE GetHandle() const {TRACE_IT(62540); return m_hModule; }
 
-    double log2 (_In_ double x) { Assert(IsAvailable()); return m_pfnlog2 (x); }
-    double log1p(_In_ double x) { Assert(IsAvailable()); return m_pfnlog1p(x); }
-    double expm1(_In_ double x) { Assert(IsAvailable()); return m_pfnexpm1(x); }
-    double acosh(_In_ double x) { Assert(IsAvailable()); return m_pfnacosh(x); }
-    double asinh(_In_ double x) { Assert(IsAvailable()); return m_pfnasinh(x); }
-    double atanh(_In_ double x) { Assert(IsAvailable()); return m_pfnatanh(x); }
-    double trunc(_In_ double x) { Assert(IsAvailable()); return m_pfntrunc(x); }
-    double cbrt (_In_ double x) { Assert(IsAvailable()); return m_pfncbrt (x); }
+    double log2 (_In_ double x) {TRACE_IT(62541); Assert(IsAvailable()); return m_pfnlog2 (x); }
+    double log1p(_In_ double x) {TRACE_IT(62542); Assert(IsAvailable()); return m_pfnlog1p(x); }
+    double expm1(_In_ double x) {TRACE_IT(62543); Assert(IsAvailable()); return m_pfnexpm1(x); }
+    double acosh(_In_ double x) {TRACE_IT(62544); Assert(IsAvailable()); return m_pfnacosh(x); }
+    double asinh(_In_ double x) {TRACE_IT(62545); Assert(IsAvailable()); return m_pfnasinh(x); }
+    double atanh(_In_ double x) {TRACE_IT(62546); Assert(IsAvailable()); return m_pfnatanh(x); }
+    double trunc(_In_ double x) {TRACE_IT(62547); Assert(IsAvailable()); return m_pfntrunc(x); }
+    double cbrt (_In_ double x) {TRACE_IT(62548); Assert(IsAvailable()); return m_pfncbrt (x); }
 };
 
 namespace Js {

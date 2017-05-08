@@ -7,7 +7,7 @@
 template <class TBlockAttributes>
 SmallNormalHeapBlockT<TBlockAttributes> *
 SmallNormalHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallNormalHeapBlockT<TBlockAttributes>> * bucket)
-{
+{TRACE_IT(26985);
     CompileAssert(TBlockAttributes::MaxObjectSize <= USHRT_MAX);
     Assert(bucket->sizeCat <= TBlockAttributes::MaxObjectSize);
     Assert((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) / bucket->sizeCat <= USHRT_MAX);
@@ -23,7 +23,7 @@ SmallNormalHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallNormalHeapBlockT<T
 template <class TBlockAttributes>
 SmallNormalWithBarrierHeapBlockT<TBlockAttributes> *
 SmallNormalWithBarrierHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallNormalWithBarrierHeapBlockT<TBlockAttributes>> * bucket)
-{
+{TRACE_IT(26986);
     CompileAssert(TBlockAttributes::MaxObjectSize <= USHRT_MAX);
     Assert(bucket->sizeCat <= TBlockAttributes::MaxObjectSize);
     Assert((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) / bucket->sizeCat <= USHRT_MAX);
@@ -39,7 +39,7 @@ SmallNormalWithBarrierHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallNormalW
 template <class TBlockAttributes>
 void
 SmallNormalHeapBlockT<TBlockAttributes>::Delete(SmallNormalHeapBlockT<TBlockAttributes> * heapBlock)
-{
+{TRACE_IT(26987);
     Assert(heapBlock->IsNormalBlock());
     NoMemProtectHeapDeletePlusPrefix(Base::GetAllocPlusSize(heapBlock->objectCount), heapBlock);
 }
@@ -48,7 +48,7 @@ SmallNormalHeapBlockT<TBlockAttributes>::Delete(SmallNormalHeapBlockT<TBlockAttr
 template <class TBlockAttributes>
 void
 SmallNormalWithBarrierHeapBlockT<TBlockAttributes>::Delete(SmallNormalWithBarrierHeapBlockT<TBlockAttributes> * heapBlock)
-{
+{TRACE_IT(26988);
     Assert(heapBlock->IsNormalWriteBarrierBlock());
     NoMemProtectHeapDeletePlusPrefix(Base::GetAllocPlusSize(heapBlock->objectCount), heapBlock);
 }
@@ -57,25 +57,25 @@ SmallNormalWithBarrierHeapBlockT<TBlockAttributes>::Delete(SmallNormalWithBarrie
 template <class TBlockAttributes>
 SmallNormalHeapBlockT<TBlockAttributes>::SmallNormalHeapBlockT(HeapBucket * bucket, ushort objectSize, ushort objectCount, HeapBlockType heapBlockType)
     : Base(bucket, objectSize, objectCount, heapBlockType)
-{
+{TRACE_IT(26989);
 }
 
 template <>
 SmallNormalHeapBlockT<SmallAllocationBlockAttributes>::SmallNormalHeapBlockT(HeapBucketT<SmallNormalHeapBlockT<SmallAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, SmallNormalBlockType)
-{
+{TRACE_IT(26990);
 }
 
 template <>
 SmallNormalHeapBlockT<MediumAllocationBlockAttributes>::SmallNormalHeapBlockT(HeapBucketT<SmallNormalHeapBlockT<MediumAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, MediumNormalBlockType)
-{
+{TRACE_IT(26991);
 }
 
 template <class TBlockAttributes>
 void
 SmallNormalHeapBlockT<TBlockAttributes>::ScanInitialImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(26992);
     Assert(this->IsAnyNormalBlock());
 
     uint const localObjectCount = this->objectCount;
@@ -87,17 +87,17 @@ SmallNormalHeapBlockT<TBlockAttributes>::ScanInitialImplicitRoots(Recycler * rec
         && recycler->objectGraphDumper == nullptr
 #endif
         )
-    {
+    {TRACE_IT(26993);
         // TODO: only interior?
         recycler->ScanObjectInlineInterior((void **)this->GetAddress(), localObjectSize * localObjectCount);
     }
     else if (this->markCount != 0)
-    {
+    {TRACE_IT(26994);
         uint const localObjectBitDelta = this->GetObjectBitDelta();
         for (uint i = 0; i < localObjectCount; i++)
-        {
+        {TRACE_IT(26995);
             if (this->GetMarkedBitVector()->Test(i * localObjectBitDelta))
-            {
+            {TRACE_IT(26996);
                 // TODO: only interior?
                 void ** address = (void **)(this->GetAddress() + i * localObjectSize);
                 DUMP_IMPLICIT_ROOT(recycler, address);
@@ -110,7 +110,7 @@ SmallNormalHeapBlockT<TBlockAttributes>::ScanInitialImplicitRoots(Recycler * rec
 template <class TBlockAttributes>
 void
 SmallNormalHeapBlockT<TBlockAttributes>::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(26997);
     Assert(this->IsAnyNormalBlock());
     __super::ScanNewImplicitRootsBase([recycler](void * objectAddress, size_t objectSize)
     {
@@ -125,12 +125,12 @@ bool
 SmallNormalHeapBlockT<TBlockAttributes>::RescanObject(SmallNormalHeapBlockT<TBlockAttributes>* block,
     __in_ecount(localObjectSize) char * objectAddress, uint localObjectSize,
     uint objectIndex, Recycler * recycler)
-{
+{TRACE_IT(26998);
     // REVIEW: This would be a good assert to have but we don't have the heap block here
     // Assert(block->GetAddressIndex(objectAddress) != SmallHeapBlockT<TBlockAttributes>::InvalidAddressBit);
 
     if (!recycler->AddMark(objectAddress, localObjectSize))
-    {
+    {TRACE_IT(26999);
         // Failed to add to the mark stack due to OOM.
         return false;
     }
@@ -145,14 +145,14 @@ SmallNormalHeapBlockT<TBlockAttributes>::RescanObject(SmallNormalHeapBlockT<TBlo
 template <class TBlockAttributes>
 bool
 SmallNormalHeapBlockT<TBlockAttributes>::CanRescanFullBlock()
-{
+{TRACE_IT(27000);
     return true;
 }
 
 template <class TBlockAttributes>
 uint
 SmallNormalHeapBlockT<TBlockAttributes>::CalculateMarkCountForPage(SmallHeapBlockBitVector * markBits, uint bucketIndex, uint pageStartBitIndex)
-{
+{TRACE_IT(27001);
     SmallHeapBlockBitVector temp;
     SmallHeapBlockBitVector const* invalid = HeapInfo::GetInvalidBitVectorForBucket<TBlockAttributes>(bucketIndex);
 
@@ -174,7 +174,7 @@ SmallNormalHeapBlockT<TBlockAttributes>::CalculateMarkCountForPage(SmallHeapBloc
 template <class TBlockAttributes>
 void
 SmallNormalHeapBlockT<TBlockAttributes>::FinishPartialCollect()
-{
+{TRACE_IT(27002);
     // We don't allocate from a partially swept block
     Assert(this->IsFreeBitsValid());
 
@@ -186,7 +186,7 @@ SmallNormalHeapBlockT<TBlockAttributes>::FinishPartialCollect()
 template <class TBlockAttributes>
 bool
 SmallNormalHeapBlockT<TBlockAttributes>::GetFreeObjectListOnAllocator(FreeObject ** freeObjectList)
-{
+{TRACE_IT(27003);
     return this->template GetFreeObjectListOnAllocatorImpl<SmallNormalHeapBlockT<TBlockAttributes>>(freeObjectList);
 }
 #endif

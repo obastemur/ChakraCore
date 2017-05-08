@@ -25,39 +25,39 @@ namespace Js
         Count  // Number of operations
     };
 
-    inline OpCodeAsmJs operator+(OpCodeAsmJs o1, OpCodeAsmJs o2) { return (OpCodeAsmJs)((uint)o1 + (uint)o2); }
-    inline uint operator+(OpCodeAsmJs o1, uint i) { return ((uint)o1 + i); }
-    inline uint operator+(uint i, OpCodeAsmJs &o2) { return (i + (uint)o2); }
-    inline OpCodeAsmJs operator++(OpCodeAsmJs &o) { return o = (OpCodeAsmJs)(o + 1U); }
-    inline OpCodeAsmJs operator++(OpCodeAsmJs &o, int) { OpCodeAsmJs prev_o = o;  o = (OpCodeAsmJs)(o + 1U); return prev_o; }
-    inline OpCodeAsmJs operator-(OpCodeAsmJs o1, OpCodeAsmJs o2) { return (OpCodeAsmJs)((uint)o1 - (uint)o2); }
-    inline uint operator-(OpCodeAsmJs o1, uint i) { return ((uint)o1 - i); }
-    inline uint operator-(uint i, OpCodeAsmJs &o2) { return (i - (uint)o2); }
-    inline OpCodeAsmJs operator--(OpCodeAsmJs &o) { return o = (OpCodeAsmJs)(o - 1U); }
-    inline OpCodeAsmJs operator--(OpCodeAsmJs &o, int) { return o = (OpCodeAsmJs)(o - 1U); }
-    inline uint operator<<(OpCodeAsmJs o1, uint i) { return ((uint)o1 << i); }
-    inline OpCodeAsmJs& operator+=(OpCodeAsmJs &o, uint i) { return (o = (OpCodeAsmJs)(o + i)); }
-    inline OpCodeAsmJs& operator-=(OpCodeAsmJs &o, uint i) { return (o = (OpCodeAsmJs)(o - i)); }
-    inline bool operator==(OpCodeAsmJs &o, uint i) { return ((uint)(o) == i); }
-    inline bool operator==(uint i, OpCodeAsmJs &o) { return (i == (uint)(o)); }
-    inline bool operator!=(OpCodeAsmJs &o, uint i) { return ((uint)(o) != i); }
-    inline bool operator!=(uint i, OpCodeAsmJs &o) { return (i != (uint)(o)); }
-    inline bool operator<(OpCodeAsmJs &o, uint i) { return ((uint)(o) < i); }
-    inline bool operator<(uint i, OpCodeAsmJs &o) { return (i < (uint)(o)); }
-    inline bool operator<=(OpCodeAsmJs &o, uint i) { return ((uint)(o) <= i); }
-    inline bool operator<=(uint i, OpCodeAsmJs &o) { return (i <= (uint)(o)); }
-    inline bool operator<=(OpCodeAsmJs o1, OpCode o2) { return ((OpCode)o1 <= (o2)); }
-    inline bool operator>(OpCodeAsmJs &o, uint i) { return ((uint)(o) > i); }
-    inline bool operator>(uint i, OpCodeAsmJs &o) { return (i > (uint)(o)); }
-    inline bool operator>=(OpCodeAsmJs &o, uint i) { return ((uint)(o) >= i); }
-    inline bool operator>=(uint i, OpCodeAsmJs &o) { return (i >= (uint)(o)); }
+    inline OpCodeAsmJs operator+(OpCodeAsmJs o1, OpCodeAsmJs o2) {TRACE_IT(41776); return (OpCodeAsmJs)((uint)o1 + (uint)o2); }
+    inline uint operator+(OpCodeAsmJs o1, uint i) {TRACE_IT(41777); return ((uint)o1 + i); }
+    inline uint operator+(uint i, OpCodeAsmJs &o2) {TRACE_IT(41778); return (i + (uint)o2); }
+    inline OpCodeAsmJs operator++(OpCodeAsmJs &o) {TRACE_IT(41779); return o = (OpCodeAsmJs)(o + 1U); }
+    inline OpCodeAsmJs operator++(OpCodeAsmJs &o, int) {TRACE_IT(41780); OpCodeAsmJs prev_o = o;  o = (OpCodeAsmJs)(o + 1U); return prev_o; }
+    inline OpCodeAsmJs operator-(OpCodeAsmJs o1, OpCodeAsmJs o2) {TRACE_IT(41781); return (OpCodeAsmJs)((uint)o1 - (uint)o2); }
+    inline uint operator-(OpCodeAsmJs o1, uint i) {TRACE_IT(41782); return ((uint)o1 - i); }
+    inline uint operator-(uint i, OpCodeAsmJs &o2) {TRACE_IT(41783); return (i - (uint)o2); }
+    inline OpCodeAsmJs operator--(OpCodeAsmJs &o) {TRACE_IT(41784); return o = (OpCodeAsmJs)(o - 1U); }
+    inline OpCodeAsmJs operator--(OpCodeAsmJs &o, int) {TRACE_IT(41785); return o = (OpCodeAsmJs)(o - 1U); }
+    inline uint operator<<(OpCodeAsmJs o1, uint i) {TRACE_IT(41786); return ((uint)o1 << i); }
+    inline OpCodeAsmJs& operator+=(OpCodeAsmJs &o, uint i) {TRACE_IT(41787); return (o = (OpCodeAsmJs)(o + i)); }
+    inline OpCodeAsmJs& operator-=(OpCodeAsmJs &o, uint i) {TRACE_IT(41788); return (o = (OpCodeAsmJs)(o - i)); }
+    inline bool operator==(OpCodeAsmJs &o, uint i) {TRACE_IT(41789); return ((uint)(o) == i); }
+    inline bool operator==(uint i, OpCodeAsmJs &o) {TRACE_IT(41790); return (i == (uint)(o)); }
+    inline bool operator!=(OpCodeAsmJs &o, uint i) {TRACE_IT(41791); return ((uint)(o) != i); }
+    inline bool operator!=(uint i, OpCodeAsmJs &o) {TRACE_IT(41792); return (i != (uint)(o)); }
+    inline bool operator<(OpCodeAsmJs &o, uint i) {TRACE_IT(41793); return ((uint)(o) < i); }
+    inline bool operator<(uint i, OpCodeAsmJs &o) {TRACE_IT(41794); return (i < (uint)(o)); }
+    inline bool operator<=(OpCodeAsmJs &o, uint i) {TRACE_IT(41795); return ((uint)(o) <= i); }
+    inline bool operator<=(uint i, OpCodeAsmJs &o) {TRACE_IT(41796); return (i <= (uint)(o)); }
+    inline bool operator<=(OpCodeAsmJs o1, OpCode o2) {TRACE_IT(41797); return ((OpCode)o1 <= (o2)); }
+    inline bool operator>(OpCodeAsmJs &o, uint i) {TRACE_IT(41798); return ((uint)(o) > i); }
+    inline bool operator>(uint i, OpCodeAsmJs &o) {TRACE_IT(41799); return (i > (uint)(o)); }
+    inline bool operator>=(OpCodeAsmJs &o, uint i) {TRACE_IT(41800); return ((uint)(o) >= i); }
+    inline bool operator>=(uint i, OpCodeAsmJs &o) {TRACE_IT(41801); return (i >= (uint)(o)); }
 
     inline BOOL IsSimd128AsmJsOpcode(OpCodeAsmJs o)
-    {
+    {TRACE_IT(41802);
         return (o > Js::OpCodeAsmJs::Simd128_Start && o < Js::OpCodeAsmJs::Simd128_End) || (o > Js::OpCodeAsmJs::Simd128_Start_Extend && o < Js::OpCodeAsmJs::Simd128_End_Extend);
     }
     inline uint Simd128AsmJsOpcodeCount()
-    {
+    {TRACE_IT(41803);
         return (uint)(Js::OpCodeAsmJs::Simd128_End - Js::OpCodeAsmJs::Simd128_Start) + 1 + (uint)(Js::OpCodeAsmJs::Simd128_End_Extend - Js::OpCodeAsmJs::Simd128_Start_Extend) + 1;
     }
 

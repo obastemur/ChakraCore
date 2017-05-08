@@ -17,11 +17,11 @@ namespace Wasm
         m_offset(0),
         m_elemIdx(0),
         m_elems(nullptr)
-    {}
+    {TRACE_IT(68398);}
 
     void
     WasmElementSegment::Init(const Js::WebAssemblyModule& module)
-    {
+    {TRACE_IT(68399);
         Assert(m_numElem > 0);
         m_elems = AnewArray(m_alloc, UINT32, m_numElem);
         memset(m_elems, Js::Constants::UninitializedValue, m_numElem * sizeof(UINT32));
@@ -29,9 +29,9 @@ namespace Wasm
 
     void
     WasmElementSegment::AddElement(const UINT32 funcIndex, const Js::WebAssemblyModule& module)
-    {
+    {TRACE_IT(68400);
         if (m_elems == nullptr)
-        {
+        {TRACE_IT(68401);
             Init(module);
         }
         Assert(m_elemIdx < m_numElem);
@@ -40,7 +40,7 @@ namespace Wasm
 
     UINT32
     WasmElementSegment::GetElement(const UINT32 tableIndex) const
-    {
+    {TRACE_IT(68402);
         Assert(m_elems != nullptr);
         return m_elems[tableIndex];
     }

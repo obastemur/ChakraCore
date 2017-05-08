@@ -56,122 +56,122 @@ namespace Js {
     private:
         ScopeInfo(FunctionInfo * parent, int symbolCount)
             : parent(parent), funcExprScopeInfo(nullptr), paramScopeInfo(nullptr), symbolCount(symbolCount), scope(nullptr), areNamesCached(false), hasLocalInClosure(false), parentOnly(false)
-        {
+        {TRACE_IT(41927);
         }
 
-        bool IsParentInfoOnly() const { return parentOnly; }
+        bool IsParentInfoOnly() const {TRACE_IT(41928); return parentOnly; }
 
         void SetFuncExprScopeInfo(ScopeInfo* funcExprScopeInfo)
-        {
+        {TRACE_IT(41929);
             this->funcExprScopeInfo = funcExprScopeInfo;
         }
 
         void SetParamScopeInfo(ScopeInfo* paramScopeInfo)
-        {
+        {TRACE_IT(41930);
             this->paramScopeInfo = paramScopeInfo;
         }
 
         void SetSymbolId(int i, PropertyId propertyId)
-        {
+        {TRACE_IT(41931);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].propertyId = propertyId;
         }
 
         void SetSymbolType(int i, SymbolType symbolType)
-        {
+        {TRACE_IT(41932);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].symbolType = symbolType;
         }
 
         void SetHasFuncAssignment(int i, bool has)
-        {
+        {TRACE_IT(41933);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].hasFuncAssignment = has;
         }
 
         void SetIsBlockVariable(int i, bool is)
-        {
+        {TRACE_IT(41934);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].isBlockVariable = is;
         }
 
         void SetIsFuncExpr(int i, bool is)
-        {
+        {TRACE_IT(41935);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].isFuncExpr = is;
         }
 
         void SetIsModuleExportStorage(int i, bool is)
-        {
+        {TRACE_IT(41936);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].isModuleExportStorage = is;
         }
 
         void SetIsModuleImport(int i, bool is)
-        {
+        {TRACE_IT(41937);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].isModuleImport = is;
         }
 
         void SetPropertyName(int i, PropertyRecord const* name)
-        {
+        {TRACE_IT(41938);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             symbols[i].name = name;
         }
 
         PropertyId GetSymbolId(int i) const
-        {
+        {TRACE_IT(41939);
             Assert(!areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].propertyId;
         }
 
         SymbolType GetSymbolType(int i) const
-        {
+        {TRACE_IT(41940);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].symbolType;
         }
 
         bool GetHasFuncAssignment(int i)
-        {
+        {TRACE_IT(41941);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].hasFuncAssignment;
         }
 
         bool GetIsModuleExportStorage(int i)
-        {
+        {TRACE_IT(41942);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].isModuleExportStorage;
         }
 
         bool GetIsModuleImport(int i)
-        {
+        {TRACE_IT(41943);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].isModuleImport;
         }
 
         bool GetIsBlockVariable(int i)
-        {
+        {TRACE_IT(41944);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].isBlockVariable;
         }
 
         bool GetIsFuncExpr(int i)
-        {
+        {TRACE_IT(41945);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].isFuncExpr;
         }
 
         PropertyRecord const* GetPropertyName(int i)
-        {
+        {TRACE_IT(41946);
             Assert(areNamesCached);
             Assert(i >= 0 && i < symbolCount);
             return symbols[i].name;
@@ -186,57 +186,57 @@ namespace Js {
 
     public:
         ParseableFunctionInfo * GetParent() const
-        {
+        {TRACE_IT(41947);
             return parent ? parent->GetParseableFunctionInfo() : nullptr;
         }
 
         ScopeInfo* GetParentScopeInfo() const
-        {
+        {TRACE_IT(41948);
             return parent ? parent->GetParseableFunctionInfo()->GetScopeInfo() : nullptr;
         }
 
         ScopeInfo* GetFuncExprScopeInfo() const
-        {
+        {TRACE_IT(41949);
             return funcExprScopeInfo;
         }
 
         ScopeInfo* GetParamScopeInfo() const
-        {
+        {TRACE_IT(41950);
             return paramScopeInfo;
         }
 
         Scope * GetScope() const
-        {
+        {TRACE_IT(41951);
             return scope;
         }
 
         void SetScopeId(int id)
-        {
+        {TRACE_IT(41952);
             this->scopeId = id;
         }
 
         int GetScopeId() const
-        {
+        {TRACE_IT(41953);
             return scopeId;
         }
 
         int GetSymbolCount() const
-        {
+        {TRACE_IT(41954);
             return symbolCount;
         }
 
         bool IsGlobalEval() const
-        {
+        {TRACE_IT(41955);
             return isGlobalEval;
         }
 
         void SetHasLocalInClosure(bool has)
-        {
+        {TRACE_IT(41956);
             hasLocalInClosure = has;
         }
 
         bool GetHasOwnLocalInClosure() const
-        {
+        {TRACE_IT(41957);
             return hasLocalInClosure;
         }
 
@@ -260,7 +260,7 @@ namespace Js {
             AutoCapturesAllScope(Scope* scope, bool turnOn);
             ~AutoCapturesAllScope();
             bool OldCapturesAll() const
-            {
+            {TRACE_IT(41958);
                 return oldCapturesAll;
             }
         };

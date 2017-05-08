@@ -54,7 +54,7 @@ public:
         _flags(outputFlags),
         _hasReadConfig(false),
         _configFileName(configFileName)
-    {
+    {TRACE_IT(19933);
     }
 
     static void ParseOnModuleLoad(CmdLineArgsParser& parser, HANDLE hMod);
@@ -63,5 +63,5 @@ public:
     void ParseRegistry(CmdLineArgsParser &parser);
     void ProcessConfiguration(HANDLE mod);
     HRESULT SetOutputFile(const WCHAR* outputFile, const WCHAR* openMode);
-    bool HasReadConfig() { return _hasReadConfig; }
+    bool HasReadConfig() {TRACE_IT(19934); return _hasReadConfig; }
 };

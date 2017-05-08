@@ -13,14 +13,14 @@ public:
     ScriptContextOptimizationOverrideInfo();
     ~ScriptContextOptimizationOverrideInfo();
 
-    static DWORD GetSideEffectsOffset() { return offsetof(ScriptContextOptimizationOverrideInfo, sideEffects); }
-    static DWORD GetArraySetElementFastPathVtableOffset() { return offsetof(ScriptContextOptimizationOverrideInfo, arraySetElementFastPathVtable); }
-    static DWORD GetIntArraySetElementFastPathVtableOffset() { return offsetof(ScriptContextOptimizationOverrideInfo, intArraySetElementFastPathVtable); }
-    static DWORD GetFloatArraySetElementFastPathVtableOffset() { return offsetof(ScriptContextOptimizationOverrideInfo, floatArraySetElementFastPathVtable); }
+    static DWORD GetSideEffectsOffset() {TRACE_IT(36834); return offsetof(ScriptContextOptimizationOverrideInfo, sideEffects); }
+    static DWORD GetArraySetElementFastPathVtableOffset() {TRACE_IT(36835); return offsetof(ScriptContextOptimizationOverrideInfo, arraySetElementFastPathVtable); }
+    static DWORD GetIntArraySetElementFastPathVtableOffset() {TRACE_IT(36836); return offsetof(ScriptContextOptimizationOverrideInfo, intArraySetElementFastPathVtable); }
+    static DWORD GetFloatArraySetElementFastPathVtableOffset() {TRACE_IT(36837); return offsetof(ScriptContextOptimizationOverrideInfo, floatArraySetElementFastPathVtable); }
 
     void SetSideEffects(SideEffects se);
-    SideEffects GetSideEffects() { return sideEffects; }
-    intptr_t GetAddressOfSideEffects() const { return (intptr_t)&sideEffects; }
+    SideEffects GetSideEffects() {TRACE_IT(36838); return sideEffects; }
+    intptr_t GetAddressOfSideEffects() const {TRACE_IT(36839); return (intptr_t)&sideEffects; }
 
     bool IsEnabledArraySetElementFastPath() const;
     void DisableArraySetElementFastPath();

@@ -22,14 +22,14 @@ using namespace ABI::Windows::Foundation::Collections;
 
 #define IfFailThrowHr(op) \
     if (FAILED(hr=(op))) \
-    { \
+    {TRACE_IT(38010); \
         JavascriptError::MapAndThrowError(scriptContext, hr);\
     } \
 
-#define IfNullReturnError(EXPR, ERROR) do { if (!(EXPR)) { return (ERROR); } } while(FALSE)
-#define IfFailedReturn(EXPR) do { hr = (EXPR); if (FAILED(hr)) { return hr; }} while(FALSE)
-#define IfFailedSetErrorCodeAndReturn(EXPR, hrVariable) do { hr = (EXPR); if (FAILED(hr)) { hrVariable = hr; return hr; }} while(FALSE)
-#define IfFailedGoLabel(expr, label) if (FAILED(expr)) { goto label; }
+#define IfNullReturnError(EXPR, ERROR) do {TRACE_IT(38011); if (!(EXPR)) {TRACE_IT(38012); return (ERROR); } } while(FALSE)
+#define IfFailedReturn(EXPR) do {TRACE_IT(38013); hr = (EXPR); if (FAILED(hr)) {TRACE_IT(38014); return hr; }} while(FALSE)
+#define IfFailedSetErrorCodeAndReturn(EXPR, hrVariable) do {TRACE_IT(38015); hr = (EXPR); if (FAILED(hr)) {TRACE_IT(38016); hrVariable = hr; return hr; }} while(FALSE)
+#define IfFailedGoLabel(expr, label) if (FAILED(expr)) {TRACE_IT(38017); goto label; }
 #define IfFailedGo(expr) IfFailedGoLabel(expr, LReturn)
 
 namespace Js
@@ -45,7 +45,7 @@ namespace Js
 
     public:
         HRESULT RuntimeClassInitialize(HSTRING *items, uint32 length)
-        {
+        {TRACE_IT(38018);
             this->items = items;
             this->currentPosition = 0;
             this->length = length;
@@ -54,20 +54,20 @@ namespace Js
             return S_OK;
         }
         ~HSTRINGIterator()
-        {
+        {TRACE_IT(38019);
         }
 
         // IIterator
         IFACEMETHODIMP get_Current(_Out_ HSTRING *current)
-        {
+        {TRACE_IT(38020);
             if (current != nullptr)
-            {
+            {TRACE_IT(38021);
                 if (hasMore)
-                {
+                {TRACE_IT(38022);
                     return WindowsDuplicateString(items[currentPosition], current);
                 }
                 else
-                {
+                {TRACE_IT(38023);
                     *current = nullptr;
                 }
             }
@@ -75,9 +75,9 @@ namespace Js
         }
 
         IFACEMETHODIMP get_HasCurrent(_Out_ boolean *hasCurrent)
-        {
+        {TRACE_IT(38024);
             if (hasCurrent != nullptr)
-            {
+            {TRACE_IT(38025);
                 *hasCurrent = hasMore;
             }
             return S_OK;
@@ -89,7 +89,7 @@ namespace Js
 
             this->hasMore = this->currentPosition < this->length;
             if (hasCurrent != nullptr)
-            {
+            {TRACE_IT(38026);
                 *hasCurrent = hasMore;
             }
             return S_OK;
@@ -98,16 +98,16 @@ namespace Js
         IFACEMETHODIMP GetMany(_In_ unsigned capacity,
                                _Out_writes_to_(capacity,*actual) HSTRING *value,
                                _Out_ unsigned *actual)
-        {
+        {TRACE_IT(38027);
             uint count = 0;
             while (this->hasMore)
-            {
+            {TRACE_IT(38028);
                 if (count == capacity)
-                {
+                {TRACE_IT(38029);
                     break;
                 }
                 if (value != nullptr)
-                {
+                {TRACE_IT(38030);
                     get_Current(value + count);
                 }
 
@@ -115,7 +115,7 @@ namespace Js
                 this->MoveNext(nullptr);
             }
             if (actual != nullptr)
-            {
+            {TRACE_IT(38031);
                 *actual = count;
             }
 
@@ -131,12 +131,12 @@ namespace Js
             return hr;
         }
         IFACEMETHOD(GetTrustLevel)(_Out_ TrustLevel* trustLvl)
-        {
+        {TRACE_IT(38032);
             *trustLvl = BaseTrust;
             return S_OK;
         }
         IFACEMETHOD(GetIids)(_Out_ ULONG *iidCount, _Outptr_result_buffer_(*iidCount) IID **)
-        {
+        {TRACE_IT(38033);
             iidCount;
             return E_NOTIMPL;
         }
@@ -150,16 +150,16 @@ namespace Js
 
     public:
         HRESULT RuntimeClassInitialize(HSTRING *string, uint32 length)
-        {
+        {TRACE_IT(38034);
             this->items = HeapNewNoThrowArray(HSTRING, length);
 
             if (this->items == nullptr)
-            {
+            {TRACE_IT(38035);
                 return E_OUTOFMEMORY;
             }
 
             for(uint32 i = 0; i < length; i++)
-            {
+            {TRACE_IT(38036);
                 this->items[i] = string[i];
             }
             this->length = length;
@@ -168,15 +168,15 @@ namespace Js
         }
 
         ~HSTRINGIterable()
-        {
+        {TRACE_IT(38037);
             if(this->items != nullptr)
-            {
+            {TRACE_IT(38038);
                 HeapDeleteArray(this->length, items);
             }
         }
 
         IFACEMETHODIMP First(_Outptr_result_maybenull_ IIterator<HSTRING> **first)
-        {
+        {TRACE_IT(38039);
             return Microsoft::WRL::MakeAndInitialize<HSTRINGIterator>(first, this->items, this->length);
         }
 
@@ -190,12 +190,12 @@ namespace Js
             return hr;
         }
         IFACEMETHOD(GetTrustLevel)(_Out_ TrustLevel* trustLvl)
-        {
+        {TRACE_IT(38040);
             *trustLvl = BaseTrust;
             return S_OK;
         }
         IFACEMETHOD(GetIids)(_Out_ ULONG *iidCount, _Outptr_result_buffer_(*iidCount) IID **)
-        {
+        {TRACE_IT(38041);
             iidCount;
             return E_NOTIMPL;
         }
@@ -203,18 +203,18 @@ namespace Js
 #endif
 
     inline DelayLoadWindowsGlobalization* WindowsGlobalizationAdapter::GetWindowsGlobalizationLibrary(_In_ ScriptContext* scriptContext)
-    {
+    {TRACE_IT(38042);
         return this->GetWindowsGlobalizationLibrary(scriptContext->GetThreadContext());
     }
 
     inline DelayLoadWindowsGlobalization* WindowsGlobalizationAdapter::GetWindowsGlobalizationLibrary(_In_ ThreadContext* threadContext)
-    {
+    {TRACE_IT(38043);
         return threadContext->GetWindowsGlobalizationLibrary();
     }
 
     template<typename T>
     HRESULT WindowsGlobalizationAdapter::GetActivationFactory(DelayLoadWindowsGlobalization *delayLoadLibrary, LPCWSTR factoryName, T** instance)
-    {
+    {TRACE_IT(38044);
         *instance = nullptr;
 
         AutoCOMPtr<IActivationFactory> factory;
@@ -232,16 +232,16 @@ namespace Js
 
 #ifdef ENABLE_INTL_OBJECT
     HRESULT WindowsGlobalizationAdapter::EnsureCommonObjectsInitialized(DelayLoadWindowsGlobalization *library)
-    {
+    {TRACE_IT(38045);
         HRESULT hr = S_OK;
 
         if (initializedCommonGlobObjects)
-        {
+        {TRACE_IT(38046);
             AssertMsg(hrForCommonGlobObjectsInit == S_OK, "If IntlGlobObjects are initialized, we should be returning S_OK.");
             return hrForCommonGlobObjectsInit;
         }
         else if (hrForCommonGlobObjectsInit != S_OK)
-        {
+        {TRACE_IT(38047);
             return hrForCommonGlobObjectsInit;
         }
 
@@ -257,16 +257,16 @@ namespace Js
 
 
     HRESULT WindowsGlobalizationAdapter::EnsureDateTimeFormatObjectsInitialized(DelayLoadWindowsGlobalization *library)
-    {
+    {TRACE_IT(38048);
         HRESULT hr = S_OK;
 
         if (initializedDateTimeFormatObjects)
-        {
+        {TRACE_IT(38049);
             AssertMsg(hrForDateTimeFormatObjectsInit == S_OK, "If DateTimeFormatObjects are initialized, we should be returning S_OK.");
             return hrForDateTimeFormatObjectsInit;
         }
         else if (hrForDateTimeFormatObjectsInit != S_OK)
-        {
+        {TRACE_IT(38050);
             return hrForDateTimeFormatObjectsInit;
         }
 
@@ -281,16 +281,16 @@ namespace Js
     }
 
     HRESULT WindowsGlobalizationAdapter::EnsureNumberFormatObjectsInitialized(DelayLoadWindowsGlobalization *library)
-    {
+    {TRACE_IT(38051);
         HRESULT hr = S_OK;
 
         if (initializedNumberFormatObjects)
-        {
+        {TRACE_IT(38052);
             AssertMsg(hrForNumberFormatObjectsInit == S_OK, "If NumberFormatObjects are initialized, we should be returning S_OK.");
             return hrForNumberFormatObjectsInit;
         }
         else if (hrForNumberFormatObjectsInit != S_OK)
-        {
+        {TRACE_IT(38053);
             return hrForNumberFormatObjectsInit;
         }
 
@@ -310,16 +310,16 @@ namespace Js
 
 #if ENABLE_UNICODE_API
     HRESULT WindowsGlobalizationAdapter::EnsureDataTextObjectsInitialized(DelayLoadWindowsGlobalization *library)
-    {
+    {TRACE_IT(38054);
         HRESULT hr = S_OK;
 
         if (initializedCharClassifierObjects)
-        {
+        {TRACE_IT(38055);
             AssertMsg(hrForCharClassifierObjectsInit == S_OK, "If DataTextObjects are initialized, we should be returning S_OK.");
             return hrForCharClassifierObjectsInit;
         }
         else if (hrForCharClassifierObjectsInit != S_OK)
-        {
+        {TRACE_IT(38056);
             return hrForCharClassifierObjectsInit;
         }
 
@@ -334,7 +334,7 @@ namespace Js
 
 #ifdef ENABLE_INTL_OBJECT
     HRESULT WindowsGlobalizationAdapter::CreateLanguage(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR languageTag, ILanguage** language)
-    {
+    {TRACE_IT(38057);
         HRESULT hr = S_OK;
         HSTRING hString;
         HSTRING_HEADER hStringHdr;
@@ -348,7 +348,7 @@ namespace Js
     }
 
     boolean WindowsGlobalizationAdapter::IsWellFormedLanguageTag(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR languageTag)
-    {
+    {TRACE_IT(38058);
         boolean retVal;
         HRESULT hr;
         HSTRING hString = nullptr;
@@ -357,7 +357,7 @@ namespace Js
         // will be rejected by globalization dll
         IfFailThrowHr(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(languageTag, static_cast<UINT32>(wcslen(languageTag)), &hStringHdr, &hString));
         if (hString == nullptr)
-        {
+        {TRACE_IT(38059);
             return 0;
         }
         IfFailThrowHr(this->languageStatics->IsWellFormed(hString, &retVal));
@@ -367,7 +367,7 @@ namespace Js
         // OK for timeZoneId to get truncated as it would pass incomplete timeZoneId below which
         // will be rejected by globalization dll
     HRESULT WindowsGlobalizationAdapter::NormalizeLanguageTag(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR languageTag, HSTRING *result)
-    {
+    {TRACE_IT(38060);
         HRESULT hr;
 
         AutoCOMPtr<ILanguage> language;
@@ -379,7 +379,7 @@ namespace Js
     }
 
     boolean WindowsGlobalizationAdapter::ValidateAndCanonicalizeTimeZone(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR timeZoneId, HSTRING *result)
-    {
+    {TRACE_IT(38061);
         HRESULT hr = S_OK;
         HSTRING timeZone;
         HSTRING_HEADER timeZoneHeader;
@@ -393,20 +393,20 @@ namespace Js
         // ChangeTimeZone should fail if this is not a valid time zone
         hr = timeZoneCalendar->ChangeTimeZone(timeZone);
         if (hr != S_OK)
-        {
+        {TRACE_IT(38062);
             return false;
         }
         // Retrieve canonicalize timeZone name
         IfFailThrowHr(timeZoneCalendar->GetTimeZone(result));
         if (*result == nullptr)
-        {
+        {TRACE_IT(38063);
             return false;
         }
         return true;
     }
 
     HRESULT WindowsGlobalizationAdapter::GetDefaultTimeZoneId(_In_ ScriptContext* scriptContext, HSTRING *result)
-    {
+    {TRACE_IT(38064);
         HRESULT hr = S_OK;
         IfFailThrowHr(defaultTimeZoneCalendar->GetTimeZone(result));
         IfNullReturnError(*result, E_FAIL);
@@ -414,7 +414,7 @@ namespace Js
     }
 
     HRESULT WindowsGlobalizationAdapter::CreateTimeZoneOnCalendar(_In_ DelayLoadWindowsGlobalization *library, __out::ITimeZoneOnCalendar**  result)
-    {
+    {TRACE_IT(38065);
         AutoCOMPtr<::ICalendar> calendar;
 
         HRESULT hr = S_OK;
@@ -438,15 +438,15 @@ namespace Js
 
 #define DetachAndReleaseFactoryObjects(object) \
 if (this->object) \
-{ \
+{TRACE_IT(38066); \
     this->object.Detach()->Release(); \
 }
 
     void WindowsGlobalizationAdapter::ResetCommonFactoryObjects()
-    {
+    {TRACE_IT(38067);
         // Reset only if its not initialized completely.
         if (!this->initializedCommonGlobObjects)
-        {
+        {TRACE_IT(38068);
             this->hrForCommonGlobObjectsInit = S_OK;
             DetachAndReleaseFactoryObjects(languageFactory);
             DetachAndReleaseFactoryObjects(languageStatics);
@@ -455,16 +455,16 @@ if (this->object) \
     }
 
     void WindowsGlobalizationAdapter::ResetTimeZoneFactoryObjects()
-    {
+    {TRACE_IT(38069);
         DetachAndReleaseFactoryObjects(timeZoneCalendar);
         DetachAndReleaseFactoryObjects(defaultTimeZoneCalendar);
     }
 
     void WindowsGlobalizationAdapter::ResetDateTimeFormatFactoryObjects()
-    {
+    {TRACE_IT(38070);
         // Reset only if its not initialized completely.
         if (!this->initializedDateTimeFormatObjects)
-        {
+        {TRACE_IT(38071);
             this->hrForDateTimeFormatObjectsInit = S_OK;
             DetachAndReleaseFactoryObjects(calendarFactory);
             DetachAndReleaseFactoryObjects(timeZoneCalendar);
@@ -473,10 +473,10 @@ if (this->object) \
     }
 
     void WindowsGlobalizationAdapter::ResetNumberFormatFactoryObjects()
-    {
+    {TRACE_IT(38072);
         // Reset only if its not initialized completely.
         if (!this->initializedNumberFormatObjects)
-        {
+        {TRACE_IT(38073);
             this->hrForNumberFormatObjectsInit = S_OK;
             DetachAndReleaseFactoryObjects(currencyFormatterFactory);
             DetachAndReleaseFactoryObjects(decimalFormatterFactory);
@@ -489,7 +489,7 @@ if (this->object) \
 #undef DetachAndReleaseFactoryObjects
 
     HRESULT WindowsGlobalizationAdapter::CreateCurrencyFormatterCode(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR currencyCode, NumberFormatting::ICurrencyFormatter** currencyFormatter)
-    {
+    {TRACE_IT(38074);
         HRESULT hr;
         HSTRING hString;
         HSTRING_HEADER hStringHdr;
@@ -503,7 +503,7 @@ if (this->object) \
     }
 
     HRESULT WindowsGlobalizationAdapter::CreateCurrencyFormatter(_In_ ScriptContext* scriptContext, PCWSTR* localeStrings, uint32 numLocaleStrings, _In_z_ PCWSTR currencyCode, NumberFormatting::ICurrencyFormatter** currencyFormatter)
-    {
+    {TRACE_IT(38075);
         HRESULT hr;
         HSTRING hString;
         HSTRING_HEADER hStringHdr;
@@ -511,7 +511,7 @@ if (this->object) \
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, numLocaleStrings), numLocaleStrings);
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, numLocaleStrings), numLocaleStrings);
         for(uint32 i = 0; i< numLocaleStrings; i++)
-        {
+        {TRACE_IT(38076);
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
             IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
@@ -531,13 +531,13 @@ if (this->object) \
     }
 
     HRESULT WindowsGlobalizationAdapter::CreateNumberFormatter(_In_ ScriptContext* scriptContext, PCWSTR* localeStrings, uint32 numLocaleStrings, NumberFormatting::INumberFormatter** numberFormatter)
-    {
+    {TRACE_IT(38077);
         HRESULT hr = S_OK;
 
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, numLocaleStrings), numLocaleStrings);
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, numLocaleStrings), numLocaleStrings);
         for(uint32 i = 0; i< numLocaleStrings; i++)
-        {
+        {TRACE_IT(38078);
             IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
         }
 
@@ -553,13 +553,13 @@ if (this->object) \
     }
 
     HRESULT WindowsGlobalizationAdapter::CreatePercentFormatter(_In_ ScriptContext* scriptContext, PCWSTR* localeStrings, uint32 numLocaleStrings, NumberFormatting::INumberFormatter** numberFormatter)
-    {
+    {TRACE_IT(38079);
         HRESULT hr = S_OK;
 
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, numLocaleStrings), numLocaleStrings);
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, numLocaleStrings), numLocaleStrings);
         for(uint32 i = 0; i< numLocaleStrings; i++)
-        {
+        {TRACE_IT(38080);
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
             IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
@@ -579,7 +579,7 @@ if (this->object) \
 
     HRESULT WindowsGlobalizationAdapter::CreateDateTimeFormatter(_In_ ScriptContext* scriptContext, _In_z_ PCWSTR formatString, _In_z_ PCWSTR* localeStrings,
         uint32 numLocaleStrings, _In_opt_z_ PCWSTR calendar, _In_opt_z_ PCWSTR clock, _Out_ DateTimeFormatting::IDateTimeFormatter** result)
-    {
+    {TRACE_IT(38081);
         HRESULT hr = S_OK;
 
         if(numLocaleStrings == 0) return E_INVALIDARG;
@@ -597,7 +597,7 @@ if (this->object) \
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, numLocaleStrings), numLocaleStrings);
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, numLocaleStrings), numLocaleStrings);
         for(uint32 i = 0; i< numLocaleStrings; i++)
-        {
+        {TRACE_IT(38082);
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
             IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
@@ -607,11 +607,11 @@ if (this->object) \
         IfFailedReturn(Microsoft::WRL::MakeAndInitialize<HSTRINGIterable>(&languages, arr, numLocaleStrings));
 
         if(clock == nullptr)
-        {
+        {TRACE_IT(38083);
             IfFailedReturn(this->dateTimeFormatterFactory->CreateDateTimeFormatterLanguages(fsHString, languages.Get(), result));
         }
         else
-        {
+        {TRACE_IT(38084);
             HSTRING geoString;
             HSTRING_HEADER geoStringHeader;
             HSTRING calString;
@@ -634,60 +634,60 @@ if (this->object) \
     }
 
     HRESULT WindowsGlobalizationAdapter::CreateIncrementNumberRounder(_In_ ScriptContext* scriptContext, NumberFormatting::INumberRounder** numberRounder)
-    {
+    {TRACE_IT(38085);
         return incrementNumberRounderActivationFactory->ActivateInstance(reinterpret_cast<IInspectable**>(numberRounder));
     }
 
     HRESULT WindowsGlobalizationAdapter::CreateSignificantDigitsRounder(_In_ ScriptContext* scriptContext, NumberFormatting::INumberRounder** numberRounder)
-    {
+    {TRACE_IT(38086);
         return significantDigitsRounderActivationFactory->ActivateInstance(reinterpret_cast<IInspectable**>(numberRounder));
     }
 
     HRESULT WindowsGlobalizationAdapter::GetResolvedLanguage(_In_ DateTimeFormatting::IDateTimeFormatter* formatter, HSTRING * locale)
-    {
+    {TRACE_IT(38087);
         HRESULT hr = formatter->get_ResolvedLanguage(locale);
         return VerifyResult(locale, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetResolvedLanguage(_In_ NumberFormatting::INumberFormatterOptions* formatter, HSTRING * locale)
-    {
+    {TRACE_IT(38088);
         HRESULT hr = formatter->get_ResolvedLanguage(locale);
         return VerifyResult(locale, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetNumeralSystem(_In_ NumberFormatting::INumberFormatterOptions* formatter, HSTRING * hNumeralSystem)
-    {
+    {TRACE_IT(38089);
         HRESULT hr = formatter->get_NumeralSystem(hNumeralSystem);
         return VerifyResult(hNumeralSystem, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetNumeralSystem(_In_ DateTimeFormatting::IDateTimeFormatter* formatter, HSTRING * hNumeralSystem)
-    {
+    {TRACE_IT(38090);
         HRESULT hr = formatter->get_NumeralSystem(hNumeralSystem);
         return VerifyResult(hNumeralSystem, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetCalendar(_In_ DateTimeFormatting::IDateTimeFormatter* formatter, HSTRING * hCalendar)
-    {
+    {TRACE_IT(38091);
         HRESULT hr = formatter->get_Calendar(hCalendar);
         return VerifyResult(hCalendar, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetClock(_In_ DateTimeFormatting::IDateTimeFormatter* formatter, HSTRING * hClock)
-    {
+    {TRACE_IT(38092);
         HRESULT hr = formatter->get_Clock(hClock);
         return VerifyResult(hClock, hr);
     }
 
     HRESULT WindowsGlobalizationAdapter::GetItemAt(_In_ IVectorView<HSTRING>* vector, _In_ uint32 index, HSTRING * item)
-    {
+    {TRACE_IT(38093);
         HRESULT hr = vector->GetAt(index, item);
         return VerifyResult(item, hr);
     }
 
     /* static */
     HRESULT WindowsGlobalizationAdapter::VerifyResult(HSTRING * result, HRESULT errCode)
-    {
+    {TRACE_IT(38094);
         HRESULT hr = S_OK;
         IfFailedReturn(errCode);
         IfNullReturnError(*result, E_FAIL);

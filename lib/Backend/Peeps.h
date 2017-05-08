@@ -24,9 +24,9 @@ private:
 
 public:
 #if defined(_M_IX86) || defined(_M_X64)
-    Peeps(Func *func) : func(func), peepsMD(func), peepsAgen(func) {}
+    Peeps(Func *func) : func(func), peepsMD(func), peepsAgen(func) {TRACE_IT(15038);}
 #else
-    Peeps(Func *func) : func(func), peepsMD(func) {}
+    Peeps(Func *func) : func(func), peepsMD(func) {TRACE_IT(15039);}
 #endif
 
     void                 PeepFunc();

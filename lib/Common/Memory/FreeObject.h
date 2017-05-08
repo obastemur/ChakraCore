@@ -10,20 +10,20 @@ struct FreeObject
 {
 public:
     FreeObject * GetNext() const
-    {
+    {TRACE_IT(23237);
         AssertMsg((taggedNext & TaggedBit) == TaggedBit, "Free list corrupted");
         return (FreeObject *)(taggedNext & ~TaggedBit);
     }
 
     void SetNext(FreeObject * next)
-    {
+    {TRACE_IT(23238);
         Assert(((INT_PTR)next & TaggedBit) == 0);
         taggedNext = ((INT_PTR)next) | TaggedBit;
     }
-    void ZeroNext() { taggedNext = 0; }
+    void ZeroNext() {TRACE_IT(23239); taggedNext = 0; }
 #ifdef RECYCLER_MEMORY_VERIFY
 #pragma warning(suppress:4310)
-    void DebugFillNext() { taggedNext = (INT_PTR)0xCACACACACACACACA; }
+    void DebugFillNext() {TRACE_IT(23240); taggedNext = (INT_PTR)0xCACACACACACACACA; }
 #endif
 private:
     INT_PTR taggedNext;

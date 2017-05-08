@@ -272,11 +272,11 @@
 
 #define PROCESS_IP_TARG_ASM_IMPL(name, func, layoutSize) \
     case OpCodeAsmJs::name: \
-    { \
+    {TRACE_IT(48603); \
     Assert(!switchProfileMode); \
     ip = func<layoutSize, INTERPRETERPROFILE>(ip); \
 if (switchProfileMode) \
-        { \
+        {TRACE_IT(48604); \
         m_reader.SetIP(ip); \
         return nullptr; \
         } \
@@ -599,7 +599,7 @@ if (switchProfileMode) \
     { \
         PROCESS_READ_LAYOUT_ASMJS(name, BrInt2, suffix); \
         if (func(GetRegRawInt(playout->I1), GetRegRawInt(playout->I2))) \
-        { \
+        {TRACE_IT(48605); \
             ip = m_reader.SetCurrentRelativeOffset(ip, playout->RelativeJumpOffset); \
         } \
         break; \
@@ -611,7 +611,7 @@ if (switchProfileMode) \
     { \
         PROCESS_READ_LAYOUT_ASMJS(name, BrInt1Const1, suffix); \
         if (func(GetRegRawInt(playout->I1), playout->C1)) \
-        { \
+        {TRACE_IT(48606); \
             ip = m_reader.SetCurrentRelativeOffset(ip, playout->RelativeJumpOffset); \
         } \
         break; \
@@ -623,7 +623,7 @@ if (switchProfileMode) \
     { \
         PROCESS_READ_LAYOUT_ASMJS(name, BrInt1, suffix); \
         if (GetRegRawInt(playout->I1)) \
-        { \
+        {TRACE_IT(48607); \
             ip = m_reader.SetCurrentRelativeOffset(ip, playout->RelativeJumpOffset); \
         } \
         break; \
@@ -635,7 +635,7 @@ if (switchProfileMode) \
     { \
         PROCESS_READ_LAYOUT_ASMJS(name, BrInt1, suffix); \
         if (!GetRegRawInt(playout->I1)) \
-        { \
+        {TRACE_IT(48608); \
             ip = m_reader.SetCurrentRelativeOffset(ip, playout->RelativeJumpOffset); \
         } \
         break; \

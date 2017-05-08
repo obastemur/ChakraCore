@@ -13,7 +13,7 @@ namespace Js
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     inline StringCopyInfo::StringCopyInfo()
-    {
+    {TRACE_IT(63753);
         // This constructor is just to satisfy LargeStack for now, as it creates an array of these. Ideally, it should only
         // instantiate this class for pushed items using the copy constructor.
     #if DBG
@@ -28,7 +28,7 @@ namespace Js
         JavascriptString *const sourceString,
         _Inout_count_(sourceString->m_charLength) char16 *const destinationBuffer)
         : sourceString(sourceString), destinationBuffer(destinationBuffer)
-    {
+    {TRACE_IT(63754);
         Assert(sourceString);
         Assert(destinationBuffer);
 
@@ -38,14 +38,14 @@ namespace Js
     }
 
     JS_DIAG_INLINE JavascriptString *StringCopyInfo::SourceString() const
-    {
+    {TRACE_IT(63755);
         Assert(isInitialized);
 
         return sourceString;
     }
 
     JS_DIAG_INLINE char16 *StringCopyInfo::DestinationBuffer() const
-    {
+    {TRACE_IT(63756);
         Assert(isInitialized);
         return destinationBuffer;
     }
@@ -53,7 +53,7 @@ namespace Js
     #ifndef IsJsDiag
 
     void StringCopyInfo::InstantiateForceInlinedMembers()
-    {
+    {TRACE_IT(63757);
         // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in
         // the same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined
         // function is not referenced in the same translation unit, it will not be generated and the linker is not able to find
@@ -81,27 +81,27 @@ namespace Js
 
     StringCopyInfoStack::StringCopyInfoStack(ScriptContext *const scriptContext)
         : scriptContext(scriptContext), allocator(nullptr), stack(nullptr)
-    {
+    {TRACE_IT(63758);
         Assert(scriptContext);
     }
 
     StringCopyInfoStack::~StringCopyInfoStack()
-    {
+    {TRACE_IT(63759);
         if (allocator)
-        {
+        {TRACE_IT(63760);
             scriptContext->ReleaseTemporaryAllocator(allocator);
         }
     }
 
     bool StringCopyInfoStack::IsEmpty()
-    {
+    {TRACE_IT(63761);
         Assert(!allocator == !stack);
 
         return !stack || !!stack->Empty();
     }
 
     void StringCopyInfoStack::Push(const StringCopyInfo copyInfo)
-    {
+    {TRACE_IT(63762);
         Assert(!allocator == !stack);
 
         if(!stack)
@@ -110,7 +110,7 @@ namespace Js
     }
 
     const StringCopyInfo StringCopyInfoStack::Pop()
-    {
+    {TRACE_IT(63763);
         Assert(allocator);
         Assert(stack);
 
@@ -118,7 +118,7 @@ namespace Js
     }
 
     void StringCopyInfoStack::CreateStack()
-    {
+    {TRACE_IT(63764);
         Assert(!allocator);
         Assert(!stack);
 

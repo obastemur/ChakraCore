@@ -11,13 +11,13 @@ LinearScanMD::LinearScanMD(Func *func)
     : helperSpillSlots(nullptr),
       maxOpHelperSpilledLiveranges(0),
       func(func)
-{
+{TRACE_IT(16259);
     this->byteableRegsBv.ClearAll();
 
     FOREACH_REG(reg)
-    {
+    {TRACE_IT(16260);
         if (LinearScan::GetRegAttribs(reg) & RA_BYTEABLE)
-        {
+        {TRACE_IT(16261);
             this->byteableRegsBv.Set(reg);
         }
     } NEXT_REG;
@@ -29,10 +29,10 @@ LinearScanMD::LinearScanMD(Func *func)
 
 BitVector
 LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageBv) const
-{
+{TRACE_IT(16262);
     // Requires byte-able reg?
     if (sizeUsageBv.Test(1))
-    {
+    {TRACE_IT(16263);
         regsBv.And(this->byteableRegsBv);
     }
 
@@ -41,56 +41,56 @@ LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageB
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, BitVector sizeUsageBv) const
-{
+{TRACE_IT(16264);
     // Requires byte-able reg?
     return !sizeUsageBv.Test(1) || this->byteableRegsBv.Test(reg);
 }
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, IRType type) const
-{
+{TRACE_IT(16265);
     // Requires byte-able reg?
     return TySize[type] != 1 || this->byteableRegsBv.Test(reg);
 }
 
 StackSym *
 LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
-{
+{TRACE_IT(16266);
     Assert(REGNUM_ISXMMXREG(reg));
 
     __analysis_assume(reg - FIRST_XMM_REG < XMM_REGCOUNT);
     StackSym *sym;
     if (type == TyFloat32)
-    {
+    {TRACE_IT(16267);
         sym = this->xmmSymTable32[reg - FIRST_XMM_REG];
     }
     else if (type == TyFloat64)
-    {
+    {TRACE_IT(16268);
         sym = this->xmmSymTable64[reg - FIRST_XMM_REG];
     }
     else
-    {
+    {TRACE_IT(16269);
         Assert(IRType_IsSimd128(type));
         sym = this->xmmSymTable128[reg - FIRST_XMM_REG];
     }
 
     if (sym == nullptr)
-    {
+    {TRACE_IT(16270);
         sym = StackSym::New(type, func);
         func->StackAllocate(sym, TySize[type]);
 
         __analysis_assume(reg - FIRST_XMM_REG < XMM_REGCOUNT);
 
         if (type == TyFloat32)
-        {
+        {TRACE_IT(16271);
             this->xmmSymTable32[reg - FIRST_XMM_REG] = sym;
         }
         else if (type == TyFloat64)
-        {
+        {TRACE_IT(16272);
             this->xmmSymTable64[reg - FIRST_XMM_REG] = sym;
         }
         else
-        {
+        {TRACE_IT(16273);
             Assert(IRType_IsSimd128(type));
             this->xmmSymTable128[reg - FIRST_XMM_REG] = sym;
         }
@@ -101,14 +101,14 @@ LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
 
 void
 LinearScanMD::LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd)
-{
+{TRACE_IT(16274);
     Assert(opnd->IsAddrOpnd() || opnd->IsIntConstOpnd());
     intptr_t value = opnd->IsAddrOpnd() ? (intptr_t)opnd->AsAddrOpnd()->m_address : opnd->AsIntConstOpnd()->GetValue();
     if (value == 0
         && instr->m_opcode == Js::OpCode::MOV
         && !instr->GetDst()->IsRegOpnd()
         && TySize[opnd->GetType()] >= 4)
-    {
+    {TRACE_IT(16275);
         Assert(this->linearScan->instrUseRegs.IsEmpty());
 
         // MOV doesn't have an imm8 encoding for 32-bit/64-bit assignment, so if we have a register available,
@@ -122,7 +122,7 @@ LinearScanMD::LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd)
         regsBv.Minus(this->linearScan->tempRegs);       // Avoid tempRegs
         BVIndex regIndex = regsBv.GetNextBit();
         if (regIndex != BVInvalidIndex)
-        {
+        {TRACE_IT(16276);
             instr->HoistSrc1(Js::OpCode::MOV, (RegNum)regIndex);
             this->linearScan->instrUseRegs.Set(regIndex);
             this->func->m_regsUsed.Set(regIndex);
@@ -136,15 +136,15 @@ LinearScanMD::LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd)
 
 void
 LinearScanMD::InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlockList)
-{
+{TRACE_IT(16277);
     if (maxOpHelperSpilledLiveranges)
-    {
+    {TRACE_IT(16278);
         Assert(!helperSpillSlots);
         helperSpillSlots = AnewArrayZ(linearScan->GetTempAlloc(), StackSym *, maxOpHelperSpilledLiveranges);
     }
 
     FOREACH_SLIST_ENTRY(OpHelperBlock, opHelperBlock, opHelperBlockList)
-    {
+    {TRACE_IT(16279);
         InsertOpHelperSpillsAndRestores(opHelperBlock);
     }
     NEXT_SLIST_ENTRY;
@@ -152,27 +152,27 @@ LinearScanMD::InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlock
 
 void
 LinearScanMD::InsertOpHelperSpillsAndRestores(const OpHelperBlock& opHelperBlock)
-{
+{TRACE_IT(16280);
     uint32 index = 0;
 
     FOREACH_SLIST_ENTRY(OpHelperSpilledLifetime, opHelperSpilledLifetime, &opHelperBlock.spilledLifetime)
-    {
+    {TRACE_IT(16281);
         // Use the original sym as spill slot if this is an inlinee arg
         StackSym* sym = nullptr;
         if (opHelperSpilledLifetime.spillAsArg)
-        {
+        {TRACE_IT(16282);
             sym = opHelperSpilledLifetime.lifetime->sym;
             AnalysisAssert(sym);
             Assert(sym->IsAllocated());
         }
 
         if (RegTypes[opHelperSpilledLifetime.reg] == TyFloat64)
-        {
+        {TRACE_IT(16283);
             IRType type = opHelperSpilledLifetime.lifetime->sym->GetType();
             IR::RegOpnd *regOpnd = IR::RegOpnd::New(nullptr, opHelperSpilledLifetime.reg, type, this->func);
 
             if (!sym)
-            {
+            {TRACE_IT(16284);
                 sym = EnsureSpillSymForXmmReg(regOpnd->GetReg(), this->func, type);
             }
 
@@ -180,22 +180,22 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(const OpHelperBlock& opHelperBlock
             opHelperBlock.opHelperLabel->InsertAfter(pushInstr);
             pushInstr->CopyNumber(opHelperBlock.opHelperLabel);
             if (opHelperSpilledLifetime.reload)
-            {
+            {TRACE_IT(16285);
                 IR::Instr   *popInstr = IR::Instr::New(LowererMDArch::GetAssignOp(type), regOpnd, IR::SymOpnd::New(sym, type, this->func), this->func);
                 opHelperBlock.opHelperEndInstr->InsertBefore(popInstr);
                 popInstr->CopyNumber(opHelperBlock.opHelperEndInstr);
             }
         }
         else
-        {
+        {TRACE_IT(16286);
             Assert(helperSpillSlots);
             Assert(index < maxOpHelperSpilledLiveranges);
 
             if (!sym)
-            {
+            {TRACE_IT(16287);
                 // Lazily allocate only as many slots as we really need.
                 if (!helperSpillSlots[index])
-                {
+                {TRACE_IT(16288);
                     helperSpillSlots[index] = StackSym::New(TyMachReg, func);
                 }
 
@@ -208,7 +208,7 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(const OpHelperBlock& opHelperBlock
             IR::RegOpnd * regOpnd = IR::RegOpnd::New(nullptr, opHelperSpilledLifetime.reg, sym->GetType(), func);
             LowererMD::CreateAssign(IR::SymOpnd::New(sym, sym->GetType(), func), regOpnd, opHelperBlock.opHelperLabel->m_next);
             if (opHelperSpilledLifetime.reload)
-            {
+            {TRACE_IT(16289);
                 LowererMD::CreateAssign(regOpnd, IR::SymOpnd::New(sym, sym->GetType(), func), opHelperBlock.opHelperEndInstr);
             }
         }
@@ -218,16 +218,16 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(const OpHelperBlock& opHelperBlock
 
 void
 LinearScanMD::EndOfHelperBlock(uint32 helperSpilledLiveranges)
-{
+{TRACE_IT(16290);
     if (helperSpilledLiveranges > maxOpHelperSpilledLiveranges)
-    {
+    {TRACE_IT(16291);
         maxOpHelperSpilledLiveranges = helperSpilledLiveranges;
     }
 }
 
 void
 LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCount) StackSym ** registerSaveSyms, uint registerSaveSymsCount)
-{
+{TRACE_IT(16292);
     Func *const func = instr->m_func;
     BailOutInfo *const bailOutInfo = instr->GetBailOutInfo();
     IR::Instr *firstInstr = instr->m_prev;
@@ -243,11 +243,11 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
     //     mov  [rsp], rax
     const RegNum regs[3] = { RegRAX, RegArg0, RegArg1 };
     for (int i = (bailOutInfo->branchConditionOpnd ? 2 : 1); i >= 0; i--)
-    {
+    {TRACE_IT(16293);
         RegNum reg = regs[i];
         StackSym *const stackSym = registerSaveSyms[reg - 1];
         if(!stackSym)
-        {
+        {TRACE_IT(16294);
             continue;
         }
 
@@ -259,7 +259,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
     }
 
     if(bailOutInfo->branchConditionOpnd)
-    {
+    {TRACE_IT(16295);
         // Pass in the branch condition
         //     mov  RegArg1, condition
         IR::Instr *const newInstr =
@@ -271,7 +271,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
     }
 
     if (!func->IsOOPJIT())
-    {
+    {TRACE_IT(16296);
         // Pass in the bailout record
         //     mov  RegArg0, bailOutRecord
         Lowerer::InsertMove(
@@ -280,7 +280,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
             instr);
     }
     else
-    {
+    {TRACE_IT(16297);
         // move RegArg0, dataAddr
         Lowerer::InsertMove(
             IR::RegOpnd::New(nullptr, RegArg0, TyMachPtr, func),
@@ -306,10 +306,10 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
     firstInstr = firstInstr->m_next;
     for(uint i = 0; i < registerSaveSymsCount; i++)
-    {
+    {TRACE_IT(16298);
         StackSym *const stackSym = registerSaveSyms[i];
         if(!stackSym)
-        {
+        {TRACE_IT(16299);
             continue;
         }
 
@@ -347,7 +347,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 //
 IR::Instr *
 LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, BailOutInfo * bailOutInfo)
-{
+{TRACE_IT(16300);
     IR::Instr * instrAfter = resumeLabelInstr->m_next;
 
     IR::RegOpnd * raxRegOpnd = IR::RegOpnd::New(nullptr, RegRAX, TyMachPtr, this->func);
@@ -374,7 +374,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     Assert(bailOutInfo->liveFloat64Syms->IsEmpty());
 
     auto restoreSymFn = [this, &raxRegOpnd, &rcxRegOpnd, &raxRestoreInstr, &instrInsertStackSym, &instrInsertRegSym](Js::RegSlot regSlot, StackSym* stackSym)
-    {
+    {TRACE_IT(16301);
         Assert(stackSym->IsVar());
 
         int32 offset = regSlot * sizeof(Js::Var) + Js::InterpreterStackFrame::GetOffsetOfLocals();
@@ -383,14 +383,14 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
         Lifetime * lifetime = stackSym->scratch.linearScan.lifetime;
 
         if (lifetime->isSpilled)
-        {
+        {TRACE_IT(16302);
             // stack restores require an extra register since we can't move an indir directly to an indir on amd64
             IR::SymOpnd * dstOpnd = IR::SymOpnd::New(stackSym, stackSym->GetType(), this->func);
             LinearScan::InsertMove(rcxRegOpnd, srcOpnd, instrInsertStackSym);
             LinearScan::InsertMove(dstOpnd, rcxRegOpnd, instrInsertStackSym);
         }
         else
-        {
+        {TRACE_IT(16303);
             // register restores must come after stack restores so that we have RAX and RCX free to
             // use for stack restores and further RAX must be restored last since it holds the
             // pointer to the InterpreterStackFrame from which we are restoring values.
@@ -402,7 +402,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             IR::Instr * instr = LinearScan::InsertMove(dstRegOpnd, srcOpnd, instrInsertRegSym);
 
             if (instrInsertRegSym == instrInsertStackSym)
-            {
+            {TRACE_IT(16304);
                 // this is the first register sym, make sure we don't insert stack stores
                 // after this instruction so we can ensure rax and rcx remain free to use
                 // for restoring spilled stack syms.
@@ -410,7 +410,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             }
 
             if (lifetime->reg == RegRAX)
-            {
+            {TRACE_IT(16305);
                 // ensure rax is restored last
                 Assert(instrInsertRegSym != instrInsertStackSym);
 
@@ -435,7 +435,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     };
 
     FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->byteCodeUpwardExposedUsed)
-    {
+    {TRACE_IT(16306);
         StackSym* stackSym = this->func->m_symTable->FindStackSym(symId);
         restoreSymFn(stackSym->GetByteCodeRegSlot(), stackSym);
     }
@@ -444,7 +444,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     if (bailOutInfo->capturedValues.argObjSyms)
     {
         FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->capturedValues.argObjSyms)
-        {
+        {TRACE_IT(16307);
             StackSym* stackSym = this->func->m_symTable->FindStackSym(symId);
             restoreSymFn(stackSym->GetByteCodeRegSlot(), stackSym);
         }
@@ -460,35 +460,35 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
 }
 
 uint LinearScanMD::GetRegisterSaveIndex(RegNum reg)
-{
+{TRACE_IT(16308);
     if (RegTypes[reg] == TyFloat64)
-    {
+    {TRACE_IT(16309);
         // make room for maximum XMM reg size
         Assert(reg >= RegXMM0);
         return (reg - RegXMM0) * (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0;
     }
     else
-    {
+    {TRACE_IT(16310);
         return reg;
     }
 }
 
 RegNum LinearScanMD::GetRegisterFromSaveIndex(uint offset)
-{
+{TRACE_IT(16311);
     return (RegNum)(offset >= RegXMM0 ? (offset - RegXMM0) / (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0 : offset);
 }
 
 RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
-{
+{TRACE_IT(16312);
     RegNum reg = RegNOREG;
     StackSym *paramSym = symOpnd->m_sym->AsStackSym();
 
     if (func->GetJITFunctionBody()->IsAsmJsMode() && !func->IsLoopBody())
-    {
+    {TRACE_IT(16313);
         // Asm.js function only have 1 implicit param as they have no CallInfo, and they have float/SIMD params.
         // Asm.js loop bodies however are called like normal JS functions.
         if (IRType_IsFloat(symOpnd->GetType()) || IRType_IsSimd(symOpnd->GetType()))
-        {
+        {TRACE_IT(16314);
             switch (paramSym->GetParamSlotNum())
             {
             case 1:
@@ -503,9 +503,9 @@ RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
             }
         }
         else
-        {
+        {TRACE_IT(16315);
             if (paramSym->IsImplicitParamSym())
-            {
+            {TRACE_IT(16316);
                 switch (paramSym->GetParamSlotNum())
                 {
                 case 1:
@@ -516,7 +516,7 @@ RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
                 }
             }
             else
-            {
+            {TRACE_IT(16317);
                 switch (paramSym->GetParamSlotNum())
                 {
                 case 1:
@@ -533,11 +533,11 @@ RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
         }
     }
     else // Non-Asm.js
-    {
+    {TRACE_IT(16318);
         Assert(symOpnd->GetType() == TyVar || IRType_IsNativeInt(symOpnd->GetType()));
 
         if (paramSym->IsImplicitParamSym())
-        {
+        {TRACE_IT(16319);
             switch (paramSym->GetParamSlotNum())
             {
             case 1:
@@ -549,7 +549,7 @@ RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
             }
         }
         else
-        {
+        {TRACE_IT(16320);
             switch (paramSym->GetParamSlotNum())
             {
             case 1:

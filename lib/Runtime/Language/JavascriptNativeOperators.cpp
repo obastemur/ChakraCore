@@ -9,7 +9,7 @@ namespace Js
 {
 #if ENABLE_NATIVE_CODEGEN
     void * JavascriptNativeOperators::Op_SwitchStringLookUp(JavascriptString* str, Js::BranchDictionaryWrapper<JavascriptString*>* branchTargets, uintptr_t funcStart, uintptr_t funcEnd)
-    {
+    {TRACE_IT(49926);
         void* defaultTarget = branchTargets->defaultTarget;
         Js::BranchDictionaryWrapper<JavascriptString*>::BranchDictionary& stringDictionary = branchTargets->dictionary;
         void* target = stringDictionary.Lookup(str, defaultTarget);

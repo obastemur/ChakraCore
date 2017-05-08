@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------------------------------------------
 #pragma once
 
-#define IfNullThrowOutOfMemory(result) if(result == nullptr) { Js::Throw::OutOfMemory(); }
+#define IfNullThrowOutOfMemory(result) if(result == nullptr) {TRACE_IT(21565); Js::Throw::OutOfMemory(); }
 
 namespace regex
 {
@@ -15,14 +15,14 @@ namespace regex
         ImmutableList<T> * next;
         ImmutableList(T value, ImmutableList<T> * next)
             : value(value), next(next)
-        { }
+        {TRACE_IT(21566); }
 
     public:
         // Delete all the nodes in the list (if any).
         void FreeList(ArenaAllocator * a)
-        {
+        {TRACE_IT(21567);
             if (this == nullptr)
-            {
+            {TRACE_IT(21568);
                 return;
             }
 
@@ -34,7 +34,7 @@ namespace regex
         // Info:        Return a list with the given value prepended to this one.
         // Parameters:  value - the value to prepend
         ImmutableList<T> * Prepend(T value, ArenaAllocator * a)
-        {
+        {TRACE_IT(21569);
             return Anew(a, ImmutableList, value, this);
         }
 
@@ -43,16 +43,16 @@ namespace regex
         // Parameters:  value - the value to append
         //              tail - last node of the new list
         ImmutableList<T> * Append(T value, ArenaAllocator * a, ImmutableList<T> **tail)
-        {
+        {TRACE_IT(21570);
 #if DBG
             Assert(tail != nullptr);
             Assert((this->IsEmpty() && (*tail)->IsEmpty()) || (*tail)->next->IsEmpty());
 
             if (!this->IsEmpty())
-            {
+            {TRACE_IT(21571);
                 auto current = this;
                 while(!current->next->IsEmpty())
-                {
+                {TRACE_IT(21572);
                     current = current->next;
                 }
                 Assert(current == (*tail));
@@ -60,7 +60,7 @@ namespace regex
 #endif
 
             if (IsEmpty())
-            {
+            {TRACE_IT(21573);
                 *tail = Anew(a, ImmutableList, value, ImmutableList<T>::Empty());
                 return *tail;
             }
@@ -74,7 +74,7 @@ namespace regex
         // Parameters:  arr - the array to prepend
         //              count - the elements in the array
         ImmutableList<T> * PrependArray(T * arr, size_t count, ArenaAllocator * a)
-        {
+        {TRACE_IT(21574);
             Assert(count > 0);
 
             // Create the list
@@ -95,10 +95,10 @@ namespace regex
         //              count - the elements in the array
         //              tail - last node of the new list
         ImmutableList<T> * AppendArrayToCurrentList(T * arr, size_t count, ArenaAllocator * a, ImmutableList<T> **tail)
-        {
+        {TRACE_IT(21575);
             auto out = this;
             for(size_t i=0; i<count; i++)
-            {
+            {TRACE_IT(21576);
                 out = out->Append(arr[i],a,tail);
             }
             return out;
@@ -109,25 +109,25 @@ namespace regex
         // Parameters:  list - the list to append
         //              tail - optional end ptr so we dont need to traverse the list to find the tail node
         ImmutableList<T> * AppendListToCurrentList(ImmutableList<T> * list, ImmutableList<T> * tail = ImmutableList<T>::Empty()) // TODO : figure out all the tail scenarios
-        {
+        {TRACE_IT(21577);
             if (list->IsEmpty())
-            {
+            {TRACE_IT(21578);
                 return this;
             }
 
             auto out = this;
             if (out->IsEmpty())
-            {
+            {TRACE_IT(21579);
                 return list;
             }
 
             if (tail->IsEmpty())
-            {
+            {TRACE_IT(21580);
                 // We dont have tail node, find it
                 tail = this;
                 auto current = this;
                 while(!current->IsEmpty())
-                {
+                {TRACE_IT(21581);
                     tail = current;
                     current = current->next;
                 }
@@ -135,10 +135,10 @@ namespace regex
             }
 #if DBG
             else
-            {
+            {TRACE_IT(21582);
                 auto current = this;
                 while(!current->next->IsEmpty())
-                {
+                {TRACE_IT(21583);
                     current = current->next;
                 }
                 Assert(current == tail);
@@ -153,12 +153,12 @@ namespace regex
         // Parameters:  f - the mapping function
         template<class TOut, class F>
         ImmutableList<TOut> * Select(F f, ArenaAllocator * a)
-        {
+        {TRACE_IT(21584);
             auto out = ImmutableList<TOut>::Empty();
             auto tail = out;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21585);
                 out = out->Append(f(current->First()), a, &tail);
                 current = current->next;
             }
@@ -169,10 +169,10 @@ namespace regex
         // Parameters:  f - the mapping function
         template<class F>
         ImmutableList<T> * SelectInPlace(F f)
-        {
+        {TRACE_IT(21586);
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21587);
                 current->value = f(current->First());
                 current = current->next;
             }
@@ -183,7 +183,7 @@ namespace regex
         // Parameters:  f - the predicate
         template<class F>
         bool Any(F f)
-        {
+        {TRACE_IT(21588);
             return WhereFirst(f).HasValue();
         }
 
@@ -191,15 +191,15 @@ namespace regex
         // Parameters:  f - the mapping function
         template<class TOut, class F>
         ImmutableList<TOut> * SelectNotNull(F f, ArenaAllocator * a)
-        {
+        {TRACE_IT(21589);
             auto out = ImmutableList<TOut>::Empty();
             auto tail = out;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21590);
                 auto result = f(current->First());
                 if (result!=nullptr)
-                {
+                {TRACE_IT(21591);
                     out = out->Append(result, a, &tail);
                 }
                 current = current->next;
@@ -210,7 +210,7 @@ namespace regex
         // Info:        Statically cast one list to another. The elements must be statically related
         template<class TOut>
         ImmutableList<TOut> * Cast()
-        {
+        {TRACE_IT(21592);
 #if DBG
             // Ensure static_cast is valid
             T t = T();
@@ -224,10 +224,10 @@ namespace regex
         // Parameters:  f - the function to call
         template<class F>
         void Iterate(F f)
-        {
+        {TRACE_IT(21593);
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21594);
                 f(current->First());
                 current = current->next;
             }
@@ -238,13 +238,13 @@ namespace regex
         //              returns true to continue iterating, false to stop.
         template<class F>
         void IterateWhile(F f)
-        {
+        {TRACE_IT(21595);
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21596);
                 bool shouldContinue = f(current->First());
                 if (!shouldContinue)
-                {
+                {TRACE_IT(21597);
                     break;
                 }
                 current = current->next;
@@ -255,7 +255,7 @@ namespace regex
         // Parameters:  f - the function to call
         template<class F>
         void IterateN(F f)
-        {
+        {TRACE_IT(21598);
             auto current = this;
             auto index = 0;
             while(!current->IsEmpty())
@@ -270,11 +270,11 @@ namespace regex
         // Parameters:  f - the function to call
         template<class F>
         void IterateFirstN(size_t N, F f)
-        {
+        {TRACE_IT(21599);
             Assert(Count() >= N);
             auto current = this;
             while(N > 0)
-            {
+            {TRACE_IT(21600);
                 f(current->First());
                 current = current->next;
                 N--;
@@ -288,11 +288,11 @@ namespace regex
         //              f3 - the function to call on remaining elements
         template<class F, class F2, class F3>
         void IterateIn3Sets(size_t N, F f, F2 f2, F3 f3)
-        {
+        {TRACE_IT(21601);
             Assert(Count() > N);
             auto current = this;
             for (size_t i = 0; i < N; i++)
-            {
+            {TRACE_IT(21602);
                 f(current->First());
                 current = current->next;
             }
@@ -302,7 +302,7 @@ namespace regex
             current = current->next;
 
             while(current)
-            {
+            {TRACE_IT(21603);
                 f3(current->First());
                 current = current->next;
             }
@@ -311,11 +311,11 @@ namespace regex
         // Info:        Iterate two lists at once. Stop when either list runs out.
         // Parameters:  f - the function to call on each pair
         template <class T2, class F> void IterateWith(ImmutableList<T2> *e2,F f)
-        {
+        {TRACE_IT(21604);
             auto en1 = this;
             auto en2 = e2;
             while(!en1->IsEmpty() && !en2->IsEmpty())
-            {
+            {TRACE_IT(21605);
                 f(en1->First(),en2->First());
                 en1 = en1->GetTail();
                 en2 = en2->GetTail();
@@ -325,11 +325,11 @@ namespace regex
         // Info:        Iterate over the elements of the enumerable and accumulate a result
         // Parameters:  f - the function to call for each element
         template <class TAccumulator, class F> TAccumulator Accumulate(TAccumulator seed, F f)
-        {
+        {TRACE_IT(21606);
             auto current = this;
             auto accumulated = seed;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21607);
                 accumulated = f(accumulated, current->value);
                 current = current->next;
             }
@@ -339,11 +339,11 @@ namespace regex
         // Info:        Sum the elements of the list using values returned from the given function
         // Parameters:  f - the function to call for each element
         template <class TSize, class F> TSize Sum(F f)
-        {
+        {TRACE_IT(21608);
             TSize sum = TSize();
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21609);
                 sum += f(current->value);
                 current = current->next;
             }
@@ -353,11 +353,11 @@ namespace regex
         // Info:        Return true if f returns true for all elements
         // Parameters:  f - the function to call for each element
         template <class F> bool TrueForAll(F f)
-        {
+        {TRACE_IT(21610);
             auto current = this;
             auto stillTrue = true;
             while(!current->IsEmpty() && stillTrue)
-            {
+            {TRACE_IT(21611);
                 stillTrue = stillTrue && f(current->value);
                 current = current->next;
             }
@@ -366,11 +366,11 @@ namespace regex
 
         // Info:        Return this list reversed
         ImmutableList<T> * Reverse(ArenaAllocator * a)
-        {
+        {TRACE_IT(21612);
             auto out = ImmutableList<T>::Empty();
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21613);
                 out = out->Prepend(current->First(),a);
                 current = current->next;
             }
@@ -379,11 +379,11 @@ namespace regex
 
         // Info:        Return this list reversed <Reverses the current list>
         ImmutableList<T> * ReverseCurrentList()
-        {
+        {TRACE_IT(21614);
             auto out = ImmutableList<T>::Empty();
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21615);
                 auto next = current->next;
                 current->next = out;
                 out = current;
@@ -396,15 +396,15 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         ImmutableList<T> * Where(F f, ArenaAllocator * a)
-        {
+        {TRACE_IT(21616);
             auto out = ImmutableList<T>::Empty();
             auto tail = out;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21617);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21618);
                     out = out->Append(head, a, &tail);
                 }
                 current = current->next;
@@ -416,22 +416,22 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         ImmutableList<T> * WhereInPlace(F f)
-        {
+        {TRACE_IT(21619);
             auto out = ImmutableList<T>::Empty();
             auto tail = out;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21620);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21621);
                     if (out->IsEmpty())
-                    {
+                    {TRACE_IT(21622);
                         // Need to add to the head
                         out = current;
                     }
                     else
-                    {
+                    {TRACE_IT(21623);
                         // Add to the tail
                         Assert(!tail->IsEmpty());
                         tail->next = current;
@@ -442,7 +442,7 @@ namespace regex
             }
 
             if (!tail->IsEmpty())
-            {
+            {TRACE_IT(21624);
                 tail->next = ImmutableList<T>::Empty();
             }
             return out;
@@ -453,15 +453,15 @@ namespace regex
         //              f - the mapping function
         template<class TOut, class selectF, class whereF>
         ImmutableList<TOut> * WhereSelect(whereF wf, selectF sf, ArenaAllocator * a)
-        {
+        {TRACE_IT(21625);
             auto out = ImmutableList<TOut>::Empty();
             auto tail = out;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21626);
                 auto head = current->First();
                 if (wf(head))
-                {
+                {TRACE_IT(21627);
                     out = out->Append(sf(current->First()), a, &tail);
                 }
                 current = current->next;
@@ -475,20 +475,20 @@ namespace regex
         // Info:        If there are 0 or 1 elements, return an option. Throw otherwise.
         template<class TOption, class F>
         Option<TOption> WhereToOption(F f)
-        {
+        {TRACE_IT(21628);
             auto out = ImmutableList<T>::Empty();
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21629);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21630);
                     if (out->IsEmpty())
-                    {
+                    {TRACE_IT(21631);
                         out = current;
                     }
                     else
-                    {
+                    {TRACE_IT(21632);
                         // Cannot convert Enumerable to Option because there is more than 1 item in the Enumerable
                        Js::Throw::FatalProjectionError();
                     }
@@ -497,7 +497,7 @@ namespace regex
             }
 
             if (out->IsEmpty())
-            {
+            {TRACE_IT(21633);
                 return nullptr;
             }
 
@@ -508,14 +508,14 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         T WhereSingle(F f)
-        {
+        {TRACE_IT(21634);
             auto current = this;
             T * result = nullptr;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21635);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21636);
                     Js::VerifyCatastrophic(result==nullptr); // There are multiple matching items.
                     result = &current->value;
                 }
@@ -529,13 +529,13 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         Option<T> WhereFirst(F f)
-        {
+        {TRACE_IT(21637);
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21638);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21639);
                     return &current->value;
                 }
                 current = current->next;
@@ -547,14 +547,14 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         size_t CountWhere(F f)
-        {
+        {TRACE_IT(21640);
             auto current = this;
             size_t count = 0;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21641);
                 auto head = current->First();
                 if (f(head))
-                {
+                {TRACE_IT(21642);
                     ++count;
                 }
                 current = current->next;
@@ -566,20 +566,20 @@ namespace regex
         // Parameters:  f - the predicate function to filter by
         template<class F>
         bool ContainsWhere(F f)
-        {
+        {TRACE_IT(21643);
             return WhereFirst(f).HasValue();
         }
 
         // Info:        Remove all instances of the given value from current list <Modifies existing list with removal of nodes that has 'value'>
         // Parameters:  value - the value to remove from the list
         ImmutableList<T> * RemoveValueInPlace(T value)
-        {
+        {TRACE_IT(21644);
             return WhereInPlace([&](T seen) {return seen != value;});
         }
 
         // Info:        Return the value from a list with exactly one element. Throw if there are 0 or 2+ elements.
         T ToSingle()
-        {
+        {TRACE_IT(21645);
             Js::VerifyCatastrophic(Count()==1);
             return value;
         }
@@ -587,10 +587,10 @@ namespace regex
         // Info:        If there are 0 or 1 elements, return an option. Throw otherwise.
         template<class TOption>
         Option<TOption> ToOption()
-        {
+        {TRACE_IT(21646);
             auto en = this;
             if (en == Empty())
-            {
+            {TRACE_IT(21647);
                 return nullptr;
             }
             Js::VerifyCatastrophic(en->next == Empty()); // Cannot convert Enumerable to Option because there is more than 1 item in the Enumerable
@@ -599,17 +599,17 @@ namespace regex
 
         // Info:        Return the first element
         T& First()
-        {
+        {TRACE_IT(21648);
             Js::VerifyCatastrophic(!IsEmpty());
             return value;
         }
 
         // Info:        Return the last item. Throw if there are none.
         T& Last()
-        {
+        {TRACE_IT(21649);
             Js::VerifyCatastrophic(!IsEmpty());
             if (next->IsEmpty())
-            {
+            {TRACE_IT(21650);
                 return value;
             }
             return next->Last(); // Warning: possible stack usage
@@ -617,10 +617,10 @@ namespace regex
 
         // Info:        Return the nth item from the list. Throw if this list isn't long enough.
         T& Nth(size_t n)
-        {
+        {TRACE_IT(21651);
             Js::VerifyCatastrophic(!IsEmpty());
             if(n==0)
-            {
+            {TRACE_IT(21652);
                 return value;
             }
             return next->Nth(n-1); // Warning: possible stack usage
@@ -628,13 +628,13 @@ namespace regex
 
         // Info:        Return the rest of the list
         ImmutableList<T> * GetTail()
-        {
+        {TRACE_IT(21653);
             return next;
         }
 
         // Info:        Return the empty list
         static ImmutableList<T> * Empty()
-        {
+        {TRACE_IT(21654);
             return nullptr;
         }
 
@@ -642,18 +642,18 @@ namespace regex
         // Parameters:  value - the value to remove from the list
         template <class F1, class F2>
         void IterateBetween(F1 f1, F2 f2)
-        {
+        {TRACE_IT(21655);
             auto en = this;
             bool more = en!=Empty();
 
             while(more)
-            {
+            {TRACE_IT(21656);
                 auto last = en->First();
                 f1(last);
                 en = en->next;
                 more = en!=Empty();
                 if (more)
-                {
+                {TRACE_IT(21657);
                     auto next = en->First();
                     f2(last,next);
                 }
@@ -662,11 +662,11 @@ namespace regex
 
         // Info:        Return the size of the list
         size_t Count()
-        {
+        {TRACE_IT(21658);
             size_t count = 0;
             auto current = this;
             while(!current->IsEmpty())
-            {
+            {TRACE_IT(21659);
                 ++count;
                 current = current->next;
             }
@@ -676,14 +676,14 @@ namespace regex
 
         // Info:        Return this list converted to an array in the heap. Get the size by calling Count().
         T ** ToReferenceArrayInHeap(size_t size)
-        {
+        {TRACE_IT(21660);
             Assert(size == Count());
             auto result = HeapNewNoThrowArray(T*, size);
             IfNullThrowOutOfMemory(result);
 
             auto current = this;
             for(size_t index = 0; index<size; ++index)
-            {
+            {TRACE_IT(21661);
 #pragma warning(push)
 #pragma warning(disable:22102)
                 result[index] = &current->value;
@@ -697,10 +697,10 @@ namespace regex
         // Info:        Sort the list by the given reference comparer <Modifies existing list such that it is ordered using comparer>
         // Parameters:  comparer - comparer to sort with
         ImmutableList<T> * SortCurrentList(regex::Comparer<T *> * comparer)
-        {
+        {TRACE_IT(21662);
             auto size = Count();
             if (size == 0 || size == 1)
-            {
+            {TRACE_IT(21663);
                 return this;
             }
             auto arr = ToReferenceArrayInHeap(size);
@@ -712,7 +712,7 @@ namespace regex
             auto result = (ImmutableList<T>*)(arr[0] - offsetof(ImmutableList<T>, value));
             auto current = result;
             for(size_t i = 1; i<size; ++i)
-            {
+            {TRACE_IT(21664);
                 current->next = (ImmutableList<T>*)(arr[i] - offsetof(ImmutableList<T>, value));
                 current = current->next;
             }
@@ -724,10 +724,10 @@ namespace regex
         // Info:        Sort the list by the given reference comparer in reverse order <Modifies existing list such that it is ordered using comparer>
         // Parameters:  comparer - comparer to sort with
         ImmutableList<T> * ReverseSortCurrentList(regex::Comparer<T *> * comparer)
-        {
+        {TRACE_IT(21665);
             auto size = Count();
             if (size == 0 || size == 1)
-            {
+            {TRACE_IT(21666);
                 return this;
             }
             auto arr = ToReferenceArrayInHeap(size);
@@ -739,7 +739,7 @@ namespace regex
             auto result = (ImmutableList<T>*)(arr[0] - offsetof(ImmutableList<T>, value));
             result->next = nullptr;
             for(size_t i = 1; i<size; ++i)
-            {
+            {TRACE_IT(21667);
                 auto current = (ImmutableList<T>*)(arr[i] - offsetof(ImmutableList<T>, value));
                 current->next = result;
                 result = current;
@@ -750,14 +750,14 @@ namespace regex
 
         // Info:        Return true if the list is empty.
         bool IsEmpty()
-        {
+        {TRACE_IT(21668);
             return this==Empty();
         }
 
         // Info:        Return a list containing the given single value
         // Parameters:  value - the value
         static ImmutableList<T> * OfSingle(T value, ArenaAllocator * a)
-        {
+        {TRACE_IT(21669);
             return Anew(a, ImmutableList, value, nullptr);
         }
 
@@ -768,20 +768,20 @@ namespace regex
         // Parameters:  equals - the value
         template<class FEquals>
         ImmutableList<ImmutableList<T> *> * GroupBy(FEquals equals, ArenaAllocator * a)
-        {
+        {TRACE_IT(21670);
             auto out = ImmutableList<ImmutableList<T>*>::Empty();
 
             auto currentIn = this;
             while(!currentIn->IsEmpty())
-            {
+            {TRACE_IT(21671);
                 auto currentOut = out;
                 bool found = false;
                 while(!currentOut->IsEmpty())
-                {
+                {TRACE_IT(21672);
                     ImmutableList<T>* currentOutValue = currentOut->First();
 
                     if (equals(currentOutValue->First(),currentIn->value))
-                    {
+                    {TRACE_IT(21673);
                         found = true;
                         currentOut->First() = currentOutValue->Prepend(currentIn->First(),a);
                         break;
@@ -790,7 +790,7 @@ namespace regex
                     currentOut = currentOut->GetTail();
                 }
                 if (!found)
-                {
+                {TRACE_IT(21674);
                     out = out->Prepend(OfSingle(currentIn->value,a),a);
                 }
                 currentIn = currentIn->next;
@@ -803,18 +803,18 @@ namespace regex
         // Parameters:  equals - the value
         template<class FEquals>
         ImmutableList<ImmutableList<T>*> * GroupByAdjacentOnCurrentList(FEquals equals, ArenaAllocator * a)
-        {
+        {TRACE_IT(21675);
             auto out = ImmutableList<ImmutableList<T>*>::Empty();
             auto tail = out;
             if(!IsEmpty())
-            {
+            {TRACE_IT(21676);
                 auto current = this;
                 auto set = current;
                 auto setTail = set;
                 while(current)
-                {
+                {TRACE_IT(21677);
                     if (!equals(current->First(), set->First()))
-                    {
+                    {TRACE_IT(21678);
                         Assert(!set->IsEmpty() && !setTail->IsEmpty());
                         setTail->next = nullptr;
                         out = out->Append(set, a, &tail);
@@ -836,7 +836,7 @@ namespace regex
     // Parameters:  value - the value
     template<typename T>
     ImmutableList<const T *> * ToImmutableList(const T * value, ArenaAllocator * a)
-    {
+    {TRACE_IT(21679);
         return ImmutableList<const T *>::OfSingle(value,a);
     }
 
@@ -852,11 +852,11 @@ namespace regex
 
     public:
         ImmutableArrayBuilder(TAllocator *alloc) : allocator(alloc), arrayData(nullptr), currentIndex(0), arraySize(0), fAutoDeleteArray(true)
-        {
+        {TRACE_IT(21680);
         }
 
         ~ImmutableArrayBuilder()
-        {
+        {TRACE_IT(21681);
             if (fAutoDeleteArray)
             {
                 AllocatorDeleteArray(TAllocator, allocator, arraySize, arrayData);
@@ -864,10 +864,10 @@ namespace regex
         }
 
         void Append(T newEntry)
-        {
+        {TRACE_IT(21682);
             // Generate new chunk
             if (currentIndex == arraySize)
-            {
+            {TRACE_IT(21683);
                 T * newChunk = AllocatorNewArray(TAllocator, allocator, T, arraySize + chunkSize);
                 memcpy_s(newChunk, (arraySize + chunkSize) * sizeof(T), arrayData, arraySize * sizeof(T));
 
@@ -886,17 +886,17 @@ namespace regex
         }
 
         size_t GetCount()
-        {
+        {TRACE_IT(21684);
             return currentIndex;
         }
 
         T * Get()
-        {
+        {TRACE_IT(21685);
             return arrayData;
         }
 
         void DisableAutoDelete()
-        {
+        {TRACE_IT(21686);
             fAutoDeleteArray = false;
         }
     };
@@ -911,7 +911,7 @@ namespace regex
             StringChunk *next;
 
             StringChunk() : next(nullptr)
-            {
+            {TRACE_IT(21687);
             }
         };
 
@@ -927,23 +927,23 @@ namespace regex
             AllocatedStringChunk *next;
 
             AllocatedStringChunk() : next(nullptr)
-            {
+            {TRACE_IT(21688);
             }
         };
         AllocatedStringChunk* allocatedStringChunksHead;
 
     public:
         ImmutableStringBuilder() : head(nullptr), tail(nullptr), currentIndex(chunkSize), stringSize(1), allocatedStringChunksHead(nullptr)
-        {
+        {TRACE_IT(21689);
         }
 
         ~ImmutableStringBuilder()
-        {
+        {TRACE_IT(21690);
             // unallocate strings
             AllocatedStringChunk* allocatedStringChunk = this->allocatedStringChunksHead;
             AllocatedStringChunk* nextAllocatedStringChunk;
             while (allocatedStringChunk != nullptr)
-            {
+            {TRACE_IT(21691);
                 nextAllocatedStringChunk = allocatedStringChunk->next;
 
                 // TODO: Should be HeapDeleteArray, but don't know size
@@ -956,7 +956,7 @@ namespace regex
             }
 
             while (head != nullptr)
-            {
+            {TRACE_IT(21692);
                 auto current = head;
                 head = head->next;
                 HeapDelete(current);
@@ -970,37 +970,37 @@ namespace regex
         void AppendWithCopy(_In_z_ LPCWSTR str);
 
         void AppendBool(bool value)
-        {
+        {TRACE_IT(21693);
             this->Append(value ? _u("true") : _u("false"));
         }
 
         void Append(LPCWSTR str)
-        {
+        {TRACE_IT(21694);
             // silently ignore nullptr usage pattern, to avoid cluttering codebase
             if (str == nullptr)
                 return;
 
             size_t newStrSize = stringSize + wcslen(str);
             if (newStrSize < stringSize)
-            {
+            {TRACE_IT(21695);
                 // Overflow
                 Js::Throw::OutOfMemory();
             }
 
             // Generate new chunk
             if (currentIndex == chunkSize)
-            {
+            {TRACE_IT(21696);
                 StringChunk *newChunk = HeapNewNoThrow(StringChunk);
                 IfNullThrowOutOfMemory(newChunk);
 
                 if (tail == nullptr)
-                {
+                {TRACE_IT(21697);
                     Assert(head == nullptr);
                     head = newChunk;
                     tail = newChunk;
                 }
                 else
-                {
+                {TRACE_IT(21698);
                     tail->next = newChunk;
                     tail = newChunk;
                 }
@@ -1015,13 +1015,13 @@ namespace regex
 
         template<class TAllocator>
         LPCWSTR Get(TAllocator *allocator)
-        {
+        {TRACE_IT(21699);
             char16 *str = AllocatorNewArray(TAllocator, allocator, char16, stringSize);
             str[0] = _u('\0');
 
             auto current = head;
             while (current != nullptr)
-            {
+            {TRACE_IT(21700);
                 int lastIndex = (current == tail) ? currentIndex : chunkSize;
                 for (int index = 0; index < lastIndex; index++)
                 {
@@ -1037,13 +1037,13 @@ namespace regex
         // Free a string returned by Get()
         template<class TAllocator>
         void FreeString(LPCWSTR str)
-        {
+        {TRACE_IT(21701);
             ImmutableList<chunkSize>::FreeString(allocator, str, stringSize);
         }
 
         template<class TAllocator>
         static void FreeString(TAllocator *allocator, LPCWSTR str, size_t strLength)
-        {
+        {TRACE_IT(21702);
             AssertMsg(allocator != nullptr, "allocator != nullptr");
             AssertMsg(str != nullptr, "str != nullptr");
             AllocatorDeleteArray(TAllocator, allocator, strLength, str);

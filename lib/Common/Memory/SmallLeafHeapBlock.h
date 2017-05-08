@@ -16,11 +16,11 @@ public:
     typedef TBlockAttributes HeapBlockAttributes;
 
     SmallLeafHeapBlockT * GetNextBlock() const
-    {
+    {TRACE_IT(26978);
         HeapBlock* block = Base::GetNextBlock();
         return block ? block->template AsLeafBlock<TBlockAttributes>() : nullptr;
     }
-    void SetNextBlock(SmallLeafHeapBlockT * next) { Base::SetNextBlock(next); }
+    void SetNextBlock(SmallLeafHeapBlockT * next) {TRACE_IT(26979); Base::SetNextBlock(next); }
 
     void ScanNewImplicitRoots(Recycler * recycler);
 

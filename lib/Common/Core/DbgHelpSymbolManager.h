@@ -14,13 +14,13 @@
 class DbgHelpSymbolManager
 {
 public:
-    static void EnsureInitialized() { Instance.Initialize(); }
+    static void EnsureInitialized() {TRACE_IT(19986); Instance.Initialize(); }
     static BOOL SymFromAddr(PVOID address, DWORD64 * dwDisplacement, PSYMBOL_INFO pSymbol);
     static BOOL SymGetLineFromAddr64(_In_ PVOID address, _Out_ PDWORD pdwDisplacement, _Out_ PIMAGEHLP_LINEW64 pLine);
 
     static size_t PrintSymbol(PVOID address);
 private:
-    DbgHelpSymbolManager() : isInitialized(false), hDbgHelpModule(nullptr), pfnSymFromAddrW(nullptr) {}
+    DbgHelpSymbolManager() : isInitialized(false), hDbgHelpModule(nullptr), pfnSymFromAddrW(nullptr) {TRACE_IT(19987);}
     ~DbgHelpSymbolManager();
 
     static DbgHelpSymbolManager Instance;

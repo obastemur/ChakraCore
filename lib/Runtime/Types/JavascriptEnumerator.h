@@ -18,7 +18,7 @@ namespace Js {
         // Returns item index for all nonnamed Enumerators
         //optional override
         //
-        virtual uint32 GetCurrentItemIndex() { return Constants::InvalidSourceIndex; }
+        virtual uint32 GetCurrentItemIndex() {TRACE_IT(66342); return Constants::InvalidSourceIndex; }
 
         //
         // Sets the enumerator to its initial position

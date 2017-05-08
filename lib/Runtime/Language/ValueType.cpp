@@ -13,7 +13,7 @@ const ValueType ValueType::AnyNumber(
     Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::Float | Bits::Number);
 
 void ValueType::Initialize()
-{
+{TRACE_IT(52975);
     InitializeTypeIdToBitsMap();
 #if DBG
     RunUnitTests();
@@ -21,7 +21,7 @@ void ValueType::Initialize()
 }
 
 inline ValueType::Bits ValueType::BitPattern(const TSize onCount)
-{
+{TRACE_IT(52976);
     CompileAssert(sizeof(TSize) <= sizeof(size_t));
     Assert(onCount && onCount <= sizeof(TSize) * 8);
 
@@ -34,7 +34,7 @@ inline ValueType::Bits ValueType::BitPattern(const TSize onCount)
 }
 
 inline ValueType::Bits ValueType::BitPattern(const TSize onCount, const TSize offCount)
-{
+{TRACE_IT(52977);
     Assert(onCount && onCount <= sizeof(TSize) * 8);
     Assert(offCount && offCount <= sizeof(TSize) * 8);
 
@@ -42,12 +42,12 @@ inline ValueType::Bits ValueType::BitPattern(const TSize onCount, const TSize of
 }
 
 ValueType ValueType::GetTaggedInt()
-{
+{TRACE_IT(52978);
     return Verify(Int);
 }
 
 ValueType ValueType::GetInt(const bool isLikelyTagged)
-{
+{TRACE_IT(52979);
     Bits intBits = Bits::Int | Bits::IntCanBeUntagged | Bits::CanBeTaggedValue;
     if(!isLikelyTagged)
         intBits |= Bits::IntIsLikelyUntagged;
@@ -55,16 +55,16 @@ ValueType ValueType::GetInt(const bool isLikelyTagged)
 }
 
 ValueType ValueType::GetNumberAndLikelyInt(const bool isLikelyTagged)
-{
+{TRACE_IT(52980);
     return Verify(GetInt(isLikelyTagged).bits | Bits::Number);
 }
 
 ValueType ValueType::GetObject(const ObjectType objectType)
-{
+{TRACE_IT(52981);
     ValueType valueType(UninitializedObject);
     valueType.SetObjectType(objectType);
     if(objectType == ObjectType::Array || objectType == ObjectType::ObjectWithArray)
-    {
+    {TRACE_IT(52982);
         // Default to the most conservative array-specific information. This just a safeguard to guarantee that the returned
         // value type has a valid set of array-specific information. Callers should not rely on these defaults, and should
         // instead always set each piece of information explicitly.
@@ -74,13 +74,13 @@ ValueType ValueType::GetObject(const ObjectType objectType)
 }
 
 ValueType ValueType::GetSimd128(const ObjectType objectType)
-{
+{TRACE_IT(52983);
     Assert(objectType >= ObjectType::Simd128Float32x4 && objectType <= ObjectType::Simd128Float64x2);
     return GetObject(objectType);
 }
 
 inline ValueType ValueType::GetArray(const ObjectType objectType)
-{
+{TRACE_IT(52984);
     // Should typically use GetObject instead. This function should only be used for performance, when the array info is
     // guaranteed to be updated correctly by the caller.
 
@@ -92,22 +92,22 @@ inline ValueType ValueType::GetArray(const ObjectType objectType)
 }
 
 ValueType::ValueType() : bits(Uninitialized.bits)
-{
+{TRACE_IT(52985);
     CompileAssert(sizeof(ValueType) == sizeof(TSize));
     CompileAssert(sizeof(ObjectType) == sizeof(TSize));
 }
 
 ValueType::ValueType(const Bits bits) : bits(bits)
-{
+{TRACE_IT(52986);
 }
 
 ValueType ValueType::Verify(const Bits bits)
-{
+{TRACE_IT(52987);
     return Verify(ValueType(bits));
 }
 
 ValueType ValueType::Verify(const ValueType valueType)
-{
+{TRACE_IT(52988);
     Assert(valueType.bits);
     Assert(!valueType.OneOn(Bits::Object) || valueType.GetObjectType() < ObjectType::Count);
     Assert(
@@ -122,55 +122,55 @@ ValueType ValueType::Verify(const ValueType valueType)
 }
 
 bool ValueType::OneOn(const Bits b) const
-{
+{TRACE_IT(52989);
     return AnyOn(b);
 }
 
 bool ValueType::AnyOn(const Bits b) const
-{
+{TRACE_IT(52990);
     Assert(b);
     return !!(bits & b);
 }
 
 bool ValueType::AllEqual(const Bits b, const Bits e) const
-{
+{TRACE_IT(52991);
     Assert(b);
     return (bits & b) == e;
 }
 
 bool ValueType::AllOn(const Bits b) const
-{
+{TRACE_IT(52992);
     return AllEqual(b, b);
 }
 
 bool ValueType::OneOnOneOff(const Bits on, const Bits off) const
-{
+{TRACE_IT(52993);
     return AllOnAllOff(on, off);
 }
 
 bool ValueType::AllOnAllOff(const Bits on, const Bits off) const
-{
+{TRACE_IT(52994);
     return AllEqual(on | off, on);
 }
 
 bool ValueType::OneOnOthersOff(const Bits b) const
-{
+{TRACE_IT(52995);
     return AllOnOthersOff(b);
 }
 
 bool ValueType::OneOnOthersOff(const Bits b, const Bits ignore) const
-{
+{TRACE_IT(52996);
     return AllOnOthersOff(b, ignore);
 }
 
 bool ValueType::AnyOnOthersOff(const Bits b) const
-{
+{TRACE_IT(52997);
     Assert(b);
     return !(bits & ~b);
 }
 
 bool ValueType::AnyOnOthersOff(const Bits b, const Bits ignore) const
-{
+{TRACE_IT(52998);
     Assert(b);
     Assert(ignore);
     Assert(!(b & ignore)); // not necessary for this function to work correctly, but generally not expected
@@ -179,13 +179,13 @@ bool ValueType::AnyOnOthersOff(const Bits b, const Bits ignore) const
 }
 
 bool ValueType::AllOnOthersOff(const Bits b) const
-{
+{TRACE_IT(52999);
     Assert(b);
     return bits == b;
 }
 
 bool ValueType::AllOnOthersOff(const Bits b, const Bits ignore) const
-{
+{TRACE_IT(53000);
     Assert(b);
     Assert(ignore);
     Assert(!(b & ignore));
@@ -194,66 +194,66 @@ bool ValueType::AllOnOthersOff(const Bits b, const Bits ignore) const
 }
 
 bool ValueType::AnyOnExcept(const Bits b) const
-{
+{TRACE_IT(53001);
     Assert(!!b && !!~b);
     return !AnyOn(b);
 }
 
 bool ValueType::IsUninitialized() const
-{
+{TRACE_IT(53002);
     return AllOnOthersOff(Bits::Likely, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsDefinite() const
-{
+{TRACE_IT(53003);
     return !OneOn(Bits::Likely);
 }
 
 bool ValueType::IsTaggedInt() const
-{
+{TRACE_IT(53004);
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsIntAndLikelyTagged() const
-{
+{TRACE_IT(53005);
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue, Bits::IntCanBeUntagged);
 }
 
 bool ValueType::IsLikelyTaggedInt() const
-{
+{TRACE_IT(53006);
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue, Bits::Likely | Bits::IntCanBeUntagged | Bits::Number);
 }
 
 bool ValueType::HasBeenUntaggedInt() const
-{
+{TRACE_IT(53007);
     return OneOnOneOff(Bits::IntIsLikelyUntagged, Bits::Object);
 }
 
 bool ValueType::IsIntAndLikelyUntagged() const
-{
+{TRACE_IT(53008);
     return AllOnOthersOff(Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUntaggedInt() const
-{
+{TRACE_IT(53009);
     return AllOnOthersOff(Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged,
                           Bits::Likely | Bits::Number | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotTaggedValue() const
-{
+{TRACE_IT(53010);
     return IsNotNumber() || !OneOn(Bits::CanBeTaggedValue);
 }
 
 bool ValueType::CanBeTaggedValue() const
-{
+{TRACE_IT(53011);
     return !IsNotTaggedValue();
 }
 
 ValueType ValueType::SetCanBeTaggedValue(const bool b) const
-{
+{TRACE_IT(53012);
     if (b)
-    {
+    {TRACE_IT(53013);
         Assert(!IsNotNumber());
         return Verify(bits | Bits::CanBeTaggedValue);
     }
@@ -261,42 +261,42 @@ ValueType ValueType::SetCanBeTaggedValue(const bool b) const
 }
 
 bool ValueType::HasBeenInt() const
-{
+{TRACE_IT(53014);
     return OneOnOneOff(Bits::Int, Bits::Object);
 }
 
 bool ValueType::IsInt() const
-{
+{TRACE_IT(53015);
     return OneOnOthersOff(Bits::Int, Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyInt() const
-{
+{TRACE_IT(53016);
     return OneOnOthersOff(
         Bits::Int,
         Bits::Likely | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::Number | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotInt() const
-{
+{TRACE_IT(53017);
     return
         AnyOnExcept(Bits::Likely | Bits::Object | Bits::Int | Bits::CanBeTaggedValue | Bits::Float | Bits::Number) ||
         OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::IsNotNumber() const
-{
+{TRACE_IT(53018);
     // These are the same for now.
     return IsNotInt();
 }
 
 bool ValueType::HasBeenFloat() const
-{
+{TRACE_IT(53019);
     return OneOnOneOff(Bits::Float, Bits::Object);
 }
 
 bool ValueType::IsFloat() const
-{
+{TRACE_IT(53020);
     // TODO: Require that the int bits are off. We can then use (!IsFloat() && IsNumber()) to determine that a tagged int check
     // needs to be done but not a JavascriptNumber/TaggedFloat check.
     return
@@ -312,7 +312,7 @@ bool ValueType::IsFloat() const
 }
 
 bool ValueType::IsLikelyFloat() const
-{
+{TRACE_IT(53021);
     return
         OneOnOthersOff(
             Bits::Float,
@@ -328,18 +328,18 @@ bool ValueType::IsLikelyFloat() const
 }
 
 bool ValueType::HasBeenNumber() const
-{
+{TRACE_IT(53022);
     return !OneOn(Bits::Object) && AnyOn(Bits::Int | Bits::Float | Bits::Number);
 }
 
 bool ValueType::IsNumber() const
-{
+{TRACE_IT(53023);
     return AnyOnOthersOff(Bits::Int | Bits::Float | Bits::Number,
                           Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyNumber() const
-{
+{TRACE_IT(53024);
     return
         AnyOnOthersOff(
             Bits::Int | Bits::Float | Bits::Number,
@@ -347,116 +347,116 @@ bool ValueType::IsLikelyNumber() const
 }
 
 bool ValueType::HasBeenUnknownNumber() const
-{
+{TRACE_IT(53025);
     return OneOnOneOff(Bits::Number, Bits::Object);
 }
 
 bool ValueType::IsUnknownNumber() const
-{
+{TRACE_IT(53026);
     // Equivalent to IsNumber() && !IsLikelyInt() && !IsLikelyFloat()
     return OneOnOthersOff(Bits::Number, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUnknownNumber() const
-{
+{TRACE_IT(53027);
     // If true, equivalent to IsLikelyNumber() && !IsLikelyInt() && !IsLikelyFloat()
     return OneOnOthersOff(Bits::Number, Bits::Likely | Bits::Undefined | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenUndefined() const
-{
+{TRACE_IT(53028);
     return OneOn(Bits::Undefined);
 }
 
 bool ValueType::IsUndefined() const
-{
+{TRACE_IT(53029);
     return OneOnOthersOff(Bits::Undefined, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUndefined() const
-{
+{TRACE_IT(53030);
     return OneOnOthersOff(Bits::Undefined, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenNull() const
-{
+{TRACE_IT(53031);
     return OneOn(Bits::Null);
 }
 
 bool ValueType::IsNull() const
-{
+{TRACE_IT(53032);
     return OneOnOthersOff(Bits::Null, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyNull() const
-{
+{TRACE_IT(53033);
     return OneOnOthersOff(Bits::Null, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenBoolean() const
-{
+{TRACE_IT(53034);
     return OneOnOneOff(Bits::Boolean, Bits::Object);
 }
 
 bool ValueType::IsBoolean() const
-{
+{TRACE_IT(53035);
     return OneOnOthersOff(Bits::Boolean, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyBoolean() const
-{
+{TRACE_IT(53036);
     return OneOnOthersOff(Bits::Boolean, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenString() const
-{
+{TRACE_IT(53037);
     return OneOnOneOff(Bits::String, Bits::Object);
 }
 
 bool ValueType::IsString() const
-{
+{TRACE_IT(53038);
     return OneOnOthersOff(Bits::String, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasHadStringTag() const
-{
+{TRACE_IT(53039);
     return !!(bits & Bits::String);
 }
 
 bool ValueType::IsLikelyString() const
-{
+{TRACE_IT(53040);
     return OneOnOthersOff(Bits::String, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotString() const
-{
+{TRACE_IT(53041);
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::String | Bits::CanBeTaggedValue)
         || OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::HasBeenSymbol() const
-{
+{TRACE_IT(53042);
     return OneOnOneOff(Bits::Symbol, Bits::Object);
 }
 
 bool ValueType::IsSymbol() const
-{
+{TRACE_IT(53043);
     return OneOnOthersOff(Bits::Symbol, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelySymbol() const
-{
+{TRACE_IT(53044);
     return OneOnOthersOff(Bits::Symbol, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotSymbol() const
-{
+{TRACE_IT(53045);
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::Symbol | Bits::CanBeTaggedValue)
         || OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::HasBeenPrimitive() const
-{
+{TRACE_IT(53046);
     return
         OneOn(Bits::Object)
             ?
@@ -476,7 +476,7 @@ bool ValueType::HasBeenPrimitive() const
 }
 
 bool ValueType::IsPrimitive() const
-{
+{TRACE_IT(53047);
     bool result =
         AnyOnOthersOff(
             Bits::Undefined | Bits::Null | Bits::Int | Bits::Float | Bits::Number | Bits::Boolean | Bits::String | Bits::Symbol,
@@ -490,7 +490,7 @@ bool ValueType::IsPrimitive() const
 }
 
 bool ValueType::IsLikelyPrimitive() const
-{
+{TRACE_IT(53048);
     bool result =
         AnyOnOthersOff(
             Bits::Undefined | Bits::Null | Bits::Int | Bits::Float | Bits::Number | Bits::Boolean | Bits::String | Bits::Symbol,
@@ -505,17 +505,17 @@ bool ValueType::IsLikelyPrimitive() const
 
 
 bool ValueType::HasBeenObject() const
-{
+{TRACE_IT(53049);
     return AnyOn(Bits::Object | Bits::PrimitiveOrObject);
 }
 
 bool ValueType::IsObject() const
-{
+{TRACE_IT(53050);
     return AllOnAllOff(Bits::Object, Bits::Likely | Bits::Undefined | Bits::Null);
 }
 
 bool ValueType::IsLikelyObject() const
-{
+{TRACE_IT(53051);
     // For syms that are typically used as objects, they often also have Undefined or Null values, and they are used as objects
     // only after checking for Undefined or Null. So, for the purpose of determining whether a value type is likely object, the
     // Undefined and Null bits are ignored.
@@ -523,75 +523,75 @@ bool ValueType::IsLikelyObject() const
 }
 
 bool ValueType::IsNotObject() const
-{
+{TRACE_IT(53052);
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::PrimitiveOrObject);
 }
 
 bool ValueType::CanMergeToObject() const
-{
+{TRACE_IT(53053);
     Assert(!IsLikelyObject());
     return AnyOnExcept(BitPattern(VALUE_TYPE_NONOBJECT_BIT_COUNT, VALUE_TYPE_COMMON_BIT_COUNT));
 }
 
 bool ValueType::CanMergeToSpecificObjectType() const
-{
+{TRACE_IT(53054);
     return IsLikelyObject() ? GetObjectType() == ObjectType::UninitializedObject : CanMergeToObject();
 }
 
 bool ValueType::IsRegExp() const
-{
+{TRACE_IT(53055);
     return IsObject() && GetObjectType() == ObjectType::RegExp;
 }
 
 bool ValueType::IsLikelyRegExp() const
-{
+{TRACE_IT(53056);
     return IsLikelyObject() && GetObjectType() == ObjectType::RegExp;
 }
 
 bool ValueType::IsArray() const
-{
+{TRACE_IT(53057);
     return IsObject() && GetObjectType() == ObjectType::Array;
 }
 
 bool ValueType::IsLikelyArray() const
-{
+{TRACE_IT(53058);
     return IsLikelyObject() && GetObjectType() == ObjectType::Array;
 }
 
 bool ValueType::IsNotArray() const
-{
+{TRACE_IT(53059);
     return IsNotObject() || (IsObject() && GetObjectType() > ObjectType::Object && GetObjectType() != ObjectType::Array);
 }
 
 bool ValueType::IsArrayOrObjectWithArray() const
-{
+{TRACE_IT(53060);
     return IsObject() && (GetObjectType() == ObjectType::ObjectWithArray || GetObjectType() == ObjectType::Array);
 }
 
 bool ValueType::IsLikelyArrayOrObjectWithArray() const
-{
+{TRACE_IT(53061);
     return IsLikelyObject() && (GetObjectType() == ObjectType::ObjectWithArray || GetObjectType() == ObjectType::Array);
 }
 
 bool ValueType::IsNotArrayOrObjectWithArray() const
-{
+{TRACE_IT(53062);
     return
         IsNotObject() ||
         (IsObject() && GetObjectType() != ObjectType::ObjectWithArray && GetObjectType() != ObjectType::Array);
 }
 
 bool ValueType::IsNativeArray() const
-{
+{TRACE_IT(53063);
     return IsArrayOrObjectWithArray() && !HasVarElements();
 }
 
 bool ValueType::IsLikelyNativeArray() const
-{
+{TRACE_IT(53064);
     return IsLikelyArrayOrObjectWithArray() && !HasVarElements();
 }
 
 bool ValueType::IsNotNativeArray() const
-{
+{TRACE_IT(53065);
     return
         IsNotObject() ||
         (
@@ -601,67 +601,67 @@ bool ValueType::IsNotNativeArray() const
 }
 
 bool ValueType::IsNativeIntArray() const
-{
+{TRACE_IT(53066);
     return IsArrayOrObjectWithArray() && HasIntElements();
 }
 
 bool ValueType::IsLikelyNativeIntArray() const
-{
+{TRACE_IT(53067);
     return IsLikelyArrayOrObjectWithArray() && HasIntElements();
 }
 
 bool ValueType::IsNativeFloatArray() const
-{
+{TRACE_IT(53068);
     return IsArrayOrObjectWithArray() && HasFloatElements();
 }
 
 bool ValueType::IsLikelyNativeFloatArray() const
-{
+{TRACE_IT(53069);
     return IsLikelyArrayOrObjectWithArray() && HasFloatElements();
 }
 
 bool ValueType::IsTypedIntArray() const
-{
+{TRACE_IT(53070);
     return IsObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::Uint32Array;
 }
 
 bool ValueType::IsLikelyTypedIntArray() const
-{
+{TRACE_IT(53071);
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::Uint32Array;
 }
 
 bool ValueType::IsTypedArray() const
-{
+{TRACE_IT(53072);
     return IsObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsLikelyTypedArray() const
-{
+{TRACE_IT(53073);
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsTypedIntOrFloatArray() const
-{
+{TRACE_IT(53074);
     return IsObject() && ((GetObjectType() >= ObjectType::Int8Array  && GetObjectType() <= ObjectType::Float64Array));
 }
 
 bool ValueType::IsOptimizedTypedArray() const
-{
+{TRACE_IT(53075);
     return IsObject() && ((GetObjectType() >= ObjectType::Int8Array  && GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyOptimizedTypedArray() const
-{
+{TRACE_IT(53076);
     return IsLikelyObject() && ((GetObjectType() >= ObjectType::Int8Array  &&  GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyOptimizedVirtualTypedArray() const
-{
+{TRACE_IT(53077);
     return IsLikelyObject() && (GetObjectType() >= ObjectType::Int8VirtualArray && GetObjectType() <= ObjectType::Float64VirtualArray);
 }
 
 bool ValueType::IsAnyArrayWithNativeFloatValues() const
-{
+{TRACE_IT(53078);
     if(!IsObject())
         return false;
     switch(GetObjectType())
@@ -682,7 +682,7 @@ bool ValueType::IsAnyArrayWithNativeFloatValues() const
 }
 
 bool ValueType::IsLikelyAnyArrayWithNativeFloatValues() const
-{
+{TRACE_IT(53079);
     if(!IsLikelyObject())
         return false;
     switch(GetObjectType())
@@ -703,27 +703,27 @@ bool ValueType::IsLikelyAnyArrayWithNativeFloatValues() const
 }
 
 bool ValueType::IsAnyArray() const
-{
+{TRACE_IT(53080);
     return IsObject() && GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsLikelyAnyArray() const
-{
+{TRACE_IT(53081);
     return IsLikelyObject() && GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsAnyOptimizedArray() const
-{
+{TRACE_IT(53082);
     return IsObject() && ((GetObjectType() >= ObjectType::ObjectWithArray &&  GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyAnyOptimizedArray() const
-{
+{TRACE_IT(53083);
     return IsLikelyObject() && ((GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyAnyUnOptimizedArray() const
-{
+{TRACE_IT(53084);
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int64Array && GetObjectType() <= ObjectType::CharArray;
 }
 
@@ -731,12 +731,12 @@ bool ValueType::IsLikelyAnyUnOptimizedArray() const
 // Simd128 values
 // Note that SIMD types are primitives
 bool ValueType::IsSimd128() const
-{
+{TRACE_IT(53085);
     return IsObject() && (GetObjectType() >= ObjectType::Simd128Float32x4 && GetObjectType() <= ObjectType::Simd128Float64x2);
 }
 
 bool ValueType::IsSimd128(IRType type) const
-{
+{TRACE_IT(53086);
     switch (type)
     {
     case TySimd128F4:
@@ -762,94 +762,94 @@ bool ValueType::IsSimd128(IRType type) const
 }
 
 bool ValueType::IsSimd128Float32x4() const
-{
+{TRACE_IT(53087);
     return IsObject() && GetObjectType() == ObjectType::Simd128Float32x4;
 }
 
 bool ValueType::IsSimd128Int32x4() const
-{
+{TRACE_IT(53088);
     return IsObject() && GetObjectType() == ObjectType::Simd128Int32x4;
 }
 
 bool ValueType::IsSimd128Int16x8() const
-{
+{TRACE_IT(53089);
     return IsObject() && GetObjectType() == ObjectType::Simd128Int16x8;
 }
 
 bool ValueType::IsSimd128Int8x16() const
-{
+{TRACE_IT(53090);
     return IsObject() && GetObjectType() == ObjectType::Simd128Int8x16;
 }
 
 bool ValueType::IsSimd128Uint32x4() const
-{
+{TRACE_IT(53091);
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint32x4;
 }
 
 bool ValueType::IsSimd128Uint16x8() const
-{
+{TRACE_IT(53092);
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint16x8;
 }
 
 bool ValueType::IsSimd128Uint8x16() const
-{
+{TRACE_IT(53093);
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint8x16;
 }
 
 bool ValueType::IsSimd128Float64x2() const
-{
+{TRACE_IT(53094);
     return IsObject() && GetObjectType() == ObjectType::Simd128Float64x2;
 }
 
 bool ValueType::IsLikelySimd128() const
-{
+{TRACE_IT(53095);
     return IsLikelyObject() && (GetObjectType() >= ObjectType::Simd128Float32x4 && GetObjectType() <= ObjectType::Simd128Float64x2);
 }
 
 bool ValueType::IsLikelySimd128Float32x4() const
-{
+{TRACE_IT(53096);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Float32x4;
 }
 
 bool ValueType::IsLikelySimd128Int32x4() const
-{
+{TRACE_IT(53097);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int32x4;
 }
 
 bool ValueType::IsLikelySimd128Int16x8() const
-{
+{TRACE_IT(53098);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int16x8;
 }
 
 bool ValueType::IsLikelySimd128Int8x16() const
-{
+{TRACE_IT(53099);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int8x16;
 }
 
 bool ValueType::IsLikelySimd128Uint16x8() const
-{
+{TRACE_IT(53100);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Uint16x8;
 }
 
 bool ValueType::IsLikelySimd128Uint8x16() const
-{
+{TRACE_IT(53101);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Uint8x16;
 }
 
 bool ValueType::IsLikelySimd128Float64x2() const
-{
+{TRACE_IT(53102);
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Float64x2;
 }
 #endif
 
 ObjectType ValueType::GetObjectType() const
-{
+{TRACE_IT(53103);
     Assert(OneOn(Bits::Object));
     return _objectType;
 }
 
 void ValueType::SetObjectType(const ObjectType objectType)
-{
+{TRACE_IT(53104);
     Assert(OneOn(Bits::Object));
     Assert(objectType < ObjectType::Count);
 
@@ -857,7 +857,7 @@ void ValueType::SetObjectType(const ObjectType objectType)
 }
 
 ValueType ValueType::SetIsNotAnyOf(const ValueType other) const
-{
+{TRACE_IT(53105);
     Assert(other.IsDefinite());
     Assert(!other.HasBeenObject());
 
@@ -865,13 +865,13 @@ ValueType ValueType::SetIsNotAnyOf(const ValueType other) const
 }
 
 bool ValueType::HasNoMissingValues() const
-{
+{TRACE_IT(53106);
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NoMissingValues);
 }
 
 ValueType ValueType::SetHasNoMissingValues(const bool noMissingValues) const
-{
+{TRACE_IT(53107);
     Assert(IsLikelyArrayOrObjectWithArray());
 
     if(noMissingValues)
@@ -880,37 +880,37 @@ ValueType ValueType::SetHasNoMissingValues(const bool noMissingValues) const
 }
 
 bool ValueType::HasNonInts() const
-{
+{TRACE_IT(53108);
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NonInts);
 }
 
 bool ValueType::HasNonFloats() const
-{
+{TRACE_IT(53109);
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NonFloats);
 }
 
 bool ValueType::HasIntElements() const
-{
+{TRACE_IT(53110);
     Assert(IsLikelyArrayOrObjectWithArray());
     return !OneOn(Bits::NonInts);
 }
 
 bool ValueType::HasFloatElements() const
-{
+{TRACE_IT(53111);
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOnOneOff(Bits::NonInts, Bits::NonFloats);
 }
 
 bool ValueType::HasVarElements() const
-{
+{TRACE_IT(53112);
     Assert(IsLikelyArrayOrObjectWithArray());
     return AllOn(Bits::NonInts | Bits::NonFloats);
 }
 
 ValueType ValueType::SetArrayTypeId(const Js::TypeId typeId) const
-{
+{TRACE_IT(53113);
     using namespace Js;
     Assert(IsLikelyArrayOrObjectWithArray());
     Assert(JavascriptArray::Is(typeId));
@@ -936,13 +936,13 @@ bool ValueType::IsSubsetOf(
     const bool isFloatSpecEnabled,
     const bool isArrayMissingValueCheckHoistEnabled,
     const bool isNativeArrayEnabled) const
-{
+{TRACE_IT(53114);
     if(IsUninitialized())
         return other.IsUninitialized();
     if(other.IsUninitialized())
         return true;
     if(IsLikelyNumber() && other.IsLikelyNumber())
-    {
+    {TRACE_IT(53115);
         // Special case for numbers since there are multiple combinations of bits and a bit-subset produces incorrect results in
         // some cases
 
@@ -953,7 +953,7 @@ bool ValueType::IsSubsetOf(
         // specialization.
         if(other.IsUnknownNumber() &&
             ((isAggressiveIntTypeSpecEnabled && IsLikelyInt()) || (isFloatSpecEnabled && IsLikelyFloat())))
-        {
+        {TRACE_IT(53116);
             return true;
         }
 
@@ -986,12 +986,12 @@ bool ValueType::IsSubsetOf(
     if(!!commonBits && !other.AllOn(commonBits))
         return false;
     if(OneOn(Bits::Object))
-    {
+    {TRACE_IT(53117);
         if(!other.OneOn(Bits::Object))
             return other.OneOn(Bits::PrimitiveOrObject) || (!other.IsDefinite() && other.CanMergeToObject());
     }
     else
-    {
+    {TRACE_IT(53118);
         if(!other.OneOn(Bits::Object))
             return other.AllOn(bits);
         return CanMergeToObject();
@@ -1002,7 +1002,7 @@ bool ValueType::IsSubsetOf(
         return false;
     if((!OneOn(Bits::Likely) && other.OneOn(Bits::Likely)) ||
         (other.GetObjectType() != ObjectType::ObjectWithArray && other.GetObjectType() != ObjectType::Array))
-    {
+    {TRACE_IT(53119);
         return true;
     }
 
@@ -1020,13 +1020,13 @@ bool ValueType::IsSubsetOf(
 }
 
 ValueType ValueType::ToDefinite() const
-{
+{TRACE_IT(53120);
     Assert(!IsUninitialized());
     return Verify(bits & ~Bits::Likely);
 }
 
 ValueType ValueType::ToLikelyUntaggedInt() const
-{
+{TRACE_IT(53121);
     Assert(IsLikelyInt());
     Assert(!IsInt());
 
@@ -1034,12 +1034,12 @@ ValueType ValueType::ToLikelyUntaggedInt() const
 }
 
 ValueType ValueType::ToDefiniteNumber_PreferFloat() const
-{
+{TRACE_IT(53122);
     return IsNumber() ? *this : ToDefiniteAnyFloat();
 }
 
 ValueType ValueType::ToDefiniteAnyFloat() const
-{
+{TRACE_IT(53123);
     // Not asserting on expected value type because float specialization allows specializing values of arbitrary types, even
     // values that are definitely not float
     return
@@ -1050,13 +1050,13 @@ ValueType ValueType::ToDefiniteAnyFloat() const
 }
 
 ValueType ValueType::ToDefiniteNumber() const
-{
+{TRACE_IT(53124);
     Assert(IsLikelyNumber());
     return IsNumber() ? *this : ToDefiniteAnyNumber();
 }
 
 ValueType ValueType::ToDefiniteAnyNumber() const
-{
+{TRACE_IT(53125);
     // Not asserting on expected value type because Conv_Num allows converting values of arbitrary types to number
     if(OneOn(Bits::Object))
         return Verify(Bits::Number | Bits::CanBeTaggedValue);
@@ -1076,7 +1076,7 @@ ValueType ValueType::ToDefiniteAnyNumber() const
 }
 
 ValueType ValueType::ToDefinitePrimitiveSubset() const
-{
+{TRACE_IT(53126);
     // This function does not do a safe conversion of an arbitrary type to a definitely-primitive type. It only obtains the
     // primitive subset of bits from the type.
 
@@ -1107,7 +1107,7 @@ ValueType ValueType::ToDefinitePrimitiveSubset() const
 }
 
 ValueType ValueType::ToDefiniteObject() const
-{
+{TRACE_IT(53127);
     // When Undefined (or Null) merge with Object, the resulting value type is still likely Object (IsLikelyObject() returns
     // true). ToDefinite() on the merged type would return a type that is definitely Undefined or Object. Usually, that type is
     // not interesting and a test for the Object type may have been done to ensure the Object type. ToDefiniteObject() removes
@@ -1117,12 +1117,12 @@ ValueType ValueType::ToDefiniteObject() const
 }
 
 ValueType ValueType::ToLikely() const
-{
+{TRACE_IT(53128);
     return Verify(bits | Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 ValueType ValueType::ToArray() const
-{
+{TRACE_IT(53129);
     Assert(GetObjectType() == ObjectType::ObjectWithArray);
 
     ValueType valueType(*this);
@@ -1131,7 +1131,7 @@ ValueType ValueType::ToArray() const
 }
 
 ValueType ValueType::ToPrimitiveOrObject() const
-{
+{TRACE_IT(53130);
     // When an object type is merged with a non-object type, the PrimitiveOrObject bit is set in the merged type by converting
     // the object type to a PrimitiveOrObject type (preserving only the common bits other than Object) and merging it with the
     // non-object type. The PrimitiveOrObject type will not have the Object bit set, so that it can still be queried for whether
@@ -1141,23 +1141,23 @@ ValueType ValueType::ToPrimitiveOrObject() const
 }
 
 ValueType ValueType::MergeWithObject(const ValueType other) const
-{
+{TRACE_IT(53131);
     ValueType merged(bits | other.bits);
     Assert(merged.OneOn(Bits::Object));
 
     if(ValueType(bits & other.bits).OneOn(Bits::Object)) // both have the Object bit set
-    {
+    {TRACE_IT(53132);
         if (GetObjectType() == other.GetObjectType())
             return Verify(merged);
         const ObjectType typedArrayMergedObjectType =
             TypedArrayMergeMap[static_cast<uint16>(GetObjectType())][static_cast<uint16>(other.GetObjectType())];
         if (typedArrayMergedObjectType != ObjectType::UninitializedObject)
-        {
+        {TRACE_IT(53133);
             merged.SetObjectType(typedArrayMergedObjectType);
             return Verify(merged);
         }
         if(GetObjectType() != ObjectType::UninitializedObject && other.GetObjectType() != ObjectType::UninitializedObject)
-        {
+        {TRACE_IT(53134);
             // Any two different specific object types (excludes UninitializedObject and Object, which don't indicate any
             // specific type of object) merge to Object since the resulting type is not guaranteed to indicate any specific type
             merged.SetObjectType(ObjectType::Object);
@@ -1179,7 +1179,7 @@ ValueType ValueType::MergeWithObject(const ValueType other) const
     }
 
     if(OneOn(Bits::Object))
-    {
+    {TRACE_IT(53135);
         if(other.CanMergeToObject())
             return Verify(merged);
         return Verify(ToPrimitiveOrObject().bits | other.bits); // see ToPrimitiveOrObject
@@ -1191,14 +1191,14 @@ ValueType ValueType::MergeWithObject(const ValueType other) const
 }
 
 ValueType ValueType::Merge(const Js::Var var) const
-{
+{TRACE_IT(53136);
     using namespace Js;
     Assert(var);
 
     if(TaggedInt::Is(var))
         return Merge(GetTaggedInt());
     if(JavascriptNumber::Is_NoTaggedIntCheck(var))
-    {
+    {TRACE_IT(53137);
         return
             Merge(
                 (IsUninitialized() || IsLikelyInt()) && JavascriptNumber::IsInt32_NoChecks(var)
@@ -1218,26 +1218,26 @@ ObjectType ValueType::MixedTypedToVirtualTypedArray[(uint16)ObjectType::Count];
 
 
 void ValueType::InitializeTypeIdToBitsMap()
-{
+{TRACE_IT(53138);
     using namespace Js;
 
     // Initialize all static types to Uninitialized first, so that a zero will indicate that it's a dynamic type
     for (TypeId typeId = static_cast<TypeId>(0); typeId <= TypeIds_LastStaticType; typeId = static_cast<TypeId>(typeId + 1))
-    {
+    {TRACE_IT(53139);
         TypeIdToBits[typeId] = ValueType::Uninitialized.bits;
         VirtualTypeIdToBits[typeId] = ValueType::Uninitialized.bits;
         TypeIdToVtable[typeId] = (INT_PTR)nullptr;
     }
 
     for (ObjectType objType = static_cast<ObjectType>(0); objType <ObjectType::Count; objType = static_cast<ObjectType>((uint16)(objType) + 1))
-    {
+    {TRACE_IT(53140);
         VirtualTypedArrayPair[(uint16)objType] = ObjectType::UninitializedObject;
         MixedTypedArrayPair[(uint16)objType] = ObjectType::UninitializedObject;
         MixedTypedToVirtualTypedArray[(uint16)objType] = ObjectType::UninitializedObject;
     }
 
     for (ObjectType objType = static_cast<ObjectType>(0); objType < ObjectType::Count; objType = static_cast<ObjectType>((uint16)(objType)+1))
-    {
+    {TRACE_IT(53141);
         for (ObjectType objTypeInner = static_cast<ObjectType>(0); objTypeInner < ObjectType::Count; objTypeInner = static_cast<ObjectType>((uint16)(objTypeInner)+1))
             TypedArrayMergeMap[(uint16)objType][(uint16)objTypeInner] = ObjectType::UninitializedObject;
     }
@@ -1408,26 +1408,26 @@ void ValueType::InitializeTypeIdToBitsMap()
 }
 
 INT_PTR ValueType::GetVirtualTypedArrayVtable(const Js::TypeId typeId)
-{
+{TRACE_IT(53142);
     if (typeId < _countof(TypeIdToVtable))
-    {
+    {TRACE_IT(53143);
         return TypeIdToVtable[typeId];
     }
     return NULL;
 }
 
 ValueType ValueType::FromTypeId(const Js::TypeId typeId, bool useVirtual)
-{
+{TRACE_IT(53144);
     if(typeId < _countof(TypeIdToBits))
-    {
+    {TRACE_IT(53145);
         if (useVirtual)
-        {
+        {TRACE_IT(53146);
             const Bits bits = VirtualTypeIdToBits[typeId];
             if (!!bits)
                 return bits;
         }
         else
-        {
+        {TRACE_IT(53147);
             const Bits bits = TypeIdToBits[typeId];
             if (!!bits)
                 return bits;
@@ -1437,15 +1437,15 @@ ValueType ValueType::FromTypeId(const Js::TypeId typeId, bool useVirtual)
 }
 
 ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
-{
+{TRACE_IT(53148);
     using namespace Js;
     Assert(recyclableObject);
     const TypeId typeId = recyclableObject->GetTypeId();
     if (typeId < _countof(TypeIdToBits))
-    {
+    {TRACE_IT(53149);
         const Bits bits = TypeIdToBits[typeId];
         if (!!bits)
-        {
+        {TRACE_IT(53150);
             const ValueType valueType = Verify(bits);
             if (!valueType.IsLikelyOptimizedTypedArray())
                 return valueType;
@@ -1458,7 +1458,7 @@ ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
     Assert(DynamicType::Is(typeId)); // all static type IDs have nonzero values in TypeIdToBits
 
     if(!JavascriptArray::Is(typeId))
-    {
+    {TRACE_IT(53151);
         // TODO: Once the issue with loop bodies and uninitialized interpreter local slots is fixed, use FromVar
         DynamicObject *const object = static_cast<DynamicObject *>(recyclableObject);
         if(!VirtualTableInfo<DynamicObject>::HasVirtualTable(object) || !object->HasObjectArray())
@@ -1470,7 +1470,7 @@ ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
 }
 
 ValueType ValueType::FromObjectWithArray(Js::DynamicObject *const object)
-{
+{TRACE_IT(53152);
     using namespace Js;
     Assert(object);
     Assert(VirtualTableInfo<DynamicObject>::HasVirtualTable(object));
@@ -1485,7 +1485,7 @@ ValueType ValueType::FromObjectWithArray(Js::DynamicObject *const object)
 }
 
 ValueType ValueType::FromObjectArray(Js::JavascriptArray *const objectArray)
-{
+{TRACE_IT(53153);
     using namespace Js;
     Assert(objectArray);
 
@@ -1496,7 +1496,7 @@ ValueType ValueType::FromArray(
     const ObjectType objectType,
     Js::JavascriptArray *const array,
     const Js::TypeId arrayTypeId)
-{
+{TRACE_IT(53154);
     Assert(array);
     Assert(array->GetTypeId() == arrayTypeId);
 
@@ -1509,17 +1509,17 @@ ValueType ValueType::FromArray(
 }
 
 bool ValueType::operator ==(const ValueType other) const
-{
+{TRACE_IT(53155);
     return bits == other.bits;
 }
 
 bool ValueType::operator !=(const ValueType other) const
-{
+{TRACE_IT(53156);
     return !(*this == other);
 }
 
 uint ValueType::GetHashCode() const
-{
+{TRACE_IT(53157);
     return static_cast<uint>(bits);
 }
 
@@ -1538,7 +1538,7 @@ const char *const ObjectTypeNames[] =
 };
 
 size_t ValueType::GetLowestBitIndex(const Bits b)
-{
+{TRACE_IT(53158);
     Assert(b);
 
     DWORD i;
@@ -1547,7 +1547,7 @@ size_t ValueType::GetLowestBitIndex(const Bits b)
 }
 
 void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{TRACE_IT(53159);
     if(IsUninitialized())
     {
         strcpy_s(str, "Uninitialized");
@@ -1556,7 +1556,7 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 
     Bits b = bits;
     if(OneOn(Bits::Object))
-    {
+    {TRACE_IT(53160);
         // Exclude the object type for enumerating bits, and exclude bits specific to a different object type
         b = _objectBits;
         if(IsLikelyArrayOrObjectWithArray())
@@ -1570,13 +1570,13 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
     bool addUnderscore = false;
     size_t nameIndexOffset = 0;
     do
-    {
+    {TRACE_IT(53161);
         const char *name;
         switch(b & -b) // bit to be printed
         {
             case Bits::Object:
                 if(IsLikelyNativeArray())
-                {
+                {TRACE_IT(53162);
                     Assert(GetObjectType() == ObjectType::Array || GetObjectType() == ObjectType::ObjectWithArray);
                     Assert(HasIntElements() || HasFloatElements());
                     name =
@@ -1590,14 +1590,14 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 
             case Bits::Int:
                 if(!CONFIG_FLAG(Verbose) && !OneOn(Bits::Object))
-                {
+                {TRACE_IT(53163);
                     if(AnyOnExcept(Bits::Likely | Bits::IntCanBeUntagged | Bits::CanBeTaggedValue))
-                    {
+                    {TRACE_IT(53164);
                         name = "TaggedInt";
                         break;
                     }
                     if(OneOn(Bits::IntIsLikelyUntagged))
-                    {
+                    {TRACE_IT(53165);
                         name = "IntAndLikelyUntagged";
                         break;
                     }
@@ -1618,7 +1618,7 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
             break;
 
         if(addUnderscore)
-        {
+        {TRACE_IT(53166);
             str[length++] = '_';
             --nameLength;
         }
@@ -1638,11 +1638,11 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 }
 
 void ValueType::ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{TRACE_IT(53167);
     char charStr[VALUE_TYPE_MAX_STRING_SIZE];
     ToString(charStr);
     for(int i = 0; i < VALUE_TYPE_MAX_STRING_SIZE; ++i)
-    {
+    {TRACE_IT(53168);
         str[i] = charStr[i];
         if(!charStr[i])
             break;
@@ -1650,9 +1650,9 @@ void ValueType::ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 }
 
 void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{TRACE_IT(53169);
     if(IsUninitialized() || CONFIG_FLAG(Verbose))
-    {
+    {TRACE_IT(53170);
         ToVerboseString(str);
         return;
     }
@@ -1665,7 +1665,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
     else if(definiteType.IsFloat())
         generalizedType = Float;
     else if(definiteType.IsNumber())
-    {
+    {TRACE_IT(53171);
         generalizedType = Number;
         if(definiteType.IsLikelyInt())
             generalizedType = generalizedType.Merge(GetInt(definiteType.IsLikelyTaggedInt()));
@@ -1686,7 +1686,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
         return;
     }
     else if(definiteType.IsLikelyObject())
-    {
+    {TRACE_IT(53172);
         generalizedType = definiteType.ToDefiniteObject();
         if(!definiteType.IsObject())
             generalizedType = generalizedType.ToLikely();
@@ -1705,7 +1705,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 
 void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_t strSize) const
-{
+{TRACE_IT(53173);
     Assert(str);
 
     if(strSize == 0)
@@ -1719,9 +1719,9 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 
     const size_t generalizedStrLength = strlen(generalizedStr);
     if(strcmp(generalizedStr, verboseStr) == 0)
-    {
+    {TRACE_IT(53174);
         if(generalizedStrLength >= strSize)
-        {
+        {TRACE_IT(53175);
             str[0] = '\0';
             return;
         }
@@ -1731,7 +1731,7 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 
     const size_t verboseStrLength = strlen(verboseStr);
     if(generalizedStrLength + verboseStrLength + 3 >= strSize)
-    {
+    {TRACE_IT(53176);
         str[0] = '\0';
         return;
     }
@@ -1741,14 +1741,14 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 #endif
 
 bool ValueType::FromString(const wchar *const str, ValueType *valueType)
-{
+{TRACE_IT(53177);
     Assert(str);
     Assert(valueType);
 
     char charStr[VALUE_TYPE_MAX_STRING_SIZE];
     int i = 0;
     for(; i < VALUE_TYPE_MAX_STRING_SIZE - 1 && str[i]; ++i)
-    {
+    {TRACE_IT(53178);
         Assert(static_cast<wchar>(static_cast<char>(str[i])) == str[i]);
         charStr[i] = static_cast<char>(str[i]);
     }
@@ -1757,7 +1757,7 @@ bool ValueType::FromString(const wchar *const str, ValueType *valueType)
 }
 
 bool ValueType::FromString(const char *const str, ValueType *valueType)
-{
+{TRACE_IT(53179);
     Assert(str);
     Assert(valueType);
 
@@ -1776,29 +1776,29 @@ bool ValueType::FromString(const char *const str, ValueType *valueType)
 }
 
 ValueType::TSize ValueType::GetRawData() const
-{
+{TRACE_IT(53180);
     return static_cast<TSize>(bits);
 }
 
 ValueType ValueType::FromRawData(const TSize rawData)
-{
+{TRACE_IT(53181);
     return Verify(static_cast<Bits>(rawData));
 }
 
 // Virtual and Mixed Typed Array Methods
 
 bool ValueType::IsVirtualTypedArrayPair(const ObjectType other) const
-{
+{TRACE_IT(53182);
     return (VirtualTypedArrayPair[(int)GetObjectType()] == other);
 }
 
 bool ValueType::IsLikelyMixedTypedArrayType() const
-{
+{TRACE_IT(53183);
     return (IsLikelyObject() && GetObjectType() >= ObjectType::Int8MixedArray && GetObjectType() <= ObjectType::Float64MixedArray);
 }
 
 bool ValueType::IsMixedTypedArrayPair(const ValueType other) const
-{
+{TRACE_IT(53184);
     return ( IsLikelyObject() && other.IsLikelyObject() &&
              (    (MixedTypedArrayPair[(int)GetObjectType()] == other.GetObjectType()) ||
                   (MixedTypedArrayPair[(int)other.GetObjectType()] == GetObjectType()) ||
@@ -1808,7 +1808,7 @@ bool ValueType::IsMixedTypedArrayPair(const ValueType other) const
 }
 
 ValueType ValueType::ChangeToMixedTypedArrayType() const
-{
+{TRACE_IT(53185);
     ObjectType objType = MixedTypedArrayPair[(int)GetObjectType()];
     Assert(objType);
     ValueType valueType(bits);
@@ -1818,12 +1818,12 @@ ValueType ValueType::ChangeToMixedTypedArrayType() const
 
 
 ObjectType ValueType::GetMixedTypedArrayObjectType() const
-{
+{TRACE_IT(53186);
     return MixedTypedArrayPair[(int)GetObjectType()];
 }
 
 ObjectType ValueType::GetMixedToVirtualTypedArrayObjectType() const
-{
+{TRACE_IT(53187);
     return MixedTypedToVirtualTypedArray[(int)GetObjectType()];
 }
 
@@ -1831,7 +1831,7 @@ ObjectType ValueType::GetMixedToVirtualTypedArrayObjectType() const
 #if DBG
 
 void ValueType::RunUnitTests()
-{
+{TRACE_IT(53188);
     Assert(Uninitialized.bits == (Bits::Likely | Bits::CanBeTaggedValue));
     Assert(!ObjectType::UninitializedObject); // this is assumed in Merge
 
@@ -1968,7 +1968,7 @@ void ValueType::RunUnitTests()
     Assert(UninitializedObject.IsNotInt());
     Assert(!UninitializedObject.ToLikely().IsNotInt());
 
-    {
+    {TRACE_IT(53189);
         const ValueType m(IntAndLikelyUntagged.Merge(Null));
         Assert(m.IsPrimitive());
         Assert(m.IsLikelyPrimitive());
@@ -1976,7 +1976,7 @@ void ValueType::RunUnitTests()
         Assert(!m.IsSubsetOf(IntAndLikelyUntagged, true, true, true, true));
     }
 
-    {
+    {TRACE_IT(53190);
         const ValueType m(IntAndLikelyUntagged.Merge(UninitializedObject));
         Assert(m.HasBeenInt());
         Assert(!m.IsLikelyPrimitive());
@@ -1984,14 +1984,14 @@ void ValueType::RunUnitTests()
         Assert(!m.IsLikelyObject());
     }
 
-    {
+    {TRACE_IT(53191);
         const ValueType m(Uninitialized.Merge(IntAndLikelyTagged));
         Assert(!m.IsPrimitive());
         Assert(!m.IsDefinite());
         Assert(m.IsLikelyTaggedInt());
     }
 
-    {
+    {TRACE_IT(53192);
         const ValueType m(UninitializedObject.Merge(Null));
         Assert(UninitializedObject.IsSubsetOf(m, true, true, true, true));
         Assert(!m.IsSubsetOf(UninitializedObject, true, true, true, true));
@@ -2020,12 +2020,12 @@ void ValueType::RunUnitTests()
             Assert(m.IsUninitialized() == (t0.IsUninitialized() && t1.IsUninitialized()));
             const bool isSubsetWithTypeSpecEnabled = t0.IsSubsetOf(t1, true, true, true, true);
             if(t0.IsUninitialized())
-            {
+            {TRACE_IT(53193);
                 Assert(isSubsetWithTypeSpecEnabled == t1.IsUninitialized());
                 return false;
             }
             else if(t1.IsUninitialized())
-            {
+            {TRACE_IT(53194);
                 Assert(isSubsetWithTypeSpecEnabled);
                 return false;
             }
@@ -2057,7 +2057,7 @@ void ValueType::RunUnitTests()
                     ) &&                                                                                    // one has an uninitialized object type
                     (t0.GetObjectType() > ObjectType::Object || t1.GetObjectType() > ObjectType::Object)    // one has a specific object type
                 ))                                                                                          // then the resulting object type is not guaranteed
-            {
+            {TRACE_IT(53195);
                 Assert(m.IsNotInt() == (t0.IsNotInt() && t1.IsNotInt()));
             }
 
@@ -2102,7 +2102,7 @@ void ValueType::RunUnitTests()
                     ) &&                                                                                    // one has an uninitialized object type
                     (t0.GetObjectType() > ObjectType::Object || t1.GetObjectType() > ObjectType::Object)    // one has a specific object type
                 ))                                                                                          // then the resulting object type is not guaranteed
-            {
+            {TRACE_IT(53196);
                 Assert(m.IsObject() == (t0.IsObject() && t1.IsObject()));
             }
             Assert(
@@ -2114,13 +2114,13 @@ void ValueType::RunUnitTests()
                 ));
 
             if(t1.IsUnknownNumber())
-            {
+            {TRACE_IT(53197);
                 Assert(isSubsetWithTypeSpecEnabled == (t0.IsNumber() || t0.IsLikelyInt() || t0.IsLikelyFloat()));
                 Assert(t0.IsSubsetOf(t1, false, true, true, true) == (t0.IsNumber() || t0.IsLikelyFloat()));
                 Assert(t0.IsSubsetOf(t1, true, false, true, true) == (t0.IsNumber() || t0.IsLikelyInt()));
             }
             else if(t0.IsLikelyInt() && t1.IsLikelyInt())
-            {
+            {TRACE_IT(53198);
                 Assert(
                     isSubsetWithTypeSpecEnabled ==
                     (
@@ -2133,11 +2133,11 @@ void ValueType::RunUnitTests()
                     ));
             }
             else if(t0.IsLikelyFloat() && t1.IsLikelyFloat())
-            {
+            {TRACE_IT(53199);
                 Assert(isSubsetWithTypeSpecEnabled == (t0.IsDefinite() || !t1.IsDefinite()));
             }
             else if(t0.IsLikelyNumber() && t1.IsLikelyNumber())
-            {
+            {TRACE_IT(53200);
                 Assert(
                     isSubsetWithTypeSpecEnabled ==
                     (
@@ -2150,28 +2150,28 @@ void ValueType::RunUnitTests()
                     ));
             }
             else if(t0.IsLikelyObject() && (t1.IsLikelyUndefined() || t1.IsLikelyNull()))
-            {
+            {TRACE_IT(53201);
                 Assert(isSubsetWithTypeSpecEnabled);
             }
             else if(t0.IsLikelyObject() && t1.IsLikelyObject())
-            {
+            {TRACE_IT(53202);
                 if(t1.GetObjectType() == ObjectType::UninitializedObject &&
                     t0.GetObjectType() != ObjectType::UninitializedObject)
-                {
+                {TRACE_IT(53203);
                     Assert(isSubsetWithTypeSpecEnabled);
                 }
                 else if((!t0.IsDefinite() && t1.IsDefinite()) || t0.GetObjectType() != t1.GetObjectType())
-                {
+                {TRACE_IT(53204);
                     Assert(!isSubsetWithTypeSpecEnabled);
                 }
                 else if(
                     (t0.IsDefinite() && !t1.IsDefinite()) ||
                     (t0.GetObjectType() != ObjectType::ObjectWithArray && t0.GetObjectType() != ObjectType::Array))
-                {
+                {TRACE_IT(53205);
                     Assert(isSubsetWithTypeSpecEnabled);
                 }
                 else
-                {
+                {TRACE_IT(53206);
                     Assert(
                         isSubsetWithTypeSpecEnabled ==
                         (
@@ -2189,7 +2189,7 @@ void ValueType::RunUnitTests()
                 }
             }
             else
-            {
+            {TRACE_IT(53207);
                 Assert(
                     isSubsetWithTypeSpecEnabled ==
                     (
@@ -2208,7 +2208,7 @@ void ValueType::RunUnitTests()
 #endif
 
 void ValueType::InstantiateForceInlinedMembers()
-{
+{TRACE_IT(53208);
     // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in the
     // same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined function
     // is not referenced in the same translation unit, it will not be generated and the linker is not able to find the
@@ -2223,11 +2223,11 @@ void ValueType::InstantiateForceInlinedMembers()
 }
 
 bool ValueTypeComparer::Equals(const ValueType t0, const ValueType t1)
-{
+{TRACE_IT(53209);
     return t0 == t1;
 }
 
 uint ValueTypeComparer::GetHashCode(const ValueType t)
-{
+{TRACE_IT(53210);
     return t.GetHashCode();
 }

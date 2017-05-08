@@ -18,7 +18,7 @@ namespace Js
 
     CompoundString::Block::Block(const CharCount charCapacity, const Block *const previous)
         : bufferOwner(this), charLength(0), charCapacity(charCapacity), previous(previous)
-    {
+    {TRACE_IT(54529);
         Assert(HeapInfo::IsAlignedSize(ChainSizeThreshold));
         Assert(ChainSizeThreshold <= MaxChainedBlockSize);
         Assert(HeapInfo::IsAlignedSize(MaxChainedBlockSize));
@@ -33,7 +33,7 @@ namespace Js
         const CharCount charLength,
         const CharCount charCapacity)
         : bufferOwner(this), charLength(charLength), charCapacity(charCapacity), previous(nullptr)
-    {
+    {TRACE_IT(54530);
         Assert(buffer);
         Assert(charLength <= charCapacity);
 
@@ -48,7 +48,7 @@ namespace Js
         charLength(usedCharLength),
         charCapacity(other.charCapacity),
         previous(other.previous)
-    {
+    {TRACE_IT(54531);
         // This only does a shallow copy. The metadata is copied, and a reference to the other block is included in this copy
         // for access to the other block's buffer.
         Assert(usedCharLength <= other.charCapacity);
@@ -58,7 +58,7 @@ namespace Js
         const uint size,
         const Block *const previous,
         Recycler *const recycler)
-    {
+    {TRACE_IT(54532);
         Assert(HeapInfo::IsAlignedSize(size));
         Assert(recycler);
 
@@ -70,7 +70,7 @@ namespace Js
         const CharCount usedCharLength,
         const bool reserveMoreSpace,
         Recycler *const recycler)
-    {
+    {TRACE_IT(54533);
         Assert(buffer);
         Assert(recycler);
 
@@ -83,21 +83,21 @@ namespace Js
     CompoundString::Block *CompoundString::Block::Clone(
         const CharCount usedCharLength,
         Recycler *const recycler) const
-    {
+    {TRACE_IT(54534);
         Assert(recycler);
 
         return RecyclerNew(recycler, Block, *this, usedCharLength);
     }
 
     CharCount CompoundString::Block::CharCapacityFromSize(const uint size)
-    {
+    {TRACE_IT(54535);
         Assert(size >= sizeof(Block));
 
         return (size - sizeof(Block)) / sizeof(char16);
     }
 
     uint CompoundString::Block::SizeFromCharCapacity(const CharCount charCapacity)
-    {
+    {TRACE_IT(54536);
         Assert(IsValidCharCount(charCapacity));
         return UInt32Math::Add(sizeof(Block), charCapacity * sizeof(char16));
     }
@@ -105,41 +105,41 @@ namespace Js
     #endif
 
     inline CharCount CompoundString::Block::PointerAlign(const CharCount charLength)
-    {
+    {TRACE_IT(54537);
         const CharCount alignedCharLength = ::Math::Align(charLength, static_cast<CharCount>(sizeof(void *) / sizeof(char16)));
         Assert(alignedCharLength >= charLength);
         return alignedCharLength;
     }
 
     inline const char16 *CompoundString::Block::Chars(const void *const buffer)
-    {
+    {TRACE_IT(54538);
         return static_cast<const char16 *>(buffer);
     }
 
     #ifndef IsJsDiag
 
     char16 *CompoundString::Block::Chars(void *const buffer)
-    {
+    {TRACE_IT(54539);
         return static_cast<char16 *>(buffer);
     }
 
     const Field(void*) *CompoundString::Block::Pointers(const void *const buffer)
-    {
+    {TRACE_IT(54540);
         return (const Field(void*)*)(buffer);
     }
 
     Field(void*) *CompoundString::Block::Pointers(void *const buffer)
-    {
+    {TRACE_IT(54541);
         return static_cast<Field(void*)*>(buffer);
     }
 
     CharCount CompoundString::Block::PointerCapacityFromCharCapacity(const CharCount charCapacity)
-    {
+    {TRACE_IT(54542);
         return charCapacity / (sizeof(void *) / sizeof(char16));
     }
 
     CharCount CompoundString::Block::CharCapacityFromPointerCapacity(const CharCount pointerCapacity)
-    {
+    {TRACE_IT(54543);
         return pointerCapacity * (sizeof(void *) / sizeof(char16));
     }
 
@@ -148,23 +148,23 @@ namespace Js
     // ChakraDiag includes CompoundString.cpp as a header file so this method needs to be marked as inline
     // to handle that case
     JS_DIAG_INLINE CharCount CompoundString::Block::PointerLengthFromCharLength(const CharCount charLength)
-    {
+    {TRACE_IT(54544);
         return PointerAlign(charLength) / (sizeof(void *) / sizeof(char16));
     }
 
     #ifndef IsJsDiag
 
     CharCount CompoundString::Block::CharLengthFromPointerLength(const CharCount pointerLength)
-    {
+    {TRACE_IT(54545);
         return pointerLength * (sizeof(void *) / sizeof(char16));
     }
 
     uint CompoundString::Block::SizeFromUsedCharLength(const CharCount usedCharLength)
-    {
+    {TRACE_IT(54546);
         const size_t usedSize = SizeFromCharCapacity(usedCharLength);
         const size_t alignedUsedSize = HeapInfo::GetAlignedSizeNoCheck(usedSize);
         if (alignedUsedSize != (uint)alignedUsedSize)
-        {
+        {TRACE_IT(54547);
             Js::Throw::OutOfMemory();
         }
         return (uint)alignedUsedSize;
@@ -173,7 +173,7 @@ namespace Js
     bool CompoundString::Block::ShouldAppendChars(
         const CharCount appendCharLength,
         const uint additionalSizeForPointerAppend)
-    {
+    {TRACE_IT(54548);
         // Append characters instead of pointers when it would save space. Add some buffer as well, as flattening becomes more
         // expensive after the switch to pointer mode.
         //
@@ -184,69 +184,69 @@ namespace Js
     }
 
     const void *CompoundString::Block::Buffer() const
-    {
+    {TRACE_IT(54549);
         return bufferOwner + 1;
     }
 
     void *CompoundString::Block::Buffer()
-    {
+    {TRACE_IT(54550);
         return bufferOwner + 1;
     }
 
     const CompoundString::Block *CompoundString::Block::Previous() const
-    {
+    {TRACE_IT(54551);
         return previous;
     }
 
     const char16 *CompoundString::Block::Chars() const
-    {
+    {TRACE_IT(54552);
         return Chars(Buffer());
     }
 
     char16 *CompoundString::Block::Chars()
-    {
+    {TRACE_IT(54553);
         return Chars(Buffer());
     }
 
     CharCount CompoundString::Block::CharLength() const
-    {
+    {TRACE_IT(54554);
         return charLength;
     }
 
     void CompoundString::Block::SetCharLength(const CharCount charLength)
-    {
+    {TRACE_IT(54555);
         Assert(charLength <= CharCapacity());
 
         this->charLength = charLength;
     }
 
     CharCount CompoundString::Block::CharCapacity() const
-    {
+    {TRACE_IT(54556);
         return charCapacity;
     }
 
     const Field(void*) *CompoundString::Block::Pointers() const
-    {
+    {TRACE_IT(54557);
         return Pointers(Buffer());
     }
 
     Field(void*) *CompoundString::Block::Pointers()
-    {
+    {TRACE_IT(54558);
         return Pointers(Buffer());
     }
 
     CharCount CompoundString::Block::PointerLength() const
-    {
+    {TRACE_IT(54559);
         return PointerLengthFromCharLength(CharLength());
     }
 
     CharCount CompoundString::Block::PointerCapacity() const
-    {
+    {TRACE_IT(54560);
         return PointerCapacityFromCharCapacity(CharCapacity());
     }
 
     uint CompoundString::Block::GrowSize(const uint size)
-    {
+    {TRACE_IT(54561);
         Assert(size >= sizeof(Block));
         Assert(HeapInfo::IsAlignedSize(size));
 
@@ -256,13 +256,13 @@ namespace Js
     }
 
     uint CompoundString::Block::GrowSizeForChaining(const uint size)
-    {
+    {TRACE_IT(54562);
         const uint newSize = GrowSize(size);
         return min(MaxChainedBlockSize, newSize);
     }
 
     CompoundString::Block *CompoundString::Block::Chain(Recycler *const recycler)
-    {
+    {TRACE_IT(54563);
         return New(GrowSizeForChaining(SizeFromUsedCharLength(CharLength())), this, recycler);
     }
 
@@ -275,60 +275,60 @@ namespace Js
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     CompoundString::BlockInfo::BlockInfo() : buffer(nullptr), charLength(0), charCapacity(0)
-    {
+    {TRACE_IT(54564);
     }
 
     CompoundString::BlockInfo::BlockInfo(Block *const block)
-    {
+    {TRACE_IT(54565);
         CopyFrom(block);
     }
 
     char16 *CompoundString::BlockInfo::Chars() const
-    {
+    {TRACE_IT(54566);
         return Block::Chars(buffer);
     }
 
     CharCount CompoundString::BlockInfo::CharLength() const
-    {
+    {TRACE_IT(54567);
         return charLength;
     }
 
     void CompoundString::BlockInfo::SetCharLength(const CharCount charLength)
-    {
+    {TRACE_IT(54568);
         Assert(charLength <= CharCapacity());
 
         this->charLength = charLength;
     }
 
     CharCount CompoundString::BlockInfo::CharCapacity() const
-    {
+    {TRACE_IT(54569);
         return charCapacity;
     }
 
     Field(void*) *CompoundString::BlockInfo::Pointers() const
-    {
+    {TRACE_IT(54570);
         return Block::Pointers(buffer);
     }
 
     CharCount CompoundString::BlockInfo::PointerLength() const
-    {
+    {TRACE_IT(54571);
         return Block::PointerLengthFromCharLength(CharLength());
     }
 
     void CompoundString::BlockInfo::SetPointerLength(const CharCount pointerLength)
-    {
+    {TRACE_IT(54572);
         Assert(pointerLength <= PointerCapacity());
 
         charLength = Block::CharLengthFromPointerLength(pointerLength);
     }
 
     CharCount CompoundString::BlockInfo::PointerCapacity() const
-    {
+    {TRACE_IT(54573);
         return Block::PointerCapacityFromCharCapacity(CharCapacity());
     }
 
     CharCount CompoundString::BlockInfo::AlignCharCapacityForAllocation(const CharCount charCapacity)
-    {
+    {TRACE_IT(54574);
         const CharCount alignedCharCapacity =
             ::Math::AlignOverflowCheck(
                 charCapacity == 0 ? static_cast<CharCount>(1) : charCapacity,
@@ -338,7 +338,7 @@ namespace Js
     }
 
     CharCount CompoundString::BlockInfo::GrowCharCapacity(const CharCount charCapacity)
-    {
+    {TRACE_IT(54575);
         Assert(charCapacity != 0);
         Assert(AlignCharCapacityForAllocation(charCapacity) == charCapacity);
 
@@ -348,7 +348,7 @@ namespace Js
     }
 
     bool CompoundString::BlockInfo::ShouldAllocateBuffer(const CharCount charCapacity)
-    {
+    {TRACE_IT(54576);
         Assert(charCapacity != 0);
         Assert(AlignCharCapacityForAllocation(charCapacity) == charCapacity);
 
@@ -356,7 +356,7 @@ namespace Js
     }
 
     void CompoundString::BlockInfo::AllocateBuffer(const CharCount charCapacity, Recycler *const recycler)
-    {
+    {TRACE_IT(54577);
         Assert(!buffer);
         Assert(CharLength() == 0);
         Assert(CharCapacity() == 0);
@@ -372,7 +372,7 @@ namespace Js
         const CharCount usedCharLength,
         const bool reserveMoreSpace,
         Recycler *const recycler)
-    {
+    {TRACE_IT(54578);
         Assert(buffer);
         Assert(recycler);
 
@@ -397,12 +397,12 @@ namespace Js
     }
 
     CompoundString::Block *CompoundString::BlockInfo::Resize(Recycler *const recycler)
-    {
+    {TRACE_IT(54579);
         Assert(recycler);
 
         const CharCount newCharCapacity = GrowCharCapacity(AlignCharCapacityForAllocation(CharLength()));
         if(ShouldAllocateBuffer(newCharCapacity))
-        {
+        {TRACE_IT(54580);
             void *const newBuffer = RecyclerNewArray(recycler, char16, newCharCapacity);
             charCapacity = newCharCapacity;
             const CharCount charLength = CharLength();
@@ -421,14 +421,14 @@ namespace Js
     }
 
     void CompoundString::BlockInfo::CopyFrom(Block *const block)
-    {
+    {TRACE_IT(54581);
         buffer = block->Buffer();
         charLength = block->CharLength();
         charCapacity = block->CharCapacity();
     }
 
     void CompoundString::BlockInfo::CopyTo(Block *const block)
-    {
+    {TRACE_IT(54582);
         Assert(block->Buffer() == buffer);
         Assert(block->CharLength() <= charLength);
         Assert(block->CharCapacity() == charCapacity);
@@ -437,7 +437,7 @@ namespace Js
     }
 
     void CompoundString::BlockInfo::Unreference()
-    {
+    {TRACE_IT(54583);
         buffer = nullptr;
         charLength = 0;
         charCapacity = 0;
@@ -456,7 +456,7 @@ namespace Js
         directCharLength(static_cast<CharCount>(-1)),
         ownsLastBlock(true),
         lastBlock(nullptr)
-    {
+    {TRACE_IT(54584);
         Assert(library);
 
         lastBlockInfo.AllocateBuffer(initialCharCapacity, library->GetRecycler());
@@ -469,7 +469,7 @@ namespace Js
         : LiteralString(library->GetStringTypeStatic()),
         directCharLength(static_cast<CharCount>(-1)),
         ownsLastBlock(true)
-    {
+    {TRACE_IT(54585);
         Assert(allocateBlock);
         Assert(library);
 
@@ -488,7 +488,7 @@ namespace Js
         : LiteralString(library->GetStringTypeStatic()),
         directCharLength(directCharLength),
         ownsLastBlock(true)
-    {
+    {TRACE_IT(54586);
         Assert(directCharLength == static_cast<CharCount>(-1) || directCharLength <= stringLength);
         Assert(buffer);
         Assert(library);
@@ -502,13 +502,13 @@ namespace Js
         lastBlockInfo(other.lastBlockInfo),
         directCharLength(other.directCharLength),
         lastBlock(other.lastBlock)
-    {
+    {TRACE_IT(54587);
         Assert(!other.IsFinalized());
 
         SetLength(other.GetLength());
 
         if(forAppending)
-        {
+        {TRACE_IT(54588);
             // This compound string will be used for appending, so take ownership of the last block. Appends are fast for a
             // compound string that owns the last block.
             const bool ownsLastBlock = other.ownsLastBlock;
@@ -526,7 +526,7 @@ namespace Js
     CompoundString *CompoundString::NewWithCharCapacity(
         const CharCount initialCharCapacity,
         JavascriptLibrary *const library)
-    {
+    {TRACE_IT(54589);
         const CharCount alignedInitialCharCapacity = BlockInfo::AlignCharCapacityForAllocation(initialCharCapacity);
         if(BlockInfo::ShouldAllocateBuffer(alignedInitialCharCapacity))
             return NewWithBufferCharCapacity(alignedInitialCharCapacity, library);
@@ -536,19 +536,19 @@ namespace Js
     CompoundString *CompoundString::NewWithPointerCapacity(
         const CharCount initialPointerCapacity,
         JavascriptLibrary *const library)
-    {
+    {TRACE_IT(54590);
         return NewWithCharCapacity(Block::CharCapacityFromPointerCapacity(initialPointerCapacity), library);
     }
 
     CompoundString *CompoundString::NewWithBufferCharCapacity(const CharCount initialCharCapacity, JavascriptLibrary *const library)
-    {
+    {TRACE_IT(54591);
         Assert(library);
 
         return RecyclerNew(library->GetRecycler(), CompoundString, initialCharCapacity, library);
     }
 
     CompoundString *CompoundString::NewWithBlockSize(const CharCount initialBlockSize, JavascriptLibrary *const library)
-    {
+    {TRACE_IT(54592);
         Assert(library);
 
         return RecyclerNew(library->GetRecycler(), CompoundString, initialBlockSize, true, library);
@@ -561,7 +561,7 @@ namespace Js
         const CharCount usedCharLength,
         const bool reserveMoreSpace,
         JavascriptLibrary *const library)
-    {
+    {TRACE_IT(54593);
         Assert(library);
 
         return
@@ -577,34 +577,34 @@ namespace Js
     }
 
     CompoundString *CompoundString::Clone(const bool forAppending)
-    {
+    {TRACE_IT(54594);
         return RecyclerNew(GetLibrary()->GetRecycler(), CompoundString, *this, forAppending);
     }
 
     CompoundString * CompoundString::JitClone(CompoundString * cs)
-    {
+    {TRACE_IT(54595);
         Assert(Is(cs));
         return cs->Clone(false);
     }
 
     CompoundString * CompoundString::JitCloneForAppending(CompoundString * cs)
-    {
+    {TRACE_IT(54596);
         Assert(Is(cs));
         return cs->Clone(true);
     }
 
     bool CompoundString::Is(RecyclableObject *const object)
-    {
+    {TRACE_IT(54597);
         return VirtualTableInfo<CompoundString>::HasVirtualTable(object);
     }
 
     bool CompoundString::Is(const Var var)
-    {
+    {TRACE_IT(54598);
         return RecyclableObject::Is(var) && Is(RecyclableObject::FromVar(var));
     }
 
     CompoundString *CompoundString::FromVar(RecyclableObject *const object)
-    {
+    {TRACE_IT(54599);
         Assert(Is(object));
 
         CompoundString *const cs = static_cast<CompoundString *>(object);
@@ -613,12 +613,12 @@ namespace Js
     }
 
     CompoundString *CompoundString::FromVar(const Var var)
-    {
+    {TRACE_IT(54600);
         return FromVar(RecyclableObject::FromVar(var));
     }
 
     JavascriptString *CompoundString::GetImmutableOrScriptUnreferencedString(JavascriptString *const s)
-    {
+    {TRACE_IT(54601);
         Assert(s);
 
         // The provided string may be referenced by script code. A script-unreferenced version of the string is being requested,
@@ -630,35 +630,35 @@ namespace Js
     }
 
     bool CompoundString::ShouldAppendChars(const CharCount appendCharLength)
-    {
+    {TRACE_IT(54602);
         return Block::ShouldAppendChars(appendCharLength);
     }
 
     bool CompoundString::HasOnlyDirectChars() const
-    {
+    {TRACE_IT(54603);
         return directCharLength == static_cast<CharCount>(-1);
     }
 
     void CompoundString::SwitchToPointerMode()
-    {
+    {TRACE_IT(54604);
         Assert(HasOnlyDirectChars());
 
         directCharLength = GetLength();
 
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(54605);
             Output::Print(_u("CompoundString::SwitchToPointerMode()\n"));
             Output::Flush();
         }
     }
 
     bool CompoundString::OwnsLastBlock() const
-    {
+    {TRACE_IT(54606);
         return ownsLastBlock;
     }
 
     const char16 *CompoundString::GetAppendStringBuffer(JavascriptString *const s) const
-    {
+    {TRACE_IT(54607);
         Assert(s);
 
         // A compound string cannot flatten itself while appending itself to itself since flattening would make the append
@@ -667,42 +667,42 @@ namespace Js
     }
 
     char16 *CompoundString::LastBlockChars() const
-    {
+    {TRACE_IT(54608);
         return lastBlockInfo.Chars();
     }
 
     CharCount CompoundString::LastBlockCharLength() const
-    {
+    {TRACE_IT(54609);
         return lastBlockInfo.CharLength();
     }
 
     void CompoundString::SetLastBlockCharLength(const CharCount charLength)
-    {
+    {TRACE_IT(54610);
         lastBlockInfo.SetCharLength(charLength);
     }
 
     CharCount CompoundString::LastBlockCharCapacity() const
-    {
+    {TRACE_IT(54611);
         return lastBlockInfo.CharCapacity();
     }
 
     Field(void*) *CompoundString::LastBlockPointers() const
-    {
+    {TRACE_IT(54612);
         return lastBlockInfo.Pointers();
     }
 
     CharCount CompoundString::LastBlockPointerLength() const
-    {
+    {TRACE_IT(54613);
         return lastBlockInfo.PointerLength();
     }
 
     void CompoundString::SetLastBlockPointerLength(const CharCount pointerLength)
-    {
+    {TRACE_IT(54614);
         lastBlockInfo.SetPointerLength(pointerLength);
     }
 
     CharCount CompoundString::LastBlockPointerCapacity() const
-    {
+    {TRACE_IT(54615);
         return lastBlockInfo.PointerCapacity();
     }
 
@@ -711,7 +711,7 @@ namespace Js
         const CharCount length,
         void * *const packedSubstringInfoRef,
         void * *const packedSubstringInfo2Ref)
-    {
+    {TRACE_IT(54616);
         Assert(static_cast<int32>(startIndex) >= 0);
         Assert(static_cast<int32>(length) >= 0);
         Assert(packedSubstringInfoRef);
@@ -731,7 +731,7 @@ namespace Js
         // On 32-bit architectures, it will be attempted to fit both pieces of into one pointer by using 16 bits for the
         // start index, 15 for the length, and 1 for the tag. If it does not fit, an additional pointer will be used.
         if(startIndex <= static_cast<CharCount>(0xffff) && length <= static_cast<CharCount>(0x7fff))
-        {
+        {TRACE_IT(54617);
             *packedSubstringInfoRef =
                 reinterpret_cast<void *>(
                     (static_cast<uintptr_t>(startIndex) << 16) +
@@ -740,7 +740,7 @@ namespace Js
             *packedSubstringInfo2Ref = nullptr;
         }
         else
-        {
+        {TRACE_IT(54618);
             *packedSubstringInfoRef = reinterpret_cast<void *>((static_cast<uintptr_t>(startIndex) << 1) + 1);
             *packedSubstringInfo2Ref = reinterpret_cast<void *>((static_cast<uintptr_t>(length) << 1) + 1);
         }
@@ -757,7 +757,7 @@ namespace Js
     #endif
 
     inline bool CompoundString::IsPackedInfo(void *const pointer)
-    {
+    {TRACE_IT(54619);
         Assert(pointer);
 
         return reinterpret_cast<uintptr_t>(pointer) & 1;
@@ -768,7 +768,7 @@ namespace Js
         void *const pointer2,
         CharCount *const startIndexRef,
         CharCount *const lengthRef)
-    {
+    {TRACE_IT(54620);
         Assert(pointer);
         Assert(startIndexRef);
         Assert(lengthRef);
@@ -787,12 +787,12 @@ namespace Js
         // On 32-bit architectures, it will be attempted to fit both pieces of into one pointer by using 16 bits for the
         // start index, 15 for the length, and 1 for the tag. If it does not fit, an additional pointer will be used.
         if(!pointer2)
-        {
+        {TRACE_IT(54621);
             *startIndexRef = static_cast<CharCount>(packedSubstringInfo >> 16);
             *lengthRef = static_cast<CharCount>(static_cast<uint16>(packedSubstringInfo) >> 1);
         }
         else
-        {
+        {TRACE_IT(54622);
             *startIndexRef = static_cast<CharCount>(packedSubstringInfo >> 1);
             const uintptr_t packedSubstringInfo2 = reinterpret_cast<uintptr_t>(pointer2);
             Assert(packedSubstringInfo2 & 1);
@@ -804,7 +804,7 @@ namespace Js
     #ifndef IsJsDiag
 
     void CompoundString::AppendSlow(const char16 c)
-    {
+    {TRACE_IT(54623);
         Grow();
         const bool appended =
             HasOnlyDirectChars()
@@ -814,7 +814,7 @@ namespace Js
     }
 
     void CompoundString::AppendSlow(JavascriptString *const s)
-    {
+    {TRACE_IT(54624);
         Grow();
         const bool appended = TryAppendGeneric(s, s->GetLength(), this);
         Assert(appended);
@@ -823,7 +823,7 @@ namespace Js
     void CompoundString::AppendSlow(
         __in_xcount(appendCharLength) const char16 *const s,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54625);
         Assert(!IsFinalized());
         Assert(OwnsLastBlock());
         Assert(HasOnlyDirectChars());
@@ -838,7 +838,7 @@ namespace Js
 
         CharCount copiedCharLength = 0;
         while(true)
-        {
+        {TRACE_IT(54626);
             const CharCount blockCharLength = LastBlockCharLength();
             const CharCount copyCharLength =
                 min(LastBlockCharCapacity() - blockCharLength, appendCharLength - copiedCharLength);
@@ -848,11 +848,11 @@ namespace Js
             if(copiedCharLength >= appendCharLength)
                 break;
             try
-            {
+            {TRACE_IT(54627);
                 Grow();
             }
             catch(...)
-            {
+            {TRACE_IT(54628);
                 lastBlockInfo = savedLastBlockInfo;
                 if(savedLastBlock)
                     savedLastBlock->SetCharLength(savedLastBlockInfo.CharLength());
@@ -870,14 +870,14 @@ namespace Js
         void *const packedSubstringInfo,
         void *const packedSubstringInfo2,
         const CharCount appendCharLength)
-    {
+    {TRACE_IT(54629);
         Grow();
         const bool appended = TryAppendGeneric(s, packedSubstringInfo, packedSubstringInfo2, appendCharLength, this);
         Assert(appended);
     }
 
     void CompoundString::PrepareForAppend()
-    {
+    {TRACE_IT(54630);
         Assert(!IsFinalized());
 
         if(OwnsLastBlock())
@@ -936,25 +936,25 @@ namespace Js
     }
 
     void CompoundString::AppendCharsSz(__in_z const char16 *const s)
-    {
+    {TRACE_IT(54631);
         size_t len = wcslen(s);
         // We limit the length of the string to MaxCharCount,
         // so just OOM if we are appending a string that exceed this limit already
         if (!IsValidCharCount(len))
-        {
+        {TRACE_IT(54632);
             JavascriptExceptionOperators::ThrowOutOfMemory(this->GetScriptContext());
         }
         AppendChars(s, (CharCount)len);
     }
 
     void CompoundString::Grow()
-    {
+    {TRACE_IT(54633);
         Assert(!IsFinalized());
         Assert(OwnsLastBlock());
 
         Block *const lastBlock = this->lastBlock;
         if(!lastBlock)
-        {
+        {TRACE_IT(54634);
             // There is no last block. Only the buffer was allocated, and is held in 'lastBlockInfo'. In that case it is always
             // within the threshold to resize. Resize the buffer or resize it into a new block depending on its size.
             this->lastBlock = lastBlockInfo.Resize(GetLibrary()->GetRecycler());
@@ -968,7 +968,7 @@ namespace Js
     }
 
     void CompoundString::TakeOwnershipOfLastBlock()
-    {
+    {TRACE_IT(54635);
         Assert(!IsFinalized());
         Assert(!OwnsLastBlock());
 
@@ -976,7 +976,7 @@ namespace Js
 
         Block *const lastBlock = this->lastBlock;
         if(!lastBlock)
-        {
+        {TRACE_IT(54636);
             // There is no last block. Only the buffer was allocated, and is held in 'lastBlockInfo'. In that case it is always
             // within the threshold to resize. Resize the buffer or resize it into a new block depending on its size.
             this->lastBlock = lastBlockInfo.Resize(GetLibrary()->GetRecycler());
@@ -994,7 +994,7 @@ namespace Js
     }
 
     void CompoundString::Unreference()
-    {
+    {TRACE_IT(54637);
         lastBlockInfo.Unreference();
         directCharLength = 0;
         ownsLastBlock = false;
@@ -1002,14 +1002,14 @@ namespace Js
     }
 
     const char16 *CompoundString::GetSz()
-    {
+    {TRACE_IT(54638);
         Assert(!IsFinalized());
 
         const CharCount totalCharLength = GetLength();
         switch(totalCharLength)
         {
             case 0:
-            {
+            {TRACE_IT(54639);
                 Unreference();
                 const char16 *const buffer = _u("");
                 SetBuffer(buffer);
@@ -1018,7 +1018,7 @@ namespace Js
             }
 
             case 1:
-            {
+            {TRACE_IT(54640);
                 Assert(HasOnlyDirectChars());
                 Assert(LastBlockCharLength() == 1);
 
@@ -1031,7 +1031,7 @@ namespace Js
         }
 
         if(OwnsLastBlock() && HasOnlyDirectChars() && !lastBlock && TryAppendGeneric(_u('\0'), this)) // GetSz() requires null termination
-        {
+        {TRACE_IT(54641);
             // There is no last block. Only the buffer was allocated, and is held in 'lastBlockInfo'. Since this string owns the
             // last block, has only direct chars, and the buffer was allocated directly (buffer pointer is not an internal
             // pointer), there is no need to copy the buffer.
@@ -1057,7 +1057,7 @@ namespace Js
         _Out_writes_(m_charLength) char16 *const buffer,
         StringCopyInfoStack &nestedStringTreeCopyInfos,
         const byte recursionDepth)
-    {
+    {TRACE_IT(54642);
         Assert(!IsFinalized());
         Assert(buffer);
 
@@ -1084,9 +1084,9 @@ namespace Js
         Field(void*) const *blockPointers = LastBlockPointers();
         CharCount pointerIndex = LastBlockPointerLength();
         while(remainingCharLengthToCopy > directCharLength)
-        {
+        {TRACE_IT(54643);
             while(pointerIndex == 0)
-            {
+            {TRACE_IT(54644);
                 Assert(block);
                 block = block->Previous();
                 Assert(block);
@@ -1096,7 +1096,7 @@ namespace Js
 
             void *const pointer = blockPointers[--pointerIndex];
             if(IsPackedInfo(pointer))
-            {
+            {TRACE_IT(54645);
                 Assert(pointerIndex != 0);
                 void *pointer2 = blockPointers[--pointerIndex];
                 JavascriptString *s;
@@ -1104,13 +1104,13 @@ namespace Js
                 Assert(!IsPackedInfo(pointer2));
     #else
                 if(IsPackedInfo(pointer2))
-                {
+                {TRACE_IT(54646);
                     Assert(pointerIndex != 0);
                     s = JavascriptString::FromVar(blockPointers[--pointerIndex]);
                 }
                 else
     #endif
-                {
+                {TRACE_IT(54647);
                     s = JavascriptString::FromVar(pointer2);
                     pointer2 = nullptr;
                 }
@@ -1125,21 +1125,21 @@ namespace Js
                 CopyHelper(&buffer[remainingCharLengthToCopy], &s->GetString()[startIndex], copyCharLength);
             }
             else
-            {
+            {TRACE_IT(54648);
                 JavascriptString *const s = JavascriptString::FromVar(pointer);
                 const CharCount copyCharLength = s->GetLength();
 
                 Assert(remainingCharLengthToCopy >= copyCharLength);
                 remainingCharLengthToCopy -= copyCharLength;
                 if(recursionDepth == MaxCopyRecursionDepth && s->IsTree())
-                {
+                {TRACE_IT(54649);
                     // Don't copy nested string trees yet, as that involves a recursive call, and the recursion can become
                     // excessive. Just collect the nested string trees and the buffer location where they should be copied, and
                     // the caller can deal with those after returning.
                     nestedStringTreeCopyInfos.Push(StringCopyInfo(s, &buffer[remainingCharLengthToCopy]));
                 }
                 else
-                {
+                {TRACE_IT(54650);
                     Assert(recursionDepth <= MaxCopyRecursionDepth);
                     s->Copy(&buffer[remainingCharLengthToCopy], nestedStringTreeCopyInfos, recursionDepth + 1);
                 }
@@ -1148,11 +1148,11 @@ namespace Js
 
         Assert(remainingCharLengthToCopy == directCharLength);
         if(remainingCharLengthToCopy != 0)
-        {
+        {TRACE_IT(54651);
             // Determine the number of direct chars in the current block
             CharCount blockCharLength;
             if(pointerIndex == 0)
-            {
+            {TRACE_IT(54652);
                 // The string switched to pointer mode at the beginning of the current block, or the string never switched to
                 // pointer mode and the last block is empty. In either case, direct chars span to the end of the previous block.
                 Assert(block);
@@ -1161,21 +1161,21 @@ namespace Js
                 blockCharLength = block->CharLength();
             }
             else if(hasOnlyDirectChars)
-            {
+            {TRACE_IT(54653);
                 // The string never switched to pointer mode, so the current block's char length is where direct chars end
                 blockCharLength = block == lastBlock ? LastBlockCharLength() : block->CharLength();
             }
             else
-            {
+            {TRACE_IT(54654);
                 // The string switched to pointer mode somewhere in the middle of the current block. To determine where direct
                 // chars end in this block, all previous blocks are scanned and their char lengths discounted.
                 blockCharLength = remainingCharLengthToCopy;
                 if(block)
-                {
+                {TRACE_IT(54655);
                     for(const Block *previousBlock = block->Previous();
                         previousBlock;
                         previousBlock = previousBlock->Previous())
-                    {
+                    {TRACE_IT(54656);
                         Assert(blockCharLength >= previousBlock->CharLength());
                         blockCharLength -= previousBlock->CharLength();
                     }
@@ -1186,9 +1186,9 @@ namespace Js
             // Copy direct chars
             const char16 *blockChars = block == lastBlock ? LastBlockChars() : block->Chars();
             while(true)
-            {
+            {TRACE_IT(54657);
                 if(blockCharLength != 0)
-                {
+                {TRACE_IT(54658);
                     Assert(remainingCharLengthToCopy >= blockCharLength);
                     remainingCharLengthToCopy -= blockCharLength;
                     // SWB: this is copying "direct chars" and there should be no pointers here. No write barrier needed.
@@ -1208,9 +1208,9 @@ namespace Js
     #if DBG
         // Verify that all nonempty blocks have been visited
         if(block)
-        {
+        {TRACE_IT(54659);
             while(true)
-            {
+            {TRACE_IT(54660);
                 block = block->Previous();
                 if(!block)
                     break;
@@ -1223,7 +1223,7 @@ namespace Js
     }
 
     bool CompoundString::IsTree() const
-    {
+    {TRACE_IT(54661);
         Assert(!IsFinalized());
 
         return !HasOnlyDirectChars();

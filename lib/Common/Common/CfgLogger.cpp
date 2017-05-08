@@ -33,7 +33,7 @@ extern "C" PVOID __guard_check_icall_fptr;
 
 void
 CFGLogger::Enable()
-{
+{TRACE_IT(18785);
     DWORD oldProtect;
     ::VirtualProtect(&__guard_check_icall_fptr, sizeof(void *), PAGE_READWRITE, &oldProtect);
     oldGuardCheck = (PfnGuardCheckFunction)__guard_check_icall_fptr;
@@ -42,9 +42,9 @@ CFGLogger::Enable()
 }
 
 CFGLogger::~CFGLogger()
-{
+{TRACE_IT(18786);
     if (oldGuardCheck)
-    {
+    {TRACE_IT(18787);
         DWORD oldProtect;
         ::VirtualProtect(&__guard_check_icall_fptr, sizeof(void *), PAGE_READWRITE, &oldProtect);
         __guard_check_icall_fptr = (PVOID)oldGuardCheck;
@@ -68,19 +68,19 @@ __declspec(guard(ignore))
 #endif
 void __fastcall
 CFGLogger::GuardCheck(_In_ uintptr_t Target)
-{
+{TRACE_IT(18788);
     if (Target >= AutoSystemInfo::Data.dllLoadAddress && Target < AutoSystemInfo::Data.dllHighAddress)
-    {
+    {TRACE_IT(18789);
         AutoCriticalSection autocs(&cs);
-        if (inGuard) { return; }
+        if (inGuard) {TRACE_IT(18790); return; }
         inGuard = true;
         uint * count;
         if (guardCheckRecord.TryGetReference(Target, &count))
-        {
+        {TRACE_IT(18791);
             (*count)++;
         }
         else
-        {
+        {TRACE_IT(18792);
             guardCheckRecord.AddNew(Target, 1);
         }
         inGuard = false;

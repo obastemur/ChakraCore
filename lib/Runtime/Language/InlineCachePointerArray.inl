@@ -15,13 +15,13 @@ namespace Js
 
     template<class T>
     void InlineCachePointerArray<T>::EnsureInlineCaches(Recycler *const recycler, FunctionBody *const functionBody)
-    {
+    {TRACE_IT(48563);
         Assert(recycler);
         Assert(functionBody);
         Assert(functionBody->GetInlineCacheCount() != 0);
 
         if(inlineCaches)
-        {
+        {TRACE_IT(48564);
             Assert(functionBody->GetInlineCacheCount() == inlineCacheCount);
             return;
         }
@@ -34,7 +34,7 @@ namespace Js
 
     template<class T>
     T *InlineCachePointerArray<T>::GetInlineCache(FunctionBody *const functionBody, const uint index) const
-    {
+    {TRACE_IT(48565);
         Assert(functionBody);
         Assert(!inlineCaches || functionBody->GetInlineCacheCount() == inlineCacheCount);
         Assert(index < functionBody->GetInlineCacheCount());
@@ -43,14 +43,14 @@ namespace Js
 
     template<class T>
     T *InlineCachePointerArray<T>::GetInlineCache(const uint index) const
-    {
+    {TRACE_IT(48566);
         Assert(index < inlineCacheCount);
         return inlineCaches[index];
     }
 
     template<class T>
     bool InlineCachePointerArray<T>::HasInlineCaches() const
-    {
+    {TRACE_IT(48567);
         return inlineCaches != nullptr;
     }
 
@@ -60,7 +60,7 @@ namespace Js
         FunctionBody *const functionBody,
         const uint index,
         T *const inlineCache)
-    {
+    {TRACE_IT(48568);
         Assert(recycler);
         Assert(functionBody);
         Assert(!inlineCaches || functionBody->GetInlineCacheCount() == inlineCacheCount);
@@ -73,7 +73,7 @@ namespace Js
 
     template<class T>
     void InlineCachePointerArray<T>::Reset()
-    {
+    {TRACE_IT(48569);
         inlineCaches = nullptr;
 #if DBG
         inlineCacheCount = 0;

@@ -10,10 +10,10 @@ namespace Wasm
     {
         EmitInfo(Js::RegSlot location_, const WasmTypes::WasmType& type_) :
             WAsmJs::EmitInfoBase(location_), type(type_)
-        {
+        {TRACE_IT(68377);
         }
-        EmitInfo(const WasmTypes::WasmType& type_) : type(type_) {}
-        EmitInfo() : type(WasmTypes::Void) {}
+        EmitInfo(const WasmTypes::WasmType& type_) : type(type_) {TRACE_IT(68378);}
+        EmitInfo() : type(WasmTypes::Void) {TRACE_IT(68379);}
 
         WasmTypes::WasmType type;
     };
@@ -23,11 +23,11 @@ namespace Wasm
     {
         WasmLocal() :
             location(Js::Constants::NoRegister), type(WasmTypes::Limit)
-        {
+        {TRACE_IT(68380);
         }
         WasmLocal(Js::RegSlot loc, WasmTypes::WasmType tp) :
             location(loc), type(tp)
-        {
+        {TRACE_IT(68381);
         }
         Js::RegSlot location;
         WasmTypes::WasmType type;
@@ -49,7 +49,7 @@ namespace Wasm
         WasmCompilationException(const char16* _msg, va_list arglist);
 
         char16* ReleaseErrorMessage()
-        {
+        {TRACE_IT(68382);
             Assert(errorMsg);
             char16* msg = errorMsg;
             errorMsg = nullptr;
@@ -65,8 +65,8 @@ namespace Wasm
             bool didYield = false;
         } *yieldInfo = nullptr;
         Js::ByteCodeLabel label;
-        bool DidYield() const { return HasYield() && yieldInfo->didYield; }
-        bool HasYield() const { return yieldInfo != nullptr; }
+        bool DidYield() const {TRACE_IT(68383); return HasYield() && yieldInfo->didYield; }
+        bool HasYield() const {TRACE_IT(68384); return yieldInfo != nullptr; }
     };
 
     typedef JsUtil::BaseDictionary<uint, LPCUTF8, ArenaAllocator> WasmExportDictionary;
@@ -167,9 +167,9 @@ namespace Wasm
         // The caller needs to release the location of the returned EmitInfo
         void ExitEvalStackScope();
         void SetUnreachableState(bool isUnreachable);
-        bool IsUnreachable() const { return this->isUnreachable; }
+        bool IsUnreachable() const {TRACE_IT(68385); return this->isUnreachable; }
 
-        Js::FunctionBody* GetFunctionBody() const { return m_funcInfo->GetBody(); }
+        Js::FunctionBody* GetFunctionBody() const {TRACE_IT(68386); return m_funcInfo->GetBody(); }
         WasmReaderBase* GetReader() const;
 
         ArenaAllocator m_alloc;

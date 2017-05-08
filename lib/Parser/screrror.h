@@ -13,7 +13,7 @@ class COleScript;
 interface IScanner;
 
 inline void FreeExcepInfo(EXCEPINFO *pei)
-{
+{TRACE_IT(33446);
     if (pei->bstrSource)
         SysFreeString(pei->bstrSource);
     if (pei->bstrDescription)
@@ -60,14 +60,14 @@ public:
 public:
     CompileScriptException(void) : ScriptException(), line(0), ichMinLine(0), hasLineNumberInfo(false),
         bstrLine(nullptr)
-    { }
+    {TRACE_IT(33447); }
     ~CompileScriptException();
 
 public:
     void Clear();
     void Free();
     void GetError(HRESULT *phr, EXCEPINFO *pei)
-    {
+    {TRACE_IT(33448);
         ScriptException::GetError(phr, pei);
         Free();
     }

@@ -12,7 +12,7 @@ namespace JsUtil
     protected:
         TValue value;        // data of entry
         void Set(TValue const& value)
-        {
+        {TRACE_IT(21200);
             this->value = value;
         }
 
@@ -20,18 +20,18 @@ namespace JsUtil
         int next;        // Index of next entry, -1 if last
 
         static bool SupportsCleanup()
-        {
+        {TRACE_IT(21201);
             return false;
         }
 
         static bool NeedsCleanup(BaseValueEntry<TValue>&)
-        {
+        {TRACE_IT(21202);
             return false;
         }
 
-        TValue const& Value() const { return value; }
-        TValue& Value() { return value; }
-        void SetValue(TValue const& value) { this->value = value; }
+        TValue const& Value() const {TRACE_IT(21203); return value; }
+        TValue& Value() {TRACE_IT(21204); return value; }
+        void SetValue(TValue const& value) {TRACE_IT(21205); this->value = value; }
     };
 
     template <class TValue>
@@ -39,7 +39,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21206);
         }
     };
 
@@ -49,7 +49,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21207);
             this->value = nullptr;
         }
     };
@@ -59,7 +59,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21208);
             this->value = false;
         }
     };
@@ -69,7 +69,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21209);
             this->value = 0;
         }
     };
@@ -79,7 +79,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21210);
             this->value = 0;
         }
     };
@@ -87,7 +87,7 @@ namespace JsUtil
     template<class TKey, class TValue>
     struct ValueToKey
     {
-        static TKey ToKey(const TValue &value) { return static_cast<TKey>(value); }
+        static TKey ToKey(const TValue &value) {TRACE_IT(21211); return static_cast<TKey>(value); }
     };
 
     // Used by BaseHashSet,  the default is that the key is the same as the value
@@ -95,10 +95,10 @@ namespace JsUtil
     class ImplicitKeyValueEntry : public ValueEntry<TValue>
     {
     public:
-        inline TKey Key() const { return ValueToKey<TKey, TValue>::ToKey(this->value); }
+        inline TKey Key() const {TRACE_IT(21212); return ValueToKey<TKey, TValue>::ToKey(this->value); }
 
         void Set(TKey const& key, TValue const& value)
-        {
+        {TRACE_IT(21213);
             __super::Set(value);
         }
     };
@@ -109,13 +109,13 @@ namespace JsUtil
     protected:
         TKey key;    // key of entry
         void Set(TKey const& key, TValue const& value)
-        {
+        {TRACE_IT(21214);
             __super::Set(value);
             this->key = key;
         }
 
     public:
-        TKey const& Key() const  { return key; }
+        TKey const& Key() const  {TRACE_IT(21215); return key; }
     };
 
     template <class TKey, class TValue>
@@ -128,7 +128,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21216);
             __super::Clear();
             this->key = nullptr;
         }
@@ -139,7 +139,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21217);
             __super::Clear();
             this->key = 0;
         }
@@ -151,18 +151,18 @@ namespace JsUtil
     public:
         template<typename Comparer, typename TLookup>
         inline bool KeyEquals(TLookup const& otherKey, hash_t otherHashCode)
-        {
+        {TRACE_IT(21218);
             return Comparer::Equals(this->Key(), otherKey);
         }
 
         template<typename Comparer>
         inline hash_t GetHashCode()
-        {
+        {TRACE_IT(21219);
             return ((Comparer::GetHashCode(this->Key()) & 0x7fffffff) << 1) | 1;
         }
 
         void Set(TKey const& key, TValue const& value, int hashCode)
-        {
+        {TRACE_IT(21220);
             __super::Set(key, value);
         }
     };
@@ -175,26 +175,26 @@ namespace JsUtil
         static const int INVALID_HASH_VALUE = 0;
         template<typename Comparer, typename TLookup>
         inline bool KeyEquals(TLookup const& otherKey, hash_t otherHashCode)
-        {
+        {TRACE_IT(21221);
             Assert(TAGHASH(Comparer::GetHashCode(this->Key())) == this->hashCode);
             return this->hashCode == otherHashCode && Comparer::Equals(this->Key(), otherKey);
         }
 
         template<typename Comparer>
         inline hash_t GetHashCode()
-        {
+        {TRACE_IT(21222);
             Assert(TAGHASH(Comparer::GetHashCode(this->Key())) == this->hashCode);
             return hashCode;
         }
 
         void Set(TKey const& key, TValue const& value, hash_t hashCode)
-        {
+        {TRACE_IT(21223);
             __super::Set(key, value);
             this->hashCode = hashCode;
         }
 
         void Clear()
-        {
+        {TRACE_IT(21224);
             __super::Clear();
             this->hashCode = INVALID_HASH_VALUE;
         }
@@ -217,18 +217,18 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(21225);
             this->key = TKey();
             this->value = TValue();
         }
 
         static bool SupportsCleanup()
-        {
+        {TRACE_IT(21226);
             return true;
         }
 
         static bool NeedsCleanup(WeakRefValueDictionaryEntry<TKey, TValue> const& entry)
-        {
+        {TRACE_IT(21227);
             TValue weakReference = entry.Value();
 
             return (weakReference == nullptr || weakReference->Get() == nullptr);

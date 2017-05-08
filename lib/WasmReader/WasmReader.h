@@ -13,7 +13,7 @@
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 #define TRACE_WASM(condition, ...) \
     if (condition)\
-    {\
+    {TRACE_IT(68434);\
         Output::Print(__VA_ARGS__); \
         Output::Print(_u("\n")); \
         Output::Flush(); \

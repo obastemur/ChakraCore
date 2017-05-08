@@ -33,14 +33,14 @@ namespace Js
                 regEffAddr2( RegNOREG ),
                 multiplier( 1 ),
                 offset( _offset )
-            {
+            {TRACE_IT(53382);
             }
             AddressDefinition( RegNum _regEffAddr, RegNum _regEffAddr2, int _multplier, int _offset ) :
                 regEffAddr( _regEffAddr ),
                 regEffAddr2( _regEffAddr2 ),
                 multiplier( _multplier ),
                 offset( _offset )
-            {
+            {TRACE_IT(53383);
             }
             RegNum regEffAddr;
             RegNum regEffAddr2;
@@ -48,16 +48,16 @@ namespace Js
             int offset;
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53384);
                 if( regEffAddr2 == RegNOREG )
-                {
+                {TRACE_IT(53385);
                     if (offset < 0)
                         Output::Print(_u("[%s-0x%X]"), RegNamesW[regEffAddr], offset * -1);
                     else
                         Output::Print( _u("[%s+0x%X]"), RegNamesW[regEffAddr], offset );
                 }
                 else
-                {
+                {TRACE_IT(53386);
                     if (offset < 0)
                         Output::Print(_u("[%s+%s*%d+0x%X]"), RegNamesW[regEffAddr], RegNamesW[regEffAddr2], multiplier, offset);
                     else
@@ -89,13 +89,13 @@ namespace Js
 
         struct InstrParamsReg
         {
-            InstrParamsReg(RegNum _reg ) :reg(_reg){}
+            InstrParamsReg(RegNum _reg ) :reg(_reg){TRACE_IT(53387);}
             RegNum reg;
             static const FormatType FORMAT_TYPE = REG;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53388);
                 Output::Print( _u("%s"), RegNamesW[reg] );
             }
 #endif
@@ -104,38 +104,38 @@ namespace Js
         template<typename T>
         struct InstrParamsImm
         {
-            InstrParamsImm(T _imm ) : imm(_imm){}
+            InstrParamsImm(T _imm ) : imm(_imm){TRACE_IT(53389);}
             T imm;
             static const FormatType FORMAT_TYPE = IMM;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53390);
                 Output::Print( _u("0x%X"), imm );
             }
 #endif
         };
         struct InstrParamsEmpty
         {
-            InstrParamsEmpty() {}
+            InstrParamsEmpty() {TRACE_IT(53391);}
             static const FormatType FORMAT_TYPE = EMPTY;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53392);
             }
 #endif
         };
 
         struct InstrParamsPtr
         {
-            InstrParamsPtr(const void* _addr ) : addr(_addr){}
+            InstrParamsPtr(const void* _addr ) : addr(_addr){TRACE_IT(53393);}
             const void* addr;
             static const FormatType FORMAT_TYPE = PTR;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53394);
                 Output::Print( _u("ptr:0x%X"), (int)addr );
             }
 #endif
@@ -143,14 +143,14 @@ namespace Js
 
         struct InstrParamsRegPtr
         {
-            InstrParamsRegPtr(RegNum _reg, const void* _addr ) : reg(_reg),addr(_addr){}
+            InstrParamsRegPtr(RegNum _reg, const void* _addr ) : reg(_reg),addr(_addr){TRACE_IT(53395);}
             RegNum reg;
             const void* addr;
             static const FormatType FORMAT_TYPE = REG_PTR;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53396);
                 Output::Print( _u("%s, ptr:0x%X"), RegNamesW[reg], (int)addr);
             }
 #endif
@@ -159,13 +159,13 @@ namespace Js
 
         struct InstrParamsAddr
         {
-            InstrParamsAddr(RegNum _regEffAddr, int _offset ) :addr(_regEffAddr, _offset){}
+            InstrParamsAddr(RegNum _regEffAddr, int _offset ) :addr(_regEffAddr, _offset){TRACE_IT(53397);}
             AddressDefinition addr;
             static const FormatType FORMAT_TYPE = ADDR;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53398);
                 addr.dump();
             }
 #endif
@@ -173,13 +173,13 @@ namespace Js
 
         struct InstrParams2Reg
         {
-            InstrParams2Reg(RegNum _reg, RegNum _reg2) :reg(_reg), reg2(_reg2){}
+            InstrParams2Reg(RegNum _reg, RegNum _reg2) :reg(_reg), reg2(_reg2){TRACE_IT(53399);}
             RegNum reg, reg2;
             static const FormatType FORMAT_TYPE = REG_REG;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53400);
                 Output::Print( _u("%s, %s"), RegNamesW[reg], RegNamesW[reg2] );
             }
 #endif
@@ -191,19 +191,19 @@ namespace Js
             InstrParamsRegAddr( RegNum _reg, RegNum _regEffAddr, int _offset ) :
                 reg( _reg ),
                 addr( _regEffAddr, _offset )
-            {
+            {TRACE_IT(53401);
             }
             InstrParamsRegAddr( RegNum _reg, RegNum _regEffAddr, RegNum _regEffAddr2, int _multplier, int _offset ) :
                 reg( _reg ),
                 addr( _regEffAddr , _regEffAddr2 , _multplier , _offset )
-            {
+            {TRACE_IT(53402);
             }
             RegNum reg;
             AddressDefinition addr;
             static const FormatType FORMAT_TYPE = REG_ADDR;
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53403);
                 Output::Print( _u("%s, "), RegNamesW[reg] );
                 addr.dump();
             }
@@ -215,19 +215,19 @@ namespace Js
             InstrParamsAddrReg( RegNum _regEffAddr, int _offset, RegNum _reg ) :
                 reg( _reg ),
                 addr( _regEffAddr, _offset )
-            {
+            {TRACE_IT(53404);
             }
             InstrParamsAddrReg( RegNum _regEffAddr, RegNum _regEffAddr2, int _multplier, int _offset, RegNum _reg ) :
                 reg( _reg ),
                 addr( _regEffAddr , _regEffAddr2 , _multplier , _offset )
-            {
+            {TRACE_IT(53405);
             }
             RegNum reg;
             AddressDefinition addr;
             static const FormatType FORMAT_TYPE = ADDR_REG;
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53406);
                 addr.dump();
                 Output::Print( _u(" , %s"), RegNamesW[reg] );
             }
@@ -237,14 +237,14 @@ namespace Js
         template<typename ImmType>
         struct InstrParamsRegImm
         {
-            InstrParamsRegImm(RegNum _reg, ImmType _imm) :reg(_reg), imm(_imm){}
+            InstrParamsRegImm(RegNum _reg, ImmType _imm) :reg(_reg), imm(_imm){TRACE_IT(53407);}
             RegNum reg;
             ImmType imm;
             static const FormatType FORMAT_TYPE = REG_IMM;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53408);
                 if (imm < 0)
                     Output::Print(_u("%s, -0x%X"), RegNamesW[reg], imm * -1);
                 else
@@ -259,18 +259,18 @@ namespace Js
             InstrParamsAddrImm(RegNum _regEffAddr, int _offset, ImmType _imm) :
                 addr(_regEffAddr, _offset),
                 imm(_imm)
-            {}
+            {TRACE_IT(53409);}
             InstrParamsAddrImm(RegNum _regEffAddr, RegNum _regEffAddr2, int _multplier, int _offset, ImmType _imm) :
                 addr( _regEffAddr , _regEffAddr2 , _multplier , _offset ),
                 imm(_imm)
-            {}
+            {TRACE_IT(53410);}
             AddressDefinition addr;
             ImmType imm;
             static const FormatType FORMAT_TYPE = ADDR_IMM;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53411);
                 addr.dump();
                 if (imm < 0)
                     Output::Print(_u(", -0x%X"), imm * -1);
@@ -289,13 +289,13 @@ namespace Js
             reg(_reg),
             addr(_regEffAddr, _offset),
             imm(imm)
-            {
+            {TRACE_IT(53412);
             }
             InstrParamsRegAddrImm(RegNum _reg, RegNum _regEffAddr, RegNum _regEffAddr2, int _multplier, int _offset, ImmType imm) :
                 reg(_reg),
                 addr(_regEffAddr, _regEffAddr2, _multplier, _offset),
                 imm(imm)
-            {
+            {TRACE_IT(53413);
             }
             RegNum reg;
             AddressDefinition addr;
@@ -303,7 +303,7 @@ namespace Js
             static const FormatType FORMAT_TYPE = REG_ADDR_IMM;
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53414);
                 Output::Print(_u("%s, "), RegNamesW[reg]);
                 addr.dump();
                 if (imm < 0)
@@ -319,14 +319,14 @@ namespace Js
         struct InstrParams2RegImm
         {
             CompileAssert(sizeof(ImmType) == 1);
-            InstrParams2RegImm(RegNum _reg, RegNum _reg2, ImmType imm) :reg(_reg), reg2(_reg2), imm(imm){}
+            InstrParams2RegImm(RegNum _reg, RegNum _reg2, ImmType imm) :reg(_reg), reg2(_reg2), imm(imm){TRACE_IT(53415);}
             RegNum reg, reg2;
             ImmType imm;
             static const FormatType FORMAT_TYPE = REG_REG_IMM;
 
 #if DBG_DUMP
             void dump() const
-            {
+            {TRACE_IT(53416);
                 Output::Print(_u("%s, %s"), RegNamesW[reg], RegNamesW[reg2]);
                 if (imm < 0)
                     Output::Print(_u(", -0x%X"), imm * -1);
@@ -337,37 +337,37 @@ namespace Js
         };
 
         bool FitsInByte(size_t value)
-        {
+        {TRACE_IT(53417);
             return ((size_t)(signed char)(value & 0xFF) == value);
         }
 
         bool FitsInByteUnsigned(size_t value)
-        {
+        {TRACE_IT(53418);
             return ((size_t)(value & 0xFF) == value);
         }
 
         template <typename FormatType>
         int EncodeModRM_2Reg(BYTE*& buffer, const FormatType& params)
-        {
+        {TRACE_IT(53419);
             *buffer++ = MOD3 | ( RegEncode[params.reg] << 3 ) | RegEncode[params.reg2];
             return 1;
         }
 
         template<BYTE b, typename FormatType>
         int EncodeModRM_ByteReg( BYTE*& buffer, const FormatType& params )
-        {
+        {TRACE_IT(53420);
             *buffer++ = MOD3 | ( b << 3 ) | RegEncode[params.reg];
             return 1;
         }
 
         int EncodeModRM_Min( BYTE*& buffer, BYTE regByte, RegNum regEffAddr, int offset )
-        {
+        {TRACE_IT(53421);
             // [offset]
             if( regEffAddr == RegNOREG )
-            {
+            {TRACE_IT(53422);
                 *buffer++ = MOD0 | ( regByte << 3 ) | 0x05;
                 for( int i = 0; i < 4; i++ )
-                {
+                {TRACE_IT(53423);
                     *buffer++ = (BYTE)offset & 0xFF;
                     offset >>= 8;
                 }
@@ -376,14 +376,14 @@ namespace Js
 
             // [reg+offset] or [ebp]
             if( offset || regEffAddr == RegEBP )
-            {
+            {TRACE_IT(53424);
                 // [reg + byte]
                 if( FitsInByte( offset ) )
-                {
+                {TRACE_IT(53425);
                     *buffer++ = MOD1 | ( regByte << 3 ) | RegEncode[regEffAddr];
                     // special case for esp
                     if( regEffAddr == RegESP )
-                    {
+                    {TRACE_IT(53426);
                         *buffer++ = 0x24; // SIB byte to esp scaled index none
                     }
                     *buffer++ = (BYTE)offset;
@@ -394,11 +394,11 @@ namespace Js
                 *buffer++ = MOD2 | ( regByte << 3 ) | RegEncode[regEffAddr];
                 // special case for esp
                 if( regEffAddr == RegESP )
-                {
+                {TRACE_IT(53427);
                     *buffer++ = 0x24; // SIB byte to esp scaled index none
                 }
                 for( int i = 0; i < 4; i++ )
-                {
+                {TRACE_IT(53428);
                     *buffer++ = (BYTE)offset & 0xFF;
                     offset >>= 8;
                 }
@@ -408,7 +408,7 @@ namespace Js
             // [reg]
             Assert( regEffAddr != RegEBP );
             if( regEffAddr == RegESP )
-            {
+            {TRACE_IT(53429);
                 // special case  [esp]
                 *buffer++ = MOD0 | ( regByte << 3 ) | 0x04;
                 *buffer++ = 0x24;
@@ -420,14 +420,14 @@ namespace Js
         }
 
         int EncodeModRM( BYTE*& buffer, BYTE regByte, RegNum regEffAddr, RegNum regEffAddr2, int multiplier, int offset )
-        {
+        {TRACE_IT(53430);
             Assert( !Is64BitsReg( regEffAddr ) );
             Assert( !Is64BitsReg( regEffAddr2 ) );
             AssertMsg( regEffAddr2 != RegESP, "Invalid encoding" );
             // Cannot have a multiplier with no register for second regAddr
             Assert( !(( regEffAddr2 == RegNOREG ) && ( multiplier != 1 )) );
             if( regEffAddr2 == RegNOREG )
-            {
+            {TRACE_IT(53431);
                 return EncodeModRM_Min( buffer, regByte, regEffAddr, offset );
             }
             // encode modr/m byte
@@ -436,21 +436,21 @@ namespace Js
             // 0 = noEncoding, 1 = encode 1 byte, 2 = encode 4 bytes
             int offsetEncoding = 0;
             if( offset == 0 || regEffAddr == RegNOREG )
-            {
+            {TRACE_IT(53432);
                 mod = MOD0;
                 if( regEffAddr == RegNOREG )
-                {
+                {TRACE_IT(53433);
                     // encode 4 bytes even if offset is 0
                     offsetEncoding = 2;
                 }
             }
             else if( offsetFitsInByte )
-            {
+            {TRACE_IT(53434);
                 mod = MOD1;
                 offsetEncoding = 1;
             }
             else
-            {
+            {TRACE_IT(53435);
                 mod = MOD2;
                 offsetEncoding = 2;
             }
@@ -478,21 +478,21 @@ namespace Js
             }
             BYTE sibReg = RegEncode[regEffAddr];
             if( regEffAddr == RegNOREG )
-            {
+            {TRACE_IT(53436);
                 sibReg = 0x05;
             }
             *buffer++ = ss | ( RegEncode[regEffAddr2] << 3 ) | sibReg;
 
             // encode offset
             if( offsetEncoding & 1 )
-            {
+            {TRACE_IT(53437);
                 *buffer++ = (BYTE)offset & 0xFF;
                 return 3;
             }
             else if( offsetEncoding & 2 )
-            {
+            {TRACE_IT(53438);
                 for( int i = 0; i < 4; i++ )
-                {
+                {TRACE_IT(53439);
                     *buffer++ = (BYTE)offset & 0xFF;
                     offset >>= 8;
                 }
@@ -503,17 +503,17 @@ namespace Js
 
         template <typename FormatType>
         int EncodeModRM_RegRM(BYTE*& buffer, const FormatType& params)
-        {
+        {TRACE_IT(53440);
             Assert( params.reg != RegNOREG );
             return EncodeModRM( buffer, RegEncode[params.reg], params.addr.regEffAddr, params.addr.regEffAddr2, params.addr.multiplier, params.addr.offset );
         }
 
         int EncodeModRM_RegPtr( BYTE*& buffer, const InstrParamsRegPtr& params )
-        {
+        {TRACE_IT(53441);
             *buffer++ = MOD0 | RegEncode[params.reg] << 3 | 0x05;
             int addr = (int)params.addr;
             for( int i = 0; i < 4; i++ )
-            {
+            {TRACE_IT(53442);
                 *buffer++ = (BYTE)addr & 0xFF;
                 addr >>= 8;
             }
@@ -522,23 +522,23 @@ namespace Js
 
         template<BYTE b, typename FormatType>
         int EncodeModRM_ByteRM( BYTE*& buffer, const FormatType& params )
-        {
+        {TRACE_IT(53443);
             return EncodeModRM( buffer, b, params.addr.regEffAddr, params.addr.regEffAddr2, params.addr.multiplier, params.addr.offset );
         }
 
         // encodes the opcode + register
         template<BYTE op, typename FormatType>
         int EncodeOpReg( BYTE*& buffer, const FormatType& params )
-        {
+        {TRACE_IT(53444);
             *buffer++ = op | RegEncode[params.reg];
             return 1;
         }
 
         template<typename ImmType>
         int Encode_Immutable( BYTE*& buffer, ImmType imm )
-        {
+        {TRACE_IT(53445);
             for( int i = 0; i < sizeof(ImmType); i++ )
-            {
+            {TRACE_IT(53446);
                 *buffer++ = imm & 0xFF;
                 imm >>= 8;
             }
@@ -563,7 +563,7 @@ namespace Js
 
         template<typename T>
         int Encode_Empty( BYTE*& buffer, const T& params )
-        {
+        {TRACE_IT(53447);
             return 0;
         }
 
@@ -575,7 +575,7 @@ namespace Js
 
         template<int instrSize, typename ImmType, int opReg, int opAddr, int opImm>
         int GenericBinary_OpFunc( BYTE*& buffer, FormatType formatType )
-        {
+        {TRACE_IT(53448);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG_REG:
@@ -588,11 +588,11 @@ namespace Js
             case Js::AsmJsJitTemplate::REG_IMM:
             case Js::AsmJsJitTemplate::ADDR_IMM:
                 if( instrSize == sizeof( ImmType ) )
-                {
+                {TRACE_IT(53449);
                     *buffer++ = opImm | (int)( instrSize != 1 );
                 }
                 else if( sizeof( ImmType ) == 1 )
-                {
+                {TRACE_IT(53450);
                     *buffer++ = 0x83;
                 }
                 else
@@ -608,12 +608,12 @@ namespace Js
         }
 
         OpFuncSignature( ADD )
-        {
+        {TRACE_IT(53451);
             return GenericBinary_OpFunc<instrSize, ImmType, 0x02, 0x00, 0x80>( buffer, formatType );
         }
 
         OpFuncSignature( ADDSD )
-        {
+        {TRACE_IT(53452);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x58;
@@ -621,7 +621,7 @@ namespace Js
         }
 
         OpFuncSignature(ADDSS)
-        {
+        {TRACE_IT(53453);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x58;
@@ -629,7 +629,7 @@ namespace Js
         }
 
         OpFuncSignature(MULSS)
-        {
+        {TRACE_IT(53454);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x59;
@@ -637,7 +637,7 @@ namespace Js
         }
 
         OpFuncSignature(DIVSS)
-        {
+        {TRACE_IT(53455);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x5E;
@@ -645,19 +645,19 @@ namespace Js
         }
 
         OpFuncSignature( AND )
-        {
+        {TRACE_IT(53456);
             return GenericBinary_OpFunc<instrSize, ImmType, 0x22, 0x20, 0x80>( buffer, formatType );
         }
 
         OpFuncSignature( BSR )
-        {
+        {TRACE_IT(53457);
             *buffer++ = 0x0F;
             *buffer++ = 0xBD;
             return 2;
         }
 
         OpFuncSignature( CALL )
-        {
+        {TRACE_IT(53458);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG:
@@ -674,18 +674,18 @@ namespace Js
         }
 
         OpFuncSignature( CDQ )
-        {
+        {TRACE_IT(53459);
             *buffer++ = 0x99;
             return 1;
         }
 
         OpFuncSignature( CMP )
-        {
+        {TRACE_IT(53460);
             return GenericBinary_OpFunc<instrSize, ImmType, 0x3A, 0x38, 0x80>( buffer, formatType );
         }
 
         OpFuncSignature( COMISD )
-        {
+        {TRACE_IT(53461);
             *buffer++ = 0x66;
             *buffer++ = 0x0F;
             *buffer++ = 0x2F;
@@ -693,14 +693,14 @@ namespace Js
         }
 
         OpFuncSignature(COMISS)
-        {
+        {TRACE_IT(53462);
             *buffer++ = 0x0F;
             *buffer++ = 0x2F;
             return 2;
         }
 
         OpFuncSignature( CVTDQ2PD )
-        {
+        {TRACE_IT(53463);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0xE6;
@@ -708,14 +708,14 @@ namespace Js
         }
 
         OpFuncSignature( CVTPS2PD )
-        {
+        {TRACE_IT(53464);
             *buffer++ = 0x0F;
             *buffer++ = 0x5A;
             return 2;
         }
 
         OpFuncSignature( CVTSI2SD )
-        {
+        {TRACE_IT(53465);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x2A;
@@ -723,7 +723,7 @@ namespace Js
         }
 
         OpFuncSignature( CVTTSD2SI )
-        {
+        {TRACE_IT(53466);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x2C;
@@ -731,7 +731,7 @@ namespace Js
         }
 
         OpFuncSignature( CVTSS2SD )
-        {
+        {TRACE_IT(53467);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x5A;
@@ -739,7 +739,7 @@ namespace Js
         }
 
         OpFuncSignature(CVTTSS2SI)
-        {
+        {TRACE_IT(53468);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x2C;
@@ -747,7 +747,7 @@ namespace Js
         }
 
         OpFuncSignature( CVTSD2SS )
-        {
+        {TRACE_IT(53469);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x5A;
@@ -755,7 +755,7 @@ namespace Js
         }
 
         OpFuncSignature(CVTSI2SS)
-        {
+        {TRACE_IT(53470);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x2A;
@@ -763,18 +763,18 @@ namespace Js
         }
 
         OpFuncSignature( DIV )
-        {
+        {TRACE_IT(53471);
             *buffer++ = 0xF6 | (int)( instrSize != 1 );
             return 1;
         }
 
         OpFuncSignature(IDIV)
-        {
+        {TRACE_IT(53472);
             *buffer++ = 0xF6 | (int)(instrSize != 1);
             return 1;
         }
         OpFuncSignature( DIVSD )
-        {
+        {TRACE_IT(53473);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x5E;
@@ -782,28 +782,28 @@ namespace Js
         }
 
         OpFuncSignature( FLD )
-        {
+        {TRACE_IT(53474);
             // Add 4 if 64 bits
             *buffer++ = 0xD9 | ( ( instrSize == 8 ) << 2 );
             return 1;
         }
 
         OpFuncSignature( FSTP )
-        {
+        {TRACE_IT(53475);
             // Add 4 if 64 bits
             *buffer++ = 0xD9 | ( ( instrSize == 8 ) << 2 );
             return 1;
         }
 
         OpFuncSignature( IMUL )
-        {
+        {TRACE_IT(53476);
             *buffer++ = 0x0F;
             *buffer++ = 0xAF;
             return 2;
         }
 
         OpFuncSignature( INC )
-        {
+        {TRACE_IT(53477);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG:
@@ -819,7 +819,7 @@ namespace Js
         }
 
         OpFuncSignature( JMP )
-        {
+        {TRACE_IT(53478);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG:
@@ -838,16 +838,16 @@ namespace Js
         }
 
         OpFuncSignature( LAHF )
-        {
+        {TRACE_IT(53479);
             *buffer++ = 0x9F;
             return 1;
         }
 
         OpFuncSignature( MOV )
-        {
+        {TRACE_IT(53480);
             int size = 1;
             if( instrSize == 2 )
-            {
+            {TRACE_IT(53481);
                 *buffer++ = 0x66;
                 ++size;
             }
@@ -871,13 +871,13 @@ namespace Js
         }
 
         OpFuncSignature( MOVD )
-        {
+        {TRACE_IT(53482);
             switch( formatType )
             {
-            case Js::AsmJsJitTemplate::REG_REG:{
+            case Js::AsmJsJitTemplate::REG_REG:{TRACE_IT(53483);
                 InstrParams2Reg* fparams = (InstrParams2Reg*)params;
                 if( Is64BitsReg( fparams->reg ) )
-                {
+                {TRACE_IT(53484);
                     Assert( !Is64BitsReg( fparams->reg2 ) );
                     Assert( instrSize == 8 || instrSize == 4); // Remove == 8 ? we are copying double-word.
                     *buffer++ = 0x66;
@@ -885,7 +885,7 @@ namespace Js
                     *buffer++ = 0x6E;
                 }
                 else
-                {
+                {TRACE_IT(53485);
                     Assert( Is64BitsReg( fparams->reg2 ) );
                     Assert( instrSize == 4 );
                     *buffer++ = 0x66;
@@ -894,7 +894,7 @@ namespace Js
                 }
                 return 3;
             }
-            case Js::AsmJsJitTemplate::REG_ADDR:{
+            case Js::AsmJsJitTemplate::REG_ADDR:{TRACE_IT(53486);
                 InstrParamsRegAddr* fparams = (InstrParamsRegAddr*)params;
                 Assert( Is64BitsReg( fparams->reg ) );
                 Assert( instrSize == 8 );
@@ -903,7 +903,7 @@ namespace Js
                 *buffer++ = 0x6E;
                 return 3;
             }
-            case Js::AsmJsJitTemplate::ADDR_REG:{
+            case Js::AsmJsJitTemplate::ADDR_REG:{TRACE_IT(53487);
                 InstrParamsAddrReg* fparams = (InstrParamsAddrReg*)params;
                 Assert( Is64BitsReg( fparams->reg ) );
                 Assert( instrSize == 4 );
@@ -919,7 +919,7 @@ namespace Js
         }
 
         OpFuncSignature( MOVSD )
-        {
+        {TRACE_IT(53488);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x10 | (int)( formatType == ADDR_REG );
@@ -927,7 +927,7 @@ namespace Js
         }
 
         OpFuncSignature( MOVSS )
-        {
+        {TRACE_IT(53489);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x10 | (int)( formatType == ADDR_REG );
@@ -935,27 +935,27 @@ namespace Js
         }
 
         OpFuncSignature( MOVSX )
-        {
+        {TRACE_IT(53490);
             *buffer++ = 0x0F;
             *buffer++ = 0xBE | (int)( instrSize != 1 );
             return 2;
         }
 
         OpFuncSignature( MOVZX )
-        {
+        {TRACE_IT(53491);
             *buffer++ = 0x0F;
             *buffer++ = 0xB6 | (int)( instrSize != 1 );
             return 2;
         }
 
         OpFuncSignature( MUL )
-        {
+        {TRACE_IT(53492);
             *buffer++ = 0xF6 | (int)( instrSize != 1 );
             return 1;
         }
 
         OpFuncSignature( MULSD )
-        {
+        {TRACE_IT(53493);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x59;
@@ -963,28 +963,28 @@ namespace Js
         }
 
         OpFuncSignature( NEG )
-        {
+        {TRACE_IT(53494);
             *buffer++ = 0xF6 | (int)( instrSize != 1 );
             return 1;
         }
 
         OpFuncSignature( NOT )
-        {
+        {TRACE_IT(53495);
             *buffer++ = 0xF6 | (int)( instrSize != 1 );
             return 1;
         }
 
         OpFuncSignature( OR )
-        {
+        {TRACE_IT(53496);
             return GenericBinary_OpFunc<instrSize, ImmType, 0x0A, 0x08, 0x80>( buffer, formatType );
         }
 
         OpFuncSignature( POP )
-        {
+        {TRACE_IT(53497);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG:
-            {
+            {TRACE_IT(53498);
                 InstrParamsReg* p = (InstrParamsReg*)params;
                 *buffer++ = 0x58 | RegEncode[p->reg];
             }
@@ -1000,7 +1000,7 @@ namespace Js
         }
 
         OpFuncSignature( PUSH )
-        {
+        {TRACE_IT(53499);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG:
@@ -1019,14 +1019,14 @@ namespace Js
         }
 
         OpFuncSignature( RET )
-        {
+        {TRACE_IT(53500);
             *buffer++ = 0xC2;
             return 1;
         }
 
 #define ShiftInstruction(name)\
         OpFuncSignature( name )\
-        {\
+        {TRACE_IT(53501);\
             switch( formatType )\
             {\
             case Js::AsmJsJitTemplate::REG:\
@@ -1060,12 +1060,12 @@ namespace Js
 #undef ShiftInstruction
 
         OpFuncSignature( SUB )
-        {
+        {TRACE_IT(53502);
             return GenericBinary_OpFunc<instrSize, ImmType, 0x2A, 0x28, 0x80>( buffer, formatType );
         }
 
         OpFuncSignature( SUBSD )
-        {
+        {TRACE_IT(53503);
             *buffer++ = 0xF2;
             *buffer++ = 0x0F;
             *buffer++ = 0x5C;
@@ -1073,7 +1073,7 @@ namespace Js
         }
 
         OpFuncSignature(SUBSS)
-        {
+        {TRACE_IT(53504);
             *buffer++ = 0xF3;
             *buffer++ = 0x0F;
             *buffer++ = 0x5C;
@@ -1081,7 +1081,7 @@ namespace Js
         }
 
         OpFuncSignature( TEST )
-        {
+        {TRACE_IT(53505);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG_REG:
@@ -1099,7 +1099,7 @@ namespace Js
         }
 
         OpFuncSignature( UCOMISD )
-        {
+        {TRACE_IT(53506);
             *buffer++ = 0x66;
             *buffer++ = 0x0F;
             *buffer++ = 0x2E;
@@ -1107,13 +1107,13 @@ namespace Js
         }
 
         OpFuncSignature(UCOMISS)
-        {
+        {TRACE_IT(53507);
             *buffer++ = 0x0F;
             *buffer++ = 0x2E;
             return 2;
         }
         OpFuncSignature( XOR )
-        {
+        {TRACE_IT(53508);
             switch( formatType )
             {
             case Js::AsmJsJitTemplate::REG_REG:
@@ -1134,7 +1134,7 @@ namespace Js
         }
 
         OpFuncSignature( XORPS )
-        {
+        {TRACE_IT(53509);
             *buffer++ = 0x0F;
             *buffer++ = 0x57;
             return 2;
@@ -1142,9 +1142,9 @@ namespace Js
 
         template<typename ImmType, int op>
         int JmpGeneric_OpFunc( BYTE*& buffer, FormatType formatType )
-        {
+        {TRACE_IT(53510);
             if( sizeof(ImmType) != 1 )
-            {
+            {TRACE_IT(53511);
                 *buffer++ = 0x0F;
                 *buffer++ = op ^ 0xF0;
                 return 2;
@@ -1154,7 +1154,7 @@ namespace Js
         }
 
 #define Jcc(name,op) \
-    OpFuncSignature(name){return JmpGeneric_OpFunc<ImmType, op>( buffer, formatType );}
+    OpFuncSignature(name){TRACE_IT(53512);return JmpGeneric_OpFunc<ImmType, op>( buffer, formatType );}
         Jcc(JA  , 0x77 )
         Jcc(JAE , 0x73 )
         Jcc(JB  , 0x72 )
@@ -1189,13 +1189,13 @@ namespace Js
 
         template<int op>
         int SetFlagGeneric_OpFunc( BYTE*& buffer, FormatType formatType )
-        {
+        {TRACE_IT(53513);
             *buffer++ = op;
             return 1;
         }
 
 #define SETFLAG(name,op) \
-    OpFuncSignature(name){\
+    OpFuncSignature(name){TRACE_IT(53514);\
         *buffer++ = 0x0F;\
         *buffer++ = op;\
         return 1;\
@@ -1234,7 +1234,7 @@ namespace Js
 #undef SETFLAG
 
 #define CMOV(name,op) \
-    OpFuncSignature(name){\
+    OpFuncSignature(name){TRACE_IT(53515);\
         *buffer++ = 0x0F;\
         *buffer++ = op;\
         return 1;\
@@ -1273,21 +1273,21 @@ namespace Js
 #undef CMOV
 
     // SSE2 instructions
-    OpFuncSignature( MOVUPS ){
+    OpFuncSignature( MOVUPS ){TRACE_IT(53516);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x10 | (int)(formatType == ADDR_REG);
         return 2;
     }
 
-    OpFuncSignature(MOVAPS){
+    OpFuncSignature(MOVAPS){TRACE_IT(53517);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x28 | (int)(formatType == ADDR_REG);
         return 2;
     }
 
-    OpFuncSignature(MOVHPD){
+    OpFuncSignature(MOVHPD){TRACE_IT(53518);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1295,28 +1295,28 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(MOVHLPS){
+    OpFuncSignature(MOVHLPS){TRACE_IT(53519);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x12;
         return 2;
     }
 
-    OpFuncSignature(MOVLHPS){
+    OpFuncSignature(MOVLHPS){TRACE_IT(53520);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x16;
         return 2;
     }
 
-    OpFuncSignature( SHUFPS ){
+    OpFuncSignature( SHUFPS ){TRACE_IT(53521);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0xC6;
         return 2;
     }
 
-    OpFuncSignature(SHUFPD){
+    OpFuncSignature(SHUFPD){TRACE_IT(53522);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1324,7 +1324,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PSHUFD){
+    OpFuncSignature(PSHUFD){TRACE_IT(53523);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1332,7 +1332,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(CVTPD2PS){
+    OpFuncSignature(CVTPD2PS){TRACE_IT(53524);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1340,7 +1340,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(CVTDQ2PS){
+    OpFuncSignature(CVTDQ2PS){TRACE_IT(53525);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x5B;
@@ -1348,7 +1348,7 @@ namespace Js
     }
 
     OpFuncSignature(CVTTPS2DQ)
-    {
+    {TRACE_IT(53526);
         *buffer++ = 0xF3;
         *buffer++ = 0x0F;
         *buffer++ = 0x5B;
@@ -1356,14 +1356,14 @@ namespace Js
     }
 
     OpFuncSignature(CVTTPD2DQ)
-    {
+    {TRACE_IT(53527);
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
         *buffer++ = 0xE6;
         return 3;
     }
 
-    OpFuncSignature(ANDPD){
+    OpFuncSignature(ANDPD){TRACE_IT(53528);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1371,14 +1371,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(ANDNPS){
+    OpFuncSignature(ANDNPS){TRACE_IT(53529);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x55;
         return 2;
     }
 
-    OpFuncSignature(ANDNPD){
+    OpFuncSignature(ANDNPD){TRACE_IT(53530);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1386,7 +1386,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PXOR){
+    OpFuncSignature(PXOR){TRACE_IT(53531);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1394,14 +1394,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(DIVPS){
+    OpFuncSignature(DIVPS){TRACE_IT(53532);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x5E;
         return 2;
     }
 
-    OpFuncSignature(DIVPD){
+    OpFuncSignature(DIVPD){TRACE_IT(53533);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1409,14 +1409,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(SQRTPS){
+    OpFuncSignature(SQRTPS){TRACE_IT(53534);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x51;
         return 2;
     }
 
-    OpFuncSignature(SQRTPD){
+    OpFuncSignature(SQRTPD){TRACE_IT(53535);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1424,14 +1424,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(ADDPS){
+    OpFuncSignature(ADDPS){TRACE_IT(53536);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x58;
         return 2;
     }
 
-    OpFuncSignature(ADDPD){
+    OpFuncSignature(ADDPD){TRACE_IT(53537);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1439,7 +1439,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PADDD){
+    OpFuncSignature(PADDD){TRACE_IT(53538);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1447,7 +1447,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PADDB) {
+    OpFuncSignature(PADDB) {TRACE_IT(53539);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1455,14 +1455,14 @@ namespace Js
     return 3;
     }
 
-    OpFuncSignature(SUBPS){
+    OpFuncSignature(SUBPS){TRACE_IT(53540);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x5C;
         return 2;
     }
 
-    OpFuncSignature(SUBPD){
+    OpFuncSignature(SUBPD){TRACE_IT(53541);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1470,7 +1470,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PSUBD){
+    OpFuncSignature(PSUBD){TRACE_IT(53542);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1478,7 +1478,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PSUBB) {
+    OpFuncSignature(PSUBB) {TRACE_IT(53543);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1486,14 +1486,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(MULPS){
+    OpFuncSignature(MULPS){TRACE_IT(53544);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x59;
         return 2;
     }
 
-    OpFuncSignature(MULPD){
+    OpFuncSignature(MULPD){TRACE_IT(53545);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1501,7 +1501,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PMULUDQ){
+    OpFuncSignature(PMULUDQ){TRACE_IT(53546);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1509,7 +1509,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PSRLDQ){
+    OpFuncSignature(PSRLDQ){TRACE_IT(53547);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1517,7 +1517,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PUNPCKLDQ){
+    OpFuncSignature(PUNPCKLDQ){TRACE_IT(53548);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1525,21 +1525,21 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(MINPS){
+    OpFuncSignature(MINPS){TRACE_IT(53549);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x5D;
         return 3;
     }
 
-    OpFuncSignature(MAXPS){
+    OpFuncSignature(MAXPS){TRACE_IT(53550);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x5F;
         return 3;
     }
 
-    OpFuncSignature(MINPD){
+    OpFuncSignature(MINPD){TRACE_IT(53551);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1547,7 +1547,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(MAXPD){
+    OpFuncSignature(MAXPD){TRACE_IT(53552);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1555,14 +1555,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(CMPPS){
+    OpFuncSignature(CMPPS){TRACE_IT(53553);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0xC2;
         return 2;
     }
 
-    OpFuncSignature(CMPPD){
+    OpFuncSignature(CMPPD){TRACE_IT(53554);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1570,7 +1570,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PCMPGTD){
+    OpFuncSignature(PCMPGTD){TRACE_IT(53555);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1578,7 +1578,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PCMPGTB) {
+    OpFuncSignature(PCMPGTB) {TRACE_IT(53556);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1587,7 +1587,7 @@ namespace Js
     }
 
 
-    OpFuncSignature(PCMPEQD){
+    OpFuncSignature(PCMPEQD){TRACE_IT(53557);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1595,7 +1595,7 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(PCMPEQB) {
+    OpFuncSignature(PCMPEQB) {TRACE_IT(53558);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1603,14 +1603,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(ANDPS){
+    OpFuncSignature(ANDPS){TRACE_IT(53559);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x54;
         return 2;
     }
 
-    OpFuncSignature(PAND){
+    OpFuncSignature(PAND){TRACE_IT(53560);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1618,14 +1618,14 @@ namespace Js
         return 2;
     }
 
-    OpFuncSignature(ORPS){
+    OpFuncSignature(ORPS){TRACE_IT(53561);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x56;
         return 2;
     }
 
-    OpFuncSignature(POR){
+    OpFuncSignature(POR){TRACE_IT(53562);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1633,14 +1633,14 @@ namespace Js
         return 3;
     }
 
-    OpFuncSignature(MOVMSKPS){
+    OpFuncSignature(MOVMSKPS){TRACE_IT(53563);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x0F;
         *buffer++ = 0x50;
         return 2;
     }
 
-    OpFuncSignature(MOVMSKPD){
+    OpFuncSignature(MOVMSKPD){TRACE_IT(53564);
         CompileAssert(instrSize == sizeof(AsmJsSIMDValue));
         *buffer++ = 0x66;
         *buffer++ = 0x0F;
@@ -1652,14 +1652,14 @@ namespace Js
     {
         int opSize, operandSize, immSize;
         void Fill( int _opSize, int _operandSize, int _immSize )
-        {
+        {TRACE_IT(53565);
             opSize = _opSize;
             operandSize = _operandSize;
             immSize = _immSize;
         }
-        int GetSizeBeforeImm()    const {return opSize + operandSize;}
-        int GetSizeBeforeOperand()const {return opSize;}
-        int GetSizeBeforeOpCOde() const {return 0;}
+        int GetSizeBeforeImm()    const {TRACE_IT(53566);return opSize + operandSize;}
+        int GetSizeBeforeOperand()const {TRACE_IT(53567);return opSize;}
+        int GetSizeBeforeOpCOde() const {TRACE_IT(53568);return 0;}
     };
 
         // Dump generated bytes
@@ -1668,22 +1668,22 @@ namespace Js
 
     template<typename T>
     void DumpAsmCode( const BYTE* buffer, const int size, const char16* instructionName, T* params )
-    {
+    {TRACE_IT(53569);
 #if DBG_DUMP
         if( PHASE_TRACE( AsmjsEncoderPhase, AsmJsJitTemplate::Globals::CurrentEncodingFunction ) )
-        {
+        {TRACE_IT(53570);
             int j = 0;
             for( int i = size; i > 0; --i, ++j )
-            {
+            {TRACE_IT(53571);
                 if( j == DUMP_ASM_CODE_NB_BYTES )
-                {
+                {TRACE_IT(53572);
                     Output::Print( _u("\n") ); j = 0;
                 }
                 Output::Print( _u("0x%02X "), buffer[-i] );
             }
             Output::Print( _u("%*c  %s "), DUMP_ASM_CODE_PADDING( size ), ' ', instructionName );
             if( params )
-            {
+            {TRACE_IT(53573);
                 params->dump();
             }
             Output::Print( _u(" (size: %d)\n"), size );
@@ -1696,7 +1696,7 @@ namespace Js
     static const int SupportedInstrSize = supInstrSize;\
     static const char16* InstructionName;\
     static const int Flags = flags;\
-    static const char16* GetInstructionName() { return InstructionName; }
+    static const char16* GetInstructionName() {TRACE_IT(53574); return InstructionName; }
 
 #define InstructionMemberInit(name)\
     const char16* name::InstructionName = _u(#name);
@@ -1704,7 +1704,7 @@ namespace Js
 #define InstructionMembers(name, supInstrSize, flags) \
     static const int SupportedInstrSize = supInstrSize;\
     static const int Flags = flags;\
-    static const char16* GetInstructionName() { return _u(""); }
+    static const char16* GetInstructionName() {TRACE_IT(53575); return _u(""); }
 #define InstructionMemberInit(name)
 #endif
 
@@ -1715,7 +1715,7 @@ namespace Js
     private:\
         template<int instrSize, typename ImmType> \
         static int EncodeOpFunc( BYTE*& buffer, FormatType formatType, void* params )\
-        {\
+        {TRACE_IT(53576);\
             return name##_OpFunc<instrSize,ImmType>(buffer,formatType,params);\
         }\
     public:
@@ -1727,7 +1727,7 @@ namespace Js
 // Structure for instructions
 #define InstructionEmpty() \
     template<typename OperationSize> static int EncodeInstruction( BYTE*& buffer, EncodingInfo* info = nullptr )\
-    {\
+    {TRACE_IT(53577);\
         CompileAssert((sizeof(OperationSize)&(SupportedInstrSize)));\
         CompileAssert(IsPowerOfTwo(sizeof(OperationSize)));\
         const int size = EncodeOpFunc<sizeof(OperationSize),int>(buffer,EMPTY,nullptr);\
@@ -1738,7 +1738,7 @@ namespace Js
 
 #define InstructionFormat(check,Format,encodingfunc) \
     template<typename OperationSize> static int EncodeInstruction( BYTE*& buffer, const Format& params, EncodingInfo* info = nullptr )\
-    {\
+    {TRACE_IT(53578);\
         CompileAssert((sizeof(OperationSize)&(SupportedInstrSize))); \
         CompileAssert(IsPowerOfTwo(sizeof(OperationSize))); \
         Assert(check);\
@@ -1753,7 +1753,7 @@ namespace Js
         // Structure for instructions with a constant value
 #define InstructionFormat_Imm(check,Format,encodingfunc) \
     template<typename OperationSize, typename ImmType> static int EncodeInstruction( BYTE*& buffer, const Format<ImmType>& params, EncodingInfo* info = nullptr )\
-    {\
+    {TRACE_IT(53579);\
         CompileAssert((sizeof(OperationSize)&(SupportedInstrSize)));\
         CompileAssert(IsPowerOfTwo(sizeof(OperationSize)));\
         Assert(check);\
@@ -1928,7 +1928,7 @@ namespace Js
 #undef InstructionFormat
 
         int MovHigh8Bits( BYTE*& buffer, RegNum reg, int8 imm )
-        {
+        {TRACE_IT(53580);
             Assert( reg <= RegEBX );
             BYTE* opDst = buffer;
             int size = MOV::EncodeInstruction<int8>( buffer, InstrParamsRegImm<int8>(reg, imm) );
@@ -1942,7 +1942,7 @@ namespace Js
             HIGH_HIGH = 0x24,
         };
         int MovHigh8Bits( BYTE*& buffer, RegNum reg, RegNum reg2, High8BitsRegType high8BitsRegType )
-        {
+        {TRACE_IT(53581);
             Assert( reg <= RegEBX );
             Assert( reg2 <= RegEBX );
             BYTE* opDst = buffer;
@@ -1951,7 +1951,7 @@ namespace Js
             return size;
         }
         int MovHigh8Bits( BYTE*& buffer, RegNum reg, RegNum regEffAddr, int offset )
-        {
+        {TRACE_IT(53582);
             Assert( reg <= RegEBX );
             BYTE* opDst = buffer;
             int size = MOV::EncodeInstruction<int8>( buffer, InstrParamsRegAddr(reg, regEffAddr, offset) );
@@ -1959,7 +1959,7 @@ namespace Js
             return size;
         }
         int MovHigh8Bits( BYTE*& buffer, RegNum regEffAddr, int offset, RegNum reg )
-        {
+        {TRACE_IT(53583);
             Assert( reg <= RegEBX );
             BYTE* opDst = buffer;
             int size = MOV::EncodeInstruction<int8>( buffer, InstrParamsAddrReg(regEffAddr, offset, reg) );

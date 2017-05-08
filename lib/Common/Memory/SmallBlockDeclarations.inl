@@ -50,7 +50,7 @@ template <>
 template <>
 void
 SmallHeapBlockT<TBlockTypeAttributes>::SweepObject<SweepMode_Concurrent>(Recycler * recycler, uint i, void * addr)
-{
+{TRACE_IT(26834);
     AssertMsg(!(ObjectInfo(i) & FinalizeBit), "Finalize object should not be concurrent swept");
     EnqueueProcessedObject(&freeObjectList, addr, i);
 }
@@ -61,7 +61,7 @@ template <>
 template <>
 void
 SmallHeapBlockT<TBlockTypeAttributes>::SweepObject<SweepMode_ConcurrentPartial>(Recycler * recycler, uint i, void * addr)
-{
+{TRACE_IT(26835);
     Assert(recycler->inPartialCollectMode);
     AssertMsg(!this->IsLeafBlock(), "Leaf pages should not do partial sweep");
     AssertMsg(!(ObjectInfo(i) & FinalizeBit), "Finalize object should not be concurrent swept");
@@ -83,9 +83,9 @@ template <>
 template <>
 void
 SmallHeapBlockT<TBlockTypeAttributes>::SweepObject<SweepMode_InThread>(Recycler * recycler, uint i, void * addr)
-{
+{TRACE_IT(26836);
     if (ObjectInfo(i) & FinalizeBit)
-    {
+    {TRACE_IT(26837);
         Assert(this->IsAnyFinalizableBlock());
 
 #if ENABLE_CONCURRENT_GC

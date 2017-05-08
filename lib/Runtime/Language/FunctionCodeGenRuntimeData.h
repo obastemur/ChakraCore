@@ -31,13 +31,13 @@ namespace Js
 
     public:
         FunctionCodeGenRuntimeData(FunctionBody *const functionBody);
-        void SetupRuntimeDataChain(FunctionCodeGenRuntimeData *nextRuntimeData) { this->next = nextRuntimeData; }
+        void SetupRuntimeDataChain(FunctionCodeGenRuntimeData *nextRuntimeData) {TRACE_IT(48228); this->next = nextRuntimeData; }
 
     public:
         FunctionBody *GetFunctionBody() const;
-        FunctionCodeGenRuntimeData *GetNext() const { return next; };
-        Field(FunctionCodeGenRuntimeData*)* GetInlinees() const { return inlinees; }
-        Field(FunctionCodeGenRuntimeData*)* GetLdFldInlinees() const { return ldFldInlinees; }
+        FunctionCodeGenRuntimeData *GetNext() const {TRACE_IT(48229); return next; };
+        Field(FunctionCodeGenRuntimeData*)* GetInlinees() const {TRACE_IT(48230); return inlinees; }
+        Field(FunctionCodeGenRuntimeData*)* GetLdFldInlinees() const {TRACE_IT(48231); return ldFldInlinees; }
         const FunctionCodeGenRuntimeData *GetForTarget(FunctionBody *targetFuncBody) const;
         const InlineCachePointerArray<InlineCache> *ClonedInlineCaches() const;
         InlineCachePointerArray<InlineCache> *ClonedInlineCaches();
@@ -67,16 +67,16 @@ namespace Js
 
         template<class Fn>
         void MapInlineCaches(Fn fn) const
-        {
+        {TRACE_IT(48232);
             this->clonedInlineCaches.Map(fn, this->functionBody->GetInlineCacheCount());
 
             for (ProfileId iInlinee = 0; iInlinee < this->functionBody->GetProfiledCallSiteCount(); iInlinee++)
-            {
+            {TRACE_IT(48233);
                 const FunctionCodeGenRuntimeData* runtimeData = this->GetInlinee(iInlinee);
                 while (runtimeData)
-                {
+                {TRACE_IT(48234);
                     if (functionBody == runtimeData->GetFunctionBody())
-                    {
+                    {TRACE_IT(48235);
                         break;
                     }
                     // Map for chained ones as well.

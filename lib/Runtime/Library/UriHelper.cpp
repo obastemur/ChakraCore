@@ -7,23 +7,23 @@
 namespace Js
 {
     Var UriHelper::EncodeCoreURI(ScriptContext* scriptContext, Arguments& args, unsigned char flags )
-    {
+    {TRACE_IT(64231);
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         JavascriptString * strURI;
         //TODO make sure this string is pinned when the memory recycler is in
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(64232);
             strURI = scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
         else
-        {
+        {TRACE_IT(64233);
 
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(64234);
                 strURI = JavascriptString::FromVar(args[1]);
             }
             else
-            {
+            {TRACE_IT(64235);
                 strURI = JavascriptConversion::ToString(args[1], scriptContext);
             }
         }
@@ -55,15 +55,15 @@ namespace Js
     // This routine assumes that it's input 'uVal' is a valid Unicode code-point value
     // and does no error checking.
     uint32 UriHelper::ToUTF8( uint32 uVal, BYTE bUTF8[MaxUTF8Len])
-    {
+    {TRACE_IT(64236);
         uint32 uRet;
         if( uVal <= 0x007F )
-        {
+        {TRACE_IT(64237);
             bUTF8[0] = (BYTE)uVal;
             uRet = 1;
         }
         else if( uVal <= 0x07FF )
-        {
+        {TRACE_IT(64238);
             uint32 z = uVal & 0x3F;
             uint32 y = uVal >> 6;
             bUTF8[0] = (BYTE) (0xC0 | y);
@@ -71,7 +71,7 @@ namespace Js
             uRet = 2;
         }
         else if( uVal <= 0xFFFF )
-        {
+        {TRACE_IT(64239);
             Assert( uVal <= 0xD7FF || uVal >= 0xE000 );
             uint32 z = uVal & 0x3F;
             uint32 y = (uVal >> 6) & 0x3F;
@@ -82,7 +82,7 @@ namespace Js
             uRet = 3;
         }
         else
-        {
+        {TRACE_IT(64240);
             uint32 z = uVal & 0x3F;
             uint32 y = (uVal >> 6) &0x3F;
             uint32 x = (uVal >> 12) &0x3F;
@@ -102,22 +102,22 @@ namespace Js
     // This routine assumes that a valid UTF-8 encoding of a character is passed in
     // and does no error checking.
     uint32 UriHelper::FromUTF8( BYTE bUTF8[MaxUTF8Len], uint32 uLen )
-    {
+    {TRACE_IT(64241);
         Assert( 1 <= uLen && uLen <= MaxUTF8Len );
         if( uLen == 1 )
-        {
+        {TRACE_IT(64242);
             return bUTF8[0];
         }
         else if( uLen == 2 )
-        {
+        {TRACE_IT(64243);
             return ((bUTF8[0] & 0x1F) << 6 ) | (bUTF8[1] & 0x3F);
         }
         else if( uLen == 3 )
-        {
+        {TRACE_IT(64244);
             return ((bUTF8[0] & 0x0F) << 12) | ((bUTF8[1] & 0x3F) << 6) | (bUTF8[2] & 0x3F);
         }
         else
-        {
+        {TRACE_IT(64245);
             Assert( uLen == 4 );
             return ((bUTF8[0] & 0x07) << 18) | ((bUTF8[1] & 0x3F) << 12) | ((bUTF8[2] & 0x3F) << 6 ) | (bUTF8[3] & 0x3F) ;
         }
@@ -127,40 +127,40 @@ namespace Js
     // 'pSz' and the Unescaped set is described by the flags 'unescapedFlags'. The
     // output is a string var.
     Var UriHelper::Encode(__in_ecount(len) const  char16* pSz, uint32 len, unsigned char unescapedFlags, ScriptContext* scriptContext )
-    {
+    {TRACE_IT(64246);
         BYTE bUTF8[MaxUTF8Len];
 
         // pass 1 calculate output length and error check
         uint32 outputLen = 0;
         for( uint32 k = 0; k < len; k++ )
-        {
+        {TRACE_IT(64247);
             char16 c = pSz[k];
             uint32 uVal;
             if( InURISet(c, unescapedFlags) )
-            {
+            {TRACE_IT(64248);
                 outputLen = UInt32Math::Add(outputLen, 1);
             }
             else
-            {
+            {TRACE_IT(64249);
                 if( c >= 0xDC00 && c <= 0xDFFF )
-                {
+                {TRACE_IT(64250);
                     JavascriptError::ThrowURIError(scriptContext, JSERR_URIEncodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                 }
                 else if( c < 0xD800 || c > 0xDBFF )
-                {
+                {TRACE_IT(64251);
                     uVal = (uint32)c;
                 }
                 else
-                {
+                {TRACE_IT(64252);
                     ++k;
                     if(k == len)
-                    {
+                    {TRACE_IT(64253);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIEncodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
                     __analysis_assume(k < len); // because we throw exception if k==len
                     char16 c1 = pSz[k];
                     if( c1 < 0xDC00 || c1 > 0xDFFF )
-                    {
+                    {TRACE_IT(64254);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIEncodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
                     uVal = (c - 0xD800) * 0x400 + (c1 - 0xDC00) + 0x10000;
@@ -178,32 +178,32 @@ namespace Js
         char16* outCurrent = outURI;
 
         for( uint32 k = 0; k < len; k++ )
-        {
+        {TRACE_IT(64255);
             char16 c = pSz[k];
             uint32 uVal;
             if( InURISet(c, unescapedFlags) )
-            {
+            {TRACE_IT(64256);
                 __analysis_assume(outCurrent < outURI + allocSize);
                 *outCurrent++ = c;
             }
             else
-            {
+            {TRACE_IT(64257);
 #if DBG
                 if( c >= 0xDC00 && c <= 0xDFFF )
-                {
+                {TRACE_IT(64258);
                     JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                 }
 #endif
                 if( c < 0xD800 || c > 0xDBFF )
-                {
+                {TRACE_IT(64259);
                     uVal = (uint32)c;
                 }
                 else
-                {
+                {TRACE_IT(64260);
                     ++k;
 #if DBG
                     if(k == len)
-                    {
+                    {TRACE_IT(64261);
                         JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 #endif
@@ -212,7 +212,7 @@ namespace Js
 
 #if DBG
                     if( c1 < 0xDC00 || c1 > 0xDFFF )
-                    {
+                    {TRACE_IT(64262);
                         JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 #endif
@@ -221,7 +221,7 @@ namespace Js
 
                 uint32 utfLen = ToUTF8(uVal, bUTF8);
                 for( uint32 j = 0; j < utfLen; j++ )
-                {
+                {TRACE_IT(64263);
 #pragma prefast(suppress: 26014, "buffer length was calculated earlier");
                     swprintf_s(outCurrent, 4, _u("%%%02X"), (int)bUTF8[j] );
                     outCurrent +=3;
@@ -237,23 +237,23 @@ namespace Js
     }
 
     Var UriHelper::DecodeCoreURI(ScriptContext* scriptContext, Arguments& args, unsigned char reservedFlags )
-    {
+    {TRACE_IT(64264);
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         JavascriptString * strURI;
         //TODO make sure this string is pinned when the memory recycler is in
         if(args.Info.Count < 2)
-        {
+        {TRACE_IT(64265);
             strURI = scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
         else
-        {
+        {TRACE_IT(64266);
 
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(64267);
                 strURI = JavascriptString::FromVar(args[1]);
             }
             else
-            {
+            {TRACE_IT(64268);
                 strURI = JavascriptConversion::ToString(args[1], scriptContext);
             }
         }
@@ -264,20 +264,20 @@ namespace Js
     // 'pSZ' and the Reserved set is described by the flags 'reservedFlags'. The
     // output is a string var.
     Var UriHelper::Decode(__in_ecount(len) const char16* pSz, uint32 len, unsigned char reservedFlags, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(64269);
         char16 c1;
         char16 c;
         // pass 1 calculate output length and error check
         uint32 outputLen = 0;
         for( uint32 k = 0; k < len; k++ )
-        {
+        {TRACE_IT(64270);
             c = pSz[k];
 
             if( c == '%')
-            {
+            {TRACE_IT(64271);
                 uint32 start = k;
                 if( k + 2 >= len )
-                {
+                {TRACE_IT(64272);
                     JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                 }
 
@@ -288,24 +288,24 @@ namespace Js
                 // to be overkill for this, so using a simple function that parses two hex digits and produces their value.
                 BYTE b;
                 if(!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b))
-                {
+                {TRACE_IT(64273);
                     JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError);
                 }
 
                 k += 2;
 
                 if( (b & 0x80) ==  0)
-                {
+                {TRACE_IT(64274);
                     c1 = b;
                 }
                 else
-                {
+                {TRACE_IT(64275);
                     int n;
                     for( n = 1; ((b << n) & 0x80) != 0; n++ )
                         ;
 
                     if( n == 1 || n > UriHelper::MaxUTF8Len )
-                    {
+                    {TRACE_IT(64276);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 
@@ -313,25 +313,25 @@ namespace Js
                     bOctets[0] = b;
 
                     if( k + 3 * (n-1) >= len )
-                    {
+                    {TRACE_IT(64277);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 
                     for( int j = 1; j < n; j++ )
-                    {
+                    {TRACE_IT(64278);
                         if( pSz[++k] != '%' )
                         {
                             JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                         }
 
                         if(!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b))
-                        {
+                        {TRACE_IT(64279);
                             JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                         }
 
                         // The two leading bits should be 10 for a valid UTF-8 encoding
                         if( (b & 0xC0) != 0x80)
-                        {
+                        {TRACE_IT(64280);
                             JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                         }
                         k += 2;
@@ -342,35 +342,35 @@ namespace Js
                     uint32 uVal = UriHelper::FromUTF8( bOctets, n );
 
                     if( uVal >= 0xD800 && uVal <= 0xDFFF)
-                    {
+                    {TRACE_IT(64281);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
                     if( uVal < 0x10000 )
-                    {
+                    {TRACE_IT(64282);
                         c1 = (char16)uVal;
                     }
                     else if( uVal > 0x10ffff )
-                    {
+                    {TRACE_IT(64283);
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIDecodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
                     else
-                    {
+                    {TRACE_IT(64284);
                         outputLen +=2;
                         continue;
                     }
                 }
 
                 if( ! UriHelper::InURISet( c1, reservedFlags ))
-                {
+                {TRACE_IT(64285);
                     outputLen++;
                 }
                 else
-                {
+                {TRACE_IT(64286);
                     outputLen += k - start + 1;
                 }
             }
             else // c is not '%'
-            {
+            {TRACE_IT(64287);
                 outputLen++;
             }
         }
@@ -382,15 +382,15 @@ namespace Js
 
 
         for( uint32 k = 0; k < len; k++ )
-        {
+        {TRACE_IT(64288);
             c = pSz[k];
             if( c == '%')
-            {
+            {TRACE_IT(64289);
                 uint32 start = k;
 #if DBG
                 Assert(!(k + 2 >= len));
                 if( k + 2 >= len )
-                {
+                {TRACE_IT(64290);
                     JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                 }
 #endif
@@ -401,7 +401,7 @@ namespace Js
 
                 BYTE b;
                 if(!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b))
-                {
+                {TRACE_IT(64291);
 #if DBG
                     AssertMsg(false, "!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b)");
                     JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
@@ -411,17 +411,17 @@ namespace Js
                 k += 2;
 
                 if( (b & 0x80) ==  0)
-                {
+                {TRACE_IT(64292);
                     c1 = b;
                 }
                 else
-                {
+                {TRACE_IT(64293);
                     int n;
                     for( n = 1; ((b << n) & 0x80) != 0; n++ )
                         ;
 
                     if( n == 1 || n > UriHelper::MaxUTF8Len )
-                    {
+                    {TRACE_IT(64294);
                         JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 
@@ -431,7 +431,7 @@ namespace Js
 #if DBG
                     Assert(!(k + 3 * (n-1) >= len));
                     if( k + 3 * (n-1) >= len )
-                    {
+                    {TRACE_IT(64295);
                         JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 #endif
@@ -441,7 +441,7 @@ namespace Js
                     __analysis_assume(!(k + 3 * (n-1) >= len));
 
                     for( int j = 1; j < n; j++ )
-                    {
+                    {TRACE_IT(64296);
                         ++k;
 
 #if DBG
@@ -453,7 +453,7 @@ namespace Js
 #endif
 
                         if(!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b))
-                        {
+                        {TRACE_IT(64297);
 #if DBG
                             AssertMsg(false, "!DecodeByteFromHex(pSz[k + 1], pSz[k + 2], b)");
                             JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
@@ -464,7 +464,7 @@ namespace Js
                         // The two leading bits should be 10 for a valid UTF-8 encoding
                         Assert(!((b & 0xC0) != 0x80));
                         if( (b & 0xC0) != 0x80)
-                        {
+                        {TRACE_IT(64298);
                             JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                         }
 #endif
@@ -479,13 +479,13 @@ namespace Js
 #if DBG
                     Assert(!(uVal >= 0xD800 && uVal <= 0xDFFF));
                     if( uVal >= 0xD800 && uVal <= 0xDFFF)
-                    {
+                    {TRACE_IT(64299);
                         JavascriptError::ThrowURIError(scriptContext, VBSERR_InternalError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
 #endif
 
                     if( uVal < 0x10000 )
-                    {
+                    {TRACE_IT(64300);
                         c1 = (char16)uVal;
                     }
 
@@ -497,7 +497,7 @@ namespace Js
                     }
 #endif
                     else
-                    {
+                    {TRACE_IT(64301);
                         uint32 l = (( uVal - 0x10000) & 0x3ff) + 0xdc00;
                         uint32 h = ((( uVal - 0x10000) >> 10) & 0x3ff) + 0xd800;
 
@@ -509,7 +509,7 @@ namespace Js
                 }
 
                 if( !UriHelper::InURISet( c1, reservedFlags ))
-                {
+                {TRACE_IT(64302);
                     __analysis_assume(outCurrent < outURI + allocSize);
                     *outCurrent++ = c1;
                 }
@@ -520,7 +520,7 @@ namespace Js
                 }
             }
             else // c is not '%'
-            {
+            {TRACE_IT(64303);
                 __analysis_assume(outCurrent < outURI + allocSize);
                 *outCurrent++ = c;
             }
@@ -535,17 +535,17 @@ namespace Js
 
     // Decodes a two-hexadecimal-digit wide character pair into the byte value it represents
     bool UriHelper::DecodeByteFromHex(const char16 digit1, const char16 digit2, unsigned char &value)
-    {
+    {TRACE_IT(64304);
         int x;
         if(!Js::NumberUtilities::FHexDigit(digit1, &x))
-        {
+        {TRACE_IT(64305);
             return false;
         }
         Assert(static_cast<unsigned int>(x) <= 0xfU);
         value = static_cast<unsigned char>(x) << 4;
 
         if(!Js::NumberUtilities::FHexDigit(digit2, &x))
-        {
+        {TRACE_IT(64306);
             return false;
         }
         Assert(static_cast<unsigned int>(x) <= 0xfU);

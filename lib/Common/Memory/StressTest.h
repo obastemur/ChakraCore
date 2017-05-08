@@ -14,7 +14,7 @@ enum CreateOptions
 };
 
 template<class T> T AlignPtr(T ptr, size_t align)
-{
+{TRACE_IT(27098);
     return reinterpret_cast<T>(::Math::Align(reinterpret_cast<size_t>(ptr), align));
 }
 
@@ -47,7 +47,7 @@ struct TestObject
     // Retrieves a pointer
     TestObject* Get(int index);
 
-    TestObject** GetDataPointer() { return reinterpret_cast<TestObject**>(AlignPtr((char*)this + sizeof(TestObject), OBJALIGN)); }
+    TestObject** GetDataPointer() {TRACE_IT(27099); return reinterpret_cast<TestObject**>(AlignPtr((char*)this + sizeof(TestObject), OBJALIGN)); }
 
     static void Visit(Recycler *recycler, TestObject *root);
     template<class Fn> static void Visit(Recycler *recycler, TestObject *root, Fn fn);

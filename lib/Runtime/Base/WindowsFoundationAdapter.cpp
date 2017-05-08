@@ -9,24 +9,24 @@
 using namespace Windows::Foundation::Diagnostics;
 
 #define IfFailReturnNULL(op) \
-    if (FAILED(hr=(op))) { return NULL; }; \
+    if (FAILED(hr=(op))) {TRACE_IT(37991); return NULL; }; \
 
 namespace Js
 {
     inline DelayLoadWinRtString* WindowsFoundationAdapter::GetWinRtStringLibrary(_In_ ScriptContext* scriptContext)
-    {
+    {TRACE_IT(37992);
         return scriptContext->GetThreadContext()->GetWinRTStringLibrary();
     }
 
     inline DelayLoadWinRtFoundation* WindowsFoundationAdapter::GetWinRtFoundationLibrary(_In_ ScriptContext* scriptContext)
-    {
+    {TRACE_IT(37993);
         return scriptContext->GetThreadContext()->GetWinRtFoundationLibrary();
     }
 
     IActivationFactory* WindowsFoundationAdapter::GetAsyncCausalityTracerActivationFactory(_In_ ScriptContext* scriptContext)
-    {
+    {TRACE_IT(37994);
         if (! asyncCausalityTracerActivationFactory)
-        {
+        {TRACE_IT(37995);
             HRESULT hr;
             HSTRING hString;
             HSTRING_HEADER hStringHdr;
@@ -44,12 +44,12 @@ namespace Js
     }
 
     IAsyncCausalityTracerStatics* WindowsFoundationAdapter::GetAsyncCausalityTracerStatics(_In_ ScriptContext* scriptContext)
-    {
+    {TRACE_IT(37996);
         if (! asyncCausalityTracerStatics)
-        {
+        {TRACE_IT(37997);
             IActivationFactory* factory = GetAsyncCausalityTracerActivationFactory(scriptContext);
             if (!factory)
-            {
+            {TRACE_IT(37998);
                 return NULL;
             }
 
@@ -70,7 +70,7 @@ namespace Js
         _In_ UINT64 operationId,
         _In_z_ PCWSTR operationName,
         _In_ UINT64 relatedContext)
-    {
+    {TRACE_IT(37999);
         HRESULT hr;
         HSTRING hString;
         HSTRING_HEADER hStringHdr;
@@ -79,7 +79,7 @@ namespace Js
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
         size_t operationNameLen = wcslen(operationName);
         if (operationNameLen > UINT_MAX)
-        {
+        {TRACE_IT(38000);
             return E_OUTOFMEMORY;
         }
 
@@ -88,7 +88,7 @@ namespace Js
         IAsyncCausalityTracerStatics* tracerStatics = GetAsyncCausalityTracerStatics(scriptContext);
 
         if (!tracerStatics)
-        {
+        {TRACE_IT(38001);
             return E_UNEXPECTED;
         }
 
@@ -102,7 +102,7 @@ namespace Js
         _In_ GUID platformId,
         _In_ UINT64 operationId,
         _In_ INT status)
-    {
+    {TRACE_IT(38002);
         Assert(traceLevel <= CausalityTraceLevel::CausalityTraceLevel_Verbose && traceLevel >= CausalityTraceLevel_Required);
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
         Assert(status <= (INT)AsyncStatus::Error && status >= (INT)AsyncStatus::Started);
@@ -110,7 +110,7 @@ namespace Js
         IAsyncCausalityTracerStatics* tracerStatics = GetAsyncCausalityTracerStatics(scriptContext);
 
         if (!tracerStatics)
-        {
+        {TRACE_IT(38003);
             return E_UNEXPECTED;
         }
 
@@ -124,7 +124,7 @@ namespace Js
         _In_ GUID platformId,
         _In_ UINT64 operationId,
         _In_ INT relation)
-    {
+    {TRACE_IT(38004);
         Assert(traceLevel <= CausalityTraceLevel::CausalityTraceLevel_Verbose && traceLevel >= CausalityTraceLevel_Required);
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
         Assert(relation <= CausalityRelation::CausalityRelation_Error && relation >= CausalityRelation_AssignDelegate);
@@ -132,7 +132,7 @@ namespace Js
         IAsyncCausalityTracerStatics* tracerStatics = GetAsyncCausalityTracerStatics(scriptContext);
 
         if (!tracerStatics)
-        {
+        {TRACE_IT(38005);
             return E_UNEXPECTED;
         }
 
@@ -146,7 +146,7 @@ namespace Js
         _In_ GUID platformId,
         _In_ UINT64 operationId,
         _In_ INT work)
-    {
+    {TRACE_IT(38006);
         Assert(traceLevel <= CausalityTraceLevel::CausalityTraceLevel_Verbose && traceLevel >= CausalityTraceLevel_Required);
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
         Assert(work <= CausalitySynchronousWork::CausalitySynchronousWork_Execution && work >= CausalitySynchronousWork_CompletionNotification);
@@ -154,7 +154,7 @@ namespace Js
         IAsyncCausalityTracerStatics* tracerStatics = GetAsyncCausalityTracerStatics(scriptContext);
 
         if (!tracerStatics)
-        {
+        {TRACE_IT(38007);
             return E_UNEXPECTED;
         }
 
@@ -166,7 +166,7 @@ namespace Js
         _In_ INT traceLevel,
         _In_ INT source,
         _In_ INT work)
-    {
+    {TRACE_IT(38008);
         Assert(traceLevel <= CausalityTraceLevel::CausalityTraceLevel_Verbose && traceLevel >= CausalityTraceLevel_Required);
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
         Assert(work <= CausalitySynchronousWork::CausalitySynchronousWork_Execution && work >= CausalitySynchronousWork_CompletionNotification);
@@ -174,7 +174,7 @@ namespace Js
         IAsyncCausalityTracerStatics* tracerStatics = GetAsyncCausalityTracerStatics(scriptContext);
 
         if (!tracerStatics)
-        {
+        {TRACE_IT(38009);
             return E_UNEXPECTED;
         }
 

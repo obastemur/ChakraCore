@@ -10,13 +10,13 @@ namespace Js
         DynamicObject(type),
         listForIterator(list),
         index(0)
-    {
+    {TRACE_IT(60089);
         Assert(type->GetTypeId() == TypeIds_ListIterator);
         count = list->Count();
     }
 
     bool JavascriptListIterator::Is(Var aValue)
-    {
+    {TRACE_IT(60090);
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_ListIterator;
     }
@@ -41,7 +41,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptListIterator::Is(thisObj))
-        {
+        {TRACE_IT(60091);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedListIterator, _u("ListIterator.next"));
         }
 
@@ -49,12 +49,12 @@ namespace Js
         ListForListIterator* list = iterator->listForIterator;
 
         if (list == nullptr)
-        {
+        {TRACE_IT(60092);
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
 
         if (iterator->index >= iterator->count)
-        {
+        {TRACE_IT(60093);
             // Nulling out the listForIterator field is important so that the iterator
             // does not keep the list alive after iteration is completed.
             iterator->listForIterator = nullptr;

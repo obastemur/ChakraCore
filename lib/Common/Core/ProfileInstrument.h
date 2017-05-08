@@ -36,7 +36,7 @@ namespace Js
         explicit TimeEntry(Phase profileTag = InvalidPhase, TimeStamp curTime = 0) :
             tag(profileTag),
             time(curTime)
-        {}
+        {TRACE_IT(20438);}
     };
 
 
@@ -160,10 +160,10 @@ namespace Js
 
 } //namespace Js
 
-#define ASYNC_HOST_OPERATION_START(threadContext) {Js::Profiler::SuspendRecord __suspendRecord;  bool wasInAsync = threadContext->AsyncHostOperationStart(&__suspendRecord)
+#define ASYNC_HOST_OPERATION_START(threadContext) {TRACE_IT(20439);Js::Profiler::SuspendRecord __suspendRecord;  bool wasInAsync = threadContext->AsyncHostOperationStart(&__suspendRecord)
 #define ASYNC_HOST_OPERATION_END(threadContext) threadContext->AsyncHostOperationEnd(wasInAsync, &__suspendRecord); }
 #elif DBG
-#define ASYNC_HOST_OPERATION_START(threadContext) { bool wasInAsync = threadContext->AsyncHostOperationStart(nullptr)
+#define ASYNC_HOST_OPERATION_START(threadContext) {TRACE_IT(20440); bool wasInAsync = threadContext->AsyncHostOperationStart(nullptr)
 #define ASYNC_HOST_OPERATION_END(threadContext) threadContext->AsyncHostOperationEnd(wasInAsync, nullptr); }
 #else
 #define ASYNC_HOST_OPERATION_START(threadContext)

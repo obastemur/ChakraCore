@@ -23,14 +23,14 @@ SetProcessValidCallTargets(
 namespace Js
 {
     HRESULT DelayLoadWinRtString::WindowsCreateString(_In_reads_opt_(length) const WCHAR * sourceString, UINT32 length, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
-    {
+    {TRACE_IT(33651);
         if (m_hModule)
-        {
+        {TRACE_IT(33652);
             if (m_pfnWindowsCreateString == nullptr)
-            {
+            {TRACE_IT(33653);
                 m_pfnWindowsCreateString = (PFNCWindowsCreateString)GetFunction("WindowsCreateString");
                 if (m_pfnWindowsCreateString == nullptr)
-                {
+                {TRACE_IT(33654);
                     *string = nullptr;
                     return E_UNEXPECTED;
                 }
@@ -45,14 +45,14 @@ namespace Js
     }
 
     HRESULT DelayLoadWinRtString::WindowsCreateStringReference(_In_reads_opt_(length + 1) const WCHAR *sourceString, UINT32 length, _Out_ HSTRING_HEADER *hstringHeader, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
-    {
+    {TRACE_IT(33655);
         if (m_hModule)
-        {
+        {TRACE_IT(33656);
             if (m_pfnWindowsCreateStringReference == nullptr)
-            {
+            {TRACE_IT(33657);
                 m_pfnWindowsCreateStringReference = (PFNCWindowsCreateStringReference)GetFunction("WindowsCreateStringReference");
                 if (m_pfnWindowsCreateStringReference == nullptr)
-                {
+                {TRACE_IT(33658);
                     *string = nullptr;
                     return E_UNEXPECTED;
                 }
@@ -67,14 +67,14 @@ namespace Js
     }
 
     HRESULT DelayLoadWinRtString::WindowsDeleteString(_In_opt_ HSTRING string)
-    {
+    {TRACE_IT(33659);
         if (m_hModule)
-        {
+        {TRACE_IT(33660);
             if (m_pfnWindowsDeleteString == nullptr)
-            {
+            {TRACE_IT(33661);
                 m_pfnWindowsDeleteString = (PFNCWindowsDeleteString)GetFunction("WindowsDeleteString");
                 if (m_pfnWindowsDeleteString == nullptr)
-                {
+                {TRACE_IT(33662);
                     return E_UNEXPECTED;
                 }
             }
@@ -89,16 +89,16 @@ namespace Js
     }
 
     PCWSTR DelayLoadWinRtString::WindowsGetStringRawBuffer(_In_opt_ HSTRING string, _Out_opt_ UINT32 * length)
-    {
+    {TRACE_IT(33663);
         if (m_hModule)
-        {
+        {TRACE_IT(33664);
             if (m_pfWindowsGetStringRawBuffer == nullptr)
-            {
+            {TRACE_IT(33665);
                 m_pfWindowsGetStringRawBuffer = (PFNCWindowsGetStringRawBuffer)GetFunction("WindowsGetStringRawBuffer");
                 if (m_pfWindowsGetStringRawBuffer == nullptr)
-                {
+                {TRACE_IT(33666);
                     if (length)
-                    {
+                    {TRACE_IT(33667);
                         *length = 0;
                     }
                     return _u("\0");
@@ -110,21 +110,21 @@ namespace Js
         }
 
         if (length)
-        {
+        {TRACE_IT(33668);
             *length = 0;
         }
         return _u("\0");
     }
 
     HRESULT DelayLoadWinRtString::WindowsCompareStringOrdinal(_In_opt_ HSTRING string1, _In_opt_ HSTRING string2, _Out_ INT32 * result)
-    {
+    {TRACE_IT(33669);
         if (m_hModule)
-        {
+        {TRACE_IT(33670);
             if (m_pfnWindowsCompareStringOrdinal == nullptr)
-            {
+            {TRACE_IT(33671);
                 m_pfnWindowsCompareStringOrdinal = (PFNCWindowsCompareStringOrdinal)GetFunction("WindowsCompareStringOrdinal");
                 if (m_pfnWindowsCompareStringOrdinal == nullptr)
-                {
+                {TRACE_IT(33672);
                     return E_UNEXPECTED;
                 }
             }
@@ -136,14 +136,14 @@ namespace Js
         return E_NOTIMPL;
     }
     HRESULT DelayLoadWinRtString::WindowsDuplicateString(_In_opt_ HSTRING original, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING *newString)
-    {
+    {TRACE_IT(33673);
         if(m_hModule)
-        {
+        {TRACE_IT(33674);
             if(m_pfnWindowsDuplicateString == nullptr)
-            {
+            {TRACE_IT(33675);
                 m_pfnWindowsDuplicateString = (PFNCWindowsDuplicateString)GetFunction("WindowsDuplicateString");
                 if(m_pfnWindowsDuplicateString == nullptr)
-                {
+                {TRACE_IT(33676);
                     *newString = nullptr;
                     return E_UNEXPECTED;
                 }
@@ -157,14 +157,14 @@ namespace Js
     }
 
     HRESULT DelayLoadWinRtTypeResolution::RoParseTypeName(__in HSTRING typeName, __out DWORD *partsCount, __RPC__deref_out_ecount_full_opt(*partsCount) HSTRING **typeNameParts)
-    {
+    {TRACE_IT(33677);
         if (m_hModule)
-        {
+        {TRACE_IT(33678);
             if (m_pfnRoParseTypeName == nullptr)
-            {
+            {TRACE_IT(33679);
                 m_pfnRoParseTypeName = (PFNCWRoParseTypeName)GetFunction("RoParseTypeName");
                 if (m_pfnRoParseTypeName == nullptr)
-                {
+                {TRACE_IT(33680);
                     return E_UNEXPECTED;
                 }
             }
@@ -177,21 +177,21 @@ namespace Js
     }
 
     bool DelayLoadWindowsGlobalization::HasGlobalizationDllLoaded()
-    {
+    {TRACE_IT(33681);
         return this->hasGlobalizationDllLoaded;
     }
 
     HRESULT DelayLoadWindowsGlobalization::DllGetActivationFactory(
         __in HSTRING activatibleClassId,
         __out IActivationFactory** factory)
-    {
+    {TRACE_IT(33682);
         if (m_hModule)
-        {
+        {TRACE_IT(33683);
             if (m_pfnFNCWDllGetActivationFactory == nullptr)
-            {
+            {TRACE_IT(33684);
                 m_pfnFNCWDllGetActivationFactory = (PFNCWDllGetActivationFactory)GetFunction("DllGetActivationFactory");
                 if (m_pfnFNCWDllGetActivationFactory == nullptr)
-                {
+                {TRACE_IT(33685);
                     return E_UNEXPECTED;
                 }
             }
@@ -207,14 +207,14 @@ namespace Js
         __in HSTRING activatibleClassId,
         __in REFIID iid,
         __out IActivationFactory** factory)
-    {
+    {TRACE_IT(33686);
         if (m_hModule)
-        {
+        {TRACE_IT(33687);
             if (m_pfnFNCWRoGetActivationFactory == nullptr)
-            {
+            {TRACE_IT(33688);
                 m_pfnFNCWRoGetActivationFactory = (PFNCWRoGetActivationFactory)GetFunction("RoGetActivationFactory");
                 if (m_pfnFNCWRoGetActivationFactory == nullptr)
-                {
+                {TRACE_IT(33689);
                     return E_UNEXPECTED;
                 }
             }
@@ -235,14 +235,14 @@ namespace Js
         HSTRING **metaDataFilePaths,
         __out DWORD *subNamespacesCount,
         HSTRING **subNamespaces)
-    {
+    {TRACE_IT(33690);
         if (m_hModule)
-        {
+        {TRACE_IT(33691);
             if (m_pfnRoResolveNamespace == nullptr)
-            {
+            {TRACE_IT(33692);
                 m_pfnRoResolveNamespace = (PFNCRoResolveNamespace)GetFunction("RoResolveNamespace");
                 if (m_pfnRoResolveNamespace == nullptr)
-                {
+                {TRACE_IT(33693);
                     return E_UNEXPECTED;
                 }
             }
@@ -256,9 +256,9 @@ namespace Js
     }
 
     void DelayLoadWindowsGlobalization::Ensure(Js::DelayLoadWinRtString *winRTStringLibrary)
-    {
+    {TRACE_IT(33694);
         if (!this->m_isInit)
-        {
+        {TRACE_IT(33695);
             DelayLoadLibrary::EnsureFromSystemDirOnly();
 
 #if DBG
@@ -269,13 +269,13 @@ namespace Js
 #endif
             //Perform a check to see if Windows.Globalization.dll was loaded; if not try loading jsIntl.dll as we are on Win7.
             if (m_hModule == nullptr)
-            {
+            {TRACE_IT(33696);
                 m_hModule = LoadLibraryEx(GetWin7LibraryName(), nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
             }
 
             // Set the flag depending on Windows.globalization.dll or jsintl.dll was loaded successfully or not
             if (m_hModule != nullptr)
-            {
+            {TRACE_IT(33697);
                 hasGlobalizationDllLoaded = true;
             }
             this->winRTStringLibrary = winRTStringLibrary;
@@ -284,62 +284,62 @@ namespace Js
     }
 
     HRESULT DelayLoadWindowsGlobalization::WindowsCreateString(_In_reads_opt_(length) const WCHAR * sourceString, UINT32 length, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
-    {
+    {TRACE_IT(33698);
         //If winRtStringLibrary isn't nullptr, that means it is available and we are on Win8+
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33699);
             return winRTStringLibrary->WindowsCreateString(sourceString, length, string);
         }
 
         return DelayLoadWinRtString::WindowsCreateString(sourceString, length, string);
     }
     HRESULT DelayLoadWindowsGlobalization::WindowsCreateStringReference(_In_reads_opt_(length + 1) const WCHAR * sourceString, UINT32 length, _Out_ HSTRING_HEADER * header, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
-    {
+    {TRACE_IT(33700);
         //First, we attempt to use the WinStringRT api encapsulated in the globalization dll; if it is available then it is a downlevel dll.
         //Otherwise; we might run into an error where we are using the Win8 (because testing is being done for instance) with the downlevel dll, and that would cause errors.
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33701);
             return winRTStringLibrary->WindowsCreateStringReference(sourceString, length, header, string);
         }
         return DelayLoadWinRtString::WindowsCreateStringReference(sourceString, length, header, string);
     }
     HRESULT DelayLoadWindowsGlobalization::WindowsDeleteString(_In_opt_ HSTRING string)
-    {
+    {TRACE_IT(33702);
         //First, we attempt to use the WinStringRT api encapsulated in the globalization dll; if it is available then it is a downlevel dll.
         //Otherwise; we might run into an error where we are using the Win8 (because testing is being done for instance) with the downlevel dll, and that would cause errors.
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33703);
             return winRTStringLibrary->WindowsDeleteString(string);
         }
         return DelayLoadWinRtString::WindowsDeleteString(string);
     }
     PCWSTR DelayLoadWindowsGlobalization::WindowsGetStringRawBuffer(_In_opt_ HSTRING string, _Out_opt_ UINT32 * length)
-    {
+    {TRACE_IT(33704);
         //First, we attempt to use the WinStringRT api encapsulated in the globalization dll; if it is available then it is a downlevel dll.
         //Otherwise; we might run into an error where we are using the Win8 (because testing is being done for instance) with the downlevel dll, and that would cause errors.
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33705);
             return winRTStringLibrary->WindowsGetStringRawBuffer(string, length);
         }
         return DelayLoadWinRtString::WindowsGetStringRawBuffer(string, length);
     }
     HRESULT DelayLoadWindowsGlobalization::WindowsCompareStringOrdinal(_In_opt_ HSTRING string1, _In_opt_ HSTRING string2, _Out_ INT32 * result)
-    {
+    {TRACE_IT(33706);
         //First, we attempt to use the WinStringRT api encapsulated in the globalization dll; if it is available then it is a downlevel dll.
         //Otherwise; we might run into an error where we are using the Win8 (because testing is being done for instance) with the downlevel dll, and that would cause errors.
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33707);
             return winRTStringLibrary->WindowsCompareStringOrdinal(string1, string2, result);
         }
         return DelayLoadWinRtString::WindowsCompareStringOrdinal(string1, string2, result);
     }
 
     HRESULT DelayLoadWindowsGlobalization::WindowsDuplicateString(_In_opt_ HSTRING original, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING *newString)
-    {
+    {TRACE_IT(33708);
         //First, we attempt to use the WinStringRT api encapsulated in the globalization dll; if it is available then it is a downlevel dll.
         //Otherwise; we might run into an error where we are using the Win8 (because testing is being done for instance) with the downlevel dll, and that would cause errors.
         if(!winRTStringsPresent && winRTStringLibrary->IsAvailable())
-        {
+        {TRACE_IT(33709);
             return winRTStringLibrary->WindowsDuplicateString(original, newString);
         }
         return DelayLoadWinRtString::WindowsDuplicateString(original, newString);
@@ -347,14 +347,14 @@ namespace Js
 
 #ifdef ENABLE_PROJECTION
     HRESULT DelayLoadWinRtError::RoClearError()
-    {
+    {TRACE_IT(33710);
         if (m_hModule)
-        {
+        {TRACE_IT(33711);
             if (m_pfnRoClearError == nullptr)
-            {
+            {TRACE_IT(33712);
                 m_pfnRoClearError = (PFNCRoClearError)GetFunction("RoClearError");
                 if (m_pfnRoClearError == nullptr)
-                {
+                {TRACE_IT(33713);
                     return E_UNEXPECTED;
                 }
             }
@@ -369,14 +369,14 @@ namespace Js
     }
 
     BOOL DelayLoadWinRtError::RoOriginateLanguageException(__in HRESULT error, __in_opt HSTRING message, __in IUnknown * languageException)
-    {
+    {TRACE_IT(33714);
         if (m_hModule)
-        {
+        {TRACE_IT(33715);
             if (m_pfnRoOriginateLanguageException == nullptr)
-            {
+            {TRACE_IT(33716);
                 m_pfnRoOriginateLanguageException = (PFNCRoOriginateLanguageException)GetFunction("RoOriginateLanguageException");
                 if (m_pfnRoOriginateLanguageException == nullptr)
-                {
+                {TRACE_IT(33717);
                     return FALSE;
                 }
             }
@@ -400,7 +400,7 @@ namespace Js
         _In_ SIZE_T RegionSize,
         _In_ ULONG NumberOfOffsets,
         _In_reads_(NumberOfOffsets) PCFG_CALL_TARGET_INFO OffsetInformation)
-    {
+    {TRACE_IT(33718);
 #if defined(ENABLE_JIT_CLAMP)
         // Ensure that dynamic code generation is allowed for this thread as
         // this is required for the call to SetProcessValidCallTargets to
@@ -410,12 +410,12 @@ namespace Js
 
 #if defined(DELAYLOAD_SET_CFG_TARGET)
         if (m_hModule)
-        {
+        {TRACE_IT(33719);
             if (m_pfnSetProcessValidCallTargets == nullptr)
-            {
+            {TRACE_IT(33720);
                 m_pfnSetProcessValidCallTargets = (PFNCSetProcessValidCallTargets) GetFunction("SetProcessValidCallTargets");
                 if (m_pfnSetProcessValidCallTargets == nullptr)
-                {
+                {TRACE_IT(33721);
                     return FALSE;
                 }
             }
@@ -437,15 +437,15 @@ namespace Js
         __out_bcount(nLength) PVOID lpBuffer,
         __in SIZE_T nLength
         )
-    {
+    {TRACE_IT(33722);
 #if defined(DELAYLOAD_SET_CFG_TARGET)
         if (m_hModule)
-        {
+        {TRACE_IT(33723);
             if (m_pfnGetProcessMitigationPolicy == nullptr)
-            {
+            {TRACE_IT(33724);
                 m_pfnGetProcessMitigationPolicy = (PFNCGetMitigationPolicyForProcess) GetFunction("GetProcessMitigationPolicy");
                 if (m_pfnGetProcessMitigationPolicy == nullptr)
-                {
+                {TRACE_IT(33725);
                     return FALSE;
                 }
             }
@@ -465,15 +465,15 @@ namespace Js
         __out_bcount(nLength) PVOID lpBuffer,
         __in SIZE_T nLength
         )
-    {
+    {TRACE_IT(33726);
 #if defined(DELAYLOAD_SET_CFG_TARGET) || defined(_M_ARM)
         if (m_hModule)
-        {
+        {TRACE_IT(33727);
             if (m_pfnGetProcessInformation == nullptr)
-            {
+            {TRACE_IT(33728);
                 m_pfnGetProcessInformation = (PFNCGetProcessInformation) GetFunction("GetProcessInformation");
                 if (m_pfnGetProcessInformation == nullptr)
-                {
+                {TRACE_IT(33729);
                     return FALSE;
                 }
             }

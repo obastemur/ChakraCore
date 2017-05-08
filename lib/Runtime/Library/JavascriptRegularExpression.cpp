@@ -16,18 +16,18 @@ namespace Js
         splitPattern(nullptr),
         lastIndexVar(nullptr),
         lastIndexOrFlag(0)
-    {
+    {TRACE_IT(61173);
         Assert(type->GetTypeId() == TypeIds_RegEx);
         Assert(!this->GetType()->AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties());
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {TRACE_IT(61174);
             UnifiedRegex::DebugWriter* w = type->GetScriptContext()->GetRegexDebugWriter();
             if (pattern == 0)
                 w->PrintEOL(_u("// REGEX CREATE"));
             else
-            {
+            {TRACE_IT(61175);
                 w->Print(_u("// REGEX CREATE "));
                 pattern->Print(w);
                 w->EOL();
@@ -42,12 +42,12 @@ namespace Js
         splitPattern(nullptr),
         lastIndexVar(nullptr),
         lastIndexOrFlag(0)
-    {
+    {TRACE_IT(61176);
         Assert(type->GetTypeId() == TypeIds_RegEx);
 
 #if DBG
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {TRACE_IT(61177);
             UnifiedRegex::DebugWriter* w = type->GetScriptContext()->GetRegexDebugWriter();
             w->PrintEOL(_u("REGEX CREATE"));
         }
@@ -60,23 +60,23 @@ namespace Js
         splitPattern(instance->GetSplitPattern()),
         lastIndexVar(instance->lastIndexVar),
         lastIndexOrFlag(instance->lastIndexOrFlag)
-    {
+    {TRACE_IT(61178);
         // For boxing stack instance
         Assert(ThreadContext::IsOnStack(instance));
     }
 
     bool JavascriptRegExp::Is(Var aValue)
-    {
+    {TRACE_IT(61179);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_RegEx;
     }
 
     // IsRegExp in the spec.
     bool JavascriptRegExp::IsRegExpLike(Var aValue, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61180);
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-        {
+        {TRACE_IT(61181);
             if (!JavascriptOperators::IsObject(aValue))
-            {
+            {TRACE_IT(61182);
                 return false;
             }
 
@@ -85,7 +85,7 @@ namespace Js
                 PropertyIds::_symbolMatch,
                 scriptContext);
             if (!JavascriptOperators::IsUndefined(symbolMatchProperty))
-            {
+            {TRACE_IT(61183);
                 return JavascriptConversion::ToBool(symbolMatchProperty, scriptContext);
             }
         }
@@ -101,7 +101,7 @@ namespace Js
     }
 
     CharCount JavascriptRegExp::GetLastIndexProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61184);
         int64 lastIndex = JavascriptConversion::ToLength(
             JavascriptOperators::GetProperty(instance, PropertyIds::lastIndex, scriptContext),
             scriptContext);
@@ -117,7 +117,7 @@ namespace Js
     }
 
     void JavascriptRegExp::SetLastIndexProperty(Var instance, Var lastIndex, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61185);
         JavascriptOperators::SetProperty(
             instance,
             RecyclableObject::FromVar(instance),
@@ -128,47 +128,47 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetGlobalProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61186);
         return JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(instance, PropertyIds::global, scriptContext),
             scriptContext);
     }
 
     bool JavascriptRegExp::GetUnicodeProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61187);
         return JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(instance, PropertyIds::unicode, scriptContext),
             scriptContext);
     }
 
     CharCount JavascriptRegExp::AddIndex(CharCount base, CharCount offset)
-    {
+    {TRACE_IT(61188);
         return (base + offset < base) // Overflow?
             ? MaxCharCount
             : base + offset;
     }
 
     CharCount JavascriptRegExp::GetIndexOrMax(int64 index)
-    {
+    {TRACE_IT(61189);
         return (index > SIZE_MAX || IsValidCharCount((size_t) index))
             ? (CharCount) index
             : MaxCharCount;
     }
 
     InternalString JavascriptRegExp::GetSource() const
-    {
+    {TRACE_IT(61190);
         return GetPattern()->GetSource();
     }
 
     UnifiedRegex::RegexFlags JavascriptRegExp::GetFlags() const
-    {
+    {TRACE_IT(61191);
         return GetPattern()->GetFlags();
     }
 
     JavascriptRegExp* JavascriptRegExp::GetJavascriptRegExp(Arguments& args, PCWSTR propertyName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61192);
         if (args.Info.Count == 0)
-        {
+        {TRACE_IT(61193);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedRegExp, propertyName);
         }
 
@@ -176,19 +176,19 @@ namespace Js
     }
 
     JavascriptRegExp* JavascriptRegExp::ToRegExp(Var var, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61194);
         if (JavascriptRegExp::Is(var))
-        {
+        {TRACE_IT(61195);
             return JavascriptRegExp::FromVar(var);
         }
 
         if (JavascriptOperators::GetTypeId(var) == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(61196);
             TypeId remoteTypeId;
             RecyclableObject* reclObj = RecyclableObject::FromVar(var);
             reclObj->GetRemoteTypeId(&remoteTypeId);
             if (remoteTypeId == TypeIds_RegEx)
-            {
+            {TRACE_IT(61197);
                 return static_cast<JavascriptRegExp *>(reclObj->GetRemoteObject());
             }
         }
@@ -198,9 +198,9 @@ namespace Js
 
 
     RecyclableObject* JavascriptRegExp::GetThisObject(Arguments& args, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61198);
         if (args.Info.Count == 0 || !JavascriptOperators::IsObject(args[0]))
-        {
+        {TRACE_IT(61199);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, varName);
         }
 
@@ -208,23 +208,23 @@ namespace Js
     }
 
     JavascriptString* JavascriptRegExp::GetFirstStringArg(Arguments& args, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61200);
         if (args.Info.Count == 1)
-        {
+        {TRACE_IT(61201);
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
         else if (JavascriptString::Is(args[1]))
-        {
+        {TRACE_IT(61202);
             return JavascriptString::FromVar(args[1]);
         }
         else
-        {
+        {TRACE_IT(61203);
             return JavascriptConversion::ToString(args[1], scriptContext);
         }
     }
 
     bool JavascriptRegExp::ShouldApplyPrototypeWebWorkaround(Arguments& args, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61204);
         return scriptContext->GetConfig()->IsES6PrototypeChain() && \
                args.Info.Count >= 1 && args[0] == scriptContext->GetLibrary()->GetRegExpPrototype();
     }
@@ -251,18 +251,18 @@ namespace Js
         JavascriptRegExp* regex = nullptr;
 
         if (callInfo.Count < 2)
-        {
+        {TRACE_IT(61205);
             pattern = scriptContext->GetLibrary()->GetEmptyRegexPattern();
         }
         else if (JavascriptRegExp::IsRegExpLike(args[1], scriptContext))
-        {
+        {TRACE_IT(61206);
             // JavascriptRegExp::IsRegExpLike() makes sure that args[1] is an Object.
             RecyclableObject* regexLikeObj = RecyclableObject::FromVar(args[1]);
 
             if (!(callInfo.Flags & CallFlags_New) &&
                 (callInfo.Count == 2 || JavascriptOperators::IsUndefinedObject(args[2], scriptContext)) &&
                 newTarget == JavascriptOperators::GetProperty(regexLikeObj, PropertyIds::constructor, scriptContext))
-            {
+            {TRACE_IT(61207);
                 // ES5 15.10.3.1 Called as a function: If pattern R is a regexp object and flags is undefined, then return R unchanged.
                 // As per ES6 21.2.3.1: We should only return pattern when the this argument is not an uninitialized RegExp object.
                 //                      If regex is null, we can be sure the this argument is not initialized.
@@ -270,15 +270,15 @@ namespace Js
             }
 
             if (JavascriptRegExp::Is(regexLikeObj))
-            {
+            {TRACE_IT(61208);
                 JavascriptRegExp* source = JavascriptRegExp::FromVar(regexLikeObj);
 
                 if (callInfo.Count > 2)
-                {
+                {TRACE_IT(61209);
                     // As per ES 2015 21.2.3.1: If 1st argument is RegExp and 2nd argument is flag then return regexp with same pattern as 1st
                     // argument and flags supplied by the 2nd argument.
                     if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-                    {
+                    {TRACE_IT(61210);
                         InternalString str = source->GetSource();
                         pattern = CreatePattern(JavascriptString::NewCopyBuffer(str.GetBuffer(), str.GetLength(), scriptContext),
                             args[2], scriptContext);
@@ -290,19 +290,19 @@ namespace Js
                         UnifiedRegex::RegexFlags newSplitFlags =
                             static_cast<UnifiedRegex::RegexFlags>(pattern->GetFlags() & ~UnifiedRegex::StickyRegexFlag);
                         if (newSplitFlags == currentSplitFlags)
-                        {
+                        {TRACE_IT(61211);
                             splitPattern = source->GetSplitPattern();
                         }
                     }
                 }
                 if (!pattern)
-                {
+                {TRACE_IT(61212);
                     pattern = source->GetPattern();
                     splitPattern = source->GetSplitPattern();
                 }
             }
             else // RegExp-like
-            {
+            {TRACE_IT(61213);
                 Var source = JavascriptOperators::GetProperty(regexLikeObj, PropertyIds::source, scriptContext);
                 Var flags = args.Info.Count < 3 || JavascriptOperators::IsUndefinedObject(args[2])
                     ? JavascriptOperators::GetProperty(regexLikeObj, PropertyIds::flags, scriptContext)
@@ -311,12 +311,12 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(61214);
             pattern = CreatePattern(args[1], (callInfo.Count > 2) ? args[2] : nullptr, scriptContext);
         }
 
         if (regex == nullptr)
-        {
+        {TRACE_IT(61215);
             regex = scriptContext->GetLibrary()->CreateRegExp(nullptr);
         }
 
@@ -329,19 +329,19 @@ namespace Js
     }
 
     UnifiedRegex::RegexPattern* JavascriptRegExp::CreatePattern(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61216);
         JavascriptString * strBody;
 
         if (JavascriptString::Is(aValue))
-        {
+        {TRACE_IT(61217);
             strBody = JavascriptString::FromVar(aValue);
         }
         else if (JavascriptOperators::GetTypeId(aValue) == TypeIds_Undefined)
-        {
+        {TRACE_IT(61218);
             strBody = scriptContext->GetLibrary()->GetEmptyString();
         }
         else
-        {
+        {TRACE_IT(61219);
             strBody = JavascriptConversion::ToString(aValue, scriptContext); // must be null terminated!
         }
 
@@ -352,13 +352,13 @@ namespace Js
 
         JavascriptString * strOptions = nullptr;
         if (options != nullptr && !JavascriptOperators::IsUndefinedObject(options, scriptContext))
-        {
+        {TRACE_IT(61220);
             if (JavascriptString::Is(options))
-            {
+            {TRACE_IT(61221);
                 strOptions = JavascriptString::FromVar(options);
             }
             else
-            {
+            {TRACE_IT(61222);
                 strOptions = JavascriptConversion::ToString(options, scriptContext);
             }
 
@@ -372,39 +372,39 @@ namespace Js
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegEx(const char16* pSource, CharCount sourceLen, UnifiedRegex::RegexFlags flags, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61223);
         UnifiedRegex::RegexPattern* pattern = RegexHelper::CompileDynamic(scriptContext, pSource, sourceLen, flags, false);
 
         return scriptContext->GetLibrary()->CreateRegExp(pattern);
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegEx(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61224);
         // This is called as helper from OpCode::CoerseRegEx. If aValue is regex pattern /a/, CreatePattern converts
         // it to pattern "/a/" instead of "a". So if we know that aValue is regex, then just return the same object
         if (JavascriptRegExp::Is(aValue))
-        {
+        {TRACE_IT(61225);
             return JavascriptRegExp::FromVar(aValue);
         }
         else
-        {
+        {TRACE_IT(61226);
             return CreateRegExNoCoerce(aValue, options, scriptContext);
         }
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegExNoCoerce(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61227);
         UnifiedRegex::RegexPattern* pattern = CreatePattern(aValue, options, scriptContext);
 
         return scriptContext->GetLibrary()->CreateRegExp(pattern);
     }
 
     void JavascriptRegExp::CacheLastIndex()
-    {
+    {TRACE_IT(61228);
         if (lastIndexVar == nullptr)
             lastIndexOrFlag = 0;
         else
-        {
+        {TRACE_IT(61229);
             // Does ToInteger(lastIndex) yield an integer in [0, MaxCharCount]?
             double v = JavascriptConversion::ToInteger(lastIndexVar, GetScriptContext());
             if (JavascriptNumber::IsNan(v))
@@ -420,38 +420,38 @@ namespace Js
     }
 
     JavascriptString *JavascriptRegExp::ToString(bool sourceOnly)
-    {
+    {TRACE_IT(61230);
         Js::InternalString str = pattern->GetSource();
         CompoundString *const builder = CompoundString::NewWithCharCapacity(str.GetLength() + 5, GetLibrary());
 
         if (!sourceOnly)
-        {
+        {TRACE_IT(61231);
             builder->AppendChars(_u('/'));
         }
         if (pattern->IsLiteral())
-        {
+        {TRACE_IT(61232);
             builder->AppendChars(str.GetBuffer(), str.GetLength());
         }
         else
-        {
+        {TRACE_IT(61233);
             // Need to ensure that the resulting static regex is functionally equivalent (as written) to 'this' regex. This
             // involves the following:
             //   - Empty regex should result in /(?:)/ rather than //, which is a comment
             //   - Unescaped '/' needs to be escaped so that it doesn't end the static regex prematurely
             //   - Line terminators need to be escaped since they're not allowed in a static regex
             if (str.GetLength() == 0)
-            {
+            {TRACE_IT(61234);
                 builder->AppendChars(_u("(?:)"));
             }
             else
-            {
+            {TRACE_IT(61235);
                 bool escape = false;
                 for (charcount_t i = 0; i < str.GetLength(); ++i)
-                {
+                {TRACE_IT(61236);
                     const char16 c = str.GetBuffer()[i];
 
                     if(!escape)
-                    {
+                    {TRACE_IT(61237);
                         switch(c)
                         {
                             case _u('/'):
@@ -477,7 +477,7 @@ namespace Js
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(61238);
                         escape = false;
                     }
 
@@ -507,29 +507,29 @@ namespace Js
         }
 
         if (!sourceOnly)
-        {
+        {TRACE_IT(61239);
             builder->AppendChars(_u('/'));
 
             // Cross-browser compatibility - flags are listed in alphabetical order in the spec and by other browsers
             // If you change the order of the flags, don't forget to change it in EntryGetterFlags() and GetOptions() too.
             if (pattern->IsGlobal())
-            {
+            {TRACE_IT(61240);
                 builder->AppendChars(_u('g'));
             }
             if (pattern->IsIgnoreCase())
-            {
+            {TRACE_IT(61241);
                 builder->AppendChars(_u('i'));
             }
             if (pattern->IsMultiline())
-            {
+            {TRACE_IT(61242);
                 builder->AppendChars(_u('m'));
             }
             if (pattern->IsUnicode())
-            {
+            {TRACE_IT(61243);
                 builder->AppendChars(_u('u'));
             }
             if (pattern->IsSticky())
-            {
+            {TRACE_IT(61244);
                 builder->AppendChars(_u('y'));
             }
         }
@@ -550,35 +550,35 @@ namespace Js
         UnifiedRegex::RegexPattern* splitPattern = nullptr;
 
         if (callInfo.Count == 1 )
-        {
+        {TRACE_IT(61245);
             pattern = scriptContext->GetLibrary()->GetEmptyRegexPattern();
         }
         else if (JavascriptRegExp::Is(args[1]))
-        {
+        {TRACE_IT(61246);
             JavascriptRegExp* source = JavascriptRegExp::FromVar(args[1]);
             //compile with a regular expression
             pattern = source->GetPattern();
             splitPattern = source->GetSplitPattern();
             // second arg must be undefined if a reg expression is passed
             if(callInfo.Count > 2 &&  JavascriptOperators::GetTypeId(args[2]) != TypeIds_Undefined)
-            {
+            {TRACE_IT(61247);
                 JavascriptError::ThrowSyntaxError(scriptContext, JSERR_RegExpSyntax);
             }
         }
         else
-        {
+        {TRACE_IT(61248);
             //compile with a string
             JavascriptString * strBody;
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(61249);
                 strBody = JavascriptString::FromVar(args[1]);
             }
             else if(JavascriptOperators::GetTypeId(args[1]) == TypeIds_Undefined)
-            {
+            {TRACE_IT(61250);
                 strBody = scriptContext->GetLibrary()->GetEmptyString();
             }
             else
-            {
+            {TRACE_IT(61251);
                 strBody = JavascriptConversion::ToString(args[1], scriptContext);
             }
 
@@ -589,13 +589,13 @@ namespace Js
 
             JavascriptString * strOptions = nullptr;
             if (callInfo.Count > 2 && !JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {TRACE_IT(61252);
                 if (JavascriptString::Is(args[2]))
-                {
+                {TRACE_IT(61253);
                     strOptions = JavascriptString::FromVar(args[2]);
                 }
                 else
-                {
+                {TRACE_IT(61254);
                     strOptions = JavascriptConversion::ToString(args[2], scriptContext);
                 }
 
@@ -612,7 +612,7 @@ namespace Js
     }
 
     Var JavascriptRegExp::OP_NewRegEx(Var aCompiledRegex, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61255);
         JavascriptRegExp * pNewInstance =
             RecyclerNew(scriptContext->GetRecycler(),JavascriptRegExp,((UnifiedRegex::RegexPattern*)aCompiledRegex),
             scriptContext->GetLibrary()->GetRegexType());
@@ -661,7 +661,7 @@ namespace Js
         const ScriptConfiguration* scriptConfig = scriptContext->GetConfig();
 
         if (scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {TRACE_IT(61256);
             RecyclableObject *thisObj = GetThisObject(args, varName, scriptContext);
             JavascriptString* source = JavascriptConversion::ToString(
                 JavascriptOperators::GetProperty(thisObj, PropertyIds::source, scriptContext),
@@ -680,7 +680,7 @@ namespace Js
             return builder;
         }
         else
-        {
+        {TRACE_IT(61257);
             JavascriptRegExp* obj = GetJavascriptRegExp(args, varName, scriptContext);
             bool sourceOnly = false;
             return obj->ToString(sourceOnly);
@@ -709,11 +709,11 @@ namespace Js
     }
 
     bool JavascriptRegExp::HasOriginalRegExType(RecyclableObject* instance)
-    {
+    {TRACE_IT(61258);
         JavascriptLibrary* library = instance->GetLibrary();
 
         if (instance->GetType() != library->GetRegexType())
-        {
+        {TRACE_IT(61259);
             return false;
         }
 
@@ -723,33 +723,33 @@ namespace Js
     }
 
     bool JavascriptRegExp::HasObservableConstructor(DynamicObject* regexPrototype)
-    {
+    {TRACE_IT(61260);
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetSlot(library->GetRegexConstructorSlotIndex()) != library->GetRegExpConstructor();
     }
 
     bool JavascriptRegExp::HasObservableExec(DynamicObject* regexPrototype)
-    {
+    {TRACE_IT(61261);
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetSlot(library->GetRegexExecSlotIndex()) != library->GetRegexExecFunction();
     }
 
     bool JavascriptRegExp::HasObservableFlags(DynamicObject* regexPrototype)
-    {
+    {TRACE_IT(61262);
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled()
             && regexPrototype->GetSlot(library->GetRegexFlagsGetterSlotIndex()) != library->GetRegexFlagsGetterFunction();
     }
 
     bool JavascriptRegExp::HasObservableGlobalFlag(DynamicObject* regexPrototype)
-    {
+    {TRACE_IT(61263);
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled()
             && regexPrototype->GetSlot(library->GetRegexGlobalGetterSlotIndex()) != library->GetRegexGlobalGetterFunction();
     }
 
     bool JavascriptRegExp::HasObservableUnicodeFlag(DynamicObject* regexPrototype)
-    {
+    {TRACE_IT(61264);
         const ScriptConfiguration* scriptConfig = regexPrototype->GetScriptContext()->GetConfig();
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return scriptConfig->IsES6UnicodeExtensionsEnabled()
@@ -775,12 +775,12 @@ namespace Js
         Var replaceValue = (args.Info.Count > 2) ? args[2] : scriptContext->GetLibrary()->GetUndefined();
 
         if (JavascriptFunction::Is(replaceValue))
-        {
+        {TRACE_IT(61265);
             JavascriptFunction* replaceFunction = JavascriptFunction::FromVar(replaceValue);
             return RegexHelper::RegexReplaceFunction(scriptContext, thisObj, string, replaceFunction);
         }
         else
-        {
+        {TRACE_IT(61266);
             JavascriptString* replaceString = JavascriptConversion::ToString(replaceValue, scriptContext);
             return RegexHelper::RegexReplace(
                 scriptContext,
@@ -856,15 +856,15 @@ namespace Js
     }
 
     Var JavascriptRegExp::CallExec(RecyclableObject* thisObj, JavascriptString* string, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61267);
         Var exec = JavascriptOperators::GetProperty(thisObj, PropertyIds::exec, scriptContext);
         if (JavascriptConversion::IsCallable(exec))
-        {
+        {TRACE_IT(61268);
             RecyclableObject* execFn = RecyclableObject::FromVar(exec);
             Var result = CALL_FUNCTION(execFn, CallInfo(CallFlags_Value, 2), thisObj, string);
 
             if (!JavascriptOperators::IsObjectOrNull(result))
-            {
+            {TRACE_IT(61269);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_RegExpExecInvalidReturnType, varName);
             }
 
@@ -880,7 +880,7 @@ namespace Js
         UnifiedRegex::RegexFlags flags,
         UnifiedRegex::RegexFlags flag,
         ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61270);
         bool isEnabled = JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(this, propertyId, scriptContext),
             scriptContext);
@@ -910,7 +910,7 @@ namespace Js
         Var flags;
 
         BEGIN_TEMP_ALLOCATOR(tempAlloc, scriptContext, _u("JavascriptRegExp"))
-        {
+        {TRACE_IT(61271);
             StringBuilder<ArenaAllocator> bs(tempAlloc, 5);
 
 #define APPEND_FLAG(propertyId, flag) AppendFlagForFlagsProperty(&bs, thisObj, propertyId, flag, scriptContext)
@@ -922,12 +922,12 @@ namespace Js
             ScriptConfiguration const * scriptConfig = scriptContext->GetConfig();
 
             if (scriptConfig->IsES6UnicodeExtensionsEnabled())
-            {
+            {TRACE_IT(61272);
                 APPEND_FLAG(PropertyIds::unicode, _u('u'));
             }
 
             if (scriptConfig->IsES6RegExStickyEnabled())
-            {
+            {TRACE_IT(61273);
                 APPEND_FLAG(PropertyIds::sticky, _u('y'));
             }
 #undef APPEND_FLAG
@@ -945,10 +945,10 @@ namespace Js
         PropertyId propertyId,
         char16 flag,
         ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61274);
         Var propertyValue = JavascriptOperators::GetProperty(thisObj, propertyId, scriptContext);
         if (JavascriptConversion::ToBoolean(propertyValue, scriptContext))
-        {
+        {TRACE_IT(61275);
             builder->Append(flag);
         }
     }
@@ -961,7 +961,7 @@ namespace Js
 
         ScriptContext* scriptContext = function->GetScriptContext();
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext))
-        {
+        {TRACE_IT(61276);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -969,33 +969,33 @@ namespace Js
     }
 
     Var JavascriptRegExp::GetOptions()
-    {
+    {TRACE_IT(61277);
         Var options;
 
         ScriptContext* scriptContext = this->GetLibrary()->GetScriptContext();
         BEGIN_TEMP_ALLOCATOR(tempAlloc, scriptContext, _u("JavascriptRegExp"))
-        {
+        {TRACE_IT(61278);
             StringBuilder<ArenaAllocator> bs(tempAlloc, 4);
 
             // If you change the order of the flags, don't forget to change it in EntryGetterFlags() and ToString() too.
             if(GetPattern()->IsGlobal())
-            {
+            {TRACE_IT(61279);
                 bs.Append(_u('g'));
             }
             if(GetPattern()->IsIgnoreCase())
-            {
+            {TRACE_IT(61280);
                 bs.Append(_u('i'));
             }
             if(GetPattern()->IsMultiline())
-            {
+            {TRACE_IT(61281);
                 bs.Append(_u('m'));
             }
             if (GetPattern()->IsUnicode())
-            {
+            {TRACE_IT(61282);
                 bs.Append(_u('u'));
             }
             if (GetPattern()->IsSticky())
-            {
+            {TRACE_IT(61283);
                 bs.Append(_u('y'));
             }
             options = Js::JavascriptString::NewCopyBuffer(bs.Detach(), bs.Count(), scriptContext);
@@ -1013,7 +1013,7 @@ namespace Js
 
         ScriptContext* scriptContext = function->GetScriptContext();
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext))
-        {
+        {TRACE_IT(61284);
             return JavascriptString::NewCopyBuffer(_u("(?:)"), 4, scriptContext);
         }
 
@@ -1029,7 +1029,7 @@ namespace Js
         \
         ScriptContext* scriptContext = function->GetScriptContext(); \
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext)) \
-        {\
+        {TRACE_IT(61285);\
             return scriptContext->GetLibrary()->GetUndefined(); \
         }\
         \
@@ -1044,13 +1044,13 @@ namespace Js
     DEFINE_FLAG_GETTER(EntryGetterUnicode, unicode, IsUnicode)
 
     JavascriptRegExp * JavascriptRegExp::BoxStackInstance(JavascriptRegExp * instance)
-    {
+    {TRACE_IT(61286);
         Assert(ThreadContext::IsOnStack(instance));
         // On the stack, the we reserved a pointer before the object as to store the boxed value
         JavascriptRegExp ** boxedInstanceRef = ((JavascriptRegExp **)instance) - 1;
         JavascriptRegExp * boxedInstance = *boxedInstanceRef;
         if (boxedInstance)
-        {
+        {TRACE_IT(61287);
             return boxedInstance;
         }
         Assert(instance->GetTypeHandler()->GetInlineSlotsSize() == 0);
@@ -1085,7 +1085,7 @@ namespace Js
     };
 
     BOOL JavascriptRegExp::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(61288);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define HAS_PROPERTY(ownProperty) \
@@ -1113,15 +1113,15 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61289);
         return JavascriptRegExp::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptRegExp::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61290);
         BOOL result;
         if (GetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {TRACE_IT(61291);
             return result;
         }
 
@@ -1129,13 +1129,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61292);
         BOOL result;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {TRACE_IT(61293);
             return result;
         }
 
@@ -1143,18 +1143,18 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetPropertyBuiltIns(PropertyId propertyId, Var* value, BOOL* result)
-    {
+    {TRACE_IT(61294);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define GET_FLAG(patternMethod) \
         if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled()) \
-        { \
+        {TRACE_IT(61295); \
             *value = this->GetLibrary()->CreateBoolean(this->GetPattern()->##patternMethod##()); \
             *result = true; \
             return true; \
         } \
         else \
-        { \
+        {TRACE_IT(61296); \
             return false; \
         }
 
@@ -1162,7 +1162,7 @@ namespace Js
         {
         case PropertyIds::lastIndex:
             if (this->lastIndexVar == nullptr)
-            {
+            {TRACE_IT(61297);
                 Assert(lastIndexOrFlag <= MaxCharCount);
                 this->lastIndexVar = JavascriptNumber::ToVar(lastIndexOrFlag, GetScriptContext());
             }
@@ -1181,24 +1181,24 @@ namespace Js
             GET_FLAG(IsSticky)
         case PropertyIds::source:
             if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-            {
+            {TRACE_IT(61298);
                 *value = this->ToString(true);
                 *result = true;
                 return true;
             }
             else
-            {
+            {TRACE_IT(61299);
                 return false;
             }
         case PropertyIds::options:
             if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-            {
+            {TRACE_IT(61300);
                 *value = GetOptions();
                 *result = true;
                 return true;
             }
             else
-            {
+            {TRACE_IT(61301);
                 return false;
             }
         default:
@@ -1209,10 +1209,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61302);
         BOOL result;
         if (SetPropertyBuiltIns(propertyId, value, flags, &result))
-        {
+        {TRACE_IT(61303);
             return result;
         }
 
@@ -1220,13 +1220,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61304);
         BOOL result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, flags, &result))
-        {
+        {TRACE_IT(61305);
             return result;
         }
 
@@ -1234,12 +1234,12 @@ namespace Js
     }
 
     bool JavascriptRegExp::SetPropertyBuiltIns(PropertyId propertyId, Var value, PropertyOperationFlags flags, BOOL* result)
-    {
+    {TRACE_IT(61306);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define SET_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {TRACE_IT(61307); \
             JavascriptError::ThrowCantAssignIfStrictMode(flags, this->GetScriptContext()); \
             *result = false; \
             return true; \
@@ -1271,17 +1271,17 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61308);
         return SetProperty(propertyId, value, flags, info);
     }
 
     BOOL JavascriptRegExp::DeleteProperty(PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(61309);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define DELETE_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {TRACE_IT(61310); \
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), this->GetScriptContext()->GetPropertyName(propertyId)->GetBuffer()); \
             return false; \
         } \
@@ -1309,20 +1309,20 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(61311);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
 #define DELETE_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {TRACE_IT(61312); \
             JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), propertyNameString->GetString()); \
             return false; \
         } \
         return DynamicObject::DeleteProperty(propertyNameString, flags);
 
         if (BuiltInPropertyRecords::lastIndex.Equals(propertyName))
-        {
+        {TRACE_IT(61313);
             DELETE_PROPERTY(true);
         }
         else if (BuiltInPropertyRecords::global.Equals(propertyName)
@@ -1330,19 +1330,19 @@ namespace Js
             || BuiltInPropertyRecords::ignoreCase.Equals(propertyName)
             || BuiltInPropertyRecords::source.Equals(propertyName)
             || BuiltInPropertyRecords::options.Equals(propertyName))
-        {
+        {TRACE_IT(61314);
             DELETE_PROPERTY(!scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else if (BuiltInPropertyRecords::unicode.Equals(propertyName))
-        {
+        {TRACE_IT(61315);
             DELETE_PROPERTY(scriptConfig->IsES6UnicodeExtensionsEnabled() && !scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else if (BuiltInPropertyRecords::sticky.Equals(propertyName))
-        {
+        {TRACE_IT(61316);
             DELETE_PROPERTY(scriptConfig->IsES6RegExStickyEnabled() && !scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else
-        {
+        {TRACE_IT(61317);
             return DynamicObject::DeleteProperty(propertyNameString, flags);
         }
 
@@ -1351,10 +1351,10 @@ namespace Js
     }
 
     DescriptorFlags JavascriptRegExp::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61318);
         DescriptorFlags result;
         if (GetSetterBuiltIns(propertyId, info, &result))
-        {
+        {TRACE_IT(61319);
             return result;
         }
 
@@ -1362,13 +1362,13 @@ namespace Js
     }
 
     DescriptorFlags JavascriptRegExp::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61320);
         DescriptorFlags result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetSetterBuiltIns(propertyRecord->GetPropertyId(), info, &result))
-        {
+        {TRACE_IT(61321);
             return result;
         }
 
@@ -1376,12 +1376,12 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetSetterBuiltIns(PropertyId propertyId, PropertyValueInfo* info, DescriptorFlags* result)
-    {
+    {TRACE_IT(61322);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define GET_SETTER(ownProperty) \
         if (ownProperty) \
-        { \
+        {TRACE_IT(61323); \
             PropertyValueInfo::SetNoCache(info, this); \
             *result = JavascriptRegExp::IsWritable(propertyId) ? WritableData : Data; \
             return true; \
@@ -1410,20 +1410,20 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61324);
         Js::InternalString str = pattern->GetSource();
         stringBuilder->Append(str.GetBuffer(), str.GetLength());
         return TRUE;
     }
 
     BOOL JavascriptRegExp::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61325);
         stringBuilder->AppendCppLiteral(JS_DIAG_TYPE_JavascriptRegExp);
         return TRUE;
     }
 
     BOOL JavascriptRegExp::IsEnumerable(PropertyId propertyId)
-    {
+    {TRACE_IT(61326);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_ENUMERABLE(ownProperty) \
@@ -1451,7 +1451,7 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::IsConfigurable(PropertyId propertyId)
-    {
+    {TRACE_IT(61327);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_CONFIGURABLE(ownProperty) \
@@ -1479,7 +1479,7 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::IsWritable(PropertyId propertyId)
-    {
+    {TRACE_IT(61328);
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_WRITABLE(ownProperty) \
@@ -1506,11 +1506,11 @@ namespace Js
 #undef IS_WRITABLE
     }
     BOOL JavascriptRegExp::GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {TRACE_IT(61329);
         uint length = GetSpecialPropertyCount();
 
         if (index < length)
-        {
+        {TRACE_IT(61330);
             *propertyName = requestContext->GetPropertyString(GetSpecialPropertyIdsInlined()[index]);
             return true;
         }
@@ -1519,21 +1519,21 @@ namespace Js
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExp::GetSpecialPropertyCount() const
-    {
+    {TRACE_IT(61331);
         if (GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {TRACE_IT(61332);
             return 1; // lastIndex
         }
 
         uint specialPropertyCount = defaultSpecialPropertyIdsCount;
 
         if (GetScriptContext()->GetConfig()->IsES6UnicodeExtensionsEnabled())
-        {
+        {TRACE_IT(61333);
             specialPropertyCount += 1;
         }
 
         if (GetScriptContext()->GetConfig()->IsES6RegExStickyEnabled())
-        {
+        {TRACE_IT(61334);
             specialPropertyCount += 1;
         }
 
@@ -1542,12 +1542,12 @@ namespace Js
 
     // Returns the list of special non-enumerable properties for the type.
     PropertyId const * JavascriptRegExp::GetSpecialPropertyIds() const
-    {
+    {TRACE_IT(61335);
         return GetSpecialPropertyIdsInlined();
     }
 
     inline PropertyId const * JavascriptRegExp::GetSpecialPropertyIdsInlined() const
-    {
+    {TRACE_IT(61336);
         return GetScriptContext()->GetConfig()->IsES6UnicodeExtensionsEnabled()
             ? specialPropertyIdsAll
             : specialPropertyIdsWithoutUnicode;
@@ -1555,12 +1555,12 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptRegExp::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(61337);
         return TTD::NSSnapObjects::SnapObjectType::SnapRegexObject;
     }
 
     void JavascriptRegExp::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(61338);
         TTD::NSSnapObjects::SnapRegexInfo* sri = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapRegexInfo>();
 
         UnifiedRegex::RegexPattern* pattern = this->pattern;
@@ -1575,7 +1575,7 @@ namespace Js
     }
 
     void JavascriptRegExp::SetLastIndexInfo_TTD(CharCount lastIndex, Js::Var lastVar)
-    {
+    {TRACE_IT(61339);
         this->lastIndexOrFlag = lastIndex;
         this->lastIndexVar = lastVar;
     }

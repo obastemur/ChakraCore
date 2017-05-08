@@ -42,7 +42,7 @@ protected:
     virtual void OnFinishIdleCollect() = 0;
     virtual bool ShouldFinishConcurrentCollectOnIdleCallback() = 0;
 
-    ThreadContext *GetThreadContext() { return threadContext; }
+    ThreadContext *GetThreadContext() {TRACE_IT(37858); return threadContext; }
 
 private:
     static const unsigned int IdleTicks = 1000; // 1 second
@@ -69,7 +69,7 @@ private:
 
 #define IDLE_COLLECT_TRACE(msg, ...) \
     if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::IdleCollectPhase)) \
-            {\
+            {TRACE_IT(37859);\
         Output::Print(_u("%04X> ") msg, ::GetCurrentThreadId(), ##__VA_ARGS__); \
         Output::Flush(); \
             }

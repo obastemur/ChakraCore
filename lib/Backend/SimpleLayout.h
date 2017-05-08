@@ -7,7 +7,7 @@
 class SimpleLayout
 {
 public:
-    SimpleLayout(Func * func) : func(func), currentStatement(NULL) {}
+    SimpleLayout(Func * func) : func(func), currentStatement(NULL) {TRACE_IT(15456);}
     void Layout();
 
 private:

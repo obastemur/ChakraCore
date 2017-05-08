@@ -10,7 +10,7 @@ namespace Js
         void *const stackAllocationPointer,
         JavascriptString* input,
         ScriptContext* const scriptContext)
-    {
+    {TRACE_IT(61351);
         JavascriptArray* arr = JavascriptArray::New<JavascriptArray, InlineSlotCount>(stackAllocationPointer, 0, scriptContext->GetLibrary()->GetRegexResultType()); // use default array capacity
 
         Assert(JavascriptRegularExpressionResult::Is(arr));
@@ -26,7 +26,7 @@ namespace Js
         const int numGroups,
         JavascriptString* input,
         ScriptContext* const scriptContext)
-    {
+    {TRACE_IT(61352);
         Assert(numGroups > 0);
 
         JavascriptArray* arr = JavascriptArray::NewLiteral<JavascriptArray, InlineSlotCount>(stackAllocationPointer, numGroups, scriptContext->GetLibrary()->GetRegexResultType());
@@ -44,14 +44,14 @@ namespace Js
     // Check if a given JavascriptArray is actually JavascriptRegularExpressionResult.
     //
     bool JavascriptRegularExpressionResult::Is(JavascriptArray* arr)
-    {
+    {TRACE_IT(61353);
         return arr->GetPropertyIndex(PropertyIds::input) == InputIndex
             && arr->GetPropertyIndex(PropertyIds::index) == IndexIndex;
     }
 #endif
 
     void JavascriptRegularExpressionResult::SetMatch(JavascriptArray* arr, const UnifiedRegex::GroupInfo match)
-    {
+    {TRACE_IT(61354);
         Assert(JavascriptRegularExpressionResult::Is(arr));
         Assert(!match.IsUndefined());
 
@@ -60,7 +60,7 @@ namespace Js
     }
 
     void JavascriptRegularExpressionResult::InstantiateForceInlinedMembers()
-    {
+    {TRACE_IT(61355);
         // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in
         // the same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined
         // function is not referenced in the same translation unit, it will not be generated and the linker is not able to find

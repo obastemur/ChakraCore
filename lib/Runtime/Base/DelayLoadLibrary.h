@@ -55,11 +55,11 @@ namespace Js
             m_pfnWindowsDeleteString(NULL),
             m_pfnWindowsCreateStringReference(NULL),
             m_pfnWindowsDuplicateString(NULL),
-            m_pfnWindowsCompareStringOrdinal(NULL) { }
+            m_pfnWindowsCompareStringOrdinal(NULL) {TRACE_IT(33730); }
 
-        virtual ~DelayLoadWinRtString() { }
+        virtual ~DelayLoadWinRtString() {TRACE_IT(33731); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-winrt-string-l1-1-0.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33732); return _u("api-ms-win-core-winrt-string-l1-1-0.dll"); }
 
         virtual HRESULT WindowsCreateString(_In_reads_opt_(length) const WCHAR * sourceString, UINT32 length, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string);
         virtual HRESULT WindowsCreateStringReference(_In_reads_opt_(length + 1) const WCHAR * sourceString, UINT32 length, _Out_ HSTRING_HEADER * header, _Outptr_result_maybenull_ _Result_nullonfailure_  HSTRING * string);
@@ -83,11 +83,11 @@ namespace Js
 
     public:
         DelayLoadWinRtTypeResolution() : DelayLoadLibrary(),
-            m_pfnRoParseTypeName(nullptr) { }
+            m_pfnRoParseTypeName(nullptr) {TRACE_IT(33733); }
 
-        virtual ~DelayLoadWinRtTypeResolution() { }
+        virtual ~DelayLoadWinRtTypeResolution() {TRACE_IT(33734); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-ro-typeresolution-l1-1-0.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33735); return _u("api-ms-win-ro-typeresolution-l1-1-0.dll"); }
 
         HRESULT RoParseTypeName(__in HSTRING typeName, __out DWORD *partsCount, __RPC__deref_out_ecount_full_opt(*partsCount) HSTRING **typeNameParts);
 
@@ -115,11 +115,11 @@ namespace Js
 
     public:
         DelayLoadWinRtRoParameterizedIID() : DelayLoadLibrary(),
-            m_pfnRoGetParameterizedTypeInstanceIID(nullptr) { }
+            m_pfnRoGetParameterizedTypeInstanceIID(nullptr) {TRACE_IT(33736); }
 
-        virtual ~DelayLoadWinRtRoParameterizedIID() { }
+        virtual ~DelayLoadWinRtRoParameterizedIID() {TRACE_IT(33737); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-winrt-roparameterizediid-l1-1-0.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33738); return _u("api-ms-win-core-winrt-roparameterizediid-l1-1-0.dll"); }
 
         HRESULT RoGetParameterizedTypeInstanceIID(
             __in UINT32 nameElementCount,
@@ -147,16 +147,16 @@ namespace Js
             m_pfnFNCWDllGetActivationFactory(nullptr),
             winRTStringLibrary(nullptr),
             winRTStringsPresent(false),
-            hasGlobalizationDllLoaded(false) { }
+            hasGlobalizationDllLoaded(false) {TRACE_IT(33739); }
 
-        virtual ~DelayLoadWindowsGlobalization() { }
+        virtual ~DelayLoadWindowsGlobalization() {TRACE_IT(33740); }
 
         LPCTSTR GetLibraryName() const
-        {
+        {TRACE_IT(33741);
             return _u("windows.globalization.dll");
         }
         LPCTSTR GetWin7LibraryName() const
-        {
+        {TRACE_IT(33742);
             return _u("jsIntl.dll");
         }
         void Ensure(Js::DelayLoadWinRtString *winRTStringLibrary);
@@ -184,11 +184,11 @@ namespace Js
 
     public:
         DelayLoadWinRtFoundation() : DelayLoadLibrary(),
-            m_pfnFNCWRoGetActivationFactory(nullptr) { }
+            m_pfnFNCWRoGetActivationFactory(nullptr) {TRACE_IT(33743); }
 
-        virtual ~DelayLoadWinRtFoundation() { }
+        virtual ~DelayLoadWinRtFoundation() {TRACE_IT(33744); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-winrt-l1-1-0.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33745); return _u("api-ms-win-core-winrt-l1-1-0.dll"); }
 
         HRESULT RoGetActivationFactory(
             __in HSTRING activatibleClassId,
@@ -212,11 +212,11 @@ namespace Js
     public:
         DelayLoadWinRtError() : DelayLoadLibrary(),
             m_pfnRoClearError(nullptr),
-            m_pfnRoOriginateLanguageException(nullptr) { }
+            m_pfnRoOriginateLanguageException(nullptr) {TRACE_IT(33746); }
 
-        virtual ~DelayLoadWinRtError() { }
+        virtual ~DelayLoadWinRtError() {TRACE_IT(33747); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-winrt-error-l1-1-1.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33748); return _u("api-ms-win-core-winrt-error-l1-1-1.dll"); }
 
         HRESULT RoClearError();
         BOOL RoOriginateLanguageException(__in HRESULT error, __in_opt HSTRING message, __in IUnknown * languageException);
@@ -234,9 +234,9 @@ namespace Js
 
     public:
         DelayLoadWinCoreMemory() : DelayLoadLibrary(),
-            m_pfnSetProcessValidCallTargets(nullptr) { }
+            m_pfnSetProcessValidCallTargets(nullptr) {TRACE_IT(33749); }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-memory-l1-1-3.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33750); return _u("api-ms-win-core-memory-l1-1-3.dll"); }
 
         BOOL SetProcessCallTargets(
             _In_ HANDLE hProcess,
@@ -265,10 +265,10 @@ namespace Js
             DelayLoadLibrary(),
             m_pfnGetProcessMitigationPolicy(nullptr),
             m_pfnGetProcessInformation(nullptr)
-            {
+            {TRACE_IT(33751);
             }
 
-        LPCTSTR GetLibraryName() const { return _u("api-ms-win-core-processthreads-l1-1-3.dll"); }
+        LPCTSTR GetLibraryName() const {TRACE_IT(33752); return _u("api-ms-win-core-processthreads-l1-1-3.dll"); }
 
         BOOL GetMitigationPolicyForProcess(
             __in HANDLE hProcess,
@@ -293,14 +293,14 @@ namespace Js
             __in const IRoMetaDataLocator&          metaDataLocator,
             __out GUID*                             iid,
             __deref_opt_out ROPARAMIIDHANDLE*       pExtra)
-    {
+    {TRACE_IT(33753);
         if (m_hModule)
-        {
+        {TRACE_IT(33754);
             if (m_pfnRoGetParameterizedTypeInstanceIID == NULL)
-            {
+            {TRACE_IT(33755);
                 m_pfnRoGetParameterizedTypeInstanceIID = (PFNCWRoGetParameterizedTypeInstanceIID)GetFunction("RoGetParameterizedTypeInstanceIID");
                 if (m_pfnRoGetParameterizedTypeInstanceIID == NULL)
-                {
+                {TRACE_IT(33756);
                     return E_UNEXPECTED;
                 }
             }

@@ -13,7 +13,7 @@ class Entropy {
 
 public:
     Entropy()
-    {
+    {TRACE_IT(33769);
         previousValue = 0;
         u.value = 0;
         currentIndex = 0;

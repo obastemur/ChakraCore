@@ -21,7 +21,7 @@ namespace Js
     public:
         static GlobalObject * New(ScriptContext * scriptContext);
 
-        JavascriptLibrary* GetLibrary() const {return library; }
+        JavascriptLibrary* GetLibrary() const {TRACE_IT(55553);return library; }
 
         void Initialize(ScriptContext * scriptContext);
 

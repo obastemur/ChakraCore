@@ -20,9 +20,9 @@ namespace Js
         static JavascriptSymbolObject* FromVar(Js::Var aValue);
 
         inline const PropertyRecord* GetValue()
-        {
+        {TRACE_IT(62183);
             if (value == nullptr)
-            {
+            {TRACE_IT(62184);
                 return nullptr;
             }
             return value->GetValue();

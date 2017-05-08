@@ -19,14 +19,14 @@ namespace IR
 
 Opnd*
 Opnd::UseWithNewType(IRType type, Func * func)
-{
+{TRACE_IT(14269);
     Opnd * res = this->Use(func);
     res->SetType(type);
     StackSym* sym = res->GetStackSym();
     if (sym)
-    {
+    {TRACE_IT(14270);
         if (TySize[sym->GetType()] < TySize[type])
-        {
+        {TRACE_IT(14271);
             Assert(!sym->IsAllocated());
             sym->m_type = type;
         }
@@ -36,13 +36,13 @@ Opnd::UseWithNewType(IRType type, Func * func)
 
 bool
 Opnd::IsTaggedInt() const
-{
+{TRACE_IT(14272);
     return GetValueType().IsTaggedInt();
 }
 
 bool
 Opnd::IsTaggedValue() const
-{
+{TRACE_IT(14273);
     CompileAssert(!FLOATVAR || INT32VAR);
 #if FLOATVAR
     return GetValueType().IsNumber();
@@ -53,22 +53,22 @@ Opnd::IsTaggedValue() const
 
 bool
 Opnd::IsNotNumber() const
-{
+{TRACE_IT(14274);
     if (this->GetValueType().IsNotNumber())
-    {
+    {TRACE_IT(14275);
         return true;
     }
     if (this->IsRegOpnd())
-    {
+    {TRACE_IT(14276);
         const IR::RegOpnd* regOpnd = this->AsRegOpnd();
 
         if (regOpnd->m_sym == nullptr)
-        {
+        {TRACE_IT(14277);
             return true;
         }
 
         if (regOpnd->m_sym->m_isNotInt)
-        {
+        {TRACE_IT(14278);
             // m_isNotInt actually means "is not number". It should not be set to true for definitely-float values.
             return true;
         }
@@ -78,15 +78,15 @@ Opnd::IsNotNumber() const
 
 bool
 Opnd::IsNotInt() const
-{
+{TRACE_IT(14279);
     return IsNotNumber() || IsFloat();
 }
 
 bool
 Opnd::IsNotTaggedValue() const
-{
+{TRACE_IT(14280);
     if (!PHASE_OFF1(Js::OptTagChecksPhase) && this->GetValueType().IsNotTaggedValue())
-    {
+    {TRACE_IT(14281);
         return true;
     }
     return this->IsNotNumber();
@@ -94,29 +94,29 @@ Opnd::IsNotTaggedValue() const
 
 bool
 Opnd::IsWriteBarrierTriggerableValue()
-{
+{TRACE_IT(14282);
     // Determines whether if an operand is used as a source in a store instruction, whether the store needs a write barrier
 
     // If it's a tagged value, we don't need a write barrier
     if (this->IsTaggedValue())
-    {
+    {TRACE_IT(14283);
         return false;
     }
 
     // If this operand is known address, then it doesn't need a write barrier, the address is either not a GC address or is pinned
     if (this->IsAddrOpnd() && static_cast<AddrOpndKind>(this->AsAddrOpnd()->GetKind()) == AddrOpndKindDynamicVar)
-    {
+    {TRACE_IT(14284);
         return false;
     }
 
     if (TySize[this->GetType()] != sizeof(void*))
-    {
+    {TRACE_IT(14285);
         return false;
     }
 
 #if DBG
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-    {
+    {TRACE_IT(14286);
         return true; // No further optimization if we are in verification
     }
 #endif
@@ -130,7 +130,7 @@ Opnd::IsWriteBarrierTriggerableValue()
 */
 
 OpndKind Opnd::GetKind() const
-{
+{TRACE_IT(14287);
     return this->m_kind;
 }
 
@@ -140,19 +140,19 @@ OpndKind Opnd::GetKind() const
 
 Opnd *
 Opnd::CloneDef(Func *func)
-{
+{TRACE_IT(14288);
     switch (this->m_kind)
     {
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {TRACE_IT(14289);
             return static_cast<PropertySymOpnd*>(this)->CloneDefInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CloneDefInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {TRACE_IT(14290);
             return static_cast<ArrayRegOpnd*>(this)->CloneDefInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CloneDefInternal(func);
@@ -171,19 +171,19 @@ Opnd::CloneDef(Func *func)
 
 Opnd *
 Opnd::CloneUse(Func *func)
-{
+{TRACE_IT(14291);
     switch (this->m_kind)
     {
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {TRACE_IT(14292);
             return static_cast<PropertySymOpnd*>(this)->CloneUseInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CloneUseInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {TRACE_IT(14293);
             return static_cast<ArrayRegOpnd*>(this)->CloneUseInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CloneUseInternal(func);
@@ -201,7 +201,7 @@ Opnd::CloneUse(Func *func)
 */
 
 void Opnd::Free(Func *func)
-{
+{TRACE_IT(14294);
     switch (this->m_kind)
     {
     case OpndKindIntConst:
@@ -230,7 +230,7 @@ void Opnd::Free(Func *func)
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {TRACE_IT(14295);
             static_cast<ArrayRegOpnd*>(this)->FreeInternalSub(func);
             break;
         }
@@ -263,7 +263,7 @@ void Opnd::Free(Func *func)
     };
 #if DBG
     if (func->m_alloc->HasDelayFreeList())
-    {
+    {TRACE_IT(14296);
         this->isDeleted = true;
     }
 #endif
@@ -274,7 +274,7 @@ void Opnd::Free(Func *func)
 */
 
 bool Opnd::IsEqual(Opnd *opnd)
-{
+{TRACE_IT(14297);
     switch (this->m_kind)
     {
     case OpndKindIntConst:
@@ -288,7 +288,7 @@ bool Opnd::IsEqual(Opnd *opnd)
 
     case OpndKindHelperCall:
         if ((*static_cast<HelperCallOpnd*>(this)).IsDiagHelperCallOpnd())
-        {
+        {TRACE_IT(14298);
             return static_cast<DiagHelperCallOpnd*>(this)->IsEqualInternalSub(opnd);
         }
         return static_cast<HelperCallOpnd*>(this)->IsEqualInternal(opnd);
@@ -328,7 +328,7 @@ bool Opnd::IsEqual(Opnd *opnd)
 */
 
 Opnd * Opnd::Copy(Func *func)
-{
+{TRACE_IT(14299);
     switch (this->m_kind)
     {
     case OpndKindIntConst:
@@ -342,21 +342,21 @@ Opnd * Opnd::Copy(Func *func)
 
     case OpndKindHelperCall:
         if ((*static_cast<HelperCallOpnd*>(this)).IsDiagHelperCallOpnd())
-        {
+        {TRACE_IT(14300);
             return static_cast<DiagHelperCallOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<HelperCallOpnd*>(this)->CopyInternal(func);
 
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {TRACE_IT(14301);
             return static_cast<PropertySymOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CopyInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {TRACE_IT(14302);
             return static_cast<ArrayRegOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CopyInternal(func);
@@ -384,7 +384,7 @@ Opnd * Opnd::Copy(Func *func)
 
 StackSym *
 Opnd::GetStackSym() const
-{
+{TRACE_IT(14303);
     switch (this->GetKind())
     {
     case OpndKindSym:
@@ -398,7 +398,7 @@ Opnd::GetStackSym() const
 
 Sym*
 Opnd::GetSym() const
-{
+{TRACE_IT(14304);
     switch (this->GetKind())
     {
         case OpndKindSym:
@@ -412,7 +412,7 @@ Opnd::GetSym() const
 
 int64
 Opnd::GetImmediateValue(Func* func)
-{
+{TRACE_IT(14305);
     switch (this->GetKind())
     {
     case OpndKindIntConst:
@@ -436,7 +436,7 @@ Opnd::GetImmediateValue(Func* func)
 #if TARGET_32 && !defined(_M_IX86)
 int32
 Opnd::GetImmediateValueAsInt32(Func * func)
-{
+{TRACE_IT(14306);
     Assert(!IRType_IsInt64(this->GetType()));
     Assert(this->GetKind() != OpndKindInt64Const);
     return (int32)this->GetImmediateValue(func);
@@ -444,18 +444,18 @@ Opnd::GetImmediateValueAsInt32(Func * func)
 #endif
 
 BailoutConstantValue Opnd::GetConstValue()
-{
+{TRACE_IT(14307);
     BailoutConstantValue value;
     if (this->IsIntConstOpnd())
-    {
+    {TRACE_IT(14308);
         value.InitIntConstValue(this->AsIntConstOpnd()->GetValue(), this->m_type);
     }
     else if (this->IsFloatConstOpnd())
-    {
+    {TRACE_IT(14309);
         value.InitFloatConstValue(this->AsFloatConstOpnd()->m_value);
     }
     else
-    {
+    {TRACE_IT(14310);
         AssertMsg(this->IsAddrOpnd(), "Unexpected const sym");
         value.InitVarConstValue(this->AsAddrOpnd()->m_address);
     }
@@ -463,9 +463,9 @@ BailoutConstantValue Opnd::GetConstValue()
 }
 
 void Opnd::SetValueType(const ValueType valueType)
-{
+{TRACE_IT(14311);
     if(m_isValueTypeFixed)
-    {
+    {TRACE_IT(14312);
         return;
     }
 
@@ -479,34 +479,34 @@ void Opnd::SetValueType(const ValueType valueType)
 }
 
 bool Opnd::IsScopeObjOpnd(Func * func)
-{
+{TRACE_IT(14313);
     if (IsRegOpnd())
-    {
+    {TRACE_IT(14314);
         return this->GetStackSym() == func->GetScopeObjSym();
     }
     else if(IsSymOpnd() && AsSymOpnd()->m_sym->IsPropertySym())
-    {
+    {TRACE_IT(14315);
         return this->AsSymOpnd()->m_sym->AsPropertySym()->m_stackSym == func->GetScopeObjSym();
     }
     return false;
 }
 
 ValueType Opnd::FindProfiledValueType()
-{
+{TRACE_IT(14316);
     if (!this->GetValueType().IsUninitialized())
-    {
+    {TRACE_IT(14317);
         return this->GetValueType();
     }
 
     // could be expanded to cover additional opnd kinds as well.
     if (this->IsRegOpnd() && this->AsRegOpnd()->m_sym->IsSingleDef())
-    {
+    {TRACE_IT(14318);
         IR::Instr * defInstr = this->AsRegOpnd()->m_sym->GetInstrDef();
         IR::Opnd * src1 = defInstr->GetSrc1();
         while(defInstr->m_opcode == Js::OpCode::Ld_A)
-        {
+        {TRACE_IT(14319);
             if (!src1->IsRegOpnd() || !src1->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {TRACE_IT(14320);
                 return ValueType::Uninitialized;
             }
             defInstr = src1->AsRegOpnd()->m_sym->GetInstrDef();
@@ -514,11 +514,11 @@ ValueType Opnd::FindProfiledValueType()
         }
 
         if (defInstr->GetDst()->GetValueType().IsAnyArray())
-        {
+        {TRACE_IT(14321);
             return defInstr->GetDst()->GetValueType().ToLikely();
         }
         else
-        {
+        {TRACE_IT(14322);
             return defInstr->GetDst()->GetValueType();
         }
     }
@@ -527,14 +527,14 @@ ValueType Opnd::FindProfiledValueType()
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 void Opnd::DumpValueType()
-{
+{TRACE_IT(14323);
     if(m_valueType.IsUninitialized())
-    {
+    {TRACE_IT(14324);
         return;
     }
 
     if(!CONFIG_FLAG(Verbose))
-    {
+    {TRACE_IT(14325);
         // Skip printing the value type when it's obvious since verbose mode is off
         switch(this->GetKind())
         {
@@ -544,7 +544,7 @@ void Opnd::DumpValueType()
             return;
 
         case OpndKindReg:
-            {
+            {TRACE_IT(14326);
                 StackSym *const sym = this->AsRegOpnd()->m_sym;
                 if(sym && (
                     sym->IsInt32() ||
@@ -553,7 +553,7 @@ void Opnd::DumpValueType()
                     sym->IsInt64() ||
                     sym->IsUint64()
                     ))
-                {
+                {TRACE_IT(14327);
                     return;
                 }
                 break;
@@ -561,7 +561,7 @@ void Opnd::DumpValueType()
 
         case OpndKindAddr:
             if(this->AsAddrOpnd()->m_address && this->AsAddrOpnd()->IsVar())
-            {
+            {TRACE_IT(14328);
                 IR::AddrOpnd *addrOpnd = this->AsAddrOpnd();
                 Js::Var address = addrOpnd->decodedValue ? addrOpnd->decodedValue : addrOpnd->m_address;
 
@@ -572,7 +572,7 @@ void Opnd::DumpValueType()
                     !JITManager::GetJITManager()->IsOOPJITEnabled() &&
 #endif
                     Js::JavascriptNumber::Is_NoTaggedIntCheck(address)))
-                {
+                {TRACE_IT(14329);
                     return;
                 }
             }
@@ -584,9 +584,9 @@ void Opnd::DumpValueType()
 }
 
 void Opnd::DumpValueType(const ValueType valueType)
-{
+{TRACE_IT(14330);
     if(valueType.IsUninitialized())
-    {
+    {TRACE_IT(14331);
         return;
     }
 
@@ -597,24 +597,24 @@ void Opnd::DumpValueType(const ValueType valueType)
 #endif
 
 IntConstOpnd *Opnd::CreateUint32Opnd(const uint i, Func *const func)
-{
+{TRACE_IT(14332);
     return IntConstOpnd::New(i, TyUint32, func, true);
 }
 
 IntConstOpnd *Opnd::CreateProfileIdOpnd(const Js::ProfileId profileId, Func *const func)
-{
+{TRACE_IT(14333);
     CompileAssert(sizeof(profileId) == sizeof(uint16));
     return IntConstOpnd::New(profileId, TyUint16, func, true);
 }
 
 IntConstOpnd *Opnd::CreateInlineCacheIndexOpnd(const Js::InlineCacheIndex inlineCacheIndex, Func *const func)
-{
+{TRACE_IT(14334);
     CompileAssert(sizeof(inlineCacheIndex) == sizeof(uint));
     return CreateUint32Opnd(inlineCacheIndex, func);
 }
 
 RegOpnd *Opnd::CreateFramePointerOpnd(Func *const func)
-{
+{TRACE_IT(14335);
     return RegOpnd::New(nullptr, LowererMD::GetRegFramePointer(), TyMachPtr, func);
 }
 
@@ -628,13 +628,13 @@ RegOpnd *Opnd::CreateFramePointerOpnd(Func *const func)
 
 SymOpnd *
 SymOpnd::New(Sym *sym, IRType type, Func *func)
-{
+{TRACE_IT(14336);
     return SymOpnd::New(sym, 0, type, func);
 }
 
 SymOpnd *
 SymOpnd::New(Sym *sym, uint32 offset, IRType type, Func *func)
-{
+{TRACE_IT(14337);
     SymOpnd * symOpnd;
 
     AssertMsg(sym, "A SymOpnd needs a valid symbol.");
@@ -663,7 +663,7 @@ SymOpnd::New(Sym *sym, uint32 offset, IRType type, Func *func)
 
 SymOpnd *
 SymOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14338);
     Assert(m_kind == OpndKindSym);
     SymOpnd * newOpnd;
 
@@ -677,16 +677,16 @@ SymOpnd::CopyInternal(Func *func)
 
 SymOpnd *
 SymOpnd::CloneDefInternal(Func *func)
-{
+{TRACE_IT(14339);
     Assert(m_kind == OpndKindSym);
     Sym *sym = this->m_sym;
 
     if (sym->IsStackSym() && sym->AsStackSym()->m_isSingleDef)
-    {
+    {TRACE_IT(14340);
         StackSym * oldSym = sym->AsStackSym();
         StackSym * newSym = oldSym->CloneDef(func)->AsStackSym();
         if (func->GetCloner()->clonedInstrGetOrigArgSlotSym && oldSym->IsArgSlotSym())
-        {
+        {TRACE_IT(14341);
             Assert(newSym != oldSym);
             this->m_sym = newSym;
             newSym->m_instrDef = oldSym->m_instrDef;
@@ -694,7 +694,7 @@ SymOpnd::CloneDefInternal(Func *func)
             sym = oldSym;
         }
         else
-        {
+        {TRACE_IT(14342);
             sym = newSym;
         }
     }
@@ -706,22 +706,22 @@ SymOpnd::CloneDefInternal(Func *func)
 
 SymOpnd *
 SymOpnd::CloneUseInternal(Func *func)
-{
+{TRACE_IT(14343);
     Assert(m_kind == OpndKindSym);
     Sym *sym = this->m_sym;
 
     if (sym->IsStackSym() && sym->AsStackSym()->m_isSingleDef)
-    {
+    {TRACE_IT(14344);
         StackSym * oldSym = sym->AsStackSym();
         StackSym * newSym = oldSym->CloneUse(func)->AsStackSym();
         if (func->GetCloner()->clonedInstrGetOrigArgSlotSym && oldSym->IsArgSlotSym())
-        {
+        {TRACE_IT(14345);
             Assert(newSym != oldSym);
             this->m_sym = newSym;
             sym = oldSym;
         }
         else
-        {
+        {TRACE_IT(14346);
             sym = newSym;
         }
     }
@@ -733,7 +733,7 @@ SymOpnd::CloneUseInternal(Func *func)
 
 StackSym *
 SymOpnd::GetStackSymInternal() const
-{
+{TRACE_IT(14347);
     return (this->m_sym && this->m_sym->IsStackSym()) ? this->m_sym->AsStackSym() : nullptr;
 }
 
@@ -754,11 +754,11 @@ SymOpnd::GetStackSymInternal() const
 ///----------------------------------------------------------------------------
 bool
 SymOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14348);
     Assert(m_kind == OpndKindSym);
     Assert(opnd);
     if (!opnd->IsSymOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14349);
         return false;
     }
 
@@ -767,25 +767,25 @@ SymOpnd::IsEqualInternal(Opnd *opnd)
     StackSym *thisStackSym = this->GetStackSymInternal();
     StackSym *opndStackSym = opndSym->GetStackSymInternal();
     if (thisStackSym && opndStackSym && thisStackSym->IsAllocated() && opndStackSym->IsAllocated())
-    {
+    {TRACE_IT(14350);
         return thisStackSym->m_offset == opndStackSym->m_offset;
     }
     else
-    {
+    {TRACE_IT(14351);
         return m_sym == opndSym->m_sym && m_offset == opndSym->m_offset;
     }
 }
 
 void
 SymOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14352);
     Assert(m_kind == OpndKindSym);
     JitAdelete(func->m_alloc, this);
 }
 
 
 RegOpnd *SymOpnd::CreatePropertyOwnerOpnd(Func *const func) const
-{
+{TRACE_IT(14353);
     Assert(m_sym->IsPropertySym());
     Assert(func);
 
@@ -797,7 +797,7 @@ RegOpnd *SymOpnd::CreatePropertyOwnerOpnd(Func *const func) const
 
 PropertySymOpnd *
 PropertySymOpnd::New(PropertySym *propertySym, uint inlineCacheIndex, IRType type, Func *func)
-{
+{TRACE_IT(14354);
     PropertySymOpnd *newOpnd = IR::PropertySymOpnd::New(propertySym, type, func);
     newOpnd->Init(inlineCacheIndex, func);
     return newOpnd;
@@ -805,7 +805,7 @@ PropertySymOpnd::New(PropertySym *propertySym, uint inlineCacheIndex, IRType typ
 
 void
 PropertySymOpnd::Init(uint inlineCacheIndex, Func *func)
-{
+{TRACE_IT(14355);
     this->Init(inlineCacheIndex,
         inlineCacheIndex != -1 ? func->GetRuntimeInlineCache(inlineCacheIndex) : 0,
         inlineCacheIndex != -1 ? func->GetRuntimePolymorphicInlineCache(inlineCacheIndex) : nullptr,
@@ -815,7 +815,7 @@ PropertySymOpnd::Init(uint inlineCacheIndex, Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::New(PropertySym *propertySym, IRType type, Func *func)
-{
+{TRACE_IT(14356);
     PropertySymOpnd *newOpnd = JitAnew(func->m_alloc, IR::PropertySymOpnd);
     newOpnd->m_sym = propertySym;
     newOpnd->m_offset = 0;
@@ -836,7 +836,7 @@ PropertySymOpnd::New(PropertySym *propertySym, IRType type, Func *func)
 
 void
 PropertySymOpnd::Init(uint inlineCacheIndex, intptr_t runtimeInlineCache, JITTimePolymorphicInlineCache * runtimePolymorphicInlineCache, JITObjTypeSpecFldInfo* objTypeSpecFldInfo, byte polyCacheUtil)
-{
+{TRACE_IT(14357);
     this->m_inlineCacheIndex = inlineCacheIndex;
     this->m_runtimeInlineCache = runtimeInlineCache;
     this->m_runtimePolymorphicInlineCache = runtimePolymorphicInlineCache;
@@ -848,7 +848,7 @@ PropertySymOpnd::Init(uint inlineCacheIndex, intptr_t runtimeInlineCache, JITTim
 
 PropertySymOpnd *
 PropertySymOpnd::CopyCommon(Func *func)
-{
+{TRACE_IT(14358);
     PropertySymOpnd *newOpnd = PropertySymOpnd::New(this->m_sym->AsPropertySym(), this->m_type, func);
     newOpnd->m_valueType = this->m_valueType;
     newOpnd->m_inlineCacheIndex = this->m_inlineCacheIndex;
@@ -860,7 +860,7 @@ PropertySymOpnd::CopyCommon(Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::CopyWithoutFlowSensitiveInfo(Func *func)
-{
+{TRACE_IT(14359);
     PropertySymOpnd *newOpnd = CopyCommon(func);
     newOpnd->SetObjTypeSpecFldInfo(this->objTypeSpecFldInfo);
 
@@ -883,7 +883,7 @@ PropertySymOpnd::CopyWithoutFlowSensitiveInfo(Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::CopyInternalSub(Func *func)
-{
+{TRACE_IT(14360);
     Assert(m_kind == OpndKindSym && this->IsPropertySymOpnd());
     PropertySymOpnd *newOpnd = CopyCommon(func);
 
@@ -904,19 +904,19 @@ PropertySymOpnd::CopyInternalSub(Func *func)
 
 bool
 PropertySymOpnd::IsObjectHeaderInlined() const
-{
+{TRACE_IT(14361);
     JITTypeHolder type(nullptr);
     if (this->IsMono())
-    {
+    {TRACE_IT(14362);
         type = this->GetType();
     }
     else if (this->HasEquivalentTypeSet())
-    {
+    {TRACE_IT(14363);
         type = this->GetFirstEquivalentType();
     }
 
     if (type != nullptr && Js::DynamicType::Is(type->GetTypeId()))
-    {
+    {TRACE_IT(14364);
         return type->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler();
     }
 
@@ -925,12 +925,12 @@ PropertySymOpnd::IsObjectHeaderInlined() const
 
 bool
 PropertySymOpnd::ChangesObjectLayout() const
-{
+{TRACE_IT(14365);
     JITTypeHolder cachedType = this->IsMono() ? this->GetType() : this->GetFirstEquivalentType();
 
     JITTypeHolder finalType = this->GetFinalType();
     if (finalType != nullptr && Js::DynamicType::Is(finalType->GetTypeId()))
-    {
+    {TRACE_IT(14366);
         // This is the case where final type opt may cause pro-active type transition to take place.
 
     Assert(cachedType != nullptr && Js::DynamicType::Is(cachedType->GetTypeId()));
@@ -940,13 +940,13 @@ PropertySymOpnd::ChangesObjectLayout() const
     }
 
     if (!this->HasInitialType())
-    {
+    {TRACE_IT(14367);
         return false;
     }
 
     JITTypeHolder initialType = this->GetInitialType();
     if (initialType != nullptr && Js::DynamicType::Is(initialType->GetTypeId()))
-    {
+    {TRACE_IT(14368);
         // This is the case where the type transition actually occurs. (This is the only case that's detectable
         // during the loop pre-pass, since final types are not in place yet.)
 
@@ -964,7 +964,7 @@ PropertySymOpnd::ChangesObjectLayout() const
 
 void
 PropertySymOpnd::UpdateSlotForFinalType()
-{
+{TRACE_IT(14369);
     JITTypeHolder finalType = this->GetFinalType();
 
     Assert(this->IsMono() || this->checkedTypeSetIndex != (uint16)-1);
@@ -975,7 +975,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
     Assert(cachedType != nullptr && Js::DynamicType::Is(cachedType->GetTypeId()));
 
     if (finalType == cachedType)
-    {
+    {TRACE_IT(14370);
         return;
     }
 
@@ -984,7 +984,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
 
     if (cachedType->GetTypeHandler()->GetInlineSlotCapacity() == finalType->GetTypeHandler()->GetInlineSlotCapacity() &&
         cachedType->GetTypeHandler()->GetOffsetOfInlineSlots() == finalType->GetTypeHandler()->GetOffsetOfInlineSlots())
-    {
+    {TRACE_IT(14371);
         // Nothing can change, since the variables aren't changing.
         return;
     }
@@ -992,22 +992,22 @@ PropertySymOpnd::UpdateSlotForFinalType()
     // Get the slot index and figure out the property index
     uint16 index = this->GetSlotIndex();
     if (this->UsesAuxSlot())
-    {
+    {TRACE_IT(14372);
         index += cachedType->GetTypeHandler()->GetInlineSlotCapacity();
     }
     else
-    {
+    {TRACE_IT(14373);
         index -= cachedType->GetTypeHandler()->GetOffsetOfInlineSlots() / sizeof(Js::Var);
     }
 
     // Figure out the slot index and aux-ness from the property index
     if (index >= finalType->GetTypeHandler()->GetInlineSlotCapacity())
-    {
+    {TRACE_IT(14374);
         this->SetUsesAuxSlot(true);
         index -= finalType->GetTypeHandler()->GetInlineSlotCapacity();
     }
     else
-    {
+    {TRACE_IT(14375);
         this->SetUsesAuxSlot(false);
         index += finalType->GetTypeHandler()->GetOffsetOfInlineSlots() / sizeof(Js::Var);
     }
@@ -1015,19 +1015,19 @@ PropertySymOpnd::UpdateSlotForFinalType()
 }
 
 bool PropertySymOpnd::HasFinalType() const
-{
+{TRACE_IT(14376);
     return this->finalType != nullptr;
 }
 
 PropertySymOpnd *
 PropertySymOpnd::CloneDefInternalSub(Func *func)
-{
+{TRACE_IT(14377);
     return this->CopyInternalSub(func);
 }
 
 PropertySymOpnd *
 PropertySymOpnd::CloneUseInternalSub(Func *func)
-{
+{TRACE_IT(14378);
     return this->CopyInternalSub(func);
 }
 
@@ -1051,7 +1051,7 @@ RegOpnd::RegOpnd(const RegOpnd &other, StackSym *const sym)
 }
 
 void RegOpnd::Initialize(StackSym *sym, RegNum reg, IRType type)
-{
+{TRACE_IT(14379);
     AssertMsg(sym || reg != RegNOREG, "A RegOpnd needs a valid symbol or register.");
     Assert(!sym || sym->GetType() != TyMisc);
 
@@ -1084,13 +1084,13 @@ void RegOpnd::Initialize(StackSym *sym, RegNum reg, IRType type)
 
 RegOpnd *
     RegOpnd::New(IRType type, Func *func)
-{
+{TRACE_IT(14380);
     return RegOpnd::New(StackSym::New(type, func), RegNOREG, type, func);
 }
 
 RegOpnd *
 RegOpnd::New(StackSym *sym, IRType type, Func *func)
-{
+{TRACE_IT(14381);
     return RegOpnd::New(sym, RegNOREG, type, func);
 }
 
@@ -1104,7 +1104,7 @@ RegOpnd::New(StackSym *sym, IRType type, Func *func)
 
 RegOpnd *
 RegOpnd::New(StackSym *sym, RegNum reg, IRType type, Func *func)
-{
+{TRACE_IT(14382);
     return JitAnew(func->m_alloc, IR::RegOpnd, sym, reg, type);
 }
 
@@ -1117,40 +1117,40 @@ RegOpnd::New(StackSym *sym, RegNum reg, IRType type, Func *func)
 ///----------------------------------------------------------------------------
 RegOpnd *
 RegOpnd::CopyInternal(StackSym * sym, Func *func)
-{
+{TRACE_IT(14383);
     Assert(m_kind == OpndKindReg);
     return JitAnew(func->m_alloc, IR::RegOpnd, *this, sym);
 }
 
 RegOpnd *
 RegOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14384);
     return CopyInternal(m_sym, func);
 }
 
 RegOpnd *
 RegOpnd::CloneDefInternal(Func *func)
-{
+{TRACE_IT(14385);
     StackSym * sym = m_sym ? m_sym->CloneDef(func) :  nullptr;
     return CopyInternal(sym, func);
 }
 
 RegOpnd *
 RegOpnd::CloneUseInternal(Func *func)
-{
+{TRACE_IT(14386);
     StackSym * sym = m_sym ? m_sym->CloneUse(func) : nullptr;
     return CopyInternal(sym, func);
 }
 
 StackSym *
 RegOpnd::GetStackSymInternal() const
-{
+{TRACE_IT(14387);
     return this->m_sym;
 }
 
 StackSym *
 RegOpnd::TryGetStackSym(Opnd *const opnd)
-{
+{TRACE_IT(14388);
     return opnd && opnd->IsRegOpnd() ? opnd->AsRegOpnd()->m_sym : nullptr;
 }
 
@@ -1162,14 +1162,14 @@ RegOpnd::TryGetStackSym(Opnd *const opnd)
 
 bool
 RegOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14389);
     Assert(m_kind == OpndKindReg);
     return IsSameRegUntyped(opnd) && (this->GetType() == opnd->GetType());
 }
 
 void
 RegOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14390);
     Assert(m_kind == OpndKindReg);
     JitAdelete(func->m_alloc, this);
 }
@@ -1184,7 +1184,7 @@ RegOpnd::FreeInternal(Func *func)
 
 bool
 RegOpnd::IsSameReg(Opnd *opnd)
-{
+{TRACE_IT(14391);
     return IsSameRegUntyped(opnd) && (TySize[this->GetType()] == TySize[opnd->GetType()]);
 }
 
@@ -1198,15 +1198,15 @@ RegOpnd::IsSameReg(Opnd *opnd)
 
 bool
 RegOpnd::IsSameRegUntyped(Opnd *opnd)
-{
+{TRACE_IT(14392);
     if (!opnd->IsRegOpnd())
-    {
+    {TRACE_IT(14393);
         return false;
     }
     RegOpnd *regOpnd = opnd->AsRegOpnd();
 
     if (m_reg != RegNOREG)
-    {
+    {TRACE_IT(14394);
         return m_reg == regOpnd->m_reg;
     }
 
@@ -1233,7 +1233,7 @@ ArrayRegOpnd::ArrayRegOpnd(
     lengthSym(lengthSym),
     eliminatedLowerBoundCheck(eliminatedLowerBoundCheck),
     eliminatedUpperBoundCheck(eliminatedUpperBoundCheck)
-{
+{TRACE_IT(14395);
     Assert(valueType.IsAnyOptimizedArray());
     m_valueType = valueType;
     m_isArrayRegOpnd = true;
@@ -1254,7 +1254,7 @@ ArrayRegOpnd::ArrayRegOpnd(
     lengthSym(lengthSym),
     eliminatedLowerBoundCheck(eliminatedLowerBoundCheck),
     eliminatedUpperBoundCheck(eliminatedUpperBoundCheck)
-{
+{TRACE_IT(14396);
     Assert(valueType.IsAnyOptimizedArray());
     m_valueType = valueType;
     m_isArrayRegOpnd = true;
@@ -1269,7 +1269,7 @@ ArrayRegOpnd *ArrayRegOpnd::New(
     const bool eliminatedLowerBoundCheck,
     const bool eliminatedUpperBoundCheck,
     Func *const func)
-{
+{TRACE_IT(14397);
     Assert(func);
 
     return
@@ -1294,7 +1294,7 @@ ArrayRegOpnd *ArrayRegOpnd::New(
     const bool eliminatedLowerBoundCheck,
     const bool eliminatedUpperBoundCheck,
     Func *const func)
-{
+{TRACE_IT(14398);
     Assert(func);
 
     return
@@ -1312,20 +1312,20 @@ ArrayRegOpnd *ArrayRegOpnd::New(
 }
 
 RegOpnd *ArrayRegOpnd::CopyAsRegOpnd(Func *func)
-{
+{TRACE_IT(14399);
     RegOpnd *const regOpndCopy = RegOpnd::CopyInternal(func);
     Assert(!regOpndCopy->IsArrayRegOpnd());
     return regOpndCopy;
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CopyInternalSub(Func *func)
-{
+{TRACE_IT(14400);
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return Clone(m_sym, headSegmentSym, headSegmentLengthSym, lengthSym, func);
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CloneDefInternalSub(Func *func)
-{
+{TRACE_IT(14401);
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return
         Clone(
@@ -1337,7 +1337,7 @@ ArrayRegOpnd *ArrayRegOpnd::CloneDefInternalSub(Func *func)
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CloneUseInternalSub(Func *func)
-{
+{TRACE_IT(14402);
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return
         Clone(
@@ -1354,7 +1354,7 @@ ArrayRegOpnd *ArrayRegOpnd::Clone(
     StackSym *const headSegmentLengthSym,
     StackSym *const lengthSym,
     Func *const func) const
-{
+{TRACE_IT(14403);
     Assert(func);
 
     // Careful how clones are used. Only GlobOpt knows when it's valid to use the information in this class, so ideally cloning
@@ -1374,7 +1374,7 @@ ArrayRegOpnd *ArrayRegOpnd::Clone(
 }
 
 void ArrayRegOpnd::FreeInternalSub(Func *func)
-{
+{TRACE_IT(14404);
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     JitAdelete(func->m_alloc, this);
 }
@@ -1389,7 +1389,7 @@ void ArrayRegOpnd::FreeInternalSub(Func *func)
 
 IntConstOpnd *
 IntConstOpnd::New(IntConstType value, IRType type, Func *func, bool dontEncode)
-{
+{TRACE_IT(14405);
     IntConstOpnd * intConstOpnd;
 
     Assert(TySize[type] <= sizeof(IntConstType));
@@ -1412,7 +1412,7 @@ IntConstOpnd::New(IntConstType value, IRType type, Func *func, bool dontEncode)
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 IntConstOpnd *
 IntConstOpnd::New(IntConstType value, IRType type, const char16 * name, Func *func, bool dontEncode)
-{
+{TRACE_IT(14406);
     IntConstOpnd * intConstOpnd = IntConstOpnd::New(value, type, func, dontEncode);
     intConstOpnd->name = name;
     return intConstOpnd;
@@ -1428,9 +1428,9 @@ IntConstOpnd::New(IntConstType value, IRType type, const char16 * name, Func *fu
 ///----------------------------------------------------------------------------
 
 IR::Opnd* IntConstOpnd::NewFromType(int64 value, IRType type, Func* func)
-{
+{TRACE_IT(14407);
     if (IRType_IsInt64(type))
-    {
+    {TRACE_IT(14408);
         return Int64ConstOpnd::New(value, type, func);
     }
     Assert(value < (int64)UINT_MAX);
@@ -1447,7 +1447,7 @@ IR::Opnd* IntConstOpnd::NewFromType(int64 value, IRType type, Func* func)
 
 IntConstOpnd *
 IntConstOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14409);
     Assert(m_kind == OpndKindIntConst);
     IntConstOpnd * newOpnd;
     newOpnd = IntConstOpnd::New(m_value, m_type, func, m_dontEncode);
@@ -1464,10 +1464,10 @@ IntConstOpnd::CopyInternal(Func *func)
 
 bool
 IntConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14410);
     Assert(m_kind == OpndKindIntConst);
     if (!opnd->IsIntConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14411);
         return false;
     }
 
@@ -1476,7 +1476,7 @@ IntConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 IntConstOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14412);
     Assert(m_kind == OpndKindIntConst);
     JitAdelete(func->m_alloc, this);
 }
@@ -1492,9 +1492,9 @@ IntConstOpnd::FreeInternal(Func *func)
 
 void
 IntConstOpnd::SetValue(IntConstType value)
-{
+{TRACE_IT(14413);
     if (sizeof(IntConstType) > sizeof(int32))
-    {
+    {TRACE_IT(14414);
         Assert(m_type != TyInt32  || (value >= INT32_MIN && value <= INT32_MAX));
         Assert(m_type != TyUint32 || (value >= 0 && value <= UINT32_MAX));
     }
@@ -1520,19 +1520,19 @@ IntConstOpnd::SetValue(IntConstType value)
 
 int32
 IntConstOpnd::AsInt32()
-{
+{TRACE_IT(14415);
     // TODO: Currently, there are cases where we construct IntConstOpnd with TyInt32
     // and retrieve value out as uint32 (or vice versa). Because of these, we allow
     // AsInt32/AsUint32 to cast between int32/uint32 in a lossy manner for now.
     // In the future, we should tighten up usage of IntConstOpnd to avoid these casts
 
     if (sizeof(IntConstType) == sizeof(int32))
-    {
+    {TRACE_IT(14416);
         return (int32)m_value;
     }
 
     if (m_type == TyUint32)
-    {
+    {TRACE_IT(14417);
         Assert(m_value >= 0 && m_value <= UINT32_MAX);
         return (int32)(uint32)m_value;
     }
@@ -1551,11 +1551,11 @@ IntConstOpnd::AsInt32()
 
 uint32
 IntConstOpnd::AsUint32()
-{
+{TRACE_IT(14418);
     // TODO: See comment in AsInt32() regarding casts from int32 to uint32
 
     if (sizeof(uint32) == sizeof(IntConstType))
-    {
+    {TRACE_IT(14419);
         return (uint32)m_value;
     }
 
@@ -1570,7 +1570,7 @@ IntConstOpnd::AsUint32()
 ///
 ///----------------------------------------------------------------------------
 IR::Int64ConstOpnd* Int64ConstOpnd::New(int64 value, IRType type, Func *func)
-{
+{TRACE_IT(14420);
     AssertMsg(func->GetJITFunctionBody()->IsWasmFunction(), "Only WebAssembly functions should have int64 const operands. Use IntConstOpnd for size_t type");
     Int64ConstOpnd * intConstOpnd;
 
@@ -1586,7 +1586,7 @@ IR::Int64ConstOpnd* Int64ConstOpnd::New(int64 value, IRType type, Func *func)
 }
 
 IR::Int64ConstOpnd* Int64ConstOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14421);
     Assert(m_kind == OpndKindInt64Const);
     Int64ConstOpnd * newOpnd;
     newOpnd = Int64ConstOpnd::New(m_value, m_type, func);
@@ -1596,10 +1596,10 @@ IR::Int64ConstOpnd* Int64ConstOpnd::CopyInternal(Func *func)
 }
 
 bool Int64ConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14422);
     Assert(m_kind == OpndKindInt64Const);
     if (!opnd->IsInt64ConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14423);
         return false;
     }
 
@@ -1607,13 +1607,13 @@ bool Int64ConstOpnd::IsEqualInternal(Opnd *opnd)
 }
 
 void Int64ConstOpnd::FreeInternal(Func * func)
-{
+{TRACE_IT(14424);
     Assert(m_kind == OpndKindInt64Const);
     JitAdelete(func->m_alloc, this);
 }
 
 int64 Int64ConstOpnd::GetValue()
-{
+{TRACE_IT(14425);
     Assert(m_type == TyInt64);
     return m_value;
 }
@@ -1628,7 +1628,7 @@ int64 Int64ConstOpnd::GetValue()
 
 RegBVOpnd *
 RegBVOpnd::New(BVUnit32 value, IRType type, Func *func)
-{
+{TRACE_IT(14426);
     RegBVOpnd * regBVOpnd;
 
     regBVOpnd = JitAnew(func->m_alloc, IR::RegBVOpnd);
@@ -1651,7 +1651,7 @@ RegBVOpnd::New(BVUnit32 value, IRType type, Func *func)
 
 RegBVOpnd *
 RegBVOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14427);
     Assert(m_kind == OpndKindRegBV);
     RegBVOpnd * newOpnd;
 
@@ -1669,10 +1669,10 @@ RegBVOpnd::CopyInternal(Func *func)
 
 bool
 RegBVOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14428);
     Assert(m_kind == OpndKindRegBV);
     if (!opnd->IsRegBVOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14429);
         return false;
     }
 
@@ -1681,7 +1681,7 @@ RegBVOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 RegBVOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14430);
     Assert(m_kind == OpndKindRegBV);
     JitAdelete(func->m_alloc, this);
 }
@@ -1697,7 +1697,7 @@ RegBVOpnd::FreeInternal(Func *func)
 
 FloatConstOpnd *
 FloatConstOpnd::New(FloatConstType value, IRType type, Func *func)
-{
+{TRACE_IT(14431);
     FloatConstOpnd * floatConstOpnd;
 
     floatConstOpnd = JitAnew(func->m_alloc, IR::FloatConstOpnd);
@@ -1716,7 +1716,7 @@ FloatConstOpnd::New(FloatConstType value, IRType type, Func *func)
 
 FloatConstOpnd *
 FloatConstOpnd::New(Js::Var floatVar, IRType type, Func *func, Js::Var varLocal /*= nullptr*/)
-{
+{TRACE_IT(14432);
     Assert((varLocal && Js::JavascriptNumber::Is(varLocal)) || Js::JavascriptNumber::Is(floatVar));
 
     FloatConstType value = Js::JavascriptNumber::GetValue(varLocal ? varLocal : floatVar);
@@ -1732,10 +1732,10 @@ FloatConstOpnd::New(Js::Var floatVar, IRType type, Func *func, Js::Var varLocal 
 
 AddrOpnd *
 FloatConstOpnd::GetAddrOpnd(Func *func, bool dontEncode)
-{
+{TRACE_IT(14433);
 #if !FLOATVAR
     if (this->m_number)
-    {
+    {TRACE_IT(14434);
         return AddrOpnd::New(this->m_number, (Js::TaggedNumber::Is(this->m_number) ? AddrOpndKindConstantVar : AddrOpndKindDynamicVar), func, dontEncode, this->m_numberCopy);
     }
 #endif
@@ -1759,7 +1759,7 @@ FloatConstOpnd::GetAddrOpnd(Func *func, bool dontEncode)
 
 FloatConstOpnd *
 FloatConstOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14435);
     Assert(m_kind == OpndKindFloatConst);
     FloatConstOpnd * newOpnd;
 
@@ -1778,10 +1778,10 @@ FloatConstOpnd::CopyInternal(Func *func)
 
 bool
 FloatConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14436);
     Assert(m_kind == OpndKindFloatConst);
     if (!opnd->IsFloatConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14437);
         return false;
     }
 
@@ -1790,7 +1790,7 @@ FloatConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 FloatConstOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14438);
     Assert(m_kind == OpndKindFloatConst);
     JitAdelete(func->m_alloc, this);
 }
@@ -1805,7 +1805,7 @@ FloatConstOpnd::FreeInternal(Func *func)
 
 Simd128ConstOpnd *
 Simd128ConstOpnd::New(AsmJsSIMDValue value, IRType type, Func *func)
-{
+{TRACE_IT(14439);
     Simd128ConstOpnd * simd128ConstOpnd;
 
     simd128ConstOpnd = JitAnew(func->m_alloc, IR::Simd128ConstOpnd);
@@ -1831,7 +1831,7 @@ Simd128ConstOpnd::New(AsmJsSIMDValue value, IRType type, Func *func)
 
 Simd128ConstOpnd *
 Simd128ConstOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14440);
     Assert(m_kind == OpndKindSimd128Const);
     Simd128ConstOpnd * newOpnd;
 
@@ -1850,10 +1850,10 @@ Simd128ConstOpnd::CopyInternal(Func *func)
 
 bool
 Simd128ConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14441);
     Assert(m_kind == OpndKindSimd128Const);
     if (!opnd->IsSimd128ConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14442);
         return false;
     }
 
@@ -1862,7 +1862,7 @@ Simd128ConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 Simd128ConstOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14443);
     Assert(m_kind == OpndKindSimd128Const);
     JitAdelete(func->m_alloc, this);
 }
@@ -1878,7 +1878,7 @@ Simd128ConstOpnd::FreeInternal(Func *func)
 
 HelperCallOpnd *
 HelperCallOpnd::New(JnHelperMethod fnHelper, Func *func)
-{
+{TRACE_IT(14444);
     HelperCallOpnd *helperCallOpnd = JitAnew(func->m_alloc, IR::HelperCallOpnd);
     helperCallOpnd->Init(fnHelper);
 
@@ -1887,7 +1887,7 @@ HelperCallOpnd::New(JnHelperMethod fnHelper, Func *func)
 
 void
 HelperCallOpnd::Init(JnHelperMethod fnHelper)
-{
+{TRACE_IT(14445);
     this->m_fnHelper    = fnHelper;
     this->m_type        = TyMachPtr;
 
@@ -1905,7 +1905,7 @@ HelperCallOpnd::Init(JnHelperMethod fnHelper)
 
 HelperCallOpnd *
 HelperCallOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14446);
     Assert(m_kind == OpndKindHelperCall);
     HelperCallOpnd *const newOpnd = HelperCallOpnd::New(m_fnHelper, func);
     newOpnd->m_valueType = m_valueType;
@@ -1920,10 +1920,10 @@ HelperCallOpnd::CopyInternal(Func *func)
 
 bool
 HelperCallOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14447);
     Assert(m_kind == OpndKindHelperCall);
     if (!opnd->IsHelperCallOpnd())
-    {
+    {TRACE_IT(14448);
         return false;
     }
 
@@ -1932,14 +1932,14 @@ HelperCallOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 HelperCallOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14449);
     Assert(m_kind == OpndKindHelperCall);
     JitAdelete(func->m_alloc, this);
 }
 
 DiagHelperCallOpnd *
 DiagHelperCallOpnd::New(JnHelperMethod fnHelper, Func *func, int argCount)
-{
+{TRACE_IT(14450);
     DiagHelperCallOpnd *helperCallOpnd = JitAnew(func->m_alloc, IR::DiagHelperCallOpnd);
     helperCallOpnd->Init(fnHelper);
     helperCallOpnd->m_argCount = argCount;
@@ -1949,7 +1949,7 @@ DiagHelperCallOpnd::New(JnHelperMethod fnHelper, Func *func, int argCount)
 
 DiagHelperCallOpnd *
 DiagHelperCallOpnd::CopyInternalSub(Func *func)
-{
+{TRACE_IT(14451);
     Assert(m_kind == OpndKindHelperCall && this->IsDiagHelperCallOpnd());
     DiagHelperCallOpnd *const newOpnd = DiagHelperCallOpnd::New(m_fnHelper, func, m_argCount);
     newOpnd->m_valueType = m_valueType;
@@ -1958,10 +1958,10 @@ DiagHelperCallOpnd::CopyInternalSub(Func *func)
 
 bool
 DiagHelperCallOpnd::IsEqualInternalSub(Opnd *opnd)
-{
+{TRACE_IT(14452);
     Assert(m_kind == OpndKindHelperCall && this->IsDiagHelperCallOpnd());
     if (!opnd->IsHelperCallOpnd() || !opnd->AsHelperCallOpnd()->IsDiagHelperCallOpnd())
-    {
+    {TRACE_IT(14453);
         return false;
     }
 
@@ -1979,7 +1979,7 @@ DiagHelperCallOpnd::IsEqualInternalSub(Opnd *opnd)
 ///----------------------------------------------------------------------------
 AddrOpnd *
 AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dontEncode /* = false */, Js::Var varLocal /* = nullptr*/)
-{
+{TRACE_IT(14454);
     AddrOpnd * addrOpnd;
 
     addrOpnd = JitAnew(func->m_alloc, IR::AddrOpnd);
@@ -1993,9 +1993,9 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
     addrOpnd->m_isFunction = false;
 
     if (address && addrOpnd->IsVar())
-    {
+    {TRACE_IT(14455);
         if (Js::TaggedInt::Is(address))
-        {
+        {TRACE_IT(14456);
             addrOpnd->m_valueType = ValueType::GetTaggedInt();
             addrOpnd->SetValueTypeFixed();
         }
@@ -2004,7 +2004,7 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
             !func->IsOOPJIT() && CONFIG_FLAG(OOPJITMissingOpts) &&
 #endif
             Js::JavascriptNumber::Is_NoTaggedIntCheck(addrOpnd->m_address))
-        {
+        {TRACE_IT(14457);
             addrOpnd->m_valueType =
                 Js::JavascriptNumber::IsInt32_NoChecks(addrOpnd->m_address)
                 ? ValueType::GetInt(false)
@@ -2025,7 +2025,7 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
 
 AddrOpnd *
 AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontEncode /* = false */, Js::Var varLocal /* = nullptr*/)
-{
+{TRACE_IT(14458);
     AddrOpnd * addrOpnd;
 
     addrOpnd = JitAnew(func->m_alloc, IR::AddrOpnd);
@@ -2039,21 +2039,21 @@ AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontE
     addrOpnd->m_metadata = nullptr;
 
     if(address && addrOpnd->IsVar())
-    {
+    {TRACE_IT(14459);
         if(Js::TaggedInt::Is(address))
-        {
+        {TRACE_IT(14460);
             addrOpnd->m_valueType = ValueType::GetTaggedInt();
             addrOpnd->SetValueTypeFixed();
         }
         else
-        {
+        {TRACE_IT(14461);
             Js::Var var = varLocal ? varLocal : address;
             if (
 #if !FLOATVAR
                 varLocal || (!func->IsOOPJIT() && CONFIG_FLAG(OOPJITMissingOpts)) &&
 #endif
                 Js::JavascriptNumber::Is_NoTaggedIntCheck(var))
-            {
+            {TRACE_IT(14462);
                 addrOpnd->m_valueType =
                     Js::JavascriptNumber::IsInt32_NoChecks(var)
                     ? ValueType::GetInt(false)
@@ -2075,48 +2075,48 @@ AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontE
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(int32 value, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14463);
     if (!Js::TaggedInt::IsOverflow(value))
-    {
+    {TRACE_IT(14464);
         return New(Js::TaggedInt::ToVarUnchecked(value), AddrOpndKindConstantVar, func, dontEncode);
     }
     else
-    {
+    {TRACE_IT(14465);
         return NewFromNumberVar(value, func, dontEncode);
     }
 }
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(int64 value, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14466);
     if (!Js::TaggedInt::IsOverflow(value))
-    {
+    {TRACE_IT(14467);
         return New(Js::TaggedInt::ToVarUnchecked((int)value), AddrOpndKindConstantVar, func, dontEncode);
     }
     else
-    {
+    {TRACE_IT(14468);
         return NewFromNumberVar((double)value, func, dontEncode);
     }
 }
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14469);
     //
     // Check if a well-known value:
     // - This significantly cuts down on the below floating-point to integer conversions.
     //
 
     if (Js::JavascriptNumber::IsNegZero(value))
-    {
+    {TRACE_IT(14470);
         return New(func->GetScriptContextInfo()->GetNegativeZeroAddr(), AddrOpndKindDynamicVar, func, dontEncode);
     }
     if (value == +0.0)
-    {
+    {TRACE_IT(14471);
         return New(Js::TaggedInt::ToVarUnchecked(0), AddrOpndKindConstantVar, func, dontEncode);
     }
     if (value == 1.0)
-    {
+    {TRACE_IT(14472);
         return New(Js::TaggedInt::ToVarUnchecked(1), AddrOpndKindConstantVar, func, dontEncode);
     }
 
@@ -2128,7 +2128,7 @@ AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
     int nValue      = (int) value;
     double dblCheck = (double) nValue;
     if ((dblCheck == value) && (!Js::TaggedInt::IsOverflow(nValue)))
-    {
+    {TRACE_IT(14473);
         return New(Js::TaggedInt::ToVarUnchecked(nValue), AddrOpndKindConstantVar, func, dontEncode);
     }
 
@@ -2137,7 +2137,7 @@ AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
 
 AddrOpnd *
 AddrOpnd::NewFromNumberVar(double value, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14474);
     Js::Var var = func->AllocateNumber((double)value);
     AddrOpnd* addrOpnd = New((intptr_t)var, AddrOpndKindDynamicVar, func, dontEncode);
     addrOpnd->m_valueType =
@@ -2152,7 +2152,7 @@ AddrOpnd::NewFromNumberVar(double value, Func *func, bool dontEncode /* = false 
 
 AddrOpnd *
 AddrOpnd::NewNull(Func *func)
-{
+{TRACE_IT(14475);
     return AddrOpnd::New((Js::Var)0, AddrOpndKindConstantAddress, func, true);
 }
 
@@ -2166,7 +2166,7 @@ AddrOpnd::NewNull(Func *func)
 
 AddrOpnd *
 AddrOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14476);
     Assert(m_kind == OpndKindAddr);
     AddrOpnd * newOpnd;
 
@@ -2178,7 +2178,7 @@ AddrOpnd::CopyInternal(Func *func)
     newOpnd->m_metadata = m_metadata;
     newOpnd->SetType(m_type);
     if (IsValueTypeFixed())
-    {
+    {TRACE_IT(14477);
         newOpnd->SetValueTypeFixed();
     }
 
@@ -2198,10 +2198,10 @@ AddrOpnd::CopyInternal(Func *func)
 
 bool
 AddrOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14478);
     Assert(m_kind == OpndKindAddr);
     if (!opnd->IsAddrOpnd())
-    {
+    {TRACE_IT(14479);
         return false;
     }
 
@@ -2210,14 +2210,14 @@ AddrOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 AddrOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14480);
     Assert(m_kind == OpndKindAddr);
     JitAdelete(func->m_alloc, this);
 }
 
 void
 AddrOpnd::SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind)
-{
+{TRACE_IT(14481);
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
     this->decodedValue = this->m_address;
 #endif
@@ -2226,7 +2226,7 @@ AddrOpnd::SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind)
 
 void
 AddrOpnd::SetAddress(Js::Var address, AddrOpndKind addrOpndKind)
-{
+{TRACE_IT(14482);
     this->m_address = address;
     this->addrOpndKind = addrOpndKind;
 }
@@ -2241,7 +2241,7 @@ AddrOpnd::SetAddress(Js::Var address, AddrOpndKind addrOpndKind)
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, IRType type, Func *func)
-{
+{TRACE_IT(14483);
     IndirOpnd * indirOpnd;
 
     AssertMsg(baseOpnd, "An IndirOpnd needs a valid baseOpnd.");
@@ -2271,7 +2271,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, IRType type, Func *func)
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, byte scale, IRType type, Func *func)
-{
+{TRACE_IT(14484);
     IndirOpnd * indirOpnd = IndirOpnd::New(baseOpnd, indexOpnd, type, func);
 
     indirOpnd->m_scale = scale;
@@ -2289,7 +2289,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, byte scale, IRType type, F
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14485);
     IndirOpnd * indirOpnd;
 
     indirOpnd = JitAnew(func->m_alloc, IR::IndirOpnd);
@@ -2318,7 +2318,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, Func *func, bool do
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const char16 *desc, Func *func, bool dontEncode /* = false */)
-{
+{TRACE_IT(14486);
     IndirOpnd * indirOpnd = IndirOpnd::New(baseOpnd, offset, type, func);
     indirOpnd->m_desc = desc;
     indirOpnd->m_dontEncode = dontEncode;
@@ -2327,13 +2327,13 @@ IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const char16 *desc,
 #endif
 
 IndirOpnd::~IndirOpnd()
-{
+{TRACE_IT(14487);
     if (m_baseOpnd != nullptr)
-    {
+    {TRACE_IT(14488);
         m_baseOpnd->Free(m_func);
     }
     if (m_indexOpnd != nullptr)
-    {
+    {TRACE_IT(14489);
         m_indexOpnd->Free(m_func);
     }
 }
@@ -2347,7 +2347,7 @@ IndirOpnd::~IndirOpnd()
 
 IndirOpnd *
 IndirOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14490);
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2367,7 +2367,7 @@ IndirOpnd::CopyInternal(Func *func)
 
 IndirOpnd *
 IndirOpnd::CloneDefInternal(Func *func)
-{
+{TRACE_IT(14491);
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2388,7 +2388,7 @@ IndirOpnd::CloneDefInternal(Func *func)
 
 IndirOpnd *
 IndirOpnd::CloneUseInternal(Func *func)
-{
+{TRACE_IT(14492);
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2407,18 +2407,18 @@ IndirOpnd::CloneUseInternal(Func *func)
 
 bool
 IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pIsNotInt)
-{
+{TRACE_IT(14493);
     *pIsNotInt = false;
     IR::RegOpnd * indexOpnd = this->GetIndexOpnd();
 
     if (!indexOpnd)
-    {
+    {TRACE_IT(14494);
         *pValue = (IntConstType)this->GetOffset();
         return true;
     }
 
     if (!trySym)
-    {
+    {TRACE_IT(14495);
         return false;
     }
 
@@ -2431,7 +2431,7 @@ IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pI
     // type-specialized index syms and instead, expect that once the above issues are fixed, that the forward pass would fold a
     // constant index into the indir's offset.
     if (!*pIsNotInt && !indexSym->IsTypeSpec() && indexSym->IsIntConst())
-    {
+    {TRACE_IT(14496);
         *pValue = indexSym->GetIntConstValue();
         return true;
     }
@@ -2448,12 +2448,12 @@ IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pI
 
 bool
 IndirOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14497);
     Assert(m_kind == OpndKindIndir);
     Assert(opnd);
 
     if (!opnd->IsIndirOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14498);
         return false;
     }
     IndirOpnd *indirOpnd = opnd->AsIndirOpnd();
@@ -2464,7 +2464,7 @@ IndirOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 IndirOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14499);
     Assert(m_kind == OpndKindIndir);
     JitAdelete(func->m_alloc, this);
 }
@@ -2477,13 +2477,13 @@ IndirOpnd::FreeInternal(Func *func)
 
 void
 IndirOpnd::SetBaseOpnd(RegOpnd *baseOpnd)
-{
+{TRACE_IT(14500);
     if (m_baseOpnd)
-    {
+    {TRACE_IT(14501);
         m_baseOpnd->UnUse();
     }
     if (baseOpnd)
-    {
+    {TRACE_IT(14502);
         baseOpnd = baseOpnd->Use(m_func)->AsRegOpnd();
     }
 
@@ -2498,7 +2498,7 @@ IndirOpnd::SetBaseOpnd(RegOpnd *baseOpnd)
 
 RegOpnd *
 IndirOpnd::UnlinkBaseOpnd()
-{
+{TRACE_IT(14503);
     RegOpnd * baseOpnd = this->m_baseOpnd;
 
     // This will also call UnUse()...
@@ -2509,7 +2509,7 @@ IndirOpnd::UnlinkBaseOpnd()
 
 void
 IndirOpnd::ReplaceBaseOpnd(RegOpnd *newBase)
-{
+{TRACE_IT(14504);
     RegOpnd * baseOpnd = this->m_baseOpnd;
     this->UnlinkBaseOpnd();
     baseOpnd->Free(this->m_func);
@@ -2525,13 +2525,13 @@ IndirOpnd::ReplaceBaseOpnd(RegOpnd *newBase)
 
 void
 IndirOpnd::SetIndexOpnd(RegOpnd *indexOpnd)
-{
+{TRACE_IT(14505);
     if (m_indexOpnd)
-    {
+    {TRACE_IT(14506);
         m_indexOpnd->UnUse();
     }
     if (indexOpnd)
-    {
+    {TRACE_IT(14507);
         indexOpnd = indexOpnd->Use(m_func)->AsRegOpnd();
     }
 
@@ -2546,7 +2546,7 @@ IndirOpnd::SetIndexOpnd(RegOpnd *indexOpnd)
 
 RegOpnd *
 IndirOpnd::UnlinkIndexOpnd()
-{
+{TRACE_IT(14508);
     RegOpnd * indexOpnd = this->m_indexOpnd;
 
     // This will also call UnUse()...
@@ -2557,7 +2557,7 @@ IndirOpnd::UnlinkIndexOpnd()
 
 void
 IndirOpnd::ReplaceIndexOpnd(RegOpnd *newIndex)
-{
+{TRACE_IT(14509);
     RegOpnd * indexOpnd = this->m_indexOpnd;
     this->UnlinkIndexOpnd();
     indexOpnd->Free(this->m_func);
@@ -2568,13 +2568,13 @@ IndirOpnd::ReplaceIndexOpnd(RegOpnd *newIndex)
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 const char16 *
 IndirOpnd::GetDescription()
-{
+{TRACE_IT(14510);
     return this->m_desc;
 }
 
 bool
 IndirOpnd::HasAddrKind() const
-{
+{TRACE_IT(14511);
 #if DBG_DUMP
     return m_addrKind != (IR::AddrOpndKind) - 1;
 #else
@@ -2584,7 +2584,7 @@ IndirOpnd::HasAddrKind() const
 
 IR::AddrOpndKind
 IndirOpnd::GetAddrKind() const
-{
+{TRACE_IT(14512);
     Assert(HasAddrKind());
 #if DBG_DUMP
     return m_addrKind;
@@ -2595,7 +2595,7 @@ IndirOpnd::GetAddrKind() const
 
 void *
 IndirOpnd::GetOriginalAddress() const
-{
+{TRACE_IT(14513);
     Assert(HasAddrKind());
 #if DBG_DUMP
     Assert(m_originalAddress != nullptr);
@@ -2609,7 +2609,7 @@ IndirOpnd::GetOriginalAddress() const
 #if DBG_DUMP
 void
 IndirOpnd::SetAddrKind(IR::AddrOpndKind kind, void * originalAddress)
-{
+{TRACE_IT(14514);
     Assert(originalAddress != nullptr);
     this->m_addrKind = kind;
     this->m_originalAddress = originalAddress;
@@ -2625,7 +2625,7 @@ IndirOpnd::SetAddrKind(IR::AddrOpndKind kind, void * originalAddress)
 
 MemRefOpnd *
 MemRefOpnd::New(intptr_t pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKind)
-{
+{TRACE_IT(14515);
     MemRefOpnd * memRefOpnd = JitAnew(func->m_alloc, IR::MemRefOpnd);
     memRefOpnd->m_memLoc = pMemLoc;
     memRefOpnd->m_type = type;
@@ -2641,7 +2641,7 @@ MemRefOpnd::New(intptr_t pMemLoc, IRType type, Func *func, AddrOpndKind addrOpnd
 // TODO: michhol OOP JIT, remove this signature
 MemRefOpnd *
 MemRefOpnd::New(void * pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKind)
-{
+{TRACE_IT(14516);
     MemRefOpnd * memRefOpnd = JitAnew(func->m_alloc, IR::MemRefOpnd);
     memRefOpnd->m_memLoc = (intptr_t)pMemLoc;
     memRefOpnd->m_type = type;
@@ -2656,7 +2656,7 @@ MemRefOpnd::New(void * pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKi
 
 IR::AddrOpndKind
 MemRefOpnd::GetAddrKind() const
-{
+{TRACE_IT(14517);
 #if DBG_DUMP
     return this->m_addrKind;
 #else
@@ -2675,7 +2675,7 @@ MemRefOpnd::GetAddrKind() const
 
 MemRefOpnd *
 MemRefOpnd::CopyInternal(Func *func)
-{
+{TRACE_IT(14518);
     Assert(m_kind == OpndKindMemRef);
     MemRefOpnd * newOpnd;
 
@@ -2697,10 +2697,10 @@ MemRefOpnd::CopyInternal(Func *func)
 
 bool
 MemRefOpnd::IsEqualInternal(Opnd *opnd)
-{
+{TRACE_IT(14519);
     Assert(m_kind == OpndKindMemRef);
     if (!opnd->IsMemRefOpnd() || this->GetType() != opnd->GetType())
-    {
+    {TRACE_IT(14520);
         return false;
     }
     MemRefOpnd *memRefOpnd = opnd->AsMemRefOpnd();
@@ -2710,14 +2710,14 @@ MemRefOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 MemRefOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14521);
     Assert(m_kind == OpndKindMemRef);
     JitAdelete(func->m_alloc, this);
 }
 
 LabelOpnd *
 LabelOpnd::New(LabelInstr * labelInstr, Func * func)
-{
+{TRACE_IT(14522);
     LabelOpnd * labelOpnd = JitAnew(func->m_alloc, IR::LabelOpnd);
 
     labelOpnd->m_label = labelInstr;
@@ -2733,7 +2733,7 @@ LabelOpnd::New(LabelInstr * labelInstr, Func * func)
 
 LabelOpnd *
 LabelOpnd::CopyInternal(Func * func)
-{
+{TRACE_IT(14523);
     Assert(m_kind == OpndKindLabel);
     LabelOpnd * newOpnd;
 
@@ -2745,10 +2745,10 @@ LabelOpnd::CopyInternal(Func * func)
 
 bool
 LabelOpnd::IsEqualInternal(Opnd * opnd)
-{
+{TRACE_IT(14524);
     Assert(m_kind == OpndKindLabel);
     if (!opnd->IsLabelOpnd())
-    {
+    {TRACE_IT(14525);
         return false;
     }
     LabelOpnd * newOpnd = opnd->AsLabelOpnd();
@@ -2758,32 +2758,32 @@ LabelOpnd::IsEqualInternal(Opnd * opnd)
 
 void
 LabelOpnd::FreeInternal(Func *func)
-{
+{TRACE_IT(14526);
     Assert(m_kind == OpndKindLabel);
     JitAdelete(func->m_alloc, this);
 }
 
 IR::RegOpnd *
 Opnd::FindRegUse(IR::RegOpnd *regOpnd)
-{
+{TRACE_IT(14527);
     StackSym *regSym = regOpnd->m_sym;
 
     if (this->IsRegOpnd())
-    {
+    {TRACE_IT(14528);
         if (this->AsRegOpnd()->m_sym == regSym)
-        {
+        {TRACE_IT(14529);
             return this->AsRegOpnd();
         }
     }
     else if (this->IsIndirOpnd())
-    {
+    {TRACE_IT(14530);
         IndirOpnd *indirOpnd = this->AsIndirOpnd();
         if (indirOpnd->GetBaseOpnd() && indirOpnd->GetBaseOpnd()->m_sym == regSym)
-        {
+        {TRACE_IT(14531);
             return indirOpnd->GetBaseOpnd();
         }
         if (indirOpnd->GetIndexOpnd() && indirOpnd->GetIndexOpnd()->m_sym == regSym)
-        {
+        {TRACE_IT(14532);
             return indirOpnd->GetIndexOpnd();
         }
     }
@@ -2793,7 +2793,7 @@ Opnd::FindRegUse(IR::RegOpnd *regOpnd)
 
 bool
 Opnd::IsArgumentsObject()
-{
+{TRACE_IT(14533);
     // returns "false" if the sym is not single def (happens when the parent function has formals); the opnd can still be the arguments object.
     // Since we need this information in the inliner where we don't track arguments object sym, going with single def is the best option.
     StackSym * sym = this->GetStackSym();
@@ -2806,22 +2806,22 @@ Opnd::IsArgumentsObject()
 
 void
 Opnd::DumpAddress(void *address, bool printToConsole, bool skipMaskedAddress)
-{
+{TRACE_IT(14534);
     if (!printToConsole)
-    {
+    {TRACE_IT(14535);
         return;
     }
 
     if (!Js::Configuration::Global.flags.DumpIRAddresses)
-    {
+    {TRACE_IT(14536);
         if (skipMaskedAddress)
-        {
+        {TRACE_IT(14537);
             return;
         }
         Output::Print(_u("0xXXXXXXXX"));
     }
     else
-    {
+    {TRACE_IT(14538);
 #ifdef _M_X64
         Output::Print(_u("0x%012I64X"), address);
 #else
@@ -2832,21 +2832,21 @@ Opnd::DumpAddress(void *address, bool printToConsole, bool skipMaskedAddress)
 
 void
 Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t * count, Js::FunctionInfo * info, bool printToConsole, _In_opt_z_ char16 const * type)
-{
+{TRACE_IT(14539);
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     if (info->HasBody())
-    {
+    {TRACE_IT(14540);
         if (type == nullptr)
-        {
+        {TRACE_IT(14541);
             type = _u("FunctionBody");
         }
         Js::FunctionProxy * proxy = info->GetFunctionProxy();
         WriteToBuffer(buffer, count, _u(" (%s [%s%s])"), type, proxy->GetDisplayName(), proxy->GetDebugNumberSet(debugStringBuffer));
     }
     else
-    {
+    {TRACE_IT(14542);
         if (type == nullptr)
-        {
+        {TRACE_IT(14543);
             type = _u("FunctionInfo");
         }
         WriteToBuffer(buffer, count, _u(" (%s)"), type);
@@ -2863,7 +2863,7 @@ Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t *
 
 void
 Opnd::Dump(IRDumpFlags flags, Func *func)
-{
+{TRACE_IT(14544);
     bool const AsmDumpMode = flags & IRDumpFlags_AsmDumpMode;
     bool const SimpleForm = !!(flags & IRDumpFlags_SimpleForm);
     FloatConstType floatValue;
@@ -2877,25 +2877,25 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     case OpndKindSym:
         symOpnd = this->AsSymOpnd();
         if(symOpnd->m_sym->IsPropertySym() && !SimpleForm)
-        {
+        {TRACE_IT(14545);
             symOpnd->m_sym->Dump(flags, symOpnd->GetPropertyOwnerValueType());
         }
         else
-        {
+        {TRACE_IT(14546);
             symOpnd->m_sym->Dump(flags);
         }
 
         if (symOpnd->m_sym->IsStackSym())
-        {
+        {TRACE_IT(14547);
             StackSym * stackSym = symOpnd->m_sym->AsStackSym();
             bool hasOffset = stackSym->IsArgSlotSym()?
                 ((stackSym->m_offset != -1) || !stackSym->m_isInlinedArgSlot) :
                 (stackSym->m_offset != 0);
             if (hasOffset)
-            {
+            {TRACE_IT(14548);
                 int offset = stackSym->m_offset;
                 if(symOpnd->m_offset != 0)
-                {
+                {TRACE_IT(14549);
                     Assert(static_cast<int>(offset + symOpnd->m_offset) >= offset);
                     offset += symOpnd->m_offset;
                 }
@@ -2903,17 +2903,17 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
             }
         }
         else if (symOpnd->IsPropertySymOpnd() && !SimpleForm)
-        {
+        {TRACE_IT(14550);
             PropertySymOpnd *propertySymOpnd = symOpnd->AsPropertySymOpnd();
             Output::Print(_u("<"));
             if (propertySymOpnd->HasObjTypeSpecFldInfo())
-            {
+            {TRACE_IT(14551);
                 Output::Print(_u("%u,%s%s%s%s,"), propertySymOpnd->GetObjTypeSpecFldId(), propertySymOpnd->IsPoly() ? _u("p") : _u("m"),
                     propertySymOpnd->IsLoadedFromProto() ? _u("~") : _u(""), propertySymOpnd->UsesFixedValue() ? _u("=") : _u(""),
                     propertySymOpnd->IsBeingAdded() ? _u("+") : _u(""));
             }
             else
-            {
+            {TRACE_IT(14552);
                 Output::Print(_u("?,,"));
             }
             Output::Print(_u("%s%s,"), propertySymOpnd->MayNeedTypeCheckProtection() ?
@@ -2921,92 +2921,92 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 propertySymOpnd->IsRootObjectNonConfigurableFieldLoad() ? _u("~") : _u("-"),
                 propertySymOpnd->IsTypeCheckSeqCandidate() ? _u("+") : _u("-"));
             if (propertySymOpnd->HasObjectTypeSym())
-            {
+            {TRACE_IT(14553);
                 Output::Print(_u("s%d"), propertySymOpnd->GetObjectTypeSym()->m_id);
                 if (propertySymOpnd->IsTypeChecked())
-                {
+                {TRACE_IT(14554);
                     Output::Print(_u("+%s"), propertySymOpnd->IsMono() ? _u("m") : _u("p"));
                 }
                 else if (propertySymOpnd->IsTypeAvailable())
-                {
+                {TRACE_IT(14555);
                     Output::Print(_u("*"));
                 }
                 if (propertySymOpnd->IsTypeDead())
-                {
+                {TRACE_IT(14556);
                     Output::Print(_u("!"));
                 }
             }
             else
-            {
+            {TRACE_IT(14557);
                 Output::Print(_u("s?"));
             }
             if (propertySymOpnd->m_sym->AsPropertySym()->m_writeGuardSym != nullptr)
-            {
+            {TRACE_IT(14558);
                 Output::Print(_u(",s%d"), propertySymOpnd->m_sym->AsPropertySym()->m_writeGuardSym->m_id);
                 if (propertySymOpnd->IsWriteGuardChecked())
-                {
+                {TRACE_IT(14559);
                     Output::Print(_u("+"));
                 }
             }
             else
-            {
+            {TRACE_IT(14560);
                 Output::Print(_u(",s?"));
             }
             if (propertySymOpnd->HasFinalType())
-            {
+            {TRACE_IT(14561);
                 Output::Print(_u(",final:"));
                 this->DumpAddress((void*)propertySymOpnd->GetFinalType()->GetAddr(), /* printToConsole */ true, /* skipMaskedAddress */ false);
             }
             if (propertySymOpnd->GetGuardedPropOps() != nullptr)
-            {
+            {TRACE_IT(14562);
                 Output::Print(_u(",{"));
                 if (func != nullptr)
-                {
+                {TRACE_IT(14563);
                     int i = 0;
                     auto guardedPropOps = propertySymOpnd->GetGuardedPropOps();
                     FOREACH_BITSET_IN_SPARSEBV(propertyOpId, guardedPropOps)
-                    {
+                    {TRACE_IT(14564);
                         if (i++ > 0)
-                        {
+                        {TRACE_IT(14565);
                             Output::Print(_u(","));
                         }
                         const JITObjTypeSpecFldInfo* propertyOpInfo = func->GetTopFunc()->GetGlobalObjTypeSpecFldInfo(propertyOpId);
                         if (!JITManager::GetJITManager()->IsOOPJITEnabled())
-                        {
+                        {TRACE_IT(14566);
                             Output::Print(_u("%s"), func->GetInProcThreadContext()->GetPropertyRecord(propertyOpInfo->GetPropertyId())->GetBuffer(), propertyOpId);
                         }
                         Output::Print(_u("(%u)"), propertyOpId);
                         
                         if (propertyOpInfo->IsLoadedFromProto())
-                        {
+                        {TRACE_IT(14567);
                             Output::Print(_u("~"));
                         }
                         if (propertyOpInfo->HasFixedValue())
-                        {
+                        {TRACE_IT(14568);
                             Output::Print(_u("="));
                         }
                         if (propertyOpInfo->IsBeingAdded())
-                        {
+                        {TRACE_IT(14569);
                             Output::Print(_u("+"));
                         }
                     }
                     NEXT_BITSET_IN_SPARSEBV;
                 }
                 else
-                {
+                {TRACE_IT(14570);
                     Output::Print(_u("(no func)"));
                 }
                 Output::Print(_u("}"));
             }
             if (propertySymOpnd->GetWriteGuards() != nullptr)
-            {
+            {TRACE_IT(14571);
                 Output::Print(_u(",{"));
                 int i = 0;
                 auto writeGuards = propertySymOpnd->GetWriteGuards();
                 FOREACH_BITSET_IN_SPARSEBV(writeGuardSymId, writeGuards)
-                {
+                {TRACE_IT(14572);
                     if (i++ > 0)
-                    {
+                    {TRACE_IT(14573);
                         Output::Print(_u(","));
                     }
                     Output::Print(_u("s%d"), writeGuardSymId);
@@ -3015,7 +3015,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 Output::Print(_u("}"));
             }
             if (propertySymOpnd->canStoreTemp)
-            {
+            {TRACE_IT(14574);
                 Output::Print(_u(",t"));
             }
             Output::Print(_u(">"));
@@ -3026,46 +3026,46 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     case OpndKindReg:
         regOpnd = this->AsRegOpnd();
         if (regOpnd->m_sym)
-        {
+        {TRACE_IT(14575);
             regOpnd->m_sym->Dump(flags);
         }
         if(AsmDumpMode)
-        {
+        {TRACE_IT(14576);
             //
             // Print no brackets
             //
             Output::Print(_u("%S"), RegNames[regOpnd->GetReg()]);
         }
         else
-        {
+        {TRACE_IT(14577);
             if (regOpnd->GetReg() != RegNOREG)
-            {
+            {TRACE_IT(14578);
                 Output::Print(_u("(%S)"), RegNames[regOpnd->GetReg()]);
             }
             if (regOpnd->m_isTempLastUse)
-            {
+            {TRACE_IT(14579);
                 Output::Print(_u("[isTempLastUse]"));
             }
             StackSym *sym = regOpnd->GetStackSym();
             if (sym && func)
-            {
+            {TRACE_IT(14580);
                 if (sym == func->GetScriptContextSym())
-                {
+                {TRACE_IT(14581);
                     Output::Print(_u("[ScriptContext]"));
                 }
                 else if (sym == func->GetFuncObjSym())
-                {
+                {TRACE_IT(14582);
                     Output::Print(_u("[FuncObj]"));
                 }
                 else if (sym == func->GetFunctionBodySym())
-                {
+                {TRACE_IT(14583);
                     Output::Print(_u("[FunctionBody]"));
                 }
             }
             if(regOpnd->IsArrayRegOpnd())
-            {
+            {TRACE_IT(14584);
                 if(dumpValueType)
-                {
+                {TRACE_IT(14585);
                     // Dump the array value type before the associated syms
                     DumpValueType();
                     dumpValueType = false;
@@ -3073,32 +3073,32 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
 
                 const ArrayRegOpnd *const arrayRegOpnd = regOpnd->AsArrayRegOpnd();
                 if(arrayRegOpnd->HeadSegmentSym())
-                {
+                {TRACE_IT(14586);
                     Output::Print(_u("[seg: "));
                     arrayRegOpnd->HeadSegmentSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->HeadSegmentLengthSym())
-                {
+                {TRACE_IT(14587);
                     Output::Print(_u("[segLen: "));
                     arrayRegOpnd->HeadSegmentLengthSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->LengthSym() && arrayRegOpnd->LengthSym() != arrayRegOpnd->HeadSegmentLengthSym())
-                {
+                {TRACE_IT(14588);
                     Output::Print(_u("[len: "));
                     arrayRegOpnd->LengthSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->EliminatedLowerBoundCheck() || arrayRegOpnd->EliminatedUpperBoundCheck())
-                {
+                {TRACE_IT(14589);
                     Output::Print(_u("["));
                     if(arrayRegOpnd->EliminatedLowerBoundCheck())
-                    {
+                    {TRACE_IT(14590);
                         Output::Print(_u(">"));
                     }
                     if(arrayRegOpnd->EliminatedUpperBoundCheck())
-                    {
+                    {TRACE_IT(14591);
                         Output::Print(_u("<"));
                     }
                     Output::Print(_u("]"));
@@ -3108,44 +3108,44 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
 
     case OpndKindInt64Const:
-    {
+    {TRACE_IT(14592);
         Int64ConstOpnd * intConstOpnd = this->AsInt64ConstOpnd();
         int64 intValue = intConstOpnd->GetValue();
         Output::Print(_u("%lld (0x%llX)"), intValue, intValue);
         break;
     }
     case OpndKindIntConst:
-    {
+    {TRACE_IT(14593);
         IntConstOpnd * intConstOpnd = this->AsIntConstOpnd();
         if (intConstOpnd->name != nullptr)
-        {
+        {TRACE_IT(14594);
             if (!Js::Configuration::Global.flags.DumpIRAddresses)
-            {
+            {TRACE_IT(14595);
                 Output::Print(_u("<%s>"), intConstOpnd->name);
             }
             else
-            {
+            {TRACE_IT(14596);
                 Output::Print(_u("<%s> (value: 0x%X)"), intConstOpnd->name, intConstOpnd->GetValue());
             }
         }
         else
-        {
+        {TRACE_IT(14597);
             IntConstType intValue;
             if (intConstOpnd->decodedValue != 0)
-            {
+            {TRACE_IT(14598);
                 intValue = intConstOpnd->decodedValue;
                 Output::Print(_u("%d (0x%X)"), intValue, intValue);
                 if (!Js::Configuration::Global.flags.DumpIRAddresses)
-                {
+                {TRACE_IT(14599);
                     Output::Print(_u(" [encoded]"));
                 }
                 else
-                {
+                {TRACE_IT(14600);
                     Output::Print(_u(" [encoded: 0x%X]"), intConstOpnd->GetValue());
                 }
             }
             else
-            {
+            {TRACE_IT(14601);
                 intValue = intConstOpnd->GetValue();
                 Output::Print(_u("%d (0x%X)"), intValue, intValue);
             }
@@ -3155,7 +3155,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     }
 
     case OpndKindRegBV:
-    {
+    {TRACE_IT(14602);
         RegBVOpnd * regBVOpnd = this->AsRegBVOpnd();
         regBVOpnd->m_value.Dump();
         break;
@@ -3176,46 +3176,46 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
 
     case OpndKindIndir:
-    {
+    {TRACE_IT(14603);
         IndirOpnd *indirOpnd = this->AsIndirOpnd();
 
         Output::Print(_u("["));
         indirOpnd->GetBaseOpnd()->Dump(flags, func);
 
         if (indirOpnd->GetIndexOpnd())
-        {
+        {TRACE_IT(14604);
             Output::Print(_u("+"));
             indirOpnd->GetIndexOpnd()->Dump(flags, func);
             if (indirOpnd->GetScale() > 0)
-            {
+            {TRACE_IT(14605);
                 Output::Print(_u("*%d"), 1 << indirOpnd->GetScale());
             }
         }
         if (indirOpnd->GetOffset())
-        {
+        {TRACE_IT(14606);
             if (!Js::Configuration::Global.flags.DumpIRAddresses && indirOpnd->HasAddrKind())
-            {
+            {TRACE_IT(14607);
                 Output::Print(_u("+XX"));
             }
             else
-            {
+            {TRACE_IT(14608);
                 const auto sign = indirOpnd->GetOffset() >= 0 ? _u("+") : _u("");
                 if (AsmDumpMode)
-                {
+                {TRACE_IT(14609);
                     Output::Print(_u("%sXXXX%04d"), sign, indirOpnd->GetOffset() & 0xffff);
                 }
                 else
-                {
+                {TRACE_IT(14610);
                     Output::Print(_u("%s%d"), sign, indirOpnd->GetOffset());
                 }
             }
         }
         if (indirOpnd->GetDescription())
-        {
+        {TRACE_IT(14611);
             Output::Print(_u(" <%s>"), indirOpnd->GetDescription());
         }
         if (indirOpnd->HasAddrKind())
-        {
+        {TRACE_IT(14612);
             INT_PTR address = (INT_PTR)indirOpnd->GetOriginalAddress();
             Output::Print(_u(" <"));
             const size_t BUFFER_LEN = 128;
@@ -3234,15 +3234,15 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
     }
     case OpndKindLabel:
-    {
+    {TRACE_IT(14613);
         LabelOpnd * labelOpnd = this->AsLabelOpnd();
         LabelInstr * labelInstr = labelOpnd->GetLabel();
         if (labelInstr == nullptr)
-        {
+        {TRACE_IT(14614);
             Output::Print(_u("??"));
         }
         else
-        {
+        {TRACE_IT(14615);
             Output::Print(_u("&$L%d"), labelInstr->m_id);
         }
         break;
@@ -3250,16 +3250,16 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     }
 
     if(!AsmDumpMode && dumpValueType)
-    {
+    {TRACE_IT(14616);
         DumpValueType();
     }
     if (!SimpleForm || this->GetType() != TyVar)
-    {
+    {TRACE_IT(14617);
         Output::Print(_u("."));
         IRType_Dump(this->GetType());
     }
     if (this->m_isDead && !SimpleForm)
-    {
+    {TRACE_IT(14618);
         Output::Print(_u("!"));
     }
 }
@@ -3274,7 +3274,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
 
 void
 Opnd::DumpOpndKindAddr(bool AsmDumpMode, Func *func)
-{
+{TRACE_IT(14619);
     const size_t BUFFER_LEN = 128;
     char16 buffer[BUFFER_LEN];
     GetAddrDescription(buffer, BUFFER_LEN, AsmDumpMode, true, func);
@@ -3284,7 +3284,7 @@ Opnd::DumpOpndKindAddr(bool AsmDumpMode, Func *func)
 
 void
 Opnd::DumpOpndKindMemRef(bool AsmDumpMode, Func *func)
-{
+{TRACE_IT(14620);
     MemRefOpnd *memRefOpnd = this->AsMemRefOpnd();
     Output::Print(_u("["));
     const size_t BUFFER_LEN = 128;
@@ -3329,16 +3329,16 @@ Opnd::WriteToBuffer(_Outptr_result_buffer_(*count) char16 **buffer, size_t *coun
 void
 Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count,
     void * address, IR::AddrOpndKind addressKind, bool AsmDumpMode, bool printToConsole, Func *func, bool skipMaskedAddress)
-{
+{TRACE_IT(14621);
     char16 *buffer = description;
     size_t n = count;
 
     if (address)
-    {
+    {TRACE_IT(14622);
         switch (addressKind)
         {
         case IR::AddrOpndKindConstantAddress:
-        {
+        {TRACE_IT(14623);
 #ifdef _M_X64_OR_ARM64
             char16 const * format = _u("0x%012I64X");
 #else
@@ -3349,7 +3349,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
         break;
         case IR::AddrOpndKindDynamicVar:
             if (Js::TaggedInt::Is(address))
-            {
+            {TRACE_IT(14624);
 #ifdef _M_X64_OR_ARM64
                 char16 const * format = _u("0x%012I64X (value: %d)");
 #else
@@ -3374,7 +3374,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
                     WriteToBuffer(&buffer, &n, _u(" (unknown)"));
                 }
                 else
-                {
+                {TRACE_IT(14625);
                     switch (Js::RecyclableObject::FromVar(address)->GetTypeId())
                     {
                     case Js::TypeIds_Boolean:
@@ -3409,7 +3409,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             }
             break;
         case IR::AddrOpndKindConstantVar:
-        {
+        {TRACE_IT(14626);
 #ifdef _M_X64_OR_ARM64
             char16 const * format = _u("0x%012I64X%s");
 #else
@@ -3418,12 +3418,12 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             char16 const * addressName = _u("");
 
             if (address == Js::JavascriptArray::MissingItem)
-            {
+            {TRACE_IT(14627);
                 addressName = _u(" (MissingItem)");
             }
 #if FLOATVAR
             else if (address == (Js::Var)Js::FloatTag_Value)
-            {
+            {TRACE_IT(14628);
                 addressName = _u(" (FloatTag)");
             }
 #endif
@@ -3576,7 +3576,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
         case IR::AddrOpndKindDynamicObjectTypeRef:
             DumpAddress(address, printToConsole, skipMaskedAddress);
-            {
+            {TRACE_IT(14629);
                 Js::RecyclableObject * dynamicObject = (Js::RecyclableObject *)((intptr_t)address - Js::RecyclableObject::GetOffsetOfType());
                 if (!func->IsOOPJIT() && Js::JavascriptFunction::Is(dynamicObject))
                 {
@@ -3595,7 +3595,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             DumpAddress(address, printToConsole, skipMaskedAddress);
             // TODO: OOP JIT, dump more info
             if(!func->IsOOPJIT())
-            {
+            {TRACE_IT(14630);
                 Js::TypeId typeId = ((Js::Type*)address)->GetTypeId();
                 switch (typeId)
                 {
@@ -3628,7 +3628,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             break;
 
         case AddrOpndKindDynamicFrameDisplay:
-            {
+            {TRACE_IT(14631);
                 Js::FrameDisplay * frameDisplay = (Js::FrameDisplay *)address;
                 WriteToBuffer(&buffer, &n, (frameDisplay->GetStrictMode() ? _u(" (StrictFrameDisplay len %d)") : _u(" (FrameDisplay len %d)")),
                     frameDisplay->GetLength());
@@ -3754,7 +3754,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 void
 Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count, bool AsmDumpMode,
                          bool printToConsole, Func *func)
-{
+{TRACE_IT(14632);
     char16 *buffer = description;
     size_t n = count;
 
@@ -3763,19 +3763,19 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
     bool isEncoded = false;
     if (addrOpnd->decodedValue != 0)
-    {
+    {TRACE_IT(14633);
         address = addrOpnd->decodedValue;
         isEncoded = true;
     }
     else
-    {
+    {TRACE_IT(14634);
         address = addrOpnd->m_address;
     }
 
     GetAddrDescription(description, count, address, addrOpnd->GetAddrOpndKind(), AsmDumpMode, printToConsole, func);
 
     if (isEncoded)
-    {
+    {TRACE_IT(14635);
         if (AsmDumpMode)
         {
             WriteToBuffer(&buffer, &n, _u(" [encoded]"));
@@ -3791,7 +3791,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
 void
 Opnd::Dump()
-{
+{TRACE_IT(14636);
     this->Dump(IRDumpFlags_None, nullptr);
 }
 

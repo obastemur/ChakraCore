@@ -36,7 +36,7 @@ class InliningHeuristics
 public:
 
 public:
-    InliningHeuristics(const FunctionJITTimeInfo * topFunc, bool forLoopBody) :topFunc(topFunc), threshold(topFunc->GetBody()->GetNonLoadByteCodeCount(), forLoopBody) {};
+    InliningHeuristics(const FunctionJITTimeInfo * topFunc, bool forLoopBody) :topFunc(topFunc), threshold(topFunc->GetBody()->GetNonLoadByteCodeCount(), forLoopBody) {TRACE_IT(9503);};
     bool BackendInlineIntoInliner(const FunctionJITTimeInfo * inlinee,
                                 Func * inliner,
                                 Func *topFunc,
@@ -50,7 +50,7 @@ public:
                                 );
 private:
     static bool IsInlineeLeaf(const FunctionJITTimeInfo * inlinee)
-    {
+    {TRACE_IT(9504);
         return inlinee->GetBody()->HasProfileInfo()
             && (!PHASE_OFF(Js::InlineBuiltInCallerPhase, inlinee) ? !inlinee->GetBody()->HasNonBuiltInCallee() : inlinee->GetBody()->GetProfiledCallSiteCount() == 0)
             && !inlinee->GetBody()->GetReadOnlyProfileInfo()->HasLdFldCallSiteInfo();

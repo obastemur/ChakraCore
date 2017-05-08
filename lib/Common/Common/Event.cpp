@@ -6,13 +6,13 @@
 #include "Common/Event.h"
 
 Event::Event(const bool autoReset, const bool signaled) : handle(CreateEvent(0, !autoReset, signaled, 0))
-{
+{TRACE_IT(18831);
     if(!handle)
         Js::Throw::OutOfMemory();
 }
 
 bool Event::Wait(const unsigned int milliseconds) const
-{
+{TRACE_IT(18832);
     const unsigned int result = WaitForSingleObject(handle, milliseconds);
     if(!(result == WAIT_OBJECT_0 || (result == WAIT_TIMEOUT && milliseconds != INFINITE)))
         Js::Throw::FatalInternalError();

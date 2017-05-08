@@ -13,22 +13,22 @@ namespace regex
 
     public:
         Interval(): begin(0), end(0)
-        {
+        {TRACE_IT(21733);
         }
 
         Interval(int start) : begin(start), end(start)
-        {
+        {TRACE_IT(21734);
         }
 
         Interval(int start, int end) : begin(start), end(end)
-        {
+        {TRACE_IT(21735);
         }
 
-        inline int Begin() { return begin; }
-        inline void Begin(int value) { begin = value; }
+        inline int Begin() {TRACE_IT(21736); return begin; }
+        inline void Begin(int value) {TRACE_IT(21737); begin = value; }
 
-        inline int End() { return end; }
-        inline void End(int value) { end = value; }
+        inline int End() {TRACE_IT(21738); return end; }
+        inline void End(int value) {TRACE_IT(21739); end = value; }
 
         bool Includes(int value) const;
         bool Includes(Interval other) const;

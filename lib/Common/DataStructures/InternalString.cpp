@@ -12,7 +12,7 @@ namespace Js
         m_content(content),
         m_charLength(length),
         m_offset(offset)
-    {
+    {TRACE_IT(21703);
         AssertMsg(length < INT_MAX, "Length should be a valid string length");
     }
 
@@ -20,13 +20,13 @@ namespace Js
         m_content(NO_WRITE_BARRIER_TAG(content)),
         m_charLength(length),
         m_offset(offset)
-    {
+    {TRACE_IT(21704);
         AssertMsg(length < INT_MAX, "Length should be a valid string length");
     }
 
     // This will make a copy of the entire buffer
     InternalString *InternalString::New(ArenaAllocator* alloc, const char16* content, charcount_t length)
-    {
+    {TRACE_IT(21705);
         size_t bytelength = sizeof(char16) * length;
         DWORD* allocbuffer = (DWORD*)alloc->Alloc(sizeof(DWORD) + bytelength + sizeof(char16));
         allocbuffer[0] = (DWORD) bytelength;
@@ -41,7 +41,7 @@ namespace Js
     // This will make a copy of the entire buffer
     // Allocated using recycler memory
     InternalString *InternalString::New(Recycler* recycler, const char16* content, charcount_t length)
-    {
+    {TRACE_IT(21706);
         size_t bytelength = sizeof(char16) * length;
 
         // Allocate 3 extra bytes, two for the first DWORD with the size, the third for the null character
@@ -62,7 +62,7 @@ namespace Js
 
     // This will only store the pointer and length, not making a copy of the buffer
     InternalString *InternalString::NewNoCopy(ArenaAllocator* alloc, const char16* content, charcount_t length)
-    {
+    {TRACE_IT(21707);
         InternalString* newInstance = Anew(alloc, InternalString, const_cast<char16*> (content), length);
         return newInstance;
     }

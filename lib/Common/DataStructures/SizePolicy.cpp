@@ -14,12 +14,12 @@ static const uint primes[] = {
 
 bool
 PrimePolicy::IsPrime(uint candidate)
-{
+{TRACE_IT(22175);
     if ((candidate & 1) != 0)
-    {
+    {TRACE_IT(22176);
         int limit = (uint)sqrt((FLOAT)candidate);
         for (int divisor = 3; divisor <= limit; divisor += 2)
-        {
+        {TRACE_IT(22177);
             if ((candidate % divisor) == 0)
                 return false;
         }
@@ -30,12 +30,12 @@ PrimePolicy::IsPrime(uint candidate)
 
 uint
 PrimePolicy::GetPrime(uint min)
-{
+{TRACE_IT(22178);
     if (min <= 0)
         return 17;
 
     for (int i = 0; i < sizeof(primes)/sizeof(uint); i++)
-    {
+    {TRACE_IT(22179);
         uint prime = primes[i];
         if (prime >= min) return prime;
     }
@@ -43,9 +43,9 @@ PrimePolicy::GetPrime(uint min)
     //outside of our predefined table.
     //compute the hard way.
     for (uint i = (min | 1); i < 0x7FFFFFFF; i += 2)
-    {
+    {TRACE_IT(22180);
         if (IsPrime(i))
-        {
+        {TRACE_IT(22181);
             return i;
         }
     }

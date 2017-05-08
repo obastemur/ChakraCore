@@ -36,8 +36,8 @@ namespace Js
 
         // Indicates if __proto__ is enabled currently (note that it can be disabled and re-enabled),
         // only useful for diagnostics to decide displaying __proto__ or [prototype].
-        bool is__proto__Enabled() const { return __proto__Enabled; }
-        BOOL IsProtoImmutable() const { return true; }
+        bool is__proto__Enabled() const {TRACE_IT(62646); return __proto__Enabled; }
+        BOOL IsProtoImmutable() const {TRACE_IT(62647); return true; }
 
         void PostDefineOwnProperty__proto__(RecyclableObject* obj);
 

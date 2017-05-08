@@ -14,11 +14,11 @@ namespace Js
         DEFINE_VTABLE_CTOR(JavascriptSymbol, RecyclableObject);
     public:
         JavascriptSymbol(const PropertyRecord* val, StaticType* type) : RecyclableObject(type), value(val)
-        {
+        {TRACE_IT(62171);
             Assert(type->GetTypeId() == TypeIds_Symbol);
         }
 
-        const PropertyRecord* GetValue() { return value; }
+        const PropertyRecord* GetValue() {TRACE_IT(62172); return value; }
 
         static bool Is(Var aValue);
         static JavascriptSymbol* FromVar(Var aValue);

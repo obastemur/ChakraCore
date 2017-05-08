@@ -58,18 +58,18 @@ public:
     // Fast get of the strong reference- this might return a wrong result if the recycler is in sweep so callers
     // should never call this during sweep
     inline T* FastGet() const
-    {
+    {TRACE_IT(26586);
         return ((T*) strongRef);
     }
 
     inline T* Get() const
-    {
+    {TRACE_IT(26587);
         char * ref = this->strongRef;
         return (T*)ref;
     }
 
     inline T** GetAddressOfStrongRef()
-    {
+    {TRACE_IT(26588);
         return (T**)&strongRef;
     }
 
@@ -81,12 +81,12 @@ class WeakReferenceCache
 private:
     RecyclerWeakReference<T> * weakReference;
 public:
-    WeakReferenceCache() : weakReference(nullptr) {};
+    WeakReferenceCache() : weakReference(nullptr) {TRACE_IT(26589);};
     RecyclerWeakReference<T> * GetWeakReference(Recycler * recycler)
-    {
+    {TRACE_IT(26590);
         RecyclerWeakReference<T> * weakRef = this->weakReference;
         if (weakRef == nullptr)
-        {
+        {TRACE_IT(26591);
             weakRef = recycler->CreateWeakReferenceHandle((T*)this);
             this->weakReference = weakRef;
         }
@@ -120,7 +120,7 @@ public:
         size(0),
         allocator(allocator),
         freeList(nullptr)
-    {
+    {TRACE_IT(26592);
         this->size = SizePolicy::GetSize(size);
         buckets = AllocatorNewArrayZ(HeapAllocator, allocator, RecyclerWeakReferenceBase*, this->size);
     }
@@ -131,11 +131,11 @@ public:
     }
 
     RecyclerWeakReferenceBase* Add(char* strongReference, Recycler * recycler)
-    {
+    {TRACE_IT(26593);
         uint targetBucket = HashKeyToBucket(strongReference, size);
         RecyclerWeakReferenceBase* entry = FindEntry(strongReference, targetBucket);
         if (entry != nullptr)
-        {
+        {TRACE_IT(26594);
             return entry;
         }
 
@@ -143,13 +143,13 @@ public:
     }
 
     bool FindOrAdd(char* strongReference, Recycler *recycler, RecyclerWeakReferenceBase **ppWeakRef)
-    {
+    {TRACE_IT(26595);
         Assert(ppWeakRef);
 
         uint targetBucket = HashKeyToBucket(strongReference, size);
         RecyclerWeakReferenceBase* entry = FindEntry(strongReference, targetBucket);
         if (entry != nullptr)
-        {
+        {TRACE_IT(26596);
             *ppWeakRef = entry;
             return false;
         }
@@ -161,18 +161,18 @@ public:
 
 #ifdef RECYCLER_TRACE_WEAKREF
     void DumpNode(RecyclerWeakReferenceBase* node)
-    {
+    {TRACE_IT(26597);
         Output::Print(_u("[ 0x%08x { 0x%08x, 0x%08x }]"), node, node->strongRef, mode->next);
     }
 
     void Dump()
-    {
+    {TRACE_IT(26598);
         RecyclerWeakReferenceBase *current;
         Output::Print(_u("HashTable with %d buckets and %d nodes\n"), this->size, this->count);
 
-        for (uint i=0;i<size;i++) {
+        for (uint i=0;i<size;i++) {TRACE_IT(26599);
             Output::Print(_u("Bucket %d (0x%08x) ==> "), i, &buckets[i]);
-            for (current = buckets[i] ; current != nullptr; current = current->next) {
+            for (current = buckets[i] ; current != nullptr; current = current->next) {TRACE_IT(26600);
                 DumpNode(current);
             }
             Output::Print(_u("\n"));
@@ -181,10 +181,10 @@ public:
 #endif
 
     bool TryGetValue(char* strongReference, RecyclerWeakReferenceBase** weakReference)
-    {
+    {TRACE_IT(26601);
         RecyclerWeakReferenceBase* current = FindEntry(strongReference, HashKeyToBucket(strongReference, size));
         if (current != nullptr)
-        {
+        {TRACE_IT(26602);
             *weakReference = current;
             return true;
         }
@@ -192,17 +192,17 @@ public:
     }
 
     void Remove(char* key, RecyclerWeakReferenceBase** pOut)
-    {
+    {TRACE_IT(26603);
         uint val = HashKeyToBucket(key, size);
         RecyclerWeakReferenceBase ** pprev = &buckets[val];
         RecyclerWeakReferenceBase *current = *pprev;
         while (current)
-        {
+        {TRACE_IT(26604);
             if (DefaultComparer<char*>::Equals(key, current->strongRef))
-            {
+            {TRACE_IT(26605);
                  *pprev = current->next;
                 if (pOut != nullptr)
-                {
+                {TRACE_IT(26606);
                     (*pOut) = current;
                 }
                 count--;
@@ -224,27 +224,27 @@ public:
 
     template <class Func>
     void Map(Func fn)
-    {
+    {TRACE_IT(26607);
         uint removed = 0;
 #if DEBUG
         uint countedEntries = 0;
 #endif
 
         for (uint i=0;i<size;i++)
-        {
+        {TRACE_IT(26608);
             RecyclerWeakReferenceBase ** pprev = &buckets[i];
             RecyclerWeakReferenceBase *current = *pprev;
             while (current)
-            {
+            {TRACE_IT(26609);
                 if (fn(current))
-                {
+                {TRACE_IT(26610);
                     pprev = &current->next;
 #if DEBUG
                     countedEntries++;
 #endif
                 }
                 else
-                {
+                {TRACE_IT(26611);
                     // remove
                     *pprev = current->next;
                     removed++;
@@ -265,16 +265,16 @@ private:
     // If density is a compile-time constant, then we can optimize (avoids division)
     // Sometimes the compiler can also make this optimization, but this way is guaranteed.
     template< uint density > bool IsDenserThan() const
-    {
+    {TRACE_IT(26612);
         return count > (size * density);
     }
 
     RecyclerWeakReferenceBase * FindEntry(char* strongReference, uint targetBucket)
-    {
+    {TRACE_IT(26613);
         for (RecyclerWeakReferenceBase * current = buckets[targetBucket] ; current != nullptr; current = current->next)
-        {
+        {TRACE_IT(26614);
             if (DefaultComparer<char*>::Equals(strongReference, current->strongRef))
-            {
+            {TRACE_IT(26615);
                 return current;
             }
         }
@@ -283,13 +283,13 @@ private:
     }
 
     uint HashKeyToBucket(char* strongReference, int size)
-    {
+    {TRACE_IT(26616);
         uint hashCode = DefaultComparer<char*>::GetHashCode(strongReference);
         return SizePolicy::GetBucket(hashCode, size);
     }
 
     void AddEntry(RecyclerWeakReferenceBase* entry, RecyclerWeakReferenceBase** bucket)
-    {
+    {TRACE_IT(26617);
         RecyclerWeakReferenceBase* first = (*bucket);
 
         entry->next = first;
@@ -297,17 +297,17 @@ private:
     }
 
     void Resize(int newSize)
-    {
+    {TRACE_IT(26618);
 #if DEBUG
         uint copiedEntries = 0;
 #endif
         RecyclerWeakReferenceBase** newBuckets = AllocatorNewArrayZ(HeapAllocator, allocator, RecyclerWeakReferenceBase*, newSize);
 
         for (uint i=0; i < size; i++)
-        {
+        {TRACE_IT(26619);
             RecyclerWeakReferenceBase* current = buckets[i];
             while (current != nullptr)
-            {
+            {TRACE_IT(26620);
                 int targetBucket = HashKeyToBucket(current->strongRef, newSize);
                 RecyclerWeakReferenceBase* next = current->next; // Cache the next pointer
 
@@ -333,7 +333,7 @@ private:
         Assert(!FindEntry(strongReference, targetBucket));
 
         if (IsDenserThan<MaxAverageChainLength>())
-        {
+        {TRACE_IT(26621);
 #ifdef RECYCLER_TRACE_WEAKREF
             Output::Print(_u("Count is %d\n"), this->count);
 #endif

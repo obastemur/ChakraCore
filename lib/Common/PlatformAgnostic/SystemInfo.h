@@ -22,9 +22,9 @@ namespace PlatformAgnostic
     public:
 
         static bool GetTotalRam(size_t *totalRam)
-        {
+        {TRACE_IT(27259);
             if (SystemInfo::data.totalRam == 0)
-            {
+            {TRACE_IT(27260);
                 return false;
             }
 

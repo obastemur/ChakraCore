@@ -42,9 +42,9 @@ namespace Js
         Type(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint);
 
     public:
-        static DWORD GetJavascriptLibraryOffset() { return offsetof(Type, javascriptLibrary); }
-        inline TypeId GetTypeId() const { return typeId; }
-        void SetTypeId(TypeId typeId) { this->typeId = typeId; }
+        static DWORD GetJavascriptLibraryOffset() {TRACE_IT(67694); return offsetof(Type, javascriptLibrary); }
+        inline TypeId GetTypeId() const {TRACE_IT(67695); return typeId; }
+        void SetTypeId(TypeId typeId) {TRACE_IT(67696); this->typeId = typeId; }
         RecyclableObject* GetPrototype() const { return prototype; }
         JavascriptMethod GetEntryPoint() const { return entryPoint; }
         JavascriptLibrary* GetLibrary() const { return javascriptLibrary; }
@@ -52,7 +52,7 @@ namespace Js
         Recycler * GetRecycler() const;
         TypePropertyCache *GetPropertyCache();
         TypePropertyCache *CreatePropertyCache();
-        BOOL HasSpecialPrototype() const { return (flags & TypeFlagMask_HasSpecialPrototype) == TypeFlagMask_HasSpecialPrototype; }
+        BOOL HasSpecialPrototype() const {TRACE_IT(67700); return (flags & TypeFlagMask_HasSpecialPrototype) == TypeFlagMask_HasSpecialPrototype; }
 
         // This function has a different meaning from RecyclableObject::HasOnlyWritableDataProperties. If this function returns
         // true, then it's implied that RecyclableObject::HasOnlyWritableDataProperties would return true for an object of this
@@ -60,14 +60,14 @@ namespace Js
         BOOL AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties() const;
         void SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(const bool truth);
 
-        inline BOOL IsExternal() const { return (this->flags & TypeFlagMask_External) != 0; }
-        inline BOOL IsJsrtExternal() const { return (this->flags & TypeFlagMask_JsrtExternal) != 0; }
-        inline BOOL SkipsPrototype() const { return (this->flags & TypeFlagMask_SkipsPrototype) != 0 ; }
-        inline BOOL CanHaveInterceptors() const { return (this->flags & TypeFlagMask_CanHaveInterceptors) != 0; }
-        inline BOOL IsFalsy() const { return flags & TypeFlagMask_IsFalsy; }
-        inline BOOL HasBeenCached() const { return flags & TypeFlagMask_HasBeenCached; }
+        inline BOOL IsExternal() const {TRACE_IT(67701); return (this->flags & TypeFlagMask_External) != 0; }
+        inline BOOL IsJsrtExternal() const {TRACE_IT(67702); return (this->flags & TypeFlagMask_JsrtExternal) != 0; }
+        inline BOOL SkipsPrototype() const {TRACE_IT(67703); return (this->flags & TypeFlagMask_SkipsPrototype) != 0 ; }
+        inline BOOL CanHaveInterceptors() const {TRACE_IT(67704); return (this->flags & TypeFlagMask_CanHaveInterceptors) != 0; }
+        inline BOOL IsFalsy() const {TRACE_IT(67705); return flags & TypeFlagMask_IsFalsy; }
+        inline BOOL HasBeenCached() const {TRACE_IT(67706); return flags & TypeFlagMask_HasBeenCached; }
         inline void SetHasBeenCached()
-        {
+        {TRACE_IT(67707);
             // Once set, this flag should never be reset.
             flags |= TypeFlagMask_HasBeenCached;
         };
@@ -76,9 +76,9 @@ namespace Js
         void SetHasSpecialPrototype(const bool hasSpecialPrototype);
 
         // This is for static lib verification use only.
-        static DWORD GetTypeIdFieldOffset() { return offsetof(Type, typeId); }
+        static DWORD GetTypeIdFieldOffset() {TRACE_IT(67708); return offsetof(Type, typeId); }
         static size_t OffsetOfWritablePropertiesFlag()
-        {
+        {TRACE_IT(67709);
             return offsetof(Type, flags);
         }
 

@@ -59,7 +59,7 @@ namespace Js
         static JavascriptCallStackLayout *FromFramePointer(void *const framePointer);
         static void* const ToFramePointer(JavascriptCallStackLayout* callstackLayout);
     private:
-        JavascriptCallStackLayout() : callInfo(0) {};
+        JavascriptCallStackLayout() : callInfo(0) {TRACE_IT(51798);};
     };
 
 #if ENABLE_NATIVE_CODEGEN
@@ -85,11 +85,11 @@ namespace Js
             , frames(nullptr)
             , currentIndex(-1)
             , frameCount(0)
-        {
+        {TRACE_IT(51799);
         }
 
         ~InlinedFrameWalker()
-        {
+        {TRACE_IT(51800);
             Assert(!parentFunction);
             Assert(!this->frames);
             Assert(!frameCount);
@@ -109,7 +109,7 @@ namespace Js
         Js::Var                 GetThisObject() const;
         bool                    IsCallerPhysicalFrame() const;
         bool                    IsTopMostFrame() const;
-        int32                   GetFrameIndex() const { Assert(currentIndex != -1); return currentIndex; }
+        int32                   GetFrameIndex() const {TRACE_IT(51801); Assert(currentIndex != -1); return currentIndex; }
         uint32                  GetCurrentInlineeOffset() const;
         uint32                  GetBottomMostInlineeOffset() const;
         Js::JavascriptFunction *GetBottomMostFunctionObject() const;
@@ -126,7 +126,7 @@ namespace Js
             Js::Var argv[0];    // It's defined here as in C++ can't have 0-size array in the base class.
 
             struct InlinedFrame *Next()
-            {
+            {TRACE_IT(51802);
                 InlinedFrameLayout *next = __super::Next();
                 return (InlinedFrame*)next;
             }
@@ -166,7 +166,7 @@ namespace Js
             function(nullptr),
             hasInlinedFramesOnStack(false),
             previousInterpreterFrameIsFromBailout(false)
-        {
+        {TRACE_IT(51803);
         }
 
         void Clear();
@@ -181,7 +181,7 @@ namespace Js
     public:
         JavascriptStackWalker(ScriptContext * scriptContext, bool useEERContext = TRUE /* use leafinterpreterframe of entryexit record */, PVOID returnAddress = NULL, bool _forceFullWalk = false);
 #if ENABLE_NATIVE_CODEGEN
-        ~JavascriptStackWalker() { inlinedFrameWalker.Close(); }
+        ~JavascriptStackWalker() {TRACE_IT(51804); inlinedFrameWalker.Close(); }
 #endif
         BOOL Walk(bool includeInlineFrames = true);
         BOOL GetCaller(JavascriptFunction ** ppFunc, bool includeInlineFrames = true);
@@ -193,15 +193,15 @@ namespace Js
         uint32 GetByteCodeOffset() const;
         BOOL IsCallerGlobalFunction() const;
         BOOL IsEvalCaller() const;
-        bool IsJavascriptFrame() const { return inlinedFramesBeingWalked || isJavascriptFrame; }
-        bool IsInlineFrame() const { return inlinedFramesBeingWalked; }
+        bool IsJavascriptFrame() const {TRACE_IT(51805); return inlinedFramesBeingWalked || isJavascriptFrame; }
+        bool IsInlineFrame() const {TRACE_IT(51806); return inlinedFramesBeingWalked; }
         bool IsBailedOutFromInlinee() const
-        {
+        {TRACE_IT(51807);
             Assert(this->IsJavascriptFrame() && this->interpreterFrame);
             return IsInlineFrame();
         }
         bool IsBailedOutFromFunction() const
-        {
+        {TRACE_IT(51808);
             Assert(this->IsJavascriptFrame() && this->interpreterFrame);
             return !!JavascriptFunction::IsNativeAddress(this->scriptContext, this->currentFrame.GetInstructionPointer());
         }
@@ -220,7 +220,7 @@ namespace Js
 
         ScriptContext* GetCurrentScriptContext() const;
         InterpreterStackFrame* GetCurrentInterpreterFrame() const
-        {
+        {TRACE_IT(51809);
             Assert(this->IsJavascriptFrame());
             return interpreterFrame;
         }
@@ -232,7 +232,7 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
         void ClearCachedInternalFrameInfo();
         void SetCachedInternalFrameInfo(InternalFrameType frameType, JavascriptFunction* function, bool hasInlinedFramesOnStack, bool prevIntFrameIsFromBailout);
-        InternalFrameInfo GetCachedInternalFrameInfo() const { return this->lastInternalFrameInfo; }
+        InternalFrameInfo GetCachedInternalFrameInfo() const {TRACE_IT(51810); return this->lastInternalFrameInfo; }
 #endif
         bool IsCurrentPhysicalFrameForLoopBody() const;
 
@@ -251,23 +251,23 @@ namespace Js
         // Walk frames (until walkFrame returns true)
         template <class WalkFrame>
         ushort WalkUntil(ushort stackTraceLimit, WalkFrame walkFrame, bool onlyOnDebugMode = false, bool filterDiagnosticsOM = false)
-        {
+        {TRACE_IT(51811);
             ushort frameIndex = 0;
 
             JavascriptFunction* jsFunction;
 
             BOOL foundCaller = GetNonLibraryCodeCaller(&jsFunction);
             while (foundCaller)
-            {
+            {TRACE_IT(51812);
                 if (IsDisplayCaller(jsFunction))
-                {
+                {TRACE_IT(51813);
                     bool needToPass = (!onlyOnDebugMode || jsFunction->GetScriptContext()->IsScriptContextInDebugMode())
                         && (!filterDiagnosticsOM || !jsFunction->GetScriptContext()->IsDiagnosticsScriptContext());
 
                     if (needToPass)
                     {
                         if (walkFrame(jsFunction, frameIndex))
-                        {
+                        {TRACE_IT(51814);
                             break;
                         }
                         frameIndex++;
@@ -282,26 +282,26 @@ namespace Js
 
         template <class WalkFrame>
         ushort WalkUntil(WalkFrame walkFrame, bool onlyOnDebugMode = false, bool filterDiagnosticsOM = false)
-        {
+        {TRACE_IT(51815);
             return WalkUntil(USHORT_MAX, walkFrame, onlyOnDebugMode, filterDiagnosticsOM);
         }
         BYTE** GetCurrentAddresOfReturnAddress() const
-        {
+        {TRACE_IT(51816);
             return (BYTE**)this->currentFrame.GetAddressOfReturnAddress();
         }
 
         BYTE** GetCurrentAddressOfInstructionPointer() const
-        {
+        {TRACE_IT(51817);
             return (BYTE**)this->currentFrame.GetAddressOfInstructionPointer();
         }
 
         void* GetInstructionPointer() const
-        {
+        {TRACE_IT(51818);
             return this->currentFrame.GetInstructionPointer();
         }
 
         bool GetCurrentFrameFromBailout() const
-        {
+        {TRACE_IT(51819);
             return previousInterpreterFrameIsFromBailout;
         }
 #if DBG
@@ -358,11 +358,11 @@ namespace Js
         ScriptContext *m_scriptContext;
     public:
         AutoPushReturnAddressForStackWalker(ScriptContext *scriptContext, void* returnAddress) : m_scriptContext(scriptContext)
-        {
+        {TRACE_IT(51820);
             scriptContext->SetFirstInterpreterFrameReturnAddress(returnAddress);
         }
         ~AutoPushReturnAddressForStackWalker()
-        {
+        {TRACE_IT(51821);
             m_scriptContext->SetFirstInterpreterFrameReturnAddress(NULL);
         }
     };

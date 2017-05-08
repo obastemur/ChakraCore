@@ -12,7 +12,7 @@ static const char *const ExecutionModeNames[] =
 };
 
 const char *ExecutionModeName(const ExecutionMode executionMode)
-{
+{TRACE_IT(48164);
     Assert(executionMode < ExecutionMode::Count);
 
     return ExecutionModeNames[static_cast<size_t>(executionMode)];

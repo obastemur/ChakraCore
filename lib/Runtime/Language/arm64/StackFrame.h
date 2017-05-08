@@ -39,7 +39,7 @@ namespace Js
     {
     public:
         Arm64StackFrame() : frame(nullptr), codeAddr(nullptr), addressOfCodeAddr(nullptr)
-        {
+        {TRACE_IT(53378);
         }
 
         bool InitializeByFrameId(void * returnAddress, ScriptContext* scriptContext);
@@ -50,11 +50,11 @@ namespace Js
         void *GetInstructionPointer();
         void **GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         void *GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
-        void *GetAddressOfInstructionPointer() { Assert(addressOfCodeAddr != nullptr); return addressOfCodeAddr; }
+        void *GetAddressOfInstructionPointer() {TRACE_IT(53379); Assert(addressOfCodeAddr != nullptr); return addressOfCodeAddr; }
         void *GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         bool SkipToFrame(void * returnAddress);
-        void *GetFrame() { return (void *)frame;};
-        size_t GetStackCheckCodeHeight() { return this->stackCheckCodeHeight; }
+        void *GetFrame() {TRACE_IT(53380); return (void *)frame;};
+        size_t GetStackCheckCodeHeight() {TRACE_IT(53381); return this->stackCheckCodeHeight; }
         static bool IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight);
 
     private:

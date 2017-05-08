@@ -26,23 +26,23 @@ namespace Js
             dynamicProfileInfoMapSaving(&NoThrowHeapAllocator::Instance),
 #endif
             dynamicProfileInfoMap(allocator), startupFunctions(nullptr), profileDataCache(nullptr) 
-        {
+        {TRACE_IT(52691);
         }
 
         ExecutionFlags IsFunctionExecuted(Js::LocalFunctionId functionId);
         DynamicProfileInfo * GetDynamicProfileInfo(FunctionBody * functionBody);
-        Recycler* GetRecycler() { return recycler; }
+        Recycler* GetRecycler() {TRACE_IT(52692); return recycler; }
         void UpdateDynamicProfileInfo(LocalFunctionId functionId, DynamicProfileInfo * dynamicProfileInfo);
         void MarkAsExecuted(LocalFunctionId functionId);
         static SourceDynamicProfileManager * LoadFromDynamicProfileStorage(SourceContextInfo* info, ScriptContext* scriptContext, IActiveScriptDataCache* profileDataCache);
         void EnsureStartupFunctions(uint numberOfFunctions);
         void Reuse();
         uint SaveToProfileCacheAndRelease(SourceContextInfo* info);
-        bool IsProfileLoaded() { return cachedStartupFunctions != nullptr; }
-        bool IsProfileLoadedFromWinInet() { return profileDataCache != nullptr; }
+        bool IsProfileLoaded() {TRACE_IT(52693); return cachedStartupFunctions != nullptr; }
+        bool IsProfileLoadedFromWinInet() {TRACE_IT(52694); return profileDataCache != nullptr; }
         bool LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCWSTR url);
-        IActiveScriptDataCache* GetProfileCache() { return profileDataCache; }
-        uint GetStartupFunctionsLength() { return (this->startupFunctions ? this->startupFunctions->Length() : 0); }
+        IActiveScriptDataCache* GetProfileCache() {TRACE_IT(52695); return profileDataCache; }
+        uint GetStartupFunctionsLength() {TRACE_IT(52696); return (this->startupFunctions ? this->startupFunctions->Length() : 0); }
 #ifdef DYNAMIC_PROFILE_STORAGE
         void ClearSavingData();
         void CopySavingData();
@@ -85,15 +85,15 @@ namespace Js
         class SimpleStreamReader
         {
         public:
-            SimpleStreamReader(IStream* stream) : stream(stream) {}
+            SimpleStreamReader(IStream* stream) : stream(stream) {TRACE_IT(52697);}
             ~SimpleStreamReader()
-            {
+            {TRACE_IT(52698);
                 this->Close();
             }
 
             template <typename T>
             bool Read(T * data)
-            {
+            {TRACE_IT(52699);
                 ULONG bytesRead;
                 HRESULT hr = stream->Read(data, sizeof(T), &bytesRead);
                 // hr is S_FALSE if bytesRead < sizeOf(T)
@@ -102,7 +102,7 @@ namespace Js
 
             template <typename T>
             bool ReadArray(_Out_writes_(len) T * data, ULONG len)
-            {
+            {TRACE_IT(52700);
                 ULONG bytesSize = sizeof(T) * len;
                 ULONG bytesRead;
                 HRESULT hr = stream->Read(data, bytesSize, &bytesRead);
@@ -111,7 +111,7 @@ namespace Js
             }
         private:
             void Close()
-            {
+            {TRACE_IT(52701);
                 Assert(stream);
 
                 stream->Release();
@@ -127,15 +127,15 @@ namespace Js
         class SimpleStreamWriter
         {
         public:
-            SimpleStreamWriter(IStream* stream) : stream(stream) {}
+            SimpleStreamWriter(IStream* stream) : stream(stream) {TRACE_IT(52702);}
             ~SimpleStreamWriter()
-            {
+            {TRACE_IT(52703);
                 this->Close();
             }
 
             template <typename T>
             bool Write(_In_ T const& data)
-            {
+            {TRACE_IT(52704);
                 ULONG bytesWritten;
                 HRESULT hr = stream->Write(&data, sizeof(T), &bytesWritten);
                 // hr is S_FALSE if bytesRead < sizeOf(T)
@@ -144,7 +144,7 @@ namespace Js
 
             template <typename T>
             bool WriteArray(_In_reads_(len) T * data, _In_ ULONG len)
-            {
+            {TRACE_IT(52705);
                 ULONG bytesSize = sizeof(T) * len;
                 ULONG bytesWritten;
                 HRESULT hr = stream->Write(data, bytesSize, &bytesWritten);
@@ -153,7 +153,7 @@ namespace Js
             }
         private:
             void Close()
-            {
+            {TRACE_IT(52706);
                 Assert(stream);
 
                 stream->Release();

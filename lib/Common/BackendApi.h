@@ -100,8 +100,8 @@ void SetProfilerFromNativeCodeGen(NativeCodeGenerator * toNativeCodeGen, NativeC
 
 void DeleteNativeCodeData(NativeCodeData * data);
 #else
-inline BOOL IsIntermediateCodeGenThunk(Js::JavascriptMethod codeAddress) { return false; }
-inline BOOL IsAsmJsCodeGenThunk(Js::JavascriptMethod codeAddress) { return false; }
+inline BOOL IsIntermediateCodeGenThunk(Js::JavascriptMethod codeAddress) {TRACE_IT(18673); return false; }
+inline BOOL IsAsmJsCodeGenThunk(Js::JavascriptMethod codeAddress) {TRACE_IT(18674); return false; }
 #endif
 
 #if _M_X64
@@ -117,13 +117,13 @@ struct InlinedFrameLayout
                                         // but can't have 0-size arr in base class, so we define it in derived class.
 
     Js::Var* GetArguments()
-    {
+    {TRACE_IT(18675);
         return (Js::Var*)(this + 1);
     }
 
     template<class Fn>
     void MapArgs(Fn callback)
-    {
+    {TRACE_IT(18676);
         Js::Var* arguments = this->GetArguments();
         for (uint i = 0; i < callInfo.Count; i++)
         {
@@ -132,7 +132,7 @@ struct InlinedFrameLayout
     }
 
     InlinedFrameLayout* Next()
-    {
+    {TRACE_IT(18677);
         InlinedFrameLayout *next = (InlinedFrameLayout *)(this->GetArguments() + this->callInfo.Count);
         return next;
     }
@@ -146,12 +146,12 @@ struct LazyBailOutRecord
     BYTE* instructionPointer; // Instruction pointer of the bailout code
     BailOutRecord* bailoutRecord;
 
-    LazyBailOutRecord() : offset(0), instructionPointer(nullptr), bailoutRecord(nullptr) {}
+    LazyBailOutRecord() : offset(0), instructionPointer(nullptr), bailoutRecord(nullptr) {TRACE_IT(18678);}
 
     LazyBailOutRecord(uint32 offset, BYTE* address, BailOutRecord* record) :
         offset(offset), instructionPointer(address),
         bailoutRecord(record)
-    {}
+    {TRACE_IT(18679);}
 
     void SetBailOutKind();
 #if DBG

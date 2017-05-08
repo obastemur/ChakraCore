@@ -28,7 +28,7 @@ struct CapturedValues
     BVSparse<JitArenaAllocator> * argObjSyms;                  // Captured arg object symbols during glob opt
 
     ~CapturedValues()
-    {
+    {TRACE_IT(7344);
         // Reset SListBase to be exception safe. Captured values are from GlobOpt->func->alloc
         // in normal case the 2 SListBase are empty so no Clear needed, also no need to Clear in exception case
         constantValues.Reset();
@@ -43,7 +43,7 @@ class BranchJumpTableWrapper
 public:
 
     BranchJumpTableWrapper(uint tableSize) : defaultTarget(nullptr), labelInstr(nullptr), tableSize(tableSize)
-    {
+    {TRACE_IT(7345);
     }
 
     void** jmpTable;
@@ -52,7 +52,7 @@ public:
     int tableSize;
 
     static BranchJumpTableWrapper* New(JitArenaAllocator * allocator, uint tableSize)
-    {
+    {TRACE_IT(7346);
         BranchJumpTableWrapper * branchTargets = JitAnew(allocator, BranchJumpTableWrapper, tableSize);
 
         //Create the jump table for integers
@@ -152,7 +152,7 @@ protected:
         isCtorCall(false),
         isCallInstrProtectedByNoProfileBailout(false),
         hasSideEffects(false)
-    {
+    {TRACE_IT(7347);
     }
 public:
     static Instr *  New(Js::OpCode opcode, Func *func);
@@ -188,7 +188,7 @@ public:
     bool            IsInvalidInstr() const;
     Instr*          GetInvalidInstr();
 
-    bool            IsLinked() const { return this->m_prev != nullptr || this->m_next != nullptr; }
+    bool            IsLinked() const {TRACE_IT(7348); return this->m_prev != nullptr || this->m_next != nullptr; }
 
     bool            StartsBasicBlock() const;
     bool            EndsBasicBlock() const;
@@ -197,10 +197,10 @@ public:
     bool            HasAnyLoadHeapArgsOpCode();
     bool            IsEqual(IR::Instr *instr) const;
 
-    bool            IsCloned() const { return isCloned; }
-    void            SetIsCloned(bool isCloned) { this->isCloned = isCloned; }
-    bool            HasBailOutInfo() const { return hasBailOutInfo; }
-    bool            HasAuxBailOut() const { return hasAuxBailOut; }
+    bool            IsCloned() const {TRACE_IT(7349); return isCloned; }
+    void            SetIsCloned(bool isCloned) {TRACE_IT(7350); this->isCloned = isCloned; }
+    bool            HasBailOutInfo() const {TRACE_IT(7351); return hasBailOutInfo; }
+    bool            HasAuxBailOut() const {TRACE_IT(7352); return hasAuxBailOut; }
     bool            HasTypeCheckBailOut() const;
     bool            HasEquivalentTypeCheckBailOut() const;
     void            ClearBailOutInfo();
@@ -322,7 +322,7 @@ public:
     void            ChangeEquivalentToMonoTypeCheckBailOut();
     intptr_t        TryOptimizeInstrWithFixedDataProperty(IR::Instr ** pInstr, GlobOpt* globopt);
     Opnd *          FindCallArgumentOpnd(const Js::ArgSlot argSlot, IR::Instr * *const ownerInstrRef = nullptr);
-    void            CopyNumber(IR::Instr *instr) { this->SetNumber(instr->GetNumber()); }
+    void            CopyNumber(IR::Instr *instr) {TRACE_IT(7353); this->SetNumber(instr->GetNumber()); }
 
     bool            FetchOperands(_Out_writes_(argsOpndLength) IR::Opnd **argsOpnd, uint argsOpndLength);
     template <typename Fn>
@@ -337,16 +337,16 @@ public:
     // Iterates argument chain
     template<class Fn>
     bool IterateArgInstrs(Fn callback)
-    {
+    {TRACE_IT(7354);
         StackSym* linkSym = this->GetSrc2()->GetStackSym();
         Assert(linkSym->IsSingleDef());
         IR::Instr *argInstr = linkSym->m_instrDef;
         IR::Instr* nextArg = nullptr;
         do
-        {
+        {TRACE_IT(7355);
             // Get the next instr before calling 'callback' since callback might modify the IR.
             if (argInstr->GetSrc2() && argInstr->GetSrc2()->IsSymOpnd())
-            {
+            {TRACE_IT(7356);
                 linkSym = argInstr->GetSrc2()->AsSymOpnd()->m_sym->AsStackSym();
                 Assert(linkSym->IsArgSlotSym());
 
@@ -359,23 +359,23 @@ public:
                 nextArg = linkSym->GetInstrDef();
             }
             else
-            {
+            {TRACE_IT(7357);
                 nextArg = nullptr;
             }
             if(argInstr->m_opcode == Js::OpCode::ArgOut_A_InlineSpecialized)
-            {
+            {TRACE_IT(7358);
                 argInstr = nextArg;
                 // This is a fake ArgOut, skip it
                 continue;
             }
             if (argInstr->m_opcode == Js::OpCode::StartCall)
-            {
+            {TRACE_IT(7359);
                 Assert(nextArg == nullptr);
                 break;
             }
 
             if(callback(argInstr))
-            {
+            {TRACE_IT(7360);
                 return true;
             }
             argInstr = nextArg;
@@ -386,7 +386,7 @@ public:
         // We allow this possibility here, while relying on the more involved dead-code-removal to remove the rest of the call sequence.
         // Inserting the opcode InvalidOpCode, with no lowering, here to safeguard against the possibility of a dead part of the call sequence not being removed. The lowerer would assert then.
         if (argInstr && argInstr->IsInvalidInstr())
-        {
+        {TRACE_IT(7361);
             this->InsertBefore(Instr::New(Js::OpCode::InvalidOpCode, this->m_func));
         }
         return false;
@@ -395,26 +395,26 @@ public:
     // Iterates all meta args for inlinee
     template<class Fn>
     bool IterateMetaArgs(Fn callback)
-    {
+    {TRACE_IT(7362);
         Assert(this->m_opcode == Js::OpCode::InlineeStart);
         Instr* currentInstr = this;
         while(currentInstr->m_opcode != Js::OpCode::InlineeMetaArg)
-        {
+        {TRACE_IT(7363);
             currentInstr = currentInstr->m_prev;
         }
         // backward iteration
         while (currentInstr->m_prev->m_opcode == Js::OpCode::InlineeMetaArg)
-        {
+        {TRACE_IT(7364);
             currentInstr = currentInstr->m_prev;
         }
 
         // forward iteration
         while(currentInstr->m_opcode == Js::OpCode::InlineeMetaArg)
-        {
+        {TRACE_IT(7365);
             // cache next instr as callback might move meta arg.
             IR::Instr* nextInstr = currentInstr->m_next;
             if(callback(currentInstr))
-            {
+            {TRACE_IT(7366);
                 return true;
             }
             currentInstr = nextInstr;
@@ -437,7 +437,7 @@ public:
     void       MoveArgs(bool generateByteCodeCapture = false);
     void       Move(IR::Instr* insertInstr);
 private:
-    void            ClearNumber() { this->m_number = 0; }
+    void            ClearNumber() {TRACE_IT(7367); this->m_number = 0; }
     void            SetNumber(uint32 number);
     friend class ::Func;
     friend class ::Lowerer;
@@ -563,7 +563,7 @@ public:
 class ProfiledInstr: public Instr
 {
 protected:
-    ProfiledInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo) {}
+    ProfiledInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo) {TRACE_IT(7368);}
 public:
     static ProfiledInstr * New(Js::OpCode opcode, Opnd *dstOpnd, Opnd *src1Opnd, Func * func);
     static ProfiledInstr * New(Js::OpCode opcode, Opnd *dstOpnd, Opnd *src1Opnd, Opnd *src2Opnd, Func * func);
@@ -582,7 +582,7 @@ public:
 
     public:
         Js::FldInfo &FldInfo()
-        {
+        {TRACE_IT(7369);
             return reinterpret_cast<Js::FldInfo &>(fldInfoData);
         }
     } u;
@@ -743,7 +743,7 @@ public:
     static BranchInstr * New(Js::OpCode opcode, LabelInstr * branchTarget, Opnd *src1Opnd, Opnd *src2Opnd, Func *func);
 
     BranchInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo), m_branchTarget(nullptr), m_isAirlock(false), m_isSwitchBr(false), m_isOrphanedLeave(false)
-    {
+    {TRACE_IT(7370);
 #if DBG
         m_isMultiBranch = false;
 #endif
@@ -762,9 +762,9 @@ public:
     BranchInstr *       CloneBranchInstr() const;
     bool                IsMultiBranch() const;
     MultiBranchInstr *  AsMultiBrInstr();
-    void                SetByteCodeReg(Js::RegSlot reg) { m_byteCodeReg = reg; }
-    Js::RegSlot         GetByteCodeReg() { return m_byteCodeReg; }
-    bool                HasByteCodeReg() { return m_byteCodeReg != Js::Constants::NoRegister; }
+    void                SetByteCodeReg(Js::RegSlot reg) {TRACE_IT(7371); m_byteCodeReg = reg; }
+    Js::RegSlot         GetByteCodeReg() {TRACE_IT(7372); return m_byteCodeReg; }
+    bool                HasByteCodeReg() {TRACE_IT(7373); return m_byteCodeReg != Js::Constants::NoRegister; }
     bool                IsLoopTail(Func * func);
 
 public:
@@ -815,7 +815,7 @@ public:
 
     MultiBranchInstr() :
         m_branchTargets(nullptr)
-    {
+    {TRACE_IT(7374);
 #if DBG
         m_isMultiBranch = true;
 #endif
@@ -839,7 +839,7 @@ public:
 ///---------------------------------------------------------------------------
     template<class Fn>
     void MapMultiBrLabels(Fn fn)
-    {
+    {TRACE_IT(7375);
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             fn((LabelInstr*) *value);
@@ -853,12 +853,12 @@ public:
 ///---------------------------------------------------------------------------
     template<class Fn>
         void MapUniqueMultiBrLabels(Fn fn)
-    {
+    {TRACE_IT(7376);
         BVSparse<JitArenaAllocator> visitedTargets(m_func->m_alloc);
         MapMultiBrLabels([&](IR::LabelInstr *const targetLabel)
         {
             if(visitedTargets.Test(targetLabel->m_id))
-            {
+            {TRACE_IT(7377);
                 return;
             }
             visitedTargets.Set(targetLabel->m_id);
@@ -873,7 +873,7 @@ public:
 ///--------------------------------------------------------------------------------------------
     template<class Fn>
     void UpdateMultiBrTargetOffsets(Fn fn)
-    {
+    {TRACE_IT(7378);
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             *value = (void*)fn(::Math::PointerCastToIntegral<uint32>(*value));
@@ -887,7 +887,7 @@ public:
 ///--------------------------------------------------------------------------------------------
     template<class Fn>
     void UpdateMultiBrLabels(Fn fn)
-    {
+    {TRACE_IT(7379);
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             IR::LabelInstr * oldLabelInstr = (LabelInstr*)*value;
@@ -904,9 +904,9 @@ public:
 ///-------------------------------------------------------------------------------------------------------------
     template<class Fn>
     void MapMultiBrTargetByAddress(Fn fn)
-    {
+    {TRACE_IT(7380);
         if(!m_branchTargets)
-        {
+        {TRACE_IT(7381);
             return;
         }
 
@@ -915,7 +915,7 @@ public:
         switch (m_kind)
         {
         case StrDictionary:
-        {
+        {TRACE_IT(7382);
             BranchDictionary& branchDictionary = GetBranchDictionary()->dictionary;
 
             defaultTarget = &(((MultiBranchInstr::BranchDictionaryWrapper*)(m_branchTargets))->defaultTarget);
@@ -928,12 +928,12 @@ public:
         }
         case IntJumpTable:
         case SingleCharStrJumpTable:
-        {
+        {TRACE_IT(7383);
             void ** branchJumpTable = GetBranchJumpTable()->jmpTable;
             defaultTarget = &(GetBranchJumpTable()->defaultTarget);
 
             for (IntConstType i = m_baseCaseValue; i <= m_lastCaseValue; i++)
-            {
+            {TRACE_IT(7384);
                 fn(&branchJumpTable[i - m_baseCaseValue]);
             }
             break;
@@ -964,7 +964,7 @@ public:
     static PragmaInstr * New(Js::OpCode opcode, uint32 index, Func *func);
 
     PragmaInstr() : Instr(), m_statementIndex(0)
-    {
+    {TRACE_IT(7385);
     }
 
 #if DBG_DUMP
@@ -983,7 +983,7 @@ template <typename InstrType>
 class BailOutInstrTemplate : public InstrType
 {
 private:
-    BailOutInstrTemplate() : InstrType(true) {}
+    BailOutInstrTemplate() : InstrType(true) {TRACE_IT(7386);}
 public:
     static BailOutInstrTemplate * New(Js::OpCode opcode, BailOutKind kind, IR::Instr * bailOutTarget, Func * func);
     static BailOutInstrTemplate * New(Js::OpCode opcode, IR::Opnd *dst, BailOutKind kind, IR::Instr * bailOutTarget, Func * func);
@@ -1034,64 +1034,64 @@ typedef BailOutInstrTemplate<BranchInstr> BranchBailOutInstr;
 #endif
 
 #define FOREACH_INSTR_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {TRACE_IT(7387);\
         INIT_PREV;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_next : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instr->m_next)\
-        {\
+        {TRACE_IT(7388);\
             CHECK_PREV(instr);
 #define NEXT_INSTR_IN_RANGE                     }}
 
 #define FOREACH_REAL_INSTR_IN_RANGE(instr, instrList, instrLast)\
     FOREACH_INSTR_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {TRACE_IT(7389);\
         if (!instr->IsRealInstr())\
-        {\
+        {TRACE_IT(7390);\
             continue;\
         }
 #define NEXT_REAL_INSTR_IN_RANGE    NEXT_INSTR_IN_RANGE }
 
 #define FOREACH_INSTR_BACKWARD_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {TRACE_IT(7391);\
         INIT_NEXT;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_prev : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instr->m_prev)\
-        {\
+        {TRACE_IT(7392);\
             CHECK_NEXT(instr);
 #define NEXT_INSTR_BACKWARD_IN_RANGE            }}
 
 #define FOREACH_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
-    {\
+    {TRACE_IT(7393);\
         IR::Instr * instrNext;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_next : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instrNext)\
-        {\
+        {TRACE_IT(7394);\
             instrNext = instr->m_next;
 #define NEXT_INSTR_EDITING_IN_RANGE            }}
 
 #define FOREACH_REAL_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
     FOREACH_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
-    {\
+    {TRACE_IT(7395);\
         if (!instr->IsRealInstr())\
-        {\
+        {TRACE_IT(7396);\
             continue;\
         }
 #define NEXT_REAL_INSTR_EDITING_IN_RANGE NEXT_INSTR_EDITING_IN_RANGE }
 
 #define FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, instrList, instrLast)\
-    {\
+    {TRACE_IT(7397);\
         IR::Instr * instrPrev;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_prev : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instrPrev)\
-        {\
+        {TRACE_IT(7398);\
             instrPrev = instr->m_prev;
 #define NEXT_INSTR_BACKWARD_EDITING_IN_RANGE   }}
 

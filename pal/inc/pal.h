@@ -65,6 +65,8 @@ namespace std {
 #endif
 #endif // __APPLE__ ?
 
+void TRACE_IT(long id);
+
 #ifdef __ANDROID__
 #define S_IREAD   0000400
 #define S_IWRITE  0000200

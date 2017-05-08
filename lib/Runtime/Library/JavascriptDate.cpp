@@ -13,18 +13,18 @@ namespace Js
 {
     JavascriptDate::JavascriptDate(double value, DynamicType * type)
         : DynamicObject(type), m_date(value)
-    {
+    {TRACE_IT(58234);
         Assert(IsDateTypeId(type->GetTypeId()));
     }
 
     JavascriptDate::JavascriptDate(DynamicType * type)
         : DynamicObject(type), m_date(0)
-    {
+    {TRACE_IT(58235);
         Assert(type->GetTypeId() == TypeIds_Date);
     }
 
     bool JavascriptDate::Is(Var aValue)
-    {
+    {TRACE_IT(58236);
         // All WinRT Date's are also implicitly Javascript dates
         return IsDateTypeId(JavascriptOperators::GetTypeId(aValue));
     }
@@ -37,22 +37,22 @@ namespace Js
     }
 
     Var JavascriptDate::GetDateData(JavascriptDate* date, DateImplementation::DateData dd, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58237);
         return JavascriptNumber::ToVarIntCheck(date->m_date.GetDateData(dd, false, scriptContext), scriptContext);
     }
 
     Var JavascriptDate::GetUTCDateData(JavascriptDate* date, DateImplementation::DateData dd, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58238);
         return JavascriptNumber::ToVarIntCheck(date->m_date.GetDateData(dd, true, scriptContext), scriptContext);
     }
 
     Var JavascriptDate::SetDateData(JavascriptDate* date, Arguments args, DateImplementation::DateData dd, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58239);
         return JavascriptNumber::ToVarNoCheck(date->m_date.SetDateData(args, dd, false, scriptContext), scriptContext);
     }
 
     Var JavascriptDate::SetUTCDateData(JavascriptDate* date, Arguments args, DateImplementation::DateData dd, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58240);
         return JavascriptNumber::ToVarNoCheck(date->m_date.SetDateData(args, dd, true, scriptContext), scriptContext);
     }
 
@@ -77,7 +77,7 @@ namespace Js
             || JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch);
 
         if (!(callInfo.Flags & CallFlags_New))
-        {
+        {TRACE_IT(58241);
             //
             // Called as a function.
             //
@@ -92,22 +92,22 @@ namespace Js
 
 #if ENABLE_TTD
             if(scriptContext->ShouldPerformReplayAction())
-            {
+            {TRACE_IT(58242);
                 scriptContext->GetThreadContext()->TTDLog->ReplayDateStringEvent(scriptContext, &res);
             }
             else if(scriptContext->ShouldPerformRecordAction())
-            {
+            {TRACE_IT(58243);
                 scriptContext->GetThreadContext()->TTDLog->RecordDateStringEvent(res);
             }
             else
-            {
+            {TRACE_IT(58244);
                 ;
             }
 #endif
             return res;
         }
         else
-        {
+        {TRACE_IT(58245);
             //
             // Called as a constructor.
             //
@@ -119,7 +119,7 @@ namespace Js
     }
 
     JavascriptDate* JavascriptDate::NewInstanceAsConstructor(Js::Arguments args, ScriptContext* scriptContext, bool forceCurrentDate)
-    {
+    {TRACE_IT(58246);
         Assert(scriptContext);
 
         double timeValue = 0;
@@ -133,20 +133,20 @@ namespace Js
         // No arguments passed. Return the current time
         //
         if (forceCurrentDate || args.Info.Count == 1)
-        {
+        {TRACE_IT(58247);
             double resTime = DateImplementation::NowFromHiResTimer(scriptContext);
 
 #if ENABLE_TTD
             if(scriptContext->ShouldPerformReplayAction())
-            {
+            {TRACE_IT(58248);
                 scriptContext->GetThreadContext()->TTDLog->ReplayDateTimeEvent(&resTime);
             }
             else if(scriptContext->ShouldPerformRecordAction())
-            {
+            {TRACE_IT(58249);
                 scriptContext->GetThreadContext()->TTDLog->RecordDateTimeEvent(resTime);
             }
             else
-            {
+            {TRACE_IT(58250);
                 ;
             }
 #endif
@@ -162,21 +162,21 @@ namespace Js
         // Else convert to Number and use that as timeValue
         //
         if (args.Info.Count == 2)
-        {
+        {TRACE_IT(58251);
             if (JavascriptDate::Is(args[1]))
-            {
+            {TRACE_IT(58252);
                 JavascriptDate* dateObject = JavascriptDate::FromVar(args[1]);
                 timeValue = ((dateObject)->m_date).m_tvUtc;
             }
             else
-            {
+            {TRACE_IT(58253);
                 Var value = JavascriptConversion::ToPrimitive(args[1], Js::JavascriptHint::None, scriptContext);
                 if (JavascriptString::Is(value))
-                {
+                {TRACE_IT(58254);
                     timeValue = ParseHelper(scriptContext, JavascriptString::FromVar(value));
                 }
                 else
-                {
+                {TRACE_IT(58255);
                     timeValue = JavascriptConversion::ToNumber(value, scriptContext);
                 }
             }
@@ -194,20 +194,20 @@ namespace Js
         double values[parameterCount];
 
         for (uint i=1; i < args.Info.Count && i < parameterCount+1; i++)
-        {
+        {TRACE_IT(58256);
             double curr = JavascriptConversion::ToNumber(args[i], scriptContext);
             values[i-1] = curr;
             if (JavascriptNumber::IsNan(curr) || !NumberUtilities::IsFinite(curr))
-            {
+            {TRACE_IT(58257);
                 pDate->m_date.SetTvUtc(curr);
                 return pDate;
             }
         }
 
         for (uint i=0; i < parameterCount; i++)
-        {
+        {TRACE_IT(58258);
             if ( i >= args.Info.Count-1 )
-            {
+            {TRACE_IT(58259);
                 values[i] = ( i == 2 );
                 continue;
             }
@@ -246,18 +246,18 @@ namespace Js
         // One argument given will be hint
         //The allowed values for hint are "default", "number", and "string"
         if (args.Info.Count == 2)
-        {
+        {TRACE_IT(58260);
             if (!JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(args[0])))
-            {
+            {TRACE_IT(58261);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Date[Symbol.toPrimitive]"));
             }
 
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(58262);
                 JavascriptString* StringObject = JavascriptString::FromVar(args[1]);
 
                 if (wcscmp(StringObject->UnsafeGetBuffer(), _u("default")) == 0 || wcscmp(StringObject->UnsafeGetBuffer(), _u("string")) == 0)
-                {
+                {TRACE_IT(58263);
                     // Date objects, are unique among built-in ECMAScript object in that they treat "default" as being equivalent to "string"
                     // If hint is the string value "string" or the string value "default", then
                     // Let tryFirst be "string".
@@ -266,7 +266,7 @@ namespace Js
                 // Else if hint is the string value "number", then
                 // Let tryFirst be "number".
                 else if(wcscmp(StringObject->UnsafeGetBuffer(), _u("number")) == 0)
-                {
+                {TRACE_IT(58264);
                     return JavascriptConversion::OrdinaryToPrimitive(args[0], JavascriptHint::HintNumber/*tryFirst*/, scriptContext);
                 }
                 //anything else should throw a type error
@@ -286,10 +286,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58265);
             Var result;
             if (TryInvokeRemotely(EntryGetDate, scriptContext, args, &result))
-            {
+            {TRACE_IT(58266);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getDate"));
@@ -297,7 +297,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58267);
             return date->m_date.GetDate(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -313,10 +313,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58268);
             Var result;
             if (TryInvokeRemotely(EntryGetDay, scriptContext, args, &result))
-            {
+            {TRACE_IT(58269);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getDay"));
@@ -324,7 +324,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58270);
             return date->m_date.GetDay(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -340,10 +340,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58271);
             Var result;
             if (TryInvokeRemotely(EntryGetFullYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58272);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getFullYear"));
@@ -351,7 +351,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58273);
             return date->m_date.GetFullYear(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -367,10 +367,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58274);
             Var result;
             if (TryInvokeRemotely(EntryGetYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58275);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getYear"));
@@ -378,7 +378,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58276);
             return date->m_date.GetYear(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -394,10 +394,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58277);
             Var result;
             if (TryInvokeRemotely(EntryGetHours, scriptContext, args, &result))
-            {
+            {TRACE_IT(58278);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getHours"));
@@ -405,7 +405,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58279);
             return date->m_date.GetHours(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -421,10 +421,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58280);
             Var result;
             if (TryInvokeRemotely(EntryGetMilliseconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58281);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getMilliseconds"));
@@ -432,7 +432,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58282);
             return date->m_date.GetDateMilliSeconds(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -448,10 +448,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58283);
             Var result;
             if (TryInvokeRemotely(EntryGetMinutes, scriptContext, args, &result))
-            {
+            {TRACE_IT(58284);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getMinutes"));
@@ -459,7 +459,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58285);
             return date->m_date.GetMinutes(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -475,10 +475,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58286);
             Var result;
             if (TryInvokeRemotely(EntryGetMonth, scriptContext, args, &result))
-            {
+            {TRACE_IT(58287);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getMonth"));
@@ -486,7 +486,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58288);
             return date->m_date.GetMonth(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -502,10 +502,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58289);
             Var result;
             if (TryInvokeRemotely(EntryGetSeconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58290);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getSeconds"));
@@ -513,7 +513,7 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
         if (!date->m_date.IsNaN())
-        {
+        {TRACE_IT(58291);
             return date->m_date.GetSeconds(scriptContext);
         }
         return scriptContext->GetLibrary()->GetNaN();
@@ -529,10 +529,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58292);
             Var result;
             if (TryInvokeRemotely(EntryGetTime, scriptContext, args, &result))
-            {
+            {TRACE_IT(58293);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getTime"));
@@ -552,10 +552,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58294);
             Var result;
             if (TryInvokeRemotely(EntryGetTimezoneOffset, scriptContext, args, &result))
-            {
+            {TRACE_IT(58295);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getTimezoneOffset"));
@@ -575,10 +575,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58296);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCDate, scriptContext, args, &result))
-            {
+            {TRACE_IT(58297);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCDate"));
@@ -598,10 +598,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58298);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCDay, scriptContext, args, &result))
-            {
+            {TRACE_IT(58299);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCDay"));
@@ -621,10 +621,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58300);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCFullYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58301);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCFullYear"));
@@ -644,10 +644,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58302);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCHours, scriptContext, args, &result))
-            {
+            {TRACE_IT(58303);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCHours"));
@@ -667,10 +667,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58304);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCMilliseconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58305);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCMilliseconds"));
@@ -690,10 +690,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58306);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCMinutes, scriptContext, args, &result))
-            {
+            {TRACE_IT(58307);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCMinutes"));
@@ -713,10 +713,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58308);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCMonth, scriptContext, args, &result))
-            {
+            {TRACE_IT(58309);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCMonth"));
@@ -736,10 +736,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58310);
             Var result;
             if (TryInvokeRemotely(EntryGetUTCSeconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58311);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getUTCSeconds"));
@@ -759,10 +759,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58312);
             Var result;
             if (TryInvokeRemotely(EntryGetVarDate, scriptContext, args, &result))
-            {
+            {TRACE_IT(58313);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.getVarDate"));
@@ -786,7 +786,7 @@ namespace Js
         double dblRetVal = JavascriptNumber::NaN;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(58314);
             // We convert to primitive value based on hint == String, which JavascriptConversion::ToString does.
             JavascriptString *pParseString = JavascriptConversion::ToString(args[1], scriptContext);
             dblRetVal = ParseHelper(scriptContext, pParseString);
@@ -807,15 +807,15 @@ namespace Js
 
 #if ENABLE_TTD
         if(scriptContext->ShouldPerformReplayAction())
-        {
+        {TRACE_IT(58315);
             scriptContext->GetThreadContext()->TTDLog->ReplayDateTimeEvent(&dblRetVal);
         }
         else if(scriptContext->ShouldPerformRecordAction())
-        {
+        {TRACE_IT(58316);
             scriptContext->GetThreadContext()->TTDLog->RecordDateTimeEvent(dblRetVal);
         }
         else
-        {
+        {TRACE_IT(58317);
             ;
         }
 #endif
@@ -836,7 +836,7 @@ namespace Js
     }
 
     double JavascriptDate::ParseHelper(ScriptContext *scriptContext, JavascriptString *str)
-    {
+    {TRACE_IT(58318);
         return DateImplementation::UtcTimeFromStr(scriptContext, str);
     }
 
@@ -850,10 +850,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58319);
             Var result;
             if (TryInvokeRemotely(EntrySetDate, scriptContext, args, &result))
-            {
+            {TRACE_IT(58320);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setDate"));
@@ -873,10 +873,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58321);
             Var result;
             if (TryInvokeRemotely(EntrySetFullYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58322);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setFullYear"));
@@ -896,10 +896,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58323);
             Var result;
             if (TryInvokeRemotely(EntrySetYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58324);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setYear"));
@@ -919,10 +919,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58325);
             Var result;
             if (TryInvokeRemotely(EntrySetHours, scriptContext, args, &result))
-            {
+            {TRACE_IT(58326);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setHours"));
@@ -942,10 +942,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58327);
             Var result;
             if (TryInvokeRemotely(EntrySetMilliseconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58328);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setMilliseconds"));
@@ -965,10 +965,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58329);
             Var result;
             if (TryInvokeRemotely(EntrySetMinutes, scriptContext, args, &result))
-            {
+            {TRACE_IT(58330);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setMinutes"));
@@ -988,10 +988,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58331);
             Var result;
             if (TryInvokeRemotely(EntrySetMonth, scriptContext, args, &result))
-            {
+            {TRACE_IT(58332);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setMonth"));
@@ -1011,10 +1011,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58333);
             Var result;
             if (TryInvokeRemotely(EntrySetSeconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58334);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setSeconds"));
@@ -1034,10 +1034,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58335);
             Var result;
             if (TryInvokeRemotely(EntrySetTime, scriptContext, args, &result))
-            {
+            {TRACE_IT(58336);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setTime"));
@@ -1047,15 +1047,15 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Negative argument count");
         double value;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(58337);
             value = JavascriptConversion::ToNumber(args[1], scriptContext);
             if (Js::NumberUtilities::IsFinite(value))
-            {
+            {TRACE_IT(58338);
                 value = JavascriptConversion::ToInteger(value);
             }
         }
         else
-        {
+        {TRACE_IT(58339);
             value = JavascriptNumber::NaN;
         }
 
@@ -1074,10 +1074,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58340);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCDate, scriptContext, args, &result))
-            {
+            {TRACE_IT(58341);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCDate"));
@@ -1097,10 +1097,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58342);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCFullYear, scriptContext, args, &result))
-            {
+            {TRACE_IT(58343);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCFullYear"));
@@ -1120,10 +1120,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58344);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCHours, scriptContext, args, &result))
-            {
+            {TRACE_IT(58345);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCHours"));
@@ -1143,10 +1143,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58346);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCMilliseconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58347);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCMilliseconds"));
@@ -1166,10 +1166,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58348);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCMinutes, scriptContext, args, &result))
-            {
+            {TRACE_IT(58349);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCMinutes"));
@@ -1189,10 +1189,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58350);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCMonth, scriptContext, args, &result))
-            {
+            {TRACE_IT(58351);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCMonth"));
@@ -1212,10 +1212,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58352);
             Var result;
             if (TryInvokeRemotely(EntrySetUTCSeconds, scriptContext, args, &result))
-            {
+            {TRACE_IT(58353);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.setUTCSeconds"));
@@ -1235,10 +1235,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58354);
             Var result;
             if (TryInvokeRemotely(EntryToDateString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58355);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toDateString"));
@@ -1262,10 +1262,10 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Date_Prototype_toISOString);
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58356);
             Var result;
             if (TryInvokeRemotely(EntryToISOString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58357);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toISOString"));
@@ -1286,31 +1286,31 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0)
-        {
+        {TRACE_IT(58358);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Data.prototype.toJSON"));
         }
         RecyclableObject* thisObj = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &thisObj))
-        {
+        {TRACE_IT(58359);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Date.prototype.toJSON"));
         }
 
         Var result;
         if (TryInvokeRemotely(EntryToJSON, scriptContext, args, &result))
-        {
+        {TRACE_IT(58360);
             return result;
         }
 
         Var num = JavascriptConversion::ToPrimitive(thisObj, JavascriptHint::HintNumber, scriptContext);
         if (JavascriptNumber::Is(num)
             && !NumberUtilities::IsFinite(JavascriptNumber::GetValue(num)))
-        {
+        {TRACE_IT(58361);
             return scriptContext->GetLibrary()->GetNull();
         }
 
         Var toISO = JavascriptOperators::GetProperty(thisObj, PropertyIds::toISOString, scriptContext, NULL);
         if (!JavascriptConversion::IsCallable(toISO))
-        {
+        {TRACE_IT(58362);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, scriptContext->GetPropertyName(PropertyIds::toISOString)->GetBuffer());
         }
         RecyclableObject* toISOFunc = RecyclableObject::FromVar(toISO);
@@ -1327,10 +1327,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58363);
             Var result;
             if (TryInvokeRemotely(EntryToLocaleDateString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58364);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toLocaleDateString"));
@@ -1338,15 +1338,15 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
 #ifdef ENABLE_INTL_OBJECT
-        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){
+        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){TRACE_IT(58365);
 
             EngineInterfaceObject* nativeEngineInterfaceObj = scriptContext->GetLibrary()->GetEngineInterfaceObject();
             if (nativeEngineInterfaceObj)
-            {
+            {TRACE_IT(58366);
                 IntlEngineInterfaceExtensionObject* extensionObject = static_cast<IntlEngineInterfaceExtensionObject*>(nativeEngineInterfaceObj->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
                 JavascriptFunction* func = extensionObject->GetDateToLocaleDateString();
                 if (func)
-                {
+                {TRACE_IT(58367);
                     return func->CallFunction(args);
                 }
 
@@ -1354,7 +1354,7 @@ namespace Js
                 scriptContext->GetLibrary()->InitializeIntlForDatePrototype();
                 func = extensionObject->GetDateToLocaleDateString();
                 if (func)
-                {
+                {TRACE_IT(58368);
                     return func->CallFunction(args);
                 }
             }
@@ -1377,10 +1377,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58369);
             Var result;
             if (TryInvokeRemotely(EntryToLocaleString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58370);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toLocaleString"));
@@ -1388,22 +1388,22 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
 #ifdef ENABLE_INTL_OBJECT
-        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){
+        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){TRACE_IT(58371);
 
             EngineInterfaceObject* nativeEngineInterfaceObj = scriptContext->GetLibrary()->GetEngineInterfaceObject();
             if (nativeEngineInterfaceObj)
-            {
+            {TRACE_IT(58372);
                 IntlEngineInterfaceExtensionObject* extensionObject = static_cast<IntlEngineInterfaceExtensionObject*>(nativeEngineInterfaceObj->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
                 JavascriptFunction* func = extensionObject->GetDateToLocaleString();
                 if (func)
-                {
+                {TRACE_IT(58373);
                     return func->CallFunction(args);
                 }
                 // Initialize Date.prototype.toLocaleString
                 scriptContext->GetLibrary()->InitializeIntlForDatePrototype();
                 func = extensionObject->GetDateToLocaleString();
                 if (func)
-                {
+                {TRACE_IT(58374);
                     return func->CallFunction(args);
                 }
             }
@@ -1416,13 +1416,13 @@ namespace Js
 
     JavascriptString* JavascriptDate::ToLocaleString(JavascriptDate* date,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(58375);
         return date->m_date.GetString(DateImplementation::DateStringFormat::Locale, requestContext);
     }
 
     JavascriptString* JavascriptDate::ToString(JavascriptDate* date,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(58376);
         Assert(date);
         return date->m_date.GetString(DateImplementation::DateStringFormat::Default, requestContext);
     }
@@ -1437,10 +1437,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58377);
             Var result;
             if (TryInvokeRemotely(EntryToLocaleTimeString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58378);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toLocaleTimeString"));
@@ -1448,22 +1448,22 @@ namespace Js
         JavascriptDate* date = JavascriptDate::FromVar(args[0]);
 
 #ifdef ENABLE_INTL_OBJECT
-        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){
+        if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled()){TRACE_IT(58379);
 
             EngineInterfaceObject* nativeEngineInterfaceObj = scriptContext->GetLibrary()->GetEngineInterfaceObject();
             if (nativeEngineInterfaceObj)
-            {
+            {TRACE_IT(58380);
                 IntlEngineInterfaceExtensionObject* extensionObject = static_cast<IntlEngineInterfaceExtensionObject*>(nativeEngineInterfaceObj->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
                 JavascriptFunction* func = extensionObject->GetDateToLocaleTimeString();
                 if (func)
-                {
+                {TRACE_IT(58381);
                     return func->CallFunction(args);
                 }
                 // Initialize Date.prototype.toLocaleTimeString
                 scriptContext->GetLibrary()->InitializeIntlForDatePrototype();
                 func = extensionObject->GetDateToLocaleTimeString();
                 if (func)
-                {
+                {TRACE_IT(58382);
                     return func->CallFunction(args);
                 }
             }
@@ -1486,10 +1486,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58383);
             Var result;
             if (TryInvokeRemotely(EntryToTimeString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58384);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toTimeString"));
@@ -1523,10 +1523,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58385);
             Var result;
             if (TryInvokeRemotely(EntryToUTCString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58386);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toUTCString"));
@@ -1549,10 +1549,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58387);
             Var result;
             if (TryInvokeRemotely(EntryValueOf, scriptContext, args, &result))
-            {
+            {TRACE_IT(58388);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.valueOf"));
@@ -1574,10 +1574,10 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !JavascriptDate::Is(args[0]))
-        {
+        {TRACE_IT(58389);
             Var result;
             if (TryInvokeRemotely(EntryToString, scriptContext, args, &result))
-            {
+            {TRACE_IT(58390);
                 return result;
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedDate, _u("Date.prototype.toString"));
@@ -1589,11 +1589,11 @@ namespace Js
     }
 
     BOOL JavascriptDate::TryInvokeRemotely(JavascriptMethod entryPoint, ScriptContext * scriptContext, Arguments & args, Var * result)
-    {
+    {TRACE_IT(58391);
         if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(58392);
             if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(entryPoint, args, result))
-            {
+            {TRACE_IT(58393);
                 return TRUE;
             }
         }
@@ -1602,12 +1602,12 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptDate::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(58394);
         return TTD::NSSnapObjects::SnapObjectType::SnapDateObject;
     }
 
     void JavascriptDate::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(58395);
         TTDAssert(this->GetTypeId() == TypeIds_Date, "We don't handle WinRT or other types of dates yet!");
 
         double* millis = alloc.SlabAllocateStruct<double>();
@@ -1618,9 +1618,9 @@ namespace Js
 #endif
 
     BOOL JavascriptDate::ToPrimitive(JavascriptHint hint, Var* result, ScriptContext * requestContext)
-    {
+    {TRACE_IT(58396);
         if (hint == JavascriptHint::None)
-        {
+        {TRACE_IT(58397);
             hint = JavascriptHint::HintString;
         }
 
@@ -1638,7 +1638,7 @@ namespace Js
     }
 
     BOOL JavascriptDate::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(58398);
         stringBuilder->AppendCppLiteral(_u("Object, (Date)"));
         return TRUE;
     }

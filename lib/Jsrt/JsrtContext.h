@@ -11,11 +11,11 @@ class JsrtContext : public FinalizableObject
 public:
     static JsrtContext *New(JsrtRuntime * runtime);
 
-    Js::ScriptContext * GetScriptContext() const { return this->javascriptLibrary->scriptContext; }
-    Js::JavascriptLibrary* GetJavascriptLibrary() const { return this->javascriptLibrary; }
-    JsrtRuntime * GetRuntime() const { return this->runtime; }
-    void* GetExternalData() const { return this->externalData; }
-    void SetExternalData(void * data) { this->externalData = data; }
+    Js::ScriptContext * GetScriptContext() const {TRACE_IT(28027); return this->javascriptLibrary->scriptContext; }
+    Js::JavascriptLibrary* GetJavascriptLibrary() const {TRACE_IT(28028); return this->javascriptLibrary; }
+    JsrtRuntime * GetRuntime() const {TRACE_IT(28029); return this->runtime; }
+    void* GetExternalData() const {TRACE_IT(28030); return this->externalData; }
+    void SetExternalData(void * data) {TRACE_IT(28031); this->externalData = data; }
 
     static JsrtContext * GetCurrent();
     static bool TrySetCurrent(JsrtContext * context);

@@ -24,7 +24,7 @@ namespace Js
 {
 bool
 Amd64StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
-{
+{TRACE_IT(53292);
     this->frame = (void **)frame;
 
     this->stackCheckCodeHeight =
@@ -37,7 +37,7 @@ Amd64StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
 
 bool
 Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext)
-{
+{TRACE_IT(53293);
     void ** framePtr;
     __asm
     {
@@ -51,9 +51,9 @@ Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* 
         : stackCheckCodeHeightNotThreadBound;
 
     while (Next())
-    {
+    {TRACE_IT(53294);
         if (this->codeAddr == returnAddress)
-        {
+        {TRACE_IT(53295);
             return true;
         }
     }
@@ -62,7 +62,7 @@ Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* 
 
 bool
 Amd64StackFrame::Next()
-{
+{TRACE_IT(53296);
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     this->codeAddr = this->GetReturnAddress();
     this->frame = (void **)this->frame[0];
@@ -71,18 +71,18 @@ Amd64StackFrame::Next()
 
 bool
 Amd64StackFrame::SkipToFrame(void * frameAddress)
-{
+{TRACE_IT(53297);
     this->frame = (void **)frameAddress;
     return Next();
 }
 
 bool
 Amd64StackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{TRACE_IT(53298);
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 
 // Dummy constructor since we don't need to manager the contexts here
-Amd64ContextsManager::Amd64ContextsManager() {}
+Amd64ContextsManager::Amd64ContextsManager() {TRACE_IT(53299);}
 };
 

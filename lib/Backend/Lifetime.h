@@ -17,7 +17,7 @@ public:
         isSimd128D2(false), isSimd128B4(false), isSimd128B8(false), isSimd128B16(false), cantSpill(false), dontAllocate(false), isSecondChanceAllocated(false), isCheapSpill(false), spillStackSlot(NULL),
           totalOpHelperLengthByEnd(0), needsStoreCompensation(false), alloc(alloc), regionUseCount(NULL), regionUseCountAdjust(NULL),
           cantStackPack(false)
-    {
+    {TRACE_IT(10115);
         intUsageBv.ClearAll();
         regPreference.ClearAll();
     }
@@ -70,7 +70,7 @@ public:
     uint8               cantStackPack : 1;
 
     bool isSimd128()
-    {
+    {TRACE_IT(10116);
         bool result = isSimd128F4;
         result |= isSimd128I4;
         result |= isSimd128I8;
@@ -87,85 +87,85 @@ public:
     }
 
     void AddToUseCount(uint32 newUseValue, Loop *loop, Func *func)
-    {
+    {TRACE_IT(10117);
         Assert((this->useCount + newUseValue) >= this->useCount);
         this->useCount += newUseValue;
 
         if (loop)
-        {
+        {TRACE_IT(10118);
             if (!this->regionUseCount)
-            {
+            {TRACE_IT(10119);
                 this->regionUseCount = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
                 this->regionUseCountAdjust = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
             }
             while (loop)
-            {
+            {TRACE_IT(10120);
                 this->regionUseCount[loop->loopNumber] += newUseValue;
                 loop = loop->parent;
             }
         }
     }
     void SubFromUseCount(uint32 newUseValue, Loop *loop)
-    {
+    {TRACE_IT(10121);
         Assert((this->useCount - newUseValue) <= this->useCount);
         this->useCount -= newUseValue;
 
         Assert(!loop || this->regionUseCount);
 
         while (loop)
-        {
+        {TRACE_IT(10122);
             Assert((this->regionUseCount[loop->loopNumber] - newUseValue) <= this->regionUseCount[loop->loopNumber]);
             this->regionUseCount[loop->loopNumber] -= newUseValue;
             loop = loop->parent;
         }
     }
     uint32 GetRegionUseCount(Loop *loop)
-    {
+    {TRACE_IT(10123);
         if (loop && !PHASE_OFF1(Js::RegionUseCountPhase))
-        {
+        {TRACE_IT(10124);
             if (this->regionUseCount)
-            {
+            {TRACE_IT(10125);
                 return this->regionUseCount[loop->loopNumber];
             }
             else
-            {
+            {TRACE_IT(10126);
                 return 0;
             }
         }
         else
-        {
+        {TRACE_IT(10127);
             return this->useCount;
         }
     }
     void AddToUseCountAdjust(uint32 newUseValue, Loop *loop, Func *func)
-    {
+    {TRACE_IT(10128);
         Assert((this->useCountAdjust + newUseValue) >= this->useCountAdjust);
         this->useCountAdjust += newUseValue;
 
         if (loop)
-        {
+        {TRACE_IT(10129);
             if (!this->regionUseCount)
-            {
+            {TRACE_IT(10130);
                 this->regionUseCount = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
                 this->regionUseCountAdjust = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
             }
             do
-            {
+            {TRACE_IT(10131);
                 this->regionUseCountAdjust[loop->loopNumber] += newUseValue;
                 loop = loop->parent;
             } while (loop);
         }
     }
     void ApplyUseCountAdjust(Loop *loop)
-    {
+    {TRACE_IT(10132);
         Assert((this->useCount + this->useCountAdjust) >= this->useCount);
         this->useCount -= this->useCountAdjust;
         this->useCountAdjust = 0;
 
         if (loop && this->regionUseCount)
-        {
+        {TRACE_IT(10133);
             do
-            {
+            {TRACE_IT(10134);
                 Assert((this->regionUseCount[loop->loopNumber] - this->regionUseCountAdjust[loop->loopNumber]) <= this->regionUseCount[loop->loopNumber]);
                 this->regionUseCount[loop->loopNumber] -= this->regionUseCountAdjust[loop->loopNumber];
                 this->regionUseCountAdjust[loop->loopNumber] = 0;

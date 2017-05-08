@@ -13,7 +13,7 @@ private:
     Func *      func;
 
 public:
-    AgenPeeps(Func *func) : func(func){}
+    AgenPeeps(Func *func) : func(func){TRACE_IT(25);}
     void                 PeepFunc();
     bool DependentInstrs(IR::Instr *instr1, IR::Instr *instr2);
 

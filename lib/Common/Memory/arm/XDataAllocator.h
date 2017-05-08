@@ -13,20 +13,20 @@ struct XDataAllocation sealed  : public SecondaryAllocation
         pdataCount(0)
         , functionTable(NULL)
         , xdataSize(0)
-    {}
+    {TRACE_IT(27215);}
 
     RUNTIME_FUNCTION* GetPdataArray() const
-    {
+    {TRACE_IT(27216);
         return reinterpret_cast<RUNTIME_FUNCTION*>(address + xdataSize);
     }
 
     bool IsFreed() const
-    {
+    {TRACE_IT(27217);
         return address == nullptr;
     }
 
     void Free()
-    {
+    {TRACE_IT(27218);
         address = nullptr;
         pdataCount = 0;
         functionTable = nullptr;
@@ -55,7 +55,7 @@ public:
     void Release(const SecondaryAllocation& address);
     bool CanAllocate();
     static DWORD GetAllocSize(ushort pdataCount, ushort xdataSize)
-    {
+    {TRACE_IT(27219);
         return sizeof(RUNTIME_FUNCTION) * pdataCount + xdataSize;
     }
 
@@ -64,7 +64,7 @@ public:
 #ifndef _WIN32
     // Read .eh_frame data head (length record). 0 means empty.
     static uint32 ReadHead(const void* p)
-    {
+    {TRACE_IT(27220);
         return *reinterpret_cast<const uint32*>(p);
     }
 #endif

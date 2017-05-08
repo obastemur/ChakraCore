@@ -262,7 +262,7 @@ namespace TTD
     //Algorithms for sorting searching a list based on lexo-order from names in a map
     template <typename T>
     void SortDictIntoListOnNames(const JsUtil::BaseDictionary<T, UtilSupport::TTAutoString*, HeapAllocator>& objToNameMap, JsUtil::List<T, HeapAllocator>& sortedObjList, const UtilSupport::TTAutoString& nullString)
-    {
+    {TRACE_IT(44180);
         TTDAssert(sortedObjList.Count() == 0, "This should be empty.");
 
         objToNameMap.Map([&](T key, UtilSupport::TTAutoString* value)
@@ -276,17 +276,17 @@ namespace TTD
 
         int32 llen = sortedObjList.Count();
         for(uint32 gapi = 0; gapi < 8; ++gapi)
-        {
+        {TRACE_IT(44181);
             int32 gap = gaps[gapi];
 
             for(int32 i = gap; i < llen; i++)
-            {
+            {TRACE_IT(44182);
                 T temp = sortedObjList.Item(i);
                 const UtilSupport::TTAutoString* tempStr = objToNameMap.Item(temp);
 
                 int32 j = 0;
                 for(j = i; j >= gap && (wcscmp(objToNameMap.Item(sortedObjList.Item(j - gap))->GetStrValue(), tempStr->GetStrValue()) > 0); j -= gap)
-                {
+                {TRACE_IT(44183);
                     T shiftElem = sortedObjList.Item(j - gap);
                     sortedObjList.SetItem(j, shiftElem);
                 }
@@ -298,25 +298,25 @@ namespace TTD
 
     template <typename T, bool mustFind>
     int32 LookupPositionInDictNameList(const char16* key, const JsUtil::BaseDictionary<T, UtilSupport::TTAutoString*, HeapAllocator>& objToNameMap, const JsUtil::List<T, HeapAllocator>& sortedObjList, const UtilSupport::TTAutoString& nullString)
-    {
+    {TRACE_IT(44184);
         AssertMsg(sortedObjList.Count() != 0, "We are using this for matching so obviously no match and there is a problem.");
 
         int32 imin = 0;
         int32 imax = sortedObjList.Count() - 1;
 
         while(imin < imax)
-        {
+        {TRACE_IT(44185);
             int imid = (imin + imax) / 2;
             const UtilSupport::TTAutoString* imidStr = objToNameMap.Item(sortedObjList.Item(imid));
             AssertMsg(imid < imax, "Something went wrong with our indexing.");
 
             int32 scmpval = wcscmp(imidStr->GetStrValue(), key);
             if(scmpval < 0)
-            {
+            {TRACE_IT(44186);
                 imin = imid + 1;
             }
             else
-            {
+            {TRACE_IT(44187);
                 imax = imid;
             }
 
@@ -325,12 +325,12 @@ namespace TTD
         
         const UtilSupport::TTAutoString* resStr = objToNameMap.Item(sortedObjList.Item(imin));
         if(mustFind)
-        {
+        {TRACE_IT(44188);
             TTDAssert(wcscmp(resStr->GetStrValue(), key) == 0, "We are missing something");
             return imin;
         }
         else
-        {
+        {TRACE_IT(44189);
             return (wcscmp(resStr->GetStrValue(), key) == 0) ? imin : -1;
         }
     }

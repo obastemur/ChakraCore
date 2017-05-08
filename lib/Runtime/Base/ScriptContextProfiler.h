@@ -15,14 +15,14 @@ namespace Js
         ScriptContextProfiler();
         ~ScriptContextProfiler();
 
-        bool IsInitialized() const { return profilerArena != nullptr; }
+        bool IsInitialized() const {TRACE_IT(36858); return profilerArena != nullptr; }
         void Initialize(PageAllocator * pageAllocator, Recycler * recycler);
 
         ULONG AddRef();
         ULONG Release();
 
-        Profiler * GetProfiler() { return profiler; }
-        Profiler * GetBackgroundRecyclerProfiler() { return backgroundRecyclerProfiler; }
+        Profiler * GetProfiler() {TRACE_IT(36859); return profiler; }
+        Profiler * GetBackgroundRecyclerProfiler() {TRACE_IT(36860); return backgroundRecyclerProfiler; }
         void ProfileBegin(Js::Phase phase);
         void ProfileEnd(Js::Phase phase);
         void ProfileSuspend(Js::Phase, Js::Profiler::SuspendRecord * suspendRecord);

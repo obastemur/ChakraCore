@@ -93,11 +93,11 @@ namespace TTD
 
         template <size_t requestedSpace>
         byte* ReserveSpaceForSmallData()
-        {
+        {TRACE_IT(44603);
             TTDAssert(requestedSpace < TTD_SERIALIZATION_BUFFER_SIZE, "Must be small data element!");
 
             if(this->m_cursor + requestedSpace >= TTD_SERIALIZATION_BUFFER_SIZE)
-            {
+            {TRACE_IT(44604);
                 this->WriteBlock(this->m_buffer, this->m_cursor);
                 this->m_cursor = 0;
             }
@@ -106,7 +106,7 @@ namespace TTD
         }
 
         void CommitSpaceForSmallData(size_t usedSpace)
-        {
+        {TRACE_IT(44605);
             TTDAssert(this->m_cursor + usedSpace < TTD_SERIALIZATION_BUFFER_SIZE, "Must have already reserved the space!");
 
             this->m_cursor += usedSpace;
@@ -115,7 +115,7 @@ namespace TTD
     protected:
         template <typename T>
         void WriteRawByteBuff_Fixed(const T& data)
-        {
+        {TRACE_IT(44606);
             byte* trgt = this->ReserveSpaceForSmallData<sizeof(T)>();
 
             js_memcpy_s(trgt, sizeof(T), (const byte*)(&data), sizeof(T));
@@ -124,9 +124,9 @@ namespace TTD
         }
 
         void WriteRawByteBuff(const byte* buff, size_t bufflen)
-        {
+        {TRACE_IT(44607);
             if(this->m_cursor + bufflen < TTD_SERIALIZATION_BUFFER_SIZE)
-            {
+            {TRACE_IT(44608);
                 size_t sizeAvailable = (TTD_SERIALIZATION_BUFFER_SIZE - this->m_cursor);
                 TTDAssert(sizeAvailable >= bufflen, "Our size computation is off somewhere.");
 
@@ -134,14 +134,14 @@ namespace TTD
                 this->m_cursor += bufflen;
             }
             else
-            {
+            {TRACE_IT(44609);
                 this->WriteBlock(this->m_buffer, this->m_cursor);
                 this->m_cursor = 0;
 
                 const byte* remainingBuff = buff;
                 size_t remainingBytes = bufflen;
                 while(remainingBytes > TTD_SERIALIZATION_BUFFER_SIZE)
-                {
+                {TRACE_IT(44610);
                     TTDAssert(this->m_cursor == 0, "Should be empty.");
 
                     this->WriteBlock(remainingBuff, TTD_SERIALIZATION_BUFFER_SIZE);
@@ -150,7 +150,7 @@ namespace TTD
                 }
 
                 if(remainingBytes > 0)
-                {
+                {TRACE_IT(44611);
                     js_memcpy_s(this->m_buffer, TTD_SERIALIZATION_BUFFER_SIZE, remainingBuff, remainingBytes);
                     this->m_cursor += remainingBytes;
                 }
@@ -158,18 +158,18 @@ namespace TTD
         }
 
         void WriteRawCharBuff(const char16* buff, size_t bufflen)
-        {
+        {TRACE_IT(44612);
             this->WriteRawByteBuff((const byte*)buff, bufflen * sizeof(char16));
         }
 
         void WriteRawChar(char16 c)
-        {
+        {TRACE_IT(44613);
             this->WriteRawByteBuff_Fixed<char16>(c);
         }
 
         template <size_t N, typename T>
         void WriteFormattedCharData(const char16(&formatString)[N], T data)
-        {
+        {TRACE_IT(44614);
             byte* trgtBuff = this->ReserveSpaceForSmallData<TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE>();
 
             int addedChars = swprintf_s((char16*)trgtBuff, (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(char16)), formatString, data);
@@ -236,7 +236,7 @@ namespace TTD
 
         template <typename T>
         void WriteTag(NSTokens::Key key, T tag, NSTokens::Separator separator = NSTokens::Separator::NoSeparator)
-        {
+        {TRACE_IT(44615);
             this->WriteKey(key, separator);
             this->WriteNakedTag((uint32)tag);
         }
@@ -376,7 +376,7 @@ namespace TTD
     protected:
         template <typename T>
         void ReadBytesInto_Fixed(T& data)
-        {
+        {TRACE_IT(44616);
             size_t sizeAvailable = (this->m_buffCount - this->m_cursor);
             byte* buff = (byte*)&data;
 
@@ -386,7 +386,7 @@ namespace TTD
                 this->m_cursor += sizeof(T);
             }
             else
-            {
+            {TRACE_IT(44617);
                 if(sizeAvailable > 0)
                 {
                     js_memcpy_s(buff, sizeAvailable, this->m_buffer + this->m_cursor, sizeAvailable);
@@ -397,7 +397,7 @@ namespace TTD
                 size_t remainingBytes = (sizeof(T) - sizeAvailable);
 
                 if(remainingBytes > 0)
-                {
+                {TRACE_IT(44618);
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
 
@@ -409,7 +409,7 @@ namespace TTD
         }
 
         void ReadBytesInto(byte* buff, size_t requiredBytes)
-        {
+        {TRACE_IT(44619);
             size_t sizeAvailable = (this->m_buffCount - this->m_cursor);
 
             if(sizeAvailable >= requiredBytes)
@@ -418,7 +418,7 @@ namespace TTD
                 this->m_cursor += requiredBytes;
             }
             else
-            {
+            {TRACE_IT(44620);
                 if(sizeAvailable > 0)
                 {
                     js_memcpy_s(buff, sizeAvailable, this->m_buffer + this->m_cursor, sizeAvailable);
@@ -429,7 +429,7 @@ namespace TTD
                 size_t remainingBytes = (requiredBytes - sizeAvailable);
 
                 while(remainingBytes > TTD_SERIALIZATION_BUFFER_SIZE)
-                {
+                {TRACE_IT(44621);
                     size_t readCount = 0;
                     this->ReadBlock(remainingBuff, &readCount);
                     remainingBuff += readCount;
@@ -437,7 +437,7 @@ namespace TTD
                 }
 
                 if(remainingBytes > 0)
-                {
+                {TRACE_IT(44622);
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
 
@@ -449,17 +449,17 @@ namespace TTD
         }
 
         bool PeekRawChar(char16* c)
-        {
+        {TRACE_IT(44623);
             if(this->m_peekChar != -1)
-            {
+            {TRACE_IT(44624);
                 *c = (char16)this->m_peekChar;
                 return true;
             }
             else
-            {
+            {TRACE_IT(44625);
                 bool success = this->ReadRawChar(c);
                 if(success)
-                {
+                {TRACE_IT(44626);
                     this->m_peekChar = *c;
                 }
                 return success;
@@ -467,28 +467,28 @@ namespace TTD
         }
 
         bool ReadRawChar(char16* c)
-        {
+        {TRACE_IT(44627);
             if(this->m_peekChar != -1)
-            {
+            {TRACE_IT(44628);
                 *c = (char16)this->m_peekChar;
                 this->m_peekChar = -1;
 
                 return true;
             }
             else
-            {
+            {TRACE_IT(44629);
                 if(this->m_cursor == this->m_buffCount)
-                {
+                {TRACE_IT(44630);
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
                 }
 
                 if(this->m_cursor == this->m_buffCount)
-                {
+                {TRACE_IT(44631);
                     return false;
                 }
                 else
-                {
+                {TRACE_IT(44632);
                     *c = *((char16*)(this->m_buffer + this->m_cursor));
                     this->m_cursor += sizeof(char16);
 
@@ -547,7 +547,7 @@ namespace TTD
 
         template <typename T>
         T ReadTag(NSTokens::Key keyCheck, bool readSeparator = false)
-        {
+        {TRACE_IT(44633);
             this->ReadKey(keyCheck, readSeparator);
             uint32 tval = this->ReadNakedTag();
 
@@ -561,7 +561,7 @@ namespace TTD
 
         template <typename Allocator>
         void ReadString(NSTokens::Key keyCheck, Allocator& alloc, TTString& into, bool readSeparator = false)
-        {
+        {TRACE_IT(44634);
             this->ReadKey(keyCheck, readSeparator);
             return this->ReadNakedString(alloc, into);
         }
@@ -571,7 +571,7 @@ namespace TTD
 
         template <typename Allocator>
         TTD_WELLKNOWN_TOKEN ReadWellKnownToken(NSTokens::Key keyCheck, Allocator& alloc, bool readSeparator = false)
-        {
+        {TRACE_IT(44635);
             this->ReadKey(keyCheck, readSeparator);
             return this->ReadNakedWellKnownToken(alloc);
         }
@@ -729,9 +729,9 @@ namespace TTD
         FILE* m_outfile;
 
         void EnsureSpace(uint32 length)
-        {
+        {TRACE_IT(44636);
             if(this->m_currLength + length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {TRACE_IT(44637);
                 fwrite(this->m_buffer, sizeof(char), this->m_currLength, this->m_outfile);
                 fflush(this->m_outfile);
 
@@ -740,14 +740,14 @@ namespace TTD
         }
 
         void AppendRaw(const char* str, uint32 length)
-        {
+        {TRACE_IT(44638);
             if(length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {TRACE_IT(44639);
                 const char* msg = "Oversize string ... omitting from output";
                 fwrite(msg, sizeof(char), strlen(msg), this->m_outfile);
             }
             else
-            {
+            {TRACE_IT(44640);
                 TTDAssert(this->m_currLength + length < TRACE_LOGGER_BUFFER_SIZE, "We are going to overrun!");
 
                 memcpy(this->m_buffer + this->m_currLength, str, length);
@@ -756,21 +756,21 @@ namespace TTD
         }
 
         void AppendRaw(const char16* str, uint32 length)
-        {
+        {TRACE_IT(44641);
             if(length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {TRACE_IT(44642);
                 const char* msg = "Oversize string ... omitting from output";
                 fwrite(msg, sizeof(char), strlen(msg), this->m_outfile);
             }
             else
-            {
+            {TRACE_IT(44643);
                 TTDAssert(this->m_currLength + length < TRACE_LOGGER_BUFFER_SIZE, "We are going to overrun!");
 
                 char* currs = (this->m_buffer + this->m_currLength);
                 const char16* currw = str;
 
                 for(uint32 i = 0; i < length; ++i)
-                {
+                {TRACE_IT(44644);
                     *currs = (char)(*currw);
                     ++currs;
                     ++currw;
@@ -782,7 +782,7 @@ namespace TTD
 
         template<size_t N>
         void AppendLiteral(const char(&str)[N])
-        {
+        {TRACE_IT(44645);
             this->EnsureSpace(N - 1);
             this->AppendRaw(str, N - 1);
         }
@@ -805,7 +805,7 @@ namespace TTD
 
         template<size_t N>
         void WriteLiteralMsg(const char(&str)[N])
-        {
+        {TRACE_IT(44646);
             this->AppendIndent();
             this->AppendLiteral(str);
 

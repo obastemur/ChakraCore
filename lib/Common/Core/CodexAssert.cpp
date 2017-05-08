@@ -7,6 +7,6 @@
 // Method is expected to be implemented to link with codex.lib
 // We have separate implementations for Chakra and IE
 void CodexAssert(bool condition)
-{
+{TRACE_IT(19710);
     Assert(condition);
 }

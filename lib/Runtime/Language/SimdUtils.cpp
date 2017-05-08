@@ -8,13 +8,13 @@
 namespace Js
 {
     bool SIMDUtils::IsSimdType(const Var aVar) //Needs SIMD Type Id's to be contiguous. 
-    {
+    {TRACE_IT(52569);
         Assert(aVar);
         TypeId tid = JavascriptOperators::GetTypeId(aVar);
         return (TypeIds_SIMDFloat32x4 <= tid && tid <= TypeIds_SIMDBool8x16) ? true : false;
     }
     uint32 SIMDUtils::GetSIMDLaneCount(const Var aVar)
-    {
+    {TRACE_IT(52570);
         Assert(IsSimdType(aVar));
         TypeId tid = JavascriptOperators::GetTypeId(aVar);
         switch(tid)
@@ -39,7 +39,7 @@ namespace Js
     }
 
     uint32 SIMDUtils::SIMDCheckTypedArrayIndex(ScriptContext* scriptContext, const Var index)
-    {
+    {TRACE_IT(52571);
         uint32 uint32Value;
         Assert(index != NULL);
 
@@ -48,12 +48,12 @@ namespace Js
     }
 
     uint32 SIMDUtils::SIMDCheckLaneIndex(ScriptContext* scriptContext, const Var lane, const uint32 range)
-    {
+    {TRACE_IT(52572);
         Assert(lane != NULL);
         uint32 uint32Value = SIMDCheckUint32Number(scriptContext, lane);
 
         if (uint32Value >= range)
-        {
+        {TRACE_IT(52573);
             JavascriptError::ThrowRangeError(scriptContext, JSERR_SimdLaneRangeError);
         }
         return uint32Value;
@@ -62,24 +62,24 @@ namespace Js
     // Is Number with uint32 value.
     template<bool acceptNegZero>
     uint32 SIMDUtils::SIMDCheckUint32Number(ScriptContext* scriptContext, const Var value)
-    {
+    {TRACE_IT(52574);
         int32 int32Value;
 
         if (JavascriptNumber::Is(value))
-        {
+        {TRACE_IT(52575);
             if (!JavascriptNumber::TryGetInt32Value<acceptNegZero>(JavascriptNumber::GetValue(value), &int32Value))
-            {
+            {TRACE_IT(52576);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgumentOutOfRange);
             }
         }
         else if (TaggedInt::Is(value))
-        {
+        {TRACE_IT(52577);
             int32Value = TaggedInt::ToInt32(value);
         }
         else
-        {
+        {TRACE_IT(52578);
             if (!JavascriptNumber::TryGetInt32Value<acceptNegZero>(JavascriptConversion::ToNumber(value, scriptContext), &int32Value))
-            {
+            {TRACE_IT(52579);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgumentOutOfRange);
             }
         }
@@ -89,7 +89,7 @@ namespace Js
 
 #if _M_IX86 || _M_AMD64
     SIMDValue SIMDUtils::FromSimdBits(const SIMDValue value)
-    {
+    {TRACE_IT(52580);
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
 
@@ -99,7 +99,7 @@ namespace Js
     }
 #else
     SIMDValue SIMDUtils::FromSimdBits(const SIMDValue value)
-    {
+    {TRACE_IT(52581);
         SIMDValue result;
         result.i32[SIMD_X] = value.i32[SIMD_X];
         result.i32[SIMD_Y] = value.i32[SIMD_Y];
@@ -110,7 +110,7 @@ namespace Js
 #endif
 
     SIMDValue SIMDUtils::SIMD128InnerShuffle(const SIMDValue src1, const SIMDValue src2, uint32 laneCount, const uint32* lanes)
-    {
+    {TRACE_IT(52582);
         SIMDValue result = { 0 };
         Assert(laneCount == 16 || laneCount == 8 || laneCount == 4);
         Assert(lanes != nullptr);
@@ -118,19 +118,19 @@ namespace Js
         {
         case 4:
             for (uint i = 0; i < laneCount; ++i)
-            {
+            {TRACE_IT(52583);
                 result.i32[i] = lanes[i] < laneCount ? src1.i32[lanes[i]] : src2.i32[lanes[i] - laneCount];
             }
             break;
         case 8:
             for (uint i = 0; i < laneCount; ++i)
-            {
+            {TRACE_IT(52584);
                 result.i16[i] = lanes[i] < laneCount ? src1.i16[lanes[i]] : src2.i16[lanes[i] - laneCount];
             }
             break;
         case 16:
             for (uint i = 0; i < laneCount; ++i)
-            {
+            {TRACE_IT(52585);
                 result.i8[i] = lanes[i] < laneCount ? src1.i8[lanes[i]] : src2.i8[lanes[i] - laneCount];
             }
             break;
@@ -142,7 +142,7 @@ namespace Js
 
     template <class SIMDType>
     Var SIMDUtils::SIMD128SlowShuffle(Var src1, Var src2, Var* lanes, const uint32 laneCount, const uint32 range, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(52586);
         SIMDType *a = SIMDType::FromVar(src1);
         SIMDType *b = SIMDType::FromVar(src2);
         Assert(a);
@@ -156,7 +156,7 @@ namespace Js
         Assert(laneCount == 16 || laneCount == 8 || laneCount == 4);
 
         for (uint i = 0; i < laneCount; ++i)
-        {
+        {TRACE_IT(52587);
             laneValue[i] = SIMDUtils::SIMDCheckLaneIndex(scriptContext, lanes[i], range);
         }
 
@@ -174,7 +174,7 @@ namespace Js
     template Var SIMDUtils::SIMD128SlowShuffle<JavascriptSIMDUint16x8 >(Var src1, Var src2, Var *lanes, const uint32 laneCount, const uint32 range, ScriptContext* scriptContext);
 
     bool SIMDUtils::SIMDIsSupportedTypedArray(Var value)
-    {
+    {TRACE_IT(52588);
         return JavascriptOperators::GetTypeId(value) >= TypeIds_Int8Array && JavascriptOperators::GetTypeId(value) <= TypeIds_Float64Array;
     }
 
@@ -186,9 +186,9 @@ namespace Js
     */
 
     SIMDValue* SIMDUtils::SIMDCheckTypedArrayAccess(Var arg1, Var arg2, TypedArrayBase **tarray, int32 *index, uint32 dataWidth, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(52589);
         if (!SIMDIsSupportedTypedArray(arg1))
-        {
+        {TRACE_IT(52590);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdInvalidArgType, _u("Simd typed array access"));
         }
 
@@ -199,14 +199,14 @@ namespace Js
         uint32 bpe = (*tarray)->GetBytesPerElement();
         int32 offset = (*index) * bpe;
         if (offset < 0 || (offset + dataWidth) >(int32)(*tarray)->GetByteLength())
-        {
+        {TRACE_IT(52591);
             JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgumentOutOfRange, _u("Simd typed array access"));
         }
         return (SIMDValue*)((*tarray)->GetByteBuffer() + offset);
     }
 
     SIMDValue SIMDUtils::SIMDLdData(const SIMDValue *data, uint8 dataWidth)
-    {
+    {TRACE_IT(52592);
         SIMDValue result = { 0, 0, 0, 0 };
         // bitwise copy. Always use integer fields to avoid wrong copy of NaNs.
         switch (dataWidth)
@@ -230,7 +230,7 @@ namespace Js
     }
 
     void SIMDUtils::SIMDStData(SIMDValue *data, const SIMDValue simdValue, uint8 dataWidth)
-    {
+    {TRACE_IT(52593);
         // bitwise copy. Always use integer fields to avoid wrong copy of NaNs.
         switch (dataWidth)
         {
@@ -254,13 +254,13 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
     // Maps Simd opcodes which are non-contiguous to a zero-based linear space. Used to index a table using a Simd opcode.
     uint32 SIMDUtils::SimdOpcodeAsIndex(Js::OpCode op)
-    {
+    {TRACE_IT(52594);
         if (op <= Js::OpCode::Simd128_End)
-        {
+        {TRACE_IT(52595);
             return (uint32)((Js::OpCode)op - Js::OpCode::Simd128_Start);
         }
         else
-        {
+        {TRACE_IT(52596);
             Assert(op >= Js::OpCode::Simd128_Start_Extend && op <= Js::OpCode::Simd128_End_Extend);
             return (uint32)((Js::OpCode)op - Js::OpCode::Simd128_Start_Extend) + (uint32)(Js::OpCode::Simd128_End - Js::OpCode::Simd128_Start) + 1;
         }

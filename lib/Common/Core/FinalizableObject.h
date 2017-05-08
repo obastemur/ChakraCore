@@ -22,5 +22,5 @@ public:
     virtual void Mark(Recycler * recycler) = 0;
 
     // Special behavior on certain GC's
-    virtual void OnMark() {}
+    virtual void OnMark() {TRACE_IT(20220);}
 };

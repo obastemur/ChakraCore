@@ -29,7 +29,7 @@ namespace Js {
         static double UtcTimeFromStr(ScriptContext *scriptContext, JavascriptString *pParseString);
         static double DoubleToTvUtc(double tv);
     private:
-        DateImplementation(VirtualTableInfoCtorEnum) { m_modified = false; }
+        DateImplementation(VirtualTableInfoCtorEnum) {TRACE_IT(55077); m_modified = false; }
         DateImplementation(double value);
 
         BEGIN_ENUM_BYTE(DateStringFormat)
@@ -99,8 +99,8 @@ namespace Js {
         static double JsUtcTimeFromVarDate(double dbl, ScriptContext *scriptContext);
 
         void SetTvUtc(double tv);
-        bool IsModified() { return m_modified; }
-        void ClearModified() { m_modified = false; }
+        bool IsModified() {TRACE_IT(55078); return m_modified; }
+        void ClearModified() {TRACE_IT(55079); m_modified = false; }
 
     private:
         JavascriptString* GetString(DateStringFormat dsf, ScriptContext* requestContext,
@@ -150,14 +150,14 @@ namespace Js {
         static bool FDateDelimiter(char16 ch);
 
         bool IsNaN()
-        {
+        {TRACE_IT(55080);
             if (m_grfval & DateValueType::NotNaN)
-            {
+            {TRACE_IT(55081);
                 return false;
             }
 
             if (JavascriptNumber::IsNan(m_tvUtc))
-            {
+            {TRACE_IT(55082);
                 return true;
             }
             m_grfval |= DateValueType::NotNaN;
@@ -169,9 +169,9 @@ namespace Js {
         ///------------------------------------------------------------------------------
         template <class ScriptContext>
         inline void EnsureTvLcl(ScriptContext* scriptContext)
-        {
+        {TRACE_IT(55083);
             if (!(m_grfval & DateValueType::Local))
-            {
+            {TRACE_IT(55084);
                 m_tvLcl = GetTvLcl(m_tvUtc, scriptContext, &m_tzd);
                 m_grfval |= DateValueType::Local;
             }
@@ -182,9 +182,9 @@ namespace Js {
         ///------------------------------------------------------------------------------
         template <class ScriptContext>
         inline void EnsureYmdLcl(ScriptContext* scriptContext)
-        {
+        {TRACE_IT(55085);
             if (m_grfval & DateValueType::YearMonthDayLocal)
-            {
+            {TRACE_IT(55086);
                 return;
             }
             EnsureTvLcl(scriptContext);
@@ -196,9 +196,9 @@ namespace Js {
         /// Make sure m_ymdUtc is valid.
         ///------------------------------------------------------------------------------
         inline void EnsureYmdUtc(void)
-        {
+        {TRACE_IT(55087);
             if (m_grfval & DateValueType::YearMonthDayUTC)
-            {
+            {TRACE_IT(55088);
                 return;
             }
             GetYmdFromTv(m_tvUtc, &m_ymdUtc);
@@ -207,13 +207,13 @@ namespace Js {
 
 
         inline Var GetFullYear(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55089);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar(m_ymdLcl.year, requestContext);
         }
 
         inline Var GetYear(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55090);
             EnsureYmdLcl(requestContext);
             // WOOB bug 1099381: ES5 spec B.2.4: getYear() must return YearFromTime() - 1900.
             // Note that negative value is OK for the spec.
@@ -222,43 +222,43 @@ namespace Js {
         }
 
         inline Var GetMonth(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55091);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar(m_ymdLcl.mon, requestContext);
         }
 
         inline Var GetDate(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55092);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar(m_ymdLcl.mday + 1, requestContext);
         }
 
         inline Var GetDay(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55093);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar(m_ymdLcl.wday, requestContext);
         }
 
         inline Var GetHours(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55094);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar((m_ymdLcl.time / 3600000)%24, requestContext);
         }
 
         inline Var GetMinutes(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55095);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar((m_ymdLcl.time / 60000) % 60, requestContext);
         }
 
         inline Var GetSeconds(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55096);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar((m_ymdLcl.time / 1000) % 60, requestContext);
         }
 
         inline Var GetDateMilliSeconds(ScriptContext* requestContext)
-        {
+        {TRACE_IT(55097);
             EnsureYmdLcl(requestContext);
             return JavascriptNumber::ToVar(m_ymdLcl.time % 1000, requestContext);
         }
@@ -289,20 +289,20 @@ namespace Js {
     ///
     template <class ScriptContext>
     double DateImplementation::GetTvLcl(double tv, ScriptContext *scriptContext, TZD *ptzd)
-    {
+    {TRACE_IT(55098);
         Assert(scriptContext);
 
         double tvLcl;
 
         if (nullptr != ptzd)
-        {
+        {TRACE_IT(55099);
             ptzd->minutes = 0;
             ptzd->fDst = FALSE;
         }
 
         // See if we're out of range before conversion (UTC time value must be within this range)
         if (JavascriptNumber::IsNan(tv) || tv < ktvMin || tv > ktvMax)
-        {
+        {TRACE_IT(55100);
             return JavascriptNumber::NaN;
         }
 
@@ -311,7 +311,7 @@ namespace Js {
         bool isDaylightSavings;
         tvLcl = scriptContext->GetDaylightTimeHelper()->UtcToLocal(tv, bias, offset, isDaylightSavings);
         if (nullptr != ptzd)
-        {
+        {TRACE_IT(55101);
             ptzd->minutes = -bias;
             ptzd->offset = offset;
             ptzd->fDst = isDaylightSavings;
@@ -324,20 +324,20 @@ namespace Js {
     ///
     template <class ScriptContext>
     double DateImplementation::GetTvUtc(double tv, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(55102);
         Assert(scriptContext);
 
         double tvUtc;
 
         if (JavascriptNumber::IsNan(tv) || !NumberUtilities::IsFinite(tv))
-        {
+        {TRACE_IT(55103);
             return JavascriptNumber::NaN;
         }
 
         tvUtc = scriptContext->GetDaylightTimeHelper()->LocalToUtc(tv);
         // See if we're out of range after conversion (UTC time value must be within this range)
         if (JavascriptNumber::IsNan(tvUtc) || !NumberUtilities::IsFinite(tv) || tvUtc < ktvMin || tvUtc > ktvMax)
-        {
+        {TRACE_IT(55104);
             return JavascriptNumber::NaN;
         }
         return tvUtc;
@@ -351,9 +351,9 @@ namespace Js {
     //
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::GetDiagValueString(ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {TRACE_IT(55105);
         if (JavascriptNumber::IsNan(m_tvUtc))
-        {
+        {TRACE_IT(55106);
             StringBuilder* bs = newStringBuilder(0);
             bs->Append(JS_DISPLAY_STRING_INVALID_DATE);
             return bs;
@@ -365,14 +365,14 @@ namespace Js {
 
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::ConvertVariantDateToString(double dbl, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {TRACE_IT(55107);
         TZD tzd;
         DateTime::YMD ymd;
         double tv = GetTvUtc(JsLocalTimeFromVarDate(dbl), scriptContext);
 
         tv = GetTvLcl(tv, scriptContext, &tzd);
         if (JavascriptNumber::IsNan(tv))
-        {
+        {TRACE_IT(55108);
             StringBuilder* bs = newStringBuilder(0);
             bs->Append(JS_DISPLAY_STRING_NAN);
             return bs;
@@ -390,25 +390,25 @@ namespace Js {
     //
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {TRACE_IT(55109);
         int hour, min;
 
         StringBuilder* const bs = newStringBuilder(72);
 
         const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {TRACE_IT(55110);
             const charcount_t cchWritten = NumberUtilities::UInt16ToString(value, buffer, charCapacity, 2);
             Assert(cchWritten != 0);
         };
         const auto ConvertLongToString = [](const int32 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {TRACE_IT(55111);
             const errno_t err = _ltow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
         };
 
         // PART 1 - DATE part
         if( !(noDateTime & DateTimeFlag::NoDate))
-        {
+        {TRACE_IT(55112);
             bs->AppendChars(g_rgpszDay[pymd->wday]);
             bs->AppendChars(_u(' '));
             bs->AppendChars(g_rgpszMonth[pymd->mon]);
@@ -421,7 +421,7 @@ namespace Js {
             bs->AppendChars(pymd->year, 10, ConvertLongToString);
 
             if(!(noDateTime & DateTimeFlag::NoTime))
-            {
+            {TRACE_IT(55113);
                 // append a space to delimit PART 2 - if to be outputted
                 bs->AppendChars(_u(' '));
             }
@@ -429,7 +429,7 @@ namespace Js {
 
         // PART 2 - TIME part
         if(!(noDateTime & DateTimeFlag::NoTime))
-        {
+        {TRACE_IT(55114);
             // sz - as %02d - HOUR
             bs->AppendChars(static_cast<WORD>(pymd->time / 3600000), 2, ConvertUInt16ToString_ZeroPad_2);
             bs->AppendChars(_u(':'));
@@ -444,12 +444,12 @@ namespace Js {
             // IE11+
             min = ptzd->offset;
             if (min < 0)
-            {
+            {TRACE_IT(55115);
                 bs->AppendChars(_u('-'));
                 min = -min;
             }
             else
-            {
+            {TRACE_IT(55116);
                 bs->AppendChars(_u('+'));
             }
 
@@ -465,13 +465,13 @@ namespace Js {
 
             // check the IsDaylightSavings?
             if (ptzd->fDst == false)
-            {
+            {TRACE_IT(55117);
                 size_t nameLength;
                 const WCHAR *const standardName = scriptContext->GetStandardName(&nameLength, pymd);
                 bs->AppendChars(standardName, static_cast<CharCount>(nameLength));
             }
             else
-            {
+            {TRACE_IT(55118);
                 size_t nameLength;
                 const WCHAR *const daylightName = scriptContext->GetDaylightName(&nameLength, pymd);
                 bs->AppendChars(daylightName, static_cast<CharCount>(nameLength));

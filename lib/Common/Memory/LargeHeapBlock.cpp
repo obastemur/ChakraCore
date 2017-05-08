@@ -13,7 +13,7 @@ const StackBackTrace* LargeHeapBlock::s_StackTraceAllocFailed = (StackBackTrace*
 #endif
 
 void *
-LargeObjectHeader::GetAddress() { return ((char *)this) + sizeof(LargeObjectHeader); }
+LargeObjectHeader::GetAddress() {TRACE_IT(24297); return ((char *)this) + sizeof(LargeObjectHeader); }
 
 #ifdef LARGEHEAPBLOCK_ENCODING
 // decodedNext = decoded next field
@@ -23,7 +23,7 @@ LargeObjectHeader::GetAddress() { return ((char *)this) + sizeof(LargeObjectHead
 // Encode 'next' and 'attributes' using _cookie
 unsigned char
 LargeObjectHeader::CalculateCheckSum(LargeObjectHeader* decodedNext, unsigned char decodedAttributes)
-{
+{TRACE_IT(24298);
     unsigned char checksum = 0;
     byte *nextField = (byte *)&decodedNext;
 
@@ -33,21 +33,21 @@ LargeObjectHeader::CalculateCheckSum(LargeObjectHeader* decodedNext, unsigned ch
 
 LargeObjectHeader*
 LargeObjectHeader::EncodeNext(uint cookie, LargeObjectHeader* next)
-{
+{TRACE_IT(24299);
     return (LargeObjectHeader *)((uintptr_t)next ^ cookie);
 }
 
 ushort
 LargeObjectHeader::EncodeAttributesAndChecksum(uint cookie, ushort attributesAndChecksum)
-{
+{TRACE_IT(24300);
     return attributesAndChecksum ^ (ushort)cookie;
 }
 
 LargeObjectHeader*
-LargeObjectHeader::DecodeNext(uint cookie, LargeObjectHeader* next) { return EncodeNext(cookie, next); }
+LargeObjectHeader::DecodeNext(uint cookie, LargeObjectHeader* next) {TRACE_IT(24301); return EncodeNext(cookie, next); }
 
 ushort
-LargeObjectHeader::DecodeAttributesAndChecksum(uint cookie) { return EncodeAttributesAndChecksum(cookie, this->attributesAndChecksum); }
+LargeObjectHeader::DecodeAttributesAndChecksum(uint cookie) {TRACE_IT(24302); return EncodeAttributesAndChecksum(cookie, this->attributesAndChecksum); }
 
 #else
 // If heap block encoding is disabled then have an API to expose
@@ -55,14 +55,14 @@ LargeObjectHeader::DecodeAttributesAndChecksum(uint cookie) { return EncodeAttri
 // which updates the attributes field.
 unsigned char *
 LargeObjectHeader::GetAttributesPtr()
-{
+{TRACE_IT(24303);
     return &this->attributes;
 }
 #endif
 
 void
 LargeObjectHeader::SetNext(uint cookie, LargeObjectHeader* next)
-{
+{TRACE_IT(24304);
 #ifdef LARGEHEAPBLOCK_ENCODING
     ushort decodedAttributesAndChecksum = this->DecodeAttributesAndChecksum(cookie);
 
@@ -81,7 +81,7 @@ LargeObjectHeader::SetNext(uint cookie, LargeObjectHeader* next)
 
 LargeObjectHeader *
 LargeObjectHeader::GetNext(uint cookie)
-{
+{TRACE_IT(24305);
 #ifdef LARGEHEAPBLOCK_ENCODING
     LargeObjectHeader *decodedNext = this->DecodeNext(cookie, this->next);
     ushort decodedAttributesAndChecksum = this->DecodeAttributesAndChecksum(cookie);
@@ -89,7 +89,7 @@ LargeObjectHeader::GetNext(uint cookie)
     unsigned char checkSum = (unsigned char)(decodedAttributesAndChecksum & 0xFF);
     unsigned char calculatedCheckSumField = this->CalculateCheckSum(decodedNext, (unsigned char)(decodedAttributesAndChecksum >> 8));
     if (checkSum != calculatedCheckSumField)
-    {
+    {TRACE_IT(24306);
         LargeHeapBlock_Metadata_Corrupted((ULONG_PTR)this, calculatedCheckSumField);
     }
     // If checksum matches return the up-to-date next (in case other thread changed it from last time
@@ -103,7 +103,7 @@ LargeObjectHeader::GetNext(uint cookie)
 
 void
 LargeObjectHeader::SetAttributes(uint cookie, unsigned char attributes)
-{
+{TRACE_IT(24307);
 #ifdef LARGEHEAPBLOCK_ENCODING
     LargeObjectHeader *decodedNext = this->DecodeNext(cookie, this->next);
 
@@ -120,7 +120,7 @@ LargeObjectHeader::SetAttributes(uint cookie, unsigned char attributes)
 
 unsigned char
 LargeObjectHeader::GetAttributes(uint cookie)
-{
+{TRACE_IT(24308);
 #ifdef LARGEHEAPBLOCK_ENCODING
 
     LargeObjectHeader *decodedNext = this->DecodeNext(cookie, this->next);
@@ -129,7 +129,7 @@ LargeObjectHeader::GetAttributes(uint cookie)
     unsigned char checkSum = (unsigned char)(decodedAttributesAndChecksum & 0xFF);
     unsigned char calculatedCheckSumField = this->CalculateCheckSum(decodedNext, (unsigned char)(decodedAttributesAndChecksum >> 8));
     if (checkSum != calculatedCheckSumField)
-    {
+    {TRACE_IT(24309);
         LargeHeapBlock_Metadata_Corrupted((ULONG_PTR)this, calculatedCheckSumField);
     }
 
@@ -143,7 +143,7 @@ LargeObjectHeader::GetAttributes(uint cookie)
 
 size_t
 LargeHeapBlock::GetAllocPlusSize(uint objectCount)
-{
+{TRACE_IT(24310);
     // Large Heap Block Layout:
     //      LargeHeapBlock
     //      LargeObjectHeader * [objectCount]
@@ -151,7 +151,7 @@ LargeHeapBlock::GetAllocPlusSize(uint objectCount)
     size_t allocPlusSize = objectCount * (sizeof(LargeObjectHeader *));
 #ifdef PROFILE_RECYCLER_ALLOC
     if (Recycler::DoProfileAllocTracker())
-    {
+    {TRACE_IT(24311);
         allocPlusSize += objectCount * sizeof(void *);
     }
 #endif
@@ -160,13 +160,13 @@ LargeHeapBlock::GetAllocPlusSize(uint objectCount)
 
 LargeHeapBlock *
 LargeHeapBlock::New(__in char * address, size_t pageCount, Segment * segment, uint objectCount, LargeHeapBucket* bucket)
-{
+{TRACE_IT(24312);
     return NoMemProtectHeapNewNoThrowPlusZ(GetAllocPlusSize(objectCount), LargeHeapBlock, address, pageCount, segment, objectCount, bucket);
 }
 
 void
 LargeHeapBlock::Delete(LargeHeapBlock * heapBlock)
-{
+{TRACE_IT(24313);
     NoMemProtectHeapDeletePlus(GetAllocPlusSize(heapBlock->objectCount), heapBlock);
 }
 
@@ -199,16 +199,16 @@ LargeHeapBlock::LargeHeapBlock(__in char * address, size_t pageCount, Segment * 
 }
 
 LargeHeapBlock::~LargeHeapBlock()
-{
+{TRACE_IT(24314);
     AssertMsg(this->segment == nullptr || this->heapInfo->recycler->recyclerLargeBlockPageAllocator.IsClosed(),
         "ReleasePages needs to be called before delete");
     RECYCLER_PERF_COUNTER_DEC(LargeHeapBlockCount);
 
 #if defined(RECYCLER_PAGE_HEAP) && defined(STACK_BACK_TRACE)
     if (this->pageHeapAllocStack != nullptr)
-    {
+    {TRACE_IT(24315);
         if (this->pageHeapAllocStack != s_StackTraceAllocFailed)
-        {
+        {TRACE_IT(24316);
             this->pageHeapAllocStack->Delete(&NoThrowHeapAllocator::Instance);
         }
         this->pageHeapAllocStack = nullptr;
@@ -217,7 +217,7 @@ LargeHeapBlock::~LargeHeapBlock()
     // REVIEW: This means that the old free stack is lost when we get free the heap block
     // Is this okay? Should we delay freeing heap blocks till process/thread shutdown time?
     if (this->pageHeapFreeStack != nullptr)
-    {
+    {TRACE_IT(24317);
         this->pageHeapFreeStack->Delete(&NoThrowHeapAllocator::Instance);
         this->pageHeapFreeStack = nullptr;
     }
@@ -226,28 +226,28 @@ LargeHeapBlock::~LargeHeapBlock()
 
 Recycler *
 LargeHeapBlock::GetRecycler() const
-{
+{TRACE_IT(24318);
     return this->bucket->heapInfo->recycler;
 }
 
 LargeObjectHeader **
 LargeHeapBlock::HeaderList()
-{
+{TRACE_IT(24319);
     // See LargeHeapBlock::GetAllocPlusSize for layout description
     return (LargeObjectHeader **)(((byte *)this) + sizeof(LargeHeapBlock));
 }
 
 void
 LargeHeapBlock::FinalizeAllObjects()
-{
+{TRACE_IT(24320);
     if (this->finalizeCount != 0)
-    {
+    {TRACE_IT(24321);
         DebugOnly(uint processedCount = 0);
         for (uint i = 0; i < allocCount; i++)
-        {
+        {TRACE_IT(24322);
             LargeObjectHeader * header = this->GetHeader(i);
             if (header == nullptr || ((header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit) == 0))
-            {
+            {TRACE_IT(24323);
                 continue;
             }
 
@@ -262,7 +262,7 @@ LargeHeapBlock::FinalizeAllObjects()
         }
 
         while (pendingDisposeObject != nullptr)
-        {
+        {TRACE_IT(24324);
             LargeObjectHeader * header = pendingDisposeObject;
             pendingDisposeObject = header->GetNext(this->heapInfo->recycler->Cookie);
             Assert(header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit);
@@ -284,7 +284,7 @@ LargeHeapBlock::FinalizeAllObjects()
 
 void
 LargeHeapBlock::ReleasePagesShutdown(Recycler * recycler)
-{
+{TRACE_IT(24325);
 #if DBG
     recycler->heapBlockMap.ClearHeapBlock(this->address, this->pageCount);
 
@@ -295,7 +295,7 @@ LargeHeapBlock::ReleasePagesShutdown(Recycler * recycler)
 
 void
 LargeHeapBlock::ReleasePagesSweep(Recycler * recycler)
-{
+{TRACE_IT(24326);
     recycler->heapBlockMap.ClearHeapBlock(this->address, this->pageCount);
 
     ReleasePages(recycler);
@@ -304,17 +304,17 @@ LargeHeapBlock::ReleasePagesSweep(Recycler * recycler)
 #ifdef RECYCLER_PAGE_HEAP
 _NOINLINE
 void LargeHeapBlock::VerifyPageHeapPattern()
-{
+{TRACE_IT(24327);
     Assert(InPageHeapMode());
     Assert(this->allocCount > 0);
     byte* objectEndAddress = (byte*)this->allocAddressEnd;
     byte* addrEnd = (byte*)this->addressEnd;
 
     for (int i = 0; objectEndAddress + i < (byte*)addrEnd; i++)
-    {
+    {TRACE_IT(24328);
         byte current = objectEndAddress[i];
         if (current != 0xF0u)
-        {
+        {TRACE_IT(24329);
             Assert(false);
             ReportFatalException(NULL, E_FAIL, Fatal_Recycler_MemoryCorruption, 2);
         }
@@ -325,25 +325,25 @@ void LargeHeapBlock::VerifyPageHeapPattern()
 
 void
 LargeHeapBlock::ReleasePages(Recycler * recycler)
-{
+{TRACE_IT(24330);
     Assert(segment != nullptr);
 
     char* blockStartAddress = this->address;
     size_t realPageCount = this->pageCount;
 #ifdef RECYCLER_PAGE_HEAP
     if (InPageHeapMode())
-    {
+    {TRACE_IT(24331);
         Assert(((LargeObjectHeader*)this->address)->isPageHeapFillVerified || this->allocCount == 0);
         if (this->allocCount > 0) // in case OOM while adding heapblock to heapBlockMap, we release page before setting the pattern
-        {
+        {TRACE_IT(24332);
             Assert(this->allocCount == 1); // one object per heapblock in pageheap
             VerifyPageHeapPattern();
         }
 
         if (guardPageAddress != nullptr)
-        {
+        {TRACE_IT(24333);
             if (this->pageHeapMode == PageHeapMode::PageHeapModeBlockStart)
-            {
+            {TRACE_IT(24334);
                 blockStartAddress = guardPageAddress;
             }
             realPageCount = this->actualPageCount;
@@ -368,7 +368,7 @@ LargeHeapBlock::ReleasePages(Recycler * recycler)
 
 BOOL
 LargeHeapBlock::IsValidObject(void* objectAddress)
-{
+{TRACE_IT(24335);
     LargeObjectHeader * header = GetHeader(objectAddress);
     return ((char *)header >= this->address && header->objectIndex < this->allocCount && this->HeaderList()[header->objectIndex] == header);
 }
@@ -376,7 +376,7 @@ LargeHeapBlock::IsValidObject(void* objectAddress)
 #if DBG
 BOOL
 LargeHeapBlock::IsFreeObject(void * objectAddress)
-{
+{TRACE_IT(24336);
     LargeObjectHeader * header = GetHeader(objectAddress);
     return ((char *)header >= this->address && header->objectIndex < this->allocCount && this->GetHeader(header->objectIndex) == nullptr);
 }
@@ -384,34 +384,34 @@ LargeHeapBlock::IsFreeObject(void * objectAddress)
 
 bool
 LargeHeapBlock::TryGetAttributes(void* objectAddress, unsigned char * pAttr)
-{
+{TRACE_IT(24337);
     return this->TryGetAttributes(GetHeader(objectAddress), pAttr);
 }
 
 bool
 LargeHeapBlock::TryGetAttributes(LargeObjectHeader * header, unsigned char * pAttr)
-{
+{TRACE_IT(24338);
     if ((char *)header < this->address)
-    {
+    {TRACE_IT(24339);
         return false;
     }
 
     uint index = header->objectIndex;
 
     if (index >= this->allocCount)
-    {
+    {TRACE_IT(24340);
         // Not allocated yet.
         return false;
     }
 
     if (this->HeaderList()[index] != header)
-    {
+    {TRACE_IT(24341);
         // header doesn't match, not a real object
         return false;
     }
 
     if (this->InPageHeapMode())
-    {
+    {TRACE_IT(24342);
         this->VerifyPageHeapPattern();
     }
 
@@ -421,16 +421,16 @@ LargeHeapBlock::TryGetAttributes(LargeObjectHeader * header, unsigned char * pAt
 
 size_t
 LargeHeapBlock::GetPagesNeeded(size_t size, bool multiplyRequest)
-{
+{TRACE_IT(24343);
     if (multiplyRequest)
-    {
+    {TRACE_IT(24344);
         size = AllocSizeMath::Mul(size, 4);
     }
 
     uint pageSize = AutoSystemInfo::PageSize;
     size = AllocSizeMath::Add(size, sizeof(LargeObjectHeader) + (pageSize - 1));
     if (size == (size_t)-1)
-    {
+    {TRACE_IT(24345);
         return 0;
     }
     size_t pageCount = size / pageSize;
@@ -439,7 +439,7 @@ LargeHeapBlock::GetPagesNeeded(size_t size, bool multiplyRequest)
 
 char*
 LargeHeapBlock::TryAllocFromFreeList(size_t size, ObjectInfoBits attributes)
-{
+{TRACE_IT(24346);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     LargeHeapBlockFreeListEntry** prev = &this->freeList.entries;
@@ -449,15 +449,15 @@ LargeHeapBlock::TryAllocFromFreeList(size_t size, ObjectInfoBits attributes)
 
     // Walk through the free list, find the first entry that can fit our desired size
     while (freeListEntry)
-    {
+    {TRACE_IT(24347);
         LargeHeapBlockFreeListEntry* next = freeListEntry->next;
         LargeHeapBlock* heapBlock = freeListEntry->heapBlock;
 
         if (freeListEntry->objectSize >= size)
-        {
+        {TRACE_IT(24348);
             memBlock = heapBlock->AllocFreeListEntry(size, attributes, freeListEntry);
             if (memBlock)
-            {
+            {TRACE_IT(24349);
                 (*prev) = next;
 
                 break;
@@ -469,7 +469,7 @@ LargeHeapBlock::TryAllocFromFreeList(size_t size, ObjectInfoBits attributes)
     }
 
     if (this->freeList.entries == nullptr)
-    {
+    {TRACE_IT(24350);
         this->bucket->UnregisterFreeList(&this->freeList);
     }
 
@@ -478,7 +478,7 @@ LargeHeapBlock::TryAllocFromFreeList(size_t size, ObjectInfoBits attributes)
 
 char*
 LargeHeapBlock::AllocFreeListEntry(size_t size, ObjectInfoBits attributes, LargeHeapBlockFreeListEntry* entry)
-{
+{TRACE_IT(24351);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
     Assert(HeapInfo::IsAlignedSize(size));
     AssertMsg((attributes & TrackBit) == 0, "Large tracked object collection not implemented");
@@ -495,13 +495,13 @@ LargeHeapBlock::AllocFreeListEntry(size_t size, ObjectInfoBits attributes, Large
     char * newAllocAddressEnd = allocObject + size;
     char * originalAllocEnd = allocObject + originalSize;
     if (newAllocAddressEnd > addressEnd || newAllocAddressEnd < allocObject || (originalAllocEnd < newAllocAddressEnd))
-    {
+    {TRACE_IT(24352);
         return nullptr;
     }
 
 #ifdef RECYCLER_MEMORY_VERIFY
     if (this->heapInfo->recycler->VerifyEnabled())
-    {
+    {TRACE_IT(24353);
         this->heapInfo->recycler->VerifyCheckFill(allocObject , originalSize);
     }
 #endif
@@ -537,7 +537,7 @@ LargeHeapBlock::AllocFreeListEntry(size_t size, ObjectInfoBits attributes, Large
 
 #ifdef RECYCLER_FINALIZE_CHECK
     if (attributes & FinalizeBit)
-    {
+    {TRACE_IT(24354);
         HeapInfo * heapInfo = this->heapInfo;
         heapInfo->liveFinalizableObjectCount++;
         heapInfo->newFinalizableObjectCount++;
@@ -549,7 +549,7 @@ LargeHeapBlock::AllocFreeListEntry(size_t size, ObjectInfoBits attributes, Large
 
 char*
 LargeHeapBlock::Alloc(size_t size, ObjectInfoBits attributes)
-{
+{TRACE_IT(24355);
     Assert(HeapInfo::IsAlignedSize(size) || InPageHeapMode());
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
     AssertMsg((attributes & TrackBit) == 0, "Large tracked object collection not implemented");
@@ -561,7 +561,7 @@ LargeHeapBlock::Alloc(size_t size, ObjectInfoBits attributes)
     char * allocObject = allocAddressEnd + sizeof(LargeObjectHeader);       // shouldn't overflow
     char * newAllocAddressEnd = allocObject + size;
     if (newAllocAddressEnd > addressEnd || newAllocAddressEnd < allocObject)
-    {
+    {TRACE_IT(24356);
         return nullptr;
     }
 
@@ -593,7 +593,7 @@ LargeHeapBlock::Alloc(size_t size, ObjectInfoBits attributes)
 
 #ifdef RECYCLER_FINALIZE_CHECK
     if (attributes & FinalizeBit)
-    {
+    {TRACE_IT(24357);
         HeapInfo * heapInfo = this->heapInfo;
         heapInfo->liveFinalizableObjectCount++;
         heapInfo->newFinalizableObjectCount++;
@@ -607,12 +607,12 @@ template <bool doSpecialMark>
 _NOINLINE
 void
 LargeHeapBlock::Mark(void* objectAddress, MarkContext * markContext)
-{
+{TRACE_IT(24358);
     LargeObjectHeader * header = GetHeader(objectAddress);
 
     unsigned char attributes = ObjectInfoBits::NoBit;
     if (!this->TryGetAttributes(header, &attributes))
-    {
+    {TRACE_IT(24359);
         return;
     }
 
@@ -620,11 +620,11 @@ LargeHeapBlock::Mark(void* objectAddress, MarkContext * markContext)
 
     size_t objectSize = header->objectSize;
     if (this->InPageHeapMode())
-    {
+    {TRACE_IT(24360);
         // trim off the trailing part which is not a pointer
         objectSize = HeapInfo::RoundObjectSize(objectSize);
         if (objectSize == 0)
-        {
+        {TRACE_IT(24361);
             // finalizable object must bigger than a pointer size because of the vtable
             Assert((attributes & FinalizeBit) == 0);
             return;
@@ -639,7 +639,7 @@ LargeHeapBlock::Mark(void* objectAddress, MarkContext * markContext)
 
         // Single page large heap block rescan all marked object on oom rescan
         if (this->GetPageCount() != 1)
-        {
+        {TRACE_IT(24362);
             // Failed to mark the objects referenced by this object, so we'll
             // revisit this on rescan
             header->markOnOOMRescan = true;
@@ -652,13 +652,13 @@ template void LargeHeapBlock::Mark<false>(void* objectAddress, MarkContext * mar
 
 bool
 LargeHeapBlock::TestObjectMarkedBit(void* objectAddress)
-{
+{TRACE_IT(24363);
     Assert(IsValidObject(objectAddress));
 
     LargeObjectHeader* pHeader = nullptr;
 
     if (GetObjectHeader(objectAddress, &pHeader))
-    {
+    {TRACE_IT(24364);
         Recycler* recycler = this->heapInfo->recycler;
 
         return recycler->heapBlockMap.IsMarked(objectAddress);
@@ -669,13 +669,13 @@ LargeHeapBlock::TestObjectMarkedBit(void* objectAddress)
 
 void
 LargeHeapBlock::SetObjectMarkedBit(void* objectAddress)
-{
+{TRACE_IT(24365);
     Assert(IsValidObject(objectAddress));
 
     LargeObjectHeader* pHeader = nullptr;
 
     if (GetObjectHeader(objectAddress, &pHeader))
-    {
+    {TRACE_IT(24366);
         Recycler* recycler = this->heapInfo->recycler;
 
         recycler->heapBlockMap.SetMark(objectAddress);
@@ -684,16 +684,16 @@ LargeHeapBlock::SetObjectMarkedBit(void* objectAddress)
 
 bool
 LargeHeapBlock::FindImplicitRootObject(void* objectAddress, Recycler * recycler, RecyclerHeapObjectInfo& heapObject)
-{
+{TRACE_IT(24367);
     if (!IsValidObject(objectAddress))
-    {
+    {TRACE_IT(24368);
         return false;
     }
 
     LargeObjectHeader* pHeader = nullptr;
 
     if (!GetObjectHeader(objectAddress, &pHeader))
-    {
+    {TRACE_IT(24369);
         return false;
     }
 
@@ -708,26 +708,26 @@ LargeHeapBlock::FindImplicitRootObject(void* objectAddress, Recycler * recycler,
 
 bool
 LargeHeapBlock::FindHeapObject(void* objectAddress, Recycler * recycler, FindHeapObjectFlags, RecyclerHeapObjectInfo& heapObject)
-{
+{TRACE_IT(24370);
     // Currently the same actual implementation (flags is ignored)
     return FindImplicitRootObject(objectAddress, recycler, heapObject);
 }
 
 bool
 LargeHeapBlock::GetObjectHeader(void* objectAddress, LargeObjectHeader** ppHeader)
-{
+{TRACE_IT(24371);
     (*ppHeader) = nullptr;
 
     LargeObjectHeader * header = GetHeader(objectAddress);
     if ((char *)header < this->address)
-    {
+    {TRACE_IT(24372);
         return false;
     }
 
     uint index = header->objectIndex;
 
     if (this->HeaderList()[index] != header)
-    {
+    {TRACE_IT(24373);
         // header doesn't match, not a real object
         return false;
     }
@@ -739,7 +739,7 @@ LargeHeapBlock::GetObjectHeader(void* objectAddress, LargeObjectHeader** ppHeade
 
 void
 LargeHeapBlock::ResetMarks(ResetMarkFlags flags, Recycler* recycler)
-{
+{TRACE_IT(24374);
     Assert(!this->needOOMRescan);
 
     // Update the lastCollectAllocCount for sweep
@@ -752,20 +752,20 @@ LargeHeapBlock::ResetMarks(ResetMarkFlags flags, Recycler* recycler)
 #endif
 
     if (flags & ResetMarkFlags_ScanImplicitRoot)
-    {
+    {TRACE_IT(24375);
         for (uint objectIndex = 0; objectIndex < allocCount; objectIndex++)
-        {
+        {TRACE_IT(24376);
             // object is allocated during the concurrent mark or it is marked, do rescan
             LargeObjectHeader * header = this->GetHeader(objectIndex);
             // check if the object index is not allocated
             if (header == nullptr)
-            {
+            {TRACE_IT(24377);
                 continue;
             }
 
             // check whether the object is a leaf and doesn't need to be scanned
             if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & ImplicitRootBit) != 0)
-            {
+            {TRACE_IT(24378);
                 recycler->heapBlockMap.SetMark(header->GetAddress());
             }
         }
@@ -774,22 +774,22 @@ LargeHeapBlock::ResetMarks(ResetMarkFlags flags, Recycler* recycler)
 
 LargeObjectHeader *
 LargeHeapBlock::GetHeader(void * objectAddress)
-{
+{TRACE_IT(24379);
     Assert(objectAddress >= this->address && objectAddress < this->addressEnd);
     return GetHeaderFromAddress(objectAddress);
 }
 
 LargeObjectHeader *
 LargeHeapBlock::GetHeaderFromAddress(void * objectAddress)
-{
+{TRACE_IT(24380);
     return (LargeObjectHeader*)(((char *)objectAddress) - sizeof(LargeObjectHeader));
 }
 
 byte *
 LargeHeapBlock::GetRealAddressFromInterior(void * interiorAddress)
-{
+{TRACE_IT(24381);
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24382);
         LargeObjectHeader * header = this->HeaderList()[i];
 
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
@@ -797,11 +797,11 @@ LargeHeapBlock::GetRealAddressFromInterior(void * interiorAddress)
 #else
         if (header != nullptr)
 #endif
-        {
+        {TRACE_IT(24383);
             Assert(header->objectIndex == i);
             byte * startAddress = (byte *)header->GetAddress();
             if (startAddress <= interiorAddress && (startAddress + header->objectSize > interiorAddress))
-            {
+            {TRACE_IT(24384);
                 return startAddress;
             }
         }
@@ -814,21 +814,21 @@ LargeHeapBlock::GetRealAddressFromInterior(void * interiorAddress)
 
 void
 LargeHeapBlock::VerifyMark()
-{
+{TRACE_IT(24385);
     Assert(!this->needOOMRescan);
     Recycler* recycler = this->heapInfo->recycler;
 
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24386);
         LargeObjectHeader * header = this->GetHeader(i);
         if (header == nullptr)
-        {
+        {TRACE_IT(24387);
             continue;
         }
 
         char * objectAddress = (char *)header->GetAddress();
         if (!recycler->heapBlockMap.IsMarked(objectAddress))
-        {
+        {TRACE_IT(24388);
             continue;
         }
 
@@ -837,7 +837,7 @@ LargeHeapBlock::VerifyMark()
         Assert((attributes & NewFinalizeBit) == 0);
 
         if ((attributes & LeafBit) != 0)
-        {
+        {TRACE_IT(24389);
             continue;
         }
 
@@ -846,14 +846,14 @@ LargeHeapBlock::VerifyMark()
         char * objectAddressEnd = objectAddress + header->objectSize;
 
         while (objectAddress + sizeof(void *) <= objectAddressEnd)
-        {
+        {TRACE_IT(24390);
             void* target = *(void **)objectAddress;
 
             if (recycler->VerifyMark(objectAddress, target))
-            {
+            {TRACE_IT(24391);
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
                 if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-                {
+                {TRACE_IT(24392);
                     this->WBVerifyBitIsSet(objectAddress);
                 }
 #endif
@@ -866,24 +866,24 @@ LargeHeapBlock::VerifyMark()
 
 bool
 LargeHeapBlock::VerifyMark(void * objectAddress, void* target)
-{
+{TRACE_IT(24393);
     LargeObjectHeader * header = GetHeader(target);
 
     if ((char *)header < this->address)
-    {
+    {TRACE_IT(24394);
         return false;
     }
 
     uint index = header->objectIndex;
 
     if (index >= this->allocCount)
-    {
+    {TRACE_IT(24395);
         // object not allocated
         return false;
     }
 
     if (this->HeaderList()[index] != header)
-    {
+    {TRACE_IT(24396);
         // header doesn't match, not a real object
         return false;
     }
@@ -892,12 +892,12 @@ LargeHeapBlock::VerifyMark(void * objectAddress, void* target)
 
 #if DBG
     if (!isMarked)
-    {
+    {TRACE_IT(24397);
         PrintVerifyMarkFailure(this->GetRecycler(), (char*)objectAddress, (char*)target);
     }
 #else
     if (!isMarked)
-    {
+    {TRACE_IT(24398);
         DebugBreak();
     }
 #endif
@@ -908,22 +908,22 @@ LargeHeapBlock::VerifyMark(void * objectAddress, void* target)
 
 void
 LargeHeapBlock::ScanInitialImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24399);
     Assert(recycler->enableScanImplicitRoots);
     const HeapBlockMap& heapBlockMap = recycler->heapBlockMap;
     for (uint objectIndex = 0; objectIndex < allocCount; objectIndex++)
-    {
+    {TRACE_IT(24400);
         // object is allocated during the concurrent mark or it is marked, do rescan
         LargeObjectHeader * header = this->GetHeader(objectIndex);
         // check if the object index is not allocated
         if (header == nullptr)
-        {
+        {TRACE_IT(24401);
             continue;
         }
 
         // check whether the object is a leaf and doesn't need to be scanned
         if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & LeafBit) != 0)
-        {
+        {TRACE_IT(24402);
             continue;
         }
 
@@ -931,7 +931,7 @@ LargeHeapBlock::ScanInitialImplicitRoots(Recycler * recycler)
 
         // it is not marked, don't scan implicit root
         if (!heapBlockMap.IsMarked(objectAddress))
-        {
+        {TRACE_IT(24403);
             continue;
         }
 
@@ -939,17 +939,17 @@ LargeHeapBlock::ScanInitialImplicitRoots(Recycler * recycler)
         DUMP_IMPLICIT_ROOT(recycler, objectAddress);
 
         if (this->InPageHeapMode())
-        {
+        {TRACE_IT(24404);
             size_t objectSize = header->objectSize;
             // trim off the trailing part which is not a pointer
             objectSize = HeapInfo::RoundObjectSize(objectSize);
             if (objectSize > 0) // otherwize the object total size is less than a pointer size
-            {
+            {TRACE_IT(24405);
                 recycler->ScanObjectInlineInterior((void **)objectAddress, objectSize);
             }
         }
         else
-        {
+        {TRACE_IT(24406);
             recycler->ScanObjectInlineInterior((void **)objectAddress, header->objectSize);
         }
     }
@@ -957,26 +957,26 @@ LargeHeapBlock::ScanInitialImplicitRoots(Recycler * recycler)
 
 void
 LargeHeapBlock::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(24407);
     Assert(recycler->enableScanImplicitRoots);
 
     uint objectIndex = 0;
     HeapBlockMap& heapBlockMap = recycler->heapBlockMap;
     while (objectIndex < allocCount)
-    {
+    {TRACE_IT(24408);
         // object is allocated during the concurrent mark or it is marked, do rescan
         LargeObjectHeader * header = this->GetHeader(objectIndex);
         objectIndex++;
 
         // check if the object index is not allocated
         if (header == nullptr)
-        {
+        {TRACE_IT(24409);
             continue;
         }
 
         // check whether the object is an implicit root
         if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & ImplicitRootBit) == 0)
-        {
+        {TRACE_IT(24410);
             continue;
         }
 
@@ -989,22 +989,22 @@ LargeHeapBlock::ScanNewImplicitRoots(Recycler * recycler)
 
             // check whether the object is a leaf and doesn't need to be scanned
             if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & LeafBit) != 0)
-            {
+            {TRACE_IT(24411);
                 continue;
             }
 
             if (this->InPageHeapMode())
-            {
+            {TRACE_IT(24412);
                 size_t objectSize = header->objectSize;
                 // trim off the trailing part which is not a pointer
                 objectSize = HeapInfo::RoundObjectSize(objectSize);
                 if (objectSize > 0) // otherwize the object total size is less than a pointer size
-                {
+                {TRACE_IT(24413);
                     recycler->ScanObjectInlineInterior((void **)objectAddress, objectSize);
                 }
             }
             else
-            {
+            {TRACE_IT(24414);
                 // TODO: Assume scan interior
                 recycler->ScanObjectInlineInterior((void **)objectAddress, header->objectSize);
             }
@@ -1014,22 +1014,22 @@ LargeHeapBlock::ScanNewImplicitRoots(Recycler * recycler)
 
 #if ENABLE_CONCURRENT_GC
 bool LargeHeapBlock::IsPageDirty(char* page, RescanFlags flags, bool isWriteBarrier)
-{
+{TRACE_IT(24415);
 #ifdef RECYCLER_WRITE_BARRIER
     // TODO: SWB, use special page allocator for large block with write barrier?
     if (CONFIG_FLAG(WriteBarrierTest))
-    {
+    {TRACE_IT(24416);
         Assert(isWriteBarrier);
     }
     if (isWriteBarrier)
-    {
+    {TRACE_IT(24417);
         return (RecyclerWriteBarrierManager::GetWriteBarrier(page) & DIRTYBIT) == DIRTYBIT;
     }
 #endif
 
 #ifdef RECYCLER_WRITE_WATCH
     if (!CONFIG_FLAG(ForceSoftwareWriteBarrier))
-    {
+    {TRACE_IT(24418);
         ULONG_PTR count = 1;
         DWORD pageSize = AutoSystemInfo::PageSize;
         DWORD const writeWatchFlags = (flags & RescanFlags_ResetWriteWatch ? WRITE_WATCH_FLAG_RESET : 0);
@@ -1039,7 +1039,7 @@ bool LargeHeapBlock::IsPageDirty(char* page, RescanFlags flags, bool isWriteBarr
         return isDirty;
     }
     else
-    {
+    {TRACE_IT(24419);
         Js::Throw::FatalInternalError();
     }
 #else
@@ -1065,9 +1065,9 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
 #if ENABLE_CONCURRENT_GC
     // don't need to get the write watch bit if we already need to oom rescan
     if (!oldNeedOOMRescan)
-    {
+    {TRACE_IT(24420);
         if (recycler->inEndMarkOnLowMemory)
-        {
+        {TRACE_IT(24421);
             // we only do oom rescan if we are on low memory mark
             return false;
         }
@@ -1076,7 +1076,7 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
         // REVIEW: large object size if bigger than one page, to use header index 0 here should be OK
         LargeObjectHeader* header = this->GetHeader(0u);
         if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & LeafBit) == LeafBit)
-        {
+        {TRACE_IT(24422);
             return false;
         }
         bool hasWriteBarrier = false;
@@ -1084,7 +1084,7 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
         hasWriteBarrier = header->hasWriteBarrier;
 #endif
         if (!IsPageDirty(this->GetBeginAddress(), flags, hasWriteBarrier))
-        {
+        {TRACE_IT(24423);
             return false;
         }
     }
@@ -1096,13 +1096,13 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
     RECYCLER_STATS_INC(recycler, markData.rescanLargePageCount);
 
     for (uint objectIndex = 0; objectIndex < allocCount; objectIndex++)
-    {
+    {TRACE_IT(24424);
         // object is allocated during the concurrent mark or it is marked, do rescan
         LargeObjectHeader * header = this->GetHeader(objectIndex);
 
         // check if the object index is not allocated
         if (header == nullptr)
-        {
+        {TRACE_IT(24425);
             continue;
         }
 
@@ -1110,7 +1110,7 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
 
         // it is not marked, don't rescan
         if (!recycler->heapBlockMap.IsMarked(objectAddress))
-        {
+        {TRACE_IT(24426);
             continue;
         }
 
@@ -1129,7 +1129,7 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
 
         // check whether the object is a leaf and doesn't need to be scanned
         if ((attributes & LeafBit) != 0)
-        {
+        {TRACE_IT(24427);
             continue;
         }
 
@@ -1138,14 +1138,14 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
 
         size_t objectSize = header->objectSize;
         if (this->InPageHeapMode())
-        {
+        {TRACE_IT(24428);
             // trim off the trailing part which is not a pointer
             objectSize = HeapInfo::RoundObjectSize(objectSize);
         }
         if (objectSize > 0) // otherwize the object total size is less than a pointer size
-        {
+        {TRACE_IT(24429);
             if (!recycler->AddMark(objectAddress, objectSize))
-            {
+            {TRACE_IT(24430);
                 this->SetNeedOOMRescan(recycler);
             }
         }
@@ -1155,20 +1155,20 @@ LargeHeapBlock::RescanOnePage(Recycler * recycler)
 
 size_t
 LargeHeapBlock::Rescan(Recycler * recycler, bool isPartialSwept, RescanFlags flags)
-{
+{TRACE_IT(24431);
     // Update the lastCollectAllocCount for sweep
     this->lastCollectAllocCount = this->allocCount;
 
 #if ENABLE_CONCURRENT_GC
     Assert(recycler->collectionState != CollectionStateConcurrentFinishMark || (flags & RescanFlags_ResetWriteWatch));
     if (this->GetPageCount() == 1)
-    {
+    {TRACE_IT(24432);
         return RescanOnePage(recycler, flags);
     }
 
     // Need to rescan for finish mark even if it is done on the background thread
     if (recycler->collectionState != CollectionStateConcurrentFinishMark && recycler->IsConcurrentMarkState())
-    {
+    {TRACE_IT(24433);
         // CONCURRENT-TODO: Don't do background rescan for pages with multiple pages because
         // we don't track which page we have queued up
         return 0;
@@ -1203,14 +1203,14 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
     const HeapBlockMap& heapBlockMap = recycler->heapBlockMap;
 
     while (objectIndex < allocCount)
-    {
+    {TRACE_IT(24434);
         // object is allocated during the concurrent mark or it is marked, do rescan
         LargeObjectHeader * header = this->GetHeader(objectIndex);
         objectIndex++;
 
         // check if the object index is not allocated
         if (header == nullptr)
-        {
+        {TRACE_IT(24435);
             continue;
         }
 
@@ -1218,7 +1218,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
 
         // it is not marked, don't rescan
         if (!heapBlockMap.IsMarked(objectAddress))
-        {
+        {TRACE_IT(24436);
             continue;
         }
 
@@ -1237,7 +1237,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
 
         // check whether the object is a leaf and doesn't need to be scanned
         if ((attributes & LeafBit) != 0)
-        {
+        {TRACE_IT(24437);
             continue;
         }
 
@@ -1247,7 +1247,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
 
         size_t objectSize = header->objectSize;
         if (this->InPageHeapMode())
-        {
+        {TRACE_IT(24438);
             // trim off the trailing part which is not a pointer
             objectSize = HeapInfo::RoundObjectSize(objectSize);
         }
@@ -1256,9 +1256,9 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
         Assert(oldNeedOOMRescan || !header->markOnOOMRescan);
         // Avoid writing to the page unnecessary by checking first
         if (header->markOnOOMRescan)
-        {
+        {TRACE_IT(24439);
             if (!recycler->AddMark(objectAddress, objectSize))
-            {
+            {TRACE_IT(24440);
                 this->SetNeedOOMRescan(recycler);
                 header->markOnOOMRescan = true;
 
@@ -1272,7 +1272,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
                 // write-watch etc. since we'd have already done that before
                 // setting the bit in the non-low-memory rescan case.
                 if (!recycler->inEndMarkOnLowMemory)
-                {
+                {TRACE_IT(24441);
                     continue;
                 }
 
@@ -1285,12 +1285,12 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
         }
 #if ENABLE_CONCURRENT_GC
         else if (!recycler->inEndMarkOnLowMemory)
-        {
+        {TRACE_IT(24442);
             char * objectAddressEnd = objectAddress + objectSize;
             // Walk through the object, checking if any of its pages have been written to
             // If it has, then queue up this object for marking
             do
-            {
+            {TRACE_IT(24443);
                 char * pageStart = (char *)(((size_t)objectAddress) & ~(size_t)(AutoSystemInfo::PageSize - 1));
 
                 /*
@@ -1306,7 +1306,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
                 * page twice and inadvertently reset the write watch on a page where we've already scanned an object
                 */
                 if (lastPageCheckedForWriteWatch != pageStart)
-                {
+                {TRACE_IT(24444);
                     lastPageCheckedForWriteWatch = pageStart;
                     isLastPageCheckedForWriteWatchDirty = true;
                     bool hasWriteBarrier = false;
@@ -1314,14 +1314,14 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
                     hasWriteBarrier = header->hasWriteBarrier;
 #endif
                     if (!IsPageDirty(pageStart, flags, hasWriteBarrier))
-                    {
+                    {TRACE_IT(24445);
                         // Fall through to the case below where we'll update objectAddress and continue
                         isLastPageCheckedForWriteWatchDirty = false;
                     }
                 }
 
                 if (!isLastPageCheckedForWriteWatchDirty)
-                {
+                {TRACE_IT(24446);
                     objectAddress = pageStart + AutoSystemInfo::PageSize;
                     continue;
                 }
@@ -1330,7 +1330,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
                 // object. So just queue that up for marking
                 char * checkEnd = min(pageStart + AutoSystemInfo::PageSize, objectAddressEnd);
                 if (!recycler->AddMark(objectAddress, (checkEnd - objectAddress)))
-                {
+                {TRACE_IT(24447);
                     this->SetNeedOOMRescan(recycler);
                     header->markOnOOMRescan = true;
                 }
@@ -1347,7 +1347,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
         }
 #else
         else
-        {
+        {TRACE_IT(24448);
             Assert(recycler->inEndMarkOnLowMemory);
         }
 #endif
@@ -1376,7 +1376,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
 
 SweepState
 LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
-{
+{TRACE_IT(24449);
     Recycler * recycler = recyclerSweep.GetRecycler();
 
     uint markCount = GetMarkCount();
@@ -1397,7 +1397,7 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
 
     bool isAllFreed = (finalizeCount == 0 && markCount == 0);
     if (isAllFreed)
-    {
+    {TRACE_IT(24450);
         recycler->NotifyFree(this);
         Assert(this->pendingDisposeObject == nullptr);
         return SweepStateEmpty;
@@ -1411,7 +1411,7 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
     // that have been allocated by this large heap block, that means that there
     // could be some objects that need to be swept
     if (markCount != allocCount)
-    {
+    {TRACE_IT(24451);
         Assert(this->expectedSweepCount != 0);
 
         // We need to sweep in thread if there are any finalizable objects so
@@ -1427,7 +1427,7 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
         Assert(!recyclerSweep.IsBackground());
 #if ENABLE_CONCURRENT_GC
         if (queuePendingSweep && finalizeCount == 0)
-        {
+        {TRACE_IT(24452);
             this->isPendingConcurrentSweep = true;
             return SweepStatePendingSweep;
         }
@@ -1437,13 +1437,13 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
 
         SweepObjects<SweepMode_InThread>(recycler);
         if (TransferSweptObjects())
-        {
+        {TRACE_IT(24453);
             return SweepStatePendingDispose;
         }
     }
 #ifdef RECYCLER_STATS
     else
-    {
+    {TRACE_IT(24454);
         Assert(expectedSweepCount == 0);
         isForceSweeping = true;
         SweepObjects<SweepMode_InThread>(recycler);
@@ -1451,7 +1451,7 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
     }
 #endif
     if (this->pendingDisposeObject != nullptr)
-    {
+    {TRACE_IT(24455);
         return SweepStatePendingDispose;
     }
     return (allocCount == objectCount || addressEnd - allocAddressEnd <= HeapConstants::MaxSmallObjectSize) && this->freeList.entries == nullptr ?
@@ -1460,7 +1460,7 @@ LargeHeapBlock::Sweep(RecyclerSweep& recyclerSweep, bool queuePendingSweep)
 
 bool
 LargeHeapBlock::TrimObject(Recycler* recycler, LargeObjectHeader* header, size_t sizeOfObject, bool inDispose)
-{
+{TRACE_IT(24456);
     IdleDecommitPageAllocator* pageAllocator = recycler->GetRecyclerLargeBlockPageAllocator();
     uint pageSize = AutoSystemInfo::PageSize ;
 
@@ -1477,7 +1477,7 @@ LargeHeapBlock::TrimObject(Recycler* recycler, LargeObjectHeader* header, size_t
     if (sizeOfObject > pageSize &&
         this->segment->GetPageCount() <= pageAllocator->GetMaxAllocPageCount() &&
         this->allocCount > 1)
-    {
+    {TRACE_IT(24457);
         Assert(!this->hadTrimmed);
 
         // We want to decommit the free pages beyond 4K (the page size)
@@ -1524,14 +1524,14 @@ LargeHeapBlock::TrimObject(Recycler* recycler, LargeObjectHeader* header, size_t
         // check if IdleDecommit has been suspended already. If it hasn't, suspend it
         // This is to prevent reentrant idle decommits (e.g. sometimes dispose is called with
         if (inDispose)
-        {
+        {TRACE_IT(24458);
             pageAllocator->SuspendIdleDecommit();
         }
 
         pageAllocator->Release((char*) objectFreeAddress, freePageCount, this->GetSegment());
 
         if (inDispose)
-        {
+        {TRACE_IT(24459);
             pageAllocator->ResumeIdleDecommit();
         }
 
@@ -1558,13 +1558,13 @@ LargeHeapBlock::TrimObject(Recycler* recycler, LargeObjectHeader* header, size_t
 template <>
 void
 LargeHeapBlock::SweepObject<SweepMode_InThread>(Recycler * recycler, LargeObjectHeader * header)
-{
+{TRACE_IT(24460);
     Assert(this->HeaderList()[header->objectIndex] == header);
 
     // Set the header and object to null only if this is not a finalizable object
     // If it's finalizable, it'll be zeroed out during dispose
     if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit) != FinalizeBit)
-    {
+    {TRACE_IT(24461);
         this->HeaderList()[header->objectIndex] = nullptr;
 
         size_t sizeOfObject = header->objectSize;
@@ -1572,7 +1572,7 @@ LargeHeapBlock::SweepObject<SweepMode_InThread>(Recycler * recycler, LargeObject
         bool objectTrimmed = false;
 
         if (!this->bucket->SupportFreeList())
-        {
+        {TRACE_IT(24462);
             objectTrimmed = TrimObject(recycler, header, sizeOfObject);
         }
 
@@ -1588,7 +1588,7 @@ LargeHeapBlock::SweepObject<SweepMode_InThread>(Recycler * recycler, LargeObject
 //
 void
 LargeHeapBlock::FinalizeObject(Recycler* recycler, LargeObjectHeader* header)
-{
+{TRACE_IT(24463);
     // The header count can also be null if this object has already been finalized
     // but this method should never be called if the header list header is null
     Assert(this->HeaderList()[header->objectIndex] == header);
@@ -1617,7 +1617,7 @@ template void LargeHeapBlock::SweepObjects<SweepMode_InThread>(Recycler * recycl
 template <>
 void
 LargeHeapBlock::SweepObject<SweepMode_Concurrent>(Recycler * recycler, LargeObjectHeader * header)
-{
+{TRACE_IT(24464);
     Assert(!(header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit));
     Assert(this->HeaderList()[header->objectIndex] == header);
     this->HeaderList()[header->objectIndex] = nullptr;
@@ -1630,7 +1630,7 @@ template void LargeHeapBlock::SweepObjects<SweepMode_Concurrent>(Recycler * recy
 template <>
 void
 LargeHeapBlock::SweepObject<SweepMode_ConcurrentPartial>(Recycler * recycler, LargeObjectHeader * header)
-{
+{TRACE_IT(24465);
     Assert(!(header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit));
     Assert(this->HeaderList()[header->objectIndex] == header);
     this->HeaderList()[header->objectIndex] = (LargeObjectHeader *)((size_t)header | PartialFreeBit);
@@ -1652,14 +1652,14 @@ template void LargeHeapBlock::SweepObjects<SweepMode_ConcurrentPartial>(Recycler
 // and then Sweep would return PendingDispose as its state
 //
 void LargeHeapBlock::FinalizeObjects(Recycler* recycler)
-{
+{TRACE_IT(24466);
     const HeapBlockMap& heapBlockMap = recycler->heapBlockMap;
 
     for (uint i = 0; i < this->lastCollectAllocCount; i++)
-    {
+    {TRACE_IT(24467);
         LargeObjectHeader * header = this->GetHeader(i);
         if (header == nullptr)
-        {
+        {TRACE_IT(24468);
             continue;
         }
 
@@ -1667,12 +1667,12 @@ void LargeHeapBlock::FinalizeObjects(Recycler* recycler)
 
         // Skip finalization if the object is alive
         if (heapBlockMap.IsMarked(header->GetAddress()))
-        {
+        {TRACE_IT(24469);
             continue;
         }
 
         if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & FinalizeBit) == FinalizeBit)
-        {
+        {TRACE_IT(24470);
             recycler->NotifyFree((char *)header->GetAddress(), header->objectSize);
             FinalizeObject(recycler, header);
         }
@@ -1682,7 +1682,7 @@ void LargeHeapBlock::FinalizeObjects(Recycler* recycler)
 template <SweepMode mode>
 void
 LargeHeapBlock::SweepObjects(Recycler * recycler)
-{
+{TRACE_IT(24471);
 #if ENABLE_CONCURRENT_GC
     Assert(mode == SweepMode_InThread || this->isPendingConcurrentSweep);
 #else
@@ -1708,7 +1708,7 @@ LargeHeapBlock::SweepObjects(Recycler * recycler)
         RECYCLER_STATS_ADD(recycler, objectSweepScanCount, !isForceSweeping);
         LargeObjectHeader * header = this->GetHeader(i);
         if (header == nullptr)
-        {
+        {TRACE_IT(24472);
 #if DBG
             Assert(expectedSweepCount != 0);
             expectedSweepCount--;
@@ -1723,7 +1723,7 @@ LargeHeapBlock::SweepObjects(Recycler * recycler)
 
         // Skip sweep if the object is alive
         if (heapBlockMap.IsMarked(header->GetAddress()))
-        {
+        {TRACE_IT(24473);
 #if DBG
             Assert((header->GetAttributes(recycler->Cookie) & NewFinalizeBit) == 0);
 #endif
@@ -1742,7 +1742,7 @@ LargeHeapBlock::SweepObjects(Recycler * recycler)
             && !isForceSweeping
 #endif
             )
-        {
+        {TRACE_IT(24474);
             LargeHeapBlockFreeListEntry* head = this->freeList.entries;
             LargeHeapBlockFreeListEntry* entry = (LargeHeapBlockFreeListEntry*) header;
             entry->headerIndex = i;
@@ -1765,18 +1765,18 @@ LargeHeapBlock::SweepObjects(Recycler * recycler)
 
 bool
 LargeHeapBlock::TransferSweptObjects()
-{
+{TRACE_IT(24475);
     // TODO : Large heap block doesn't do free listing yet
     return pendingDisposeObject != nullptr;
 }
 
 void
 LargeHeapBlock::DisposeObjects(Recycler * recycler)
-{
+{TRACE_IT(24476);
     Assert(this->pendingDisposeObject != nullptr || this->hasDisposeBeenCalled);
 
     while (pendingDisposeObject != nullptr)
-    {
+    {TRACE_IT(24477);
 #if DBG
         this->hasDisposeBeenCalled = true;
 #endif
@@ -1795,7 +1795,7 @@ LargeHeapBlock::DisposeObjects(Recycler * recycler)
         bool objectTrimmed = false;
 
         if (this->bucket->SupportFreeList())
-        {
+        {TRACE_IT(24478);
             objectTrimmed = TrimObject(recycler, header, header->objectSize, true /* need suspend */);
         }
 
@@ -1818,21 +1818,21 @@ LargeHeapBlock::DisposeObjects(Recycler * recycler)
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
 void
 LargeHeapBlock::PartialTransferSweptObjects()
-{
+{TRACE_IT(24479);
     // Nothing to do
     Assert(this->hasPartialFreeObjects);
 }
 
 void
 LargeHeapBlock::FinishPartialCollect(Recycler * recycler)
-{
+{TRACE_IT(24480);
     Assert(this->hasPartialFreeObjects);
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24481);
         LargeObjectHeader * header = this->HeaderList()[i];
 
         if (header != nullptr && IsPartialSweptHeader(header))
-        {
+        {TRACE_IT(24482);
             header = (LargeObjectHeader *)((size_t)header & ~PartialFreeBit);
             Assert(header->objectIndex == i);
             this->HeaderList()[i] = nullptr;
@@ -1845,16 +1845,16 @@ LargeHeapBlock::FinishPartialCollect(Recycler * recycler)
 
 void
 LargeHeapBlock::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24483);
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24484);
         LargeObjectHeader * header = this->GetHeader(i);
         if (header == nullptr)
-        {
+        {TRACE_IT(24485);
             continue;
         }
         if ((header->GetAttributes(this->heapInfo->recycler->Cookie) & infoBits) != 0)
-        {
+        {TRACE_IT(24486);
             CallBackFunction(header->GetAddress(), header->objectSize);
         }
     }
@@ -1863,7 +1863,7 @@ LargeHeapBlock::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunctio
 
 uint
 LargeHeapBlock::GetMaxLargeObjectCount(size_t pageCount, size_t firstAllocationSize)
-{
+{TRACE_IT(24487);
     size_t freeSize = (AutoSystemInfo::PageSize * pageCount) - firstAllocationSize - sizeof(LargeObjectHeader);
     Assert(freeSize < AutoSystemInfo::Data.dwAllocationGranularity);
     size_t objectCount = (freeSize / HeapConstants::MaxSmallObjectSize) + 1;
@@ -1874,12 +1874,12 @@ LargeHeapBlock::GetMaxLargeObjectCount(size_t pageCount, size_t firstAllocationS
 #ifdef RECYCLER_SLOW_CHECK_ENABLED
 void
 LargeHeapBlock::Check(bool expectFull, bool expectPending)
-{
+{TRACE_IT(24488);
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24489);
         LargeObjectHeader * header = this->HeaderList()[i];
         if (header == nullptr)
-        {
+        {TRACE_IT(24490);
             continue;
         }
 #if ENABLE_PARTIAL_GC && ENABLE_CONCURRENT_GC
@@ -1892,7 +1892,7 @@ LargeHeapBlock::Check(bool expectFull, bool expectPending)
 #endif
 
 void LargeHeapBlock::FillFreeMemory(Recycler * recycler, __in_bcount(size) void * address, size_t size)
-{
+{TRACE_IT(24491);
     // For now, we don't do anything in release build because we don't reuse this memory until we return
     // the pages to the allocator which will zero out the whole page
 
@@ -1909,7 +1909,7 @@ void LargeHeapBlock::FillFreeMemory(Recycler * recycler, __in_bcount(size) void 
 }
 
 size_t LargeHeapBlock::GetObjectSize(void* objectAddress)
-{
+{TRACE_IT(24492);
     LargeObjectHeader * header = GetHeader(objectAddress);
 
     Assert((char *)header >= this->address);
@@ -1923,22 +1923,22 @@ size_t LargeHeapBlock::GetObjectSize(void* objectAddress)
 
 void
 LargeHeapBlock::Verify(Recycler * recycler)
-{
+{TRACE_IT(24493);
     char * lastAddress = this->address;
     uint verifyFinalizeCount = 0;
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24494);
         LargeObjectHeader * header = this->HeaderList()[i];
         if (header == nullptr)
-        {
+        {TRACE_IT(24495);
             // Check if the object if on the free list
             LargeHeapBlockFreeListEntry* current = this->freeList.entries;
 
             while (current != nullptr)
-            {
+            {TRACE_IT(24496);
                 // Verify the free listed object
                 if (current->headerIndex == i)
-                {
+                {TRACE_IT(24497);
                     BYTE* objectAddress = (BYTE *)current + sizeof(LargeObjectHeader);
                     Recycler::VerifyCheck(current->heapBlock == this, _u("Invalid heap block"), this, current->heapBlock);
                     Recycler::VerifyCheck((char *)current >= lastAddress, _u("LargeHeapBlock invalid object header order"), this->address, current);
@@ -1969,15 +1969,15 @@ LargeHeapBlock::Verify(Recycler * recycler)
 
 uint
 LargeHeapBlock::GetMarkCount()
-{
+{TRACE_IT(24498);
     uint markCount = 0;
     const HeapBlockMap& heapBlockMap = this->heapInfo->recycler->heapBlockMap;
 
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24499);
         LargeObjectHeader* header = this->HeaderList()[i];
         if (header && header->objectIndex == i && heapBlockMap.IsMarked(header->GetAddress()))
-        {
+        {TRACE_IT(24500);
             markCount++;
         }
     }
@@ -1988,15 +1988,15 @@ LargeHeapBlock::GetMarkCount()
 #ifdef RECYCLER_PERF_COUNTERS
 void
 LargeHeapBlock::UpdatePerfCountersOnFree()
-{
+{TRACE_IT(24501);
     Assert(GetMarkCount() == 0);
     size_t usedCount = 0;
     size_t usedBytes = 0;
     for (uint i = 0; i < allocCount; i++)
-    {
+    {TRACE_IT(24502);
         LargeObjectHeader * header = this->HeaderList()[i];
         if (header == nullptr)
-        {
+        {TRACE_IT(24503);
             continue;
         }
         usedCount++;
@@ -2016,7 +2016,7 @@ LargeHeapBlock::UpdatePerfCountersOnFree()
 #ifdef PROFILE_RECYCLER_ALLOC
 void *
 LargeHeapBlock::GetTrackerData(void * address)
-{
+{TRACE_IT(24504);
     Assert(Recycler::DoProfileAllocTracker());
     LargeObjectHeader * header = GetHeader(address);
     Assert((char *)header >= this->address);
@@ -2028,7 +2028,7 @@ LargeHeapBlock::GetTrackerData(void * address)
 
 void
 LargeHeapBlock::SetTrackerData(void * address, void * data)
-{
+{TRACE_IT(24505);
     Assert(Recycler::DoProfileAllocTracker());
     LargeObjectHeader * header = GetHeader(address);
     Assert((char *)header >= this->address);
@@ -2040,7 +2040,7 @@ LargeHeapBlock::SetTrackerData(void * address, void * data)
 
 void **
 LargeHeapBlock::GetTrackerDataArray()
-{
+{TRACE_IT(24506);
     // See LargeHeapBlock::GetAllocPlusSize for layout description
     return (void **)((char *)(this + 1) + LargeHeapBlock::GetAllocPlusSize(this->objectCount) - this->objectCount * sizeof(void *));
 }
@@ -2049,10 +2049,10 @@ LargeHeapBlock::GetTrackerDataArray()
 #ifdef RECYCLER_PAGE_HEAP
 void
 LargeHeapBlock::CapturePageHeapAllocStack()
-{
+{TRACE_IT(24507);
 #ifdef STACK_BACK_TRACE
     if (this->InPageHeapMode()) // pageheap can be enabled only for some of the buckets
-    {
+    {TRACE_IT(24508);
         // These asserts are true because explicit free is disallowed in
         // page heap mode. If they weren't, we'd have to modify the asserts
         Assert(this->pageHeapFreeStack == nullptr);
@@ -2061,17 +2061,17 @@ LargeHeapBlock::CapturePageHeapAllocStack()
         // Note: NoCheckHeapAllocator will fail fast if we can't allocate the stack to capture
         // REVIEW: Should we have a flag to configure the number of frames captured?
         if (pageHeapAllocStack != nullptr && this->pageHeapAllocStack != s_StackTraceAllocFailed)
-        {
+        {TRACE_IT(24509);
             this->pageHeapAllocStack->Capture(Recycler::s_numFramesToSkipForPageHeapAlloc);
         }
         else
-        {
+        {TRACE_IT(24510);
             this->pageHeapAllocStack = StackBackTrace::Capture(&NoThrowHeapAllocator::Instance,
                 Recycler::s_numFramesToSkipForPageHeapAlloc, Recycler::s_numFramesToCaptureForPageHeap);
         }
 
         if (this->pageHeapAllocStack == nullptr)
-        {
+        {TRACE_IT(24511);
             this->pageHeapAllocStack = const_cast<StackBackTrace*>(s_StackTraceAllocFailed); // allocate failed, mark it we have tried
         }
     }
@@ -2080,21 +2080,21 @@ LargeHeapBlock::CapturePageHeapAllocStack()
 
 void
 LargeHeapBlock::CapturePageHeapFreeStack()
-{
+{TRACE_IT(24512);
 #ifdef STACK_BACK_TRACE
     if (this->InPageHeapMode()) // pageheap can be enabled only for some of the buckets
-    {
+    {TRACE_IT(24513);
         // These asserts are true because explicit free is disallowed in
         // page heap mode. If they weren't, we'd have to modify the asserts
         Assert(this->pageHeapFreeStack == nullptr);
         Assert(this->pageHeapAllocStack != nullptr);
 
         if (this->pageHeapFreeStack != nullptr)
-        {
+        {TRACE_IT(24514);
             this->pageHeapFreeStack->Capture(Recycler::s_numFramesToSkipForPageHeapFree);
         }
         else
-        {
+        {TRACE_IT(24515);
             this->pageHeapFreeStack = StackBackTrace::Capture(&NoThrowHeapAllocator::Instance,
                 Recycler::s_numFramesToSkipForPageHeapFree, Recycler::s_numFramesToCaptureForPageHeap);
         }
@@ -2106,55 +2106,55 @@ LargeHeapBlock::CapturePageHeapFreeStack()
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
 CriticalSection LargeHeapBlock::wbVerifyBitsLock;
 void LargeHeapBlock::WBSetBit(char* addr)
-{
+{TRACE_IT(24516);
     uint index = (uint)(addr - this->address) / sizeof(void*);
     try
-    {
+    {TRACE_IT(24517);
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(static_cast<ExceptionType>(ExceptionType_DisableCheck));
         AutoCriticalSection autoCs(&wbVerifyBitsLock);
         wbVerifyBits.Set(index);
     }
     catch (Js::OutOfMemoryException&)
-    {
+    {TRACE_IT(24518);
     }
 }
 void LargeHeapBlock::WBSetBitRange(char* addr, uint count)
-{
+{TRACE_IT(24519);
     uint index = (uint)(addr - this->address) / sizeof(void*);
     try
-    {
+    {TRACE_IT(24520);
         AUTO_NESTED_HANDLED_EXCEPTION_TYPE(static_cast<ExceptionType>(ExceptionType_DisableCheck));
         AutoCriticalSection autoCs(&wbVerifyBitsLock);
         for (uint i = 0; i < count; i++)
-        {
+        {TRACE_IT(24521);
             wbVerifyBits.Set(index + i);
         }
     }
     catch (Js::OutOfMemoryException&)
-    {
+    {TRACE_IT(24522);
     }
 }
 void LargeHeapBlock::WBClearBit(char* addr)
-{
+{TRACE_IT(24523);
     uint index = (uint)(addr - this->address) / sizeof(void*);
     AutoCriticalSection autoCs(&wbVerifyBitsLock);
     wbVerifyBits.Clear(index);
 }
 void LargeHeapBlock::WBVerifyBitIsSet(char* addr)
-{
+{TRACE_IT(24524);
     uint index = (uint)(addr - this->address) / sizeof(void*);
     if (!wbVerifyBits.Test(index))
-    {
+    {TRACE_IT(24525);
         PrintVerifyMarkFailure(this->GetRecycler(), addr, *(char**)addr);
     }
 }
 void LargeHeapBlock::WBClearObject(char* addr)
-{
+{TRACE_IT(24526);
     uint index = (uint)(addr - this->address) / sizeof(void*);
     size_t objectSize = this->GetHeader(addr)->objectSize;
     AutoCriticalSection autoCs(&wbVerifyBitsLock);
     for (uint i = 0; i < (uint)objectSize / sizeof(void*); i++)
-    {
+    {TRACE_IT(24527);
         wbVerifyBits.Clear(index + i);
     }
 }

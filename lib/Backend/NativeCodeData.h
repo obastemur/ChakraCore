@@ -47,7 +47,7 @@ public:
     };
 
     static DataChunk* GetDataChunk(void* data)
-    {
+    {TRACE_IT(13762);
         Assert(JITManager::GetJITManager()->IsJITServer());
         return (NativeCodeData::DataChunk*)((char*)data - offsetof(NativeCodeData::DataChunk, data));
     }
@@ -55,7 +55,7 @@ public:
     static char16* GetDataDescription(void* data, JitArenaAllocator * alloc);
 
     static unsigned int GetDataTotalOffset(void* data)
-    {
+    {TRACE_IT(13763);
         Assert(JITManager::GetJITManager()->IsJITServer());
         return GetDataChunk(data)->offset;
     }
@@ -105,8 +105,8 @@ public:
 
 #ifdef TRACK_ALLOC
         // Doesn't support tracking information, dummy implementation
-        Allocator * TrackAllocInfo(TrackAllocData const& data) { return this; }
-        void ClearTrackAllocInfo(TrackAllocData* data = NULL) {}
+        Allocator * TrackAllocInfo(TrackAllocData const& data) {TRACE_IT(13764); return this; }
+        void ClearTrackAllocInfo(TrackAllocData* data = NULL) {TRACE_IT(13765);}
 #endif
     protected:
         bool isOOPJIT;
@@ -124,10 +124,10 @@ public:
     {
     public:
         void Fixup(NativeCodeData::DataChunk* chunkList)
-        {
+        {TRACE_IT(13766);
             int count = NativeCodeData::GetDataChunk(this)->len / sizeof(T);
             while (count-- > 0)
-            {
+            {TRACE_IT(13767);
                 (((T*)this) + count)->Fixup(chunkList);
             }
         }
@@ -138,15 +138,15 @@ public:
     {
     public:
         char * Alloc(size_t requestedBytes)
-        {
+        {TRACE_IT(13768);
             char* dataBlock = __super::Alloc(requestedBytes);
 #if DBG
             if (JITManager::GetJITManager()->IsJITServer())
-            {
+            {TRACE_IT(13769);
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {TRACE_IT(13770);
                     Output::Print(_u("NativeCodeData AllocNoFix: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -156,16 +156,16 @@ public:
             return dataBlock;
         }
         char * AllocZero(size_t requestedBytes)
-        {
+        {TRACE_IT(13771);
             char* dataBlock = __super::AllocZero(requestedBytes);
 
 #if DBG
             if (JITManager::GetJITManager()->IsJITServer())
-            {
+            {TRACE_IT(13772);
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {TRACE_IT(13773);
                     Output::Print(_u("NativeCodeData AllocNoFix: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -175,7 +175,7 @@ public:
             return dataBlock;
         }
         char * AllocLeaf(size_t requestedBytes)
-        {
+        {TRACE_IT(13774);
             return Alloc(requestedBytes);
         }
     };
@@ -184,15 +184,15 @@ public:
     class AllocatorT : public Allocator
     {
         char* AddFixup(char* dataBlock)
-        {
+        {TRACE_IT(13775);
             if (isOOPJIT)
-            {
+            {TRACE_IT(13776);
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->fixupFunc = &Fixup;
 #if DBG
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {TRACE_IT(13777);
                     Output::Print(_u("NativeCodeData Alloc: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -203,16 +203,16 @@ public:
 
     public:
         char * Alloc(size_t requestedBytes)
-        {
+        {TRACE_IT(13778);
             return AddFixup(__super::Alloc(requestedBytes));
         }
         char * AllocZero(size_t requestedBytes)
-        {
+        {TRACE_IT(13779);
             return AddFixup(__super::AllocZero(requestedBytes));
         }
 
         static void Fixup(void* pThis, NativeCodeData::DataChunk* chunkList)
-        {
+        {TRACE_IT(13780);
             ((T*)pThis)->Fixup(chunkList);
         }
     };
@@ -249,23 +249,23 @@ struct UIntType
 template<DataDesc desc = DataDesc_None>
 struct FloatType
 {
-    FloatType(float val) :data(val) {}
+    FloatType(float val) :data(val) {TRACE_IT(13781);}
     float data;
 };
 
 template<DataDesc desc = DataDesc_None>
 struct DoubleType
 {
-    DoubleType() {}
-    DoubleType(double val) :data(val) {}
+    DoubleType() {TRACE_IT(13782);}
+    DoubleType(double val) :data(val) {TRACE_IT(13783);}
     double data;
 };
 
 template<DataDesc desc = DataDesc_None>
 struct SIMDType
 {
-    SIMDType() {}
-    SIMDType(AsmJsSIMDValue val) :data(val) {}
+    SIMDType() {TRACE_IT(13784);}
+    SIMDType(AsmJsSIMDValue val) :data(val) {TRACE_IT(13785);}
     AsmJsSIMDValue data;
 };
 
@@ -288,6 +288,6 @@ inline void VarType<DataDesc_InlineeFrameRecord_Constants>::Fixup(NativeCodeData
 struct GlobalBailOutRecordDataTable;
 template<>
 inline void NativeCodeData::Array<GlobalBailOutRecordDataTable *>::Fixup(NativeCodeData::DataChunk* chunkList)
-{
+{TRACE_IT(13786);
     NativeCodeData::AddFixupEntryForPointerArray(this, chunkList);
 }

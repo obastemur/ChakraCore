@@ -16,23 +16,23 @@ typedef JsUtil::BaseDictionary<TestObject*, bool, RecyclerNonLeafAllocator> Obje
 typedef JsUtil::List<TestObject*, Recycler> ObjectList_t;
 
 template<size_t align> bool IsAligned(void *p)
-{
+{TRACE_IT(27054);
     return (reinterpret_cast<size_t>(p) & (align - 1)) == 0;
 }
 
 TestObject::TestObject(size_t _size, int _pointerCount) : size(_size), pointerCount(_pointerCount)
-{
+{TRACE_IT(27055);
     cookie = CalculateCookie();
     memset(GetDataPointer(), 0, pointerCount * sizeof(TestObject*));
 }
 
 size_t TestObject::CalculateCookie()
-{
+{TRACE_IT(27056);
     return reinterpret_cast<size_t>(this) ^ (static_cast<size_t>(pointerCount) << 12) ^ (size << 24) + 1;
 }
 
 void TestObject::CheckCookie()
-{
+{TRACE_IT(27057);
 
     Assert((reinterpret_cast<size_t>(this)& (OBJALIGN - 1)) == 0);
 
@@ -40,7 +40,7 @@ void TestObject::CheckCookie()
 }
 
 TestObject *TestObject::Get(int index)
-{
+{TRACE_IT(27058);
     Assert(index < pointerCount);
 
     TestObject *addr = GetDataPointer()[index];
@@ -51,14 +51,14 @@ TestObject *TestObject::Get(int index)
 }
 
 void TestObject::Set(int index, TestObject *val)
-{
+{TRACE_IT(27059);
     Assert(index < pointerCount);
 
     GetDataPointer()[index] = val;
 }
 
 void TestObject::SetRandom(TestObject *val)
-{
+{TRACE_IT(27060);
     if (pointerCount != 0)
     {
         Set(rand() % pointerCount, val);
@@ -66,13 +66,13 @@ void TestObject::SetRandom(TestObject *val)
 }
 
 void TestObject::Add(TestObject *val)
-{
+{TRACE_IT(27061);
     TestObject **data = GetDataPointer();
 
     for (int i = 0; i < pointerCount; ++i)
-    {
+    {TRACE_IT(27062);
         if (data[i] == nullptr/* || !IsAligned<64>(data[i])*/)
-        {
+        {TRACE_IT(27063);
             data[i] = val;
             break;
         }
@@ -80,15 +80,15 @@ void TestObject::Add(TestObject *val)
 }
 
 void TestObject::ClearOne()
-{
+{TRACE_IT(27064);
     CheckCookie();
 
     TestObject **data = GetDataPointer();
 
     for (int i = 0; i < pointerCount; ++i)
-    {
+    {TRACE_IT(27065);
         if (data[i] != nullptr/* && IsAligned<64>(data[i])*/)
-        {
+        {TRACE_IT(27066);
             // CreateFalseReferenceRandom(data[i]);
             data[i] = nullptr;
             break;
@@ -102,7 +102,7 @@ void TestObject::Visit(Recycler *recycler, TestObject *root)
 }
 
 template<class Fn> void TestObject::Visit(Recycler *recycler, TestObject *root, Fn fn)
-{
+{TRACE_IT(27067);
     // TODO: move these allocations to HeapAllocator.
 
     ObjectTracker_t *objectTracker = RecyclerNew(recycler, ObjectTracker_t, recycler);
@@ -114,16 +114,16 @@ template<class Fn> void TestObject::Visit(Recycler *recycler, TestObject *root, 
 
     int numObjects = 0;
     while (objectList->Count() > 0)
-    {
+    {TRACE_IT(27068);
         TestObject *curr = objectList->Item(0);
         objectList->RemoveAt(0);
 
         curr->CheckCookie();
         for (int i = 0; i < curr->pointerCount; ++i)
-        {
+        {TRACE_IT(27069);
             TestObject *obj = curr->Get(i);
             if (obj != nullptr /*&& IsAligned<64>(obj)*/ && !objectTracker->ContainsKey(obj))
-            {
+            {TRACE_IT(27070);
                 objectTracker->Add(obj, true);
                 objectList->Add(obj);
             }
@@ -139,41 +139,41 @@ template<class Fn> void TestObject::Visit(Recycler *recycler, TestObject *root, 
 }
 
 TestObject* TestObject::Create(Recycler *recycler, int pointerCount, size_t extraBytes, CreateOptions options)
-{
+{TRACE_IT(27071);
     size_t size = sizeof(TestObject)+pointerCount * sizeof(TestObject*) + extraBytes;
 
     if (options == NormalObj)
-    {
+    {TRACE_IT(27072);
         return RecyclerNewPlus(recycler, size, TestObject, size, pointerCount);
     }
     else if (options == LeafObj)
-    {
+    {TRACE_IT(27073);
         Assert(pointerCount == 0);
         return RecyclerNewPlusLeaf(recycler, size, TestObject, size, pointerCount);
     }
     else
-    {
+    {TRACE_IT(27074);
         Assert(false);
         return nullptr;
     }
 }
 
 void TestObject::CreateFalseReferenceRandom(TestObject *val)
-{
+{TRACE_IT(27075);
     char *addr = reinterpret_cast<char*>(val);
     addr += 32;
     SetRandom(reinterpret_cast<TestObject*>(addr));
 }
 
 StressTester::StressTester(Recycler *_recycler) : recycler(_recycler)
-{
+{TRACE_IT(27076);
     uint seed = (uint)time(NULL);
     printf("Random seed: %u\n", seed);
     srand(seed);
 }
 
 size_t StressTester::GetRandomSize()
-{
+{TRACE_IT(27077);
     int i = rand() % 5;
     switch (i)
     {
@@ -189,12 +189,12 @@ size_t StressTester::GetRandomSize()
 }
 
 TestObject* StressTester::CreateLinkedList()
-{
+{TRACE_IT(27078);
     TestObject *root = TestObject::Create(recycler, 1, GetRandomSize());
     TestObject *curr = root;
     int length = rand() % MaxLinkedListLength;
     for (int i = 0; i < length; ++i)
-    {
+    {TRACE_IT(27079);
         CreateOptions options = (i == length - 1) ? LeafObj : NormalObj;
         TestObject *next = TestObject::Create(recycler, options == LeafObj ? 0 : 1, GetRandomSize());
         curr->Add(next);
@@ -204,15 +204,15 @@ TestObject* StressTester::CreateLinkedList()
 }
 
 
-void StressTester::CreateTreeHelper(TestObject *root, int depth) {
+void StressTester::CreateTreeHelper(TestObject *root, int depth) {TRACE_IT(27080);
     for (int i = 0; i < root->pointerCount; ++i, ++treeTotal)
-    {
+    {TRACE_IT(27081);
         if (depth == 0 || treeTotal > MaxNodesInTree)
-        {
+        {TRACE_IT(27082);
             root->Add(TestObject::Create(recycler, 0, rand(), LeafObj));
         }
         else
-        {
+        {TRACE_IT(27083);
             TestObject *newObj = TestObject::Create(recycler, 4, GetRandomSize());
             CreateTreeHelper(newObj, depth - 1);
             root->Add(newObj);
@@ -221,7 +221,7 @@ void StressTester::CreateTreeHelper(TestObject *root, int depth) {
 };
 
 TestObject* StressTester::CreateTree()
-{
+{TRACE_IT(27084);
     TestObject *root = TestObject::Create(recycler, 4, GetRandomSize());
     treeTotal = 0;
     CreateTreeHelper(root, rand() % MaxTreeDepth);
@@ -229,7 +229,7 @@ TestObject* StressTester::CreateTree()
 }
 
 TestObject *StressTester::CreateRandom()
-{
+{TRACE_IT(27085);
     int numObjects = rand() % 5000 + 1;
 
     void *memory = _alloca(numObjects * sizeof(TestObject*)+OBJALIGN);
@@ -237,15 +237,15 @@ TestObject *StressTester::CreateRandom()
 
     // Create the objects
     for (int i = 0; i < numObjects; ++i)
-    {
+    {TRACE_IT(27086);
         objs[i] = TestObject::Create(recycler, 10, rand());
     }
 
     // Create links between objects
     for (int i = 0; i < numObjects; ++i)
-    {
+    {TRACE_IT(27087);
         for (int j = 0; j < 5; ++j)
-        {
+        {TRACE_IT(27088);
             objs[i]->SetRandom(objs[rand() % numObjects]);
         }
     }
@@ -254,7 +254,7 @@ TestObject *StressTester::CreateRandom()
 }
 
 void StressTester::Run()
-{
+{TRACE_IT(27089);
 
     const int stackExtraBytes = 1000;
     const int stackPointers = 50;
@@ -264,29 +264,29 @@ void StressTester::Run()
 
     TestObject *stack = new (addr) TestObject(stackExtraBytes, stackPointers);
 
-    auto ObjectVisitor = [&](TestObject *object) {
+    auto ObjectVisitor = [&](TestObject *object) {TRACE_IT(27090);
         // Clear out one of the pointers.
         if (rand() % 5 == 0)
-        {
+        {TRACE_IT(27091);
             object->ClearOne();
         }
 
         // Maybe store a pointer on the stack.
         if (rand() % 25 == 0)
-        {
+        {TRACE_IT(27092);
             stack->SetRandom(object);
         }
 
         // Maybe add a stack reference to the current object
         if (rand() % 25 == 0)
-        {
+        {TRACE_IT(27093);
             object->SetRandom(stack->Get(rand() % stack->pointerCount));
         }
 
     };
 
     while (1)
-    {
+    {TRACE_IT(27094);
         TestObject *root = CreateLinkedList();
         TestObject::Visit(recycler, root);
 
@@ -300,15 +300,15 @@ void StressTester::Run()
 
         TestObject::Visit(recycler, stack, [&](TestObject *object) {
             if (rand() % 10 == 0)
-            {
+            {TRACE_IT(27095);
                 object->ClearOne();
             }
         });
 
         if (rand() % 3 == 0)
-        {
+        {TRACE_IT(27096);
             for (int i = 0; i < stack->pointerCount; ++i)
-            {
+            {TRACE_IT(27097);
                 stack->Set(i, nullptr);
             }
         }

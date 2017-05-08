@@ -14,11 +14,11 @@ namespace Js
     {
         ModuleNameRecord(const ModuleNameRecord& other)
             :module(other.module), bindingName(other.bindingName)
-        {}
+        {TRACE_IT(51892);}
         ModuleNameRecord(ModuleRecordBase* module, PropertyId bindingName) 
             :module(module), bindingName(bindingName) 
-        {}
-        ModuleNameRecord() {}
+        {TRACE_IT(51893);}
+        ModuleNameRecord() {TRACE_IT(51894);}
         Field(ModuleRecordBase*) module;
         Field(PropertyId) bindingName;
     };
@@ -31,12 +31,12 @@ namespace Js
         static const uint32 ModuleMagicNumber;
         ModuleRecordBase(JavascriptLibrary* library) :
             namespaceObject(nullptr), wasEvaluated(false),
-            javascriptLibrary(library),  magicNumber(ModuleMagicNumber){};
-        bool WasEvaluated() { return wasEvaluated; }
-        void SetWasEvaluated() { Assert(!wasEvaluated); wasEvaluated = true; }
-        JavascriptLibrary* GetRealm() { return javascriptLibrary; }  // TODO: do we need to provide this method ?
-        virtual ModuleNamespace* GetNamespace() { return namespaceObject; }
-        virtual void SetNamespace(ModuleNamespace* moduleNamespace) { namespaceObject = moduleNamespace; }
+            javascriptLibrary(library),  magicNumber(ModuleMagicNumber){TRACE_IT(51895);};
+        bool WasEvaluated() {TRACE_IT(51896); return wasEvaluated; }
+        void SetWasEvaluated() {TRACE_IT(51897); Assert(!wasEvaluated); wasEvaluated = true; }
+        JavascriptLibrary* GetRealm() {TRACE_IT(51898); return javascriptLibrary; }  // TODO: do we need to provide this method ?
+        virtual ModuleNamespace* GetNamespace() {TRACE_IT(51899); return namespaceObject; }
+        virtual void SetNamespace(ModuleNamespace* moduleNamespace) {TRACE_IT(51900); namespaceObject = moduleNamespace; }
 
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) = 0;
         // return false when "ambiguous".
@@ -44,7 +44,7 @@ namespace Js
         virtual bool ResolveExport(PropertyId exportName, ResolveSet* resolveSet, ExportModuleRecordList* exportStarSet, ModuleNameRecord** exportRecord) = 0;
         virtual void ModuleDeclarationInstantiation() = 0;
         virtual Var ModuleEvaluation() = 0;
-        virtual bool IsSourceTextModuleRecord() { return false; }
+        virtual bool IsSourceTextModuleRecord() {TRACE_IT(51901); return false; }
 
     protected:
         Field(uint32) magicNumber;

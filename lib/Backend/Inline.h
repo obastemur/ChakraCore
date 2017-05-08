@@ -9,7 +9,7 @@ class Inline
 public:
     Inline(Func *topFunc, InliningHeuristics &heuristics, uint lCount = 0, uint  currentInlineeFrameSlot = 0, bool isApplyTargetInliningInProgress = false) :
         topFunc(topFunc), inlineesProcessed(0), currentInlineeFrameSlot(currentInlineeFrameSlot), isInLoop(lCount), inliningHeuristics(heuristics),
-        isApplyTargetInliningInProgress(isApplyTargetInliningInProgress), isInInlinedApplyCall(false){}
+        isApplyTargetInliningInProgress(isApplyTargetInliningInProgress), isInInlinedApplyCall(false){TRACE_IT(9308);}
     void Optimize();
     static IR::Instr* GetDefInstr(IR::Opnd* linkOpnd);
 private:
@@ -99,7 +99,7 @@ private:
     void        Simd128FixLoadStoreInstr(Js::BuiltinFunction builtInId, IR::Instr * callInstr);
 #endif
     IR::Instr* InsertInlineeBuiltInStartEndTags(IR::Instr* callInstr, uint actualcount, IR::Instr** builtinStartInstr = nullptr);
-    bool IsInliningOutSideLoops(){ return topFunc->GetJITFunctionBody()->HasLoops() && isInLoop == 0; }
+    bool IsInliningOutSideLoops(){TRACE_IT(9309); return topFunc->GetJITFunctionBody()->HasLoops() && isInLoop == 0; }
 
     uint FillInlineesDataArray(
         const FunctionJITTimeInfo* inlineeJitTimeData,
@@ -138,8 +138,8 @@ private:
     IR::Opnd * ConvertToInlineBuiltInArgOut(IR::Instr * argInstr);
     void GenerateArgOutUse(IR::Instr* argInstr);
 
-    bool    GetIsInInlinedApplyCall() const { return this->isInInlinedApplyCall; }
-    void    SetIsInInlinedApplyCall(bool inInlinedApplyCall) { this->isInInlinedApplyCall = inInlinedApplyCall; }
+    bool    GetIsInInlinedApplyCall() const {TRACE_IT(9310); return this->isInInlinedApplyCall; }
+    void    SetIsInInlinedApplyCall(bool inInlinedApplyCall) {TRACE_IT(9311); this->isInInlinedApplyCall = inInlinedApplyCall; }
 
 #if defined(ENABLE_DEBUG_CONFIG_OPTIONS)
     static void TraceInlining(const FunctionJITTimeInfo *const inliner, const char16* inlineeName, const char16* inlineeFunctionIdandNumberString, uint inlineeByteCodeCount,

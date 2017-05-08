@@ -33,9 +33,9 @@ public:
     void ResetMarks(ResetMarkFlags flags);
     void EnumerateObjects(ObjectInfoBits infoBits, void(*CallBackFunction)(void * address, size_t size));
 #ifdef RECYCLER_PAGE_HEAP
-    bool IsPageHeapEnabled() const{ return isPageHeapEnabled; }
+    bool IsPageHeapEnabled() const{TRACE_IT(24209); return isPageHeapEnabled; }
     static size_t RoundObjectSize(size_t objectSize)
-    {
+    {TRACE_IT(24210);
         // triming off the tail part which is not a pointer
         return objectSize - (objectSize % sizeof(void*));
     }
@@ -43,7 +43,7 @@ public:
     template <typename TBlockAttributes>
     bool IsPageHeapEnabledForBlock(const size_t objectSize);
 #else
-    const bool IsPageHeapEnabled() const{ return false; }
+    const bool IsPageHeapEnabled() const{TRACE_IT(24211); return false; }
 #endif
 
 #ifdef DUMP_FRAGMENTATION_STATS
@@ -115,9 +115,9 @@ public:
 #endif
 
 public:
-    static bool IsSmallObject(size_t nBytes) { return nBytes <= HeapConstants::MaxSmallObjectSize; }
+    static bool IsSmallObject(size_t nBytes) {TRACE_IT(24212); return nBytes <= HeapConstants::MaxSmallObjectSize; }
     static bool IsMediumObject(size_t nBytes)
-    {
+    {TRACE_IT(24213);
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
         return nBytes > HeapConstants::MaxSmallObjectSize && nBytes <= HeapConstants::MaxMediumObjectSize;
 #else
@@ -126,7 +126,7 @@ public:
     }
 
     static bool IsSmallBlockAllocation(size_t nBytes)
-    {
+    {TRACE_IT(24214);
 #if SMALLBLOCK_MEDIUM_ALLOC
         return HeapInfo::IsSmallObject(nBytes) || HeapInfo::IsMediumObject(nBytes);
 #else
@@ -135,7 +135,7 @@ public:
     }
 
     static bool IsLargeObject(size_t nBytes)
-    {
+    {TRACE_IT(24215);
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
         return nBytes > HeapConstants::MaxMediumObjectSize;
 #else
@@ -143,29 +143,29 @@ public:
 #endif
     }
 
-    static BOOL IsAlignedSize(size_t sizeCat) { return (sizeCat != 0) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask)); }
-    static BOOL IsAlignedSmallObjectSize(size_t sizeCat) { return (sizeCat != 0) && (HeapInfo::IsSmallObject(sizeCat) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask))); }
-    static BOOL IsAlignedMediumObjectSize(size_t sizeCat) { return (sizeCat != 0) && (HeapInfo::IsMediumObject(sizeCat) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask))); }
+    static BOOL IsAlignedSize(size_t sizeCat) {TRACE_IT(24216); return (sizeCat != 0) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask)); }
+    static BOOL IsAlignedSmallObjectSize(size_t sizeCat) {TRACE_IT(24217); return (sizeCat != 0) && (HeapInfo::IsSmallObject(sizeCat) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask))); }
+    static BOOL IsAlignedMediumObjectSize(size_t sizeCat) {TRACE_IT(24218); return (sizeCat != 0) && (HeapInfo::IsMediumObject(sizeCat) && (0 == (sizeCat & HeapInfo::ObjectAlignmentMask))); }
 
-    static size_t GetAlignedSize(size_t size) { return AllocSizeMath::Align(size, HeapConstants::ObjectGranularity); }
-    static size_t GetAlignedSizeNoCheck(size_t size) { return Math::Align<size_t>(size, HeapConstants::ObjectGranularity); }
+    static size_t GetAlignedSize(size_t size) {TRACE_IT(24219); return AllocSizeMath::Align(size, HeapConstants::ObjectGranularity); }
+    static size_t GetAlignedSizeNoCheck(size_t size) {TRACE_IT(24220); return Math::Align<size_t>(size, HeapConstants::ObjectGranularity); }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
-    static size_t GetMediumObjectAlignedSize(size_t size) { return AllocSizeMath::Align(size, HeapConstants::MediumObjectGranularity); }
-    static size_t GetMediumObjectAlignedSizeNoCheck(size_t size) { return Math::Align<size_t>(size, HeapConstants::MediumObjectGranularity); }
+    static size_t GetMediumObjectAlignedSize(size_t size) {TRACE_IT(24221); return AllocSizeMath::Align(size, HeapConstants::MediumObjectGranularity); }
+    static size_t GetMediumObjectAlignedSizeNoCheck(size_t size) {TRACE_IT(24222); return Math::Align<size_t>(size, HeapConstants::MediumObjectGranularity); }
 #endif
 
-    static inline uint GetBucketIndex(size_t sizeCat) { Assert(IsAlignedSmallObjectSize(sizeCat)); return (uint)(sizeCat >> HeapConstants::ObjectAllocationShift) - 1; }
+    static inline uint GetBucketIndex(size_t sizeCat) {TRACE_IT(24223); Assert(IsAlignedSmallObjectSize(sizeCat)); return (uint)(sizeCat >> HeapConstants::ObjectAllocationShift) - 1; }
 
     template <typename TBlockAttributes>
     static uint GetObjectSizeForBucketIndex(uint bucketIndex);
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
-    static uint GetMediumBucketIndex(size_t sizeCat) { Assert(IsAlignedMediumObjectSize(sizeCat)); return (uint)((sizeCat - HeapConstants::MaxSmallObjectSize - 1) / HeapConstants::MediumObjectGranularity); }
+    static uint GetMediumBucketIndex(size_t sizeCat) {TRACE_IT(24224); Assert(IsAlignedMediumObjectSize(sizeCat)); return (uint)((sizeCat - HeapConstants::MaxSmallObjectSize - 1) / HeapConstants::MediumObjectGranularity); }
 #endif
 
-    static BOOL IsAlignedAddress(void * address) { return (0 == (((size_t)address) & HeapInfo::ObjectAlignmentMask)); }
-    static void * GetAlignedAddress(void * address) { return (void*)((uintptr_t)address & ~(uintptr_t)HeapInfo::ObjectAlignmentMask); }
+    static BOOL IsAlignedAddress(void * address) {TRACE_IT(24225); return (0 == (((size_t)address) & HeapInfo::ObjectAlignmentMask)); }
+    static void * GetAlignedAddress(void * address) {TRACE_IT(24226); return (void*)((uintptr_t)address & ~(uintptr_t)HeapInfo::ObjectAlignmentMask); }
 private:
     template <ObjectInfoBits attributes>
     typename SmallHeapBlockType<attributes, SmallAllocationBlockAttributes>::BucketType& GetBucket(size_t sizeCat);
@@ -185,7 +185,7 @@ private:
 
     template <typename TBlockType>
     void AppendNewHeapBlock(TBlockType * heapBlock, HeapBucketT<TBlockType> * heapBucket)
-    {
+    {TRACE_IT(24227);
         TBlockType *& list = this->GetNewHeapBlockList<TBlockType>(heapBucket);
         heapBlock->SetNextBlock(list);
         list = heapBlock;
@@ -194,17 +194,17 @@ private:
     template <typename TBlockType> TBlockType *& GetNewHeapBlockList(HeapBucketT<TBlockType> * heapBucket);
     template <>
     SmallLeafHeapBlock *& GetNewHeapBlockList<SmallLeafHeapBlock>(HeapBucketT<SmallLeafHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24228);
         return this->newLeafHeapBlockList;
     }
     template <>
     SmallNormalHeapBlock *& GetNewHeapBlockList<SmallNormalHeapBlock>(HeapBucketT<SmallNormalHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24229);
         return this->newNormalHeapBlockList;
     }
     template <>
     SmallFinalizableHeapBlock *& GetNewHeapBlockList<SmallFinalizableHeapBlock>(HeapBucketT<SmallFinalizableHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24230);
         // Even though we don't concurrent sweep finalizable heap block, the background thread may
         // find some partial swept block to be reused, thus modifying the heapBlockList in the background
         // so new block can't go into heapBlockList
@@ -214,30 +214,30 @@ private:
 #ifdef RECYCLER_WRITE_BARRIER
     template <>
     SmallNormalWithBarrierHeapBlock *& GetNewHeapBlockList<SmallNormalWithBarrierHeapBlock>(HeapBucketT<SmallNormalWithBarrierHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24231);
         return this->newNormalWithBarrierHeapBlockList;
     }
 
     template <>
     SmallFinalizableWithBarrierHeapBlock *& GetNewHeapBlockList<SmallFinalizableWithBarrierHeapBlock>(HeapBucketT<SmallFinalizableWithBarrierHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24232);
         return this->newFinalizableWithBarrierHeapBlockList;
     }
 #endif
 
     template <>
     MediumLeafHeapBlock *& GetNewHeapBlockList<MediumLeafHeapBlock>(HeapBucketT<MediumLeafHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24233);
         return this->newMediumLeafHeapBlockList;
     }
     template <>
     MediumNormalHeapBlock *& GetNewHeapBlockList<MediumNormalHeapBlock>(HeapBucketT<MediumNormalHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24234);
         return this->newMediumNormalHeapBlockList;
     }
     template <>
     MediumFinalizableHeapBlock *& GetNewHeapBlockList<MediumFinalizableHeapBlock>(HeapBucketT<MediumFinalizableHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24235);
         // Even though we don't concurrent sweep finalizable heap block, the background thread may
         // find some partial swept block to be reused, thus modifying the heapBlockList in the background
         // so new block can't go into heapBlockList
@@ -247,13 +247,13 @@ private:
 #ifdef RECYCLER_WRITE_BARRIER
     template <>
     MediumNormalWithBarrierHeapBlock *& GetNewHeapBlockList<MediumNormalWithBarrierHeapBlock>(HeapBucketT<MediumNormalWithBarrierHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24236);
         return this->newMediumNormalWithBarrierHeapBlockList;
     }
 
     template <>
     MediumFinalizableWithBarrierHeapBlock *& GetNewHeapBlockList<MediumFinalizableWithBarrierHeapBlock>(HeapBucketT<MediumFinalizableWithBarrierHeapBlock> * heapBucket)
-    {
+    {TRACE_IT(24237);
         return this->newMediumFinalizableWithBarrierHeapBlockList;
     }
 #endif
@@ -261,7 +261,7 @@ private:
     void SetupBackgroundSweep(RecyclerSweep& recyclerSweep);
 #else
     template <typename TBlockType> TBlockType *& GetNewHeapBlockList(HeapBucketT<TBlockType> * heapBucket)
-    {
+    {TRACE_IT(24238);
         return heapBucket->heapBlockList;
     }
 #endif
@@ -321,14 +321,14 @@ private:
         static void GenerateValidPointersMap(ValidPointersMapTable& validTable, InvalidBitsTable& invalidTable, BlockInfoMapTable& blockInfoTable);
 
         inline const ValidPointers<TBlockAttributes> GetValidPointersForIndex(uint index) const
-        {
+        {TRACE_IT(24239);
             Assert(index < TBlockAttributes::BucketCount);
             __analysis_assume(index < TBlockAttributes::BucketCount);
             return validPointersBuffer[index];
         }
 
         inline const typename SmallHeapBlockT<TBlockAttributes>::SmallHeapBlockBitVector * GetInvalidBitVector(uint index) const
-        {
+        {TRACE_IT(24240);
             Assert(index < TBlockAttributes::BucketCount);
             __analysis_assume(index < TBlockAttributes::BucketCount);
         #if USE_STATIC_VPM
@@ -339,7 +339,7 @@ private:
         }
 
         inline const typename SmallHeapBlockT<TBlockAttributes>::BlockInfo * GetBlockInfo(uint index) const
-        {
+        {TRACE_IT(24241);
             Assert(index < TBlockAttributes::BucketCount);
             __analysis_assume(index < TBlockAttributes::BucketCount);
             return blockInfoBuffer[index];
@@ -355,7 +355,7 @@ private:
 
 public:
     static HRESULT GenerateValidPointersMapHeader(LPCWSTR vpmFullPath)
-    {
+    {TRACE_IT(24242);
         return smallAllocValidPointersMap.GenerateValidPointersMapHeader(vpmFullPath);
     }
 
@@ -368,7 +368,7 @@ public:
     template <typename TBlockAttributes>
     static ValidPointers<TBlockAttributes> const GetValidPointersMapForBucket(uint bucketIndex);
 
-    Recycler* GetRecycler(){ return recycler; }
+    Recycler* GetRecycler(){TRACE_IT(24243); return recycler; }
 
     template <typename TBlockAttributes>
     static typename SmallHeapBlockT<TBlockAttributes>::BlockInfo const * GetBlockInfo(uint objectSize);
@@ -466,7 +466,7 @@ private:
 template <ObjectInfoBits attributes>
 typename SmallHeapBlockType<attributes, SmallAllocationBlockAttributes>::BucketType&
 HeapInfo::GetBucket(size_t sizeCat)
-{
+{TRACE_IT(24244);
     uint bucket = HeapInfo::GetBucketIndex(sizeCat);
     return this->heapBuckets[bucket].GetBucket<attributes>();
 }
@@ -476,7 +476,7 @@ HeapInfo::GetBucket(size_t sizeCat)
 template <ObjectInfoBits attributes>
 typename SmallHeapBlockType<attributes, MediumAllocationBlockAttributes>::BucketType&
 HeapInfo::GetMediumBucket(size_t sizeCat)
-{
+{TRACE_IT(24245);
     uint bucket = HeapInfo::GetMediumBucketIndex(sizeCat);
     return this->mediumHeapBuckets[bucket].GetBucket<attributes>();
 }
@@ -484,7 +484,7 @@ HeapInfo::GetMediumBucket(size_t sizeCat)
 #else
 LargeHeapBucket&
 HeapInfo::GetMediumBucket(size_t sizeCat)
-{
+{TRACE_IT(24246);
     uint bucket = HeapInfo::GetMediumBucketIndex(sizeCat);
     return this->mediumHeapBuckets[bucket];
 }
@@ -494,7 +494,7 @@ HeapInfo::GetMediumBucket(size_t sizeCat)
 template <ObjectInfoBits attributes, bool nothrow>
 inline char *
 HeapInfo::RealAlloc(Recycler * recycler, size_t sizeCat, size_t size)
-{
+{TRACE_IT(24247);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
     auto& bucket = this->GetBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat);
     return bucket.template RealAlloc<attributes, nothrow>(recycler, sizeCat, size);
@@ -505,7 +505,7 @@ HeapInfo::RealAlloc(Recycler * recycler, size_t sizeCat, size_t size)
 template <ObjectInfoBits attributes, bool nothrow>
 inline char *
 HeapInfo::MediumAlloc(Recycler * recycler, size_t sizeCat, size_t size)
-{
+{TRACE_IT(24248);
     auto& bucket = this->GetMediumBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat);
     return bucket.template RealAlloc<attributes, nothrow>(recycler, sizeCat, size);
 }
@@ -514,7 +514,7 @@ HeapInfo::MediumAlloc(Recycler * recycler, size_t sizeCat, size_t size)
 template <ObjectInfoBits attributes, bool nothrow>
 __forceinline char *
 HeapInfo::MediumAlloc(Recycler * recycler, size_t sizeCat)
-{
+{TRACE_IT(24249);
     Assert(HeapInfo::IsAlignedMediumObjectSize(sizeCat));
     return this->GetMediumBucket<attributes>(sizeCat).Alloc<attributes, nothrow>(recycler, sizeCat);
 }
@@ -524,7 +524,7 @@ HeapInfo::MediumAlloc(Recycler * recycler, size_t sizeCat)
 template <ObjectInfoBits attributes>
 inline void
 HeapInfo::FreeSmallObject(void* object, size_t sizeCat)
-{
+{TRACE_IT(24250);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
     return this->GetBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat).ExplicitFree(object, sizeCat);
 }
@@ -532,7 +532,7 @@ HeapInfo::FreeSmallObject(void* object, size_t sizeCat)
 template <ObjectInfoBits attributes>
 inline void
 HeapInfo::FreeMediumObject(void* object, size_t sizeCat)
-{
+{TRACE_IT(24251);
     Assert(HeapInfo::IsAlignedMediumObjectSize(sizeCat));
     return this->GetMediumBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat).ExplicitFree(object, sizeCat);
 }
@@ -540,7 +540,7 @@ HeapInfo::FreeMediumObject(void* object, size_t sizeCat)
 template <ObjectInfoBits attributes>
 bool
 HeapInfo::IntegrateBlock(char * blockAddress, PageSegment * segment, Recycler * recycler, size_t sizeCat)
-{
+{TRACE_IT(24252);
     // We only support no bit and leaf bit right now, where we don't need to set the object info in either case
     CompileAssert(attributes == NoBit || attributes == LeafBit);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
@@ -551,7 +551,7 @@ HeapInfo::IntegrateBlock(char * blockAddress, PageSegment * segment, Recycler * 
 template <typename SmallHeapBlockAllocatorType>
 void
 HeapInfo::AddSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t sizeCat)
-{
+{TRACE_IT(24253);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
     this->GetBucket<SmallHeapBlockAllocatorType::BlockType::RequiredAttributes>(sizeCat).AddAllocator(allocator);
 }
@@ -559,7 +559,7 @@ HeapInfo::AddSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t size
 template <typename SmallHeapBlockAllocatorType>
 void
 HeapInfo::RemoveSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t sizeCat)
-{
+{TRACE_IT(24254);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
     this->GetBucket<SmallHeapBlockAllocatorType::BlockType::RequiredAttributes>(sizeCat).RemoveAllocator(allocator);
 }
@@ -567,7 +567,7 @@ HeapInfo::RemoveSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t s
 template <ObjectInfoBits attributes, typename SmallHeapBlockAllocatorType>
 char *
 HeapInfo::SmallAllocatorAlloc(Recycler * recycler, SmallHeapBlockAllocatorType * allocator, size_t sizeCat, size_t size)
-{
+{TRACE_IT(24255);
     Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
     CompileAssert((attributes & SmallHeapBlockAllocatorType::BlockType::RequiredAttributes) == SmallHeapBlockAllocatorType::BlockType::RequiredAttributes);
 
@@ -590,14 +590,14 @@ extern template class HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes
 
 template <typename TBlockAttributes>
 inline uint HeapInfo::GetObjectSizeForBucketIndex(uint bucketIndex)
-{
+{TRACE_IT(24256);
     return (bucketIndex + 1) << HeapConstants::ObjectAllocationShift;
 }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
 template <>
 inline uint HeapInfo::GetObjectSizeForBucketIndex<MediumAllocationBlockAttributes>(uint bucketIndex)
-{
+{TRACE_IT(24257);
     Assert(IsMediumObject(HeapConstants::MaxSmallObjectSize + ((bucketIndex + 1) * HeapConstants::MediumObjectGranularity)));
     return HeapConstants::MaxSmallObjectSize + ((bucketIndex + 1) * HeapConstants::MediumObjectGranularity);
 }
@@ -607,42 +607,42 @@ inline uint HeapInfo::GetObjectSizeForBucketIndex<MediumAllocationBlockAttribute
 template <typename TBlockAttributes>
 inline typename SmallHeapBlockT<TBlockAttributes>::SmallHeapBlockBitVector const *
 HeapInfo::GetInvalidBitVector(uint objectSize)
-{
+{TRACE_IT(24258);
     return smallAllocValidPointersMap.GetInvalidBitVector(HeapInfo::GetBucketIndex(objectSize));
 }
 
 template <typename TBlockAttributes>
 inline typename SmallHeapBlockT<TBlockAttributes>::SmallHeapBlockBitVector const *
 HeapInfo::GetInvalidBitVectorForBucket(uint bucketIndex)
-{
+{TRACE_IT(24259);
     return smallAllocValidPointersMap.GetInvalidBitVector(bucketIndex);
 }
 
 template <typename TBlockAttributes>
 inline ValidPointers<TBlockAttributes> const
 HeapInfo::GetValidPointersMapForBucket(uint bucketIndex)
-{
+{TRACE_IT(24260);
     return smallAllocValidPointersMap.GetValidPointersForIndex(bucketIndex);
 }
 
 template <>
 inline typename SmallHeapBlockT<MediumAllocationBlockAttributes>::SmallHeapBlockBitVector const *
 HeapInfo::GetInvalidBitVector<MediumAllocationBlockAttributes>(uint objectSize)
-{
+{TRACE_IT(24261);
     return mediumAllocValidPointersMap.GetInvalidBitVector(GetMediumBucketIndex(objectSize));
 }
 
 template <>
 inline typename SmallHeapBlockT<MediumAllocationBlockAttributes>::SmallHeapBlockBitVector const *
 HeapInfo::GetInvalidBitVectorForBucket<MediumAllocationBlockAttributes>(uint bucketIndex)
-{
+{TRACE_IT(24262);
     return mediumAllocValidPointersMap.GetInvalidBitVector(bucketIndex);
 }
 
 template <>
 inline ValidPointers<MediumAllocationBlockAttributes> const
 HeapInfo::GetValidPointersMapForBucket<MediumAllocationBlockAttributes>(uint bucketIndex)
-{
+{TRACE_IT(24263);
     return mediumAllocValidPointersMap.GetValidPointersForIndex(bucketIndex);
 }
 
@@ -650,14 +650,14 @@ HeapInfo::GetValidPointersMapForBucket<MediumAllocationBlockAttributes>(uint buc
 template <typename TBlockAttributes>
 inline typename SmallHeapBlockT<TBlockAttributes>::BlockInfo const *
 HeapInfo::GetBlockInfo(uint objectSize)
-{
+{TRACE_IT(24264);
     return smallAllocValidPointersMap.GetBlockInfo(GetBucketIndex(objectSize));
 }
 
 template <>
 inline typename SmallHeapBlockT<MediumAllocationBlockAttributes>::BlockInfo const *
 HeapInfo::GetBlockInfo<MediumAllocationBlockAttributes>(uint objectSize)
-{
+{TRACE_IT(24265);
     return mediumAllocValidPointersMap.GetBlockInfo(GetMediumBucketIndex(objectSize));
 }
 

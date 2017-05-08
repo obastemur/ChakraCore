@@ -89,42 +89,42 @@ namespace Js
         Field(bool) wasReincarnated = false;
 #endif
     public:
-        static PropertyGuard* New(Recycler* recycler) { return RecyclerNewLeaf(recycler, Js::PropertyGuard); }
-        PropertyGuard() : value(GuardValue::Uninitialized) {}
+        static PropertyGuard* New(Recycler* recycler) {TRACE_IT(35136); return RecyclerNewLeaf(recycler, Js::PropertyGuard); }
+        PropertyGuard() : value(GuardValue::Uninitialized) {TRACE_IT(35137);}
         PropertyGuard(intptr_t value) : value(value)
-        {
+        {TRACE_IT(35138);
             // GuardValue::Invalidated and GuardValue::Invalidated_DuringSweeping can only be set using
             // Invalidate() and InvalidatedDuringSweep() methods respectively.
             Assert(this->value != GuardValue::Invalidated && this->value != GuardValue::Invalidated_DuringSweep);
         }
 
-        inline static size_t const GetSizeOfValue() { return sizeof(((PropertyGuard*)0)->value); }
-        inline static size_t const GetOffsetOfValue() { return offsetof(PropertyGuard, value); }
+        inline static size_t const GetSizeOfValue() {TRACE_IT(35139); return sizeof(((PropertyGuard*)0)->value); }
+        inline static size_t const GetOffsetOfValue() {TRACE_IT(35140); return offsetof(PropertyGuard, value); }
 
-        intptr_t GetValue() const { return this->value; }
+        intptr_t GetValue() const {TRACE_IT(35141); return this->value; }
         bool IsValid()
-        {
+        {TRACE_IT(35142);
             return this->value != GuardValue::Invalidated && this->value != GuardValue::Invalidated_DuringSweep;
         }
-        bool IsInvalidatedDuringSweep() { return this->value == GuardValue::Invalidated_DuringSweep; }
+        bool IsInvalidatedDuringSweep() {TRACE_IT(35143); return this->value == GuardValue::Invalidated_DuringSweep; }
         void SetValue(intptr_t value)
-        {
+        {TRACE_IT(35144);
             // GuardValue::Invalidated and GuardValue::Invalidated_DuringSweeping can only be set using
             // Invalidate() and InvalidatedDuringSweep() methods respectively.
             Assert(value != GuardValue::Invalidated && value != GuardValue::Invalidated_DuringSweep);
             this->value = value;
         }
-        intptr_t const* GetAddressOfValue() { return &this->value; }
-        void Invalidate() { this->value = GuardValue::Invalidated; }
+        intptr_t const* GetAddressOfValue() {TRACE_IT(35145); return &this->value; }
+        void Invalidate() {TRACE_IT(35146); this->value = GuardValue::Invalidated; }
         void InvalidateDuringSweep()
-        {
+        {TRACE_IT(35147);
 #if DBG
             wasReincarnated = true;
 #endif
             this->value = GuardValue::Invalidated_DuringSweep;
         }
 #if DBG
-        bool WasReincarnated() { return this->wasReincarnated; }
+        bool WasReincarnated() {TRACE_IT(35148); return this->wasReincarnated; }
 #endif
         enum GuardValue : intptr_t
         {
@@ -148,18 +148,18 @@ namespace Js
 
     public:
         JitIndexedPropertyGuard(intptr_t value, int index):
-            Js::PropertyGuard(value), index(index) {}
+            Js::PropertyGuard(value), index(index) {TRACE_IT(35149);}
 
-        int GetIndex() const { return this->index; }
+        int GetIndex() const {TRACE_IT(35150); return this->index; }
     };
 
     class JitTypePropertyGuard : public Js::JitIndexedPropertyGuard
     {
     public:
         JitTypePropertyGuard(intptr_t typeAddr, int index):
-            JitIndexedPropertyGuard(typeAddr, index) {}
+            JitIndexedPropertyGuard(typeAddr, index) {TRACE_IT(35151);}
 
-        intptr_t GetTypeAddr() const { return this->GetValue(); }
+        intptr_t GetTypeAddr() const {TRACE_IT(35152); return this->GetValue(); }
 
     };
 
@@ -168,25 +168,25 @@ namespace Js
         PropertyId propertyId;
         JitIndexedPropertyGuard* guards[0];
 
-        TypeGuardTransferEntry(): propertyId(Js::Constants::NoProperty) {}
+        TypeGuardTransferEntry(): propertyId(Js::Constants::NoProperty) {TRACE_IT(35153);}
     };
 
     class FakePropertyGuardWeakReference: public RecyclerWeakReference<Js::PropertyGuard>
     {
     public:
         static FakePropertyGuardWeakReference* New(Recycler* recycler, Js::PropertyGuard* guard)
-        {
+        {TRACE_IT(35154);
             Assert(guard != nullptr);
             return RecyclerNewLeaf(recycler, Js::FakePropertyGuardWeakReference, guard);
         }
         FakePropertyGuardWeakReference(const Js::PropertyGuard* guard)
-        {
+        {TRACE_IT(35155);
             this->strongRef = (char*)guard;
             this->strongRefHeapBlock = &CollectedRecyclerWeakRefHeapBlock::Instance;
         }
 
         void Zero()
-        {
+        {TRACE_IT(35156);
             Assert(this->strongRef != nullptr);
             this->strongRef = nullptr;
         }
@@ -197,7 +197,7 @@ namespace Js
         PropertyId propertyId;
         intptr_t caches[0];
 
-        CtorCacheGuardTransferEntry(): propertyId(Js::Constants::NoProperty) {}
+        CtorCacheGuardTransferEntry(): propertyId(Js::Constants::NoProperty) {TRACE_IT(35157);}
     };
 
     struct EquivalentTypeCache
@@ -209,13 +209,13 @@ namespace Js
         bool isLoadedFromProto;
         bool hasFixedValue;
 
-        EquivalentTypeCache(): nextEvictionVictim(EQUIVALENT_TYPE_CACHE_SIZE) {}
+        EquivalentTypeCache(): nextEvictionVictim(EQUIVALENT_TYPE_CACHE_SIZE) {TRACE_IT(35158);}
         bool ClearUnusedTypes(Recycler *recycler);
-        void SetGuard(PropertyGuard *theGuard) { this->guard = theGuard; }
-        void SetIsLoadedFromProto() { this->isLoadedFromProto = true; }
-        bool IsLoadedFromProto() const { return this->isLoadedFromProto; }
-        void SetHasFixedValue() { this->hasFixedValue = true; }
-        bool HasFixedValue() const { return this->hasFixedValue; }
+        void SetGuard(PropertyGuard *theGuard) {TRACE_IT(35159); this->guard = theGuard; }
+        void SetIsLoadedFromProto() {TRACE_IT(35160); this->isLoadedFromProto = true; }
+        bool IsLoadedFromProto() const {TRACE_IT(35161); return this->isLoadedFromProto; }
+        void SetHasFixedValue() {TRACE_IT(35162); this->hasFixedValue = true; }
+        bool HasFixedValue() const {TRACE_IT(35163); return this->hasFixedValue; }
     };
 
     class JitEquivalentTypeGuard : public JitIndexedPropertyGuard
@@ -233,23 +233,23 @@ namespace Js
     public:
         JitEquivalentTypeGuard(intptr_t typeAddr, int index, uint32 objTypeSpecFldId):
             JitIndexedPropertyGuard(typeAddr, index), cache(nullptr), objTypeSpecFldId(objTypeSpecFldId)
-        {
+        {TRACE_IT(35164);
 #if DBG && 0
             originalScriptContextValue = reinterpret_cast<intptr_t>(type->GetScriptContext());
 #endif
         }
 
-        intptr_t GetTypeAddr() const { return this->GetValue(); }
+        intptr_t GetTypeAddr() const {TRACE_IT(35165); return this->GetValue(); }
 
         void SetTypeAddr(const intptr_t typeAddr)
-        {
+        {TRACE_IT(35166);
 #if DBG && 0
             if (originalScriptContextValue == 0)
-            {
+            {TRACE_IT(35167);
                 originalScriptContextValue = reinterpret_cast<intptr_t>(type->GetScriptContext());
             }
             else
-            {
+            {TRACE_IT(35168);
                 AssertMsg(originalScriptContextValue == reinterpret_cast<intptr_t>(type->GetScriptContext()), "Trying to set guard type from different script context.");
             }
 #endif
@@ -257,17 +257,17 @@ namespace Js
         }
 
         uint32 GetObjTypeSpecFldId() const
-        {
+        {TRACE_IT(35169);
             return this->objTypeSpecFldId;
         }
 
         Js::EquivalentTypeCache* GetCache() const
-        {
+        {TRACE_IT(35170);
             return this->cache;
         }
 
         void SetCache(Js::EquivalentTypeCache* cache)
-        {
+        {TRACE_IT(35171);
             this->cache = cache;
         }
     };
@@ -281,10 +281,10 @@ namespace Js
     public:
         PolymorphicCacheUtilizationArray()
             : utilArray(nullptr)
-        {
+        {TRACE_IT(35172);
         }
         void EnsureUtilArray(Recycler * const recycler, Js::FunctionBody * functionBody);
-        byte* GetByteArray() { return utilArray; }
+        byte* GetByteArray() {TRACE_IT(35173); return utilArray; }
         void SetUtil(Js::FunctionBody* functionBody, uint index, byte util);
         byte GetUtil(Js::FunctionBody* functionBody, uint index);
     };
@@ -299,13 +299,13 @@ namespace Js
     public:
         PolymorphicInlineCacheInfo(FunctionBody * functionBody)
             : functionBody(functionBody)
-        {
+        {TRACE_IT(35174);
         }
 
-        InlineCachePointerArray<PolymorphicInlineCache> * GetPolymorphicInlineCaches() { return &polymorphicInlineCaches; }
-        PolymorphicCacheUtilizationArray * GetUtilArray() { return &polymorphicCacheUtilizationArray; }
-        byte * GetUtilByteArray() { return polymorphicCacheUtilizationArray.GetByteArray(); }
-        FunctionBody * GetFunctionBody() const { return functionBody; }
+        InlineCachePointerArray<PolymorphicInlineCache> * GetPolymorphicInlineCaches() {TRACE_IT(35175); return &polymorphicInlineCaches; }
+        PolymorphicCacheUtilizationArray * GetUtilArray() {TRACE_IT(35176); return &polymorphicCacheUtilizationArray; }
+        byte * GetUtilByteArray() {TRACE_IT(35177); return polymorphicCacheUtilizationArray.GetByteArray(); }
+        FunctionBody * GetFunctionBody() const {TRACE_IT(35178); return functionBody; }
     };
 
     class EntryPointPolymorphicInlineCacheInfo sealed
@@ -321,10 +321,10 @@ namespace Js
     public:
         EntryPointPolymorphicInlineCacheInfo(FunctionBody * functionBody);
 
-        PolymorphicInlineCacheInfo * GetSelfInfo() { return &selfInfo; }
+        PolymorphicInlineCacheInfo * GetSelfInfo() {TRACE_IT(35179); return &selfInfo; }
         PolymorphicInlineCacheInfo * EnsureInlineeInfo(Recycler * recycler, FunctionBody * inlineeFunctionBody);
         PolymorphicInlineCacheInfo * GetInlineeInfo(FunctionBody * inlineeFunctionBody);
-        SListCounted<PolymorphicInlineCacheInfo*, Recycler> * GetInlineeInfo() { return &this->inlineeInfo; }
+        SListCounted<PolymorphicInlineCacheInfo*, Recycler> * GetInlineeInfo() {TRACE_IT(35180); return &this->inlineeInfo; }
 
         void SetPolymorphicInlineCache(FunctionBody * functionBody, uint index, PolymorphicInlineCache * polymorphicInlineCache, bool isInlinee, byte polyCacheUtil);
 
@@ -333,7 +333,7 @@ namespace Js
         {
             SListCounted<PolymorphicInlineCacheInfo*, Recycler>::Iterator iter(&inlineeInfo);
             while (iter.Next())
-            {
+            {TRACE_IT(35181);
                 fn(iter.Data());
             }
         }
@@ -364,7 +364,7 @@ namespace Js
             polyInlineCacheCount(0), nullPolyInlineCacheCount(0), emptyPolyInlineCacheCount(0), ignoredPolyInlineCacheCount(0),
             highUtilPolyInlineCacheCount(0), lowUtilPolyInlineCacheCount(0),
             equivPolyInlineCacheCount(0), nonEquivPolyInlineCacheCount(0), disabledPolyInlineCacheCount(0),
-            clonedMonoInlineCacheCount(0), clonedPolyInlineCacheCount(0) {}
+            clonedMonoInlineCacheCount(0), clonedPolyInlineCacheCount(0) {TRACE_IT(35182);}
 
         void Add(FieldAccessStats* other);
     };
@@ -385,9 +385,9 @@ namespace Js
         ProxyEntryPointInfo(Js::JavascriptMethod jsMethod, ThreadContext* context = nullptr):
             ExpirableObject(context),
             jsMethod(jsMethod)
-        {
+        {TRACE_IT(35183);
         }
-        static DWORD GetAddressOffset() { return offsetof(ProxyEntryPointInfo, jsMethod); }
+        static DWORD GetAddressOffset() {TRACE_IT(35184); return offsetof(ProxyEntryPointInfo, jsMethod); }
         virtual void Expire()
         {
             AssertMsg(false, "Expire called on object that doesn't support expiration");
@@ -398,7 +398,7 @@ namespace Js
             AssertMsg(false, "EnterExpirableCollectMode called on object that doesn't support expiration");
         }
 
-        virtual bool IsFunctionEntryPointInfo() const { return false; }
+        virtual bool IsFunctionEntryPointInfo() const {TRACE_IT(35185); return false; }
     };
 
 
@@ -487,42 +487,42 @@ namespace Js
                 propertyGuardCount(0), propertyGuardsByPropertyId(nullptr), propertyGuardsByPropertyIdPlusSize(0),
                 ctorCacheGuardsByPropertyId(nullptr), ctorCacheGuardsByPropertyIdPlusSize(0),
                 equivalentTypeGuardCount(0), equivalentTypeGuards(nullptr), jitTransferRawData(nullptr),
-                falseReferencePreventionBit(true), isReady(false), lazyBailoutProperties(nullptr), lazyBailoutPropertyCount(0){}
+                falseReferencePreventionBit(true), isReady(false), lazyBailoutProperties(nullptr), lazyBailoutPropertyCount(0){TRACE_IT(35186);}
 
-            void SetRawData(NativeCodeData* rawData) { jitTransferRawData = rawData; }
+            void SetRawData(NativeCodeData* rawData) {TRACE_IT(35187); jitTransferRawData = rawData; }
             void AddJitTimeTypeRef(void* typeRef, Recycler* recycler);
 
-            int GetRuntimeTypeRefCount() { return this->runtimeTypeRefs ? this->runtimeTypeRefs->count : 0; }
-            void** GetRuntimeTypeRefs() { return this->runtimeTypeRefs ? (void**)this->runtimeTypeRefs->typeRefs : nullptr; }
-            void SetRuntimeTypeRefs(PinnedTypeRefsIDL* pinnedTypeRefs) { this->runtimeTypeRefs = pinnedTypeRefs;}
+            int GetRuntimeTypeRefCount() {TRACE_IT(35188); return this->runtimeTypeRefs ? this->runtimeTypeRefs->count : 0; }
+            void** GetRuntimeTypeRefs() {TRACE_IT(35189); return this->runtimeTypeRefs ? (void**)this->runtimeTypeRefs->typeRefs : nullptr; }
+            void SetRuntimeTypeRefs(PinnedTypeRefsIDL* pinnedTypeRefs) {TRACE_IT(35190); this->runtimeTypeRefs = pinnedTypeRefs;}
 
-            JitEquivalentTypeGuard** GetEquivalentTypeGuards() const { return this->equivalentTypeGuards; }
+            JitEquivalentTypeGuard** GetEquivalentTypeGuards() const {TRACE_IT(35191); return this->equivalentTypeGuards; }
             void SetEquivalentTypeGuards(JitEquivalentTypeGuard** guards, int count)
-            {
+            {TRACE_IT(35192);
                 this->equivalentTypeGuardCount = count;
                 this->equivalentTypeGuards = guards;
             }
             void SetLazyBailoutProperties(Js::PropertyId* properties, int count)
-            {
+            {TRACE_IT(35193);
                 this->lazyBailoutProperties = properties;
                 this->lazyBailoutPropertyCount = count;
             }
             void SetEquivalentTypeGuardOffsets(EquivalentTypeGuardOffsets* offsets)
-            {
+            {TRACE_IT(35194);
                 equivalentTypeGuardOffsets = offsets;
             }
             void SetTypeGuardTransferData(JITOutputIDL* data)
-            {
+            {TRACE_IT(35195);
                 typeGuardTransferData.entries = data->typeGuardEntries;
                 typeGuardTransferData.propertyGuardCount = data->propertyGuardCount;
             }
             void SetCtorCacheTransferData(JITOutputIDL * data)
-            {
+            {TRACE_IT(35196);
                 ctorCacheTransferData.entries = data->ctorCacheEntries;
                 ctorCacheTransferData.ctorCachesCount = data->ctorCachesCount;
             }
-            bool GetIsReady() { return this->isReady; }
-            void SetIsReady() { this->isReady = true; }
+            bool GetIsReady() {TRACE_IT(35197); return this->isReady; }
+            void SetIsReady() {TRACE_IT(35198); this->isReady = true; }
 
         private:
             void EnsureJitTimeTypeRefs(Recycler* recycler);
@@ -623,21 +623,21 @@ namespace Js
         virtual bool IsFunctionEntryPointInfo() const override { return true; }
 
 #if ENABLE_NATIVE_CODEGEN
-        char** GetNativeDataBufferRef() { return &nativeDataBuffer; }
-        char* GetNativeDataBuffer() { return nativeDataBuffer; }
-        void SetInProcJITNativeCodeData(NativeCodeData* nativeCodeData) { inProcJITNaticeCodedata = nativeCodeData; }
+        char** GetNativeDataBufferRef() {TRACE_IT(35199); return &nativeDataBuffer; }
+        char* GetNativeDataBuffer() {TRACE_IT(35200); return nativeDataBuffer; }
+        void SetInProcJITNativeCodeData(NativeCodeData* nativeCodeData) {TRACE_IT(35201); inProcJITNaticeCodedata = nativeCodeData; }
         void SetNumberChunks(CodeGenNumberChunk* chunks)
-        {
+        {TRACE_IT(35202);
             Assert(numberPageSegments == nullptr);
             numberChunks = chunks;
         }
         void SetNumberArray(Field(Js::JavascriptNumber*)* array)
-        {
+        {TRACE_IT(35203);
             Assert(numberPageSegments != nullptr);
             numberArray = array;
         }
         void SetNumberPageSegment(XProcNumberPageSegment * segments)
-        {
+        {TRACE_IT(35204);
             Assert(numberPageSegments == nullptr);
             numberPageSegments = segments;
         }
@@ -671,7 +671,7 @@ namespace Js
 #endif
         {}
 
-        virtual void ReleasePendingWorkItem() {};
+        virtual void ReleasePendingWorkItem() {TRACE_IT(35205);};
 
         virtual void OnCleanup(bool isShutdown) = 0;
 
@@ -680,7 +680,7 @@ namespace Js
 #endif
     private:
         State GetState() const
-        {
+        {TRACE_IT(35206);
             Assert(this->state >= NotScheduled && this->state <= CleanedUp);
             return this->state;
         }
@@ -691,17 +691,17 @@ namespace Js
         virtual FunctionBody *GetFunctionBody() const = 0;
 #if ENABLE_NATIVE_CODEGEN
         EntryPointPolymorphicInlineCacheInfo * EnsurePolymorphicInlineCacheInfo(Recycler * recycler, FunctionBody * functionBody);
-        EntryPointPolymorphicInlineCacheInfo * GetPolymorphicInlineCacheInfo() { return polymorphicInlineCacheInfo; }
+        EntryPointPolymorphicInlineCacheInfo * GetPolymorphicInlineCacheInfo() {TRACE_IT(35207); return polymorphicInlineCacheInfo; }
 
-        JitTransferData* GetJitTransferData() { return this->jitTransferData; }
+        JitTransferData* GetJitTransferData() {TRACE_IT(35208); return this->jitTransferData; }
         JitTransferData* EnsureJitTransferData(Recycler* recycler);
 #if PDATA_ENABLED
-        XDataAllocation* GetXDataInfo() { return this->xdataInfo; }
-        void SetXDataInfo(XDataAllocation* xdataInfo) { this->xdataInfo = xdataInfo; }
+        XDataAllocation* GetXDataInfo() {TRACE_IT(35209); return this->xdataInfo; }
+        void SetXDataInfo(XDataAllocation* xdataInfo) {TRACE_IT(35210); this->xdataInfo = xdataInfo; }
 #endif
 
 #ifdef FIELD_ACCESS_STATS
-        FieldAccessStats* GetFieldAccessStats() { return this->fieldAccessStats; }
+        FieldAccessStats* GetFieldAccessStats() {TRACE_IT(35211); return this->fieldAccessStats; }
         FieldAccessStats* EnsureFieldAccessStats(Recycler* recycler);
 #endif
 
@@ -716,22 +716,22 @@ namespace Js
 #endif
 
         bool IsNotScheduled() const
-        {
+        {TRACE_IT(35212);
             return this->GetState() == NotScheduled;
         }
 
         bool IsCodeGenPending() const
-        {
+        {TRACE_IT(35213);
             return this->GetState() == CodeGenPending;
         }
 
         bool IsCodeGenRecorded() const
-        {
+        {TRACE_IT(35214);
             return this->GetState() == CodeGenRecorded;
         }
 
         bool IsNativeCode() const
-        {
+        {TRACE_IT(35215);
 #if ENABLE_NATIVE_CODEGEN
             return this->GetState() == CodeGenRecorded ||
                 this->GetState() == CodeGenDone;
@@ -741,7 +741,7 @@ namespace Js
         }
 
         bool IsCodeGenDone() const
-        {
+        {TRACE_IT(35216);
 #if ENABLE_NATIVE_CODEGEN
             return this->GetState() == CodeGenDone;
 #else
@@ -750,7 +750,7 @@ namespace Js
         }
 
         bool IsCodeGenQueued() const
-        {
+        {TRACE_IT(35217);
 #if ENABLE_NATIVE_CODEGEN
             return this->GetState() == CodeGenQueued;
 #else
@@ -759,7 +759,7 @@ namespace Js
         }
 
         bool IsJITCapReached() const
-        {
+        {TRACE_IT(35218);
 #if ENABLE_NATIVE_CODEGEN
             return this->GetState() == JITCapReached;
 #else
@@ -768,40 +768,40 @@ namespace Js
         }
 
         bool IsCleanedUp() const
-        {
+        {TRACE_IT(35219);
             return this->GetState() == CleanedUp;
         }
 
         bool IsPendingCleanup() const
-        {
+        {TRACE_IT(35220);
             return this->GetState() == PendingCleanup;
         }
 
         void SetPendingCleanup()
-        {
+        {TRACE_IT(35221);
             this->state = PendingCleanup;
         }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         void SetCleanupReason(CleanupReason reason)
-        {
+        {TRACE_IT(35222);
             this->cleanupReason = reason;
         }
 #endif
 
         bool IsLoopBody() const
-        {
+        {TRACE_IT(35223);
             return this->isLoopBody;
         }
 
 #if ENABLE_NATIVE_CODEGEN
         bool HasJittedStackClosure() const
-        {
+        {TRACE_IT(35224);
             return this->hasJittedStackClosure;
         }
 
         void SetHasJittedStackClosure()
-        {
+        {TRACE_IT(35225);
             this->hasJittedStackClosure = true;
         }
 #endif
@@ -810,7 +810,7 @@ namespace Js
 
 #if ENABLE_NATIVE_CODEGEN
         void SetCodeGenPending(CodeGenWorkItem * workItem)
-        {
+        {TRACE_IT(35226);
             Assert(this->GetState() == NotScheduled || this->GetState() == CleanedUp);
             Assert(workItem != nullptr);
             this->workItem = workItem;
@@ -818,19 +818,19 @@ namespace Js
         }
 
         void SetCodeGenPending()
-        {
+        {TRACE_IT(35227);
             Assert(this->GetState() == CodeGenQueued);
             this->state = CodeGenPending;
         }
 
         void SetCodeGenQueued()
-        {
+        {TRACE_IT(35228);
             Assert(this->GetState() == CodeGenPending);
             this->state = CodeGenQueued;
         }
 
         void RevertToNotScheduled()
-        {
+        {TRACE_IT(35229);
             Assert(this->GetState() == CodeGenPending);
             Assert(this->workItem != nullptr);
             this->workItem = nullptr;
@@ -838,14 +838,14 @@ namespace Js
         }
 
         void SetCodeGenPendingWithStackAllocatedWorkItem()
-        {
+        {TRACE_IT(35230);
             Assert(this->GetState() == NotScheduled || this->GetState() == CleanedUp);
             this->workItem = nullptr;
             this->state = CodeGenPending;
         }
 
         void SetCodeGenRecorded(Js::JavascriptMethod nativeAddress, ptrdiff_t codeSize)
-        {
+        {TRACE_IT(35231);
             Assert(this->GetState() == CodeGenQueued);
             Assert(codeSize > 0);
             this->nativeAddress = nativeAddress;
@@ -858,35 +858,35 @@ namespace Js
         }
 
         void SetCodeGenDone()
-        {
+        {TRACE_IT(35232);
             Assert(this->GetState() == CodeGenRecorded);
             this->state = CodeGenDone;
             this->workItem = nullptr;
         }
 
         void SetJITCapReached()
-        {
+        {TRACE_IT(35233);
             Assert(this->GetState() == CodeGenQueued);
             this->state = JITCapReached;
             this->workItem = nullptr;
         }
 
         SmallSpanSequence* GetNativeThrowSpanSequence() const
-        {
+        {TRACE_IT(35234);
             Assert(this->GetState() != NotScheduled);
             Assert(this->GetState() != CleanedUp);
             return nativeThrowSpanSequence;
         }
 
         void SetNativeThrowSpanSequence(SmallSpanSequence* seq)
-        {
+        {TRACE_IT(35235);
             Assert(this->GetState() == CodeGenQueued);
             Assert(this->nativeThrowSpanSequence == nullptr);
 
             nativeThrowSpanSequence = seq;
         }
 
-        bool IsInNativeAddressRange(DWORD_PTR codeAddress) {
+        bool IsInNativeAddressRange(DWORD_PTR codeAddress) {TRACE_IT(35236);
             return (IsNativeCode() &&
                 codeAddress >= GetNativeAddress() &&
                 codeAddress < GetNativeAddress() + GetCodeSize());
@@ -894,7 +894,7 @@ namespace Js
 #endif
 
         DWORD_PTR GetNativeAddress() const
-        {
+        {TRACE_IT(35237);
             // need the assert to skip for asmjsFunction as nativeAddress can be interpreter too for asmjs
             Assert(this->GetState() == CodeGenRecorded || this->GetState() == CodeGenDone || this->isAsmJsFunction);
 
@@ -903,20 +903,20 @@ namespace Js
         }
 
         ptrdiff_t GetCodeSize() const
-        {
+        {TRACE_IT(35238);
             Assert(this->GetState() == CodeGenRecorded || this->GetState() == CodeGenDone);
             return codeSize;
         }
 
         CodeGenWorkItem * GetWorkItem() const
-        {
+        {TRACE_IT(35239);
             State state = this->GetState();
             Assert(state != NotScheduled || this->workItem == nullptr);
             Assert(state == CleanedUp && this->workItem == nullptr ||
                 state != CleanedUp);
 
             if (state == PendingCleanup)
-            {
+            {TRACE_IT(35240);
                 return nullptr;
             }
 
@@ -926,31 +926,31 @@ namespace Js
 #ifdef ASMJS_PLAT
         // set code size, used by TJ to set the code size
         void SetCodeSize(ptrdiff_t size)
-        {
+        {TRACE_IT(35241);
             Assert(isAsmJsFunction);
             this->codeSize = size;
         }
 
         void SetNativeAddress(Js::JavascriptMethod address)
-        {
+        {TRACE_IT(35242);
             Assert(isAsmJsFunction);
             this->nativeAddress = address;
         }
 
         void SetIsAsmJSFunction(bool value)
-        {
+        {TRACE_IT(35243);
             this->isAsmJsFunction = value;
         }
 #endif
 
         bool GetIsAsmJSFunction()const
-        {
+        {TRACE_IT(35244);
             return this->isAsmJsFunction;
         }
 
 #ifdef ASMJS_PLAT
         void SetTJCodeGenDone()
-        {
+        {TRACE_IT(35245);
             Assert(isAsmJsFunction);
             this->state = CodeGenDone;
             this->workItem = nullptr;
@@ -980,19 +980,19 @@ namespace Js
         bool ClearEquivalentTypeCaches();
 
         void RegisterConstructorCache(Js::ConstructorCache* constructorCache, Recycler* recycler);
-        uint GetConstructorCacheCount() const { return this->constructorCaches != nullptr ? this->constructorCaches->Count() : 0; }
-        uint32 GetPendingPolymorphicCacheState() const { return this->pendingPolymorphicCacheState; }
-        void SetPendingPolymorphicCacheState(uint32 state) { this->pendingPolymorphicCacheState = state; }
-        BYTE GetPendingInlinerVersion() const { return this->pendingInlinerVersion; }
-        void SetPendingInlinerVersion(BYTE version) { this->pendingInlinerVersion = version; }
-        ImplicitCallFlags GetPendingImplicitCallFlags() const { return this->pendingImplicitCallFlags; }
-        void SetPendingImplicitCallFlags(ImplicitCallFlags flags) { this->pendingImplicitCallFlags = flags; }
-        virtual void Invalidate(bool prolongEntryPoint) { Assert(false); }
+        uint GetConstructorCacheCount() const {TRACE_IT(35246); return this->constructorCaches != nullptr ? this->constructorCaches->Count() : 0; }
+        uint32 GetPendingPolymorphicCacheState() const {TRACE_IT(35247); return this->pendingPolymorphicCacheState; }
+        void SetPendingPolymorphicCacheState(uint32 state) {TRACE_IT(35248); this->pendingPolymorphicCacheState = state; }
+        BYTE GetPendingInlinerVersion() const {TRACE_IT(35249); return this->pendingInlinerVersion; }
+        void SetPendingInlinerVersion(BYTE version) {TRACE_IT(35250); this->pendingInlinerVersion = version; }
+        ImplicitCallFlags GetPendingImplicitCallFlags() const {TRACE_IT(35251); return this->pendingImplicitCallFlags; }
+        void SetPendingImplicitCallFlags(ImplicitCallFlags flags) {TRACE_IT(35252); this->pendingImplicitCallFlags = flags; }
+        virtual void Invalidate(bool prolongEntryPoint) {TRACE_IT(35253); Assert(false); }
         void RecordBailOutMap(JsUtil::List<LazyBailOutRecord, ArenaAllocator>* bailoutMap);
         void RecordInlineeFrameMap(JsUtil::List<NativeOffsetInlineeFramePair, ArenaAllocator>* tempInlineeFrameMap);
         void RecordInlineeFrameOffsetsInfo(unsigned int offsetsArrayOffset, unsigned int offsetsArrayCount);
         InlineeFrameRecord* FindInlineeFrame(void* returnAddress);
-        bool HasInlinees() { return this->frameHeight > 0; }
+        bool HasInlinees() {TRACE_IT(35254); return this->frameHeight > 0; }
         void DoLazyBailout(BYTE** addressOfReturnAddress, Js::FunctionBody* functionBody, const PropertyRecord* propertyRecord);
 #endif
 #if DBG_DUMP
@@ -1021,7 +1021,7 @@ namespace Js
         void DumpNativeOffsetMaps();
         void DumpNativeThrowSpanSequence();
         NativeOffsetMap* GetNativeOffsetMap(int index)
-        {
+        {TRACE_IT(35255);
              Assert(index >= 0);
              Assert(index < GetNativeOffsetMapCount());
 
@@ -1085,7 +1085,7 @@ namespace Js
         virtual void EnterExpirableCollectMode() override;
         virtual void ResetOnNativeCodeInstallFailure() override;
         static const uint8 GetDecrCallCountPerBailout()
-        {
+        {TRACE_IT(35256);
             return (uint8)CONFIG_FLAG(CallsToBailoutsRatioForRejit) + 1;
         }
 #endif
@@ -1124,20 +1124,20 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
         virtual void ResetOnNativeCodeInstallFailure() override;
         static const uint8 GetDecrLoopCountPerBailout()
-        {
+        {TRACE_IT(35257);
             return (uint8)CONFIG_FLAG(LoopIterationsToBailoutsRatioForRejit) + 1;
         }
 #endif
 
 #ifdef ASMJS_PLAT
         void SetIsTJMode(bool value)
-        {
+        {TRACE_IT(35258);
             Assert(this->GetIsAsmJSFunction());
             mIsTemplatizedJitMode = value;
         }
 
         bool GetIsTJMode()const
-        {
+        {TRACE_IT(35259);
             return mIsTemplatizedJitMode;
         };
 #endif
@@ -1148,12 +1148,12 @@ namespace Js
 
 #ifdef BGJIT_STATS
         bool IsUsed() const
-        {
+        {TRACE_IT(35260);
             return this->used;
         }
 
         void MarkAsUsed()
-        {
+        {TRACE_IT(35261);
             this->used = true;
         }
 #endif
@@ -1190,25 +1190,25 @@ namespace Js
 #endif
         static const uint NoLoop = (uint)-1;
 
-        static const uint GetOffsetOfProfiledLoopCounter() { return offsetof(LoopHeader, profiledLoopCounter); }
-        static const uint GetOffsetOfInterpretCount() { return offsetof(LoopHeader, interpretCount); }
+        static const uint GetOffsetOfProfiledLoopCounter() {TRACE_IT(35262); return offsetof(LoopHeader, profiledLoopCounter); }
+        static const uint GetOffsetOfInterpretCount() {TRACE_IT(35263); return offsetof(LoopHeader, interpretCount); }
 
         bool Contains(Js::LoopHeader * loopHeader) const
-        {
+        {TRACE_IT(35264);
             return (this->startOffset <= loopHeader->startOffset && loopHeader->endOffset <= this->endOffset);
         }
 
         bool Contains(uint offset) const
-        {
+        {TRACE_IT(35265);
             return this->startOffset <= offset && offset < this->endOffset;
         }
 
         Js::JavascriptMethod GetCurrentEntryPoint() const
-        {
+        {TRACE_IT(35266);
             LoopEntryPointInfo * entryPoint = GetCurrentEntryPointInfo();
 
             if (entryPoint != nullptr)
-            {
+            {TRACE_IT(35267);
                 return this->entryPoints->Item(this->GetCurrentEntryPointIndex())->jsMethod;
             }
 
@@ -1216,31 +1216,31 @@ namespace Js
         }
 
         LoopEntryPointInfo * GetCurrentEntryPointInfo() const
-        {
+        {TRACE_IT(35268);
             Assert(this->entryPoints->Count() > 0);
             return this->entryPoints->Item(this->GetCurrentEntryPointIndex());
         }
 
         uint GetByteCodeCount()
-        {
+        {TRACE_IT(35269);
             return (endOffset - startOffset);
         }
 
         int GetCurrentEntryPointIndex() const
-        {
+        {TRACE_IT(35270);
            return this->entryPoints->Count() - 1;
         }
 
         LoopEntryPointInfo * GetEntryPointInfo(int index) const
-        {
+        {TRACE_IT(35271);
             return this->entryPoints->Item(index);
         }
 
         template <class Fn>
         void MapEntryPoints(Fn fn) const
-        {
+        {TRACE_IT(35272);
             if (this->entryPoints) // ETW rundown may call this before entryPoints initialization
-            {
+            {TRACE_IT(35273);
                 this->entryPoints->Map([&](int index, LoopEntryPointInfo * entryPoint)
                 {
                     if (entryPoint != nullptr)
@@ -1253,13 +1253,13 @@ namespace Js
 
         template <class Fn>
         bool MapEntryPointsUntil(Fn fn) const
-        {
+        {TRACE_IT(35274);
             if (this->entryPoints) // ETW rundown may call this before entryPoints initialization
-            {
+            {TRACE_IT(35275);
                 return this->entryPoints->MapUntil([&](int index, LoopEntryPointInfo * entryPoint)
                 {
                     if (entryPoint != nullptr)
-                    {
+                    {TRACE_IT(35276);
                         return fn(index, entryPoint);
                     }
                     return false;
@@ -1270,7 +1270,7 @@ namespace Js
 
         template <class DebugSite, class Fn>
         HRESULT MapEntryPoints(DebugSite site, Fn fn) const // external debugging version
-        {
+        {TRACE_IT(35277);
             return Map(site, PointerValue(this->entryPoints), [&](int index, LoopEntryPointInfo * entryPoint)
             {
                 if (entryPoint != nullptr)
@@ -1288,11 +1288,11 @@ namespace Js
 #endif
 
         void ResetInterpreterCount()
-        {
+        {TRACE_IT(35278);
             this->interpretCount = 0;
         }
         void ResetProfiledLoopCounter()
-        {
+        {TRACE_IT(35279);
             this->profiledLoopCounter = 0;
         }
 
@@ -1317,7 +1317,7 @@ namespace Js
     {
         static CriticalSection GlobalLock;
     public:
-        static CriticalSection* GetLock() { return &GlobalLock; }
+        static CriticalSection* GetLock() {TRACE_IT(35280); return &GlobalLock; }
         typedef RecyclerWeakReference<DynamicType> FunctionTypeWeakRef;
         typedef JsUtil::List<FunctionTypeWeakRef*, Recycler, false, WeakRefFreeListedRemovePolicy> FunctionTypeWeakRefList;
 
@@ -1377,13 +1377,13 @@ namespace Js
 
         virtual void Mark(Recycler *recycler) override { AssertMsg(false, "Mark called on object that isn't TrackableObject"); }
 
-        static const uint GetOffsetOfFunctionInfo() { return offsetof(FunctionProxy, functionInfo); }
+        static const uint GetOffsetOfFunctionInfo() {TRACE_IT(35281); return offsetof(FunctionProxy, functionInfo); }
         FunctionInfo * GetFunctionInfo() const
-        {
+        {TRACE_IT(35282);
             return this->functionInfo;
         }
         void SetFunctionInfo(FunctionInfo * functionInfo)
-        {
+        {TRACE_IT(35283);
             this->functionInfo = functionInfo;
         }
 
@@ -1424,22 +1424,22 @@ namespace Js
         Recycler* GetRecycler() const;
         uint32 GetSourceContextId() const;
         char16* GetDebugNumberSet(wchar(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const;
-        bool GetIsTopLevel() { return m_isTopLevel; }
-        void SetIsTopLevel(bool set) { m_isTopLevel = set; }
-        bool GetIsAnonymousFunction() const { return this->GetDisplayName() == Js::Constants::AnonymousFunction; }
+        bool GetIsTopLevel() {TRACE_IT(35284); return m_isTopLevel; }
+        void SetIsTopLevel(bool set) {TRACE_IT(35285); m_isTopLevel = set; }
+        bool GetIsAnonymousFunction() const {TRACE_IT(35286); return this->GetDisplayName() == Js::Constants::AnonymousFunction; }
         void Copy(FunctionProxy* other);
         ParseableFunctionInfo* EnsureDeserialized();
         ScriptContext* GetScriptContext() const;
-        Utf8SourceInfo* GetUtf8SourceInfo() const { return this->m_utf8SourceInfo; }
-        void SetUtf8SourceInfo(Utf8SourceInfo* utf8SourceInfo) { m_utf8SourceInfo = utf8SourceInfo; }
-        bool IsInDebugMode() const { return this->m_utf8SourceInfo->IsInDebugMode(); }
+        Utf8SourceInfo* GetUtf8SourceInfo() const {TRACE_IT(35287); return this->m_utf8SourceInfo; }
+        void SetUtf8SourceInfo(Utf8SourceInfo* utf8SourceInfo) {TRACE_IT(35288); m_utf8SourceInfo = utf8SourceInfo; }
+        bool IsInDebugMode() const {TRACE_IT(35289); return this->m_utf8SourceInfo->IsInDebugMode(); }
 
         DWORD_PTR GetSecondaryHostSourceContext() const;
         DWORD_PTR GetHostSourceContext() const;
         SourceContextInfo * GetSourceContextInfo() const;
         SRCINFO const * GetHostSrcInfo() const;
 
-        uint GetFunctionNumber() const { return m_functionNumber; }
+        uint GetFunctionNumber() const {TRACE_IT(35290); return m_functionNumber; }
 
         virtual void Finalize(bool isShutdown) override;
 
@@ -1460,14 +1460,14 @@ namespace Js
         template <typename Fn>
         void MapFunctionObjectTypes(Fn func);
 
-        static uint GetOffsetOfDeferredPrototypeType() { return static_cast<uint>(offsetof(Js::FunctionProxy, deferredPrototypeType)); }
+        static uint GetOffsetOfDeferredPrototypeType() {TRACE_IT(35291); return static_cast<uint>(offsetof(Js::FunctionProxy, deferredPrototypeType)); }
         static Js::ScriptFunctionType * EnsureFunctionProxyDeferredPrototypeType(FunctionProxy * proxy)
-        {
+        {TRACE_IT(35292);
             return proxy->EnsureDeferredPrototypeType();
         }
 
-        void SetIsPublicLibraryCode() { m_isPublicLibraryCode = true; }
-        bool IsPublicLibraryCode() const { return m_isPublicLibraryCode; }
+        void SetIsPublicLibraryCode() {TRACE_IT(35293); m_isPublicLibraryCode = true; }
+        bool IsPublicLibraryCode() const {TRACE_IT(35294); return m_isPublicLibraryCode; }
 
 #if DBG
         bool HasValidEntryPoint() const;
@@ -1487,16 +1487,16 @@ namespace Js
         // this is also now being used for function.name.
         const char16* GetShortDisplayName(charcount_t * shortNameLength);
 
-        bool GetDisplayNameIsRecyclerAllocated() { return m_displayNameIsRecyclerAllocated; }
+        bool GetDisplayNameIsRecyclerAllocated() {TRACE_IT(35295); return m_displayNameIsRecyclerAllocated; }
 
         bool IsJitLoopBodyPhaseEnabled() const
-        {
+        {TRACE_IT(35296);
             // Consider: Allow JitLoopBody in generator functions for loops that do not yield.
             return !PHASE_OFF(JITLoopBodyPhase, this) && !PHASE_OFF(FullJitPhase, this) && !this->IsCoroutine();
         }
 
         bool IsJitLoopBodyPhaseForced() const
-        {
+        {TRACE_IT(35297);
             return
                 IsJitLoopBodyPhaseEnabled() &&
                 (
@@ -1546,214 +1546,214 @@ namespace Js
     };
 
     inline Js::LocalFunctionId FunctionProxy::GetLocalFunctionId() const
-    {
+    {TRACE_IT(35298);
         Assert(GetFunctionInfo());
         return GetFunctionInfo()->GetLocalFunctionId();
     }
 
     inline void FunctionProxy::SetLocalFunctionId(LocalFunctionId functionId)
-    {
+    {TRACE_IT(35299);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->SetLocalFunctionId(functionId);
     }
 
     inline void FunctionProxy::VerifyOriginalEntryPoint() const
-    {
+    {TRACE_IT(35300);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->VerifyOriginalEntryPoint();
     }
 
     inline JavascriptMethod FunctionProxy::GetOriginalEntryPoint() const
-    {
+    {TRACE_IT(35301);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetOriginalEntryPoint();
     }
 
     inline JavascriptMethod FunctionProxy::GetOriginalEntryPoint_Unchecked() const
-    {
+    {TRACE_IT(35302);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetOriginalEntryPoint_Unchecked();
     }
 
     inline void FunctionProxy::SetOriginalEntryPoint(const JavascriptMethod originalEntryPoint)
-    {
+    {TRACE_IT(35303);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetOriginalEntryPoint(originalEntryPoint);
     }
 
     inline bool FunctionProxy::IsAsync() const
-    {
+    {TRACE_IT(35304);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsAsync();
     }
 
     inline bool FunctionProxy::IsDeferred() const
-    {
+    {TRACE_IT(35305);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsDeferred();
     }
 
     inline bool FunctionProxy::IsConstructor() const
-    {
+    {TRACE_IT(35306);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsConstructor();
     }
 
     inline bool FunctionProxy::IsGenerator() const
-    {
+    {TRACE_IT(35307);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsGenerator();
     }
 
     inline bool FunctionProxy::HasSuperReference() const
-    {
+    {TRACE_IT(35308);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->HasSuperReference();
     }
 
     inline bool FunctionProxy::IsCoroutine() const
-    {
+    {TRACE_IT(35309);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsCoroutine();
     }
 
     inline bool FunctionProxy::GetCapturesThis() const
-    {
+    {TRACE_IT(35310);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetCapturesThis();
     }
 
     inline void FunctionProxy::SetCapturesThis()
-    {
+    {TRACE_IT(35311);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetCapturesThis();
     }
 
     inline bool FunctionProxy::GetEnclosedByGlobalFunc() const
-    {
+    {TRACE_IT(35312);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetEnclosedByGlobalFunc();
     }
 
     inline void FunctionProxy::SetEnclosedByGlobalFunc()
-    {
+    {TRACE_IT(35313);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetEnclosedByGlobalFunc();
     }
 
     inline BOOL FunctionProxy::IsDeferredDeserializeFunction() const
-    {
+    {TRACE_IT(35314);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsDeferredDeserializeFunction();
     }
 
     inline BOOL FunctionProxy::IsDeferredParseFunction() const
-    {
+    {TRACE_IT(35315);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsDeferredParseFunction();
     }
 
     inline FunctionInfo::Attributes FunctionProxy::GetAttributes() const
-    {
+    {TRACE_IT(35316);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetAttributes();
     }
 
     inline void FunctionProxy::SetAttributes(FunctionInfo::Attributes attributes)
-    {
+    {TRACE_IT(35317);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetAttributes(attributes);
     }
 
     inline void FunctionProxy::SetParseableFunctionInfo(ParseableFunctionInfo* func)
-    {
+    {TRACE_IT(35318);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetParseableFunctionInfo(func);
     }
 
     inline bool FunctionProxy::IsLambda() const
-    {
+    {TRACE_IT(35319);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsLambda();
     }
 
     inline bool FunctionProxy::CanBeDeferred() const
-    {
+    {TRACE_IT(35320);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->CanBeDeferred();
     }
 
     inline bool FunctionProxy::IsClassConstructor() const
-    {
+    {TRACE_IT(35321);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsClassConstructor();
     }
 
     inline bool FunctionProxy::IsClassMethod() const
-    {
+    {TRACE_IT(35322);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsClassMethod();
     }
 
     inline bool FunctionProxy::IsModule() const
-    {
+    {TRACE_IT(35323);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsModule();
     }
 
     inline uint FunctionProxy::GetCompileCount() const
-    {
+    {TRACE_IT(35324);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->GetCompileCount();
     }
 
     inline void FunctionProxy::SetCompileCount(uint count)
-    {
+    {TRACE_IT(35325);
         Assert(GetFunctionInfo());
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         GetFunctionInfo()->SetCompileCount(count);
     }
 
     inline ParseableFunctionInfo* FunctionProxy::GetParseableFunctionInfo() const
-    {
+    {TRACE_IT(35326);
         Assert(!IsDeferredDeserializeFunction());
         return (ParseableFunctionInfo*)this;
     }
 
     inline DeferDeserializeFunctionInfo* FunctionProxy::GetDeferDeserializeFunctionInfo() const
-    {
+    {TRACE_IT(35327);
         Assert(IsDeferredDeserializeFunction());
         return (DeferDeserializeFunctionInfo*)this;
     }
 
     inline FunctionBody * FunctionProxy::GetFunctionBody() const
-    {
+    {TRACE_IT(35328);
         Assert(IsFunctionBody());
         return (FunctionBody*)this;
     }
@@ -1775,8 +1775,8 @@ namespace Js
         virtual const char16* GetDisplayName() const override;
         void SetDisplayName(const char16* displayName);
         virtual void SetDisplayName(const char16* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) override;
-        virtual uint GetDisplayNameLength() const { return m_displayNameLength; }
-        virtual uint GetShortDisplayNameOffset() const { return m_displayShortNameOffset; }
+        virtual uint GetDisplayNameLength() const {TRACE_IT(35329); return m_displayNameLength; }
+        virtual uint GetShortDisplayNameOffset() const {TRACE_IT(35330); return m_displayShortNameOffset; }
         LPCWSTR GetSourceInfo(int& lineNumber, int& columnNumber) const;
     private:
         Field(const byte*) m_functionBytes;
@@ -1814,7 +1814,7 @@ namespace Js
     public:
         struct NestedArray
         {
-            NestedArray(uint32 count): nestedCount(count) {}
+            NestedArray(uint32 count): nestedCount(count) {TRACE_IT(35331);}
 
             Field(uint32) nestedCount;
             Field(FunctionInfo*) functionInfoArray[];
@@ -1822,22 +1822,22 @@ namespace Js
 
         template<typename Fn>
         void ForEachNestedFunc(Fn fn)
-        {
+        {TRACE_IT(35332);
             NestedArray* nestedArray = GetNestedArray();
             if (nestedArray != nullptr)
-            {
+            {TRACE_IT(35333);
                 for (uint i = 0; i < nestedArray->nestedCount; i++)
-                {
+                {TRACE_IT(35334);
                     if (!fn(nestedArray->functionInfoArray[i]->GetFunctionProxy(), i))
-                    {
+                    {TRACE_IT(35335);
                         break;
                     }
                 }
             }
         }
 
-        NestedArray* GetNestedArray() const { return nestedArray; }
-        uint GetNestedCount() const { return nestedArray == nullptr ? 0 : nestedArray->nestedCount; }
+        NestedArray* GetNestedArray() const {TRACE_IT(35336); return nestedArray; }
+        uint GetNestedCount() const {TRACE_IT(35337); return nestedArray == nullptr ? 0 : nestedArray->nestedCount; }
 
     public:
         static ParseableFunctionInfo* New(ScriptContext* scriptContext, int nestedFunctionCount, LocalFunctionId functionId, Utf8SourceInfo* utf8SourceInfo, const char16* displayName, uint m_displayNameLength, uint displayShortNameOffset, Js::PropertyRecordList* propertyRecordList, FunctionInfo::Attributes attributes, FunctionBodyFlags flags);
@@ -1849,82 +1849,82 @@ namespace Js
         FunctionBody* ParseAsmJs(Parser * p, __out CompileScriptException * se, __out ParseNodePtr * ptree);
 #endif
 
-        FunctionBodyFlags GetFlags() const { return flags; }
+        FunctionBodyFlags GetFlags() const {TRACE_IT(35338); return flags; }
 
-        static bool GetHasThis(FunctionBodyFlags flags) { return (flags & Flags_HasThis) != 0; }
-        bool GetHasThis() const { return GetHasThis(flags); }
+        static bool GetHasThis(FunctionBodyFlags flags) {TRACE_IT(35339); return (flags & Flags_HasThis) != 0; }
+        bool GetHasThis() const {TRACE_IT(35340); return GetHasThis(flags); }
         void SetHasThis(bool has) { SetFlags(has, Flags_HasThis); }
 
-        static bool GetHasTry(FunctionBodyFlags flags) { return (flags & Flags_HasTry) != 0; }
-        bool GetHasTry() const { return GetHasTry(flags); }
+        static bool GetHasTry(FunctionBodyFlags flags) {TRACE_IT(35341); return (flags & Flags_HasTry) != 0; }
+        bool GetHasTry() const {TRACE_IT(35342); return GetHasTry(flags); }
         void SetHasTry(bool has) { SetFlags(has, Flags_HasTry); }
 
-        static bool GetHasOrParentHasArguments(FunctionBodyFlags flags) { return (flags & Flags_HasOrParentHasArguments) != 0; }
-        bool GetHasOrParentHasArguments() const { return GetHasOrParentHasArguments(flags); }
+        static bool GetHasOrParentHasArguments(FunctionBodyFlags flags) {TRACE_IT(35343); return (flags & Flags_HasOrParentHasArguments) != 0; }
+        bool GetHasOrParentHasArguments() const {TRACE_IT(35344); return GetHasOrParentHasArguments(flags); }
         void SetHasOrParentHasArguments(bool has) { SetFlags(has, Flags_HasOrParentHasArguments); }
 
-        static bool DoStackNestedFunc(FunctionBodyFlags flags) { return (flags & Flags_StackNestedFunc) != 0; }
-        bool DoStackNestedFunc() const { return DoStackNestedFunc(flags); }
+        static bool DoStackNestedFunc(FunctionBodyFlags flags) {TRACE_IT(35345); return (flags & Flags_StackNestedFunc) != 0; }
+        bool DoStackNestedFunc() const {TRACE_IT(35346); return DoStackNestedFunc(flags); }
         void SetStackNestedFunc(bool does) { SetFlags(does, Flags_StackNestedFunc); }
 
-        bool IsNonUserCode() const { return (flags & Flags_NonUserCode) != 0; }
+        bool IsNonUserCode() const {TRACE_IT(35347); return (flags & Flags_NonUserCode) != 0; }
         void SetIsNonUserCode(bool set);
 
-        bool GetHasNoExplicitReturnValue() { return (flags & Flags_HasNoExplicitReturnValue) != 0; }
+        bool GetHasNoExplicitReturnValue() {TRACE_IT(35348); return (flags & Flags_HasNoExplicitReturnValue) != 0; }
         void SetHasNoExplicitReturnValue(bool has) { SetFlags(has, Flags_HasNoExplicitReturnValue); }
 
-        bool GetHasOnlyThisStmts() const { return (flags & Flags_HasOnlyThisStatements) != 0; }
+        bool GetHasOnlyThisStmts() const {TRACE_IT(35349); return (flags & Flags_HasOnlyThisStatements) != 0; }
         void SetHasOnlyThisStmts(bool has) { SetFlags(has, Flags_HasOnlyThisStatements); }
 
-        static bool GetHasRestParameter(FunctionBodyFlags flags) { return (flags & Flags_HasRestParameter) != 0; }
-        bool GetHasRestParameter() const { return GetHasRestParameter(flags); }
+        static bool GetHasRestParameter(FunctionBodyFlags flags) {TRACE_IT(35350); return (flags & Flags_HasRestParameter) != 0; }
+        bool GetHasRestParameter() const {TRACE_IT(35351); return GetHasRestParameter(flags); }
         void SetHasRestParameter() { SetFlags(true, Flags_HasRestParameter); }
 
-        virtual uint GetDisplayNameLength() const { return m_displayNameLength; }
-        virtual uint GetShortDisplayNameOffset() const { return m_displayShortNameOffset; }
-        bool GetIsDeclaration() const { return m_isDeclaration; }
-        void SetIsDeclaration(const bool is) { m_isDeclaration = is; }
-        bool GetIsAccessor() const { return m_isAccessor; }
-        void SetIsAccessor(const bool is) { m_isAccessor = is; }
-        bool GetIsGlobalFunc() const { return m_isGlobalFunc; }
-        void SetIsStaticNameFunction(const bool is) { m_isStaticNameFunction = is; }
-        bool GetIsStaticNameFunction() const { return m_isStaticNameFunction; }
-        void SetIsNamedFunctionExpression(const bool is) { m_isNamedFunctionExpression = is; }
-        bool GetIsNamedFunctionExpression() const { return m_isNamedFunctionExpression; }
-        void SetIsNameIdentifierRef (const bool is) { m_isNameIdentifierRef  = is; }
-        bool GetIsNameIdentifierRef () const { return m_isNameIdentifierRef ; }
+        virtual uint GetDisplayNameLength() const {TRACE_IT(35352); return m_displayNameLength; }
+        virtual uint GetShortDisplayNameOffset() const {TRACE_IT(35353); return m_displayShortNameOffset; }
+        bool GetIsDeclaration() const {TRACE_IT(35354); return m_isDeclaration; }
+        void SetIsDeclaration(const bool is) {TRACE_IT(35355); m_isDeclaration = is; }
+        bool GetIsAccessor() const {TRACE_IT(35356); return m_isAccessor; }
+        void SetIsAccessor(const bool is) {TRACE_IT(35357); m_isAccessor = is; }
+        bool GetIsGlobalFunc() const {TRACE_IT(35358); return m_isGlobalFunc; }
+        void SetIsStaticNameFunction(const bool is) {TRACE_IT(35359); m_isStaticNameFunction = is; }
+        bool GetIsStaticNameFunction() const {TRACE_IT(35360); return m_isStaticNameFunction; }
+        void SetIsNamedFunctionExpression(const bool is) {TRACE_IT(35361); m_isNamedFunctionExpression = is; }
+        bool GetIsNamedFunctionExpression() const {TRACE_IT(35362); return m_isNamedFunctionExpression; }
+        void SetIsNameIdentifierRef (const bool is) {TRACE_IT(35363); m_isNameIdentifierRef  = is; }
+        bool GetIsNameIdentifierRef () const {TRACE_IT(35364); return m_isNameIdentifierRef ; }
 
         // Fake global ->
         //    1) new Function code's global code
         //    2) global code generated from the reparsing deferred parse function
         bool IsFakeGlobalFunc(uint32 flags) const;
 
-        void SetIsGlobalFunc(bool is) { m_isGlobalFunc = is; }
-        bool GetIsStrictMode() const { return m_isStrictMode; }
-        void SetIsStrictMode() { m_isStrictMode = true; }
-        bool GetIsAsmjsMode() const { return m_isAsmjsMode; }
+        void SetIsGlobalFunc(bool is) {TRACE_IT(35365); m_isGlobalFunc = is; }
+        bool GetIsStrictMode() const {TRACE_IT(35366); return m_isStrictMode; }
+        void SetIsStrictMode() {TRACE_IT(35367); m_isStrictMode = true; }
+        bool GetIsAsmjsMode() const {TRACE_IT(35368); return m_isAsmjsMode; }
         void SetIsAsmjsMode(bool value)
-        {
+        {TRACE_IT(35369);
             m_isAsmjsMode = value;
     #if DBG
             if (value)
-            {
+            {TRACE_IT(35370);
                 m_wasEverAsmjsMode = true;
             }
     #endif
         }
 
         void SetIsWasmFunction(bool val)
-        {
+        {TRACE_IT(35371);
             m_isWasmFunction = val;
         }
         bool IsWasmFunction() const
-        {
+        {TRACE_IT(35372);
             return m_isWasmFunction;
         }
 
-        bool GetHasImplicitArgIns() { return m_hasImplicitArgIns; }
-        void SetHasImplicitArgIns(bool has) { m_hasImplicitArgIns = has; }
+        bool GetHasImplicitArgIns() {TRACE_IT(35373); return m_hasImplicitArgIns; }
+        void SetHasImplicitArgIns(bool has) {TRACE_IT(35374); m_hasImplicitArgIns = has; }
         uint32 GetGrfscr() const;
         void SetGrfscr(uint32 grfscr);
 
@@ -1941,37 +1941,37 @@ namespace Js
         /// direction, etc.
         ///
         ///----------------------------------------------------------------------------
-        ArgSlot GetInParamsCount() const { return m_inParamCount; }
+        ArgSlot GetInParamsCount() const {TRACE_IT(35375); return m_inParamCount; }
 
         void SetInParamsCount(ArgSlot newInParamCount);
         ArgSlot GetReportedInParamsCount() const;
         void SetReportedInParamsCount(ArgSlot newReportedInParamCount);
         void ResetInParams();
-        ScopeInfo* GetScopeInfo() const { return static_cast<ScopeInfo*>(this->GetAuxPtr(AuxPointerType::ScopeInfo)); }
-        void SetScopeInfo(ScopeInfo* scopeInfo) {  this->SetAuxPtr(AuxPointerType::ScopeInfo, scopeInfo); }
+        ScopeInfo* GetScopeInfo() const {TRACE_IT(35376); return static_cast<ScopeInfo*>(this->GetAuxPtr(AuxPointerType::ScopeInfo)); }
+        void SetScopeInfo(ScopeInfo* scopeInfo) {TRACE_IT(35377);  this->SetAuxPtr(AuxPointerType::ScopeInfo, scopeInfo); }
         PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName);
         bool IsTrackedPropertyId(PropertyId pid);
-        Js::PropertyRecordList* GetBoundPropertyRecords() { return this->m_boundPropertyRecords; }
+        Js::PropertyRecordList* GetBoundPropertyRecords() {TRACE_IT(35378); return this->m_boundPropertyRecords; }
         void SetBoundPropertyRecords(Js::PropertyRecordList* boundPropertyRecords)
-        {
+        {TRACE_IT(35379);
             Assert(this->m_boundPropertyRecords == nullptr);
             this->m_boundPropertyRecords = boundPropertyRecords;
         }
         void ClearBoundPropertyRecords()
-        {
+        {TRACE_IT(35380);
             this->m_boundPropertyRecords = nullptr;
         }
 
         void SetInitialDefaultEntryPoint();
         void SetDeferredParsingEntryPoint();
 
-        void SetEntryPoint(ProxyEntryPointInfo* entryPoint, Js::JavascriptMethod jsMethod) {
+        void SetEntryPoint(ProxyEntryPointInfo* entryPoint, Js::JavascriptMethod jsMethod) {TRACE_IT(35381);
             entryPoint->jsMethod = jsMethod;
         }
 
         bool IsDynamicScript() const;
 
-        uint LengthInBytes() const { return m_cbLength; }
+        uint LengthInBytes() const {TRACE_IT(35382); return m_cbLength; }
         uint StartOffset() const;
         ULONG GetLineNumber() const;
         ULONG GetColumnNumber() const;
@@ -1980,63 +1980,63 @@ namespace Js
         template <class T>
         static LPCWSTR GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction);
         LPCWSTR GetSourceName() const;
-        ULONG GetRelativeLineNumber() const { return m_lineNumber; }
-        ULONG GetRelativeColumnNumber() const { return m_columnNumber; }
+        ULONG GetRelativeLineNumber() const {TRACE_IT(35383); return m_lineNumber; }
+        ULONG GetRelativeColumnNumber() const {TRACE_IT(35384); return m_columnNumber; }
         uint GetSourceIndex() const;
         LPCUTF8 GetSource(const  char16* reason = nullptr) const;
-        charcount_t LengthInChars() const { return m_cchLength; }
+        charcount_t LengthInChars() const {TRACE_IT(35385); return m_cchLength; }
         charcount_t StartInDocument() const;
-        bool IsEval() const { return m_isEval; }
+        bool IsEval() const {TRACE_IT(35386); return m_isEval; }
         bool IsDynamicFunction() const;
-        bool GetDontInline() { return m_dontInline; }
-        void SetDontInline(bool is) { m_dontInline = is; }
+        bool GetDontInline() {TRACE_IT(35387); return m_dontInline; }
+        void SetDontInline(bool is) {TRACE_IT(35388); m_dontInline = is; }
         LPCUTF8 GetStartOfDocument(const char16* reason = nullptr) const;
-        bool IsReparsed() const { return m_reparsed; }
-        void SetReparsed(bool set) { m_reparsed = set; }
+        bool IsReparsed() const {TRACE_IT(35389); return m_reparsed; }
+        void SetReparsed(bool set) {TRACE_IT(35390); m_reparsed = set; }
         bool GetExternalDisplaySourceName(BSTR* sourceName);
 
         bool EndsAfter(size_t offset) const;
 
         void SetDoBackendArgumentsOptimization(bool set)
-        {
+        {TRACE_IT(35391);
             m_doBackendArgumentsOptimization = set;
         }
 
         bool GetDoBackendArgumentsOptimization()
-        {
+        {TRACE_IT(35392);
             return m_doBackendArgumentsOptimization;
         }
 
         void SetDoScopeObjectCreation(bool set)
-        {
+        {TRACE_IT(35393);
             m_doScopeObjectCreation = set;
         }
 
         bool GetDoScopeObjectCreation()
-        {
+        {TRACE_IT(35394);
             return m_doScopeObjectCreation;
         }
 
         void SetUsesArgumentsObject(bool set)
-        {
+        {TRACE_IT(35395);
             if (!m_usesArgumentsObject)
-            {
+            {TRACE_IT(35396);
                 m_usesArgumentsObject = set;
             }
         }
 
         bool GetUsesArgumentsObject()
-        {
+        {TRACE_IT(35397);
             return m_usesArgumentsObject;
         }
 
         bool IsFunctionParsed()
-        {
+        {TRACE_IT(35398);
             return !IsDeferredParseFunction() || m_hasBeenParsed;
         }
 
         void SetFunctionParsed(bool hasBeenParsed)
-        {
+        {TRACE_IT(35399);
             m_hasBeenParsed = hasBeenParsed;
         }
 
@@ -2054,7 +2054,7 @@ namespace Js
         //
         template <class T>
         static const char16* GetExternalDisplayName(const T* funcBody)
-        {
+        {TRACE_IT(35400);
             Assert(funcBody != nullptr);
             Assert(funcBody->GetDisplayName() != nullptr);
 
@@ -2067,9 +2067,9 @@ namespace Js
 
         virtual void Finalize(bool isShutdown) override;
 
-        Var GetCachedSourceString() { return this->GetAuxPtr(AuxPointerType::CachedSourceString); }
+        Var GetCachedSourceString() {TRACE_IT(35401); return this->GetAuxPtr(AuxPointerType::CachedSourceString); }
         void SetCachedSourceString(Var sourceString)
-        {
+        {TRACE_IT(35402);
             Assert(this->GetCachedSourceString() == nullptr);
             this->SetAuxPtr(AuxPointerType::CachedSourceString, sourceString);
         }
@@ -2081,21 +2081,21 @@ namespace Js
         ParseableFunctionInfo* GetNestedFunctionForExecution(uint index);
         void SetNestedFunc(FunctionInfo* nestedFunc, uint index, uint32 flags);
         void BuildDeferredStubs(ParseNode *pnodeFnc);
-        DeferredFunctionStub *GetDeferredStubs() const { return static_cast<DeferredFunctionStub *>(this->GetAuxPtr(AuxPointerType::DeferredStubs)); }
-        void SetDeferredStubs(DeferredFunctionStub *stub) { this->SetAuxPtr(AuxPointerType::DeferredStubs, stub); }
+        DeferredFunctionStub *GetDeferredStubs() const {TRACE_IT(35403); return static_cast<DeferredFunctionStub *>(this->GetAuxPtr(AuxPointerType::DeferredStubs)); }
+        void SetDeferredStubs(DeferredFunctionStub *stub) {TRACE_IT(35404); this->SetAuxPtr(AuxPointerType::DeferredStubs, stub); }
         void RegisterFuncToDiag(ScriptContext * scriptContext, char16 const * pszTitle);
 
     protected:
         static HRESULT MapDeferredReparseError(HRESULT& hrParse, const CompileScriptException& se);
 
         void SetFlags(bool does, FunctionBodyFlags newFlags)
-        {
+        {TRACE_IT(35405);
             if (does)
-            {
+            {TRACE_IT(35406);
                 flags = (FunctionBodyFlags)(flags | newFlags);
             }
             else
-            {
+            {TRACE_IT(35407);
                 flags = (FunctionBodyFlags)(flags & ~newFlags);
             }
         }
@@ -2169,30 +2169,30 @@ namespace Js
     //
     template <class T>
     LPCWSTR ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo) const
-    {
+    {TRACE_IT(35408);
         return GetSourceName<T>(sourceContextInfo, this->m_isEval, this->m_isDynamicFunction);
     }
 
     template <class T>
     LPCWSTR ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction)
-    {
+    {TRACE_IT(35409);
         if (sourceContextInfo->IsDynamic())
-        {
+        {TRACE_IT(35410);
             if (m_isEval)
-            {
+            {TRACE_IT(35411);
                 return Constants::EvalCode;
             }
             else if (m_isDynamicFunction)
-            {
+            {TRACE_IT(35412);
                 return Constants::FunctionCode;
             }
             else
-            {
+            {TRACE_IT(35413);
                 return Constants::UnknownScriptCode;
             }
         }
         else
-        {
+        {TRACE_IT(35414);
             return sourceContextInfo->url;
         }
     }
@@ -2251,24 +2251,24 @@ namespace Js
             FieldWithBarrier(CounterT) counters;
 
             uint32 GetCountField(FunctionBody::CounterFields fieldEnum) const
-            {
+            {TRACE_IT(35415);
                 return counters.Get(fieldEnum);
             }
             uint32 SetCountField(FunctionBody::CounterFields fieldEnum, uint32 val)
-            {
+            {TRACE_IT(35416);
                 return counters.Set(fieldEnum, val, this);
             }
             uint32 IncreaseCountField(FunctionBody::CounterFields fieldEnum)
-            {
+            {TRACE_IT(35417);
                 return counters.Increase(fieldEnum, this);
             }
 
             struct StatementMap
             {
-                StatementMap() : isSubexpression(false) {}
+                StatementMap() : isSubexpression(false) {TRACE_IT(35418);}
 
                 static StatementMap * New(Recycler* recycler)
-                {
+                {TRACE_IT(35419);
                     return RecyclerNew(recycler, StatementMap);
                 }
 
@@ -2372,7 +2372,7 @@ namespace Js
                     m_probeCount(0),
                     m_auxStatementData(nullptr),
                     pSpanSequence(nullptr)
-                {
+                {TRACE_IT(35420);
                 }
             };
 
@@ -2392,10 +2392,10 @@ namespace Js
 #endif
     public:
         PropertyId * GetCacheIdToPropertyIdMap()
-        {
+        {TRACE_IT(35421);
             return cacheIdToPropertyIdMap;
         }
-        static DWORD GetAsmJsTotalLoopCountOffset() { return offsetof(FunctionBody, m_asmJsTotalLoopCount); }
+        static DWORD GetAsmJsTotalLoopCountOffset() {TRACE_IT(35422); return offsetof(FunctionBody, m_asmJsTotalLoopCount); }
 #if DBG
         FieldWithBarrier(int) m_DEBUG_executionCount;     // Count of outstanding on InterpreterStackFrame
         FieldWithBarrier(bool) m_nativeEntryPointIsInterpreterThunk; // NativeEntry entry point is in fact InterpreterThunk.
@@ -2578,7 +2578,7 @@ namespace Js
         void GenerateDynamicInterpreterThunk();
 #endif
         void CloneByteCodeInto(ScriptContext * scriptContext, FunctionBody *newFunctionBody, uint sourceIndex);
-        Js::JavascriptMethod GetEntryPoint(ProxyEntryPointInfo* entryPoint) const { return entryPoint->jsMethod; }
+        Js::JavascriptMethod GetEntryPoint(ProxyEntryPointInfo* entryPoint) const {TRACE_IT(35423); return entryPoint->jsMethod; }
         void CaptureDynamicProfileState(FunctionEntryPointInfo* entryPointInfo);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         void DumpRegStats(FunctionBody *funcBody);
@@ -2587,7 +2587,7 @@ namespace Js
     public:
         FunctionBody(ByteCodeCache* cache, Utf8SourceInfo* sourceInfo, ScriptContext* scriptContext):
             ParseableFunctionInfo((JavascriptMethod) nullptr, 0, (LocalFunctionId) 0, sourceInfo, scriptContext, 0, nullptr, 0, 0, FunctionInfo::Attributes::None, nullptr, Flags_None)
-        {
+        {TRACE_IT(35424);
             // Dummy constructor- does nothing
             // Must be stack allocated
             // Used during deferred bytecode serialization
@@ -2619,46 +2619,46 @@ namespace Js
         bool TestAndUpdateActiveFunctions(ActiveFunctionSet * pActiveFuncs) const;
         void UpdateActiveFunctionSet(ActiveFunctionSet * pActiveFuncs, FunctionCodeGenRuntimeData *callSiteData) const;
         void UpdateActiveFunctionsForOneDataSet(ActiveFunctionSet *pActiveFuncs, FunctionCodeGenRuntimeData *parentData, Field(FunctionCodeGenRuntimeData*)* dataSet, uint count) const;
-        uint GetInactiveCount() const { return inactiveCount; }
-        void SetInactiveCount(uint count) { inactiveCount = count; }
+        uint GetInactiveCount() const {TRACE_IT(35425); return inactiveCount; }
+        void SetInactiveCount(uint count) {TRACE_IT(35426); inactiveCount = count; }
         void IncrInactiveCount(uint increment);
         bool InterpretedSinceCallCountCollection() const;
         void CollectInterpretedCounts();
-        void ResetRedeferralAttributes() { this->m_hasActiveReference = false; }
+        void ResetRedeferralAttributes() {TRACE_IT(35427); this->m_hasActiveReference = false; }
 
         Js::RootObjectBase * LoadRootObject() const;
         Js::RootObjectBase * GetRootObject() const;
-        ByteBlock* GetAuxiliaryData() const { return static_cast<ByteBlock*>(this->GetAuxPtr(AuxPointerType::AuxBlock)); }
-        ByteBlock* GetAuxiliaryDataWithLock() const { return static_cast<ByteBlock*>(this->GetAuxPtrWithLock(AuxPointerType::AuxBlock)); }
-        void SetAuxiliaryData(ByteBlock* auxBlock) { this->SetAuxPtr(AuxPointerType::AuxBlock, auxBlock); }
-        ByteBlock* GetAuxiliaryContextData()const { return static_cast<ByteBlock*>(this->GetAuxPtr(AuxPointerType::AuxContextBlock)); }
-        ByteBlock* GetAuxiliaryContextDataWithLock()const { return static_cast<ByteBlock*>(this->GetAuxPtrWithLock(AuxPointerType::AuxContextBlock)); }
-        void SetAuxiliaryContextData(ByteBlock* auxContextBlock) { this->SetAuxPtr(AuxPointerType::AuxContextBlock, auxContextBlock); }
+        ByteBlock* GetAuxiliaryData() const {TRACE_IT(35428); return static_cast<ByteBlock*>(this->GetAuxPtr(AuxPointerType::AuxBlock)); }
+        ByteBlock* GetAuxiliaryDataWithLock() const {TRACE_IT(35429); return static_cast<ByteBlock*>(this->GetAuxPtrWithLock(AuxPointerType::AuxBlock)); }
+        void SetAuxiliaryData(ByteBlock* auxBlock) {TRACE_IT(35430); this->SetAuxPtr(AuxPointerType::AuxBlock, auxBlock); }
+        ByteBlock* GetAuxiliaryContextData()const {TRACE_IT(35431); return static_cast<ByteBlock*>(this->GetAuxPtr(AuxPointerType::AuxContextBlock)); }
+        ByteBlock* GetAuxiliaryContextDataWithLock()const {TRACE_IT(35432); return static_cast<ByteBlock*>(this->GetAuxPtrWithLock(AuxPointerType::AuxContextBlock)); }
+        void SetAuxiliaryContextData(ByteBlock* auxContextBlock) {TRACE_IT(35433); this->SetAuxPtr(AuxPointerType::AuxContextBlock, auxContextBlock); }
         void SetFormalsPropIdArray(PropertyIdArray * propIdArray);
         PropertyIdArray* GetFormalsPropIdArray(bool checkForNull = true);
         Var GetFormalsPropIdArrayOrNullObj();
         ByteBlock* GetByteCode() const;
         ByteBlock* GetOriginalByteCode(); // Returns original bytecode without probes (such as BPs).
-        Js::ByteCodeCache * GetByteCodeCache() const { return this->byteCodeCache; }
+        Js::ByteCodeCache * GetByteCodeCache() const {TRACE_IT(35434); return this->byteCodeCache; }
         void SetByteCodeCache(Js::ByteCodeCache *byteCodeCache)
-        {
+        {TRACE_IT(35435);
             if (byteCodeCache != nullptr)
-            {
+            {TRACE_IT(35436);
                 this->byteCodeCache = byteCodeCache;
             }
         }
 #if DBG
-        void SetIsSerialized(bool serialized) { m_isSerialized = serialized; }
-        bool GetIsSerialized()const { return m_isSerialized; }
+        void SetIsSerialized(bool serialized) {TRACE_IT(35437); m_isSerialized = serialized; }
+        bool GetIsSerialized()const {TRACE_IT(35438); return m_isSerialized; }
 #endif
-        uint GetByteCodeCount() const { return GetCountField(CounterFields::ByteCodeCount); }
-        void SetByteCodeCount(uint count) { SetCountField(CounterFields::ByteCodeCount, count); }
-        uint GetByteCodeWithoutLDACount() const { return GetCountField(CounterFields::ByteCodeWithoutLDACount); }
-        void SetByteCodeWithoutLDACount(uint count) { SetCountField(CounterFields::ByteCodeWithoutLDACount, count); }
-        uint GetByteCodeInLoopCount() const { return GetCountField(CounterFields::ByteCodeInLoopCount); }
-        void SetByteCodeInLoopCount(uint count) { SetCountField(CounterFields::ByteCodeInLoopCount, count); }
-        uint16 GetEnvDepth() const { return m_envDepth; }
-        void SetEnvDepth(uint16 depth) { m_envDepth = depth; }
+        uint GetByteCodeCount() const {TRACE_IT(35439); return GetCountField(CounterFields::ByteCodeCount); }
+        void SetByteCodeCount(uint count) {TRACE_IT(35440); SetCountField(CounterFields::ByteCodeCount, count); }
+        uint GetByteCodeWithoutLDACount() const {TRACE_IT(35441); return GetCountField(CounterFields::ByteCodeWithoutLDACount); }
+        void SetByteCodeWithoutLDACount(uint count) {TRACE_IT(35442); SetCountField(CounterFields::ByteCodeWithoutLDACount, count); }
+        uint GetByteCodeInLoopCount() const {TRACE_IT(35443); return GetCountField(CounterFields::ByteCodeInLoopCount); }
+        void SetByteCodeInLoopCount(uint count) {TRACE_IT(35444); SetCountField(CounterFields::ByteCodeInLoopCount, count); }
+        uint16 GetEnvDepth() const {TRACE_IT(35445); return m_envDepth; }
+        void SetEnvDepth(uint16 depth) {TRACE_IT(35446); m_envDepth = depth; }
 
         void SetEnvRegister(RegSlot reg);
         void MapAndSetEnvRegister(RegSlot reg);
@@ -2684,23 +2684,23 @@ namespace Js
         void MapAndSetFuncExprScopeRegister(RegSlot reg);
         RegSlot GetFuncExprScopeRegister() const;
 
-        bool HasScopeObject() const { return hasScopeObject; }
-        void SetHasScopeObject(bool has) { hasScopeObject = has; }
-        uint GetInnerScopeCount() const { return GetCountField(CounterFields::InnerScopeCount); }
-        void SetInnerScopeCount(uint count) { SetCountField(CounterFields::InnerScopeCount, count); }
-        bool HasCachedScopePropIds() const { return hasCachedScopePropIds; }
-        void SetHasCachedScopePropIds(bool has) { hasCachedScopePropIds = has; }
+        bool HasScopeObject() const {TRACE_IT(35447); return hasScopeObject; }
+        void SetHasScopeObject(bool has) {TRACE_IT(35448); hasScopeObject = has; }
+        uint GetInnerScopeCount() const {TRACE_IT(35449); return GetCountField(CounterFields::InnerScopeCount); }
+        void SetInnerScopeCount(uint count) {TRACE_IT(35450); SetCountField(CounterFields::InnerScopeCount, count); }
+        bool HasCachedScopePropIds() const {TRACE_IT(35451); return hasCachedScopePropIds; }
+        void SetHasCachedScopePropIds(bool has) {TRACE_IT(35452); hasCachedScopePropIds = has; }
 
-        uint32 GetInterpretedCount() const { return interpretedCount; }
-        uint32 SetInterpretedCount(uint32 val) { return interpretedCount = val; }
-        uint32 IncreaseInterpretedCount() { return interpretedCount++; }
+        uint32 GetInterpretedCount() const {TRACE_IT(35453); return interpretedCount; }
+        uint32 SetInterpretedCount(uint32 val) {TRACE_IT(35454); return interpretedCount = val; }
+        uint32 IncreaseInterpretedCount() {TRACE_IT(35455); return interpretedCount++; }
 
-        uint32 GetLoopInterpreterLimit() const { return loopInterpreterLimit; }
-        uint32 SetLoopInterpreterLimit(uint32 val) { return loopInterpreterLimit = val; }
+        uint32 GetLoopInterpreterLimit() const {TRACE_IT(35456); return loopInterpreterLimit; }
+        uint32 SetLoopInterpreterLimit(uint32 val) {TRACE_IT(35457); return loopInterpreterLimit = val; }
 
         // Gets the next index for tracking debugger scopes (increments the internal counter as well).
-        uint32 GetNextDebuggerScopeIndex() { return debuggerScopeIndex++; }
-        void SetDebuggerScopeIndex(uint32 index) { debuggerScopeIndex = index; }
+        uint32 GetNextDebuggerScopeIndex() {TRACE_IT(35458); return debuggerScopeIndex++; }
+        void SetDebuggerScopeIndex(uint32 index) {TRACE_IT(35459); debuggerScopeIndex = index; }
 
         size_t GetLoopBodyName(uint loopNumber, _Out_writes_opt_z_(sizeInChars) WCHAR* displayName, _In_ size_t sizeInChars);
 
@@ -2709,35 +2709,35 @@ namespace Js
         Js::LoopHeader * GetLoopHeader(uint index) const;
         Js::LoopHeader * GetLoopHeaderWithLock(uint index) const;
         Js::Var GetLoopHeaderArrayPtr() const
-        {
+        {TRACE_IT(35460);
             Assert(this->GetLoopHeaderArray() != nullptr);
             return this->GetLoopHeaderArray();
         }
 #ifdef ASMJS_PLAT
-        void SetIsAsmJsFullJitScheduled(bool val){ m_isAsmJsScheduledForFullJIT = val; }
-        bool GetIsAsmJsFullJitScheduled(){ return m_isAsmJsScheduledForFullJIT; }
+        void SetIsAsmJsFullJitScheduled(bool val){TRACE_IT(35461); m_isAsmJsScheduledForFullJIT = val; }
+        bool GetIsAsmJsFullJitScheduled(){TRACE_IT(35462); return m_isAsmJsScheduledForFullJIT; }
         uint32 GetAsmJSTotalLoopCount() const
-        {
+        {TRACE_IT(35463);
             return m_asmJsTotalLoopCount;
         }
 
         void SetIsAsmJsFunction(bool isAsmJsFunction)
-        {
+        {TRACE_IT(35464);
             m_isAsmJsFunction = isAsmJsFunction;
         }
 #endif
 
         const bool GetIsAsmJsFunction() const
-        {
+        {TRACE_IT(35465);
             return m_isAsmJsFunction;
         }
 
 #ifdef ASMJS_PLAT
         bool IsHotAsmJsLoop()
-        {
+        {TRACE_IT(35466);
             // Negative MinTemplatizedJitLoopRunCount treats all loops as hot asm loop
             if (CONFIG_FLAG(MinTemplatizedJitLoopRunCount) < 0 || m_asmJsTotalLoopCount > static_cast<uint>(CONFIG_FLAG(MinTemplatizedJitLoopRunCount)))
-            {
+            {TRACE_IT(35467);
                 return true;
             }
             return false;
@@ -2749,16 +2749,16 @@ namespace Js
 
     public:
         static bool Is(void* ptr);
-        uint GetScriptId() const { return m_uScriptId; }
+        uint GetScriptId() const {TRACE_IT(35468); return m_uScriptId; }
 
         void* GetAddressOfScriptId() const
-        {
+        {TRACE_IT(35469);
             return (void*)&m_uScriptId;
         }
 
 
         static uint *GetJittedLoopIterationsSinceLastBailoutAddress(EntryPointInfo* info)
-        {
+        {TRACE_IT(35470);
             LoopEntryPointInfo* entryPoint = (LoopEntryPointInfo*)info;
             return &entryPoint->jittedLoopIterationsSinceLastBailout;
         }
@@ -2861,7 +2861,7 @@ namespace Js
 
     public:
 #if DBG
-        int GetProfileSession() { return m_iProfileSession; }
+        int GetProfileSession() {TRACE_IT(35471); return m_iProfileSession; }
 #endif
         virtual void Finalize(bool isShutdown) override;
         virtual void OnMark() override;
@@ -2877,9 +2877,9 @@ namespace Js
 #endif
 
         bool HasRejit() const
-        {
+        {TRACE_IT(35472);
             if(this->entryPoints)
-            {
+            {TRACE_IT(35473);
                 return this->entryPoints->Count() > 1;
             }
             return false;
@@ -2893,7 +2893,7 @@ namespace Js
 
         RegSlot GetObjectRegister() const;
         void SetObjectRegister(RegSlot objectRegister);
-        bool HasObjectRegister() const { return GetObjectRegister() != 0; }
+        bool HasObjectRegister() const {TRACE_IT(35474); return GetObjectRegister() != 0; }
         ScopeObjectChain *GetScopeObjectChain() const;
         void SetScopeObjectChain(ScopeObjectChain *pScopeObjectChain);
 
@@ -2906,11 +2906,11 @@ namespace Js
         bool HasLineBreak() const;
         bool HasLineBreak(charcount_t start, charcount_t end) const;
 
-        bool HasGeneratedFromByteCodeCache() const { return this->byteCodeCache != nullptr; }
+        bool HasGeneratedFromByteCodeCache() const {TRACE_IT(35475); return this->byteCodeCache != nullptr; }
 
         void TrackLoad(int ichMin);
 
-        SmallSpanSequence* GetStatementMapSpanSequence() const { return m_sourceInfo.pSpanSequence; }
+        SmallSpanSequence* GetStatementMapSpanSequence() const {TRACE_IT(35476); return m_sourceInfo.pSpanSequence; }
         void RecordStatementMap(StatementMap* statementMap);
         void RecordStatementMap(SmallSpanSequenceIter &iter, StatementData * data);
         void RecordLoad(int ichMin, int bytecodeAfterLoad);
@@ -2919,16 +2919,16 @@ namespace Js
         DebuggerScope* AddScopeObject(DiagExtraScopesType scopeType, int start, RegSlot scopeLocation);
         bool TryGetDebuggerScopeAt(int index, DebuggerScope*& debuggerScope);
 
-        StatementMapList * GetStatementMaps() const { return static_cast<StatementMapList *>(this->GetAuxPtrWithLock(AuxPointerType::StatementMaps)); }
-        void SetStatementMaps(StatementMapList *pStatementMaps) { this->SetAuxPtr(AuxPointerType::StatementMaps, pStatementMaps); }
+        StatementMapList * GetStatementMaps() const {TRACE_IT(35477); return static_cast<StatementMapList *>(this->GetAuxPtrWithLock(AuxPointerType::StatementMaps)); }
+        void SetStatementMaps(StatementMapList *pStatementMaps) {TRACE_IT(35478); this->SetAuxPtr(AuxPointerType::StatementMaps, pStatementMaps); }
 
-        Field(FunctionCodeGenRuntimeData*)* GetCodeGenGetSetRuntimeData() const { return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtr(AuxPointerType::CodeGenGetSetRuntimeData)); }
-        Field(FunctionCodeGenRuntimeData*)* GetCodeGenGetSetRuntimeDataWithLock() const { return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtrWithLock(AuxPointerType::CodeGenGetSetRuntimeData)); }
-        void SetCodeGenGetSetRuntimeData(FunctionCodeGenRuntimeData** codeGenGetSetRuntimeData) { this->SetAuxPtr(AuxPointerType::CodeGenGetSetRuntimeData, codeGenGetSetRuntimeData); }
+        Field(FunctionCodeGenRuntimeData*)* GetCodeGenGetSetRuntimeData() const {TRACE_IT(35479); return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtr(AuxPointerType::CodeGenGetSetRuntimeData)); }
+        Field(FunctionCodeGenRuntimeData*)* GetCodeGenGetSetRuntimeDataWithLock() const {TRACE_IT(35480); return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtrWithLock(AuxPointerType::CodeGenGetSetRuntimeData)); }
+        void SetCodeGenGetSetRuntimeData(FunctionCodeGenRuntimeData** codeGenGetSetRuntimeData) {TRACE_IT(35481); this->SetAuxPtr(AuxPointerType::CodeGenGetSetRuntimeData, codeGenGetSetRuntimeData); }
 
-        Field(FunctionCodeGenRuntimeData*)* GetCodeGenRuntimeData() const { return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtr(AuxPointerType::CodeGenRuntimeData)); }
-        Field(FunctionCodeGenRuntimeData*)* GetCodeGenRuntimeDataWithLock() const { return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtrWithLock(AuxPointerType::CodeGenRuntimeData)); }
-        void SetCodeGenRuntimeData(FunctionCodeGenRuntimeData** codeGenRuntimeData) { this->SetAuxPtr(AuxPointerType::CodeGenRuntimeData, codeGenRuntimeData); }
+        Field(FunctionCodeGenRuntimeData*)* GetCodeGenRuntimeData() const {TRACE_IT(35482); return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtr(AuxPointerType::CodeGenRuntimeData)); }
+        Field(FunctionCodeGenRuntimeData*)* GetCodeGenRuntimeDataWithLock() const {TRACE_IT(35483); return static_cast<Field(FunctionCodeGenRuntimeData*)*>(this->GetAuxPtrWithLock(AuxPointerType::CodeGenRuntimeData)); }
+        void SetCodeGenRuntimeData(FunctionCodeGenRuntimeData** codeGenRuntimeData) {TRACE_IT(35484); this->SetAuxPtr(AuxPointerType::CodeGenRuntimeData, codeGenRuntimeData); }
 
         template <typename TStatementMapList>
         static StatementMap * GetNextNonSubexpressionStatementMap(TStatementMapList *statementMapList, int & startingAtIndex);
@@ -2946,7 +2946,7 @@ namespace Js
 
         // skip any utf-8/utf-16 byte-order-mark. Returns the number of chars skipped.
         static charcount_t SkipByteOrderMark(__in_bcount_z(4) LPCUTF8& documentStart)
-        {
+        {TRACE_IT(35485);
             charcount_t retValue = 0;
 
             Assert(documentStart != nullptr);
@@ -2954,7 +2954,7 @@ namespace Js
             if (documentStart[0] == 0xEF &&
                 documentStart[1] == 0xBB &&
                 documentStart[2] == 0xBF)
-            {
+            {TRACE_IT(35486);
                 // UTF-8     - EF BB BF
                 // 3 bytes skipped - reports one char skipped
                 documentStart += 3;
@@ -2962,7 +2962,7 @@ namespace Js
             }
             else if ((documentStart[0] == 0xFF && documentStart[1] == 0xFE) ||
                     (documentStart[0] == 0xFE && documentStart[1] == 0xFF))
-            {
+            {TRACE_IT(35487);
                 // UTF-16 LE - FF FE
                 // UTF-16 BE - FE FF
                 // 2 bytes skipped - reports one char skipped
@@ -2990,21 +2990,21 @@ namespace Js
 #pragma endregion
 
         // Field accessors
-        bool GetHasBailoutInstrInJittedCode() const { return this->m_hasBailoutInstrInJittedCode; }
-        void SetHasBailoutInstrInJittedCode(bool hasBailout) { this->m_hasBailoutInstrInJittedCode = hasBailout; }
-        bool GetCanDefer() const { return this->functionInfo->CanBeDeferred() && this->m_depth == 0 && !this->m_hasActiveReference; }
-        bool GetCanReleaseLoopHeaders() const { return (this->m_depth == 0); }
-        void SetPendingLoopHeaderRelease(bool pendingLoopHeaderRelease) { this->m_pendingLoopHeaderRelease = pendingLoopHeaderRelease; }
+        bool GetHasBailoutInstrInJittedCode() const {TRACE_IT(35488); return this->m_hasBailoutInstrInJittedCode; }
+        void SetHasBailoutInstrInJittedCode(bool hasBailout) {TRACE_IT(35489); this->m_hasBailoutInstrInJittedCode = hasBailout; }
+        bool GetCanDefer() const {TRACE_IT(35490); return this->functionInfo->CanBeDeferred() && this->m_depth == 0 && !this->m_hasActiveReference; }
+        bool GetCanReleaseLoopHeaders() const {TRACE_IT(35491); return (this->m_depth == 0); }
+        void SetPendingLoopHeaderRelease(bool pendingLoopHeaderRelease) {TRACE_IT(35492); this->m_pendingLoopHeaderRelease = pendingLoopHeaderRelease; }
 
-        bool GetIsFromNativeCodeModule() const { return m_isFromNativeCodeModule; }
-        void SetIsFromNativeCodeModule(bool isFromNativeCodeModule) { m_isFromNativeCodeModule = isFromNativeCodeModule; }
+        bool GetIsFromNativeCodeModule() const {TRACE_IT(35493); return m_isFromNativeCodeModule; }
+        void SetIsFromNativeCodeModule(bool isFromNativeCodeModule) {TRACE_IT(35494); m_isFromNativeCodeModule = isFromNativeCodeModule; }
 
         uint GetLoopNumber(LoopHeader const * loopHeader) const;
         uint GetLoopNumberWithLock(LoopHeader const * loopHeader) const;
-        bool GetHasAllocatedLoopHeaders() { return this->GetLoopHeaderArray() != nullptr; }
-        Js::LoopHeader* GetLoopHeaderArray() const { return static_cast<Js::LoopHeader*>(this->GetAuxPtr(AuxPointerType::LoopHeaderArray)); }
-        Js::LoopHeader* GetLoopHeaderArrayWithLock() const { return static_cast<Js::LoopHeader*>(this->GetAuxPtrWithLock(AuxPointerType::LoopHeaderArray)); }
-        void SetLoopHeaderArray(Js::LoopHeader* loopHeaderArray) { this->SetAuxPtr(AuxPointerType::LoopHeaderArray, loopHeaderArray); }
+        bool GetHasAllocatedLoopHeaders() {TRACE_IT(35495); return this->GetLoopHeaderArray() != nullptr; }
+        Js::LoopHeader* GetLoopHeaderArray() const {TRACE_IT(35496); return static_cast<Js::LoopHeader*>(this->GetAuxPtr(AuxPointerType::LoopHeaderArray)); }
+        Js::LoopHeader* GetLoopHeaderArrayWithLock() const {TRACE_IT(35497); return static_cast<Js::LoopHeader*>(this->GetAuxPtrWithLock(AuxPointerType::LoopHeaderArray)); }
+        void SetLoopHeaderArray(Js::LoopHeader* loopHeaderArray) {TRACE_IT(35498); this->SetAuxPtr(AuxPointerType::LoopHeaderArray, loopHeaderArray); }
 
 #if ENABLE_NATIVE_CODEGEN
         Js::JavascriptMethod GetLoopBodyEntryPoint(Js::LoopHeader * loopHeader, int entryPointIndex);
@@ -3024,32 +3024,32 @@ namespace Js
         bool IsSimpleJitOriginalEntryPoint() const;
 
 #if DYNAMIC_INTERPRETER_THUNK
-        static BYTE GetOffsetOfDynamicInterpreterThunk() { return static_cast<BYTE>(offsetof(FunctionBody, m_dynamicInterpreterThunk)); }
+        static BYTE GetOffsetOfDynamicInterpreterThunk() {TRACE_IT(35499); return static_cast<BYTE>(offsetof(FunctionBody, m_dynamicInterpreterThunk)); }
         void* GetDynamicInterpreterEntryPoint() const
-        {
+        {TRACE_IT(35500);
             return m_dynamicInterpreterThunk;
         }
         bool HasInterpreterThunkGenerated() const
-        {
+        {TRACE_IT(35501);
             return m_dynamicInterpreterThunk != nullptr;
         }
 
         DWORD GetDynamicInterpreterThunkSize() const;
 #endif
 
-        bool GetHasHotLoop() const { return hasHotLoop; };
+        bool GetHasHotLoop() const {TRACE_IT(35502); return hasHotLoop; };
         void SetHasHotLoop();
 
-        bool GetHasNestedLoop() const { return hasNestedLoop; };
-        void SetHasNestedLoop(bool nest) { hasNestedLoop = nest; };
+        bool GetHasNestedLoop() const {TRACE_IT(35503); return hasNestedLoop; };
+        void SetHasNestedLoop(bool nest) {TRACE_IT(35504); hasNestedLoop = nest; };
 
         bool IsInlineApplyDisabled();
         void InitDisableInlineApply();
         void SetDisableInlineApply(bool set);
 
-        bool IsInlineSpreadDisabled()  const  { return disableInlineSpread; }
-        void InitDisableInlineSpread()        { disableInlineSpread = this->GetLocalFunctionId() != Js::Constants::NoFunctionId && PHASE_OFF(Js::InlinePhase, this); }
-        void SetDisableInlineSpread(bool set) { disableInlineSpread = set; }
+        bool IsInlineSpreadDisabled()  const  {TRACE_IT(35505); return disableInlineSpread; }
+        void InitDisableInlineSpread()        {TRACE_IT(35506); disableInlineSpread = this->GetLocalFunctionId() != Js::Constants::NoFunctionId && PHASE_OFF(Js::InlinePhase, this); }
+        void SetDisableInlineSpread(bool set) {TRACE_IT(35507); disableInlineSpread = set; }
 
         bool CheckCalleeContextForInlining(FunctionProxy* calleeFunctionProxy);
 #if DBG
@@ -3066,85 +3066,85 @@ namespace Js
         static void DefaultSetNativeEntryPoint(FunctionEntryPointInfo* entryPointInfo, FunctionBody * functionBody, JavascriptMethod entryPoint);
         static void ProfileSetNativeEntryPoint(FunctionEntryPointInfo* entryPointInfo, FunctionBody * functionBody, JavascriptMethod entryPoint);
 
-        bool GetNativeEntryPointUsed() const { return m_nativeEntryPointUsed; }
-        void SetNativeEntryPointUsed(bool nativeEntryPointUsed) { this->m_nativeEntryPointUsed = nativeEntryPointUsed; }
+        bool GetNativeEntryPointUsed() const {TRACE_IT(35508); return m_nativeEntryPointUsed; }
+        void SetNativeEntryPointUsed(bool nativeEntryPointUsed) {TRACE_IT(35509); this->m_nativeEntryPointUsed = nativeEntryPointUsed; }
 #endif
 
-        bool GetIsFuncRegistered() { return m_isFuncRegistered; }
-        void SetIsFuncRegistered(bool isRegistered) { m_isFuncRegistered = isRegistered; }
+        bool GetIsFuncRegistered() {TRACE_IT(35510); return m_isFuncRegistered; }
+        void SetIsFuncRegistered(bool isRegistered) {TRACE_IT(35511); m_isFuncRegistered = isRegistered; }
 
-        bool GetHasLoops() const { return this->GetLoopCount() != 0; }
-        uint IncrLoopCount() { return this->IncreaseCountField(CounterFields::LoopCount); }
-        uint GetLoopCount() const { return this->GetCountField(CounterFields::LoopCount); }
-        uint SetLoopCount(uint count) { return this->SetCountField(CounterFields::LoopCount, count); }
+        bool GetHasLoops() const {TRACE_IT(35512); return this->GetLoopCount() != 0; }
+        uint IncrLoopCount() {TRACE_IT(35513); return this->IncreaseCountField(CounterFields::LoopCount); }
+        uint GetLoopCount() const {TRACE_IT(35514); return this->GetCountField(CounterFields::LoopCount); }
+        uint SetLoopCount(uint count) {TRACE_IT(35515); return this->SetCountField(CounterFields::LoopCount, count); }
 
-        uint GetForInLoopDepth() const { return this->GetCountField(CounterFields::ForInLoopDepth); }
-        uint SetForInLoopDepth(uint count) { return this->SetCountField(CounterFields::ForInLoopDepth, count); }
+        uint GetForInLoopDepth() const {TRACE_IT(35516); return this->GetCountField(CounterFields::ForInLoopDepth); }
+        uint SetForInLoopDepth(uint count) {TRACE_IT(35517); return this->SetCountField(CounterFields::ForInLoopDepth, count); }
 
         bool AllocProfiledForInLoopCount(ProfileId* profileId)
-        {
+        {TRACE_IT(35518);
             ProfileId profiledForInLoopCount = this->GetProfiledForInLoopCount();
             if (profiledForInLoopCount != Constants::NoProfileId)
-            {
+            {TRACE_IT(35519);
                 *profileId = profiledForInLoopCount;
                 this->IncreaseCountField(CounterFields::ProfiledForInLoopCount);
                 return true;
             }
             return false;
         }
-        ProfileId GetProfiledForInLoopCount() const { return (ProfileId)this->GetCountField(CounterFields::ProfiledForInLoopCount); }
-        void SetProfiledForInLoopCount(ProfileId count) { this->SetCountField(CounterFields::ProfiledForInLoopCount, count); }
+        ProfileId GetProfiledForInLoopCount() const {TRACE_IT(35520); return (ProfileId)this->GetCountField(CounterFields::ProfiledForInLoopCount); }
+        void SetProfiledForInLoopCount(ProfileId count) {TRACE_IT(35521); this->SetCountField(CounterFields::ProfiledForInLoopCount, count); }
 
-        bool AllocProfiledDivOrRem(ProfileId* profileId) { if (this->profiledDivOrRemCount != Constants::NoProfileId) { *profileId = this->profiledDivOrRemCount++; return true; } return false; }
-        ProfileId GetProfiledDivOrRemCount() { return this->profiledDivOrRemCount; }
+        bool AllocProfiledDivOrRem(ProfileId* profileId) {TRACE_IT(35522); if (this->profiledDivOrRemCount != Constants::NoProfileId) {TRACE_IT(35523); *profileId = this->profiledDivOrRemCount++; return true; } return false; }
+        ProfileId GetProfiledDivOrRemCount() {TRACE_IT(35524); return this->profiledDivOrRemCount; }
 
-        bool AllocProfiledSwitch(ProfileId* profileId) { if (this->profiledSwitchCount != Constants::NoProfileId) { *profileId = this->profiledSwitchCount++; return true; } return false; }
-        ProfileId GetProfiledSwitchCount() { return this->profiledSwitchCount; }
+        bool AllocProfiledSwitch(ProfileId* profileId) {TRACE_IT(35525); if (this->profiledSwitchCount != Constants::NoProfileId) {TRACE_IT(35526); *profileId = this->profiledSwitchCount++; return true; } return false; }
+        ProfileId GetProfiledSwitchCount() {TRACE_IT(35527); return this->profiledSwitchCount; }
 
-        bool AllocProfiledCallSiteId(ProfileId* profileId) { if (this->profiledCallSiteCount != Constants::NoProfileId) { *profileId = this->profiledCallSiteCount++; return true; } return false; }
-        ProfileId GetProfiledCallSiteCount() const { return this->profiledCallSiteCount; }
-        void SetProfiledCallSiteCount(ProfileId callSiteId)  { this->profiledCallSiteCount = callSiteId; }
+        bool AllocProfiledCallSiteId(ProfileId* profileId) {TRACE_IT(35528); if (this->profiledCallSiteCount != Constants::NoProfileId) {TRACE_IT(35529); *profileId = this->profiledCallSiteCount++; return true; } return false; }
+        ProfileId GetProfiledCallSiteCount() const {TRACE_IT(35530); return this->profiledCallSiteCount; }
+        void SetProfiledCallSiteCount(ProfileId callSiteId)  {TRACE_IT(35531); this->profiledCallSiteCount = callSiteId; }
 
-        bool AllocProfiledArrayCallSiteId(ProfileId* profileId) { if (this->profiledArrayCallSiteCount != Constants::NoProfileId) { *profileId = this->profiledArrayCallSiteCount++; return true; } return false; }
-        ProfileId GetProfiledArrayCallSiteCount() const { return this->profiledArrayCallSiteCount; }
+        bool AllocProfiledArrayCallSiteId(ProfileId* profileId) {TRACE_IT(35532); if (this->profiledArrayCallSiteCount != Constants::NoProfileId) {TRACE_IT(35533); *profileId = this->profiledArrayCallSiteCount++; return true; } return false; }
+        ProfileId GetProfiledArrayCallSiteCount() const {TRACE_IT(35534); return this->profiledArrayCallSiteCount; }
 
-        bool AllocProfiledReturnTypeId(ProfileId* profileId) { if (this->profiledReturnTypeCount != Constants::NoProfileId) { *profileId = this->profiledReturnTypeCount++; return true; } return false; }
-        ProfileId GetProfiledReturnTypeCount() const { return this->profiledReturnTypeCount; }
+        bool AllocProfiledReturnTypeId(ProfileId* profileId) {TRACE_IT(35535); if (this->profiledReturnTypeCount != Constants::NoProfileId) {TRACE_IT(35536); *profileId = this->profiledReturnTypeCount++; return true; } return false; }
+        ProfileId GetProfiledReturnTypeCount() const {TRACE_IT(35537); return this->profiledReturnTypeCount; }
 
-        bool AllocProfiledSlotId(ProfileId* profileId) { if (this->profiledSlotCount != Constants::NoProfileId) { *profileId = this->profiledSlotCount++; return true; } return false; }
-        ProfileId GetProfiledSlotCount() const { return this->profiledSlotCount; }
+        bool AllocProfiledSlotId(ProfileId* profileId) {TRACE_IT(35538); if (this->profiledSlotCount != Constants::NoProfileId) {TRACE_IT(35539); *profileId = this->profiledSlotCount++; return true; } return false; }
+        ProfileId GetProfiledSlotCount() const {TRACE_IT(35540); return this->profiledSlotCount; }
 
-        ProfileId AllocProfiledLdElemId(ProfileId* profileId) { if (this->profiledLdElemCount != Constants::NoProfileId) { *profileId = this->profiledLdElemCount++; return true; } return false; }
-        ProfileId GetProfiledLdElemCount() const { return this->profiledLdElemCount; }
+        ProfileId AllocProfiledLdElemId(ProfileId* profileId) {TRACE_IT(35541); if (this->profiledLdElemCount != Constants::NoProfileId) {TRACE_IT(35542); *profileId = this->profiledLdElemCount++; return true; } return false; }
+        ProfileId GetProfiledLdElemCount() const {TRACE_IT(35543); return this->profiledLdElemCount; }
 
-        bool AllocProfiledStElemId(ProfileId* profileId) { if (this->profiledStElemCount != Constants::NoProfileId) { *profileId = this->profiledStElemCount++; return true; } return false; }
-        ProfileId GetProfiledStElemCount() const { return this->profiledStElemCount; }
+        bool AllocProfiledStElemId(ProfileId* profileId) {TRACE_IT(35544); if (this->profiledStElemCount != Constants::NoProfileId) {TRACE_IT(35545); *profileId = this->profiledStElemCount++; return true; } return false; }
+        ProfileId GetProfiledStElemCount() const {TRACE_IT(35546); return this->profiledStElemCount; }
 
-        uint GetProfiledFldCount() const { return this->GetInlineCacheCount(); }
+        uint GetProfiledFldCount() const {TRACE_IT(35547); return this->GetInlineCacheCount(); }
 
-        ArgSlot GetProfiledInParamsCount() const { return this->GetInParamsCount() > 1? this->GetInParamsCount() - 1 : 0; }
+        ArgSlot GetProfiledInParamsCount() const {TRACE_IT(35548); return this->GetInParamsCount() > 1? this->GetInParamsCount() - 1 : 0; }
 
-        bool IsPartialDeserializedFunction() { return this->m_isPartialDeserializedFunction; }
+        bool IsPartialDeserializedFunction() {TRACE_IT(35549); return this->m_isPartialDeserializedFunction; }
 #ifdef PERF_COUNTERS
-        bool IsDeserializedFunction() { return this->m_isDeserializedFunction; }
+        bool IsDeserializedFunction() {TRACE_IT(35550); return this->m_isDeserializedFunction; }
 #endif
 
 #ifdef IR_VIEWER
-        bool IsIRDumpEnabled() const { return this->m_isIRDumpEnabled; }
-        void SetIRDumpEnabled(bool enabled) { this->m_isIRDumpEnabled = enabled; }
+        bool IsIRDumpEnabled() const {TRACE_IT(35551); return this->m_isIRDumpEnabled; }
+        void SetIRDumpEnabled(bool enabled) {TRACE_IT(35552); this->m_isIRDumpEnabled = enabled; }
         Js::DynamicObject * GetIRDumpBaseObject();
 #endif /* IR_VIEWER */
 
 #if ENABLE_NATIVE_CODEGEN
-        void SetPolymorphicCallSiteInfoHead(PolymorphicCallSiteInfo *polyCallSiteInfo) { this->SetAuxPtr(AuxPointerType::PolymorphicCallSiteInfoHead, polyCallSiteInfo); }
-        PolymorphicCallSiteInfo * GetPolymorphicCallSiteInfoHead() { return static_cast<PolymorphicCallSiteInfo *>(this->GetAuxPtr(AuxPointerType::PolymorphicCallSiteInfoHead)); }
+        void SetPolymorphicCallSiteInfoHead(PolymorphicCallSiteInfo *polyCallSiteInfo) {TRACE_IT(35553); this->SetAuxPtr(AuxPointerType::PolymorphicCallSiteInfoHead, polyCallSiteInfo); }
+        PolymorphicCallSiteInfo * GetPolymorphicCallSiteInfoHead() {TRACE_IT(35554); return static_cast<PolymorphicCallSiteInfo *>(this->GetAuxPtr(AuxPointerType::PolymorphicCallSiteInfoHead)); }
 #endif
 
-        PolymorphicInlineCache * GetPolymorphicInlineCachesHead() { return static_cast<PolymorphicInlineCache *>(this->GetAuxPtr(AuxPointerType::PolymorphicInlineCachesHead)); }
-        void SetPolymorphicInlineCachesHead(PolymorphicInlineCache * cache) { this->SetAuxPtr(AuxPointerType::PolymorphicInlineCachesHead, cache); }
+        PolymorphicInlineCache * GetPolymorphicInlineCachesHead() {TRACE_IT(35555); return static_cast<PolymorphicInlineCache *>(this->GetAuxPtr(AuxPointerType::PolymorphicInlineCachesHead)); }
+        void SetPolymorphicInlineCachesHead(PolymorphicInlineCache * cache) {TRACE_IT(35556); this->SetAuxPtr(AuxPointerType::PolymorphicInlineCachesHead, cache); }
 
         bool PolyInliningUsingFixedMethodsAllowedByConfigFlags(FunctionBody* topFunctionBody)
-        {
+        {TRACE_IT(35557);
             return  !PHASE_OFF(Js::InlinePhase, this) && !PHASE_OFF(Js::InlinePhase, topFunctionBody) &&
                 !PHASE_OFF(Js::PolymorphicInlinePhase, this) && !PHASE_OFF(Js::PolymorphicInlinePhase, topFunctionBody) &&
                 !PHASE_OFF(Js::FixedMethodsPhase, this) && !PHASE_OFF(Js::FixedMethodsPhase, topFunctionBody) &&
@@ -3152,12 +3152,12 @@ namespace Js
         }
 
         void SetScopeSlotArraySizes(uint scopeSlotCount, uint scopeSlotCountForParamScope)
-        {
+        {TRACE_IT(35558);
             this->scopeSlotArraySize = scopeSlotCount;
             this->paramScopeSlotArraySize = scopeSlotCountForParamScope;
         }
 
-        Js::PropertyId * GetPropertyIdsForScopeSlotArray() const { return static_cast<Js::PropertyId *>(this->GetAuxPtr(AuxPointerType::PropertyIdsForScopeSlotArray)); }
+        Js::PropertyId * GetPropertyIdsForScopeSlotArray() const {TRACE_IT(35559); return static_cast<Js::PropertyId *>(this->GetAuxPtr(AuxPointerType::PropertyIdsForScopeSlotArray)); }
         void SetPropertyIdsForScopeSlotArray(Js::PropertyId * propertyIdsForScopeSlotArray, uint scopeSlotCount, uint scopeSlotCountForParamScope = 0)
         {
             SetScopeSlotArraySizes(scopeSlotCount, scopeSlotCountForParamScope);
@@ -3165,30 +3165,30 @@ namespace Js
         }
 
         Js::PropertyIdOnRegSlotsContainer * GetPropertyIdOnRegSlotsContainer() const
-        {
+        {TRACE_IT(35560);
             return static_cast<Js::PropertyIdOnRegSlotsContainer *>(this->GetAuxPtr(AuxPointerType::PropertyIdOnRegSlotsContainer));
         }
         Js::PropertyIdOnRegSlotsContainer * GetPropertyIdOnRegSlotsContainerWithLock() const
-        {
+        {TRACE_IT(35561);
             return static_cast<Js::PropertyIdOnRegSlotsContainer *>(this->GetAuxPtrWithLock(AuxPointerType::PropertyIdOnRegSlotsContainer));
         }
         void SetPropertyIdOnRegSlotsContainer(Js::PropertyIdOnRegSlotsContainer *propertyIdOnRegSlotsContainer)
-        {
+        {TRACE_IT(35562);
             this->SetAuxPtr(AuxPointerType::PropertyIdOnRegSlotsContainer, propertyIdOnRegSlotsContainer);
         }
     private:
         void ResetProfileIds();
 
     public:
-        bool GetHasFinally() const { return m_hasFinally; }
-        void SetHasFinally(bool has){ m_hasFinally = has; }
+        bool GetHasFinally() const {TRACE_IT(35563); return m_hasFinally; }
+        void SetHasFinally(bool has){TRACE_IT(35564); m_hasFinally = has; }
 
-        bool GetFuncEscapes() const { return funcEscapes; }
-        void SetFuncEscapes(bool does) { funcEscapes = does; }
+        bool GetFuncEscapes() const {TRACE_IT(35565); return funcEscapes; }
+        void SetFuncEscapes(bool does) {TRACE_IT(35566); funcEscapes = does; }
 
 #if DBG
-        bool CanDoStackNestedFunc() const { return m_canDoStackNestedFunc; }
-        void SetCanDoStackNestedFunc() { m_canDoStackNestedFunc = true; }
+        bool CanDoStackNestedFunc() const {TRACE_IT(35567); return m_canDoStackNestedFunc; }
+        void SetCanDoStackNestedFunc() {TRACE_IT(35568); m_canDoStackNestedFunc = true; }
 #endif
         RecyclerWeakReference<FunctionInfo> * GetStackNestedFuncParent();
         FunctionInfo * GetStackNestedFuncParentStrongRef();
@@ -3197,14 +3197,14 @@ namespace Js
         void SetStackNestedFuncParent(FunctionInfo * parentFunctionInfo);
 
         uint GetScopeSlotArraySize() const
-        {
+        {TRACE_IT(35569);
             return scopeSlotArraySize;
         }
 
 #if defined(_M_IX86) || defined(_M_X64)
         template <typename T>
         static bool DoStackClosure(T functionBody)
-        {
+        {TRACE_IT(35570);
             return functionBody->DoStackNestedFunc()
                 && functionBody->GetNestedCount() != 0
                 && functionBody->GetScopeSlotArraySize() != 0
@@ -3213,21 +3213,21 @@ namespace Js
 #else
         template <typename T>
         static bool DoStackClosure(T functionBody)
-        {
+        {TRACE_IT(35571);
             return false;
         }
 #endif
-        bool DoStackFrameDisplay() const { return DoStackClosure(this) && !PHASE_OFF(StackClosurePhase, this); }
-        bool DoStackScopeSlots() const { return DoStackClosure(this) && !PHASE_OFF(StackClosurePhase, this); }
+        bool DoStackFrameDisplay() const {TRACE_IT(35572); return DoStackClosure(this) && !PHASE_OFF(StackClosurePhase, this); }
+        bool DoStackScopeSlots() const {TRACE_IT(35573); return DoStackClosure(this) && !PHASE_OFF(StackClosurePhase, this); }
 
-        bool GetIsFirstFunctionObject() const { return m_firstFunctionObject; }
-        void SetIsNotFirstFunctionObject() { m_firstFunctionObject = false; }
+        bool GetIsFirstFunctionObject() const {TRACE_IT(35574); return m_firstFunctionObject; }
+        void SetIsNotFirstFunctionObject() {TRACE_IT(35575); m_firstFunctionObject = false; }
 
-        bool GetInlineCachesOnFunctionObject() { return m_inlineCachesOnFunctionObject; }
-        void SetInlineCachesOnFunctionObject(bool has) { m_inlineCachesOnFunctionObject = has; }
+        bool GetInlineCachesOnFunctionObject() {TRACE_IT(35576); return m_inlineCachesOnFunctionObject; }
+        void SetInlineCachesOnFunctionObject(bool has) {TRACE_IT(35577); m_inlineCachesOnFunctionObject = has; }
 
         bool NeedScopeObjectForArguments(bool hasNonSimpleParams)
-        {
+        {TRACE_IT(35578);
             Assert(HasReferenceableBuiltInArguments());
             // We can avoid creating a scope object with arguments present if:
             bool dontNeedScopeObject =
@@ -3246,49 +3246,49 @@ namespace Js
         bool CanInlineRecursively(uint depth, bool tryAggressive = true);
     public:
         bool CanInlineAgain() const
-        {
+        {TRACE_IT(35579);
             // Block excessive recursive inlining of the same function
             return inlineDepth < static_cast<byte>(max(1, min(0xff, CONFIG_FLAG(MaxFuncInlineDepth))));
         }
 
         void OnBeginInlineInto()
-        {
+        {TRACE_IT(35580);
             ++inlineDepth;
         }
 
         void OnEndInlineInto()
-        {
+        {TRACE_IT(35581);
             --inlineDepth;
         }
 
-        uint8 IncrementBailOnMisingProfileCount() { return ++bailOnMisingProfileCount; }
-        void ResetBailOnMisingProfileCount() { bailOnMisingProfileCount = 0; }
-        uint8 IncrementBailOnMisingProfileRejitCount() { return ++bailOnMisingProfileRejitCount; }
+        uint8 IncrementBailOnMisingProfileCount() {TRACE_IT(35582); return ++bailOnMisingProfileCount; }
+        void ResetBailOnMisingProfileCount() {TRACE_IT(35583); bailOnMisingProfileCount = 0; }
+        uint8 IncrementBailOnMisingProfileRejitCount() {TRACE_IT(35584); return ++bailOnMisingProfileRejitCount; }
         uint32 GetFrameHeight(EntryPointInfo* entryPointInfo) const;
         void SetFrameHeight(EntryPointInfo* entryPointInfo, uint32 frameHeight);
 
         RegSlot GetLocalsCount();
-        RegSlot GetConstantCount() const { return this->GetCountField(CounterFields::ConstantCount); }
+        RegSlot GetConstantCount() const {TRACE_IT(35585); return this->GetCountField(CounterFields::ConstantCount); }
         void CheckAndSetConstantCount(RegSlot cNewConstants);
         void SetConstantCount(RegSlot cNewConstants);
         RegSlot GetVarCount();
         void SetVarCount(RegSlot cNewVars);
         void CheckAndSetVarCount(RegSlot cNewVars);
         RegSlot MapRegSlot(RegSlot reg)
-        {
+        {TRACE_IT(35586);
             if (this->RegIsConst(reg))
-            {
+            {TRACE_IT(35587);
                 reg = CONSTREG_TO_REGSLOT(reg);
                 Assert(reg < this->GetConstantCount());
             }
             else
-            {
+            {TRACE_IT(35588);
                 reg += this->GetConstantCount();
             }
 
             return reg;
         }
-        bool RegIsConst(RegSlot reg) { return reg > REGSLOT_TO_CONSTREG(this->GetConstantCount()); }
+        bool RegIsConst(RegSlot reg) {TRACE_IT(35589); return reg > REGSLOT_TO_CONSTREG(this->GetConstantCount()); }
 
         uint32 GetNonTempLocalVarCount();
         uint32 GetFirstNonTempLocalIndex();
@@ -3323,47 +3323,47 @@ namespace Js
         void RecordStrictNullDisplayConstant(RegSlot location);
         void InitConstantSlots(Var *dstSlots);
         Var GetConstantVar(RegSlot location);
-        Field(Js::Var)* GetConstTable() const { return this->m_constTable; }
-        void SetConstTable(Field(Js::Var)* constTable) { this->m_constTable = constTable; }
+        Field(Js::Var)* GetConstTable() const {TRACE_IT(35590); return this->m_constTable; }
+        void SetConstTable(Field(Js::Var)* constTable) {TRACE_IT(35591); this->m_constTable = constTable; }
 
         void MarkScript(ByteBlock * pblkByteCode, ByteBlock * pblkAuxiliaryData, ByteBlock* auxContextBlock,
             uint byteCodeCount, uint byteCodeInLoopCount, uint byteCodeWithoutLDACount);
 
         void         BeginExecution();
         void         EndExecution();
-        SourceInfo * GetSourceInfo() { return &this->m_sourceInfo; }
+        SourceInfo * GetSourceInfo() {TRACE_IT(35592); return &this->m_sourceInfo; }
 
         bool InstallProbe(int offset);
         bool UninstallProbe(int offset);
         bool ProbeAtOffset(int offset, OpCode* pOriginalOpcode);
 
-        static bool ShouldShareInlineCaches() { return CONFIG_FLAG(ShareInlineCaches); }
+        static bool ShouldShareInlineCaches() {TRACE_IT(35593); return CONFIG_FLAG(ShareInlineCaches); }
 
-        uint GetInlineCacheCount() const { return GetCountField(CounterFields::InlineCacheCount); }
-        void SetInlineCacheCount(uint count) { SetCountField(CounterFields::InlineCacheCount, count); }
+        uint GetInlineCacheCount() const {TRACE_IT(35594); return GetCountField(CounterFields::InlineCacheCount); }
+        void SetInlineCacheCount(uint count) {TRACE_IT(35595); SetCountField(CounterFields::InlineCacheCount, count); }
 
-        uint GetRootObjectLoadInlineCacheStart() const { return GetCountField(CounterFields::RootObjectLoadInlineCacheStart); }
-        void SetRootObjectLoadInlineCacheStart(uint count) { SetCountField(CounterFields::RootObjectLoadInlineCacheStart, count); }
+        uint GetRootObjectLoadInlineCacheStart() const {TRACE_IT(35596); return GetCountField(CounterFields::RootObjectLoadInlineCacheStart); }
+        void SetRootObjectLoadInlineCacheStart(uint count) {TRACE_IT(35597); SetCountField(CounterFields::RootObjectLoadInlineCacheStart, count); }
 
-        uint GetRootObjectLoadMethodInlineCacheStart() const { return GetCountField(CounterFields::RootObjectLoadMethodInlineCacheStart); }
-        void SetRootObjectLoadMethodInlineCacheStart(uint count) { SetCountField(CounterFields::RootObjectLoadMethodInlineCacheStart, count); }
+        uint GetRootObjectLoadMethodInlineCacheStart() const {TRACE_IT(35598); return GetCountField(CounterFields::RootObjectLoadMethodInlineCacheStart); }
+        void SetRootObjectLoadMethodInlineCacheStart(uint count) {TRACE_IT(35599); SetCountField(CounterFields::RootObjectLoadMethodInlineCacheStart, count); }
 
-        uint GetRootObjectStoreInlineCacheStart() const { return GetCountField(CounterFields::RootObjectStoreInlineCacheStart); }
-        void SetRootObjectStoreInlineCacheStart(uint count) { SetCountField(CounterFields::RootObjectStoreInlineCacheStart, count); }
+        uint GetRootObjectStoreInlineCacheStart() const {TRACE_IT(35600); return GetCountField(CounterFields::RootObjectStoreInlineCacheStart); }
+        void SetRootObjectStoreInlineCacheStart(uint count) {TRACE_IT(35601); SetCountField(CounterFields::RootObjectStoreInlineCacheStart, count); }
 
-        uint GetIsInstInlineCacheCount() const { return GetCountField(CounterFields::IsInstInlineCacheCount); }
-        void SetIsInstInlineCacheCount(uint count) { SetCountField(CounterFields::IsInstInlineCacheCount, count); }
+        uint GetIsInstInlineCacheCount() const {TRACE_IT(35602); return GetCountField(CounterFields::IsInstInlineCacheCount); }
+        void SetIsInstInlineCacheCount(uint count) {TRACE_IT(35603); SetCountField(CounterFields::IsInstInlineCacheCount, count); }
 
-        uint GetReferencedPropertyIdCount() const { return GetCountField(CounterFields::ReferencedPropertyIdCount); }
-        void SetReferencedPropertyIdCount(uint count) { SetCountField(CounterFields::ReferencedPropertyIdCount, count); }
+        uint GetReferencedPropertyIdCount() const {TRACE_IT(35604); return GetCountField(CounterFields::ReferencedPropertyIdCount); }
+        void SetReferencedPropertyIdCount(uint count) {TRACE_IT(35605); SetCountField(CounterFields::ReferencedPropertyIdCount, count); }
 
-        uint GetObjLiteralCount() const { return GetCountField(CounterFields::ObjLiteralCount); }
-        void SetObjLiteralCount(uint count) { SetCountField(CounterFields::ObjLiteralCount, count); }
-        uint IncObjLiteralCount() { return IncreaseCountField(CounterFields::ObjLiteralCount); }
+        uint GetObjLiteralCount() const {TRACE_IT(35606); return GetCountField(CounterFields::ObjLiteralCount); }
+        void SetObjLiteralCount(uint count) {TRACE_IT(35607); SetCountField(CounterFields::ObjLiteralCount, count); }
+        uint IncObjLiteralCount() {TRACE_IT(35608); return IncreaseCountField(CounterFields::ObjLiteralCount); }
 
-        uint GetLiteralRegexCount() const { return GetCountField(CounterFields::LiteralRegexCount); }
-        void SetLiteralRegexCount(uint count) { SetCountField(CounterFields::LiteralRegexCount, count); }
-        uint IncLiteralRegexCount() { return IncreaseCountField(CounterFields::LiteralRegexCount); }
+        uint GetLiteralRegexCount() const {TRACE_IT(35609); return GetCountField(CounterFields::LiteralRegexCount); }
+        void SetLiteralRegexCount(uint count) {TRACE_IT(35610); SetCountField(CounterFields::LiteralRegexCount, count); }
+        uint IncLiteralRegexCount() {TRACE_IT(35611); return IncreaseCountField(CounterFields::LiteralRegexCount); }
 
         void AllocateForInCache();
         ForInCache * GetForInCache(uint index);
@@ -3393,7 +3393,7 @@ namespace Js
             uint totalFieldAccessInlineCacheCount, uint isInstInlineCacheCount);
         void SetPropertyIdForCacheId(uint cacheId, PropertyId propertyId);
         PropertyId GetPropertyIdFromCacheId(uint cacheId)
-        {
+        {TRACE_IT(35612);
             Assert(this->cacheIdToPropertyIdMap);
             Assert(cacheId < this->GetInlineCacheCount());
             return this->cacheIdToPropertyIdMap[cacheId];
@@ -3401,9 +3401,9 @@ namespace Js
 #if DBG
         void VerifyCacheIdToPropertyIdMap();
 #endif
-        PropertyId* GetReferencedPropertyIdMap() const { return static_cast<PropertyId*>(this->GetAuxPtr(AuxPointerType::ReferencedPropertyIdMap)); }
-        PropertyId* GetReferencedPropertyIdMapWithLock() const { return static_cast<PropertyId*>(this->GetAuxPtrWithLock(AuxPointerType::ReferencedPropertyIdMap)); }
-        void SetReferencedPropertyIdMap(PropertyId* propIdMap) { this->SetAuxPtr(AuxPointerType::ReferencedPropertyIdMap, propIdMap); }
+        PropertyId* GetReferencedPropertyIdMap() const {TRACE_IT(35613); return static_cast<PropertyId*>(this->GetAuxPtr(AuxPointerType::ReferencedPropertyIdMap)); }
+        PropertyId* GetReferencedPropertyIdMapWithLock() const {TRACE_IT(35614); return static_cast<PropertyId*>(this->GetAuxPtrWithLock(AuxPointerType::ReferencedPropertyIdMap)); }
+        void SetReferencedPropertyIdMap(PropertyId* propIdMap) {TRACE_IT(35615); this->SetAuxPtr(AuxPointerType::ReferencedPropertyIdMap, propIdMap); }
         void CreateReferencedPropertyIdMap(uint referencedPropertyIdCount);
         void CreateReferencedPropertyIdMap();
         PropertyId GetReferencedPropertyIdWithMapIndex(uint mapIndex);
@@ -3427,32 +3427,32 @@ namespace Js
         Field(DynamicType*)* GetObjectLiteralTypeRefWithLock(uint index);
         uint NewLiteralRegex();
         void AllocateLiteralRegexArray();
-        Field(UnifiedRegex::RegexPattern*)* GetLiteralRegexes() const { return static_cast<Field(UnifiedRegex::RegexPattern*)*>(this->GetAuxPtr(AuxPointerType::LiteralRegexes)); }
-        Field(UnifiedRegex::RegexPattern*)* GetLiteralRegexesWithLock() const { return static_cast<Field(UnifiedRegex::RegexPattern*)*>(this->GetAuxPtrWithLock(AuxPointerType::LiteralRegexes)); }
-        void SetLiteralRegexs(UnifiedRegex::RegexPattern ** literalRegexes) { this->SetAuxPtr(AuxPointerType::LiteralRegexes, literalRegexes); }
+        Field(UnifiedRegex::RegexPattern*)* GetLiteralRegexes() const {TRACE_IT(35616); return static_cast<Field(UnifiedRegex::RegexPattern*)*>(this->GetAuxPtr(AuxPointerType::LiteralRegexes)); }
+        Field(UnifiedRegex::RegexPattern*)* GetLiteralRegexesWithLock() const {TRACE_IT(35617); return static_cast<Field(UnifiedRegex::RegexPattern*)*>(this->GetAuxPtrWithLock(AuxPointerType::LiteralRegexes)); }
+        void SetLiteralRegexs(UnifiedRegex::RegexPattern ** literalRegexes) {TRACE_IT(35618); this->SetAuxPtr(AuxPointerType::LiteralRegexes, literalRegexes); }
         UnifiedRegex::RegexPattern *GetLiteralRegex(const uint index);
         UnifiedRegex::RegexPattern *GetLiteralRegexWithLock(const uint index);
 #ifdef ASMJS_PLAT
-        AsmJsFunctionInfo* GetAsmJsFunctionInfo()const { return static_cast<AsmJsFunctionInfo*>(this->GetAuxPtr(AuxPointerType::AsmJsFunctionInfo)); }
-        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock()const { return static_cast<AsmJsFunctionInfo*>(this->GetAuxPtrWithLock(AuxPointerType::AsmJsFunctionInfo)); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfo()const {TRACE_IT(35619); return static_cast<AsmJsFunctionInfo*>(this->GetAuxPtr(AuxPointerType::AsmJsFunctionInfo)); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock()const {TRACE_IT(35620); return static_cast<AsmJsFunctionInfo*>(this->GetAuxPtrWithLock(AuxPointerType::AsmJsFunctionInfo)); }
         AsmJsFunctionInfo* AllocateAsmJsFunctionInfo();
-        AsmJsModuleInfo* GetAsmJsModuleInfo()const { return static_cast<AsmJsModuleInfo*>(this->GetAuxPtr(AuxPointerType::AsmJsModuleInfo)); }
-        AsmJsModuleInfo* GetAsmJsModuleInfoWithLock()const { return static_cast<AsmJsModuleInfo*>(this->GetAuxPtrWithLock(AuxPointerType::AsmJsModuleInfo)); }
+        AsmJsModuleInfo* GetAsmJsModuleInfo()const {TRACE_IT(35621); return static_cast<AsmJsModuleInfo*>(this->GetAuxPtr(AuxPointerType::AsmJsModuleInfo)); }
+        AsmJsModuleInfo* GetAsmJsModuleInfoWithLock()const {TRACE_IT(35622); return static_cast<AsmJsModuleInfo*>(this->GetAuxPtrWithLock(AuxPointerType::AsmJsModuleInfo)); }
         void ResetAsmJsInfo()
-        {
+        {TRACE_IT(35623);
             SetAuxPtr(AuxPointerType::AsmJsFunctionInfo, nullptr);
             SetAuxPtr(AuxPointerType::AsmJsModuleInfo, nullptr);
         }
-        bool IsAsmJSModule()const{ return this->GetAsmJsFunctionInfo() != nullptr; }
+        bool IsAsmJSModule()const{TRACE_IT(35624); return this->GetAsmJsFunctionInfo() != nullptr; }
         AsmJsModuleInfo* AllocateAsmJsModuleInfo();
 #endif
         void SetLiteralRegex(const uint index, UnifiedRegex::RegexPattern *const pattern);
-        Field(DynamicType*)* GetObjectLiteralTypes() const { return static_cast<Field(DynamicType*)*>(this->GetAuxPtr(AuxPointerType::ObjLiteralTypes)); }
-        Field(DynamicType*)* GetObjectLiteralTypesWithLock() const { return static_cast<Field(DynamicType*)*>(this->GetAuxPtrWithLock(AuxPointerType::ObjLiteralTypes)); }
+        Field(DynamicType*)* GetObjectLiteralTypes() const {TRACE_IT(35625); return static_cast<Field(DynamicType*)*>(this->GetAuxPtr(AuxPointerType::ObjLiteralTypes)); }
+        Field(DynamicType*)* GetObjectLiteralTypesWithLock() const {TRACE_IT(35626); return static_cast<Field(DynamicType*)*>(this->GetAuxPtrWithLock(AuxPointerType::ObjLiteralTypes)); }
     private:
         void ResetLiteralRegexes();
         void ResetObjectLiteralTypes();
-        void SetObjectLiteralTypes(DynamicType** objLiteralTypes) { this->SetAuxPtr(AuxPointerType::ObjLiteralTypes, objLiteralTypes); };
+        void SetObjectLiteralTypes(DynamicType** objLiteralTypes) {TRACE_IT(35627); this->SetAuxPtr(AuxPointerType::ObjLiteralTypes, objLiteralTypes); };
     public:
 
         void ResetByteCodeGenState();
@@ -3473,11 +3473,11 @@ namespace Js
             FunctionBody *const inlinee);
 
         void LoadDynamicProfileInfo();
-        bool HasExecutionDynamicProfileInfo() const { return hasExecutionDynamicProfileInfo; }
-        bool HasDynamicProfileInfo() const { return dynamicProfileInfo != nullptr; }
+        bool HasExecutionDynamicProfileInfo() const {TRACE_IT(35628); return hasExecutionDynamicProfileInfo; }
+        bool HasDynamicProfileInfo() const {TRACE_IT(35629); return dynamicProfileInfo != nullptr; }
         bool NeedEnsureDynamicProfileInfo() const;
-        DynamicProfileInfo * GetDynamicProfileInfo() const { Assert(HasExecutionDynamicProfileInfo()); return dynamicProfileInfo; }
-        DynamicProfileInfo * GetAnyDynamicProfileInfo() const { Assert(HasDynamicProfileInfo()); return dynamicProfileInfo; }
+        DynamicProfileInfo * GetDynamicProfileInfo() const {TRACE_IT(35630); Assert(HasExecutionDynamicProfileInfo()); return dynamicProfileInfo; }
+        DynamicProfileInfo * GetAnyDynamicProfileInfo() const {TRACE_IT(35631); Assert(HasDynamicProfileInfo()); return dynamicProfileInfo; }
         DynamicProfileInfo * EnsureDynamicProfileInfo();
         DynamicProfileInfo * AllocateDynamicProfile();
         BYTE GetSavedInlinerVersion() const;
@@ -3501,43 +3501,43 @@ namespace Js
         void SetPropertyIdsOfFormals(PropertyIdArray * formalArgs);
         PropertyIdArray * AllocatePropertyIdArrayForFormals(uint32 size, uint32 count, byte extraSlots);
 
-        bool DontRethunkAfterBailout() const { return dontRethunkAfterBailout; }
-        void SetDontRethunkAfterBailout() { dontRethunkAfterBailout = true; }
-        void ClearDontRethunkAfterBailout() { dontRethunkAfterBailout = false; }
+        bool DontRethunkAfterBailout() const {TRACE_IT(35632); return dontRethunkAfterBailout; }
+        void SetDontRethunkAfterBailout() {TRACE_IT(35633); dontRethunkAfterBailout = true; }
+        void ClearDontRethunkAfterBailout() {TRACE_IT(35634); dontRethunkAfterBailout = false; }
 
         void SaveState(ParseNodePtr pnode);
         void RestoreState(ParseNodePtr pnode);
 
         // Used for the debug purpose, this info will be stored (in the non-debug mode), when a function has all locals marked as non-local-referenced.
         // So when we got to no-refresh debug mode, and try to re-use the same function body we can then enforce all locals to be non-local-referenced.
-        bool HasAllNonLocalReferenced() const { return m_hasAllNonLocalReferenced; }
-        void SetAllNonLocalReferenced(bool set) { m_hasAllNonLocalReferenced = set; }
+        bool HasAllNonLocalReferenced() const {TRACE_IT(35635); return m_hasAllNonLocalReferenced; }
+        void SetAllNonLocalReferenced(bool set) {TRACE_IT(35636); m_hasAllNonLocalReferenced = set; }
 
-        bool HasSetIsObject() const { return m_hasSetIsObject; }
-        void SetHasSetIsObject(bool set) { m_hasSetIsObject = set; }
+        bool HasSetIsObject() const {TRACE_IT(35637); return m_hasSetIsObject; }
+        void SetHasSetIsObject(bool set) {TRACE_IT(35638); m_hasSetIsObject = set; }
 
-        bool HasFuncExprNameReference() const { return m_hasFunExprNameReference; }
-        void SetFuncExprNameReference(bool value) { m_hasFunExprNameReference = value; }
+        bool HasFuncExprNameReference() const {TRACE_IT(35639); return m_hasFunExprNameReference; }
+        void SetFuncExprNameReference(bool value) {TRACE_IT(35640); m_hasFunExprNameReference = value; }
 
-        bool GetChildCallsEval() const { return m_ChildCallsEval; }
-        void SetChildCallsEval(bool value) { m_ChildCallsEval = value; }
+        bool GetChildCallsEval() const {TRACE_IT(35641); return m_ChildCallsEval; }
+        void SetChildCallsEval(bool value) {TRACE_IT(35642); m_ChildCallsEval = value; }
 
-        bool GetCallsEval() const { return m_CallsEval; }
-        void SetCallsEval(bool set) { m_CallsEval = set; }
+        bool GetCallsEval() const {TRACE_IT(35643); return m_CallsEval; }
+        void SetCallsEval(bool set) {TRACE_IT(35644); m_CallsEval = set; }
 
-        bool HasReferenceableBuiltInArguments() const { return m_hasReferenceableBuiltInArguments; }
-        void SetHasReferenceableBuiltInArguments(bool value) { m_hasReferenceableBuiltInArguments = value; }
+        bool HasReferenceableBuiltInArguments() const {TRACE_IT(35645); return m_hasReferenceableBuiltInArguments; }
+        void SetHasReferenceableBuiltInArguments(bool value) {TRACE_IT(35646); m_hasReferenceableBuiltInArguments = value; }
 
-        bool IsParamAndBodyScopeMerged() const { return m_isParamAndBodyScopeMerged; }
-        void SetParamAndBodyScopeNotMerged() { m_isParamAndBodyScopeMerged = false; }
+        bool IsParamAndBodyScopeMerged() const {TRACE_IT(35647); return m_isParamAndBodyScopeMerged; }
+        void SetParamAndBodyScopeNotMerged() {TRACE_IT(35648); m_isParamAndBodyScopeMerged = false; }
 
         // Used for the debug purpose. This is to avoid setting all locals to non-local-referenced, multiple time for each child function.
-        bool HasDoneAllNonLocalReferenced() const { return m_hasDoneAllNonLocalReferenced; }
-        void SetHasDoneAllNonLocalReferenced(bool set) { m_hasDoneAllNonLocalReferenced = set; }
+        bool HasDoneAllNonLocalReferenced() const {TRACE_IT(35649); return m_hasDoneAllNonLocalReferenced; }
+        void SetHasDoneAllNonLocalReferenced(bool set) {TRACE_IT(35650); m_hasDoneAllNonLocalReferenced = set; }
 
         // Once the function compiled is sent m_hasFunctionCompiledSent will be set to 'true'. The below check will be used only to determine during ProfileModeDeferredParse function.
-        bool HasFunctionCompiledSent() const { return m_hasFunctionCompiledSent; }
-        void SetHasFunctionCompiledSent(bool set) { m_hasFunctionCompiledSent = set; }
+        bool HasFunctionCompiledSent() const {TRACE_IT(35651); return m_hasFunctionCompiledSent; }
+        void SetHasFunctionCompiledSent(bool set) {TRACE_IT(35652); m_hasFunctionCompiledSent = set; }
 
 #if DBG_DUMP
         void DumpStatementMaps();
@@ -3579,7 +3579,7 @@ namespace Js
 #endif
 
         static bool IsDummyGlobalRetStatement(const regex::Interval *sourceSpan)
-        {
+        {TRACE_IT(35653);
             Assert(sourceSpan != nullptr);
             return sourceSpan->begin == 0 && sourceSpan->end == 0;
         }
@@ -3588,10 +3588,10 @@ namespace Js
 
         template<class Fn>
         void MapLoopHeaders(Fn fn) const
-        {
+        {TRACE_IT(35654);
             Js::LoopHeader* loopHeaderArray = this->GetLoopHeaderArray();
             if(loopHeaderArray)
-            {
+            {TRACE_IT(35655);
                 uint loopCount = this->GetLoopCount();
                 for(uint i = 0; i < loopCount; i++)
                 {
@@ -3601,10 +3601,10 @@ namespace Js
         }
         template<class Fn>
         void MapLoopHeadersWithLock(Fn fn) const
-        {
+        {TRACE_IT(35656);
             Js::LoopHeader* loopHeaderArray = this->GetLoopHeaderArrayWithLock();
             if (loopHeaderArray)
-            {
+            {TRACE_IT(35657);
                 uint loopCount = this->GetLoopCount();
                 for (uint i = 0; i < loopCount; i++)
                 {
@@ -3615,15 +3615,15 @@ namespace Js
 
         template<class Fn>
         bool MapLoopHeadersUntil(Fn fn) const
-        {
+        {TRACE_IT(35658);
             Js::LoopHeader* loopHeaderArray = this->GetLoopHeaderArray();
             if (loopHeaderArray)
-            {
+            {TRACE_IT(35659);
                 uint loopCount = this->GetLoopCount();
                 for (uint i = 0; i < loopCount; i++)
                 {
                     if (fn(i, &loopHeaderArray[i]))
-                    {
+                    {TRACE_IT(35660);
                         return true;
                     }
                 }
@@ -3634,9 +3634,9 @@ namespace Js
 
         template <class Fn>
         void MapEntryPoints(Fn fn) const
-        {
+        {TRACE_IT(35661);
             if (this->entryPoints)
-            {
+            {TRACE_IT(35662);
                 this->entryPoints->Map([&fn] (int index, RecyclerWeakReference<FunctionEntryPointInfo>* entryPoint) {
                     FunctionEntryPointInfo* strongRef = entryPoint->Get();
                     if (strongRef)
@@ -3649,13 +3649,13 @@ namespace Js
 
         template <class Fn>
         bool MapEntryPointsUntil(Fn fn) const
-        {
+        {TRACE_IT(35663);
             if (this->entryPoints)
-            {
+            {TRACE_IT(35664);
                 return this->entryPoints->MapUntil([&fn](int index, RecyclerWeakReference<FunctionEntryPointInfo>* entryPoint) {
                     FunctionEntryPointInfo* strongRef = entryPoint->Get();
                     if (strongRef)
-                    {
+                    {TRACE_IT(35665);
                         return fn(index, strongRef);
                     }
                     return false;
@@ -3665,21 +3665,21 @@ namespace Js
         }
 
         bool DoJITLoopBody() const
-        {
+        {TRACE_IT(35666);
             return IsJitLoopBodyPhaseEnabled() && this->GetLoopHeaderArrayWithLock() != nullptr;
         }
 
         bool ForceJITLoopBody() const
-        {
+        {TRACE_IT(35667);
             return IsJitLoopBodyPhaseForced() && !this->GetHasTry();
         }
 
         bool IsGeneratorAndJitIsDisabled()
-        {
+        {TRACE_IT(35668);
             return this->IsCoroutine() && !(CONFIG_ISENABLED(Js::JitES6GeneratorsFlag) && !this->GetHasTry());
         }
 
-        FunctionBodyFlags * GetAddressOfFlags() { return &this->flags; }
+        FunctionBodyFlags * GetAddressOfFlags() {TRACE_IT(35669); return &this->flags; }
         Js::RegSlot GetRestParamRegSlot();
 
     public:
@@ -3702,10 +3702,10 @@ namespace Js
 
     class AutoRestoreFunctionInfo {
     public:
-        AutoRestoreFunctionInfo(ParseableFunctionInfo *pfi, const JavascriptMethod originalEntryPoint) : pfi(pfi), funcBody(nullptr), originalEntryPoint(originalEntryPoint) {}
-        ~AutoRestoreFunctionInfo() {
+        AutoRestoreFunctionInfo(ParseableFunctionInfo *pfi, const JavascriptMethod originalEntryPoint) : pfi(pfi), funcBody(nullptr), originalEntryPoint(originalEntryPoint) {TRACE_IT(35670);}
+        ~AutoRestoreFunctionInfo() {TRACE_IT(35671);
             if (this->pfi != nullptr && this->pfi->GetFunctionInfo()->GetFunctionProxy() != this->pfi)
-            {
+            {TRACE_IT(35672);
                 FunctionInfo *functionInfo = this->pfi->GetFunctionInfo();
                 functionInfo->SetAttributes(
                     (FunctionInfo::Attributes)(functionInfo->GetAttributes() | FunctionInfo::Attributes::DeferredParse));
@@ -3715,7 +3715,7 @@ namespace Js
 
             Assert(this->pfi == nullptr || (this->pfi->GetFunctionInfo()->GetFunctionProxy() == this->pfi && !this->pfi->IsFunctionBody()));
         }
-        void Clear() { pfi = nullptr; funcBody = nullptr; }
+        void Clear() {TRACE_IT(35673); pfi = nullptr; funcBody = nullptr; }
 
         ParseableFunctionInfo * pfi;
         FunctionBody          * funcBody;
@@ -3737,64 +3737,64 @@ namespace Js
         static uint const FirstSlotIndex = 2;
     public:
         ScopeSlots(Var* slotArray) : slotArray((Field(Var)*)slotArray)
-        {
+        {TRACE_IT(35674);
         }
 
         bool IsFunctionScopeSlotArray()
-        {
+        {TRACE_IT(35675);
             return FunctionInfo::Is(slotArray[ScopeMetadataSlotIndex]);
         }
 
         FunctionInfo* GetFunctionInfo()
-        {
+        {TRACE_IT(35676);
             Assert(IsFunctionScopeSlotArray());
             return (FunctionInfo*)PointerValue(slotArray[ScopeMetadataSlotIndex]);
         }
 
         DebuggerScope* GetDebuggerScope()
-        {
+        {TRACE_IT(35677);
             Assert(!IsFunctionScopeSlotArray());
             return (DebuggerScope*)PointerValue(slotArray[ScopeMetadataSlotIndex]);
         }
 
         Var GetScopeMetadataRaw() const
-        {
+        {TRACE_IT(35678);
             return slotArray[ScopeMetadataSlotIndex];
         }
 
         void SetScopeMetadata(Var scopeMetadataObj)
-        {
+        {TRACE_IT(35679);
             slotArray[ScopeMetadataSlotIndex] = scopeMetadataObj;
         }
 
         uint GetCount() const
-        {
+        {TRACE_IT(35680);
             return ::Math::PointerCastToIntegralTruncate<uint>(slotArray[EncodedSlotCountSlotIndex]);
         }
 
         void SetCount(uint count)
-        {
+        {TRACE_IT(35681);
             slotArray[EncodedSlotCountSlotIndex] = (Var)min<uint>(count, ScopeSlots::MaxEncodedSlotCount);
         }
 
         Var Get(uint i) const
-        {
+        {TRACE_IT(35682);
             Assert(i < GetCount());
             return slotArray[i + FirstSlotIndex];
         }
 
         void Set(uint i, Var value)
-        {
+        {TRACE_IT(35683);
             Assert(i < GetCount());
             slotArray[i + FirstSlotIndex] = value;
         }
 
         template<class Fn>
         void Map(Fn fn)
-        {
+        {TRACE_IT(35684);
             uint count = GetCount();
             for(uint i = 0; i < count; i++)
-            {
+            {TRACE_IT(35685);
                 fn(GetSlot[i]);
             }
         }
@@ -3805,10 +3805,10 @@ namespace Js
         // a slot array.
         // CONSIDER: Use TaggedInt instead of range of slot count to distinguish slot array with others.
         static bool Is(void* object)
-        {
+        {TRACE_IT(35686);
             size_t slotCount = *((size_t*)object);
             if(slotCount <= MaxEncodedSlotCount)
-            {
+            {TRACE_IT(35687);
                 return true;
             }
             return false;
@@ -3841,19 +3841,19 @@ namespace Js
         {
         }
 
-        void SetTag(bool tag) { this->tag = tag; }
+        void SetTag(bool tag) {TRACE_IT(35688); this->tag = tag; }
         void SetItem(uint index, void* item);
         void *GetItem(uint index);
-        uint16 GetLength() const { return length; }
-        void SetLength(uint16 len) { this->length = len; }
+        uint16 GetLength() const {TRACE_IT(35689); return length; }
+        void SetLength(uint16 len) {TRACE_IT(35690); this->length = len; }
 
-        bool   GetStrictMode() const { return strictMode; }
-        void   SetStrictMode(bool flag) { this->strictMode = flag; }
+        bool   GetStrictMode() const {TRACE_IT(35691); return strictMode; }
+        void   SetStrictMode(bool flag) {TRACE_IT(35692); this->strictMode = flag; }
 
-        void** GetDataAddress() { return (void**)&this->scopes; }
-        static uint32 GetOffsetOfStrictMode() { return offsetof(FrameDisplay, strictMode); }
-        static uint32 GetOffsetOfLength() { return offsetof(FrameDisplay, length); }
-        static uint32 GetOffsetOfScopes() { return offsetof(FrameDisplay, scopes); }
+        void** GetDataAddress() {TRACE_IT(35693); return (void**)&this->scopes; }
+        static uint32 GetOffsetOfStrictMode() {TRACE_IT(35694); return offsetof(FrameDisplay, strictMode); }
+        static uint32 GetOffsetOfLength() {TRACE_IT(35695); return offsetof(FrameDisplay, length); }
+        static uint32 GetOffsetOfScopes() {TRACE_IT(35696); return offsetof(FrameDisplay, scopes); }
         static ScopeType GetScopeType(void* scope);
 
     private:
@@ -3875,7 +3875,7 @@ namespace Js
         StatementData()
             : sourceBegin(0),
             bytecodeBegin(0)
-        {
+        {TRACE_IT(35697);
         }
 
         int sourceBegin;
@@ -3896,13 +3896,13 @@ namespace Js
         ushort bytecodeBegin;
 
         SmallSpan(uint32 val)
-        {
+        {TRACE_IT(35698);
             sourceBegin = (ushort)(val >> 16);
             bytecodeBegin = (ushort)(val & 0x0000FFFF);
         }
 
         operator unsigned int()
-        {
+        {TRACE_IT(35699);
             return (uint32)sourceBegin << 16 | bytecodeBegin;
         }
     };
@@ -3919,7 +3919,7 @@ namespace Js
             accumulatedSourceBegin(0),
             accumulatedBytecodeBegin(0),
             indexOfActualOffset(0)
-        {
+        {TRACE_IT(35700);
 
         }
 
@@ -3965,20 +3965,20 @@ namespace Js
         SmallSpanSequence();
 
         ~SmallSpanSequence()
-        {
+        {TRACE_IT(35701);
             Cleanup();
         }
 
         void Cleanup()
-        {
+        {TRACE_IT(35702);
             if (pStatementBuffer != nullptr)
-            {
+            {TRACE_IT(35703);
                 HeapDelete(pStatementBuffer);
                 pStatementBuffer = nullptr;
             }
 
             if (pActualOffsetList != nullptr)
-            {
+            {TRACE_IT(35704);
                 HeapDelete(pActualOffsetList);
                 pActualOffsetList = nullptr;
             }
@@ -3993,7 +3993,7 @@ namespace Js
         // Reset the accumulator's state and value.
         void Reset(SmallSpanSequenceIter &iter);
 
-        uint32 Count() const { return pStatementBuffer ? pStatementBuffer->Count() : 0; }
+        uint32 Count() const {TRACE_IT(35705); return pStatementBuffer ? pStatementBuffer->Count() : 0; }
 
         BOOL Item(int index, SmallSpanSequenceIter &iter, StatementData &data);
 
@@ -4047,19 +4047,19 @@ namespace Js
         int byteCodeInitializationOffset;   // The byte code offset used when comparing let/const variables for dead zone exclusion debugger side.
         DebuggerScopePropertyFlags flags;   // Flags for the property.
 
-        bool IsConst() const { return (flags & DebuggerScopePropertyFlags_Const) != 0; }
-        bool IsCatchObject() const { return (flags & DebuggerScopePropertyFlags_CatchObject) != 0; }
-        bool IsWithObject() const { return (flags & DebuggerScopePropertyFlags_WithObject) != 0; }
-        bool IsForInOrForOfCollectionScope() const { return (flags & DebuggerScopePropertyFlags_ForInOrOfCollection) != 0; }
+        bool IsConst() const {TRACE_IT(35706); return (flags & DebuggerScopePropertyFlags_Const) != 0; }
+        bool IsCatchObject() const {TRACE_IT(35707); return (flags & DebuggerScopePropertyFlags_CatchObject) != 0; }
+        bool IsWithObject() const {TRACE_IT(35708); return (flags & DebuggerScopePropertyFlags_WithObject) != 0; }
+        bool IsForInOrForOfCollectionScope() const {TRACE_IT(35709); return (flags & DebuggerScopePropertyFlags_ForInOrOfCollection) != 0; }
 
     public:
         // Determines if the current property is in a dead zone.  Note that the property makes
         // no assumptions about what scope it's in, that is determined by DebuggerScope.
         // byteCodeOffset - The current offset in bytecode that the debugger is at.
         bool IsInDeadZone(int byteCodeOffset) const
-        {
+        {TRACE_IT(35710);
             if (IsForInOrForOfCollectionScope())
-            {
+            {TRACE_IT(35711);
                 // These are let/const loop variables of a for-in or for-of loop
                 // in the scope for the collection expression.  They are always
                 // in TDZ in this scope, never initialized by the bytecode.
@@ -4089,7 +4089,7 @@ namespace Js
               siblingScope(nullptr),
               scopeLocation(scopeLocation),
               recycler(recycler)
-        {
+        {TRACE_IT(35712);
             this->range.begin = rangeBegin;
             this->range.end = -1;
         }
@@ -4103,7 +4103,7 @@ namespace Js
         bool Contains(Js::PropertyId propertyId, RegSlot location) const;
         bool IsBlockScope() const;
         bool IsBlockObjectScope() const
-        {
+        {TRACE_IT(35713);
             return this->scopeType == Js::DiagBlockScopeInObject;
         }
         bool IsCatchScope() const;
@@ -4113,21 +4113,21 @@ namespace Js
         bool HasProperties() const;
         bool IsAncestorOf(const DebuggerScope* potentialChildScope);
         bool AreAllPropertiesInDeadZone(int byteCodeOffset) const;
-        RegSlot GetLocation() const { Assert(IsOwnScope()); return scopeLocation; }
-        bool IsOwnScope() const { return scopeLocation != Js::Constants::NoRegister; }
+        RegSlot GetLocation() const {TRACE_IT(35714); Assert(IsOwnScope()); return scopeLocation; }
+        bool IsOwnScope() const {TRACE_IT(35715); return scopeLocation != Js::Constants::NoRegister; }
         bool TryGetProperty(Js::PropertyId propertyId, RegSlot location, DebuggerScopeProperty* outScopeProperty) const;
         bool TryGetValidProperty(Js::PropertyId propertyId, RegSlot location, int offset, DebuggerScopeProperty* outScopeProperty, bool* isInDeadZone) const;
         bool UpdatePropertyInitializationOffset(RegSlot location, Js::PropertyId propertyId, int byteCodeOffset, bool isFunctionDeclaration = false);
         void UpdateDueToByteCodeRegeneration(DiagExtraScopesType scopeType, int start, RegSlot scopeLocation);
         void UpdatePropertiesInForInOrOfCollectionScope();
 
-        void SetParentScope(DebuggerScope* parentScope) { this->parentScope = parentScope; }
-        DebuggerScope* GetParentScope() const { return parentScope; }
+        void SetParentScope(DebuggerScope* parentScope) {TRACE_IT(35716); this->parentScope = parentScope; }
+        DebuggerScope* GetParentScope() const {TRACE_IT(35717); return parentScope; }
         DebuggerScope* FindCommonAncestor(DebuggerScope* debuggerScope);
-        int GetEnd() const { return range.end; }
-        int GetStart() const { return range.begin; }
+        int GetEnd() const {TRACE_IT(35718); return range.end; }
+        int GetStart() const {TRACE_IT(35719); return range.begin; }
 
-        void SetScopeLocation(RegSlot scopeLocation) { this->scopeLocation = scopeLocation; }
+        void SetScopeLocation(RegSlot scopeLocation) {TRACE_IT(35720); this->scopeLocation = scopeLocation; }
 
         void SetBegin(int begin);
         void SetEnd(int end);
@@ -4169,7 +4169,7 @@ namespace Js
 
         ScopeObjectChain(Recycler* recycler)
             : pScopeChain(nullptr)
-        {
+        {TRACE_IT(35721);
             pScopeChain = RecyclerNew(recycler, ScopeObjectChainList, recycler);
         }
 

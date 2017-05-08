@@ -42,7 +42,7 @@ static const unsigned int crc_32_tab[] =
 };
 
 static unsigned int CalculateCRC32(unsigned int bufferCRC, size_t data)
-{
+{TRACE_IT(1463);
     /* update running CRC calculation with contents of a buffer */
 
     bufferCRC = bufferCRC ^ 0xffffffffL;

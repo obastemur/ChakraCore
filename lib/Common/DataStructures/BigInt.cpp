@@ -17,7 +17,7 @@ namespace Js
 
 #if DBG
     void BigInt::AssertValid(bool fCheckVal)
-    {
+    {TRACE_IT(20817);
         Assert(m_cluMax >= kcluMaxInit);
         Assert(m_prglu != 0);
         Assert(m_clu >= 0 && m_clu <= m_cluMax);
@@ -27,7 +27,7 @@ namespace Js
 #endif
 
     BigInt::BigInt(void)
-    {
+    {TRACE_IT(20818);
         m_cluMax = kcluMaxInit;
         m_clu = 0;
         m_prglu = m_rgluInit;
@@ -35,25 +35,25 @@ namespace Js
     }
 
     BigInt::~BigInt(void)
-    {
+    {TRACE_IT(20819);
         if (m_prglu != m_rgluInit)
             free(m_prglu);
     }
 
     int32 BigInt::Clu(void)
-    {
+    {TRACE_IT(20820);
         return m_clu;
     }
 
     uint32 BigInt::Lu(int32 ilu)
-    {
+    {TRACE_IT(20821);
         AssertBi(this);
         Assert(ilu < m_clu);
         return m_prglu[ilu];
     }
 
     bool BigInt::FResize(int32 clu)
-    {
+    {TRACE_IT(20822);
         AssertBiNoVal(this);
 
         uint32 *prglu;
@@ -63,7 +63,7 @@ namespace Js
 
         clu += clu;
         if (m_prglu == m_rgluInit)
-        {
+        {TRACE_IT(20823);
             if ((INT_MAX / sizeof(uint32) < clu) || (NULL == (prglu = (uint32 *)malloc(clu * sizeof(uint32)))))
                 return false;
             if (0 < m_clu)
@@ -80,7 +80,7 @@ namespace Js
     }
 
     bool BigInt::FInitFromRglu(uint32 *prglu, int32 clu)
-    {
+    {TRACE_IT(20824);
         AssertBi(this);
         Assert(clu >= 0);
         Assert(prglu != 0);
@@ -96,7 +96,7 @@ namespace Js
     }
 
     bool BigInt::FInitFromBigint(BigInt *pbiSrc)
-    {
+    {TRACE_IT(20825);
         AssertBi(this);
         AssertBi(pbiSrc);
         Assert(this != pbiSrc);
@@ -106,7 +106,7 @@ namespace Js
 
     template <typename EncodedChar>
     bool BigInt::FInitFromDigits(const EncodedChar *prgch, int32 cch, int32 *pcchDig)
-    {
+    {TRACE_IT(20826);
         AssertBi(this);
         Assert(cch >= 0);
         Assert(prgch != 0);
@@ -124,9 +124,9 @@ namespace Js
         luAdd = 0;
         luMul = 1;
         for (*pcchDig = cch; prgch < pchLim; prgch++)
-        {
+        {TRACE_IT(20827);
             if (*prgch == '.')
-            {
+            {TRACE_IT(20828);
                 (*pcchDig)--;
                 continue;
             }
@@ -148,7 +148,7 @@ namespace Js
     }
 
     bool BigInt::FMulAdd(uint32 luMul, uint32 luAdd)
-    {
+    {TRACE_IT(20829);
         AssertBi(this);
         Assert(luMul != 0);
 
@@ -157,7 +157,7 @@ namespace Js
         uint32 *pluLim = plu + m_clu;
 
         for (; plu < pluLim; plu++)
-        {
+        {TRACE_IT(20830);
             *plu = NumberUtilities::MulLu(*plu, luMul, &luT);
             if (luAdd)
                 luT += NumberUtilities::AddLu(plu, luAdd);
@@ -175,7 +175,7 @@ LDone:
     }
 
     bool BigInt::FMulPow5(int32 c5)
-    {
+    {TRACE_IT(20831);
         AssertBi(this);
         Assert(c5 >= 0);
 
@@ -193,7 +193,7 @@ LDone:
             AssertVerify(FMulAdd(k5to13, 0));
 
         if (c5 > 0)
-        {
+        {TRACE_IT(20832);
             for (luT = 5; --c5 > 0; )
                 luT *= 5;
             AssertVerify(FMulAdd(luT, 0));
@@ -204,7 +204,7 @@ LDone:
     }
 
     bool BigInt::FShiftLeft(int32 cbit)
-    {
+    {TRACE_IT(20833);
         AssertBi(this);
         Assert(cbit >= 0);
 
@@ -219,12 +219,12 @@ LDone:
         cbit &= 0x001F;
 
         if (cbit > 0)
-        {
+        {TRACE_IT(20834);
             ilu = m_clu - 1;
             luExtra = m_prglu[ilu] >> (32 - cbit);
 
             for (; ; ilu--)
-            {
+            {TRACE_IT(20835);
                 m_prglu[ilu] <<= cbit;
                 if (0 == ilu)
                     break;
@@ -235,14 +235,14 @@ LDone:
             luExtra = 0;
 
         if (clu > 0 || 0 != luExtra)
-        {
+        {TRACE_IT(20836);
             // Make sure there's enough room.
             ilu = m_clu + (0 != luExtra) + clu;
             if (ilu > m_cluMax && !FResize(ilu))
                 return false;
 
             if (clu > 0)
-            {
+            {TRACE_IT(20837);
                 // Shift the uint32s.
                 memmove(m_prglu + clu, m_prglu, m_clu * sizeof(uint32));
                 memset(m_prglu, 0, clu * sizeof(uint32));
@@ -259,12 +259,12 @@ LDone:
     }
 
     void BigInt::ShiftLusRight(int32 clu)
-    {
+    {TRACE_IT(20838);
         AssertBi(this);
         Assert(clu >= 0);
 
         if (clu >= m_clu)
-        {
+        {TRACE_IT(20839);
             m_clu = 0;
             AssertBi(this);
             return;
@@ -279,7 +279,7 @@ LDone:
     }
 
     void BigInt::ShiftRight(int32 cbit)
-    {
+    {TRACE_IT(20840);
         AssertBi(this);
         Assert(cbit >= 0);
 
@@ -291,16 +291,16 @@ LDone:
             ShiftLusRight(clu);
 
         if (cbit == 0 || m_clu == 0)
-        {
+        {TRACE_IT(20841);
             AssertBi(this);
             return;
         }
 
         for (ilu = 0; ; )
-        {
+        {TRACE_IT(20842);
             m_prglu[ilu] >>= cbit;
             if (++ilu >= m_clu)
-            {
+            {TRACE_IT(20843);
             // Last one.
                 if (0 == m_prglu[ilu - 1])
                     m_clu--;
@@ -313,7 +313,7 @@ LDone:
     }
 
     int BigInt::Compare(BigInt *pbi)
-    {
+    {TRACE_IT(20844);
         AssertBi(this);
         AssertBi(pbi);
 
@@ -328,7 +328,7 @@ LDone:
 
 #pragma prefast(suppress:__WARNING_LOOP_ONLY_EXECUTED_ONCE,"noise")
         for (ilu = m_clu - 1; m_prglu[ilu] == pbi->m_prglu[ilu]; ilu--)
-        {
+        {TRACE_IT(20845);
             if (0 == ilu)
                 return 0;
         }
@@ -339,7 +339,7 @@ LDone:
     }
 
     bool BigInt::FAdd(BigInt *pbi)
-    {
+    {TRACE_IT(20846);
         AssertBi(this);
         AssertBi(pbi);
         Assert(this != pbi);
@@ -349,7 +349,7 @@ LDone:
         int wCarry;
 
         if ((cluMax = m_clu) < (cluMin = pbi->m_clu))
-        {
+        {TRACE_IT(20847);
             cluMax = pbi->m_clu;
             cluMin = m_clu;
             if (cluMax > m_cluMax && !FResize(cluMax + 1))
@@ -358,16 +358,16 @@ LDone:
 
         wCarry = 0;
         for (ilu = 0; ilu < cluMin; ilu++)
-        {
+        {TRACE_IT(20848);
             if (0 != wCarry)
                 wCarry = NumberUtilities::AddLu(&m_prglu[ilu], wCarry);
             wCarry += NumberUtilities::AddLu(&m_prglu[ilu], pbi->m_prglu[ilu]);
         }
 
         if (m_clu < pbi->m_clu)
-        {
+        {TRACE_IT(20849);
             for (; ilu < cluMax; ilu++)
-            {
+            {TRACE_IT(20850);
                 m_prglu[ilu] = pbi->m_prglu[ilu];
                 if (0 != wCarry)
                     wCarry = NumberUtilities::AddLu(&m_prglu[ilu], wCarry);
@@ -375,13 +375,13 @@ LDone:
             m_clu = cluMax;
         }
         else
-        {
+        {TRACE_IT(20851);
             for (; 0 != wCarry && ilu < cluMax; ilu++)
                 wCarry = NumberUtilities::AddLu(&m_prglu[ilu], wCarry);
         }
 
         if (0 != wCarry)
-        {
+        {TRACE_IT(20852);
             if (m_clu >= m_cluMax && !FResize(m_clu + 1))
                 return false;
             m_prglu[m_clu++] = wCarry;
@@ -392,7 +392,7 @@ LDone:
     }
 
     void BigInt::Subtract(BigInt *pbi)
-    {
+    {TRACE_IT(20853);
         AssertBi(this);
         AssertBi(pbi);
         Assert(this != pbi);
@@ -406,7 +406,7 @@ LDone:
 
         wCarry = 1;
         for (ilu = 0; (ilu < pbi->m_clu) && (ilu < pbi->m_cluMax); ilu++)
-        {
+        {TRACE_IT(20854);
             Assert(wCarry == 0 || wCarry == 1);
             luT = pbi->m_prglu[ilu];
 
@@ -426,14 +426,14 @@ LDone:
             wCarry = NumberUtilities::AddLu(&m_prglu[ilu], 0xFFFFFFFF);
 
         if (0 == wCarry)
-        {
+        {TRACE_IT(20855);
 LNegative:
             // pbi was bigger than this.
             AssertMsg(false, "Who's subtracting to negative?");
             m_clu = 0;
         }
         else if (ilu == m_clu)
-        {
+        {TRACE_IT(20856);
             // Trim off zeros.
             while (--ilu >= 0 && 0 == m_prglu[ilu])
                 ;
@@ -444,7 +444,7 @@ LNegative:
     }
 
     int BigInt::DivRem(BigInt *pbi)
-    {
+    {TRACE_IT(20857);
         AssertBi(this);
         AssertBi(pbi);
         Assert(this != pbi);
@@ -476,7 +476,7 @@ LNegative:
             luHi = 0;
             wCarry = 1;
             for (ilu = 0; ilu < clu; ilu++)
-            {
+            {TRACE_IT(20858);
                 Assert(wCarry == 0 || wCarry == 1);
 
                 // Compute the product.
@@ -497,7 +497,7 @@ LNegative:
         }
 
         if (wQuo < 9 && (wT = Compare(pbi)) >= 0)
-        {
+        {TRACE_IT(20859);
             // Quotient was off too small (by one).
             wQuo++;
             if (wT == 0)
@@ -511,7 +511,7 @@ LNegative:
     }
 
     double BigInt::GetDbl(void)
-    {
+    {TRACE_IT(20860);
         double dbl;
         uint32 luHi, luLo;
         uint32 lu1, lu2, lu3;
@@ -532,7 +532,7 @@ LNegative:
 
         Assert(3 <= m_clu);
         if (m_clu > 32)
-        {
+        {TRACE_IT(20861);
             // Result is infinite.
             NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             NumberUtilities::LuLoDbl(dbl) = 0;
@@ -546,12 +546,12 @@ LNegative:
         cbit = 31 - NumberUtilities::CbitZeroLeft(lu1);
 
         if (cbit == 0)
-        {
+        {TRACE_IT(20862);
             luHi = lu2;
             luLo = lu3;
         }
         else
-        {
+        {TRACE_IT(20863);
             luHi = (lu1 << (32 - cbit)) | (lu2 >> cbit);
             // Or 1 if there are any remaining nonzero bits in lu3, so we take
             // them into account when rounding.
@@ -567,19 +567,19 @@ LNegative:
 
         // Do IEEE rounding.
         if (luLo & 0x0800)
-        {
+        {TRACE_IT(20864);
             if ((luLo & 0x07FF) || (NumberUtilities::LuLoDbl(dbl) & 1))
-            {
+            {TRACE_IT(20865);
                 if (0 == ++NumberUtilities::LuLoDbl(dbl))
                     ++NumberUtilities::LuHiDbl(dbl);
             }
             else
-            {
+            {TRACE_IT(20866);
                 // If there are any non-zero bits in m_prglu from 0 to m_clu - 4, round up.
                 for (ilu = m_clu - 4; ilu >= 0; ilu--)
-                {
+                {TRACE_IT(20867);
                     if (0 != m_prglu[ilu])
-                    {
+                    {TRACE_IT(20868);
                         if (0 == ++NumberUtilities::LuLoDbl(dbl))
                             ++NumberUtilities::LuHiDbl(dbl);
                         break;

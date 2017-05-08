@@ -33,17 +33,17 @@ public:
     }
 
     bool operator!=(const AddPropertyCacheBucket& bucket) const
-    {
+    {TRACE_IT(2344);
         return this->initialType != bucket.initialType || this->finalType != bucket.finalType;
     }
 
     bool operator==(const AddPropertyCacheBucket& bucket) const
-    {
+    {TRACE_IT(2345);
         return this->initialType == bucket.initialType && this->finalType == bucket.finalType;
     }
 
     void Copy(AddPropertyCacheBucket *pNew) const
-    {
+    {TRACE_IT(2346);
         pNew->initialType = this->initialType;
         pNew->finalType = this->finalType;
 #if DBG
@@ -52,10 +52,10 @@ public:
 #endif
     }
 
-    JITTypeHolder GetInitialType() const { return this->initialType; }
-    JITTypeHolder GetFinalType() const { return this->finalType; }
-    void SetInitialType(JITTypeHolder type) { this->initialType = type; }
-    void SetFinalType(JITTypeHolder type)  { this->finalType = type; }
+    JITTypeHolder GetInitialType() const {TRACE_IT(2347); return this->initialType; }
+    JITTypeHolder GetFinalType() const {TRACE_IT(2348); return this->finalType; }
+    void SetInitialType(JITTypeHolder type) {TRACE_IT(2349); this->initialType = type; }
+    void SetFinalType(JITTypeHolder type)  {TRACE_IT(2350); this->finalType = type; }
 
 #if DBG_DUMP
     void Dump() const;
@@ -74,26 +74,26 @@ private:
     JITTypeHolder                    monoGuardType;
 
 public:
-    ObjTypeGuardBucket() : guardedPropertyOps(nullptr), monoGuardType(nullptr) {}
+    ObjTypeGuardBucket() : guardedPropertyOps(nullptr), monoGuardType(nullptr) {TRACE_IT(2351);}
 
     ObjTypeGuardBucket(BVSparse<JitArenaAllocator>* guardedPropertyOps) : monoGuardType(nullptr)
-    {
+    {TRACE_IT(2352);
         this->guardedPropertyOps = (guardedPropertyOps != nullptr ? guardedPropertyOps->CopyNew() : nullptr);
     }
 
     void Copy(ObjTypeGuardBucket *pNew) const
-    {
+    {TRACE_IT(2353);
         pNew->guardedPropertyOps = this->guardedPropertyOps ? this->guardedPropertyOps->CopyNew() : nullptr;
         pNew->monoGuardType = this->monoGuardType;
     }
 
-    BVSparse<JitArenaAllocator> *GetGuardedPropertyOps() const  { return this->guardedPropertyOps; }
-    void SetGuardedPropertyOps(BVSparse<JitArenaAllocator> *guardedPropertyOps) { this->guardedPropertyOps = guardedPropertyOps; }
-    void AddToGuardedPropertyOps(uint propertyOpId) { Assert(this->guardedPropertyOps != nullptr); this->guardedPropertyOps->Set(propertyOpId); }
+    BVSparse<JitArenaAllocator> *GetGuardedPropertyOps() const  {TRACE_IT(2354); return this->guardedPropertyOps; }
+    void SetGuardedPropertyOps(BVSparse<JitArenaAllocator> *guardedPropertyOps) {TRACE_IT(2355); this->guardedPropertyOps = guardedPropertyOps; }
+    void AddToGuardedPropertyOps(uint propertyOpId) {TRACE_IT(2356); Assert(this->guardedPropertyOps != nullptr); this->guardedPropertyOps->Set(propertyOpId); }
 
-    bool NeedsMonoCheck() const { return this->monoGuardType != nullptr; }
-    void SetMonoGuardType(JITTypeHolder type) { this->monoGuardType = type; }
-    JITTypeHolder GetMonoGuardType() const { return this->monoGuardType; }
+    bool NeedsMonoCheck() const {TRACE_IT(2357); return this->monoGuardType != nullptr; }
+    void SetMonoGuardType(JITTypeHolder type) {TRACE_IT(2358); this->monoGuardType = type; }
+    JITTypeHolder GetMonoGuardType() const {TRACE_IT(2359); return this->monoGuardType; }
 
 #if DBG_DUMP
     void Dump() const;
@@ -106,18 +106,18 @@ private:
     BVSparse<JitArenaAllocator>* writeGuards;
 
 public:
-    ObjWriteGuardBucket() : writeGuards(nullptr) {}
+    ObjWriteGuardBucket() : writeGuards(nullptr) {TRACE_IT(2360);}
 
-    ObjWriteGuardBucket(BVSparse<JitArenaAllocator>* writeGuards) { this->writeGuards = (writeGuards != nullptr ? writeGuards->CopyNew() : nullptr); }
+    ObjWriteGuardBucket(BVSparse<JitArenaAllocator>* writeGuards) {TRACE_IT(2361); this->writeGuards = (writeGuards != nullptr ? writeGuards->CopyNew() : nullptr); }
 
     void Copy(ObjWriteGuardBucket *pNew) const
-    {
+    {TRACE_IT(2362);
         pNew->writeGuards = this->writeGuards ? this->writeGuards->CopyNew() : nullptr;
     }
 
-    BVSparse<JitArenaAllocator> *GetWriteGuards() const  { return this->writeGuards; }
-    void SetWriteGuards(BVSparse<JitArenaAllocator> *writeGuards) { this->writeGuards = writeGuards; }
-    void AddToWriteGuards(uint writeGuardId) { Assert(this->writeGuards != nullptr); this->writeGuards->Set(writeGuardId); }
+    BVSparse<JitArenaAllocator> *GetWriteGuards() const  {TRACE_IT(2363); return this->writeGuards; }
+    void SetWriteGuards(BVSparse<JitArenaAllocator> *writeGuards) {TRACE_IT(2364); this->writeGuards = writeGuards; }
+    void AddToWriteGuards(uint writeGuardId) {TRACE_IT(2365); Assert(this->writeGuards != nullptr); this->writeGuards->Set(writeGuardId); }
 
 #if DBG_DUMP
     void Dump() const;
@@ -142,7 +142,7 @@ public:
         hasBackwardPassInfo(false),
         hasLoop(false),
         implicitCallFlags(Js::ImplicitCall_HasNoInfo)
-    {
+    {TRACE_IT(2366);
     }
 
     void Build(void);
@@ -162,7 +162,7 @@ public:
     IR::Instr *  RemoveInstr(IR::Instr *instr, GlobOpt * globOpt);
     void         RemoveBlock(BasicBlock *block, GlobOpt * globOpt = nullptr, bool tailDuping = false);
     BasicBlock * SetBlockTargetAndLoopFlag(IR::LabelInstr * labelInstr);
-    Func*        GetFunc() { return func;};
+    Func*        GetFunc() {TRACE_IT(2367); return func;};
     static void  SafeRemoveInstr(IR::Instr *instr);
     void         SortLoopLists();
     FlowEdge *   FindEdge(BasicBlock *predBlock, BasicBlock *succBlock);
@@ -232,68 +232,68 @@ public:
     void InvertBranch(IR::BranchInstr *branch);
 
     IR::Instr * GetFirstInstr(void) const
-    {
+    {TRACE_IT(2368);
         return firstInstr;
     }
 
     void SetFirstInstr(IR::Instr * instr)
-    {
+    {TRACE_IT(2369);
         firstInstr = instr;
     }
 
     IR::Instr * GetLastInstr(void)
-    {
+    {TRACE_IT(2370);
         BasicBlock *blNext = this->next;
         if (blNext)
-        {
+        {TRACE_IT(2371);
             return blNext->firstInstr->m_prev;
         }
         else
-        {
+        {TRACE_IT(2372);
             return this->func->m_exitInstr;
         }
     }
 
     void SetLastInstr(IR::Instr * instr)
-    {
+    {TRACE_IT(2373);
         // Intentionally empty
     }
 
     SListBaseCounted<FlowEdge *> * GetPredList(void)
-    {
+    {TRACE_IT(2374);
         return &predList;
     }
 
     SListBaseCounted<FlowEdge *> * GetSuccList(void)
-    {
+    {TRACE_IT(2375);
         return &succList;
     }
 
     SListBaseCounted<FlowEdge *> * GetDeadPredList(void)
-    {
+    {TRACE_IT(2376);
         return &deadPredList;
     }
 
     SListBaseCounted<FlowEdge *> * GetDeadSuccList(void)
-    {
+    {TRACE_IT(2377);
         return &deadSuccList;
     }
 
     unsigned int GetBlockNum(void) const
-    {
+    {TRACE_IT(2378);
         return number;
     }
 
     void SetBlockNum(unsigned int num)
-    {
+    {TRACE_IT(2379);
         number = num;
     }
 
     BasicBlock * GetPrev()
-    {
+    {TRACE_IT(2380);
         BasicBlock *block = this;
 
-        do {
+        do {TRACE_IT(2381);
             block = block->prev;
         } while (block->isDeleted);
 
@@ -301,30 +301,30 @@ public:
     }
 
     BasicBlock * GetNext()
-    {
+    {TRACE_IT(2382);
         BasicBlock *block = this;
 
-        do {
+        do {TRACE_IT(2383);
             block = block->next;
         } while (block && block->isDeleted);
 
         return block;
     }
     uint IncrementDataUseCount()
-    {
+    {TRACE_IT(2384);
          return ++this->dataUseCount;
     }
     uint DecrementDataUseCount()
-    {
+    {TRACE_IT(2385);
         Assert(this->dataUseCount != 0);
          return --this->dataUseCount;
     }
     uint GetDataUseCount()
-    {
+    {TRACE_IT(2386);
          return this->dataUseCount;
     }
     void SetDataUseCount(uint count)
-    {
+    {TRACE_IT(2387);
          this->dataUseCount = count;
     }
 
@@ -435,7 +435,7 @@ private:
         intOverflowDoesNotMatterRange(nullptr),
         func(func),
         globOptData(func)
-    {
+    {TRACE_IT(2388);
     }
 
     void RemovePred(BasicBlock *block, FlowGraph * graph, bool doCleanSucc, bool moveToDead = false);
@@ -468,44 +468,44 @@ public:
         predBlock(nullptr),
         succBlock(nullptr),
         pathDependentInfo(nullptr)
-    {
+    {TRACE_IT(2389);
     }
 
     BasicBlock * GetPred(void) const
-    {
+    {TRACE_IT(2390);
         return predBlock;
     }
 
     void SetPred(BasicBlock * block)
-    {
+    {TRACE_IT(2391);
         predBlock = block;
     }
 
     BasicBlock * GetSucc(void) const
-    {
+    {TRACE_IT(2392);
         return succBlock;
     }
 
     void SetSucc(BasicBlock * block)
-    {
+    {TRACE_IT(2393);
         succBlock = block;
     }
 
     PathDependentInfo * GetPathDependentInfo() const
-    {
+    {TRACE_IT(2394);
         return pathDependentInfo;
     }
 
     void SetPathDependentInfo(const PathDependentInfo &info, JitArenaAllocator *const alloc)
-    {
+    {TRACE_IT(2395);
         Assert(info.HasInfo());
 
         if (!pathDependentInfo)
-        {
+        {TRACE_IT(2396);
             pathDependentInfo = JitAnew(alloc, PathDependentInfo, info);
         }
         else
-        {
+        {TRACE_IT(2397);
             *pathDependentInfo = info;
         }
     }
@@ -611,13 +611,13 @@ public:
             MEMSET,
             MEMCOPY
         } type;
-        bool IsMemSet() const { return type == MEMSET; }
-        bool IsMemCopy() const { return type == MEMCOPY; }
+        bool IsMemSet() const {TRACE_IT(2398); return type == MEMSET; }
+        bool IsMemCopy() const {TRACE_IT(2399); return type == MEMCOPY; }
         struct Loop::MemCopyCandidate* AsMemCopy();
         struct Loop::MemSetCandidate* AsMemSet();
         MemOpCandidate(MemOpType type) :
             type(type)
-        {
+        {TRACE_IT(2400);
         }
     };
 
@@ -626,7 +626,7 @@ public:
         BailoutConstantValue constant;
         StackSym* srcSym;
 
-        MemSetCandidate() : MemOpCandidate(MemOpCandidate::MEMSET), srcSym(nullptr) {}
+        MemSetCandidate() : MemOpCandidate(MemOpCandidate::MEMSET), srcSym(nullptr) {TRACE_IT(2401);}
     };
 
     struct MemCopyCandidate : public MemOpCandidate
@@ -634,7 +634,7 @@ public:
         SymID ldBase;
         StackSym* transferSym;
         byte ldCount;
-        MemCopyCandidate() : MemOpCandidate(MemOpCandidate::MEMCOPY) {}
+        MemCopyCandidate() : MemOpCandidate(MemOpCandidate::MEMCOPY) {TRACE_IT(2402);}
     };
 
 #define FOREACH_MEMOP_CANDIDATES_EDITING(data, loop, iterator) FOREACH_SLISTCOUNTED_ENTRY_EDITING(Loop::MemOpCandidate*, data, loop->memOpInfo->candidates, iterator)
@@ -642,7 +642,7 @@ public:
 #define FOREACH_MEMOP_CANDIDATES(data, loop) FOREACH_SLISTCOUNTED_ENTRY(Loop::MemOpCandidate*, data, loop->memOpInfo->candidates)
 #define NEXT_MEMOP_CANDIDATE NEXT_SLISTCOUNTED_ENTRY
 
-#define MEMOP_CANDIDATE_TYPE_CHECK(candidate, data, type) if(candidate->Is ## type()) {Loop:: ## type ## Candidate* data = candidate->As## type();
+#define MEMOP_CANDIDATE_TYPE_CHECK(candidate, data, type) if(candidate->Is ## type()) {TRACE_IT(2403);Loop:: ## type ## Candidate* data = candidate->As## type();
 
 #define FOREACH_MEMCOPY_CANDIDATES_EDITING(data, loop, iterator) {FOREACH_MEMOP_CANDIDATES_EDITING(_memopCandidate, loop, iterator) {MEMOP_CANDIDATE_TYPE_CHECK(_memopCandidate, data, MemCopy)
 #define NEXT_MEMCOPY_CANDIDATE_EDITING }}NEXT_MEMOP_CANDIDATE_EDITING}
@@ -723,29 +723,29 @@ public:
         isLeaf(true),
         isProcessed(false),
         initialValueFieldMap(alloc)
-    {
+    {TRACE_IT(2404);
         this->loopNumber = ++func->loopCount;
     }
 
-    void                SetHeadBlock(BasicBlock *block) { headBlock = block; }
-    BasicBlock *        GetHeadBlock() const { Assert(headBlock == blockList.Head()); return headBlock; }
+    void                SetHeadBlock(BasicBlock *block) {TRACE_IT(2405); headBlock = block; }
+    BasicBlock *        GetHeadBlock() const {TRACE_IT(2406); Assert(headBlock == blockList.Head()); return headBlock; }
     bool                IsDescendentOrSelf(Loop const * loop) const;
 
     void                EnsureMemOpVariablesInitialized();
 
     Js::ImplicitCallFlags GetImplicitCallFlags();
     void                SetImplicitCallFlags(Js::ImplicitCallFlags flags);
-    Js::LoopFlags GetLoopFlags() const { return loopFlags; }
-    void SetLoopFlags(Js::LoopFlags val) { loopFlags = val; }
+    Js::LoopFlags GetLoopFlags() const {TRACE_IT(2407); return loopFlags; }
+    void SetLoopFlags(Js::LoopFlags val) {TRACE_IT(2408); loopFlags = val; }
     bool                CanHoistInvariants();
     bool                CanDoFieldCopyProp();
     bool                CanDoFieldHoist();
     void                SetHasCall();
     IR::LabelInstr *    GetLoopTopInstr() const;
     void                SetLoopTopInstr(IR::LabelInstr * loopTop);
-    Func *              GetFunc() const { return GetLoopTopInstr()->m_func; }
+    Func *              GetFunc() const {TRACE_IT(2409); return GetLoopTopInstr()->m_func; }
 #if DBG_DUMP
-    bool                GetHasCall() const { return hasCall; }
+    bool                GetHasCall() const {TRACE_IT(2410); return hasCall; }
     uint                GetLoopNumber() const;
 #endif
 private:
@@ -808,21 +808,21 @@ struct MemCopyEmitData : public MemOpEmitData
     for (BasicBlock *block = graph->blockList;\
         block != nullptr;\
         block = block->next)\
-    {
+    {TRACE_IT(2411);
 
 #define NEXT_BLOCK_ALL \
     }
 
 #define FOREACH_BLOCK(block, graph)\
     FOREACH_BLOCK_ALL(block, graph) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {TRACE_IT(2412); continue; }
 
 #define NEXT_BLOCK \
     NEXT_BLOCK_ALL
 
 #define FOREACH_BLOCK_DEAD_OR_ALIVE(block, graph)\
     FOREACH_BLOCK_ALL(block, graph) \
-        if (block->isDeleted && !block->isDead) { continue; }
+        if (block->isDeleted && !block->isDead) {TRACE_IT(2413); continue; }
 
 #define NEXT_BLOCK_DEAD_OR_ALIVE \
     NEXT_BLOCK_ALL
@@ -840,31 +840,31 @@ struct MemCopyEmitData : public MemOpEmitData
     NEXT_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast)\
-{\
+{TRACE_IT(2414);\
     BasicBlock * blockStop = blockLast? ((BasicBlock *)blockLast)->prev : nullptr; \
     for (BasicBlock *block = blockList;\
         block != blockStop;\
         block = block->prev)\
-    {
+    {TRACE_IT(2415);
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_ALL \
     }}
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE(block, blockList, blockLast) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {TRACE_IT(2416); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING(block, blockList, blockLast, blockPrev)\
-{\
+{TRACE_IT(2417);\
     BasicBlock *blockPrev;\
     BasicBlock * blockStop = blockLast? ((BasicBlock *)blockLast)->prev : nullptr; \
     for (BasicBlock *block = blockList;\
         block != blockStop;\
         block = blockPrev)\
-    {\
+    {TRACE_IT(2418);\
         blockPrev = block->prev;
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING \
@@ -872,46 +872,46 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_EDITING(block, blockList, blockLast, blockPrev) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING(block, blockList, blockLast, blockPrev) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {TRACE_IT(2419); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_EDITING \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE(block, blockList, blockLast) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast) \
-        if (block->isDeleted && !block->isDead) { continue; }
+        if (block->isDeleted && !block->isDead) {TRACE_IT(2420); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL
 
 #define FOREACH_BLOCK_EDITING(block, graph)\
-    {\
+    {TRACE_IT(2421);\
         BasicBlock *blockNext;\
         for (BasicBlock *block = graph->blockList;\
             block != nullptr;\
             block = blockNext)\
-        {\
+        {TRACE_IT(2422);\
             blockNext = block->next; \
-            if (block->isDeleted) { continue; }
+            if (block->isDeleted) {TRACE_IT(2423); continue; }
 #define NEXT_BLOCK_EDITING \
 }}
 
 #define FOREACH_BLOCK_BACKWARD_EDITING(block, graph)\
-    {\
+    {TRACE_IT(2424);\
         BasicBlock *blockPrev;\
         for (BasicBlock *block = graph->tailBlock;\
             block != nullptr;\
             block = blockPrev)\
-        {\
+        {TRACE_IT(2425);\
             blockPrev = block->prev; \
-            if (block->isDeleted) { continue; }
+            if (block->isDeleted) {TRACE_IT(2426); continue; }
 #define NEXT_BLOCK_BACKWARD_EDITING \
 }}
 
 #define FOREACH_BLOCK_IN_LIST(block, list)\
     FOREACH_SLIST_ENTRY(BasicBlock*, block, list)\
-    {\
-        if (block->isDeleted) { continue; }
+    {TRACE_IT(2427);\
+        if (block->isDeleted) {TRACE_IT(2428); continue; }
 
 #define NEXT_BLOCK_IN_LIST \
     NEXT_SLIST_ENTRY \
@@ -919,8 +919,8 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_BLOCK_IN_LIST_EDITING(block, list, iter)\
     FOREACH_SLIST_ENTRY_EDITING(BasicBlock*, block, list, iter)\
-    {\
-        if (block->isDeleted) { continue; }
+    {TRACE_IT(2429);\
+        if (block->isDeleted) {TRACE_IT(2430); continue; }
 
 #define NEXT_BLOCK_IN_LIST_EDITING \
     NEXT_SLIST_ENTRY_EDITING \
@@ -948,20 +948,20 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_EDGE_IN_LIST(edge, list)\
     FOREACH_SLISTBASECOUNTED_ENTRY(FlowEdge*, edge, list)\
-    {
+    {TRACE_IT(2431);
 #define NEXT_EDGE_IN_LIST\
     NEXT_SLISTBASECOUNTED_ENTRY }
 
 #define FOREACH_EDGE_IN_LIST_EDITING(edge, list, iter)\
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, list, iter)\
-    {\
+    {TRACE_IT(2432);\
 
 #define NEXT_EDGE_IN_LIST_EDITING\
     NEXT_SLISTBASECOUNTED_ENTRY_EDITING }
 
 #define FOREACH_SUCCESSOR_BLOCK(blockSucc, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetSuccList())\
-    {\
+    {TRACE_IT(2433);\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -971,7 +971,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_SUCCESSOR_BLOCK_EDITING(blockSucc, block, iter)\
     FOREACH_EDGE_IN_LIST_EDITING(__edge, block->GetSuccList(), iter)\
-    {\
+    {TRACE_IT(2434);\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -981,7 +981,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_DEAD_SUCCESSOR_BLOCK(blockSucc, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetDeadSuccList())\
-    {\
+    {TRACE_IT(2435);\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -991,7 +991,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_PREDECESSOR_BLOCK(blockPred, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetPredList())\
-    {\
+    {TRACE_IT(2436);\
         BasicBlock * blockPred = __edge->GetPred(); \
         AnalysisAssert(blockPred);
 
@@ -1001,7 +1001,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_DEAD_PREDECESSOR_BLOCK(blockPred, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetDeadPredList())\
-    {\
+    {TRACE_IT(2437);\
         BasicBlock * blockPred = __edge->GetPred(); \
         AnalysisAssert(blockPred);
 
@@ -1026,12 +1026,12 @@ struct MemCopyEmitData : public MemOpEmitData
     NEXT_LOOP_EDITING;
 
 #define FOREACH_LOOP_EDITING(loop, graph)\
-        {\
+        {TRACE_IT(2438);\
         Loop* loopNext;\
         for (Loop* loop = graph->loopList;\
             loop != nullptr;\
             loop = loopNext)\
-                {\
+                {TRACE_IT(2439);\
             loopNext = loop->next;
 #define NEXT_LOOP_EDITING \
 }}

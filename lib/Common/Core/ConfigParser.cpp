@@ -31,27 +31,27 @@ public:
         m_allocationPolicyManager(/* needConcurrencySupport = */ true),
         m_pageAllocator(&m_allocationPolicyManager, Js::Configuration::Global.flags),
         m_allocator(arenaName, &m_pageAllocator, Js::Throw::OutOfMemory)
-    {
+    {TRACE_IT(19878);
     }
-    ArenaAllocator* GetAllocator() { return &m_allocator; }
+    ArenaAllocator* GetAllocator() {TRACE_IT(19879); return &m_allocator; }
 };
 
 static ArenaHost s_arenaHost1(_u("For Output::Trace (1)"));
 static ArenaHost s_arenaHost2(_u("For Output::Trace (2)"));
 
 ArenaAllocator* GetOutputAllocator1()
-{
+{TRACE_IT(19880);
     return s_arenaHost1.GetAllocator();
 }
 
 ArenaAllocator* GetOutputAllocator2()
-{
+{TRACE_IT(19881);
     return s_arenaHost2.GetAllocator();
 }
 #endif
 
 void ConfigParser::ParseOnModuleLoad(CmdLineArgsParser& parser, HANDLE hmod)
-{
+{TRACE_IT(19882);
     Assert(!s_moduleConfigParser.HasReadConfig());
 
     s_moduleConfigParser.ParseRegistry(parser);
@@ -61,13 +61,13 @@ void ConfigParser::ParseOnModuleLoad(CmdLineArgsParser& parser, HANDLE hmod)
 }
 
 void ConfigParser::ParseRegistry(CmdLineArgsParser &parser)
-{
+{TRACE_IT(19883);
 #ifdef _WIN32
     HKEY hk;
     bool includeUserHive = true;
 
     if (NOERROR == RegOpenKeyExW(HKEY_LOCAL_MACHINE, JsUtil::ExternalApi::GetFeatureKeyName(), 0, KEY_READ, &hk))
-    {
+    {TRACE_IT(19884);
         DWORD dwValue;
         DWORD dwSize = sizeof(dwValue);
 
@@ -75,7 +75,7 @@ void ConfigParser::ParseRegistry(CmdLineArgsParser &parser)
 
         // HKLM can prevent user config from being read.
         if (NOERROR == RegGetValueW(hk, nullptr, _u("AllowUserConfig"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize) && dwValue == 0)
-        {
+        {TRACE_IT(19885);
             includeUserHive = false;
         }
 
@@ -91,7 +91,7 @@ void ConfigParser::ParseRegistry(CmdLineArgsParser &parser)
 }
 
 void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
-{
+{TRACE_IT(19886);
 #ifdef _WIN32
     DWORD dwSize;
     DWORD dwValue;
@@ -100,14 +100,14 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     char16 regBuffer[MaxRegSize];
     dwSize = sizeof(regBuffer);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("JScript9"), RRF_RT_REG_SZ, nullptr, (LPBYTE)regBuffer, &dwSize))
-    {
+    {TRACE_IT(19887);
         LPWSTR regValue = regBuffer, nextValue = nullptr;
         regValue = wcstok_s(regBuffer, _u(" "), &nextValue);
         while (regValue != nullptr)
-        {
+        {TRACE_IT(19888);
             int err = 0;
             if ((err = parser.Parse(regValue)) != 0)
-            {
+            {TRACE_IT(19889);
                 break;
             }
             regValue = wcstok_s(nullptr, _u(" "), &nextValue);
@@ -123,17 +123,17 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == ::RegGetValueW(hk, nullptr, _u("MemSpect"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19890);
         if (dwValue & 0x01)
-        {
+        {TRACE_IT(19891);
             ArenaMemoryTracking::Activate();
         }
         if (dwValue & 0x02)
-        {
+        {TRACE_IT(19892);
             RecyclerMemoryTracking::Activate();
         }
         if (dwValue & 0x04)
-        {
+        {TRACE_IT(19893);
             PageTracking::Activate();
         }
     }
@@ -153,7 +153,7 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("JScriptJIT"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19894);
         Js::ConfigFlagsTable &configFlags = Js::Configuration::Global.flags;
         switch (dwValue)
         {
@@ -192,13 +192,13 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
                 DEFAULT_CONFIG_NewSimpleJit
 #endif
                 )
-            {
+            {TRACE_IT(19895);
                 configFlags.ProfilingInterpreter0Limit = 0;
                 configFlags.SimpleJitLimit = 0;
                 configFlags.ProfilingInterpreter1Limit = 2;
             }
             else
-            {
+            {TRACE_IT(19896);
                 configFlags.ProfilingInterpreter0Limit = 1;
                 configFlags.SimpleJitLimit = 1;
                 configFlags.ProfilingInterpreter1Limit = 0;
@@ -224,12 +224,12 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
                 DEFAULT_CONFIG_NewSimpleJit
 #endif
                 )
-            {
+            {TRACE_IT(19897);
                 configFlags.SimpleJitLimit = 0;
                 configFlags.ProfilingInterpreter1Limit = 2;
             }
             else
-            {
+            {TRACE_IT(19898);
                 configFlags.SimpleJitLimit = 2;
                 configFlags.ProfilingInterpreter1Limit = 0;
             }
@@ -251,9 +251,9 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("EnumerationCompat"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19899);
         if(dwValue == 1)
-        {
+        {TRACE_IT(19900);
             Js::Configuration::Global.flags.EnumerationCompat = true;
         }
     }
@@ -266,9 +266,9 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("FailFastIfDisconnectedDelegate"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19901);
         if(dwValue == 1)
-        {
+        {TRACE_IT(19902);
             Js::Configuration::Global.flags.FailFastIfDisconnectedDelegate = true;
         }
     }
@@ -281,10 +281,10 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("DisableES6"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19903);
         Js::ConfigFlagsTable &configFlags = Js::Configuration::Global.flags;
         if (dwValue == 1)
-        {
+        {TRACE_IT(19904);
             configFlags.Enable(Js::ES6Flag);
             configFlags.SetAsBoolean(Js::ES6Flag, false);
         }
@@ -297,9 +297,9 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     dwValue = 0;
     dwSize = sizeof(dwValue);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("EnableAsmjs"), RRF_RT_DWORD, nullptr, (LPBYTE)&dwValue, &dwSize))
-    {
+    {TRACE_IT(19905);
         if (dwValue == 1)
-        {
+        {TRACE_IT(19906);
             Js::Configuration::Global.flags.Asmjs = true;
         }
     }
@@ -308,7 +308,7 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
 
 
 void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
-{
+{TRACE_IT(19907);
 #if defined(ENABLE_DEBUG_CONFIG_OPTIONS) && CONFIG_PARSE_CONFIG_FILE
     Assert(!_hasReadConfig);
     _hasReadConfig = true;
@@ -327,40 +327,40 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
 
     FILE* configFile;
     if (_wfopen_s(&configFile, filename, _u("r, ccs=UNICODE")) != 0 || configFile == nullptr)
-    {
+    {TRACE_IT(19908);
         WCHAR configFileFullName[MAX_PATH];
 
         StringCchPrintf(configFileFullName, MAX_PATH, _u("%s.config"), _configFileName);
 
         // try the one in the current working directory (Desktop)
         if (_wfullpath(filename, configFileFullName, _MAX_PATH) == nullptr)
-        {
+        {TRACE_IT(19909);
             return;
         }
         if (_wfopen_s(&configFile, filename, _u("r, ccs=UNICODE")) != 0 || configFile == nullptr)
-        {
+        {TRACE_IT(19910);
             return;
         }
     }
 
     while (fwscanf_s(configFile, _u("%s"), configBuffer, MaxTokenSize) != FINISHED)
-    {
+    {TRACE_IT(19911);
         if ((err = parser.Parse(configBuffer)) != 0)
-        {
+        {TRACE_IT(19912);
             break;
         }
     }
     fclose(configFile);
 
     if (err !=0)
-    {
+    {TRACE_IT(19913);
         return;
     }
 #endif
 }
 
 void ConfigParser::ProcessConfiguration(HANDLE hmod)
-{
+{TRACE_IT(19914);
 #if defined(ENABLE_DEBUG_CONFIG_OPTIONS)
     bool hasOutput = false;
     char16 modulename[_MAX_PATH];
@@ -374,7 +374,7 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
     // default so we don't need to allocate a second console for this
 #if CONFIG_CONSOLE_AVAILABLE
     if (Js::Configuration::Global.flags.Console)
-    {
+    {TRACE_IT(19915);
         int fd;
         FILE *fp;
 
@@ -385,7 +385,7 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
         fp = _wfdopen(fd, _u("w"));
 
         if (fp != nullptr)
-        {
+        {TRACE_IT(19916);
             *stdout = *fp;
             setvbuf(stdout, nullptr, _IONBF, 0);
 
@@ -393,14 +393,14 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
             fp = _wfdopen(fd, _u("w"));
 
             if (fp != nullptr)
-            {
+            {TRACE_IT(19917);
                 *stderr = *fp;
                 setvbuf(stderr, nullptr, _IONBF, 0);
 
                 char16 buffer[_MAX_PATH + 70];
 
                 if (ConfigParserAPI::FillConsoleTitle(buffer, _MAX_PATH + 20, modulename))
-                {
+                {TRACE_IT(19918);
                     SetConsoleTitle(buffer);
                 }
 
@@ -412,20 +412,20 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
 
     if (Js::Configuration::Global.flags.IsEnabled(Js::OutputFileFlag)
         && Js::Configuration::Global.flags.OutputFile != nullptr)
-    {
+    {TRACE_IT(19919);
         SetOutputFile(Js::Configuration::Global.flags.OutputFile, Js::Configuration::Global.flags.OutputFileOpenMode);
         hasOutput = true;
     }
 
     if (Js::Configuration::Global.flags.DebugWindow)
-    {
+    {TRACE_IT(19920);
         Output::UseDebuggerWindow();
         hasOutput = true;
     }
 
 #ifdef ENABLE_TRACE
     if (CONFIG_FLAG(InMemoryTrace))
-    {
+    {TRACE_IT(19921);
         Output::SetInMemoryLogger(
             Js::MemoryLogger::Create(::GetOutputAllocator1(),
             CONFIG_FLAG(InMemoryTraceBufferSize) * 3));   // With stack each trace is 3 entries (header, msg, stack).
@@ -434,14 +434,14 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
 
 #ifdef STACK_BACK_TRACE
     if (CONFIG_FLAG(TraceWithStack))
-    {
+    {TRACE_IT(19922);
         Output::SetStackTraceHelper(Js::StackTraceHelper::Create(::GetOutputAllocator2()));
     }
 #endif // STACK_BACK_TRACE
 #endif // ENABLE_TRACE
 
     if (hasOutput)
-    {
+    {TRACE_IT(19923);
         ConfigParserAPI::DisplayInitialOutput(modulename);
 
         Output::Print(_u("\n"));
@@ -451,7 +451,7 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
     }
 
     if (Js::Configuration::Global.flags.ForceSerialized)
-    {
+    {TRACE_IT(19924);
         // Can't generate or execute byte code under forced serialize
         Js::Configuration::Global.flags.GenerateByteCodeBufferReturnsCantGenerate = true;
         Js::Configuration::Global.flags.ExecuteByteCodeBufferReturnsInvalidByteCode = true;
@@ -463,31 +463,31 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
 #ifdef MEMSPECT_TRACKING
     bool all = false;
     if (Js::Configuration::Global.flags.Memspect.IsEnabled(Js::AllPhase))
-    {
+    {TRACE_IT(19925);
         all = true;
     }
     if (all || Js::Configuration::Global.flags.Memspect.IsEnabled(Js::RecyclerPhase))
-    {
+    {TRACE_IT(19926);
         RecyclerMemoryTracking::Activate();
     }
     if (all || Js::Configuration::Global.flags.Memspect.IsEnabled(Js::PageAllocatorPhase))
-    {
+    {TRACE_IT(19927);
         PageTracking::Activate();
     }
     if (all || Js::Configuration::Global.flags.Memspect.IsEnabled(Js::ArenaPhase))
-    {
+    {TRACE_IT(19928);
         ArenaMemoryTracking::Activate();
     }
 #endif
 }
 
 HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMode)
-{
+{TRACE_IT(19929);
     // If present, replace the {PID} token with the process ID
     const WCHAR* pidStr = nullptr;
     WCHAR buffer[_MAX_PATH];
     if ((pidStr = wcsstr(outputFile, _u("{PID}"))) != nullptr)
-    {
+    {TRACE_IT(19930);
         size_t pidStartPosition = pidStr - outputFile;
 
         WCHAR* pDest = buffer;
@@ -521,7 +521,7 @@ HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMo
         _wcsicmp(fileName, _u("spartan_edge")) == 0 ||
         _wcsicmp(fileName, _u("MicrosoftEdge")) == 0 ||
         _wcsicmp(fileName, _u("MicrosoftEdgeCP")) == 0)
-    {
+    {TRACE_IT(19931);
 
         // we need to output to %temp% directory in wwa. we don't have permission otherwise.
         if (GetEnvironmentVariable(_u("temp"), fileName, _MAX_PATH) != 0)
@@ -540,7 +540,7 @@ HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMo
 
     FILE *fp;
     if ((fp = _wfsopen(outputFile, openMode, _SH_DENYWR)) != nullptr)
-    {
+    {TRACE_IT(19932);
         Output::SetOutputFile(fp);
         return S_OK;
     }

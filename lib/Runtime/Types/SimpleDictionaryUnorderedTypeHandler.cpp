@@ -10,7 +10,7 @@ namespace Js
     SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::SimpleDictionaryUnorderedTypeHandler(Recycler * recycler, int slotCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
         : SimpleDictionaryTypeHandlerBase<TPropertyIndex, TMapKey, IsNotExtensibleSupported>(recycler, slotCapacity, inlineSlotCapacity, offsetOfInlineSlots),
         deletedPropertyIndex(PropertyIndexRanges<TPropertyIndex>::NoSlots)
-    {
+    {TRACE_IT(67473);
         this->isUnordered = true;
     }
 
@@ -18,7 +18,7 @@ namespace Js
     SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::SimpleDictionaryUnorderedTypeHandler(ScriptContext * scriptContext, SimplePropertyDescriptor* propertyDescriptors, int propertyCount, int slotCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
         : SimpleDictionaryTypeHandlerBase<TPropertyIndex, TMapKey, IsNotExtensibleSupported>(scriptContext, propertyDescriptors, propertyCount, slotCapacity, inlineSlotCapacity, offsetOfInlineSlots),
         deletedPropertyIndex(PropertyIndexRanges<TPropertyIndex>::NoSlots)
-    {
+    {TRACE_IT(67474);
         this->isUnordered = true;
     }
 
@@ -26,13 +26,13 @@ namespace Js
     SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::SimpleDictionaryUnorderedTypeHandler(Recycler* recycler, int slotCapacity, int propertyCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
         : SimpleDictionaryTypeHandlerBase<TPropertyIndex, TMapKey, IsNotExtensibleSupported>(recycler, slotCapacity, propertyCapacity, inlineSlotCapacity, offsetOfInlineSlots),
         deletedPropertyIndex(PropertyIndexRanges<TPropertyIndex>::NoSlots)
-    {
+    {TRACE_IT(67475);
         this->isUnordered = true;
     }
 
     template<class TPropertyIndex, class TMapKey, bool IsNotExtensibleSupported>
     bool SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::IsReusablePropertyIndex(const TPropertyIndex propertyIndex)
-    {
+    {TRACE_IT(67476);
         // When reusing a deleted property index, we will treat the property index as the dictionary index, so they must be the
         // same. Also, property indexes stored in the object's slot corresponding to a deleted property are tagged so that they
         // don't look like pointers. If the property index is too large, it will not be free-listed.
@@ -47,11 +47,11 @@ namespace Js
     bool SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::TryRegisterDeletedPropertyIndex(
         DynamicObject *const object,
         const TPropertyIndex propertyIndex)
-    {
+    {TRACE_IT(67477);
         Assert(object);
 
         if(!IsReusablePropertyIndex(propertyIndex))
-        {
+        {TRACE_IT(67478);
             return false;
         }
 
@@ -66,12 +66,12 @@ namespace Js
     bool SimpleDictionaryUnorderedTypeHandler<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::TryReuseDeletedPropertyIndex(
         DynamicObject *const object,
         TPropertyIndex *const propertyIndex)
-    {
+    {TRACE_IT(67479);
         Assert(object);
         Assert(propertyIndex);
 
         if(deletedPropertyIndex == PropertyIndexRanges<TPropertyIndex>::NoSlots)
-        {
+        {TRACE_IT(67480);
             return false;
         }
 
@@ -88,12 +88,12 @@ namespace Js
         DynamicObject *const object,
         const TPropertyIndex existingPropertyIndex,
         TPropertyIndex *const propertyIndex)
-    {
+    {TRACE_IT(67481);
         Assert(object);
         Assert(propertyIndex);
 
         if(!IsReusablePropertyIndex(existingPropertyIndex))
-        {
+        {TRACE_IT(67482);
             return false;
         }
 
@@ -104,7 +104,7 @@ namespace Js
         Assert(reused); // at least one property index must have been free-listed since we're adding an existing deleted property
 
         if(*propertyIndex == existingPropertyIndex)
-        {
+        {TRACE_IT(67483);
             // The deleted property index that is being added is the first deleted property index in the free-list
             return true;
         }

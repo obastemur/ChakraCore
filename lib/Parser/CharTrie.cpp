@@ -17,36 +17,36 @@ namespace UnifiedRegex
     // CharTrie
     // ----------------------------------------------------------------------
     inline bool CharTrie::Find(Char c, int& outi)
-    {
+    {TRACE_IT(29116);
         if (count == 0)
-        {
+        {TRACE_IT(29117);
             outi = 0;
             return false;
         }
         int l = 0;
         int h = count - 1;
         while (true)
-        {
+        {TRACE_IT(29118);
             int m = (l + h) / 2;
             if (children[m].c == c)
-            {
+            {TRACE_IT(29119);
                 outi = m;
                 return true;
             }
             else if (CTU(children[m].c) < CTU(c))
-            {
+            {TRACE_IT(29120);
                 l = m + 1;
                 if (l > h)
-                {
+                {TRACE_IT(29121);
                     outi = l;
                     return false;
                 }
             }
             else
-            {
+            {TRACE_IT(29122);
                 h = m - 1;
                 if (h < l)
-                {
+                {TRACE_IT(29123);
                     outi = m;
                     return false;
                 }
@@ -56,7 +56,7 @@ namespace UnifiedRegex
     }
 
     void CharTrie::FreeBody(ArenaAllocator* allocator)
-    {
+    {TRACE_IT(29124);
         for (int i = 0; i < count; i++)
             children[i].node.FreeBody(allocator);
         if (capacity > 0)
@@ -69,19 +69,19 @@ namespace UnifiedRegex
     }
 
     CharTrie* CharTrie::Add(ArenaAllocator* allocator, Char c)
-    {
+    {TRACE_IT(29125);
         int i;
         if (!Find(c, i))
-        {
+        {TRACE_IT(29126);
             if (capacity <= count)
-            {
+            {TRACE_IT(29127);
                 int newCapacity = max(capacity * 2, initCapacity);
                 children = (CharTrieEntry*)allocator->Realloc(children, capacity * sizeof(CharTrieEntry), newCapacity * sizeof(CharTrieEntry));
                 capacity = newCapacity;
             }
 
             for (int j = count; j > i; j--)
-            {
+            {TRACE_IT(29128);
                 children[j].c = children[j - 1].c;
                 children[j].node = children[j - 1].node;
             }
@@ -93,16 +93,16 @@ namespace UnifiedRegex
     }
 
     bool CharTrie::IsDepthZero() const
-    {
+    {TRACE_IT(29129);
         return isAccepting && count == 0;
     }
 
     bool CharTrie::IsDepthOne() const
-    {
+    {TRACE_IT(29130);
         if (isAccepting)
             return 0;
         for (int i = 0; i < count; i++)
-        {
+        {TRACE_IT(29131);
             if (!children[i].node.IsDepthZero())
                 return false;
         }
@@ -111,12 +111,12 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void CharTrie::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(29132);
         w->Indent();
         if (isAccepting)
             w->PrintEOL(_u("<accept>"));
         for (int i = 0; i < count; i++)
-        {
+        {TRACE_IT(29133);
             w->PrintQuotedChar(children[i].c);
             w->EOL();
             children[i].node.Print(w);
@@ -136,10 +136,10 @@ namespace UnifiedRegex
             , RegexStats* stats
 #endif
             ) const
-    {
+    {TRACE_IT(29134);
         const RuntimeCharTrie* curr = this;
         while (true)
-        {
+        {TRACE_IT(29135);
             if (curr->count == 0)
                 return true;
             if (inputOffset >= inputLength)
@@ -153,12 +153,12 @@ namespace UnifiedRegex
             int l = 0;
             int h = curr->count - 1;
             while (true)
-            {
+            {TRACE_IT(29136);
                 if (l > h)
                     return false;
                 int m = (l + h) / 2;
                 if (curr->children[m].c == input[inputOffset])
-                {
+                {TRACE_IT(29137);
                     inputOffset++;
                     curr = &curr->children[m].node;
                     break;
@@ -171,9 +171,9 @@ namespace UnifiedRegex
 #else
             int i = 0;
             while (true)
-            {
+            {TRACE_IT(29138);
                 if (curr->children[i].c == input[inputOffset])
-                {
+                {TRACE_IT(29139);
                     inputOffset++;
                     curr = &curr->children[i].node;
                     break;
@@ -188,7 +188,7 @@ namespace UnifiedRegex
     }
 
     void RuntimeCharTrie::FreeBody(ArenaAllocator* allocator)
-    {
+    {TRACE_IT(29140);
         for (int i = 0; i < count; i++)
             children[i].node.FreeBody(allocator);
         if (count > 0)
@@ -200,13 +200,13 @@ namespace UnifiedRegex
     }
 
     void RuntimeCharTrie::CloneFrom(ArenaAllocator* allocator, const CharTrie& other)
-    {
+    {TRACE_IT(29141);
         count = other.count;
         if (count > 0)
-        {
+        {TRACE_IT(29142);
             children = AnewArray(allocator, RuntimeCharTrieEntry, count);
             for (int i = 0; i < count; i++)
-            {
+            {TRACE_IT(29143);
                 children[i].c = other.children[i].c;
                 children[i].node.CloneFrom(allocator,  other.children[i].node);
             }
@@ -217,10 +217,10 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     void RuntimeCharTrie::Print(DebugWriter* w) const
-    {
+    {TRACE_IT(29144);
         w->Indent();
         for (int i = 0; i < count; i++)
-        {
+        {TRACE_IT(29145);
             w->PrintQuotedChar(children[i].c);
             w->EOL();
             children[i].node.Print(w);

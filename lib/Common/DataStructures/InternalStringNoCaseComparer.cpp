@@ -9,17 +9,17 @@
 namespace JsUtil
 {
     bool NoCaseComparer<JsUtil::CharacterBuffer<WCHAR>>::Equals(JsUtil::CharacterBuffer<WCHAR> const& s1, JsUtil::CharacterBuffer<WCHAR> const& s2)
-    {
+    {TRACE_IT(21713);
         return (s1.GetLength() == s2.GetLength()) && (NoCaseComparer<JsUtil::CharacterBuffer<WCHAR>>::Compare(s1, s2)==0);
     }
 
     uint NoCaseComparer<JsUtil::CharacterBuffer<WCHAR>>::GetHashCode(JsUtil::CharacterBuffer<WCHAR> const& s1)
-    {
+    {TRACE_IT(21714);
         const char16* s = s1.GetBuffer();
         size_t length = s1.GetLength();
         uint hash = 0;
         for (size_t i = 0; i < length; i++)
-        {
+        {TRACE_IT(21715);
             hash = _rotl(hash, 7);
             hash ^= tolower(s[i]);
         }
@@ -27,15 +27,15 @@ namespace JsUtil
     }
 
     int NoCaseComparer<JsUtil::CharacterBuffer<WCHAR>>::Compare(JsUtil::CharacterBuffer<WCHAR> const& s1, JsUtil::CharacterBuffer<WCHAR> const& s2)
-    {
+    {TRACE_IT(21716);
         if (s1.GetLength() != s2.GetLength()) return +1;
         int count = s1.GetLength();
         const char16* buf1 = s1.GetBuffer();
         const char16* buf2 = s2.GetBuffer();
         for (int i=0; i < count; i++)
-        {
+        {TRACE_IT(21717);
             if (tolower(buf1[i]) != tolower(buf2[i]))
-            {
+            {TRACE_IT(21718);
                 return (buf1[i] < buf2[i] ? -1 : +1);
             }
         }

@@ -12,7 +12,7 @@ const PerfHintItem s_perfHintContainer[] =
 };
 
 void WritePerfHint(PerfHints hint, Js::FunctionBody * functionBody, uint byteCodeOffset /*= Js::Constants::NoByteCodeOffset*/)
-{
+{TRACE_IT(35796);
     Assert(functionBody);
     Assert(((uint)hint) < _countof(s_perfHintContainer));
 
@@ -22,11 +22,11 @@ void WritePerfHint(PerfHints hint, Js::FunctionBody * functionBody, uint byteCod
     Assert(level <= (int)PerfHintLevels::VERBOSE);
 
     if ((int)item.level <= level)
-    {
+    {TRACE_IT(35797);
         ULONG lineNumber = functionBody->GetLineNumber();
         LONG columnNumber = functionBody->GetColumnNumber();
         if (byteCodeOffset != Js::Constants::NoByteCodeOffset)
-        {
+        {TRACE_IT(35798);
             functionBody->GetLineCharOffset(byteCodeOffset, &lineNumber, &columnNumber, false /*canAllocateLineCache*/);
 
             // returned values are 0-based. Adjusting.

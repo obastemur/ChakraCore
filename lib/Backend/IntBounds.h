@@ -151,7 +151,7 @@ public:
 template<>
 inline IntBoundCheckCompatibilityId JsUtil::ValueToKey<IntBoundCheckCompatibilityId, IntBoundCheck>::ToKey(
     const IntBoundCheck &intBoundCheck)
-{
+{TRACE_IT(9585);
     return intBoundCheck.CompatibilityId();
 }
 

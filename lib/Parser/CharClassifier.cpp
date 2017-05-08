@@ -180,42 +180,42 @@ static const CharTypes charTypes[128] =
 
 #if ENABLE_UNICODE_API
 bool Js::CharClassifier::BigCharIsWhitespaceDefault(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28638);
     return (instance->getBigCharFlagsFunc(ch, instance) & PlatformAgnostic::UnicodeText::CharacterTypeFlags::SpaceChar) != 0;
 }
 
 bool Js::CharClassifier::BigCharIsIdStartDefault(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28639);
     return (instance->getBigCharFlagsFunc(ch, instance) & PlatformAgnostic::UnicodeText::CharacterTypeFlags::IdLeadChar) != 0;
 }
 
 bool Js::CharClassifier::BigCharIsIdContinueDefault(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28640);
     return (instance->getBigCharFlagsFunc(ch, instance) & PlatformAgnostic::UnicodeText::CharacterTypeFlags::IdChar) != 0;
 }
 #endif
 
 CharTypes Js::CharClassifier::GetBigCharTypeES5(codepoint_t codepoint, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28641);
     using namespace PlatformAgnostic::UnicodeText;
 
     if (codepoint > 0xFFFF)
-    {
+    {TRACE_IT(28642);
         return CharTypes::_C_ERR;
     }
 
     if (codepoint == kchLS || codepoint == kchPS)
-    {
+    {TRACE_IT(28643);
         return _C_NWL;
     }
 
     auto charType = GetLegacyCharacterClassificationType((char16)codepoint);
     if (charType == CharacterClassificationType::Letter)
-    {
+    {TRACE_IT(28644);
         return CharTypes::_C_LET;
     }
     else if (charType == CharacterClassificationType::Whitespace)
-    {
+    {TRACE_IT(28645);
         return CharTypes::_C_WSP;
     }
 
@@ -223,17 +223,17 @@ CharTypes Js::CharClassifier::GetBigCharTypeES5(codepoint_t codepoint, const Js:
 }
 
 PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetBigCharFlagsES5(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28646);
     using namespace PlatformAgnostic::UnicodeText;
     //In ES5 the unicode <ZWNJ> and <ZWJ> could be identifier parts
     if (ch == 0x200c || ch == 0x200d)
-    {
+    {TRACE_IT(28647);
         return PlatformAgnostic::UnicodeText::CharacterTypeFlags::IdChar;
     }
 
     // Make sure that the codepoint fits within the char16 range
     if (ch > 0xFFFF)
-    {
+    {TRACE_IT(28648);
         return UnknownChar;
     }
 
@@ -247,12 +247,12 @@ PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetBigChar
  */
 
 CharTypes Js::CharClassifier::GetBigCharTypeES6(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28649);
     using namespace PlatformAgnostic::UnicodeText;
 
     Assert(ch > 0x7F);
     if (ch == 0xFEFF)
-    {
+    {TRACE_IT(28650);
         return CharTypes::_C_WSP;
     }
 
@@ -294,7 +294,7 @@ These are also known simply as Identifier Characters, because they are a superse
 */
 
 PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetBigCharFlagsES6(codepoint_t ch, const Js::CharClassifier *instance)
-{
+{TRACE_IT(28651);
     using namespace PlatformAgnostic::UnicodeText;
     Assert(ch > 0x7F);
 
@@ -330,11 +330,11 @@ PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetBigChar
 }
 
 bool Js::CharClassifier::BigCharIsWhitespaceES6(codepoint_t ch, const CharClassifier *instance)
-{
+{TRACE_IT(28652);
     Assert(ch > 0x7F);
 
     if (ch == 0xFEFF)
-    {
+    {TRACE_IT(28653);
         return true;
     }
 
@@ -342,18 +342,18 @@ bool Js::CharClassifier::BigCharIsWhitespaceES6(codepoint_t ch, const CharClassi
 }
 
 bool Js::CharClassifier::BigCharIsIdStartES6(codepoint_t codePoint, const CharClassifier *instance)
-{
+{TRACE_IT(28654);
     Assert(codePoint > 0x7F);
 
     return PlatformAgnostic::UnicodeText::IsIdStart(codePoint);
 }
 
 bool Js::CharClassifier::BigCharIsIdContinueES6(codepoint_t codePoint, const CharClassifier *instance)
-{
+{TRACE_IT(28655);
     Assert(codePoint > 0x7F);
 
     if (codePoint == '$' || codePoint == '_' || codePoint == 0x200C /* Zero-width non-joiner */ || codePoint == 0x200D /* Zero-width joiner */)
-    {
+    {TRACE_IT(28656);
         return true;
     }
 
@@ -362,14 +362,14 @@ bool Js::CharClassifier::BigCharIsIdContinueES6(codepoint_t codePoint, const Cha
 
 template <bool isBigChar>
 bool Js::CharClassifier::IsWhiteSpaceFast(codepoint_t ch) const
-{
+{TRACE_IT(28657);
     using namespace PlatformAgnostic::UnicodeText;
     Assert(isBigChar ? ch > 0x7F : ch < 0x80);
     return isBigChar ? this->bigCharIsWhitespaceFunc(ch, this) : (charFlags[ch] & CharacterTypeFlags::SpaceChar) != 0;
 }
 
 bool Js::CharClassifier::IsBiDirectionalChar(codepoint_t ch) const
-{
+{TRACE_IT(28658);
     //From http://www.unicode.org/reports/tr9/#Directional_Formatting_Codes
     switch (ch)
     {
@@ -393,28 +393,28 @@ bool Js::CharClassifier::IsBiDirectionalChar(codepoint_t ch) const
 
 template<bool isBigChar>
 bool Js::CharClassifier::IsIdStartFast(codepoint_t ch) const
-{
+{TRACE_IT(28659);
     using namespace PlatformAgnostic::UnicodeText;
     Assert(isBigChar ? ch > 0x7F : ch < 0x80);
     return isBigChar ? this->bigCharIsIdStartFunc(ch, this) : (charFlags[ch] & CharacterTypeFlags::IdLeadChar) != 0;
 }
 template<bool isBigChar>
 bool Js::CharClassifier::IsIdContinueFast(codepoint_t ch) const
-{
+{TRACE_IT(28660);
     using namespace PlatformAgnostic::UnicodeText;
     Assert(isBigChar ? ch > 0x7F : ch < 0x80);
     return isBigChar ? this->bigCharIsIdContinueFunc(ch, this) : (charFlags[ch] & CharacterTypeFlags::IdChar) != 0;
 }
 
 Js::CharClassifier::CharClassifier(ScriptContext * scriptContext)
-{
+{TRACE_IT(28661);
     bool isES6UnicodeModeEnabled = CONFIG_FLAG(ES6Unicode);
     bool isFullUnicodeSupportAvailable = PlatformAgnostic::UnicodeText::IsExternalUnicodeLibraryAvailable();
 
 #ifdef NTBUILD
     AssertMsg(isFullUnicodeSupportAvailable, "Windows.Globalization needs to present with IUnicodeCharacterStatics support for Chakra.dll to work");
     if (!isFullUnicodeSupportAvailable)
-    {
+    {TRACE_IT(28662);
         Js::Throw::FatalInternalError();
     }
 #endif
@@ -425,7 +425,7 @@ Js::CharClassifier::CharClassifier(ScriptContext * scriptContext)
 #if ENABLE_UNICODE_API
     if (isES6UnicodeModeEnabled && isFullUnicodeSupportAvailable)
 #endif
-    {
+    {TRACE_IT(28663);
         bigCharIsIdStartFunc = &CharClassifier::BigCharIsIdStartES6;
         bigCharIsIdContinueFunc = &CharClassifier::BigCharIsIdContinueES6;
         bigCharIsWhitespaceFunc = &CharClassifier::BigCharIsWhitespaceES6;
@@ -438,7 +438,7 @@ Js::CharClassifier::CharClassifier(ScriptContext * scriptContext)
     }
 #if ENABLE_UNICODE_API
     else
-    {
+    {TRACE_IT(28664);
         bigCharIsIdStartFunc = &CharClassifier::BigCharIsIdStartDefault;
         bigCharIsIdContinueFunc = &CharClassifier::BigCharIsIdContinueDefault;
         bigCharIsWhitespaceFunc = &CharClassifier::BigCharIsWhitespaceDefault;
@@ -454,50 +454,50 @@ Js::CharClassifier::CharClassifier(ScriptContext * scriptContext)
 }
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceNonSurrogate(LPCOLESTR psz, const CharClassifier *instance)
-{
+{TRACE_IT(28665);
     for ( ; instance->IsWhiteSpace(*psz); psz++)
-    {
+    {TRACE_IT(28666);
     }
     return psz;
 }
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceNonSurrogateStartEnd(_In_reads_(pStrEnd - pStr) LPCOLESTR pStr, _In_ LPCOLESTR pStrEnd, const CharClassifier *instance)
-{
+{TRACE_IT(28667);
     for ( ; instance->IsWhiteSpace(*pStr) && pStr < pStrEnd; pStr++)
-    {
+    {TRACE_IT(28668);
     }
     return pStr;
 }
 
 const OLECHAR* Js::CharClassifier::SkipIdentifierNonSurrogate(LPCOLESTR psz, const CharClassifier *instance)
-{
+{TRACE_IT(28669);
     if (!instance->IsIdStart(*psz))
-    {
+    {TRACE_IT(28670);
         return psz;
     }
 
     for (psz++; instance->IsIdContinue(*psz); psz++)
-    {
+    {TRACE_IT(28671);
     }
 
     return psz;
 }
 
 const LPCUTF8 Js::CharClassifier::SkipIdentifierNonSurrogateStartEnd(LPCUTF8 psz, LPCUTF8 end, const CharClassifier *instance)
-{
+{TRACE_IT(28672);
     utf8::DecodeOptions options = utf8::doAllowThreeByteSurrogates;
 
     LPCUTF8 p = psz;
 
     if (!instance->IsIdStart(utf8::Decode(p, end, options)))
-    {
+    {TRACE_IT(28673);
         return psz;
     }
 
     psz = p;
 
     while (instance->IsIdContinue(utf8::Decode(p, end, options)))
-    {
+    {TRACE_IT(28674);
         psz = p;
     }
 
@@ -505,7 +505,7 @@ const LPCUTF8 Js::CharClassifier::SkipIdentifierNonSurrogateStartEnd(LPCUTF8 psz
 }
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogate(LPCOLESTR psz, const CharClassifier *instance)
-{
+{TRACE_IT(28675);
     char16 currentChar = 0x0;
 
     // Slow path is to check for a surrogate each iteration.
@@ -514,11 +514,11 @@ const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogate(LPCOLESTR psz, const 
     while((currentChar = *psz) != '\0')
     {
         if (!instance->IsWhiteSpace(*psz))
-        {
+        {TRACE_IT(28676);
             if (Js::NumberUtilities::IsSurrogateLowerPart(currentChar) && Js::NumberUtilities::IsSurrogateUpperPart(*(psz + 1)))
-            {
+            {TRACE_IT(28677);
                 if (instance->IsWhiteSpace(Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, *(psz + 1))))
-                {
+                {TRACE_IT(28678);
                     psz += 2;
                     continue;
                 }
@@ -535,18 +535,18 @@ const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogate(LPCOLESTR psz, const 
 }
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogateStartEnd(_In_reads_(pStrEnd - pStr) LPCOLESTR pStr, _In_ LPCOLESTR pStrEnd, const CharClassifier *instance)
-{
+{TRACE_IT(28679);
     char16 currentChar = 0x0;
 
     // Same reasoning as above
     while(pStr < pStrEnd && (currentChar = *pStr) != '\0')
     {
         if (!instance->IsWhiteSpace(currentChar))
-        {
+        {TRACE_IT(28680);
             if (Js::NumberUtilities::IsSurrogateLowerPart(currentChar) && (pStr + 1) < pStrEnd && Js::NumberUtilities::IsSurrogateUpperPart(*(pStr + 1)))
-            {
+            {TRACE_IT(28681);
                 if (instance->IsWhiteSpace(Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, *(pStr + 1))))
-                {
+                {TRACE_IT(28682);
                     pStr += 2;
                     continue;
                 }
@@ -563,20 +563,20 @@ const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogateStartEnd(_In_reads_(pS
 }
 
 const OLECHAR* Js::CharClassifier::SkipIdentifierSurrogate(LPCOLESTR psz, const CharClassifier *instance)
-{
+{TRACE_IT(28683);
     // Similar reasoning to above, however we do have surrogate identifiers, but less likely to occur in code.
     char16 currentChar = *psz;
 
     if (!instance->IsIdStart(currentChar))
-    {
+    {TRACE_IT(28684);
         if (Js::NumberUtilities::IsSurrogateLowerPart(currentChar) && Js::NumberUtilities::IsSurrogateUpperPart(*(psz + 1))
             && instance->IsIdStart(Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, *(psz + 1))))
-        {
+        {TRACE_IT(28685);
             // For the extra surrogate char
             psz ++;
         }
         else
-        {
+        {TRACE_IT(28686);
             return psz;
         }
     }
@@ -586,11 +586,11 @@ const OLECHAR* Js::CharClassifier::SkipIdentifierSurrogate(LPCOLESTR psz, const 
     while((currentChar = *psz) != '\0')
     {
         if (!instance->IsIdContinue(*psz))
-        {
+        {TRACE_IT(28687);
             if (Js::NumberUtilities::IsSurrogateLowerPart(currentChar) && Js::NumberUtilities::IsSurrogateUpperPart(*(psz + 1)))
-            {
+            {TRACE_IT(28688);
                 if (instance->IsIdContinue(Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, *(psz + 1))))
-                {
+                {TRACE_IT(28689);
                     psz += 2;
                     continue;
                 }
@@ -607,7 +607,7 @@ const OLECHAR* Js::CharClassifier::SkipIdentifierSurrogate(LPCOLESTR psz, const 
 }
 
 const LPCUTF8 Js::CharClassifier::SkipIdentifierSurrogateStartEnd(LPCUTF8 psz, LPCUTF8 end, const CharClassifier *instance)
-{
+{TRACE_IT(28690);
 
     LPCUTF8 currentPosition = psz;
     utf8::DecodeOptions options = utf8::doAllowThreeByteSurrogates;
@@ -616,12 +616,12 @@ const LPCUTF8 Js::CharClassifier::SkipIdentifierSurrogateStartEnd(LPCUTF8 psz, L
     codepoint_t currentChar = utf8::Decode(currentPosition, end, options);
 
     if (options & utf8::doSecondSurrogatePair)
-    {
+    {TRACE_IT(28691);
         currentChar = Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, utf8::Decode(currentPosition, end, options));
     }
 
     if (!instance->IsIdStart(currentChar))
-    {
+    {TRACE_IT(28692);
         return psz;
     }
 
@@ -633,12 +633,12 @@ const LPCUTF8 Js::CharClassifier::SkipIdentifierSurrogateStartEnd(LPCUTF8 psz, L
     while((currentChar = utf8::Decode(currentPosition, end, options)) != '\0')
     {
         if (options & utf8::doSecondSurrogatePair)
-        {
+        {TRACE_IT(28693);
             currentChar = Js::NumberUtilities::SurrogatePairAsCodePoint(currentChar, utf8::Decode(currentPosition, end, options));
         }
 
         if (!instance->IsIdContinue(currentChar))
-        {
+        {TRACE_IT(28694);
             return psz;
         }
 
@@ -649,13 +649,13 @@ const LPCUTF8 Js::CharClassifier::SkipIdentifierSurrogateStartEnd(LPCUTF8 psz, L
 }
 
 CharTypes Js::CharClassifier::GetCharType(codepoint_t ch) const
-{
+{TRACE_IT(28695);
     return FBigChar(ch) ? getBigCharTypeFunc(ch, this) : charTypes[ch];
 }
 
 #if ENABLE_UNICODE_API
 PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetCharFlags(codepoint_t ch) const
-{
+{TRACE_IT(28696);
 #if ENABLE_UNICODE_API
     return FBigChar(ch) ? getBigCharFlagsFunc(ch, this) : PlatformAgnostic::UnicodeText::charFlags[ch];
 #else

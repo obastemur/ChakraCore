@@ -45,14 +45,14 @@ enum VirtualTableInfoCtorEnum
 
 #define DEFINE_VALIDATE_HAS_VTABLE_CTOR(T) \
     void PostAllocationCallbackForHeapEnumValidation(const type_info& objType, Js::DynamicObject* obj) \
-    { \
+    {TRACE_IT(19553); \
         if (Js::Configuration::Global.flags.ValidateHeapEnum) \
-        { \
+        {TRACE_IT(19554); \
             ((Js::RecyclableObject*)obj)->ValidateVtableRegistered(objType); \
         } \
         Js::JavascriptLibrary *library = obj->GetLibrary(); \
         if (! library || ! library->GetScriptContext()->IsInitialized()) \
-        { \
+        {TRACE_IT(19555); \
             obj->SetHeapEnumValidationCookie(HEAP_ENUMERATION_LIBRARY_OBJECT_COOKIE); \
         } \
     } \
@@ -61,9 +61,9 @@ enum VirtualTableInfoCtorEnum
     virtual void ValidateVtableRegistered(const type_info& objType) = 0;
 
 #define VALIDATE_VTABLE_REGISTERED_BODY(T) \
-    { \
+    {TRACE_IT(19556); \
         if (typeid(T) != objType) \
-        { \
+        {TRACE_IT(19557); \
             AssertMsg(typeid(T) == objType, "Class derived from Js::RecyclableObject missing DEFINE_VTABLE_CTOR"); \
             Output::Print(_u("%S missing DEFINE_VTABLE_CTOR\n"), objType.name()); \
         } \
@@ -86,9 +86,9 @@ enum VirtualTableInfoCtorEnum
 class VirtualTableInfoBase
 {
 public:
-    static INT_PTR GetVirtualTable(void * ptr) { return (*(INT_PTR*)ptr); }
+    static INT_PTR GetVirtualTable(void * ptr) {TRACE_IT(19558); return (*(INT_PTR*)ptr); }
 protected:
-    static void SetVirtualTable(void * ptr, INT_PTR vt) { *(INT_PTR*)ptr = vt; }
+    static void SetVirtualTable(void * ptr, INT_PTR vt) {TRACE_IT(19559); *(INT_PTR*)ptr = vt; }
 };
 
 template <typename T>
@@ -98,7 +98,7 @@ public:
     static INT_PTR const Address;
     static INT_PTR RegisterVirtualTable();
     static void SetVirtualTable(void * ptr);
-    static bool HasVirtualTable(void * ptr) { return GetVirtualTable(ptr) == Address; }
+    static bool HasVirtualTable(void * ptr) {TRACE_IT(19560); return GetVirtualTable(ptr) == Address; }
 };
 
 #if !defined(USED_IN_STATIC_LIB)
@@ -108,7 +108,7 @@ INT_PTR const VirtualTableInfo<T>::Address = VirtualTableInfo<T>::RegisterVirtua
 #endif
 
 #define DEFINE_VTABLE_CTOR_NOBASE_ABSTRACT(T) \
-    T(VirtualTableInfoCtorEnum v) {} \
+    T(VirtualTableInfoCtorEnum v) {TRACE_IT(19561);} \
     enum RegisterVTableEnum { RegisterVTable = 1 };
 
 #define DEFINE_VTABLE_CTOR_NOBASE(T) \
@@ -116,7 +116,7 @@ INT_PTR const VirtualTableInfo<T>::Address = VirtualTableInfo<T>::RegisterVirtua
     DEFINE_VTABLE_CTOR_NOBASE_ABSTRACT(T)
 
 #define DEFINE_VTABLE_CTOR_ABSTRACT(T, Base) \
-    T(VirtualTableInfoCtorEnum v) : Base(v) {}
+    T(VirtualTableInfoCtorEnum v) : Base(v) {TRACE_IT(19562);}
 
 #define DEFINE_VTABLE_CTOR_ABSTRACT_INIT(T, Base, ...) \
     T(VirtualTableInfoCtorEnum v) : Base(v), __VA_ARGS__ {}
@@ -129,7 +129,7 @@ INT_PTR const VirtualTableInfo<T>::Address = VirtualTableInfo<T>::RegisterVirtua
 
 #define DEFINE_VTABLE_CTOR_MEMBER_INIT(T, Base, Member) \
     friend class VirtualTableInfo<T>; \
-    T(VirtualTableInfoCtorEnum v) : Base(v), Member(v) {} \
+    T(VirtualTableInfoCtorEnum v) : Base(v), Member(v) {TRACE_IT(19563);} \
     DEFINE_VALIDATE_VTABLE_REGISTERED(T);
 
 
@@ -149,7 +149,7 @@ INT_PTR const VirtualTableInfo<T>::Address = VirtualTableInfo<T>::RegisterVirtua
 #define DEFINE_GETCPPNAME_ABSTRACT() \
     virtual const char* GetCppName() const = 0;
 #define DEFINE_GETCPPNAME() \
-    virtual const char* GetCppName() const { return typeid(this).name(); }
+    virtual const char* GetCppName() const {TRACE_IT(19564); return typeid(this).name(); }
 #else
 #define DEFINE_GETCPPNAME_ABSTRACT()
 #define DEFINE_GETCPPNAME()

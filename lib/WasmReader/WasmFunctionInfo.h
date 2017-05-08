@@ -20,20 +20,20 @@ namespace Wasm
         uint32 GetLocalCount() const;
         uint32 GetParamCount() const;
 
-        void SetName(const char16* name, uint32 nameLength) { m_name = name; m_nameLength = nameLength; }
-        const char16* GetName() const { return m_name; }
-        uint32 GetNameLength() const { return m_nameLength; }
+        void SetName(const char16* name, uint32 nameLength) {TRACE_IT(68414); m_name = name; m_nameLength = nameLength; }
+        const char16* GetName() const {TRACE_IT(68415); return m_name; }
+        uint32 GetNameLength() const {TRACE_IT(68416); return m_nameLength; }
 
-        uint32 GetNumber() const { return m_number; }
-        WasmSignature* GetSignature() const { return m_signature; }
+        uint32 GetNumber() const {TRACE_IT(68417); return m_number; }
+        WasmSignature* GetSignature() const {TRACE_IT(68418); return m_signature; }
 
-        void SetExitLabel(Js::ByteCodeLabel label) { m_ExitLabel = label; }
-        Js::ByteCodeLabel GetExitLabel() const { return m_ExitLabel; }
-        Js::FunctionBody* GetBody() const { return m_body; }
-        void SetBody(Js::FunctionBody* val) { m_body = val; }
+        void SetExitLabel(Js::ByteCodeLabel label) {TRACE_IT(68419); m_ExitLabel = label; }
+        Js::ByteCodeLabel GetExitLabel() const {TRACE_IT(68420); return m_ExitLabel; }
+        Js::FunctionBody* GetBody() const {TRACE_IT(68421); return m_body; }
+        void SetBody(Js::FunctionBody* val) {TRACE_IT(68422); m_body = val; }
 
-        WasmReaderBase* GetCustomReader() const { return m_customReader; }
-        void SetCustomReader(WasmReaderBase* customReader) { m_customReader = customReader; }
+        WasmReaderBase* GetCustomReader() const {TRACE_IT(68423); return m_customReader; }
+        void SetCustomReader(WasmReaderBase* customReader) {TRACE_IT(68424); m_customReader = customReader; }
 #if DBG_DUMP
         FieldNoBarrier(WasmImport*) importedFunctionReference;
 #endif

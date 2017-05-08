@@ -150,12 +150,12 @@ namespace Js
         Which which_;
 
     public:
-        AsmJsType() : which_( Which( -1 ) ){}
-        AsmJsType( Which w ) : which_( w ){}
+        AsmJsType() : which_( Which( -1 ) ){TRACE_IT(47080);}
+        AsmJsType( Which w ) : which_( w ){TRACE_IT(47081);}
 
         bool operator==( AsmJsType rhs ) const;
         bool operator!=( AsmJsType rhs ) const;
-        inline Js::AsmJsType::Which GetWhich() const{return which_;}
+        inline Js::AsmJsType::Which GetWhich() const{TRACE_IT(47082);return which_;}
         bool isSigned() const;
         bool isUnsigned() const;
         bool isInt() const;
@@ -285,22 +285,22 @@ namespace Js
         AsmJsType toType() const;
         AsmJSCoercion toCoercion() const;
         static AsmJsVarType FromCheckedType( AsmJsType type );
-        inline bool isInt()const {return which_ == Int; }
-        inline bool isInt64()const {return which_ == Int64; }
-        inline bool isDouble()const {return which_ == Double; }
-        inline bool isFloat()const {return which_ == Float; }
-        inline bool isInt32x4()const    { return which_ == Int32x4; }
-        inline bool isBool32x4()const   { return which_ == Bool32x4; }
-        inline bool isBool16x8()const   { return which_ == Bool16x8; }
-        inline bool isBool8x16()const   { return which_ == Bool8x16; }
-        inline bool isFloat32x4()const  { return which_ == Float32x4; }
-        inline bool isFloat64x2()const  { return which_ == Float64x2; }
-        inline bool isInt16x8() const   { return which_ == Int16x8; }
-        inline bool isInt8x16() const   { return which_ == Int8x16; }
-        inline bool isUint32x4() const  { return which_ == Uint32x4; }
-        inline bool isUint16x8() const  { return which_ == Uint16x8; }
-        inline bool isUint8x16() const  { return which_ == Uint8x16; }
-        inline bool isSIMD()    const   { return isInt32x4()  || isInt16x8()  || isInt8x16()  ||
+        inline bool isInt()const {TRACE_IT(47083);return which_ == Int; }
+        inline bool isInt64()const {TRACE_IT(47084);return which_ == Int64; }
+        inline bool isDouble()const {TRACE_IT(47085);return which_ == Double; }
+        inline bool isFloat()const {TRACE_IT(47086);return which_ == Float; }
+        inline bool isInt32x4()const    {TRACE_IT(47087); return which_ == Int32x4; }
+        inline bool isBool32x4()const   {TRACE_IT(47088); return which_ == Bool32x4; }
+        inline bool isBool16x8()const   {TRACE_IT(47089); return which_ == Bool16x8; }
+        inline bool isBool8x16()const   {TRACE_IT(47090); return which_ == Bool8x16; }
+        inline bool isFloat32x4()const  {TRACE_IT(47091); return which_ == Float32x4; }
+        inline bool isFloat64x2()const  {TRACE_IT(47092); return which_ == Float64x2; }
+        inline bool isInt16x8() const   {TRACE_IT(47093); return which_ == Int16x8; }
+        inline bool isInt8x16() const   {TRACE_IT(47094); return which_ == Int8x16; }
+        inline bool isUint32x4() const  {TRACE_IT(47095); return which_ == Uint32x4; }
+        inline bool isUint16x8() const  {TRACE_IT(47096); return which_ == Uint16x8; }
+        inline bool isUint8x16() const  {TRACE_IT(47097); return which_ == Uint8x16; }
+        inline bool isSIMD()    const   {TRACE_IT(47098); return isInt32x4()  || isInt16x8()  || isInt8x16()  ||
                                                  isUint32x4() || isUint16x8() || isUint8x16() ||
                                                  isBool32x4() || isBool16x8() || isBool8x16() ||
                                                  isFloat32x4() || isFloat64x2() ; }
@@ -311,7 +311,7 @@ namespace Js
     // Implements <: (subtype) operator when the RHS is a VarType
     static inline bool
         operator<=( AsmJsType lhs, AsmJsVarType rhs )
-    {
+    {TRACE_IT(47099);
         switch( rhs.which() )
         {
         case AsmJsVarType::Int:    return lhs.isInt();
@@ -350,14 +350,14 @@ namespace Js
         SymbolType   mType;
     public:
         // Constructor
-        AsmJsSymbol(PropertyName name, SymbolType type) : mName(name), mType(type) { }
+        AsmJsSymbol(PropertyName name, SymbolType type) : mName(name), mType(type) {TRACE_IT(47100); }
 
         // Accessor for the name
-        inline PropertyName GetName() const{return mName;}
+        inline PropertyName GetName() const{TRACE_IT(47101);return mName;}
         // Sets the name of the symbol
-        inline void SetName(PropertyName name) {mName = name;}
+        inline void SetName(PropertyName name) {TRACE_IT(47102);mName = name;}
         // Returns the type of the symbol
-        inline SymbolType GetSymbolType()const { return mType; }
+        inline SymbolType GetSymbolType()const {TRACE_IT(47103); return mType; }
         // Casts the symbol to a derived class, additional test done to make sure is it the right type
         template<typename T>
         T* Cast();
@@ -384,9 +384,9 @@ namespace Js
         ArgType mArgType;
     public:
         // Constructor
-        AsmJsModuleArg(PropertyName name, ArgType type) : AsmJsSymbol(name, AsmJsSymbol::ModuleArgument), mArgType(type) { }
+        AsmJsModuleArg(PropertyName name, ArgType type) : AsmJsSymbol(name, AsmJsSymbol::ModuleArgument), mArgType(type) {TRACE_IT(47104); }
         // Accessor
-        inline const ArgType GetArgType()const { return mArgType; }
+        inline const ArgType GetArgType()const {TRACE_IT(47105); return mArgType; }
 
         // AsmJsSymbol interface
     public:
@@ -401,9 +401,9 @@ namespace Js
         const double* mVal;
     public:
         // Constructor
-        AsmJsMathConst(PropertyName name, const double* val) : AsmJsSymbol(name, AsmJsSymbol::MathConstant), mVal(val) { }
+        AsmJsMathConst(PropertyName name, const double* val) : AsmJsSymbol(name, AsmJsSymbol::MathConstant), mVal(val) {TRACE_IT(47106); }
         // Accessor
-        inline const double* GetVal()const { return mVal; }
+        inline const double* GetVal()const {TRACE_IT(47107); return mVal; }
 
         // AsmJsSymbol interface
     public:
@@ -426,14 +426,14 @@ namespace Js
             , mType(AsmJsVarType::Double)
             , mLocation(Js::Constants::NoRegister)
             , mIsMutable(isMutable)
-        {
+        {TRACE_IT(47108);
         }
 
         // Accessors
-        inline Js::RegSlot GetLocation() const            { return mLocation; }
-        inline void SetLocation( Js::RegSlot val )        { mLocation = val; }
-        inline AsmJsVarType GetVarType() const            { return mType; }
-        inline void SetVarType( const AsmJsVarType& type ){ mType = type; }
+        inline Js::RegSlot GetLocation() const            {TRACE_IT(47109); return mLocation; }
+        inline void SetLocation( Js::RegSlot val )        {TRACE_IT(47110); mLocation = val; }
+        inline AsmJsVarType GetVarType() const            {TRACE_IT(47111); return mType; }
+        inline void SetVarType( const AsmJsVarType& type ){TRACE_IT(47112); mType = type; }
 
         // AsmJsSymbol interface
     public:
@@ -463,20 +463,20 @@ namespace Js
         // Constructors
         AsmJsVar( PropertyName name, bool isMutable = true) :
             AsmJsVarBase(name, AsmJsSymbol::Variable, isMutable)
-        {
+        {TRACE_IT(47113);
             mConstInitialiser.doubleVal = 0;
         }
 
         // Accessors
-        inline void   SetConstInitialiser ( double val ){ mConstInitialiser.doubleVal = val; }
-        inline double GetDoubleInitialiser() const      { return mConstInitialiser.doubleVal; }
-        inline void   SetConstInitialiser(float val)   { mConstInitialiser.floatVal = val; }
-        inline float    GetFloatInitialiser() const      { return mConstInitialiser.floatVal; }
-        inline void   SetConstInitialiser ( int val )   { mConstInitialiser.intVal = val; }
-        inline int    GetIntInitialiser   () const      { return mConstInitialiser.intVal; }
+        inline void   SetConstInitialiser ( double val ){TRACE_IT(47114); mConstInitialiser.doubleVal = val; }
+        inline double GetDoubleInitialiser() const      {TRACE_IT(47115); return mConstInitialiser.doubleVal; }
+        inline void   SetConstInitialiser(float val)   {TRACE_IT(47116); mConstInitialiser.floatVal = val; }
+        inline float    GetFloatInitialiser() const      {TRACE_IT(47117); return mConstInitialiser.floatVal; }
+        inline void   SetConstInitialiser ( int val )   {TRACE_IT(47118); mConstInitialiser.intVal = val; }
+        inline int    GetIntInitialiser   () const      {TRACE_IT(47119); return mConstInitialiser.intVal; }
 
-        inline void SetConstInitialiser(AsmJsSIMDValue val) { mConstInitialiser.simdVal = val; }
-        inline AsmJsSIMDValue GetSimdConstInitialiser()      { return mConstInitialiser.simdVal; }
+        inline void SetConstInitialiser(AsmJsSIMDValue val) {TRACE_IT(47120); mConstInitialiser.simdVal = val; }
+        inline AsmJsSIMDValue GetSimdConstInitialiser()      {TRACE_IT(47121); return mConstInitialiser.simdVal; }
     };
 
     // AsmJsArgument defines the arguments of a function
@@ -486,7 +486,7 @@ namespace Js
         // Constructor
         AsmJsArgument( PropertyName name ) :
             AsmJsVarBase( name, AsmJsSymbol::Argument )
-        {
+        {TRACE_IT(47122);
         }
     };
 
@@ -501,11 +501,11 @@ namespace Js
         AsmJsConstantImport( PropertyName name, PropertyName field ) :
             AsmJsVarBase( name, AsmJsSymbol::ConstantImport ),
             mField( field )
-        {
+        {TRACE_IT(47123);
         }
 
         // Accessor
-        inline Js::PropertyName GetField() const { return mField; }
+        inline Js::PropertyName GetField() const {TRACE_IT(47124); return mField; }
     };
 
     template <typename T>
@@ -515,14 +515,14 @@ namespace Js
     struct AsmJsComparer<float>
     {
         inline static bool Equals(float x, float y)
-        {
+        {TRACE_IT(47125);
             int32 i32x = *(int32*)&x;
             int32 i32y = *(int32*)&y;
             return i32x == i32y;
         }
 
         inline static hash_t GetHashCode(float i)
-        {
+        {TRACE_IT(47126);
             return (hash_t)i;
         }
     };
@@ -531,14 +531,14 @@ namespace Js
     struct AsmJsComparer<double>
     {
         inline static bool Equals(double x, double y)
-        {
+        {TRACE_IT(47127);
             int64 i64x = *(int64*)&x;
             int64 i64y = *(int64*)&y;
             return i64x == i64y;
         }
 
         inline static hash_t GetHashCode(double d)
-        {
+        {TRACE_IT(47128);
             __int64 i64 = *(__int64*)&d;
             return (uint)((i64 >> 32) ^ (uint)i64);
         }
@@ -557,23 +557,23 @@ namespace Js
             // reserves 1 location for return
             WAsmJs::RegisterSpace(Js::FunctionBody::FirstRegSlot),
             mConstMap( allocator )
-        {
+        {TRACE_IT(47129);
         }
 
         inline void AddConst( T val )
-        {
+        {TRACE_IT(47130);
             if( !mConstMap.ContainsKey( val ) )
-            {
+            {TRACE_IT(47131);
                 mConstMap.Add( val, this->AcquireConstRegister() );
             }
         }
 
         inline RegSlot GetConstRegister( T val ) const
-        {
+        {TRACE_IT(47132);
             return mConstMap.LookupWithKey( val, Constants::NoRegister );
         }
         inline const ConstMap GetConstMap()
-        {
+        {TRACE_IT(47133);
             return mConstMap;
         }
     };
@@ -596,36 +596,36 @@ namespace Js
             , mLocation( 0 )
             , mReturnTypeKnown( false )
             , mArgumentsType(nullptr)
-        { }
+        {TRACE_IT(47134); }
         // returns false if the current return type is known and different
         virtual bool CheckAndSetReturnType( Js::AsmJsRetType val );
-        inline Js::AsmJsRetType GetReturnType() const{return mReturnType;}
+        inline Js::AsmJsRetType GetReturnType() const{TRACE_IT(47135);return mReturnType;}
         bool EnsureArgCount(ArgSlot count);
         void SetArgCount(ArgSlot count );
 
         ArgSlot GetArgCount() const
-        {
+        {TRACE_IT(47136);
             return mArgCount;
         }
         AsmJsType* GetArgTypeArray();
 
         const AsmJsType& GetArgType( ArgSlot index ) const
-        {
+        {TRACE_IT(47137);
             Assert( mArgumentsType && index < GetArgCount() );
             return mArgumentsType[index];
         }
         void SetArgType(const AsmJsType& arg, ArgSlot index)
-        {
+        {TRACE_IT(47138);
             Assert( index < GetArgCount() ); mArgumentsType[index] = arg;
         }
         void SetArgType(AsmJsVarBase* arg, ArgSlot index)
-        {
+        {TRACE_IT(47139);
             Assert( mArgumentsType != nullptr && index < GetArgCount() );
             SetArgType( arg->GetType(), index );
         }
         bool EnsureArgType(AsmJsVarBase* arg, ArgSlot index);
-        inline Js::RegSlot GetFunctionIndex() const{return mLocation;}
-        inline void SetFunctionIndex( Js::RegSlot val ){mLocation = val;}
+        inline Js::RegSlot GetFunctionIndex() const{TRACE_IT(47140);return mLocation;}
+        inline void SetFunctionIndex( Js::RegSlot val ){TRACE_IT(47141);mLocation = val;}
 
         // argCount : number of arguments to check
         // args : dynamic array with the argument type
@@ -651,7 +651,7 @@ namespace Js
         AsmJsMathFunction(PropertyName name, ArenaAllocator* allocator, ArgSlot argCount, AsmJSMathBuiltinFunction builtIn, OpCodeAsmJs op, AsmJsRetType retType, ...);
 
         void SetOverload( AsmJsMathFunction* val );
-        AsmJSMathBuiltinFunction GetMathBuiltInFunction(){ return mBuiltIn; };
+        AsmJSMathBuiltinFunction GetMathBuiltInFunction(){TRACE_IT(47142); return mBuiltIn; };
         virtual bool CheckAndSetReturnType( Js::AsmJsRetType val ) override;
         bool SupportsMathCall(ArgSlot argCount, AsmJsType* args, OpCodeAsmJs& op, AsmJsRetType& retType);
     private:
@@ -665,10 +665,10 @@ namespace Js
         ArrayBufferView::ViewType mType;
     public:
         AsmJsTypedArrayFunction(PropertyName name, ArenaAllocator* allocator, AsmJSTypedArrayBuiltinFunction builtIn, ArrayBufferView::ViewType type) :
-            AsmJsFunctionDeclaration(name, AsmJsSymbol::TypedArrayBuiltinFunction, allocator), mBuiltIn(builtIn), mType(type) { }
+            AsmJsFunctionDeclaration(name, AsmJsSymbol::TypedArrayBuiltinFunction, allocator), mBuiltIn(builtIn), mType(type) {TRACE_IT(47143); }
 
-        AsmJSTypedArrayBuiltinFunction GetArrayBuiltInFunction(){ return mBuiltIn; };
-        ArrayBufferView::ViewType GetViewType(){ return mType; };
+        AsmJSTypedArrayBuiltinFunction GetArrayBuiltInFunction(){TRACE_IT(47144); return mBuiltIn; };
+        ArrayBufferView::ViewType GetViewType(){TRACE_IT(47145); return mType; };
 
     };
 
@@ -679,7 +679,7 @@ namespace Js
         AsmJsImportFunction( PropertyName name, PropertyName field, ArenaAllocator* allocator );
 
         inline Js::PropertyName GetField() const
-        {
+        {TRACE_IT(47146);
             return mField;
         }
 
@@ -702,25 +702,25 @@ namespace Js
             , mSize( 0 )
             , mIsDefined( false )
             , mAreArgumentsKnown( false )
-        {
+        {TRACE_IT(47147);
 
         }
 
-        inline bool IsDefined() const{return mIsDefined;}
-        inline void Define(){mIsDefined = true;}
-        inline uint GetSize() const{return mSize;}
+        inline bool IsDefined() const{TRACE_IT(47148);return mIsDefined;}
+        inline void Define(){TRACE_IT(47149);mIsDefined = true;}
+        inline uint GetSize() const{TRACE_IT(47150);return mSize;}
         inline void SetSize( unsigned int val )
-        {
+        {TRACE_IT(47151);
             mSize = val;
             mTable.EnsureArray( mSize );
         }
         inline void SetModuleFunctionIndex( RegSlot funcIndex, unsigned int index )
-        {
+        {TRACE_IT(47152);
             Assert( index < mSize );
             mTable.SetItem( index, funcIndex );
         }
         inline RegSlot GetModuleFunctionIndex( unsigned int index )
-        {
+        {TRACE_IT(47153);
             Assert( index < mSize );
             return mTable.Item( index );
         }
@@ -750,41 +750,41 @@ namespace Js
     public:
         AsmJsFunc( PropertyName name, ParseNode* pnodeFnc, ArenaAllocator* allocator, ScriptContext* scriptContext );
 
-        unsigned GetCompileTime() const { return mCompileTime; }
-        void AccumulateCompileTime(unsigned ms) { mCompileTime += ms; }
+        unsigned GetCompileTime() const {TRACE_IT(47154); return mCompileTime; }
+        void AccumulateCompileTime(unsigned ms) {TRACE_IT(47155); mCompileTime += ms; }
 
-        inline ParseNode* GetFncNode() const{ return mFncNode; }
-        inline void       SetFncNode(ParseNode* fncNode) { mFncNode = fncNode; }
-        inline FuncInfo*  GetFuncInfo() const{ return mFuncInfo; }
-        inline void       SetFuncInfo(FuncInfo* fncInfo) { mFuncInfo = fncInfo; }
-        inline FunctionBody*GetFuncBody() const{ return mFuncBody; }
-        inline void       SetFuncBody(FunctionBody* fncBody) { mFuncBody = fncBody; }
-        inline ULONG      GetOrigParseFlags() const{ return mOrigParseFlags; }
-        inline void       SetOrigParseFlags(ULONG parseFlags) { mOrigParseFlags = parseFlags; }
+        inline ParseNode* GetFncNode() const{TRACE_IT(47156); return mFncNode; }
+        inline void       SetFncNode(ParseNode* fncNode) {TRACE_IT(47157); mFncNode = fncNode; }
+        inline FuncInfo*  GetFuncInfo() const{TRACE_IT(47158); return mFuncInfo; }
+        inline void       SetFuncInfo(FuncInfo* fncInfo) {TRACE_IT(47159); mFuncInfo = fncInfo; }
+        inline FunctionBody*GetFuncBody() const{TRACE_IT(47160); return mFuncBody; }
+        inline void       SetFuncBody(FunctionBody* fncBody) {TRACE_IT(47161); mFuncBody = fncBody; }
+        inline ULONG      GetOrigParseFlags() const{TRACE_IT(47162); return mOrigParseFlags; }
+        inline void       SetOrigParseFlags(ULONG parseFlags) {TRACE_IT(47163); mOrigParseFlags = parseFlags; }
 
-        inline ParseNode* GetBodyNode() const{return mBodyNode;}
-        inline void SetBodyNode( ParseNode* val ){mBodyNode = val;}
-        inline void Finish() { mDefined = true; }
-        inline bool IsDefined()const { return mDefined; }
-        inline void SetDeferred() { mDeferred = true; }
-        inline bool IsDeferred()const { return mDeferred; }
-        template<typename T> inline AsmJsRegisterSpace<T>& GetRegisterSpace() {
+        inline ParseNode* GetBodyNode() const{TRACE_IT(47164);return mBodyNode;}
+        inline void SetBodyNode( ParseNode* val ){TRACE_IT(47165);mBodyNode = val;}
+        inline void Finish() {TRACE_IT(47166); mDefined = true; }
+        inline bool IsDefined()const {TRACE_IT(47167); return mDefined; }
+        inline void SetDeferred() {TRACE_IT(47168); mDeferred = true; }
+        inline bool IsDeferred()const {TRACE_IT(47169); return mDeferred; }
+        template<typename T> inline AsmJsRegisterSpace<T>& GetRegisterSpace() {TRACE_IT(47170);
             return *(AsmJsRegisterSpace<T>*)mTypedRegisterAllocator.GetRegisterSpace(WAsmJs::RegisterSpace::GetRegisterSpaceType<T>());
         }
-        const WAsmJs::TypedRegisterAllocator& GetTypedRegisterAllocator() const { return mTypedRegisterAllocator; }
-        inline SIMDVarsList& GetSimdVarsList()    { return mSimdVarsList;  }
+        const WAsmJs::TypedRegisterAllocator& GetTypedRegisterAllocator() const {TRACE_IT(47171); return mTypedRegisterAllocator; }
+        inline SIMDVarsList& GetSimdVarsList()    {TRACE_IT(47172); return mSimdVarsList;  }
 
         /// Wrapper for RegisterSpace methods
-        template<typename T> inline RegSlot AcquireRegister   (){return GetRegisterSpace<T>().AcquireRegister();}
-        template<typename T> inline void AddConst             ( T val ){GetRegisterSpace<T>().AddConst( val );}
-        template<typename T> inline RegSlot GetConstRegister  ( T val ){return GetRegisterSpace<T>().GetConstRegister( val );}
-        template<typename T> inline RegSlot AcquireTmpRegister(){return GetRegisterSpace<T>().AcquireTmpRegister();}
-        template<typename T> inline void ReleaseTmpRegister   ( Js::RegSlot tmpReg ){GetRegisterSpace<T>().ReleaseTmpRegister( tmpReg );}
-        template<typename T> inline void ReleaseLocation      ( const EmitExpressionInfo* pnode ){GetRegisterSpace<T>().ReleaseLocation( pnode );}
-        template<typename T> inline bool IsTmpLocation        ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsTmpLocation( pnode );}
-        template<typename T> inline bool IsConstLocation      ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsConstLocation( pnode );}
-        template<typename T> inline bool IsVarLocation        ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsVarLocation( pnode );}
-        template<typename T> inline bool IsValidLocation      ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsValidLocation( pnode );}
+        template<typename T> inline RegSlot AcquireRegister   (){TRACE_IT(47173);return GetRegisterSpace<T>().AcquireRegister();}
+        template<typename T> inline void AddConst             ( T val ){TRACE_IT(47174);GetRegisterSpace<T>().AddConst( val );}
+        template<typename T> inline RegSlot GetConstRegister  ( T val ){TRACE_IT(47175);return GetRegisterSpace<T>().GetConstRegister( val );}
+        template<typename T> inline RegSlot AcquireTmpRegister(){TRACE_IT(47176);return GetRegisterSpace<T>().AcquireTmpRegister();}
+        template<typename T> inline void ReleaseTmpRegister   ( Js::RegSlot tmpReg ){TRACE_IT(47177);GetRegisterSpace<T>().ReleaseTmpRegister( tmpReg );}
+        template<typename T> inline void ReleaseLocation      ( const EmitExpressionInfo* pnode ){TRACE_IT(47178);GetRegisterSpace<T>().ReleaseLocation( pnode );}
+        template<typename T> inline bool IsTmpLocation        ( const EmitExpressionInfo* pnode ){TRACE_IT(47179);return GetRegisterSpace<T>().IsTmpLocation( pnode );}
+        template<typename T> inline bool IsConstLocation      ( const EmitExpressionInfo* pnode ){TRACE_IT(47180);return GetRegisterSpace<T>().IsConstLocation( pnode );}
+        template<typename T> inline bool IsVarLocation        ( const EmitExpressionInfo* pnode ){TRACE_IT(47181);return GetRegisterSpace<T>().IsVarLocation( pnode );}
+        template<typename T> inline bool IsValidLocation      ( const EmitExpressionInfo* pnode ){TRACE_IT(47182);return GetRegisterSpace<T>().IsValidLocation( pnode );}
         void ReleaseLocationGeneric( const EmitExpressionInfo* pnode );
 
         // Search for a var in the varMap of the function, return nullptr if not found
@@ -794,10 +794,10 @@ namespace Js
         AsmJsSymbol* LookupIdentifier( const PropertyName name, AsmJsLookupSource::Source* lookupSource = nullptr ) const;
         void SetArgOutDepth(int outParamsCount);
         void UpdateMaxArgOutDepth(int outParamsCount);
-        inline int GetArgOutDepth() const{ return mArgOutDepth; }
-        inline int GetMaxArgOutDepth() const{ return mMaxArgOutDepth; }
-        void CommitToFunctionInfo(Js::AsmJsFunctionInfo* funcInfo, FunctionBody* body) {mTypedRegisterAllocator.CommitToFunctionInfo(funcInfo, body);}
-        void CommitToFunctionBody(FunctionBody* body) { mTypedRegisterAllocator.CommitToFunctionBody(body); }
+        inline int GetArgOutDepth() const{TRACE_IT(47183); return mArgOutDepth; }
+        inline int GetMaxArgOutDepth() const{TRACE_IT(47184); return mMaxArgOutDepth; }
+        void CommitToFunctionInfo(Js::AsmJsFunctionInfo* funcInfo, FunctionBody* body) {TRACE_IT(47185);mTypedRegisterAllocator.CommitToFunctionInfo(funcInfo, body);}
+        void CommitToFunctionBody(FunctionBody* body) {TRACE_IT(47186); mTypedRegisterAllocator.CommitToFunctionBody(body); }
     };
 
     struct MathBuiltin
@@ -815,14 +815,14 @@ namespace Js
         } u;
 
         MathBuiltin() : kind( Kind( -1 ) )
-        {
+        {TRACE_IT(47187);
         }
         MathBuiltin(AsmJSMathBuiltinFunction mathLibFunctionName, const double* cst) : kind(Constant), mathLibFunctionName(mathLibFunctionName)
-        {
+        {TRACE_IT(47188);
             u.cst = cst;
         }
         MathBuiltin(AsmJSMathBuiltinFunction mathLibFunctionName, AsmJsMathFunction* func) : kind(Function), mathLibFunctionName(mathLibFunctionName)
-        {
+        {TRACE_IT(47189);
             u.func = func;
         }
     };
@@ -832,11 +832,11 @@ namespace Js
         AsmJSTypedArrayBuiltinFunction mArrayLibFunctionName;
         AsmJsTypedArrayFunction* mFunc;
 
-        TypedArrayBuiltin() { }
+        TypedArrayBuiltin() {TRACE_IT(47190); }
         TypedArrayBuiltin(AsmJSTypedArrayBuiltinFunction arrayLibFunctionName, AsmJsTypedArrayFunction* func) :
             mArrayLibFunctionName(arrayLibFunctionName),
             mFunc(func)
-        { }
+        {TRACE_IT(47191); }
     };
 
     class AsmJsArrayView : public AsmJsSymbol
@@ -847,14 +847,14 @@ namespace Js
         AsmJsArrayView( PropertyName name, ArrayBufferView::ViewType viewType ) :
             AsmJsSymbol( name, AsmJsSymbol::ArrayView )
             , mViewType( viewType )
-        {
+        {TRACE_IT(47192);
 
         }
 
         virtual AsmJsType GetType() const;
         virtual bool isMutable() const;
         inline ArrayBufferView::ViewType GetViewType() const
-        {
+        {TRACE_IT(47193);
             return mViewType;
         }
     };
@@ -894,7 +894,7 @@ namespace Js
                               mUsesHeapBuffer(false),
                               mIsHeapBufferConst(false),
                               mArgType(nullptr),
-                              mArgSizes(nullptr) {}
+                              mArgSizes(nullptr) {TRACE_IT(47194);}
         // the key is the bytecode address
         typedef JsUtil::BaseDictionary<int, ptrdiff_t, Recycler> ByteCodeToTJMap;
         Field(ByteCodeToTJMap*) mbyteCodeTJMap;
@@ -902,10 +902,10 @@ namespace Js
         WAsmJs::TypedSlotInfo* GetTypedSlotInfo(WAsmJs::Types type);
 
 #define TYPED_SLOT_INFO_GETTER(name, type) \
-        int Get##name##ByteOffset() const   { return mTypedSlotInfos[WAsmJs::##type].byteOffset; }\
-        int Get##name##ConstCount() const   { return mTypedSlotInfos[WAsmJs::##type].constCount; }\
-        int Get##name##TmpCount() const     { return mTypedSlotInfos[WAsmJs::##type].tmpCount; }\
-        int Get##name##VarCount() const     { return mTypedSlotInfos[WAsmJs::##type].varCount; }
+        int Get##name##ByteOffset() const   {TRACE_IT(47195); return mTypedSlotInfos[WAsmJs::##type].byteOffset; }\
+        int Get##name##ConstCount() const   {TRACE_IT(47196); return mTypedSlotInfos[WAsmJs::##type].constCount; }\
+        int Get##name##TmpCount() const     {TRACE_IT(47197); return mTypedSlotInfos[WAsmJs::##type].tmpCount; }\
+        int Get##name##VarCount() const     {TRACE_IT(47198); return mTypedSlotInfos[WAsmJs::##type].varCount; }
 
         TYPED_SLOT_INFO_GETTER(Double, FLOAT64);
         TYPED_SLOT_INFO_GETTER(Float, FLOAT32);
@@ -914,76 +914,76 @@ namespace Js
         TYPED_SLOT_INFO_GETTER(Simd, SIMD);
 #undef TYPED_SLOT_INFO_GETTER
 
-        inline ArgSlot GetArgCount() const{ return mArgCount; }
-        inline void SetArgCount(ArgSlot val) { mArgCount = val; }
-        inline AsmJsRetType GetReturnType() const{return mReturnType;}
-        inline void SetReturnType(AsmJsRetType val) { mReturnType = val; }
-        inline ArgSlot GetArgByteSize() const{return mArgByteSize;}
-        inline void SetArgByteSize(ArgSlot val) { mArgByteSize = val; }
+        inline ArgSlot GetArgCount() const{TRACE_IT(47199); return mArgCount; }
+        inline void SetArgCount(ArgSlot val) {TRACE_IT(47200); mArgCount = val; }
+        inline AsmJsRetType GetReturnType() const{TRACE_IT(47201);return mReturnType;}
+        inline void SetReturnType(AsmJsRetType val) {TRACE_IT(47202); mReturnType = val; }
+        inline ArgSlot GetArgByteSize() const{TRACE_IT(47203);return mArgByteSize;}
+        inline void SetArgByteSize(ArgSlot val) {TRACE_IT(47204); mArgByteSize = val; }
 
-        inline void SetIsHeapBufferConst(bool val) { mIsHeapBufferConst = val; }
-        inline bool IsHeapBufferConst() const{ return mIsHeapBufferConst; }
+        inline void SetIsHeapBufferConst(bool val) {TRACE_IT(47205); mIsHeapBufferConst = val; }
+        inline bool IsHeapBufferConst() const{TRACE_IT(47206); return mIsHeapBufferConst; }
 
-        inline void SetUsesHeapBuffer(bool val) { mUsesHeapBuffer = val; }
-        inline bool UsesHeapBuffer() const{ return mUsesHeapBuffer; }
+        inline void SetUsesHeapBuffer(bool val) {TRACE_IT(47207); mUsesHeapBuffer = val; }
+        inline bool UsesHeapBuffer() const{TRACE_IT(47208); return mUsesHeapBuffer; }
 
-        inline int GetSimdAllCount() const { return GetSimdConstCount() + GetSimdVarCount() + GetSimdTmpCount(); }
+        inline int GetSimdAllCount() const {TRACE_IT(47209); return GetSimdConstCount() + GetSimdVarCount() + GetSimdTmpCount(); }
 
-        Js::JavascriptError * GetLazyError() const { return mLazyError; }
-        void SetLazyError(Js::JavascriptError * val) { mLazyError = val; }
+        Js::JavascriptError * GetLazyError() const {TRACE_IT(47210); return mLazyError; }
+        void SetLazyError(Js::JavascriptError * val) {TRACE_IT(47211); mLazyError = val; }
 
         int GetTotalSizeinBytes()const;
         void SetArgType(AsmJsVarType type, ArgSlot index);
         inline AsmJsVarType GetArgType(ArgSlot index ) const
-        {
+        {TRACE_IT(47212);
             Assert(mArgCount != Constants::InvalidArgSlot);
             AnalysisAssert( index < mArgCount);
             return mArgType[index];
         }
         bool Init( AsmJsFunc* func );
-        void SetModuleFunctionBody(FunctionBody* body){ asmJsModuleFunctionBody = body; };
-        FunctionBody* GetModuleFunctionBody()const{ return asmJsModuleFunctionBody; };
+        void SetModuleFunctionBody(FunctionBody* body){TRACE_IT(47213); asmJsModuleFunctionBody = body; };
+        FunctionBody* GetModuleFunctionBody()const{TRACE_IT(47214); return asmJsModuleFunctionBody; };
 
         ArgSlot GetArgSizeArrayLength()
-        {
+        {TRACE_IT(47215);
             return mArgSizesLength;
         }
         void SetArgSizeArrayLength(ArgSlot val)
-        {
+        {TRACE_IT(47216);
             mArgSizesLength = val;
         }
 
         uint* GetArgsSizesArray()
-        {
+        {TRACE_IT(47217);
             return mArgSizes;
         }
         void SetArgsSizesArray(uint* val)
-        {
+        {TRACE_IT(47218);
             mArgSizes = val;
         }
         AsmJsVarType::Which * GetArgTypeArray()
-        {
+        {TRACE_IT(47219);
             return mArgType;
         }
         void SetArgTypeArray(AsmJsVarType::Which* val)
-        {
+        {TRACE_IT(47220);
             mArgType = val;
         }
 #ifdef ENABLE_WASM
         Wasm::WasmSignature * GetWasmSignature()
-        {
+        {TRACE_IT(47221);
             return mSignature;
         }
         void SetWasmSignature(Wasm::WasmSignature * sig)
-        {
+        {TRACE_IT(47222);
             mSignature = sig;
         }
 
-        Wasm::WasmReaderInfo* GetWasmReaderInfo() const {return mWasmReaderInfo;}
-        void SetWasmReaderInfo(Wasm::WasmReaderInfo* reader) {mWasmReaderInfo = reader;}
-        WebAssemblyModule* GetWebAssemblyModule() const { return mWasmModule; }
-        void SetWebAssemblyModule(WebAssemblyModule * module) { mWasmModule= module; }
-        bool IsWasmDeferredParse() const { return mWasmReaderInfo != nullptr; }
+        Wasm::WasmReaderInfo* GetWasmReaderInfo() const {TRACE_IT(47223);return mWasmReaderInfo;}
+        void SetWasmReaderInfo(Wasm::WasmReaderInfo* reader) {TRACE_IT(47224);mWasmReaderInfo = reader;}
+        WebAssemblyModule* GetWebAssemblyModule() const {TRACE_IT(47225); return mWasmModule; }
+        void SetWebAssemblyModule(WebAssemblyModule * module) {TRACE_IT(47226); mWasmModule= module; }
+        bool IsWasmDeferredParse() const {TRACE_IT(47227); return mWasmReaderInfo != nullptr; }
 #endif
     };
 
@@ -1009,7 +1009,7 @@ namespace Js
 
         PropertyId GetBuiltinPropertyId();
         void SetOverload(AsmJsSIMDFunction* val);
-        AsmJsSIMDBuiltinFunction GetSimdBuiltInFunction(){ return mBuiltIn; };
+        AsmJsSIMDBuiltinFunction GetSimdBuiltInFunction(){TRACE_IT(47228); return mBuiltIn; };
         virtual bool CheckAndSetReturnType(Js::AsmJsRetType val) override;
 
         bool SupportsSIMDCall(ArgSlot argCount, AsmJsType* args, OpCodeAsmJs& op, AsmJsRetType& retType);
@@ -1018,21 +1018,21 @@ namespace Js
         bool IsConstructor(uint argCount);
         bool IsTypeCheck();  // e.g. float32x4(x)
         bool IsUnsignedTypeCheck();
-        bool IsInt32x4Func()  { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_End;   }
-        bool IsBool32x4Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_End;  }
-        bool IsBool16x8Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_End;  }
-        bool IsBool8x16Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_End; }
-        bool IsFloat32x4Func(){ return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_End; }
-        bool IsFloat64x2Func(){ return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_End; }
+        bool IsInt32x4Func()  {TRACE_IT(47229); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_End;   }
+        bool IsBool32x4Func() {TRACE_IT(47230); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_End;  }
+        bool IsBool16x8Func() {TRACE_IT(47231); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_End;  }
+        bool IsBool8x16Func() {TRACE_IT(47232); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_End; }
+        bool IsFloat32x4Func(){TRACE_IT(47233); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_End; }
+        bool IsFloat64x2Func(){TRACE_IT(47234); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_End; }
 
-        bool IsInt16x8Func()  { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_End;   }
-        bool IsInt8x16Func() { return mBuiltIn > AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_End; }
-        bool IsUint32x4Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_End;  }
-        bool IsUint16x8Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_End;  }
-        bool IsUint8x16Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_End;  }
+        bool IsInt16x8Func()  {TRACE_IT(47235); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_End;   }
+        bool IsInt8x16Func() {TRACE_IT(47236); return mBuiltIn > AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_End; }
+        bool IsUint32x4Func() {TRACE_IT(47237); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_End;  }
+        bool IsUint16x8Func() {TRACE_IT(47238); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_End;  }
+        bool IsUint8x16Func() {TRACE_IT(47239); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_End;  }
 
         bool IsSimdLoadFunc()
-        {
+        {TRACE_IT(47240);
             return (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_load && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_load3) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_load) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int8x16_load) ||
@@ -1043,7 +1043,7 @@ namespace Js
                 (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_load && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_load1);
         }
         bool IsSimdStoreFunc()
-        {
+        {TRACE_IT(47241);
             return (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_store && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_store3) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_store) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int8x16_store) ||
@@ -1054,7 +1054,7 @@ namespace Js
                 (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_store && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_store1);
         }
         bool IsExtractLaneFunc()
-        {
+        {TRACE_IT(47242);
             return (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_extractLane ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_extractLane ||
@@ -1069,7 +1069,7 @@ namespace Js
                 );
         }
         bool IsReplaceLaneFunc()
-        {
+        {TRACE_IT(47243);
             return (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_replaceLane ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_replaceLane ||
@@ -1084,28 +1084,28 @@ namespace Js
                 );
         }
         bool IsLaneAccessFunc()
-        {
+        {TRACE_IT(47244);
             return (
                 IsExtractLaneFunc() || IsReplaceLaneFunc()
                 );
         }
 
         uint32 LanesCount()
-        {
+        {TRACE_IT(47245);
             if (IsInt32x4Func() || IsFloat32x4Func() || IsUint32x4Func() || IsBool32x4Func())
-            {
+            {TRACE_IT(47246);
                 return 4;
             }
             if (IsInt16x8Func() || IsUint16x8Func() || IsBool16x8Func())
-            {
+            {TRACE_IT(47247);
                 return 8;
             }
             if (IsUint8x16Func() || IsInt8x16Func() || IsBool8x16Func())
-            {
+            {TRACE_IT(47248);
                 return 16;
             }
             if (IsFloat64x2Func())
-            {
+            {TRACE_IT(47249);
                 return 2;
             }
             Assert(UNREACHED);
@@ -1113,7 +1113,7 @@ namespace Js
         }
 
        bool IsShuffleFunc()
-       {
+       {TRACE_IT(47250);
 
            return (
                mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_shuffle ||
@@ -1128,7 +1128,7 @@ namespace Js
         }
 
         bool IsSwizzleFunc()
-        {
+        {TRACE_IT(47251);
             return  (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_swizzle ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_swizzle ||
@@ -1142,7 +1142,7 @@ namespace Js
         }
 
         bool ReturnsBool()
-        {
+        {TRACE_IT(47252);
             return (
                 mBuiltIn == AsmJsSIMDBuiltin_bool32x4_allTrue || mBuiltIn == AsmJsSIMDBuiltin_bool32x4_anyTrue ||
                 mBuiltIn == AsmJsSIMDBuiltin_bool16x8_allTrue || mBuiltIn == AsmJsSIMDBuiltin_bool16x8_anyTrue ||
@@ -1154,7 +1154,7 @@ namespace Js
 
         AsmJsVarType GetTypeCheckVarType();
         AsmJsVarType GetConstructorVarType();
-        OpCodeAsmJs GetOpcode() { return mOpCode;  }
+        OpCodeAsmJs GetOpcode() {TRACE_IT(47253); return mOpCode;  }
 
     private:
         virtual bool SupportsArgCall(ArgSlot argCount, AsmJsType* args, AsmJsRetType& retType) override;

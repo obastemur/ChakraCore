@@ -12,17 +12,17 @@ namespace Js
     {
 #endif
         inline Var JavascriptMath::Increment(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64840);
             return Increment_Full(aRight, scriptContext);
         }
 
         inline Var JavascriptMath::Decrement(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64841);
             return Decrement_Full(aRight, scriptContext);
         }
 
         inline Var JavascriptMath::Negate(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64842);
             return
                 (TaggedInt::Is(aRight) && aRight != TaggedInt::ToVarUnchecked(0) && aRight != TaggedInt::MinVal()) ?
                     TaggedInt::NegateUnchecked(aRight) :
@@ -30,7 +30,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::Not(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64843);
             return
                 TaggedInt::Is(aRight) ?
                 TaggedInt::Not(aRight,scriptContext) :
@@ -39,7 +39,7 @@ namespace Js
 
 
         inline Var JavascriptMath::Or(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64844);
             return
                 TaggedInt::IsPair(aLeft,aRight) ?
                 TaggedInt::Or(aLeft,aRight) :
@@ -47,7 +47,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::And(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64845);
 #if FLOATVAR
             return
                 TaggedInt::IsPair(aLeft,aRight) ?
@@ -56,7 +56,7 @@ namespace Js
 #else
             Var varSpeculative = TaggedInt::Speculative_And(aLeft, aRight);
             if (TaggedInt::Is(varSpeculative))
-            {
+            {TRACE_IT(64846);
                 return varSpeculative;
             }
 
@@ -65,7 +65,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::ShiftLeft(Var aLeft,Var aRight,ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64847);
             return
                 TaggedInt::IsPair(aLeft, aRight) ?
                 TaggedInt::ShiftLeft(aLeft, aRight,scriptContext) :
@@ -73,7 +73,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::ShiftRight(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64848);
             return
                 TaggedInt::IsPair(aLeft, aRight) ?
                 TaggedInt::ShiftRight(aLeft, aRight) :
@@ -81,7 +81,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::ShiftRightU(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64849);
             return
                 TaggedInt::IsPair(aLeft, aRight) ?
                 TaggedInt::ShiftRightU(aLeft, aRight, scriptContext) :
@@ -89,7 +89,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::Xor(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64850);
             return
                 TaggedInt::IsPair(aLeft, aRight) ?
                 TaggedInt::Xor(aLeft, aRight) :
@@ -97,10 +97,10 @@ namespace Js
         }
 
         inline double JavascriptMath::Decrement_Helper(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64851);
     #if defined(DBG)
             if (TaggedInt::Is(aRight))
-            {
+            {TRACE_IT(64852);
                 // The only reason to be here is if TaggedInt increment underflowed
                 AssertMsg(aRight == TaggedInt::MinVal(), "TaggedInt decrement should be handled in generated code.");
             }
@@ -111,10 +111,10 @@ namespace Js
         }
 
         inline double JavascriptMath::Increment_Helper(Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64853);
     #if defined(DBG)
             if (TaggedInt::Is(aRight))
-            {
+            {TRACE_IT(64854);
                 // The only reason to be here is if TaggedInt increment overflowed
                 AssertMsg(aRight == TaggedInt::MaxVal(), "TaggedInt increment should be handled in generated code.");
             }
@@ -125,7 +125,7 @@ namespace Js
         }
 
         inline double JavascriptMath::Negate_Helper(Var aRight,ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64855);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
 
@@ -134,7 +134,7 @@ namespace Js
         }
 
         inline int32 JavascriptMath::And_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64856);
             Assert(aLeft != nullptr);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
@@ -148,7 +148,7 @@ namespace Js
         }
 
         inline int32 JavascriptMath::Or_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64857);
             Assert(aLeft != nullptr);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
@@ -162,7 +162,7 @@ namespace Js
 
 
         inline double JavascriptMath::Add_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64858);
             AssertMsg( !JavascriptString::Is(aLeft), "Strings should have been handled already" );
             AssertMsg( !JavascriptString::Is(aRight), "Strings should have been handled already" );
 
@@ -172,7 +172,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::Add(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64859);
             return
                 TaggedInt::IsPair(aLeft,aRight) ?
                 TaggedInt::Add(aLeft, aRight, scriptContext) :
@@ -180,7 +180,7 @@ namespace Js
         }
 
         inline Var JavascriptMath::Subtract(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64860);
             return
                 TaggedInt::IsPair(aLeft,aRight) ?
                 TaggedInt::Subtract(aLeft, aRight, scriptContext) :
@@ -188,7 +188,7 @@ namespace Js
         }
 
         inline double JavascriptMath::Subtract_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64861);
             Assert(aLeft != nullptr);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
@@ -200,34 +200,34 @@ namespace Js
         }
 
         inline Var JavascriptMath::Multiply(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64862);
             if (TaggedInt::IsPair(aLeft, aRight))
-            {
+            {TRACE_IT(64863);
                 return TaggedInt::Multiply(aLeft, aRight, scriptContext);
             }
             else
-            {
+            {TRACE_IT(64864);
 #if defined(_M_IX86) && !defined(SSE2MATH)
                 if (AutoSystemInfo::Data.SSE2Available())
-                {
+                {TRACE_IT(64865);
                     return SSE2::JavascriptMath::Multiply_Full(aLeft, aRight, scriptContext);
                 }
                 else
 #endif
-                {
+                {TRACE_IT(64866);
                     return Multiply_Full(aLeft, aRight, scriptContext);
                 }
             }
         }
 
         inline Var JavascriptMath::Exponentiation(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64867);
             return Exponentiation_Full(aLeft, aRight, scriptContext);
         }
 
 
         inline double JavascriptMath::Multiply_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64868);
             Assert(aLeft != nullptr);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
@@ -237,22 +237,22 @@ namespace Js
         }
 
         inline Var JavascriptMath::Divide(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64869);
 #if defined(_M_IX86) && !defined(SSE2MATH)
             if (AutoSystemInfo::Data.SSE2Available())
-            {
+            {TRACE_IT(64870);
                 return SSE2::JavascriptMath::Divide_Full(aLeft, aRight, scriptContext);
             }
             else
 #endif
-            {
+            {TRACE_IT(64871);
                 // The TaggedInt,TaggedInt case is handled within Divide_Full
                 return Divide_Full(aLeft, aRight, scriptContext);
             }
         }
 
         inline double JavascriptMath::Divide_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64872);
             Assert(aLeft != nullptr);
             Assert(aRight != nullptr);
             Assert(scriptContext != nullptr);
@@ -266,12 +266,12 @@ namespace Js
         }
 
         inline Var JavascriptMath::Modulus(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64873);
             return Modulus_Full(aLeft, aRight, scriptContext);
         }
 
         inline double JavascriptMath::Modulus_Helper(Var aLeft, Var aRight, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64874);
             double dblLeft = JavascriptConversion::ToNumber(aLeft, scriptContext);
             double dblRight = JavascriptConversion::ToNumber(aRight, scriptContext);
             return NumberUtilities::Modulus(dblLeft, dblRight);
@@ -279,7 +279,7 @@ namespace Js
 
 #if defined(_M_ARM32_OR_ARM64)
         inline int32 JavascriptMath::ToInt32Core(double T1)
-        {
+        {TRACE_IT(64875);
             // Try the int32 conversion first and only do the more expensive (& closer to spec)
             // i64 conversion if it fails.
             __int32 i32 = (__int32)T1;
@@ -288,7 +288,7 @@ namespace Js
 
             int64 T4_64 = TryToInt64(T1);
             if (!NumberUtilities::IsValidTryToInt64(T4_64)) // overflow
-            {
+            {TRACE_IT(64876);
                 T4_64 = ToInt32ES5OverflowHelper(T1);
             }
 
@@ -296,7 +296,7 @@ namespace Js
         }
 #else
         inline int32 JavascriptMath::ToInt32Core(double T1)
-        {
+        {TRACE_IT(64877);
             // ES5 Spec for ToUInt32
             //
             //  T3 = sign(T1) * floor(abs(T1))
@@ -308,13 +308,13 @@ namespace Js
             // Try casting to int32 first. Results in 0x80000000 if it overflows.
             int32 T4_32 = static_cast<int32>(T1);
             if (T4_32 != 0x80000000)
-            {
+            {TRACE_IT(64878);
                 return T4_32;
             }
 
             int64 T4_64 = TryToInt64(T1);
             if (T4_64 == 0x8000000000000000) // overflow && ES5
-            {
+            {TRACE_IT(64879);
                 T4_64 = ToInt32ES5OverflowHelper(T1);
             }
 
@@ -324,9 +324,9 @@ namespace Js
 
         // Implements platform-agnostic part of handling overflow when converting Number to int32, ES5 version.
         inline __int64 JavascriptMath::ToInt32ES5OverflowHelper(double d)
-        {
+        {TRACE_IT(64880);
             if (IsNanInfZero(d)) // ShortCut NaN Inf Zero
-            {
+            {TRACE_IT(64881);
                 return 0;
             }
             const double k_2to32 = 4294967296.0;
@@ -343,19 +343,19 @@ namespace Js
         }
 
         inline BOOL JavascriptMath::IsNanInfZero(double v)
-        {
+        {TRACE_IT(64882);
             return JavascriptNumber::IsNan(v) || JavascriptNumber::IsZero(v) || JavascriptNumber::IsPosInf(v) || JavascriptNumber::IsNegInf(v);
         }
 
         inline int64 JavascriptMath::TryToInt64(double T1)
-        {
+        {TRACE_IT(64883);
             return Js::NumberUtilities::TryToInt64(T1);
         }
 
         inline int32 JavascriptMath::ToInt32_NoObjects(Var aValue, ScriptContext* scriptContext, bool& isObject)
-        {
+        {TRACE_IT(64884);
             if (JavascriptOperators::IsObject(aValue))
-            {
+            {TRACE_IT(64885);
                 isObject = true; // jitted code should bailout
                 return 0;
             }
@@ -365,7 +365,7 @@ namespace Js
         }
 
         inline int32 JavascriptMath::ToInt32(Var aValue, ScriptContext* scriptContext)
-        {
+        {TRACE_IT(64886);
             return
                 TaggedInt::Is(aValue) ?
                 TaggedInt::ToInt32(aValue) :

@@ -27,13 +27,13 @@ namespace Js
         bool Matches(StatementLocation statement);
         bool Matches(FunctionBody* _pBody, DebugDocument* debugDocument, int byteOffset);
 
-        UINT GetId() const { return this->breakpointId; }
+        UINT GetId() const {TRACE_IT(42110); return this->breakpointId; }
         void GetStatementLocation(StatementLocation * statement);
-        FunctionBody* GetFunctionBody() const { return this->functionBody; }
-        int GetBytecodeOffset() const { return this->byteOffset; }
+        FunctionBody* GetFunctionBody() const {TRACE_IT(42111); return this->functionBody; }
+        int GetBytecodeOffset() const {TRACE_IT(42112); return this->byteOffset; }
 
-        DebugDocument* GetDbugDocument() { return this->debugDocument; }
-        int GetCharacterOffset() { return this->characterOffset; }
+        DebugDocument* GetDbugDocument() {TRACE_IT(42113); return this->debugDocument; }
+        int GetCharacterOffset() {TRACE_IT(42114); return this->characterOffset; }
     };
 
     typedef JsUtil::List<BreakpointProbe*, ArenaAllocator> BreakpointProbeList;

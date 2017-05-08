@@ -35,7 +35,7 @@ namespace Js
         static DynamicType* CreateTypeForNewScObject(ScriptContext* scriptContext, DynamicType* type, const Js::PropertyIdArray *propIds, bool shareType);
         static DynamicType* CreateNewScopeObject(ScriptContext* scriptContext, DynamicType* type, const Js::PropertyIdArray *propIds, PropertyAttributes extraAttributes = PropertyNone, uint extraAttributesSlotCount = UINT_MAX);
 
-        static PathTypeHandlerBase * FromTypeHandler(DynamicTypeHandler * const typeHandler) { Assert(typeHandler->IsPathTypeHandler()); return static_cast<PathTypeHandlerBase*>(typeHandler); }
+        static PathTypeHandlerBase * FromTypeHandler(DynamicTypeHandler * const typeHandler) {TRACE_IT(66788); Assert(typeHandler->IsPathTypeHandler()); return static_cast<PathTypeHandlerBase*>(typeHandler); }
 
         virtual int GetPropertyCount() override;
         virtual PropertyId GetPropertyId(ScriptContext* scriptContext, PropertyIndex index) override;
@@ -72,7 +72,7 @@ namespace Js
         virtual void MarshalAllPropertiesToScriptContext(DynamicObject* instance, ScriptContext* targetScriptContext, bool invalidateFixedFields) override;
         virtual DynamicTypeHandler* ConvertToTypeWithItemAttributes(DynamicObject* instance) override;
         virtual BOOL AllPropertiesAreEnumerable() sealed { return true; }
-        virtual BOOL IsPathTypeHandler() const { return TRUE; }
+        virtual BOOL IsPathTypeHandler() const {TRACE_IT(66789); return TRUE; }
 
         virtual void ShrinkSlotAndInlineSlotCapacity() override;
         virtual void LockInlineSlotCapacity() override { Assert(false); };
@@ -86,7 +86,7 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return !IsolatePrototypes(); }
+        virtual bool SupportsPrototypeInstances() const {TRACE_IT(66790); return !IsolatePrototypes(); }
 #endif
 
         virtual bool HasSingletonInstance() const override sealed;
@@ -117,7 +117,7 @@ namespace Js
 
     private:
         static bool FixPropsOnPathTypes()
-        {
+        {TRACE_IT(66791);
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             return CONFIG_FLAG(FixPropsOnPathTypes);
 #else
@@ -137,11 +137,11 @@ namespace Js
             this->typePath->SetSingletonInstance(instance, GetPathLength());
         }
 
-        virtual void ClearSingletonInstance() { Assert(false); }
+        virtual void ClearSingletonInstance() {TRACE_IT(66792); Assert(false); }
 
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded() const
-        {
+        {TRACE_IT(66793);
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             return AreSingletonInstancesNeeded() || !this->typePath->HasSingletonInstance();
 #else
@@ -171,7 +171,7 @@ namespace Js
         ConvertToSimpleDictionaryType(DynamicObject* instance, int propertyCapacity, bool mayBecomeShared = false);
 
         SimpleDictionaryTypeHandler* ConvertToSimpleDictionaryType(DynamicObject* instance, int propertyCapacity, bool mayBecomeShared = false)
-        {
+        {TRACE_IT(66794);
             return ConvertToSimpleDictionaryType<SimpleDictionaryTypeHandler>(instance, propertyCapacity, mayBecomeShared);
         }
 
@@ -195,9 +195,9 @@ namespace Js
         virtual bool GetSuccessor(const PropertyRecord* propertyRecord, RecyclerWeakReference<DynamicType> ** typeWeakRef) = 0;
         virtual void SetSuccessor(DynamicType * type, const PropertyRecord* propertyRecord, RecyclerWeakReference<DynamicType> * typeWeakRef, ScriptContext * scriptContext) = 0;
 
-        uint16 GetPathLength() const { return GetUnusedBytesValue(); }
-        TypePath * GetTypePath() const { return typePath; }
-        DynamicType * GetPredecessorType() const { return predecessorType; }
+        uint16 GetPathLength() const {TRACE_IT(66795); return GetUnusedBytesValue(); }
+        TypePath * GetTypePath() const {TRACE_IT(66796); return typePath; }
+        DynamicType * GetPredecessorType() const {TRACE_IT(66797); return predecessorType; }
         PathTypeHandlerBase* GetRootPathTypeHandler();
 
     public:

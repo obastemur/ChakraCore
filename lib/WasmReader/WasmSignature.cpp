@@ -17,14 +17,14 @@ WasmSignature::WasmSignature() :
     m_params(nullptr),
     m_paramsCount(0),
     m_shortSig(Js::Constants::InvalidSignature)
-{
+{TRACE_IT(68436);
 }
 
 void
 WasmSignature::AllocateParams(uint32 count, Recycler * recycler)
-{
+{TRACE_IT(68437);
     if (count > 0)
-    {
+    {TRACE_IT(68438);
         m_params = RecyclerNewArrayLeafZ(recycler, Local, count);
     }
     m_paramsCount = count;
@@ -32,9 +32,9 @@ WasmSignature::AllocateParams(uint32 count, Recycler * recycler)
 
 void
 WasmSignature::SetParam(WasmTypes::WasmType type, uint32 index)
-{
+{TRACE_IT(68439);
     if (index >= GetParamCount())
-    {
+    {TRACE_IT(68440);
         throw WasmCompilationException(_u("Parameter %d out of range (max %d)"), index, GetParamCount());
     }
     m_params[index] = Local(type);
@@ -42,23 +42,23 @@ WasmSignature::SetParam(WasmTypes::WasmType type, uint32 index)
 
 void
 WasmSignature::SetResultType(WasmTypes::WasmType type)
-{
+{TRACE_IT(68441);
     Assert(m_resultType == WasmTypes::Void);
     m_resultType = type;
 }
 
 void
 WasmSignature::SetSignatureId(uint32 id)
-{
+{TRACE_IT(68442);
     Assert(m_id == Js::Constants::UninitializedValue);
     m_id = id;
 }
 
 Local
 WasmSignature::GetParam(uint index) const
-{
+{TRACE_IT(68443);
     if (index >= GetParamCount())
-    {
+    {TRACE_IT(68444);
         throw WasmCompilationException(_u("Parameter %d out of range (max %d)"), index, GetParamCount());
     }
     return m_params[index];
@@ -66,46 +66,46 @@ WasmSignature::GetParam(uint index) const
 
 WasmTypes::WasmType
 WasmSignature::GetResultType() const
-{
+{TRACE_IT(68445);
     return m_resultType;
 }
 
 uint32
 WasmSignature::GetParamCount() const
-{
+{TRACE_IT(68446);
     return m_paramsCount;
 }
 
 uint32
 WasmSignature::GetSignatureId() const
-{
+{TRACE_IT(68447);
     return m_id;
 }
 
 size_t
 WasmSignature::GetShortSig() const
-{
+{TRACE_IT(68448);
     return m_shortSig;
 }
 
 bool
 WasmSignature::IsEquivalent(const WasmSignature* sig) const
-{
+{TRACE_IT(68449);
     if (m_shortSig != Js::Constants::InvalidSignature)
-    {
+    {TRACE_IT(68450);
         return sig->GetShortSig() == m_shortSig;
     }
     if (GetResultType() == sig->GetResultType() &&
         GetParamCount() == sig->GetParamCount() &&
         GetParamsSize() == sig->GetParamsSize())
-    {
+    {TRACE_IT(68451);
         return GetParamCount() == 0 || memcmp(m_params, sig->m_params, GetParamCount() * sizeof(Local)) == 0;
     }
     return false;
 }
 
 uint32 WasmSignature::GetParamSize(uint index) const
-{
+{TRACE_IT(68452);
     switch (GetParam(index))
     {
     case WasmTypes::F32:
@@ -132,13 +132,13 @@ uint32 WasmSignature::GetParamSize(uint index) const
 
 void
 WasmSignature::FinalizeSignature()
-{
+{TRACE_IT(68453);
     Assert(m_paramSize == Js::Constants::UninitializedValue);
     Assert(m_shortSig == Js::Constants::InvalidSignature);
 
     m_paramSize = 0;
     for (uint32 i = 0; i < GetParamCount(); ++i)
-    {
+    {TRACE_IT(68454);
         m_paramSize += GetParamSize(i);
     }
 
@@ -149,10 +149,10 @@ WasmSignature::FinalizeSignature()
     // we don't need to reserve a sentinel bit because there is no result type with value of 7
     int sigSize = 3 + 2 * GetParamCount();
     if (sigSize <= sizeof(m_shortSig) << 3)
-    {
+    {TRACE_IT(68455);
         m_shortSig = (m_shortSig << 3) | m_resultType;
         for (uint32 i = 0; i < GetParamCount(); ++i)
-        {
+        {TRACE_IT(68456);
             // we can use 2 bits per arg by dropping void
             m_shortSig = (m_shortSig << 2) | (m_params[i] - 1);
         }
@@ -161,13 +161,13 @@ WasmSignature::FinalizeSignature()
 
 uint32
 WasmSignature::GetParamsSize() const
-{
+{TRACE_IT(68457);
     return m_paramSize;
 }
 
 WasmSignature *
 WasmSignature::FromIDL(WasmSignatureIDL* sig)
-{
+{TRACE_IT(68458);
     // must update WasmSignatureIDL when changing WasmSignature
     CompileAssert(sizeof(Wasm::WasmSignature) == sizeof(WasmSignatureIDL));
     CompileAssert(offsetof(Wasm::WasmSignature, m_resultType) == offsetof(WasmSignatureIDL, resultType));
@@ -183,13 +183,13 @@ WasmSignature::FromIDL(WasmSignatureIDL* sig)
 
 void
 WasmSignature::Dump()
-{
+{TRACE_IT(68459);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     Output::Print(_u("("));
     for(uint32 i = 0; i < this->GetParamCount(); i++)
-    {
+    {TRACE_IT(68460);
         if(i != 0)
-        {
+        {TRACE_IT(68461);
             Output::Print(_u(", "));
         }
         switch(this->GetParam(i)) {

@@ -28,7 +28,7 @@ public:
         symsRequiredToBeInt(allocator),
         symsRequiredToBeLossyInt(allocator),
         next(next)
-    {
+    {TRACE_IT(9598);
         Assert(firstInstr);
         Assert(lastInstr);
         Assert(lastInstr->m_opcode == Js::OpCode::NoIntOverflowBoundary);
@@ -39,7 +39,7 @@ public:
         IR::Instr *const firstInstr,
         IR::Instr *const lastInstr,
         IntOverflowDoesNotMatterRange *const next)
-    {
+    {TRACE_IT(9599);
         return JitAnew(allocator, IntOverflowDoesNotMatterRange, allocator, firstInstr, lastInstr, next);
     }
 
@@ -50,33 +50,33 @@ public:
 
 public:
     IR::Instr *FirstInstr() const
-    {
+    {TRACE_IT(9600);
         return firstInstr;
     }
 
     void SetFirstInstr(IR::Instr *const firstInstr)
-    {
+    {TRACE_IT(9601);
         Assert(firstInstr);
         this->firstInstr = firstInstr;
     }
 
     IR::Instr *LastInstr() const
-    {
+    {TRACE_IT(9602);
         return lastInstr;
     }
 
     BVSparse<JitArenaAllocator> *SymsRequiredToBeInt()
-    {
+    {TRACE_IT(9603);
         return &symsRequiredToBeInt;
     }
 
     BVSparse<JitArenaAllocator> *SymsRequiredToBeLossyInt()
-    {
+    {TRACE_IT(9604);
         return &symsRequiredToBeLossyInt;
     }
 
     IntOverflowDoesNotMatterRange *Next() const
-    {
+    {TRACE_IT(9605);
         return next;
     }
 

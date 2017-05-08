@@ -15,29 +15,29 @@ namespace Js
     /////////////////////// ConcatStringBase //////////////////////////
 
     ConcatStringBase::ConcatStringBase(StaticType* stringType) : LiteralString(stringType)
-    {
+    {TRACE_IT(54746);
     }
 
     // Copy the content of items into specified buffer.
     void ConcatStringBase::CopyImpl(_Out_writes_(m_charLength) char16 *const buffer,
             int itemCount, _In_reads_(itemCount) JavascriptString * const * items,
             StringCopyInfoStack &nestedStringTreeCopyInfos, const byte recursionDepth)
-    {
+    {TRACE_IT(54747);
 
         Assert(!IsFinalized());
         Assert(buffer);
 
         CharCount copiedCharLength = 0;
         for(int i = 0; i < itemCount; ++i)
-        {
+        {TRACE_IT(54748);
             JavascriptString *const s = items[i];
             if(!s)
-            {
+            {TRACE_IT(54749);
                 continue;
             }
 
             if (s->IsFinalized())
-            {
+            {TRACE_IT(54750);
                 // If we have the buffer already, just copy it
                 const CharCount copyCharLength = s->GetLength();
                 AnalysisAssert(copiedCharLength + copyCharLength <= this->GetLength());
@@ -47,11 +47,11 @@ namespace Js
             }
 
             if(i == itemCount - 1)
-            {
+            {TRACE_IT(54751);
                 JavascriptString * const * newItems;
                 int newItemCount = s->GetRandomAccessItemsFromConcatString(newItems);
                 if (newItemCount != -1)
-                {
+                {TRACE_IT(54752);
                     // Optimize for right-weighted ConcatString tree (the append case). Even though appending to a ConcatString will
                     // transition into a CompoundString fairly quickly, strings created by doing just a few appends are very common.
                     items = newItems;
@@ -65,14 +65,14 @@ namespace Js
             AnalysisAssert(copyCharLength <= GetLength() - copiedCharLength);
 
             if(recursionDepth == MaxCopyRecursionDepth && s->IsTree())
-            {
+            {TRACE_IT(54753);
                 // Don't copy nested string trees yet, as that involves a recursive call, and the recursion can become
                 // excessive. Just collect the nested string trees and the buffer location where they should be copied, and
                 // the caller can deal with those after returning.
                 nestedStringTreeCopyInfos.Push(StringCopyInfo(s, &buffer[copiedCharLength]));
             }
             else
-            {
+            {TRACE_IT(54754);
                 Assert(recursionDepth <= MaxCopyRecursionDepth);
                 s->Copy(&buffer[copiedCharLength], nestedStringTreeCopyInfos, recursionDepth + 1);
             }
@@ -83,7 +83,7 @@ namespace Js
     }
 
     bool ConcatStringBase::IsTree() const
-    {
+    {TRACE_IT(54755);
         Assert(!IsFinalized());
 
         return true;
@@ -93,7 +93,7 @@ namespace Js
 
     ConcatString::ConcatString(JavascriptString* a, JavascriptString* b) :
         ConcatStringN<2>(a->GetLibrary()->GetStringTypeStatic(), false)
-    {
+    {TRACE_IT(54756);
         Assert(a);
         Assert(b);
 
@@ -107,7 +107,7 @@ namespace Js
     }
 
     ConcatString* ConcatString::New(JavascriptString* left, JavascriptString* right)
-    {
+    {TRACE_IT(54757);
         Assert(left);
 
 #ifdef PROFILE_STRINGS
@@ -130,7 +130,7 @@ namespace Js
     ConcatStringBuilder::ConcatStringBuilder(ScriptContext* scriptContext, int initialSlotCount) :
         ConcatStringBase(scriptContext->GetLibrary()->GetStringTypeStatic()),
         m_count(0), m_prevChunk(nullptr)
-    {
+    {TRACE_IT(54758);
         Assert(scriptContext);
 
         // Note: m_slotCount is a valid scenario -- when you don't know how many will be there.
@@ -140,7 +140,7 @@ namespace Js
 
     ConcatStringBuilder::ConcatStringBuilder(const ConcatStringBuilder& other):
         ConcatStringBase(other.GetScriptContext()->GetLibrary()->GetStringTypeStatic())
-    {
+    {TRACE_IT(54759);
         m_slots = other.m_slots;
         m_count = other.m_count;
         m_slotCount = other.m_slotCount;
@@ -150,20 +150,20 @@ namespace Js
     }
 
     ConcatStringBuilder* ConcatStringBuilder::New(ScriptContext* scriptContext, int initialSlotCount)
-    {
+    {TRACE_IT(54760);
         Assert(scriptContext);
 
         return RecyclerNew(scriptContext->GetRecycler(), ConcatStringBuilder, scriptContext, initialSlotCount);
     }
 
     const char16 * ConcatStringBuilder::GetSz()
-    {
+    {TRACE_IT(54761);
         const char16 * sz = GetSzImpl<ConcatStringBuilder>();
 
         // Allow a/b to be garbage collected if no more refs.
         ConcatStringBuilder* current = this;
         while (current != NULL)
-        {
+        {TRACE_IT(54762);
             ClearArray(current->m_slots, current->m_count);
             current = current->m_prevChunk;
         }
@@ -175,14 +175,14 @@ namespace Js
     // The idea is that we will grow/realloc current slot if new size fits into MAX chunk size (c_maxChunkSlotCount).
     // Otherwise we will create a new chunk.
     void ConcatStringBuilder::Append(JavascriptString* str)
-    {
+    {TRACE_IT(54763);
         // Note: we are quite lucky here because we always add 1 (no more) string to us.
 
         Assert(str);
         charcount_t len = this->GetLength(); // This is len of all chunks.
 
         if (m_count == m_slotCount)
-        {
+        {TRACE_IT(54764);
             // Out of free slots, current chunk is full, need to grow.
             int oldItemCount = this->GetItemCount();
             int newItemCount = oldItemCount > 0 ?
@@ -192,7 +192,7 @@ namespace Js
             int growDelta = newItemCount - oldItemCount; // # of items to grow by.
             int newSlotCount = m_slotCount + growDelta;
             if (newSlotCount <= c_maxChunkSlotCount)
-            {
+            {TRACE_IT(54765);
                 // While we fit into MAX chunk size, realloc/grow current chunk.
                 Field(JavascriptString*)* newSlots = RecyclerNewArray(
                     this->GetScriptContext()->GetRecycler(), Field(JavascriptString*), newSlotCount);
@@ -201,7 +201,7 @@ namespace Js
                 m_slotCount = newSlotCount;
             }
             else
-            {
+            {TRACE_IT(54766);
                 // Create new chunk with MAX size, swap new instance's data with this's data.
                 // We never create more than one chunk at a time.
                 ConcatStringBuilder* newChunk = RecyclerNew(this->GetScriptContext()->GetRecycler(), ConcatStringBuilder, *this); // Create a copy.
@@ -223,14 +223,14 @@ namespace Js
     // Allocate slots, set m_slots and m_slotCount.
     // Note: the amount of slots allocated can be less than the requestedSlotCount parameter.
     void ConcatStringBuilder::AllocateSlots(int requestedSlotCount)
-    {
+    {TRACE_IT(54767);
         if (requestedSlotCount > 0)
-        {
+        {TRACE_IT(54768);
             m_slotCount = min(requestedSlotCount, this->c_maxChunkSlotCount);
             m_slots = RecyclerNewArray(this->GetScriptContext()->GetRecycler(), Field(JavascriptString*), m_slotCount);
         }
         else
-        {
+        {TRACE_IT(54769);
             m_slotCount = 0;
             m_slots = nullptr;
         }
@@ -238,11 +238,11 @@ namespace Js
 
     // Returns the number of JavascriptString* items accumulated so far in all chunks.
     int ConcatStringBuilder::GetItemCount() const
-    {
+    {TRACE_IT(54770);
         int count = 0;
         const ConcatStringBuilder* current = this;
         while (current != NULL)
-        {
+        {TRACE_IT(54771);
             count += current->m_count;
             current = current->m_prevChunk;
         }
@@ -250,11 +250,11 @@ namespace Js
     }
 
     ConcatStringBuilder* ConcatStringBuilder::GetHead() const
-    {
+    {TRACE_IT(54772);
         ConcatStringBuilder* current = const_cast<ConcatStringBuilder*>(this);
         ConcatStringBuilder* head;
         do
-        {
+        {TRACE_IT(54773);
             head = current;
             current = current->m_prevChunk;
         } while (current != NULL);
@@ -265,18 +265,18 @@ namespace Js
         _Out_writes_(m_charLength) char16 *const buffer,
         StringCopyInfoStack &nestedStringTreeCopyInfos,
         const byte recursionDepth)
-    {
+    {TRACE_IT(54774);
         Assert(!this->IsFinalized());
         Assert(buffer);
 
         CharCount remainingCharLengthToCopy = GetLength();
         for(const ConcatStringBuilder *current = this; current; current = current->m_prevChunk)
-        {
+        {TRACE_IT(54775);
             for(int i = current->m_count - 1; i >= 0; --i)
-            {
+            {TRACE_IT(54776);
                 JavascriptString *const s = current->m_slots[i];
                 if(!s)
-                {
+                {TRACE_IT(54777);
                     continue;
                 }
 
@@ -284,14 +284,14 @@ namespace Js
                 Assert(remainingCharLengthToCopy >= copyCharLength);
                 remainingCharLengthToCopy -= copyCharLength;
                 if(recursionDepth == MaxCopyRecursionDepth && s->IsTree())
-                {
+                {TRACE_IT(54778);
                     // Don't copy nested string trees yet, as that involves a recursive call, and the recursion can become
                     // excessive. Just collect the nested string trees and the buffer location where they should be copied, and
                     // the caller can deal with those after returning.
                     nestedStringTreeCopyInfos.Push(StringCopyInfo(s, &buffer[remainingCharLengthToCopy]));
                 }
                 else
-                {
+                {TRACE_IT(54779);
                     Assert(recursionDepth <= MaxCopyRecursionDepth);
                     s->Copy(&buffer[remainingCharLengthToCopy], nestedStringTreeCopyInfos, recursionDepth + 1);
                 }
@@ -302,7 +302,7 @@ namespace Js
     /////////////////////// ConcatStringMulti //////////////////////////
     ConcatStringMulti::ConcatStringMulti(uint slotCount, JavascriptString * a1, JavascriptString * a2, StaticType* stringTypeStatic) :
         ConcatStringBase(stringTypeStatic), slotCount(slotCount)
-    {
+    {TRACE_IT(54780);
 #if DBG
         ClearArray(m_slots, slotCount);
 #endif
@@ -314,13 +314,13 @@ namespace Js
 
     size_t
     ConcatStringMulti::GetAllocSize(uint slotCount)
-    {
+    {TRACE_IT(54781);
         return sizeof(ConcatStringMulti) + (sizeof(JavascriptString *) * slotCount);
     }
 
     ConcatStringMulti*
     ConcatStringMulti::New(uint slotCount, JavascriptString * a1, JavascriptString * a2, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(54782);
         return RecyclerNewPlus(scriptContext->GetRecycler(),
             sizeof(JavascriptString *) * slotCount, ConcatStringMulti, slotCount, a1, a2,
             scriptContext->GetLibrary()->GetStringTypeStatic());
@@ -328,20 +328,20 @@ namespace Js
 
     bool
     ConcatStringMulti::Is(Var var)
-    {
+    {TRACE_IT(54783);
         return VirtualTableInfo<ConcatStringMulti>::HasVirtualTable(var);
     }
 
     ConcatStringMulti *
     ConcatStringMulti::FromVar(Var var)
-    {
+    {TRACE_IT(54784);
         Assert(ConcatStringMulti::Is(var));
         return static_cast<ConcatStringMulti *>(var);
     }
 
     const char16 *
     ConcatStringMulti::GetSz()
-    {
+    {TRACE_IT(54785);
         Assert(IsFilled());
         const char16 * sz = GetSzImpl<ConcatStringMulti>();
 
@@ -353,7 +353,7 @@ namespace Js
 
     void
     ConcatStringMulti::SetItem(_In_range_(0, slotCount - 1) uint index, JavascriptString* value)
-    {
+    {TRACE_IT(54786);
         Assert(index < slotCount);
         Assert(m_slots[index] == nullptr);
         value = CompoundString::GetImmutableOrScriptUnreferencedString(value);
@@ -364,10 +364,10 @@ namespace Js
 #if DBG
     bool
     ConcatStringMulti::IsFilled() const
-    {
+    {TRACE_IT(54787);
         for (uint i = slotCount; i > 0; i--)
-        {
-            if (m_slots[i - 1] == nullptr) { return false; }
+        {TRACE_IT(54788);
+            if (m_slots[i - 1] == nullptr) {TRACE_IT(54789); return false; }
         }
         return true;
     }

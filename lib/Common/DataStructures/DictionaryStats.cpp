@@ -10,7 +10,7 @@ DictionaryType* DictionaryStats::dictionaryTypes = NULL;
 CRITICAL_SECTION DictionaryStats::dictionaryTypesCriticalSection;
 
 DictionaryStats* DictionaryStats::Create(const char* name, uint bucketCount)
-{
+{TRACE_IT(21228);
     if (!Js::Configuration::Global.flags.IsEnabled(Js::ProfileDictionaryFlag) ||
         Js::Configuration::Global.flags.ProfileDictionary < 0)
         return NULL;
@@ -19,7 +19,7 @@ DictionaryStats* DictionaryStats::Create(const char* name, uint bucketCount)
 }
 
 DictionaryStats* DictionaryStats::Clone()
-{
+{TRACE_IT(21229);
     DictionaryStats* cloned = NoCheckHeapNew(DictionaryStats, pName, initialSize);
     cloned->finalSize = finalSize;
     cloned->countOfEmptyBuckets = countOfEmptyBuckets;
@@ -48,9 +48,9 @@ DictionaryStats::DictionaryStats(const char* name, uint bucketCount)
     maxLookupDepth(0),
     pNext(NULL),
     pName(NULL)
-{
+{TRACE_IT(21230);
     if(dictionaryTypes == NULL)
-    {
+    {TRACE_IT(21231);
         InitializeCriticalSection(&DictionaryStats::dictionaryTypesCriticalSection);
     }
     EnterCriticalSection(&DictionaryStats::dictionaryTypesCriticalSection);
@@ -60,7 +60,7 @@ DictionaryStats::DictionaryStats(const char* name, uint bucketCount)
     while(current)
     {
         if (strncmp(name, current->name, _countof(current->name)-1) == 0)
-        {
+        {TRACE_IT(21232);
             type = current;
             break;
         }
@@ -68,7 +68,7 @@ DictionaryStats::DictionaryStats(const char* name, uint bucketCount)
     }
 
     if (!type)
-    {
+    {TRACE_IT(21233);
         // We haven't seen this type before so add a new entry for it
         type = NoCheckHeapNew(DictionaryType);
         type->pNext = dictionaryTypes;
@@ -88,14 +88,14 @@ DictionaryStats::DictionaryStats(const char* name, uint bucketCount)
 }
 
 void DictionaryStats::Resize(uint newSize, uint emptyBucketCount)
-{
+{TRACE_IT(21234);
     finalSize = newSize;
     countOfEmptyBuckets = emptyBucketCount;
     ++countOfResize;
 }
 
 void DictionaryStats::Insert(uint depth)
-{
+{TRACE_IT(21235);
     ++itemCount;
     if (maxDepth < depth)
         maxDepth = depth;
@@ -104,7 +104,7 @@ void DictionaryStats::Insert(uint depth)
 }
 
 void DictionaryStats::Remove(bool isBucketEmpty)
-{
+{TRACE_IT(21236);
     if (itemCount > 0)
         --itemCount;
     if (isBucketEmpty)
@@ -112,7 +112,7 @@ void DictionaryStats::Remove(bool isBucketEmpty)
 }
 
 void DictionaryStats::Lookup(uint depth)
-{
+{TRACE_IT(21237);
     // Note, lookup and collision math only works out if depth is 0-based.
     // I.e., depth of 1 means there was 1 collision and the lookup found key at second item in the bucket
     lookupCount += 1;
@@ -124,7 +124,7 @@ void DictionaryStats::Lookup(uint depth)
 }
 
 void DictionaryStats::OutputStats()
-{
+{TRACE_IT(21238);
     if (!dictionaryTypes)
         return;
 
@@ -133,7 +133,7 @@ void DictionaryStats::OutputStats()
     Output::Print(_u("PROFILE DICTIONARY\n"));
     Output::Print(_u("%8s  %13s  %13s  %13s  %13s  %13s  %13s  %13s  %14s  %14s  %13s  %13s  %13s    %s\n"), _u("Metric"),_u("StartSize"), _u("EndSize"), _u("Resizes"), _u("Items"), _u("MaxDepth"), _u("EmptyBuckets"), _u("Lookups"), _u("Collisions"), _u("AvgLookupDepth"), _u("AvgCollDepth"), _u("MaxLookupDepth"), _u("Instances"), _u("Type"));
     while(current)
-    {
+    {TRACE_IT(21239);
         DictionaryType *type = current;
 
         DictionaryStats *instance = type->instances;
@@ -155,7 +155,7 @@ void DictionaryStats::OutputStats()
         //    dumpInstances = true;
         //}
         while(instance)
-        {
+        {TRACE_IT(21240);
             ComputeStats(instance->initialSize, size, max_size);
             ComputeStats(instance->finalSize, endSize, max_endSize);
             ComputeStats(instance->countOfResize, resizes, max_resizes);
@@ -165,21 +165,21 @@ void DictionaryStats::OutputStats()
             ComputeStats(instance->lookupCount, lookups, max_lookups);
             ComputeStats(instance->collisionCount, collisions, max_collisions);
             if (instance->lookupCount > 0)
-            {
+            {TRACE_IT(21241);
                 ComputeStats((double)instance->lookupDepthTotal / (double)instance->lookupCount, avglookupdepth, max_avglookupdepth);
             }
             if (instance->collisionCount > 0)
-            {
+            {TRACE_IT(21242);
                 ComputeStats((double)instance->lookupDepthTotal / (double)instance->collisionCount, avgcollisiondepth, max_avgcollisiondepth);
             }
             ComputeStats(instance->maxLookupDepth, maxlookupdepth, max_maxlookupdepth);
 
             if(dumpInstances)
-            {
+            {TRACE_IT(21243);
                 double avgld = 0.0;
                 double avgcd = 0.0;
                 if (instance->lookupCount > 0)
-                {
+                {TRACE_IT(21244);
                     avgld = (double)instance->lookupDepthTotal / (double)instance->lookupCount;
                     avgcd = (double)instance->lookupDepthTotal / (double)instance->collisionCount;
                 }
@@ -194,7 +194,7 @@ void DictionaryStats::OutputStats()
         }
 
         if (max_depth >= Js::Configuration::Global.flags.ProfileDictionary)
-        {
+        {TRACE_IT(21245);
             Output::Print(_u("%8s  %13.0f  %13.0f  %13.2f  %13.0f  %13.2f  %13.0f  %13.0f  %14.0f  %14.2f  %13.2f  %13.2f  %13d    %S\n"), _u("AVG:"),
                 size/type->instancesCount, endSize/type->instancesCount, resizes/type->instancesCount, items/type->instancesCount,
                 depth/type->instancesCount, empty/type->instancesCount, lookups/type->instancesCount, collisions/type->instancesCount,
@@ -213,29 +213,29 @@ void DictionaryStats::OutputStats()
 }
 
 void DictionaryStats::ComputeStats(uint input, double &total, double &max)
-{
+{TRACE_IT(21246);
     total += input;
     if (input > max)
         max = input;
 }
 
 void DictionaryStats::ComputeStats(double input, double &total, double &max)
-{
+{TRACE_IT(21247);
     total += input;
     if (input > max)
         max = input;
 }
 
 void DictionaryStats::ClearStats()
-{
+{TRACE_IT(21248);
     // Clear the collection since we already reported on what we already collected
     DictionaryType* current = dictionaryTypes;
     while(current)
-    {
+    {TRACE_IT(21249);
         DictionaryType *type = current;
         DictionaryStats *pNext = type->instances;
         while(pNext)
-        {
+        {TRACE_IT(21250);
             DictionaryStats *pCurrent = pNext;
             pNext = pNext->pNext;
             NoCheckHeapDelete(pCurrent);

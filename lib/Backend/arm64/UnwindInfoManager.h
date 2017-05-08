@@ -24,120 +24,120 @@ public:
         epilogEndLabelId(0),
         pdataArray(NULL),
         xdataArray(NULL)
-    {
+    {TRACE_IT(18047);
     }
 
-    void Init(Func * func) { this->func = func; }
-    void EmitUnwindInfo(PBYTE funcStart, DWORD size, CustomHeap::Allocation* allocation) { __debugbreak(); }
-    DWORD EmitLongUnwindInfoChunk(DWORD remainingLength) { __debugbreak(); }
+    void Init(Func * func) {TRACE_IT(18048); this->func = func; }
+    void EmitUnwindInfo(PBYTE funcStart, DWORD size, CustomHeap::Allocation* allocation) {TRACE_IT(18049); __debugbreak(); }
+    DWORD EmitLongUnwindInfoChunk(DWORD remainingLength) {TRACE_IT(18050); __debugbreak(); }
 
     void SetFunc(Func *func)
-    {
+    {TRACE_IT(18051);
         Assert(this->func == NULL);
         this->func = func;
     }
     Func * GetFunc() const
-    {
+    {TRACE_IT(18052);
         return this->func;
     }
 
     void SetFragmentStart(PBYTE pStart)
-    {
+    {TRACE_IT(18053);
         this->fragmentStart = pStart;
     }
     PBYTE GetFragmentStart() const
-    {
+    {TRACE_IT(18054);
         return this->fragmentStart;
     }
 
     void SetEpilogEndOffset(DWORD offset)
-    {
+    {TRACE_IT(18055);
         Assert(this->epilogEndOffset == 0);
         this->epilogEndOffset = offset;
     }
     DWORD GetEpilogEndOffset() const
-    {
+    {TRACE_IT(18056);
         return this->epilogEndOffset;
     }
 
     void SetPrologOffset(DWORD offset)
-    {
+    {TRACE_IT(18057);
         Assert(this->prologOffset == 0);
         this->prologOffset = offset;
     }
     DWORD GetPrologOffset() const
-    {
+    {TRACE_IT(18058);
         return this->prologOffset;
     }
 
     void SetFragmentLength(DWORD length)
-    {
+    {TRACE_IT(18059);
         this->fragmentLength = length;
     }
     DWORD GetFragmentLength() const
-    {
+    {TRACE_IT(18060);
         return this->fragmentLength;
     }
 
     void SetHomedParamCount(BYTE count)
-    {
+    {TRACE_IT(18061);
         Assert(this->homedParamCount == 0);
         this->homedParamCount = count;
     }
     DWORD GetHomedParamCount() const
-    {
+    {TRACE_IT(18062);
         return this->homedParamCount;
     }
 
     void SetStackDepth(DWORD depth)
-    {
+    {TRACE_IT(18063);
         Assert(this->stackDepth == 0);
         this->stackDepth = depth;
     }
     DWORD GetStackDepth() const
-    {
+    {TRACE_IT(18064);
         return this->stackDepth;
     }
 
     void SetHasCalls(bool has)
-    {
+    {TRACE_IT(18065);
         this->hasCalls = has;
     }
     bool GetHasCalls() const
-    {
+    {TRACE_IT(18066);
         return this->hasCalls;
     }
 
     void SetPrologStartLabel(DWORD id)
-    {
+    {TRACE_IT(18067);
         Assert(this->prologLabelId == 0);
         this->prologLabelId = id;
     }
     DWORD GetPrologStartLabel() const
-    {
+    {TRACE_IT(18068);
         return this->prologLabelId;
     }
 
     void SetEpilogEndLabel(DWORD id)
-    {
+    {TRACE_IT(18069);
         Assert(this->epilogEndLabelId == 0);
         this->epilogEndLabelId = id;
     }
     DWORD GetEpilogEndLabel() const
-    {
+    {TRACE_IT(18070);
         return this->epilogEndLabelId;
     }
 
-    bool GetHasChkStk() const { __debugbreak(); return 0; }
-    DWORD GetPDataCount(DWORD length) { __debugbreak(); return 0; }
-    void SetSavedReg(BYTE reg) { __debugbreak(); }
-    DWORD ClearSavedReg(DWORD mask, BYTE reg) const { __debugbreak(); return 0; }
+    bool GetHasChkStk() const {TRACE_IT(18071); __debugbreak(); return 0; }
+    DWORD GetPDataCount(DWORD length) {TRACE_IT(18072); __debugbreak(); return 0; }
+    void SetSavedReg(BYTE reg) {TRACE_IT(18073); __debugbreak(); }
+    DWORD ClearSavedReg(DWORD mask, BYTE reg) const {TRACE_IT(18074); __debugbreak(); return 0; }
 
-    void SetDoubleSavedRegList(DWORD doubleRegMask) { __debugbreak(); }
-    DWORD GetDoubleSavedRegList() const { __debugbreak(); return 0; }
+    void SetDoubleSavedRegList(DWORD doubleRegMask) {TRACE_IT(18075); __debugbreak(); }
+    DWORD GetDoubleSavedRegList() const {TRACE_IT(18076); __debugbreak(); return 0; }
 
-    static BYTE GetLastSavedReg(DWORD mask) { __debugbreak(); return 0; }
-    static BYTE GetFirstSavedReg(DWORD mask) { __debugbreak(); return 0; }
+    static BYTE GetLastSavedReg(DWORD mask) {TRACE_IT(18077); __debugbreak(); return 0; }
+    static BYTE GetFirstSavedReg(DWORD mask) {TRACE_IT(18078); __debugbreak(); return 0; }
 
 private:
 

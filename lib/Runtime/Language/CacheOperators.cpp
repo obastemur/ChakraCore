@@ -20,14 +20,14 @@ namespace Js
         ScriptContext * requestContext)
     {
         if (!CanCachePropertyRead(info, objectWithProperty, requestContext))
-        {
+        {TRACE_IT(47387);
             return;
         }
 
         AssertMsg(!(info->GetFlags() & InlineCacheGetterFlag), "We cache getters only in DictionaryTypeHandler::GetProperty() before they were executed");
         AssertMsg((info->GetFlags() & InlineCacheSetterFlag) == 0, "invalid setter flag in CachePropertyRead");
         if (info->GetInstance() != objectWithProperty) // We can't cache if slot owner is not the object
-        {
+        {TRACE_IT(47388);
             AssertMsg(info->IsNoCache() || objectWithProperty->GetPropertyIndex(propertyId) == Constants::NoSlot, "Missed updating PropertyValueInfo?");
             return;
         }
@@ -48,7 +48,7 @@ namespace Js
 
         const bool isProto = objectWithProperty != startingObject;
         if(!isProto)
-        {
+        {TRACE_IT(47389);
             Assert(info->IsWritable() == (objectWithProperty->IsWritable(propertyId) ? true : false));
             // Because StFld and LdFld caches aren't shared, we can safely cache for LdFld operations even if the property isn't writable.
         }
@@ -56,7 +56,7 @@ namespace Js
             PropertyValueInfo::PrototypeCacheDisabled((PropertyValueInfo*)info) ||
             !RecyclableObject::Is(startingObject) ||
             RecyclableObject::FromVar(startingObject)->GetScriptContext() != requestContext)
-        {
+        {TRACE_IT(47390);
             // Don't need to cache if the beginning property is number etc.
             return;
         }
@@ -65,9 +65,9 @@ namespace Js
         // For performance reasons, only execute this code in interpreted mode, not JIT.
         // This method only returns true in interpreted mode and can be used to detect interpreted mode.
         if (info->AllowResizingPolymorphicInlineCache())
-        {
+        {TRACE_IT(47391);
             if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-            {
+            {TRACE_IT(47392);
                 requestContext->GetTelemetry().GetOpcodeTelemetry().GetProperty(objectWithProperty, propertyId, nullptr, !isMissing);
             }
         }
@@ -93,7 +93,7 @@ namespace Js
         Var originalInstance,
         JsUtil::CharacterBuffer<WCHAR> const& propertyName,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(47393);
         PropertyRecord const* propertyRecord;
         requestContext->GetOrAddPropertyRecord(propertyName, &propertyRecord);
         CachePropertyReadForGetter(info, originalInstance, propertyRecord->GetPropertyId(), requestContext);
@@ -104,9 +104,9 @@ namespace Js
         Var originalInstance,
         PropertyId propertyId,
         ScriptContext* requestContext)
-    {
+    {TRACE_IT(47394);
         if (!info || !CacheOperators::CanCachePropertyRead(info, info->GetInstance(), requestContext))
-        {
+        {TRACE_IT(47395);
             return;
         }
 
@@ -123,16 +123,16 @@ namespace Js
                 !RecyclableObject::Is(originalInstance) ||
                 RecyclableObject::FromVar(originalInstance)->GetScriptContext() != requestContext
             ))
-        {
+        {TRACE_IT(47396);
             // Don't need to cache if the beginning property is number etc.
             return;
         }
 
 #ifdef TELEMETRY_AddToCache
         if (info->AllowResizingPolymorphicInlineCache()) // If in interpreted mode, not JIT.
-        {
+        {TRACE_IT(47397);
             if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-            {
+            {TRACE_IT(47398);
                 requestContext->GetTelemetry().GetOpcodeTelemetry().GetProperty(info->GetInstance(), propertyId, nullptr, true /* true, because if a getter is being evaluated then the property does exist. */);
             }
         }
@@ -161,20 +161,20 @@ namespace Js
         PropertyId propertyId,
         PropertyValueInfo* info,
         ScriptContext * requestContext)
-    {
+    {TRACE_IT(47399);
         Assert(typeWithoutProperty != nullptr);
 
         if (!CacheOperators::CanCachePropertyWrite(info, object, requestContext))
-        {
+        {TRACE_IT(47400);
             return;
         }
 
         BOOL isSetter = (info->GetFlags() == InlineCacheSetterFlag);
 
         if (info->GetInstance() != object) // We can't cache if slot owner is not the object
-        {
+        {TRACE_IT(47401);
             if (!isSetter)
-            {
+            {TRACE_IT(47402);
                 AssertMsg(info->IsNoCache() || object->GetPropertyIndex(propertyId) == Constants::NoSlot, "Missed updating PropertyValueInfo?");
                 return;
             }
@@ -182,16 +182,16 @@ namespace Js
 
         PropertyIndex propertyIndex = info->GetPropertyIndex();
         if (isSetter)
-        {
+        {TRACE_IT(47403);
             if (propertyIndex & 0xf000)
-            {
+            {TRACE_IT(47404);
                 return;
             }
         }
         else
-        {
+        {TRACE_IT(47405);
             if (propertyIndex == Constants::NoSlot)
-            {
+            {TRACE_IT(47406);
                 return;
             }
         }
@@ -207,7 +207,7 @@ namespace Js
         DynamicObject::FromVar(instance)->GetDynamicType()->GetTypeHandler()->PropertyIndexToInlineOrAuxSlotIndex(propertyIndex, &slotIndex, &isInlineSlot);
 
         if (!isSetter)
-        {
+        {TRACE_IT(47407);
             AssertMsg(instance == object, "invalid instance for non setter");
             Assert(DynamicType::Is(typeWithoutProperty->GetTypeId()));
             Assert(info->IsNoCache() || !info->IsStoreFieldCacheEnabled() || object->CanStorePropertyValueDirectly(propertyId, isRoot));
@@ -223,7 +223,7 @@ namespace Js
             // and invalidate any potential fixed fields this type may have.
             // Don't cache property adds to prototypes, so we don't have to check if the object is a prototype on the fast path.
             if (newType != oldType && newType->GetIsShared() && newType->GetTypeHandler()->IsPathTypeHandler() && (!oldType->GetTypeHandler()->GetIsPrototype()))
-            {
+            {TRACE_IT(47408);
                 DynamicTypeHandler* oldTypeHandler = oldType->GetTypeHandler();
                 DynamicTypeHandler* newTypeHandler = newType->GetTypeHandler();
 
@@ -269,7 +269,7 @@ namespace Js
                 Assert(requiredAuxSlotCapacity < (0x01 << InlineCache::RequiredAuxSlotCapacityBitCount));
             }
             else
-            {
+            {TRACE_IT(47409);
                 typeWithoutProperty = nullptr;
                 requiredAuxSlotCapacity = 0;
             }
@@ -292,7 +292,7 @@ namespace Js
 
         const bool isProto = instance != object;
         if(isProto && instance->GetScriptContext() != requestContext)
-        {
+        {TRACE_IT(47410);
             // Don't cache if object and prototype are from different context
             return;
         }
@@ -313,7 +313,7 @@ namespace Js
     }
 
     bool CacheOperators::CanCachePropertyRead(const PropertyValueInfo *info, RecyclableObject * object, ScriptContext * requestContext)
-    {
+    {TRACE_IT(47411);
         return
             info &&
             info->GetPropertyIndex() != Constants::NoSlot &&
@@ -322,12 +322,12 @@ namespace Js
     }
 
     bool CacheOperators::CanCachePropertyRead(RecyclableObject * object, ScriptContext * requestContext)
-    {
+    {TRACE_IT(47412);
         return object->GetScriptContext() == requestContext && !PHASE_OFF1(InlineCachePhase);
     }
 
     bool CacheOperators::CanCachePropertyWrite(const PropertyValueInfo *info, RecyclableObject * object, ScriptContext * requestContext)
-    {
+    {TRACE_IT(47413);
         return
             info &&
             (info->GetInlineCache() || info->GetPolymorphicInlineCache() || info->GetFunctionBody()) &&
@@ -335,7 +335,7 @@ namespace Js
     }
 
     bool CacheOperators::CanCachePropertyWrite(RecyclableObject * object, ScriptContext * requestContext)
-    {
+    {TRACE_IT(47414);
         return object->GetScriptContext() == requestContext && DynamicType::Is(object->GetTypeId()) && !PHASE_OFF1(InlineCachePhase);
     }
 
@@ -344,7 +344,7 @@ namespace Js
     {
         TraceCacheCommon(methodName, propertyId, requestContext, object);
         if(inlineCache)
-        {
+        {TRACE_IT(47415);
             Output::Print(_u("Inline Cache: \n  "));
             inlineCache->Dump();
         }
@@ -361,15 +361,15 @@ namespace Js
     }
 
     void CacheOperators::TraceCacheCommon(const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
-    {
+    {TRACE_IT(47416);
         if(object)
-        {
+        {TRACE_IT(47417);
             JavascriptFunction* caller;
             const WCHAR* callerName = NULL;
             uint lineNumber = 0;
             uint columnNumber = 0;
             if(JavascriptStackWalker::GetCaller(&caller, requestContext))
-            {
+            {TRACE_IT(47418);
                 FunctionBody *functionBody = caller->GetFunctionBody();
                 callerName = functionBody->GetExternalDisplayName();
                 lineNumber = functionBody->GetLineNumber();

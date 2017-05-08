@@ -84,7 +84,7 @@ namespace Js
     class UndeclaredBlockVariable : public RecyclableObject
     {
         friend class JavascriptLibrary;
-        UndeclaredBlockVariable(Type* type) : RecyclableObject(type) { }
+        UndeclaredBlockVariable(Type* type) : RecyclableObject(type) {TRACE_IT(59688); }
     };
 
     class SourceTextModuleRecord;
@@ -98,35 +98,35 @@ namespace Js
         Field(uint32) count;
 
         uint32 AddSegment(SparseArraySegment<int32> *segment)
-        {
+        {TRACE_IT(59689);
             cache[count++] = segment;
             return count;
         }
 
         SparseArraySegment<int32> *GetSegmentByIndex(byte index)
-        {
+        {TRACE_IT(59690);
             Assert(index <= MAX_SIZE);
             return cache[index - 1];
         }
 
         bool IsNotOverHardLimit()
-        {
+        {TRACE_IT(59691);
             return count < MAX_SIZE;
         }
 
         bool IsNotFull()
-        {
+        {TRACE_IT(59692);
             return count < (uint32) CONFIG_FLAG(CopyOnAccessArraySegmentCacheSize);
         }
 
         bool IsValidIndex(uint32 index)
-        {
+        {TRACE_IT(59693);
             return count && index && index <= count;
         }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         uint32 GetCount()
-        {
+        {TRACE_IT(59694);
             return count;
         }
 #endif
@@ -185,43 +185,43 @@ namespace Js
         Field(CacheForCopyOnAccessArraySegments *) cacheForCopyOnAccessArraySegments;
 #endif
 
-        static DWORD GetScriptContextOffset() { return offsetof(JavascriptLibrary, scriptContext); }
-        static DWORD GetUndeclBlockVarOffset() { return offsetof(JavascriptLibrary, undeclBlockVarSentinel); }
-        static DWORD GetEmptyStringOffset() { return offsetof(JavascriptLibrary, emptyString); }
-        static DWORD GetUndefinedValueOffset() { return offsetof(JavascriptLibrary, undefinedValue); }
-        static DWORD GetNullValueOffset() { return offsetof(JavascriptLibrary, nullValue); }
-        static DWORD GetBooleanTrueOffset() { return offsetof(JavascriptLibrary, booleanTrue); }
-        static DWORD GetBooleanFalseOffset() { return offsetof(JavascriptLibrary, booleanFalse); }
-        static DWORD GetNegativeZeroOffset() { return offsetof(JavascriptLibrary, negativeZero); }
-        static DWORD GetNumberTypeStaticOffset() { return offsetof(JavascriptLibrary, numberTypeStatic); }
-        static DWORD GetStringTypeStaticOffset() { return offsetof(JavascriptLibrary, stringTypeStatic); }
-        static DWORD GetObjectTypesOffset() { return offsetof(JavascriptLibrary, objectTypes); }
-        static DWORD GetObjectHeaderInlinedTypesOffset() { return offsetof(JavascriptLibrary, objectHeaderInlinedTypes); }
-        static DWORD GetRegexTypeOffset() { return offsetof(JavascriptLibrary, regexType); }
-        static DWORD GetArrayConstructorOffset() { return offsetof(JavascriptLibrary, arrayConstructor); }
-        static DWORD GetPositiveInfinityOffset() { return offsetof(JavascriptLibrary, positiveInfinite); }
-        static DWORD GetNaNOffset() { return offsetof(JavascriptLibrary, nan); }
-        static DWORD GetNativeIntArrayTypeOffset() { return offsetof(JavascriptLibrary, nativeIntArrayType); }
+        static DWORD GetScriptContextOffset() {TRACE_IT(59695); return offsetof(JavascriptLibrary, scriptContext); }
+        static DWORD GetUndeclBlockVarOffset() {TRACE_IT(59696); return offsetof(JavascriptLibrary, undeclBlockVarSentinel); }
+        static DWORD GetEmptyStringOffset() {TRACE_IT(59697); return offsetof(JavascriptLibrary, emptyString); }
+        static DWORD GetUndefinedValueOffset() {TRACE_IT(59698); return offsetof(JavascriptLibrary, undefinedValue); }
+        static DWORD GetNullValueOffset() {TRACE_IT(59699); return offsetof(JavascriptLibrary, nullValue); }
+        static DWORD GetBooleanTrueOffset() {TRACE_IT(59700); return offsetof(JavascriptLibrary, booleanTrue); }
+        static DWORD GetBooleanFalseOffset() {TRACE_IT(59701); return offsetof(JavascriptLibrary, booleanFalse); }
+        static DWORD GetNegativeZeroOffset() {TRACE_IT(59702); return offsetof(JavascriptLibrary, negativeZero); }
+        static DWORD GetNumberTypeStaticOffset() {TRACE_IT(59703); return offsetof(JavascriptLibrary, numberTypeStatic); }
+        static DWORD GetStringTypeStaticOffset() {TRACE_IT(59704); return offsetof(JavascriptLibrary, stringTypeStatic); }
+        static DWORD GetObjectTypesOffset() {TRACE_IT(59705); return offsetof(JavascriptLibrary, objectTypes); }
+        static DWORD GetObjectHeaderInlinedTypesOffset() {TRACE_IT(59706); return offsetof(JavascriptLibrary, objectHeaderInlinedTypes); }
+        static DWORD GetRegexTypeOffset() {TRACE_IT(59707); return offsetof(JavascriptLibrary, regexType); }
+        static DWORD GetArrayConstructorOffset() {TRACE_IT(59708); return offsetof(JavascriptLibrary, arrayConstructor); }
+        static DWORD GetPositiveInfinityOffset() {TRACE_IT(59709); return offsetof(JavascriptLibrary, positiveInfinite); }
+        static DWORD GetNaNOffset() {TRACE_IT(59710); return offsetof(JavascriptLibrary, nan); }
+        static DWORD GetNativeIntArrayTypeOffset() {TRACE_IT(59711); return offsetof(JavascriptLibrary, nativeIntArrayType); }
 #if ENABLE_COPYONACCESS_ARRAY
-        static DWORD GetCopyOnAccessNativeIntArrayTypeOffset() { return offsetof(JavascriptLibrary, copyOnAccessNativeIntArrayType); }
+        static DWORD GetCopyOnAccessNativeIntArrayTypeOffset() {TRACE_IT(59712); return offsetof(JavascriptLibrary, copyOnAccessNativeIntArrayType); }
 #endif
-        static DWORD GetNativeFloatArrayTypeOffset() { return offsetof(JavascriptLibrary, nativeFloatArrayType); }
-        static DWORD GetVTableAddressesOffset() { return offsetof(JavascriptLibrary, vtableAddresses); }
-        static DWORD GetConstructorCacheDefaultInstanceOffset() { return offsetof(JavascriptLibrary, constructorCacheDefaultInstance); }
-        static DWORD GetAbsDoubleCstOffset() { return offsetof(JavascriptLibrary, absDoubleCst); }
-        static DWORD GetUintConvertConstOffset() { return offsetof(JavascriptLibrary, uintConvertConst); }
-        static DWORD GetBuiltinFunctionsOffset() { return offsetof(JavascriptLibrary, builtinFunctions); }
-        static DWORD GetCharStringCacheOffset() { return offsetof(JavascriptLibrary, charStringCache); }
-        static DWORD GetCharStringCacheAOffset() { return GetCharStringCacheOffset() + CharStringCache::GetCharStringCacheAOffset(); }
-        const  JavascriptLibraryBase* GetLibraryBase() const { return static_cast<const JavascriptLibraryBase*>(this); }
-        void SetGlobalObject(GlobalObject* globalObject) {this->globalObject = globalObject; }
-        static DWORD GetRandSeed0Offset() { return offsetof(JavascriptLibrary, randSeed0); }
-        static DWORD GetRandSeed1Offset() { return offsetof(JavascriptLibrary, randSeed1); }
-        static DWORD GetTypeDisplayStringsOffset() { return offsetof(JavascriptLibrary, typeDisplayStrings); }
+        static DWORD GetNativeFloatArrayTypeOffset() {TRACE_IT(59713); return offsetof(JavascriptLibrary, nativeFloatArrayType); }
+        static DWORD GetVTableAddressesOffset() {TRACE_IT(59714); return offsetof(JavascriptLibrary, vtableAddresses); }
+        static DWORD GetConstructorCacheDefaultInstanceOffset() {TRACE_IT(59715); return offsetof(JavascriptLibrary, constructorCacheDefaultInstance); }
+        static DWORD GetAbsDoubleCstOffset() {TRACE_IT(59716); return offsetof(JavascriptLibrary, absDoubleCst); }
+        static DWORD GetUintConvertConstOffset() {TRACE_IT(59717); return offsetof(JavascriptLibrary, uintConvertConst); }
+        static DWORD GetBuiltinFunctionsOffset() {TRACE_IT(59718); return offsetof(JavascriptLibrary, builtinFunctions); }
+        static DWORD GetCharStringCacheOffset() {TRACE_IT(59719); return offsetof(JavascriptLibrary, charStringCache); }
+        static DWORD GetCharStringCacheAOffset() {TRACE_IT(59720); return GetCharStringCacheOffset() + CharStringCache::GetCharStringCacheAOffset(); }
+        const  JavascriptLibraryBase* GetLibraryBase() const {TRACE_IT(59721); return static_cast<const JavascriptLibraryBase*>(this); }
+        void SetGlobalObject(GlobalObject* globalObject) {TRACE_IT(59722);this->globalObject = globalObject; }
+        static DWORD GetRandSeed0Offset() {TRACE_IT(59723); return offsetof(JavascriptLibrary, randSeed0); }
+        static DWORD GetRandSeed1Offset() {TRACE_IT(59724); return offsetof(JavascriptLibrary, randSeed1); }
+        static DWORD GetTypeDisplayStringsOffset() {TRACE_IT(59725); return offsetof(JavascriptLibrary, typeDisplayStrings); }
         typedef bool (CALLBACK *PromiseContinuationCallback)(Var task, void *callbackState);
 
-        Var GetUndeclBlockVar() const { return undeclBlockVarSentinel; }
-        bool IsUndeclBlockVar(Var var) const { return var == undeclBlockVarSentinel; }
+        Var GetUndeclBlockVar() const {TRACE_IT(59726); return undeclBlockVarSentinel; }
+        bool IsUndeclBlockVar(Var var) const {TRACE_IT(59727); return var == undeclBlockVarSentinel; }
 
         static bool IsTypedArrayConstructor(Var constructor, ScriptContext* scriptContext);
 
@@ -606,125 +606,125 @@ namespace Js
             bindRefChunkCurrent(nullptr),
             bindRefChunkEnd(nullptr),
             dynamicFunctionReference(nullptr)
-        {
+        {TRACE_IT(59728);
             this->globalObject = globalObject;
         }
 
         void Initialize(ScriptContext* scriptContext, GlobalObject * globalObject);
         void Uninitialize();
-        GlobalObject* GetGlobalObject() const { return globalObject; }
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        GlobalObject* GetGlobalObject() const {TRACE_IT(59729); return globalObject; }
+        ScriptContext* GetScriptContext() const {TRACE_IT(59730); return scriptContext; }
 
-        Recycler * GetRecycler() const { return recycler; }
-        Var GetPI() { return pi; }
-        Var GetNaN() { return nan; }
-        Var GetNegativeInfinite() { return negativeInfinite; }
-        Var GetPositiveInfinite() { return positiveInfinite; }
-        Var GetMaxValue() { return maxValue; }
-        Var GetMinValue() { return minValue; }
-        Var GetNegativeZero() { return negativeZero; }
-        RecyclableObject* GetUndefined() { return undefinedValue; }
-        RecyclableObject* GetNull() { return nullValue; }
-        JavascriptBoolean* GetTrue() { return booleanTrue; }
-        JavascriptBoolean* GetFalse() { return booleanFalse; }
-        Var GetTrueOrFalse(BOOL value) { return value ? booleanTrue : booleanFalse; }
-        JavascriptSymbol* GetSymbolHasInstance() { return symbolHasInstance; }
-        JavascriptSymbol* GetSymbolIsConcatSpreadable() { return symbolIsConcatSpreadable; }
-        JavascriptSymbol* GetSymbolIterator() { return symbolIterator; }
-        JavascriptSymbol* GetSymbolMatch() { return symbolMatch; }
-        JavascriptSymbol* GetSymbolReplace() { return symbolReplace; }
-        JavascriptSymbol* GetSymbolSearch() { return symbolSearch; }
-        JavascriptSymbol* GetSymbolSplit() { return symbolSplit; }
-        JavascriptSymbol* GetSymbolSpecies() { return symbolSpecies; }
-        JavascriptSymbol* GetSymbolToPrimitive() { return symbolToPrimitive; }
-        JavascriptSymbol* GetSymbolToStringTag() { return symbolToStringTag; }
-        JavascriptSymbol* GetSymbolUnscopables() { return symbolUnscopables; }
-        JavascriptString* GetNullString() { return nullString; }
+        Recycler * GetRecycler() const {TRACE_IT(59731); return recycler; }
+        Var GetPI() {TRACE_IT(59732); return pi; }
+        Var GetNaN() {TRACE_IT(59733); return nan; }
+        Var GetNegativeInfinite() {TRACE_IT(59734); return negativeInfinite; }
+        Var GetPositiveInfinite() {TRACE_IT(59735); return positiveInfinite; }
+        Var GetMaxValue() {TRACE_IT(59736); return maxValue; }
+        Var GetMinValue() {TRACE_IT(59737); return minValue; }
+        Var GetNegativeZero() {TRACE_IT(59738); return negativeZero; }
+        RecyclableObject* GetUndefined() {TRACE_IT(59739); return undefinedValue; }
+        RecyclableObject* GetNull() {TRACE_IT(59740); return nullValue; }
+        JavascriptBoolean* GetTrue() {TRACE_IT(59741); return booleanTrue; }
+        JavascriptBoolean* GetFalse() {TRACE_IT(59742); return booleanFalse; }
+        Var GetTrueOrFalse(BOOL value) {TRACE_IT(59743); return value ? booleanTrue : booleanFalse; }
+        JavascriptSymbol* GetSymbolHasInstance() {TRACE_IT(59744); return symbolHasInstance; }
+        JavascriptSymbol* GetSymbolIsConcatSpreadable() {TRACE_IT(59745); return symbolIsConcatSpreadable; }
+        JavascriptSymbol* GetSymbolIterator() {TRACE_IT(59746); return symbolIterator; }
+        JavascriptSymbol* GetSymbolMatch() {TRACE_IT(59747); return symbolMatch; }
+        JavascriptSymbol* GetSymbolReplace() {TRACE_IT(59748); return symbolReplace; }
+        JavascriptSymbol* GetSymbolSearch() {TRACE_IT(59749); return symbolSearch; }
+        JavascriptSymbol* GetSymbolSplit() {TRACE_IT(59750); return symbolSplit; }
+        JavascriptSymbol* GetSymbolSpecies() {TRACE_IT(59751); return symbolSpecies; }
+        JavascriptSymbol* GetSymbolToPrimitive() {TRACE_IT(59752); return symbolToPrimitive; }
+        JavascriptSymbol* GetSymbolToStringTag() {TRACE_IT(59753); return symbolToStringTag; }
+        JavascriptSymbol* GetSymbolUnscopables() {TRACE_IT(59754); return symbolUnscopables; }
+        JavascriptString* GetNullString() {TRACE_IT(59755); return nullString; }
         JavascriptString* GetEmptyString() const;
-        JavascriptString* GetWhackString() { return whackString; }
-        JavascriptString* GetUndefinedDisplayString() { return undefinedDisplayString; }
-        JavascriptString* GetNaNDisplayString() { return nanDisplayString; }
-        JavascriptString* GetQuotesString() { return quotesString; }
-        JavascriptString* GetNullDisplayString() { return nullDisplayString; }
-        JavascriptString* GetUnknownDisplayString() { return unknownDisplayString; }
-        JavascriptString* GetCommaDisplayString() { return commaDisplayString; }
-        JavascriptString* GetCommaSpaceDisplayString() { return commaSpaceDisplayString; }
-        JavascriptString* GetTrueDisplayString() { return trueDisplayString; }
-        JavascriptString* GetFalseDisplayString() { return falseDisplayString; }
-        JavascriptString* GetLengthDisplayString() { return lengthDisplayString; }
-        JavascriptString* GetObjectDisplayString() { return objectDisplayString; }
-        JavascriptString* GetStringTypeDisplayString() { return stringTypeDisplayString; }
-        JavascriptString* GetErrorDisplayString() const { return errorDisplayString; }
-        JavascriptString* GetFunctionPrefixString() { return functionPrefixString; }
-        JavascriptString* GetGeneratorFunctionPrefixString() { return generatorFunctionPrefixString; }
-        JavascriptString* GetAsyncFunctionPrefixString() { return asyncFunctionPrefixString; }
-        JavascriptString* GetFunctionDisplayString() { return functionDisplayString; }
-        JavascriptString* GetXDomainFunctionDisplayString() { return xDomainFunctionDisplayString; }
-        JavascriptString* GetInvalidDateString() { return invalidDateString; }
-        JavascriptString* GetObjectTypeDisplayString() const { return objectTypeDisplayString; }
-        JavascriptString* GetFunctionTypeDisplayString() const { return functionTypeDisplayString; }
-        JavascriptString* GetBooleanTypeDisplayString() const { return booleanTypeDisplayString; }
-        JavascriptString* GetNumberTypeDisplayString() const { return numberTypeDisplayString; }
-        JavascriptString* GetModuleTypeDisplayString() const { return moduleTypeDisplayString; }
-        JavascriptString* GetVariantDateTypeDisplayString() const { return variantDateTypeDisplayString; }
+        JavascriptString* GetWhackString() {TRACE_IT(59756); return whackString; }
+        JavascriptString* GetUndefinedDisplayString() {TRACE_IT(59757); return undefinedDisplayString; }
+        JavascriptString* GetNaNDisplayString() {TRACE_IT(59758); return nanDisplayString; }
+        JavascriptString* GetQuotesString() {TRACE_IT(59759); return quotesString; }
+        JavascriptString* GetNullDisplayString() {TRACE_IT(59760); return nullDisplayString; }
+        JavascriptString* GetUnknownDisplayString() {TRACE_IT(59761); return unknownDisplayString; }
+        JavascriptString* GetCommaDisplayString() {TRACE_IT(59762); return commaDisplayString; }
+        JavascriptString* GetCommaSpaceDisplayString() {TRACE_IT(59763); return commaSpaceDisplayString; }
+        JavascriptString* GetTrueDisplayString() {TRACE_IT(59764); return trueDisplayString; }
+        JavascriptString* GetFalseDisplayString() {TRACE_IT(59765); return falseDisplayString; }
+        JavascriptString* GetLengthDisplayString() {TRACE_IT(59766); return lengthDisplayString; }
+        JavascriptString* GetObjectDisplayString() {TRACE_IT(59767); return objectDisplayString; }
+        JavascriptString* GetStringTypeDisplayString() {TRACE_IT(59768); return stringTypeDisplayString; }
+        JavascriptString* GetErrorDisplayString() const {TRACE_IT(59769); return errorDisplayString; }
+        JavascriptString* GetFunctionPrefixString() {TRACE_IT(59770); return functionPrefixString; }
+        JavascriptString* GetGeneratorFunctionPrefixString() {TRACE_IT(59771); return generatorFunctionPrefixString; }
+        JavascriptString* GetAsyncFunctionPrefixString() {TRACE_IT(59772); return asyncFunctionPrefixString; }
+        JavascriptString* GetFunctionDisplayString() {TRACE_IT(59773); return functionDisplayString; }
+        JavascriptString* GetXDomainFunctionDisplayString() {TRACE_IT(59774); return xDomainFunctionDisplayString; }
+        JavascriptString* GetInvalidDateString() {TRACE_IT(59775); return invalidDateString; }
+        JavascriptString* GetObjectTypeDisplayString() const {TRACE_IT(59776); return objectTypeDisplayString; }
+        JavascriptString* GetFunctionTypeDisplayString() const {TRACE_IT(59777); return functionTypeDisplayString; }
+        JavascriptString* GetBooleanTypeDisplayString() const {TRACE_IT(59778); return booleanTypeDisplayString; }
+        JavascriptString* GetNumberTypeDisplayString() const {TRACE_IT(59779); return numberTypeDisplayString; }
+        JavascriptString* GetModuleTypeDisplayString() const {TRACE_IT(59780); return moduleTypeDisplayString; }
+        JavascriptString* GetVariantDateTypeDisplayString() const {TRACE_IT(59781); return variantDateTypeDisplayString; }
 
         // SIMD_JS
-        JavascriptString* GetSIMDFloat32x4DisplayString() const { return simdFloat32x4DisplayString; }
-        JavascriptString* GetSIMDFloat64x2DisplayString() const { return simdFloat64x2DisplayString; }
-        JavascriptString* GetSIMDInt32x4DisplayString()   const { return simdInt32x4DisplayString; }
-        JavascriptString* GetSIMDInt16x8DisplayString()   const { return simdInt16x8DisplayString; }
-        JavascriptString* GetSIMDInt8x16DisplayString()   const { return simdInt8x16DisplayString; }
+        JavascriptString* GetSIMDFloat32x4DisplayString() const {TRACE_IT(59782); return simdFloat32x4DisplayString; }
+        JavascriptString* GetSIMDFloat64x2DisplayString() const {TRACE_IT(59783); return simdFloat64x2DisplayString; }
+        JavascriptString* GetSIMDInt32x4DisplayString()   const {TRACE_IT(59784); return simdInt32x4DisplayString; }
+        JavascriptString* GetSIMDInt16x8DisplayString()   const {TRACE_IT(59785); return simdInt16x8DisplayString; }
+        JavascriptString* GetSIMDInt8x16DisplayString()   const {TRACE_IT(59786); return simdInt8x16DisplayString; }
 
-        JavascriptString* GetSIMDBool32x4DisplayString()   const { return simdBool32x4DisplayString; }
-        JavascriptString* GetSIMDBool16x8DisplayString()   const { return simdBool16x8DisplayString; }
-        JavascriptString* GetSIMDBool8x16DisplayString()   const { return simdBool8x16DisplayString; }
+        JavascriptString* GetSIMDBool32x4DisplayString()   const {TRACE_IT(59787); return simdBool32x4DisplayString; }
+        JavascriptString* GetSIMDBool16x8DisplayString()   const {TRACE_IT(59788); return simdBool16x8DisplayString; }
+        JavascriptString* GetSIMDBool8x16DisplayString()   const {TRACE_IT(59789); return simdBool8x16DisplayString; }
 
-        JavascriptString* GetSIMDUint32x4DisplayString()   const { return simdUint32x4DisplayString; }
-        JavascriptString* GetSIMDUint16x8DisplayString()   const { return simdUint16x8DisplayString; }
-        JavascriptString* GetSIMDUint8x16DisplayString()   const { return simdUint8x16DisplayString; }
+        JavascriptString* GetSIMDUint32x4DisplayString()   const {TRACE_IT(59790); return simdUint32x4DisplayString; }
+        JavascriptString* GetSIMDUint16x8DisplayString()   const {TRACE_IT(59791); return simdUint16x8DisplayString; }
+        JavascriptString* GetSIMDUint8x16DisplayString()   const {TRACE_IT(59792); return simdUint8x16DisplayString; }
 
-        JavascriptString* GetSymbolTypeDisplayString() const { return symbolTypeDisplayString; }
-        JavascriptString* GetDebuggerDeadZoneBlockVariableString() { Assert(debuggerDeadZoneBlockVariableString); return debuggerDeadZoneBlockVariableString; }
+        JavascriptString* GetSymbolTypeDisplayString() const {TRACE_IT(59793); return symbolTypeDisplayString; }
+        JavascriptString* GetDebuggerDeadZoneBlockVariableString() {TRACE_IT(59794); Assert(debuggerDeadZoneBlockVariableString); return debuggerDeadZoneBlockVariableString; }
         JavascriptRegExp* CreateEmptyRegExp();
-        JavascriptFunction* GetObjectConstructor() const {return objectConstructor; }
-        JavascriptFunction* GetBooleanConstructor() const {return booleanConstructor; }
-        JavascriptFunction* GetDateConstructor() const {return dateConstructor; }
-        JavascriptFunction* GetFunctionConstructor() const {return functionConstructor; }
-        JavascriptFunction* GetNumberConstructor() const {return numberConstructor; }
-        JavascriptRegExpConstructor* GetRegExpConstructor() const {return regexConstructor; }
-        JavascriptFunction* GetStringConstructor() const {return stringConstructor; }
-        JavascriptFunction* GetArrayBufferConstructor() const {return arrayBufferConstructor; }
-        JavascriptFunction* GetErrorConstructor() const { return errorConstructor; }
-        JavascriptFunction* GetInt8ArrayConstructor() const {return Int8ArrayConstructor; }
-        JavascriptFunction* GetUint8ArrayConstructor() const {return Uint8ArrayConstructor; }
-        JavascriptFunction* GetInt16ArrayConstructor() const {return Int16ArrayConstructor; }
-        JavascriptFunction* GetUint16ArrayConstructor() const {return Uint16ArrayConstructor; }
-        JavascriptFunction* GetInt32ArrayConstructor() const {return Int32ArrayConstructor; }
-        JavascriptFunction* GetUint32ArrayConstructor() const {return Uint32ArrayConstructor; }
-        JavascriptFunction* GetFloat32ArrayConstructor() const {return Float32ArrayConstructor; }
-        JavascriptFunction* GetFloat64ArrayConstructor() const {return Float64ArrayConstructor; }
-        JavascriptFunction* GetWeakMapConstructor() const {return weakMapConstructor; }
-        JavascriptFunction* GetMapConstructor() const {return mapConstructor; }
-        JavascriptFunction* GetSetConstructor() const {return  setConstructor; }
-        JavascriptFunction* GetSymbolConstructor() const {return symbolConstructor; }
-        JavascriptFunction* GetEvalFunctionObject() { return evalFunctionObject; }
-        JavascriptFunction* GetArrayPrototypeValuesFunction() { return EnsureArrayPrototypeValuesFunction(); }
-        JavascriptFunction* GetArrayIteratorPrototypeBuiltinNextFunction() { return arrayIteratorPrototypeBuiltinNextFunction; }
-        DynamicObject* GetMathObject() const {return mathObject; }
-        DynamicObject* GetJSONObject() const {return JSONObject; }
-        DynamicObject* GetReflectObject() const { return reflectObject; }
-        const PropertyDescriptor* GetDefaultPropertyDescriptor() const { return &defaultPropertyDescriptor; }
-        DynamicObject* GetMissingPropertyHolder() const { return missingPropertyHolder; }
+        JavascriptFunction* GetObjectConstructor() const {TRACE_IT(59795);return objectConstructor; }
+        JavascriptFunction* GetBooleanConstructor() const {TRACE_IT(59796);return booleanConstructor; }
+        JavascriptFunction* GetDateConstructor() const {TRACE_IT(59797);return dateConstructor; }
+        JavascriptFunction* GetFunctionConstructor() const {TRACE_IT(59798);return functionConstructor; }
+        JavascriptFunction* GetNumberConstructor() const {TRACE_IT(59799);return numberConstructor; }
+        JavascriptRegExpConstructor* GetRegExpConstructor() const {TRACE_IT(59800);return regexConstructor; }
+        JavascriptFunction* GetStringConstructor() const {TRACE_IT(59801);return stringConstructor; }
+        JavascriptFunction* GetArrayBufferConstructor() const {TRACE_IT(59802);return arrayBufferConstructor; }
+        JavascriptFunction* GetErrorConstructor() const {TRACE_IT(59803); return errorConstructor; }
+        JavascriptFunction* GetInt8ArrayConstructor() const {TRACE_IT(59804);return Int8ArrayConstructor; }
+        JavascriptFunction* GetUint8ArrayConstructor() const {TRACE_IT(59805);return Uint8ArrayConstructor; }
+        JavascriptFunction* GetInt16ArrayConstructor() const {TRACE_IT(59806);return Int16ArrayConstructor; }
+        JavascriptFunction* GetUint16ArrayConstructor() const {TRACE_IT(59807);return Uint16ArrayConstructor; }
+        JavascriptFunction* GetInt32ArrayConstructor() const {TRACE_IT(59808);return Int32ArrayConstructor; }
+        JavascriptFunction* GetUint32ArrayConstructor() const {TRACE_IT(59809);return Uint32ArrayConstructor; }
+        JavascriptFunction* GetFloat32ArrayConstructor() const {TRACE_IT(59810);return Float32ArrayConstructor; }
+        JavascriptFunction* GetFloat64ArrayConstructor() const {TRACE_IT(59811);return Float64ArrayConstructor; }
+        JavascriptFunction* GetWeakMapConstructor() const {TRACE_IT(59812);return weakMapConstructor; }
+        JavascriptFunction* GetMapConstructor() const {TRACE_IT(59813);return mapConstructor; }
+        JavascriptFunction* GetSetConstructor() const {TRACE_IT(59814);return  setConstructor; }
+        JavascriptFunction* GetSymbolConstructor() const {TRACE_IT(59815);return symbolConstructor; }
+        JavascriptFunction* GetEvalFunctionObject() {TRACE_IT(59816); return evalFunctionObject; }
+        JavascriptFunction* GetArrayPrototypeValuesFunction() {TRACE_IT(59817); return EnsureArrayPrototypeValuesFunction(); }
+        JavascriptFunction* GetArrayIteratorPrototypeBuiltinNextFunction() {TRACE_IT(59818); return arrayIteratorPrototypeBuiltinNextFunction; }
+        DynamicObject* GetMathObject() const {TRACE_IT(59819);return mathObject; }
+        DynamicObject* GetJSONObject() const {TRACE_IT(59820);return JSONObject; }
+        DynamicObject* GetReflectObject() const {TRACE_IT(59821); return reflectObject; }
+        const PropertyDescriptor* GetDefaultPropertyDescriptor() const {TRACE_IT(59822); return &defaultPropertyDescriptor; }
+        DynamicObject* GetMissingPropertyHolder() const {TRACE_IT(59823); return missingPropertyHolder; }
 
-        JavascriptFunction* GetSharedArrayBufferConstructor() { return sharedArrayBufferConstructor; }
-        DynamicObject* GetAtomicsObject() { return atomicsObject; }
+        JavascriptFunction* GetSharedArrayBufferConstructor() {TRACE_IT(59824); return sharedArrayBufferConstructor; }
+        DynamicObject* GetAtomicsObject() {TRACE_IT(59825); return atomicsObject; }
 
-        DynamicObject* GetWebAssemblyCompileErrorPrototype() const { return webAssemblyCompileErrorPrototype; }
-        DynamicObject* GetWebAssemblyCompileErrorConstructor() const { return webAssemblyCompileErrorConstructor; }
-        DynamicObject* GetWebAssemblyRuntimeErrorPrototype() const { return webAssemblyRuntimeErrorPrototype; }
-        DynamicObject* GetWebAssemblyRuntimeErrorConstructor() const { return webAssemblyRuntimeErrorConstructor; }
-        DynamicObject* GetWebAssemblyLinkErrorPrototype() const { return webAssemblyLinkErrorPrototype; }
-        DynamicObject* GetWebAssemblyLinkErrorConstructor() const { return webAssemblyLinkErrorConstructor; }
+        DynamicObject* GetWebAssemblyCompileErrorPrototype() const {TRACE_IT(59826); return webAssemblyCompileErrorPrototype; }
+        DynamicObject* GetWebAssemblyCompileErrorConstructor() const {TRACE_IT(59827); return webAssemblyCompileErrorConstructor; }
+        DynamicObject* GetWebAssemblyRuntimeErrorPrototype() const {TRACE_IT(59828); return webAssemblyRuntimeErrorPrototype; }
+        DynamicObject* GetWebAssemblyRuntimeErrorConstructor() const {TRACE_IT(59829); return webAssemblyRuntimeErrorConstructor; }
+        DynamicObject* GetWebAssemblyLinkErrorPrototype() const {TRACE_IT(59830); return webAssemblyLinkErrorPrototype; }
+        DynamicObject* GetWebAssemblyLinkErrorConstructor() const {TRACE_IT(59831); return webAssemblyLinkErrorConstructor; }
 
 #if ENABLE_TTD
         Js::PropertyId ExtractPrimitveSymbolId_TTD(Var value);
@@ -773,7 +773,7 @@ namespace Js
 #endif
 
 #ifdef ENABLE_INTL_OBJECT
-        DynamicObject* GetINTLObject() const { return IntlObject; }
+        DynamicObject* GetINTLObject() const {TRACE_IT(59832); return IntlObject; }
         void ResetIntlObject();
         void EnsureIntlObjectReady();
         template <class Fn>
@@ -784,138 +784,138 @@ namespace Js
 #endif
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-        DynamicType * GetDebugDisposableObjectType() { return debugDisposableObjectType; }
-        DynamicType * GetDebugFuncExecutorInDisposeObjectType() { return debugFuncExecutorInDisposeObjectType; }
+        DynamicType * GetDebugDisposableObjectType() {TRACE_IT(59833); return debugDisposableObjectType; }
+        DynamicType * GetDebugFuncExecutorInDisposeObjectType() {TRACE_IT(59834); return debugFuncExecutorInDisposeObjectType; }
 #endif
 
         DynamicType* GetErrorType(ErrorTypeEnum typeToCreate) const;
-        StaticType  * GetBooleanTypeStatic() const { return booleanTypeStatic; }
-        DynamicType * GetBooleanTypeDynamic() const { return booleanTypeDynamic; }
-        DynamicType * GetDateType() const { return dateType; }
-        DynamicType * GetBoundFunctionType() const { return boundFunctionType; }
-        DynamicType * GetRegExpConstructorType() const { return regexConstructorType; }
-        StaticType  * GetEnumeratorType() const { return enumeratorType; }
-        DynamicType * GetSpreadArgumentType() const { return SpreadArgumentType; }
-        StaticType  * GetWithType() const { return withType; }
-        DynamicType * GetErrorType() const { return errorType; }
-        DynamicType * GetEvalErrorType() const { return evalErrorType; }
-        DynamicType * GetRangeErrorType() const { return rangeErrorType; }
-        DynamicType * GetReferenceErrorType() const { return referenceErrorType; }
-        DynamicType * GetSyntaxErrorType() const { return syntaxErrorType; }
-        DynamicType * GetTypeErrorType() const { return typeErrorType; }
-        DynamicType * GetURIErrorType() const { return uriErrorType; }
-        DynamicType * GetWebAssemblyCompileErrorType() const { return webAssemblyCompileErrorType; }
-        DynamicType * GetWebAssemblyRuntimeErrorType() const { return webAssemblyRuntimeErrorType; }
-        DynamicType * GetWebAssemblyLinkErrorType() const { return webAssemblyLinkErrorType; }
-        StaticType  * GetNumberTypeStatic() const { return numberTypeStatic; }
-        StaticType  * GetInt64TypeStatic() const { return int64NumberTypeStatic; }
-        StaticType  * GetUInt64TypeStatic() const { return uint64NumberTypeStatic; }
-        DynamicType * GetNumberTypeDynamic() const { return numberTypeDynamic; }
-        DynamicType * GetPromiseType() const { return promiseType; }
+        StaticType  * GetBooleanTypeStatic() const {TRACE_IT(59835); return booleanTypeStatic; }
+        DynamicType * GetBooleanTypeDynamic() const {TRACE_IT(59836); return booleanTypeDynamic; }
+        DynamicType * GetDateType() const {TRACE_IT(59837); return dateType; }
+        DynamicType * GetBoundFunctionType() const {TRACE_IT(59838); return boundFunctionType; }
+        DynamicType * GetRegExpConstructorType() const {TRACE_IT(59839); return regexConstructorType; }
+        StaticType  * GetEnumeratorType() const {TRACE_IT(59840); return enumeratorType; }
+        DynamicType * GetSpreadArgumentType() const {TRACE_IT(59841); return SpreadArgumentType; }
+        StaticType  * GetWithType() const {TRACE_IT(59842); return withType; }
+        DynamicType * GetErrorType() const {TRACE_IT(59843); return errorType; }
+        DynamicType * GetEvalErrorType() const {TRACE_IT(59844); return evalErrorType; }
+        DynamicType * GetRangeErrorType() const {TRACE_IT(59845); return rangeErrorType; }
+        DynamicType * GetReferenceErrorType() const {TRACE_IT(59846); return referenceErrorType; }
+        DynamicType * GetSyntaxErrorType() const {TRACE_IT(59847); return syntaxErrorType; }
+        DynamicType * GetTypeErrorType() const {TRACE_IT(59848); return typeErrorType; }
+        DynamicType * GetURIErrorType() const {TRACE_IT(59849); return uriErrorType; }
+        DynamicType * GetWebAssemblyCompileErrorType() const {TRACE_IT(59850); return webAssemblyCompileErrorType; }
+        DynamicType * GetWebAssemblyRuntimeErrorType() const {TRACE_IT(59851); return webAssemblyRuntimeErrorType; }
+        DynamicType * GetWebAssemblyLinkErrorType() const {TRACE_IT(59852); return webAssemblyLinkErrorType; }
+        StaticType  * GetNumberTypeStatic() const {TRACE_IT(59853); return numberTypeStatic; }
+        StaticType  * GetInt64TypeStatic() const {TRACE_IT(59854); return int64NumberTypeStatic; }
+        StaticType  * GetUInt64TypeStatic() const {TRACE_IT(59855); return uint64NumberTypeStatic; }
+        DynamicType * GetNumberTypeDynamic() const {TRACE_IT(59856); return numberTypeDynamic; }
+        DynamicType * GetPromiseType() const {TRACE_IT(59857); return promiseType; }
 
-        DynamicType * GetWebAssemblyModuleType()  const { return webAssemblyModuleType; }
-        DynamicType * GetWebAssemblyInstanceType()  const { return webAssemblyInstanceType; }
-        DynamicType * GetWebAssemblyMemoryType() const { return webAssemblyMemoryType; }
-        DynamicType * GetWebAssemblyTableType() const { return webAssemblyTableType; }
+        DynamicType * GetWebAssemblyModuleType()  const {TRACE_IT(59858); return webAssemblyModuleType; }
+        DynamicType * GetWebAssemblyInstanceType()  const {TRACE_IT(59859); return webAssemblyInstanceType; }
+        DynamicType * GetWebAssemblyMemoryType() const {TRACE_IT(59860); return webAssemblyMemoryType; }
+        DynamicType * GetWebAssemblyTableType() const {TRACE_IT(59861); return webAssemblyTableType; }
 
         // SIMD_JS
-        DynamicType * GetSIMDBool8x16TypeDynamic()  const { return simdBool8x16TypeDynamic;  }
-        DynamicType * GetSIMDBool16x8TypeDynamic()  const { return simdBool16x8TypeDynamic;  }
-        DynamicType * GetSIMDBool32x4TypeDynamic()  const { return simdBool32x4TypeDynamic;  }
-        DynamicType * GetSIMDInt8x16TypeDynamic()   const { return simdInt8x16TypeDynamic;   }
-        DynamicType * GetSIMDInt16x8TypeDynamic()   const { return simdInt16x8TypeDynamic;   }
-        DynamicType * GetSIMDInt32x4TypeDynamic()   const { return simdInt32x4TypeDynamic;   }
-        DynamicType * GetSIMDUint8x16TypeDynamic()  const { return simdUint8x16TypeDynamic;  }
-        DynamicType * GetSIMDUint16x8TypeDynamic()  const { return simdUint16x8TypeDynamic;  }
-        DynamicType * GetSIMDUint32x4TypeDynamic()  const { return simdUint32x4TypeDynamic;  }
-        DynamicType * GetSIMDFloat32x4TypeDynamic() const { return simdFloat32x4TypeDynamic; }
+        DynamicType * GetSIMDBool8x16TypeDynamic()  const {TRACE_IT(59862); return simdBool8x16TypeDynamic;  }
+        DynamicType * GetSIMDBool16x8TypeDynamic()  const {TRACE_IT(59863); return simdBool16x8TypeDynamic;  }
+        DynamicType * GetSIMDBool32x4TypeDynamic()  const {TRACE_IT(59864); return simdBool32x4TypeDynamic;  }
+        DynamicType * GetSIMDInt8x16TypeDynamic()   const {TRACE_IT(59865); return simdInt8x16TypeDynamic;   }
+        DynamicType * GetSIMDInt16x8TypeDynamic()   const {TRACE_IT(59866); return simdInt16x8TypeDynamic;   }
+        DynamicType * GetSIMDInt32x4TypeDynamic()   const {TRACE_IT(59867); return simdInt32x4TypeDynamic;   }
+        DynamicType * GetSIMDUint8x16TypeDynamic()  const {TRACE_IT(59868); return simdUint8x16TypeDynamic;  }
+        DynamicType * GetSIMDUint16x8TypeDynamic()  const {TRACE_IT(59869); return simdUint16x8TypeDynamic;  }
+        DynamicType * GetSIMDUint32x4TypeDynamic()  const {TRACE_IT(59870); return simdUint32x4TypeDynamic;  }
+        DynamicType * GetSIMDFloat32x4TypeDynamic() const {TRACE_IT(59871); return simdFloat32x4TypeDynamic; }
 
-        StaticType* GetSIMDFloat32x4TypeStatic() const { return simdFloat32x4TypeStatic; }
-        StaticType* GetSIMDFloat64x2TypeStatic() const { return simdFloat64x2TypeStatic; }
-        StaticType* GetSIMDInt32x4TypeStatic()   const { return simdInt32x4TypeStatic; }
-        StaticType* GetSIMDInt16x8TypeStatic()   const { return simdInt16x8TypeStatic; }
-        StaticType* GetSIMDInt8x16TypeStatic()   const { return simdInt8x16TypeStatic; }
-        StaticType* GetSIMDBool32x4TypeStatic() const { return simdBool32x4TypeStatic; }
-        StaticType* GetSIMDBool16x8TypeStatic() const { return simdBool16x8TypeStatic; }
-        StaticType* GetSIMDBool8x16TypeStatic() const { return simdBool8x16TypeStatic; }
-        StaticType* GetSIMDUInt32x4TypeStatic()   const { return simdUint32x4TypeStatic; }
-        StaticType* GetSIMDUint16x8TypeStatic()   const { return simdUint16x8TypeStatic; }
-        StaticType* GetSIMDUint8x16TypeStatic()   const { return simdUint8x16TypeStatic; }
+        StaticType* GetSIMDFloat32x4TypeStatic() const {TRACE_IT(59872); return simdFloat32x4TypeStatic; }
+        StaticType* GetSIMDFloat64x2TypeStatic() const {TRACE_IT(59873); return simdFloat64x2TypeStatic; }
+        StaticType* GetSIMDInt32x4TypeStatic()   const {TRACE_IT(59874); return simdInt32x4TypeStatic; }
+        StaticType* GetSIMDInt16x8TypeStatic()   const {TRACE_IT(59875); return simdInt16x8TypeStatic; }
+        StaticType* GetSIMDInt8x16TypeStatic()   const {TRACE_IT(59876); return simdInt8x16TypeStatic; }
+        StaticType* GetSIMDBool32x4TypeStatic() const {TRACE_IT(59877); return simdBool32x4TypeStatic; }
+        StaticType* GetSIMDBool16x8TypeStatic() const {TRACE_IT(59878); return simdBool16x8TypeStatic; }
+        StaticType* GetSIMDBool8x16TypeStatic() const {TRACE_IT(59879); return simdBool8x16TypeStatic; }
+        StaticType* GetSIMDUInt32x4TypeStatic()   const {TRACE_IT(59880); return simdUint32x4TypeStatic; }
+        StaticType* GetSIMDUint16x8TypeStatic()   const {TRACE_IT(59881); return simdUint16x8TypeStatic; }
+        StaticType* GetSIMDUint8x16TypeStatic()   const {TRACE_IT(59882); return simdUint8x16TypeStatic; }
 
         DynamicType * GetObjectLiteralType(uint16 requestedInlineSlotCapacity);
         DynamicType * GetObjectHeaderInlinedLiteralType(uint16 requestedInlineSlotCapacity);
-        DynamicType * GetObjectType() const { return objectTypes[0]; }
-        DynamicType * GetObjectHeaderInlinedType() const { return objectHeaderInlinedTypes[0]; }
-        StaticType  * GetSymbolTypeStatic() const { return symbolTypeStatic; }
-        DynamicType * GetSymbolTypeDynamic() const { return symbolTypeDynamic; }
-        DynamicType * GetProxyType() const { return proxyType; }
-        DynamicType * GetHeapArgumentsObjectType() const { return heapArgumentsType; }
-        DynamicType * GetActivationObjectType() const { return activationObjectType; }
-        DynamicType * GetModuleNamespaceType() const { return moduleNamespaceType; }
-        DynamicType * GetArrayType() const { return arrayType; }
-        DynamicType * GetNativeIntArrayType() const { return nativeIntArrayType; }
+        DynamicType * GetObjectType() const {TRACE_IT(59883); return objectTypes[0]; }
+        DynamicType * GetObjectHeaderInlinedType() const {TRACE_IT(59884); return objectHeaderInlinedTypes[0]; }
+        StaticType  * GetSymbolTypeStatic() const {TRACE_IT(59885); return symbolTypeStatic; }
+        DynamicType * GetSymbolTypeDynamic() const {TRACE_IT(59886); return symbolTypeDynamic; }
+        DynamicType * GetProxyType() const {TRACE_IT(59887); return proxyType; }
+        DynamicType * GetHeapArgumentsObjectType() const {TRACE_IT(59888); return heapArgumentsType; }
+        DynamicType * GetActivationObjectType() const {TRACE_IT(59889); return activationObjectType; }
+        DynamicType * GetModuleNamespaceType() const {TRACE_IT(59890); return moduleNamespaceType; }
+        DynamicType * GetArrayType() const {TRACE_IT(59891); return arrayType; }
+        DynamicType * GetNativeIntArrayType() const {TRACE_IT(59892); return nativeIntArrayType; }
 #if ENABLE_COPYONACCESS_ARRAY
-        DynamicType * GetCopyOnAccessNativeIntArrayType() const { return copyOnAccessNativeIntArrayType; }
+        DynamicType * GetCopyOnAccessNativeIntArrayType() const {TRACE_IT(59893); return copyOnAccessNativeIntArrayType; }
 #endif
-        DynamicType * GetNativeFloatArrayType() const { return nativeFloatArrayType; }
-        DynamicType * GetRegexPrototypeType() const { return regexPrototypeType; }
-        DynamicType * GetRegexType() const { return regexType; }
-        DynamicType * GetRegexResultType() const { return regexResultType; }
-        DynamicType * GetArrayBufferType() const { return arrayBufferType; }
+        DynamicType * GetNativeFloatArrayType() const {TRACE_IT(59894); return nativeFloatArrayType; }
+        DynamicType * GetRegexPrototypeType() const {TRACE_IT(59895); return regexPrototypeType; }
+        DynamicType * GetRegexType() const {TRACE_IT(59896); return regexType; }
+        DynamicType * GetRegexResultType() const {TRACE_IT(59897); return regexResultType; }
+        DynamicType * GetArrayBufferType() const {TRACE_IT(59898); return arrayBufferType; }
         StaticType  * GetStringTypeStatic() const { AssertMsg(stringTypeStatic, "Where's stringTypeStatic?"); return stringTypeStatic; }
-        DynamicType * GetStringTypeDynamic() const { return stringTypeDynamic; }
-        StaticType  * GetVariantDateType() const { return variantDateType; }
+        DynamicType * GetStringTypeDynamic() const {TRACE_IT(59899); return stringTypeDynamic; }
+        StaticType  * GetVariantDateType() const {TRACE_IT(59900); return variantDateType; }
         void EnsureDebugObject(DynamicObject* newDebugObject);
-        DynamicObject* GetDebugObject() const { Assert(debugObject != nullptr); return debugObject; }
-        DynamicType * GetMapType() const { return mapType; }
-        DynamicType * GetSetType() const { return setType; }
-        DynamicType * GetWeakMapType() const { return weakMapType; }
-        DynamicType * GetWeakSetType() const { return weakSetType; }
-        DynamicType * GetArrayIteratorType() const { return arrayIteratorType; }
-        DynamicType * GetMapIteratorType() const { return mapIteratorType; }
-        DynamicType * GetSetIteratorType() const { return setIteratorType; }
-        DynamicType * GetStringIteratorType() const { return stringIteratorType; }
-        DynamicType * GetListIteratorType() const { return listIteratorType; }
-        JavascriptFunction* GetDefaultAccessorFunction() const { return defaultAccessorFunction; }
-        JavascriptFunction* GetStackTraceAccessorFunction() const { return stackTraceAccessorFunction; }
-        JavascriptFunction* GetThrowTypeErrorRestrictedPropertyAccessorFunction() const { return throwTypeErrorRestrictedPropertyAccessorFunction; }
-        JavascriptFunction* Get__proto__getterFunction() const { return __proto__getterFunction; }
-        JavascriptFunction* Get__proto__setterFunction() const { return __proto__setterFunction; }
+        DynamicObject* GetDebugObject() const {TRACE_IT(59901); Assert(debugObject != nullptr); return debugObject; }
+        DynamicType * GetMapType() const {TRACE_IT(59902); return mapType; }
+        DynamicType * GetSetType() const {TRACE_IT(59903); return setType; }
+        DynamicType * GetWeakMapType() const {TRACE_IT(59904); return weakMapType; }
+        DynamicType * GetWeakSetType() const {TRACE_IT(59905); return weakSetType; }
+        DynamicType * GetArrayIteratorType() const {TRACE_IT(59906); return arrayIteratorType; }
+        DynamicType * GetMapIteratorType() const {TRACE_IT(59907); return mapIteratorType; }
+        DynamicType * GetSetIteratorType() const {TRACE_IT(59908); return setIteratorType; }
+        DynamicType * GetStringIteratorType() const {TRACE_IT(59909); return stringIteratorType; }
+        DynamicType * GetListIteratorType() const {TRACE_IT(59910); return listIteratorType; }
+        JavascriptFunction* GetDefaultAccessorFunction() const {TRACE_IT(59911); return defaultAccessorFunction; }
+        JavascriptFunction* GetStackTraceAccessorFunction() const {TRACE_IT(59912); return stackTraceAccessorFunction; }
+        JavascriptFunction* GetThrowTypeErrorRestrictedPropertyAccessorFunction() const {TRACE_IT(59913); return throwTypeErrorRestrictedPropertyAccessorFunction; }
+        JavascriptFunction* Get__proto__getterFunction() const {TRACE_IT(59914); return __proto__getterFunction; }
+        JavascriptFunction* Get__proto__setterFunction() const {TRACE_IT(59915); return __proto__setterFunction; }
 
-        JavascriptFunction* GetObjectValueOfFunction() const { return objectValueOfFunction; }
-        JavascriptFunction* GetObjectToStringFunction() const { return objectToStringFunction; }
+        JavascriptFunction* GetObjectValueOfFunction() const {TRACE_IT(59916); return objectValueOfFunction; }
+        JavascriptFunction* GetObjectToStringFunction() const {TRACE_IT(59917); return objectToStringFunction; }
 
         // SIMD_JS
-        JavascriptFunction* GetSIMDFloat32x4ToStringFunction() const { return simdFloat32x4ToStringFunction;  }
-        JavascriptFunction* GetSIMDFloat64x2ToStringFunction() const { return simdFloat64x2ToStringFunction; }
-        JavascriptFunction* GetSIMDInt32x4ToStringFunction()   const { return simdInt32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDInt16x8ToStringFunction()   const { return simdInt16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDInt8x16ToStringFunction()   const { return simdInt8x16ToStringFunction; }
-        JavascriptFunction* GetSIMDBool32x4ToStringFunction()   const { return simdBool32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDBool16x8ToStringFunction()   const { return simdBool16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDBool8x16ToStringFunction()   const { return simdBool8x16ToStringFunction; }
-        JavascriptFunction* GetSIMDUint32x4ToStringFunction()   const { return simdUint32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDUint16x8ToStringFunction()   const { return simdUint16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDUint8x16ToStringFunction()   const { return simdUint8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDFloat32x4ToStringFunction() const {TRACE_IT(59918); return simdFloat32x4ToStringFunction;  }
+        JavascriptFunction* GetSIMDFloat64x2ToStringFunction() const {TRACE_IT(59919); return simdFloat64x2ToStringFunction; }
+        JavascriptFunction* GetSIMDInt32x4ToStringFunction()   const {TRACE_IT(59920); return simdInt32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDInt16x8ToStringFunction()   const {TRACE_IT(59921); return simdInt16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDInt8x16ToStringFunction()   const {TRACE_IT(59922); return simdInt8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDBool32x4ToStringFunction()   const {TRACE_IT(59923); return simdBool32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDBool16x8ToStringFunction()   const {TRACE_IT(59924); return simdBool16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDBool8x16ToStringFunction()   const {TRACE_IT(59925); return simdBool8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDUint32x4ToStringFunction()   const {TRACE_IT(59926); return simdUint32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDUint16x8ToStringFunction()   const {TRACE_IT(59927); return simdUint16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDUint8x16ToStringFunction()   const {TRACE_IT(59928); return simdUint8x16ToStringFunction; }
 
-        JavascriptFunction* GetDebugObjectNonUserGetterFunction() const { return debugObjectNonUserGetterFunction; }
-        JavascriptFunction* GetDebugObjectNonUserSetterFunction() const { return debugObjectNonUserSetterFunction; }
+        JavascriptFunction* GetDebugObjectNonUserGetterFunction() const {TRACE_IT(59929); return debugObjectNonUserGetterFunction; }
+        JavascriptFunction* GetDebugObjectNonUserSetterFunction() const {TRACE_IT(59930); return debugObjectNonUserSetterFunction; }
 
-        UnifiedRegex::RegexPattern * GetEmptyRegexPattern() const { return emptyRegexPattern; }
-        JavascriptFunction* GetRegexExecFunction() const { return regexExecFunction; }
-        JavascriptFunction* GetRegexFlagsGetterFunction() const { return regexFlagsGetterFunction; }
-        JavascriptFunction* GetRegexGlobalGetterFunction() const { return regexGlobalGetterFunction; }
-        JavascriptFunction* GetRegexStickyGetterFunction() const { return regexStickyGetterFunction; }
-        JavascriptFunction* GetRegexUnicodeGetterFunction() const { return regexUnicodeGetterFunction; }
+        UnifiedRegex::RegexPattern * GetEmptyRegexPattern() const {TRACE_IT(59931); return emptyRegexPattern; }
+        JavascriptFunction* GetRegexExecFunction() const {TRACE_IT(59932); return regexExecFunction; }
+        JavascriptFunction* GetRegexFlagsGetterFunction() const {TRACE_IT(59933); return regexFlagsGetterFunction; }
+        JavascriptFunction* GetRegexGlobalGetterFunction() const {TRACE_IT(59934); return regexGlobalGetterFunction; }
+        JavascriptFunction* GetRegexStickyGetterFunction() const {TRACE_IT(59935); return regexStickyGetterFunction; }
+        JavascriptFunction* GetRegexUnicodeGetterFunction() const {TRACE_IT(59936); return regexUnicodeGetterFunction; }
 
-        int GetRegexConstructorSlotIndex() const { return regexConstructorSlotIndex;  }
-        int GetRegexExecSlotIndex() const { return regexExecSlotIndex;  }
-        int GetRegexFlagsGetterSlotIndex() const { return regexFlagsGetterSlotIndex;  }
-        int GetRegexGlobalGetterSlotIndex() const { return regexGlobalGetterSlotIndex;  }
-        int GetRegexStickyGetterSlotIndex() const { return regexStickyGetterSlotIndex;  }
-        int GetRegexUnicodeGetterSlotIndex() const { return regexUnicodeGetterSlotIndex;  }
+        int GetRegexConstructorSlotIndex() const {TRACE_IT(59937); return regexConstructorSlotIndex;  }
+        int GetRegexExecSlotIndex() const {TRACE_IT(59938); return regexExecSlotIndex;  }
+        int GetRegexFlagsGetterSlotIndex() const {TRACE_IT(59939); return regexFlagsGetterSlotIndex;  }
+        int GetRegexGlobalGetterSlotIndex() const {TRACE_IT(59940); return regexGlobalGetterSlotIndex;  }
+        int GetRegexStickyGetterSlotIndex() const {TRACE_IT(59941); return regexStickyGetterSlotIndex;  }
+        int GetRegexUnicodeGetterSlotIndex() const {TRACE_IT(59942); return regexUnicodeGetterSlotIndex;  }
 
-        TypePath* GetRootPath() const { return rootPath; }
+        TypePath* GetRootPath() const {TRACE_IT(59943); return rootPath; }
         void BindReference(void * addr);
         void CleanupForClose();
         void BeginDynamicFunctionReferences();
@@ -924,19 +924,19 @@ namespace Js
 
         void SetDebugObjectNonUserAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter);
 
-        JavascriptFunction* GetDebugObjectDebugModeGetterFunction() const { return debugObjectDebugModeGetterFunction; }
+        JavascriptFunction* GetDebugObjectDebugModeGetterFunction() const {TRACE_IT(59944); return debugObjectDebugModeGetterFunction; }
         void SetDebugObjectDebugModeAccessor(FunctionInfo *funcGetter);
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-        JavascriptFunction* GetDebugObjectFaultInjectionCookieGetterFunction() const { return debugObjectFaultInjectionCookieGetterFunction; }
-        JavascriptFunction* GetDebugObjectFaultInjectionCookieSetterFunction() const { return debugObjectFaultInjectionCookieSetterFunction; }
+        JavascriptFunction* GetDebugObjectFaultInjectionCookieGetterFunction() const {TRACE_IT(59945); return debugObjectFaultInjectionCookieGetterFunction; }
+        JavascriptFunction* GetDebugObjectFaultInjectionCookieSetterFunction() const {TRACE_IT(59946); return debugObjectFaultInjectionCookieSetterFunction; }
         void SetDebugObjectFaultInjectionCookieGetterAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter);
 #endif
 
-        JavascriptFunction* GetArrayPrototypeToStringFunction() const { return arrayPrototypeToStringFunction; }
-        JavascriptFunction* GetArrayPrototypeToLocaleStringFunction() const { return arrayPrototypeToLocaleStringFunction; }
-        JavascriptFunction* GetIdentityFunction() const { return identityFunction; }
-        JavascriptFunction* GetThrowerFunction() const { return throwerFunction; }
+        JavascriptFunction* GetArrayPrototypeToStringFunction() const {TRACE_IT(59947); return arrayPrototypeToStringFunction; }
+        JavascriptFunction* GetArrayPrototypeToLocaleStringFunction() const {TRACE_IT(59948); return arrayPrototypeToLocaleStringFunction; }
+        JavascriptFunction* GetIdentityFunction() const {TRACE_IT(59949); return identityFunction; }
+        JavascriptFunction* GetThrowerFunction() const {TRACE_IT(59950); return throwerFunction; }
 
         void SetNativeHostPromiseContinuationFunction(PromiseContinuationCallback function, void *state);
 
@@ -970,20 +970,20 @@ namespace Js
         template <typename TypeName, bool clamped>
         inline DynamicType* GetTypedArrayType(TypeName);
 
-        template<> inline DynamicType* GetTypedArrayType<int8,false>(int8) { return int8ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint8,false>(uint8) { return uint8ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint8,true>(uint8) { return uint8ClampedArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int16,false>(int16) { return int16ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint16,false>(uint16) { return uint16ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int32,false>(int32) { return int32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint32,false>(uint32) { return uint32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<float,false>(float) { return float32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<double,false>(double) { return float64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int64,false>(int64) { return int64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint64,false>(uint64) { return uint64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<bool,false>(bool) { return boolArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int8,false>(int8) {TRACE_IT(59951); return int8ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint8,false>(uint8) {TRACE_IT(59952); return uint8ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint8,true>(uint8) {TRACE_IT(59953); return uint8ClampedArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int16,false>(int16) {TRACE_IT(59954); return int16ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint16,false>(uint16) {TRACE_IT(59955); return uint16ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int32,false>(int32) {TRACE_IT(59956); return int32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint32,false>(uint32) {TRACE_IT(59957); return uint32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<float,false>(float) {TRACE_IT(59958); return float32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<double,false>(double) {TRACE_IT(59959); return float64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int64,false>(int64) {TRACE_IT(59960); return int64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint64,false>(uint64) {TRACE_IT(59961); return uint64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<bool,false>(bool) {TRACE_IT(59962); return boolArrayType; };
 
-        DynamicType* GetCharArrayType() { return charArrayType; };
+        DynamicType* GetCharArrayType() {TRACE_IT(59963); return charArrayType; };
 
         //
         // This method would be used for creating array literals, when we really need to create a huge array
@@ -1142,12 +1142,12 @@ namespace Js
 
         void SetCrossSiteForSharedFunctionType(JavascriptFunction * function);
 
-        bool IsPRNGSeeded() { return isPRNGSeeded; }
-        uint64 GetRandSeed0() { return randSeed0; }
-        uint64 GetRandSeed1() { return randSeed1; }
+        bool IsPRNGSeeded() {TRACE_IT(59964); return isPRNGSeeded; }
+        uint64 GetRandSeed0() {TRACE_IT(59965); return randSeed0; }
+        uint64 GetRandSeed1() {TRACE_IT(59966); return randSeed1; }
         void SetIsPRNGSeeded(bool val);
-        void SetRandSeed0(uint64 rs) { randSeed0 = rs;}
-        void SetRandSeed1(uint64 rs) { randSeed1 = rs; }
+        void SetRandSeed0(uint64 rs) {TRACE_IT(59967); randSeed0 = rs;}
+        void SetRandSeed1(uint64 rs) {TRACE_IT(59968); randSeed1 = rs; }
 
         void SetProfileMode(bool fSet);
         void SetDispatchProfile(bool fSet, JavascriptMethod dispatchInvoke);
@@ -1183,48 +1183,48 @@ namespace Js
         static bool IsFloatFunctionCallsite(BuiltinFunction index, size_t argc);
         static bool IsFltBuiltInConst(PropertyId id);
         static size_t GetArgCForBuiltIn(BuiltinFunction index)
-        {
+        {TRACE_IT(59969);
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionArgC));
             return JavascriptLibrary::LibraryFunctionArgC[index];
         }
         static BuiltInFlags GetFlagsForBuiltIn(BuiltinFunction index)
-        {
+        {TRACE_IT(59970);
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionFlags));
             return (BuiltInFlags)JavascriptLibrary::LibraryFunctionFlags[index];
         }
         static BuiltinFunction GetBuiltInInlineCandidateId(Js::OpCode opCode);
         static BuiltInArgSpecializationType GetBuiltInArgType(BuiltInFlags flags, BuiltInArgShift argGroup);
         static bool IsTypeSpecRequired(BuiltInFlags flags)
-        {
+        {TRACE_IT(59971);
             return GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src1) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src2) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Dst);
         }
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         static char16 const * GetNameForBuiltIn(BuiltinFunction index)
-        {
+        {TRACE_IT(59972);
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionName));
             return JavascriptLibrary::LibraryFunctionName[index];
         }
 #endif
 
         PropertyStringCacheMap* EnsurePropertyStringMap();
-        PropertyStringCacheMap* GetPropertyStringMap() { return this->propertyStringMap; }
+        PropertyStringCacheMap* GetPropertyStringMap() {TRACE_IT(59973); return this->propertyStringMap; }
 
         void TypeAndPrototypesAreEnsuredToHaveOnlyWritableDataProperties(Type *const type);
         void NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
 
         static bool ArrayIteratorPrototypeHasUserDefinedNext(ScriptContext *scriptContext);
 
-        CharStringCache& GetCharStringCache() { return charStringCache;  }
+        CharStringCache& GetCharStringCache() {TRACE_IT(59974); return charStringCache;  }
         static JavascriptLibrary * FromCharStringCache(CharStringCache * cache)
-        {
+        {TRACE_IT(59975);
             return (JavascriptLibrary *)((uintptr_t)cache - offsetof(JavascriptLibrary, charStringCache));
         }
 
-        bool GetArrayObjectHasUserDefinedSpecies() const { return arrayObjectHasUserDefinedSpecies; }
-        void SetArrayObjectHasUserDefinedSpecies(bool val) { arrayObjectHasUserDefinedSpecies = val; }
+        bool GetArrayObjectHasUserDefinedSpecies() const {TRACE_IT(59976); return arrayObjectHasUserDefinedSpecies; }
+        void SetArrayObjectHasUserDefinedSpecies(bool val) {TRACE_IT(59977); arrayObjectHasUserDefinedSpecies = val; }
 
-        FunctionBody* GetFakeGlobalFuncForUndefer()const { return this->fakeGlobalFuncForUndefer; }
-        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) { this->fakeGlobalFuncForUndefer = functionBody; }        
+        FunctionBody* GetFakeGlobalFuncForUndefer()const {TRACE_IT(59978); return this->fakeGlobalFuncForUndefer; }
+        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) {TRACE_IT(59979); this->fakeGlobalFuncForUndefer = functionBody; }        
 
         ModuleRecordList* EnsureModuleRecordList();
         SourceTextModuleRecord* GetModuleRecord(uint moduleId);
@@ -1380,10 +1380,10 @@ namespace Js
         Field(ReferencedPropertyRecordHashSet*) referencedPropertyRecords;
 
         ReferencedPropertyRecordHashSet * EnsureReferencedPropertyRecordList()
-        {
+        {TRACE_IT(59980);
             ReferencedPropertyRecordHashSet* pidList = this->referencedPropertyRecords;
             if (pidList == nullptr)
-            {
+            {TRACE_IT(59981);
                 pidList = RecyclerNew(this->recycler, ReferencedPropertyRecordHashSet, this->recycler, 173);
                 this->referencedPropertyRecords = pidList;
             }
@@ -1391,7 +1391,7 @@ namespace Js
         }
 
         ReferencedPropertyRecordHashSet * GetReferencedPropertyRecordList() const
-        {
+        {TRACE_IT(59982);
             return this->referencedPropertyRecords;
         }
 

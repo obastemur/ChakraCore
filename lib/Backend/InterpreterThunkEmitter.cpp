@@ -241,12 +241,12 @@ InterpreterThunkEmitter::InterpreterThunkEmitter(Js::ScriptContext* context, Are
     thunkCount(0),
     thunkBuffer(nullptr),
     isAsmInterpreterThunk(isAsmInterpreterThunk)
-{
+{TRACE_IT(9606);
 }
 
 SListBase<ThunkBlock>* 
 InterpreterThunkEmitter::GetThunkBlocksList()
-{
+{TRACE_IT(9607);
     return &thunkBlocks;
 }
 
@@ -254,14 +254,14 @@ InterpreterThunkEmitter::GetThunkBlocksList()
 // Returns the next thunk. Batch allocated PageCount pages of thunks and issue them one at a time
 //
 BYTE* InterpreterThunkEmitter::GetNextThunk(PVOID* ppDynamicInterpreterThunk)
-{
+{TRACE_IT(9608);
     Assert(ppDynamicInterpreterThunk);
     Assert(*ppDynamicInterpreterThunk == nullptr);
 
     if(thunkCount == 0)
-    {
+    {TRACE_IT(9609);
         if(!this->freeListedThunkBlocks.Empty())
-        {
+        {TRACE_IT(9610);
             return AllocateFromFreeList(ppDynamicInterpreterThunk);
         }
         NewThunkBlock();
@@ -286,7 +286,7 @@ BYTE* InterpreterThunkEmitter::GetNextThunk(PVOID* ppDynamicInterpreterThunk)
 // and this function can convert to the unique thunk return address to the beginning of the page which corresponds with the entrypoint
 //
 void* InterpreterThunkEmitter::ConvertToEntryPoint(PVOID dynamicInterpreterThunk)
-{
+{TRACE_IT(9611);
     Assert(dynamicInterpreterThunk != nullptr);
     void* entryPoint = (void*)((size_t)dynamicInterpreterThunk & (~((size_t)(BlockSize) - 1)));
 
@@ -297,10 +297,10 @@ void* InterpreterThunkEmitter::ConvertToEntryPoint(PVOID dynamicInterpreterThunk
 }
 
 void InterpreterThunkEmitter::NewThunkBlock()
-{
+{TRACE_IT(9612);
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {TRACE_IT(9613);
         NewOOPJITThunkBlock();
         return;
     }
@@ -311,11 +311,11 @@ void InterpreterThunkEmitter::NewThunkBlock()
 
     EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> * allocation = emitBufferManager.AllocateBuffer(BlockSize, &buffer);
     if (allocation == nullptr)
-    {
+    {TRACE_IT(9614);
         Js::Throw::OutOfMemory();
     }
     if (!emitBufferManager.ProtectBufferWithExecuteReadWriteForInterpreter(allocation))
-    {
+    {TRACE_IT(9615);
         Js::Throw::OutOfMemory();
     }
 
@@ -339,7 +339,7 @@ void InterpreterThunkEmitter::NewThunkBlock()
     );
 
     if (!emitBufferManager.CommitBufferForInterpreter(allocation, buffer, BlockSize))
-    {
+    {TRACE_IT(9616);
         Js::Throw::OutOfMemory();
     }
 
@@ -361,9 +361,9 @@ void InterpreterThunkEmitter::NewThunkBlock()
 
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
 void InterpreterThunkEmitter::NewOOPJITThunkBlock()
-{
+{TRACE_IT(9617);
     if (!JITManager::GetJITManager()->IsConnected())
-    {
+    {TRACE_IT(9618);
         Js::Throw::OutOfMemory();
     }
     InterpreterThunkInputIDL thunkInput;
@@ -377,7 +377,7 @@ void InterpreterThunkEmitter::NewOOPJITThunkBlock()
     BYTE* buffer = (BYTE*)thunkOutput.mappedBaseAddr;
 
     if (!CONFIG_FLAG(OOPCFGRegistration))
-    {
+    {TRACE_IT(9619);
         this->scriptContext->GetThreadContext()->SetValidCallTargetForCFG(buffer);
     }
 
@@ -409,7 +409,7 @@ void InterpreterThunkEmitter::FillBuffer(
 #endif
     _Out_ DWORD * thunkCount
     )
-{
+{TRACE_IT(9620);
 #ifdef _M_X64
     PrologEncoder prologEncoder;
     prologEncoder.EncodeSmallProlog(PrologSize, StackAllocSize);
@@ -429,12 +429,12 @@ void InterpreterThunkEmitter::FillBuffer(
     // the static interpreter thunk invoked by the dynamic emitted thunk
 #ifdef ASMJS_PLAT
     if (asmJsThunk)
-    {
+    {TRACE_IT(9621);
         interpreterThunk = SHIFT_ADDR(threadContext, &Js::InterpreterStackFrame::InterpreterAsmThunk);
     }
     else
 #endif
-    {
+    {TRACE_IT(9622);
         interpreterThunk = SHIFT_ADDR(threadContext, &Js::InterpreterStackFrame::InterpreterThunk);
     }
 
@@ -519,7 +519,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{TRACE_IT(9623);
     _Analysis_assume_(thunkSize == HeaderSize);
     // Encode MOVW
     DWORD lowerThunkBits = (uint32)interpreterThunk & 0x0000FFFF;
@@ -559,7 +559,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 }
 
 DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
-{
+{TRACE_IT(9624);
     DWORD encodedMove = reg << 24;
     DWORD encodedImm = 0;
     EncoderMD::EncodeImmediate16(imm16, &encodedImm);
@@ -570,7 +570,7 @@ DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
 }
 
 void InterpreterThunkEmitter::GeneratePdata(_In_ const BYTE* entryPoint, _In_ const DWORD functionSize, _Out_ RUNTIME_FUNCTION* function)
-{
+{TRACE_IT(9625);
     function->BeginAddress   = 0x1;                        // Since our base address is the start of the function - this is offset from the base address
     function->Flag           = 1;                          // Packed unwind data is used
     function->FunctionLength = functionSize / 2;
@@ -591,7 +591,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{TRACE_IT(9626);
     int addrOffset = ThunkAddressOffset;
 
     _Analysis_assume_(thunkSize == HeaderSize);
@@ -645,7 +645,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 }
 
 DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
-{
+{TRACE_IT(9627);
     DWORD encodedMove = reg << 0;
     DWORD encodedImm = 0;
     EncoderMD::EncodeImmediate16(imm16, &encodedImm);
@@ -656,7 +656,7 @@ DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
 }
 
 void InterpreterThunkEmitter::GeneratePdata(_In_ const BYTE* entryPoint, _In_ const DWORD functionSize, _Out_ RUNTIME_FUNCTION* function)
-{
+{TRACE_IT(9628);
     function->BeginAddress = 0x0;               // Since our base address is the start of the function - this is offset from the base address
     function->Flag = 1;                         // Packed unwind data is used
     function->FunctionLength = functionSize / 4;
@@ -676,7 +676,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{TRACE_IT(9629);
     _Analysis_assume_(thunkSize == HeaderSize);
     Emit(thunkBuffer, ThunkAddressOffset, (uintptr_t)interpreterThunk);
     thunkBuffer[DynamicThunkAddressOffset] = Js::FunctionBody::GetOffsetOfDynamicInterpreterThunk();
@@ -691,7 +691,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 
 /*static*/
 DWORD InterpreterThunkEmitter::FillDebugBreak(_Out_writes_bytes_all_(count) BYTE* dest, _In_ DWORD count)
-{
+{TRACE_IT(9630);
 #if defined(_M_ARM)
     Assert(count % 2 == 0);
 #elif defined(_M_ARM64)
@@ -725,13 +725,13 @@ DWORD InterpreterThunkEmitter::CopyWithAlignment(
 #if DBG
 bool
 InterpreterThunkEmitter::IsInHeap(void* address)
-{
+{TRACE_IT(9631);
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {TRACE_IT(9632);
         PSCRIPTCONTEXT_HANDLE remoteScript = this->scriptContext->GetRemoteScriptAddr(false);
         if (!remoteScript)
-        {
+        {TRACE_IT(9633);
             return false;
         }
         boolean result;
@@ -741,7 +741,7 @@ InterpreterThunkEmitter::IsInHeap(void* address)
     }
     else
 #endif
-    {
+    {TRACE_IT(9634);
         return emitBufferManager.IsInHeap(address);
     }
 }
@@ -751,7 +751,7 @@ InterpreterThunkEmitter::IsInHeap(void* address)
 // code running here.
 // The destructor of emitBufferManager will cause the eventual release.
 void InterpreterThunkEmitter::Close()
-{
+{TRACE_IT(9635);
 #if PDATA_ENABLED
     auto unregisterPdata = ([&] (const ThunkBlock& block)
     {
@@ -766,16 +766,16 @@ void InterpreterThunkEmitter::Close()
 
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {TRACE_IT(9636);
         PSCRIPTCONTEXT_HANDLE remoteScript = this->scriptContext->GetRemoteScriptAddr(false);
         if (remoteScript)
-        {
+        {TRACE_IT(9637);
             JITManager::GetJITManager()->DecommitInterpreterBufferManager(remoteScript, this->isAsmInterpreterThunk);
         }
     }
     else
 #endif
-    {
+    {TRACE_IT(9638);
         emitBufferManager.Decommit();
     }
 
@@ -785,9 +785,9 @@ void InterpreterThunkEmitter::Close()
 }
 
 void InterpreterThunkEmitter::Release(BYTE* thunkAddress, bool addtoFreeList)
-{
+{TRACE_IT(9639);
     if(!addtoFreeList)
-    {
+    {TRACE_IT(9640);
         return;
     }
 
@@ -798,26 +798,26 @@ void InterpreterThunkEmitter::Release(BYTE* thunkAddress, bool addtoFreeList)
 
     ThunkBlock* block = freeListedThunkBlocks.Find(predicate);
     if(!block)
-    {
+    {TRACE_IT(9641);
         block = thunkBlocks.MoveTo(&freeListedThunkBlocks, predicate);
     }
 
     // if EnsureFreeList fails in an OOM scenario - we just leak the thunks
     if(block && block->EnsureFreeList(allocator))
-    {
+    {TRACE_IT(9642);
         block->Release(thunkAddress);
     }
 }
 
 BYTE* InterpreterThunkEmitter::AllocateFromFreeList(PVOID* ppDynamicInterpreterThunk )
-{
+{TRACE_IT(9643);
     ThunkBlock& block = this->freeListedThunkBlocks.Head();
     BYTE* thunk = block.AllocateFromFreeList();
 #if _M_ARM
     thunk = (BYTE*)((DWORD)thunk | 0x01);
 #endif
     if(block.IsFreeListEmpty())
-    {
+    {TRACE_IT(9644);
         this->freeListedThunkBlocks.MoveHeadTo(&this->thunkBlocks);
     }
     *ppDynamicInterpreterThunk = thunk;
@@ -830,13 +830,13 @@ BYTE* InterpreterThunkEmitter::AllocateFromFreeList(PVOID* ppDynamicInterpreterT
 
 
 bool ThunkBlock::Contains(BYTE* address) const
-{
+{TRACE_IT(9645);
     bool contains = address >= start && address < (start + InterpreterThunkEmitter::BlockSize);
     return contains;
 }
 
 void ThunkBlock::Release(BYTE* address)
-{
+{TRACE_IT(9646);
     Assert(Contains(address));
     Assert(this->freeList);
 
@@ -845,7 +845,7 @@ void ThunkBlock::Release(BYTE* address)
 }
 
 BYTE* ThunkBlock::AllocateFromFreeList()
-{
+{TRACE_IT(9647);
     Assert(this->freeList);
     BVIndex index = this->freeList->GetNextBit(0);
     BYTE* address = ToThunkAddress(index);
@@ -854,30 +854,30 @@ BYTE* ThunkBlock::AllocateFromFreeList()
 }
 
 BVIndex ThunkBlock::FromThunkAddress(BYTE* address)
-{
+{TRACE_IT(9648);
     int index = ((uint)(address - start) - InterpreterThunkEmitter::HeaderSize) / InterpreterThunkEmitter::ThunkSize;
     Assert(index < InterpreterThunkEmitter::ThunksPerBlock);
     return index;
 }
 
 BYTE* ThunkBlock::ToThunkAddress(BVIndex index)
-{
+{TRACE_IT(9649);
     Assert(index < InterpreterThunkEmitter::ThunksPerBlock);
     BYTE* address = start + InterpreterThunkEmitter::HeaderSize + InterpreterThunkEmitter::ThunkSize * index;
     return address;
 }
 
 bool ThunkBlock::EnsureFreeList(ArenaAllocator* allocator)
-{
+{TRACE_IT(9650);
     if(!this->freeList)
-    {
+    {TRACE_IT(9651);
         this->freeList = BVFixed::NewNoThrow(InterpreterThunkEmitter::ThunksPerBlock, allocator);
     }
     return this->freeList != nullptr;
 }
 
 bool ThunkBlock::IsFreeListEmpty() const
-{
+{TRACE_IT(9652);
     Assert(this->freeList);
     return this->freeList->IsAllClear();
 }

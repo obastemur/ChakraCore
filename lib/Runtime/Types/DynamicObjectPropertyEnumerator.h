@@ -38,13 +38,13 @@ namespace Js
 
         void Initialize(DynamicType * type, CachedData * data, Js::BigPropertyIndex initialPropertyCount);
     public:
-        DynamicObject * GetObject() const { return object; }
-        EnumeratorFlags GetFlags() const { return flags; }
+        DynamicObject * GetObject() const {TRACE_IT(66011); return object; }
+        EnumeratorFlags GetFlags() const {TRACE_IT(66012); return flags; }
         bool GetEnumNonEnumerable() const;
         bool GetEnumSymbols() const;
         bool GetSnapShotSemantics() const;
         bool GetUseCache() const;
-        ScriptContext * GetScriptContext() const { return scriptContext; }
+        ScriptContext * GetScriptContext() const {TRACE_IT(66013); return scriptContext; }
 
         bool Initialize(DynamicObject * object, EnumeratorFlags flags, ScriptContext * requestContext, ForInCache * forInCache);
         bool IsNullEnumerator() const;
@@ -53,21 +53,21 @@ namespace Js
         Var MoveAndGetNext(PropertyId& propertyId, PropertyAttributes * attributes);
 
         bool CanUseJITFastPath() const;
-        static uint32 GetOffsetOfScriptContext() { return offsetof(DynamicObjectPropertyEnumerator, scriptContext); }
-        static uint32 GetOffsetOfInitialType() { return offsetof(DynamicObjectPropertyEnumerator, initialType); }
-        static uint32 GetOffsetOfObject() { return offsetof(DynamicObjectPropertyEnumerator, object); }
-        static uint32 GetOffsetOfObjectIndex() { return offsetof(DynamicObjectPropertyEnumerator, objectIndex); }
-        static uint32 GetOffsetOfInitialPropertyCount() { return offsetof(DynamicObjectPropertyEnumerator, initialPropertyCount); }
-        static uint32 GetOffsetOfEnumeratedCount() { return offsetof(DynamicObjectPropertyEnumerator, enumeratedCount); }
-        static uint32 GetOffsetOfCachedData() { return offsetof(DynamicObjectPropertyEnumerator, cachedData); }
-        static uint32 GetOffsetOfFlags() { return offsetof(DynamicObjectPropertyEnumerator, flags);
+        static uint32 GetOffsetOfScriptContext() {TRACE_IT(66014); return offsetof(DynamicObjectPropertyEnumerator, scriptContext); }
+        static uint32 GetOffsetOfInitialType() {TRACE_IT(66015); return offsetof(DynamicObjectPropertyEnumerator, initialType); }
+        static uint32 GetOffsetOfObject() {TRACE_IT(66016); return offsetof(DynamicObjectPropertyEnumerator, object); }
+        static uint32 GetOffsetOfObjectIndex() {TRACE_IT(66017); return offsetof(DynamicObjectPropertyEnumerator, objectIndex); }
+        static uint32 GetOffsetOfInitialPropertyCount() {TRACE_IT(66018); return offsetof(DynamicObjectPropertyEnumerator, initialPropertyCount); }
+        static uint32 GetOffsetOfEnumeratedCount() {TRACE_IT(66019); return offsetof(DynamicObjectPropertyEnumerator, enumeratedCount); }
+        static uint32 GetOffsetOfCachedData() {TRACE_IT(66020); return offsetof(DynamicObjectPropertyEnumerator, cachedData); }
+        static uint32 GetOffsetOfFlags() {TRACE_IT(66021); return offsetof(DynamicObjectPropertyEnumerator, flags);
         }
-        static uint32 GetOffsetOfCachedDataStrings() { return offsetof(CachedData, strings); }
-        static uint32 GetOffsetOfCachedDataIndexes() { return offsetof(CachedData, indexes); }
-        static uint32 GetOffsetOfCachedDataPropertyCount() { return offsetof(CachedData, propertyCount); }
-        static uint32 GetOffsetOfCachedDataCachedCount() { return offsetof(CachedData, cachedCount); }
-        static uint32 GetOffsetOfCachedDataPropertyAttributes() { return offsetof(CachedData, attributes); }
-        static uint32 GetOffsetOfCachedDataCompleted() { return offsetof(CachedData, completed); }
-        static uint32 GetOffsetOfCachedDataEnumNonEnumerable() { return offsetof(CachedData, enumNonEnumerable); }
+        static uint32 GetOffsetOfCachedDataStrings() {TRACE_IT(66022); return offsetof(CachedData, strings); }
+        static uint32 GetOffsetOfCachedDataIndexes() {TRACE_IT(66023); return offsetof(CachedData, indexes); }
+        static uint32 GetOffsetOfCachedDataPropertyCount() {TRACE_IT(66024); return offsetof(CachedData, propertyCount); }
+        static uint32 GetOffsetOfCachedDataCachedCount() {TRACE_IT(66025); return offsetof(CachedData, cachedCount); }
+        static uint32 GetOffsetOfCachedDataPropertyAttributes() {TRACE_IT(66026); return offsetof(CachedData, attributes); }
+        static uint32 GetOffsetOfCachedDataCompleted() {TRACE_IT(66027); return offsetof(CachedData, completed); }
+        static uint32 GetOffsetOfCachedDataEnumNonEnumerable() {TRACE_IT(66028); return offsetof(CachedData, enumNonEnumerable); }
     };
 };

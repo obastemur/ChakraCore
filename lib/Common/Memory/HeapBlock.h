@@ -12,12 +12,12 @@ enum class PageHeapBlockTypeFilter;
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
 #define PageHeapVerboseTrace(flags, ...) \
 if (flags.Verbose && flags.Trace.IsEnabled(Js::PageHeapPhase)) \
-    { \
+    {TRACE_IT(23584); \
         Output::Print(__VA_ARGS__); \
     }
 #define PageHeapTrace(flags, ...) \
 if (flags.Trace.IsEnabled(Js::PageHeapPhase)) \
-    { \
+    {TRACE_IT(23585); \
         Output::Print(__VA_ARGS__); \
     }
 #else
@@ -56,7 +56,7 @@ struct HeapBucketStats
 
 #ifdef RECYCLER_SLOW_CHECK_ENABLED
 #define RECYCLER_SLOW_CHECK(x) x
-#define RECYCLER_SLOW_CHECK_IF(cond, x) if (cond) { x; }
+#define RECYCLER_SLOW_CHECK_IF(cond, x) if (cond) {TRACE_IT(23586); x; }
 #else
 #define RECYCLER_SLOW_CHECK(x)
 #define RECYCLER_SLOW_CHECK_IF(cond, x)
@@ -243,23 +243,23 @@ public:
 
         BlockTypeCount = 12,
     };
-    bool IsNormalBlock() const { return this->GetHeapBlockType() == SmallNormalBlockType || this->GetHeapBlockType() == MediumNormalBlockType; }
-    bool IsLeafBlock() const { return this->GetHeapBlockType() == SmallLeafBlockType || this->GetHeapBlockType() == MediumLeafBlockType; }
-    bool IsFinalizableBlock() const { return this->GetHeapBlockType() == SmallFinalizableBlockType || this->GetHeapBlockType() == MediumFinalizableBlockType; }
+    bool IsNormalBlock() const {TRACE_IT(23587); return this->GetHeapBlockType() == SmallNormalBlockType || this->GetHeapBlockType() == MediumNormalBlockType; }
+    bool IsLeafBlock() const {TRACE_IT(23588); return this->GetHeapBlockType() == SmallLeafBlockType || this->GetHeapBlockType() == MediumLeafBlockType; }
+    bool IsFinalizableBlock() const {TRACE_IT(23589); return this->GetHeapBlockType() == SmallFinalizableBlockType || this->GetHeapBlockType() == MediumFinalizableBlockType; }
 
 #ifdef RECYCLER_WRITE_BARRIER
-    bool IsAnyNormalBlock() const { return IsNormalBlock() || IsNormalWriteBarrierBlock(); }
-    bool IsAnyFinalizableBlock() const { return IsFinalizableBlock() || IsFinalizableWriteBarrierBlock(); }
-    bool IsNormalWriteBarrierBlock() const { return this->GetHeapBlockType() == SmallNormalBlockWithBarrierType || this->GetHeapBlockType() == MediumNormalBlockWithBarrierType; }
-    bool IsFinalizableWriteBarrierBlock() const { return this->GetHeapBlockType() == SmallFinalizableBlockWithBarrierType || this->GetHeapBlockType() == MediumFinalizableBlockWithBarrierType; }
+    bool IsAnyNormalBlock() const {TRACE_IT(23590); return IsNormalBlock() || IsNormalWriteBarrierBlock(); }
+    bool IsAnyFinalizableBlock() const {TRACE_IT(23591); return IsFinalizableBlock() || IsFinalizableWriteBarrierBlock(); }
+    bool IsNormalWriteBarrierBlock() const {TRACE_IT(23592); return this->GetHeapBlockType() == SmallNormalBlockWithBarrierType || this->GetHeapBlockType() == MediumNormalBlockWithBarrierType; }
+    bool IsFinalizableWriteBarrierBlock() const {TRACE_IT(23593); return this->GetHeapBlockType() == SmallFinalizableBlockWithBarrierType || this->GetHeapBlockType() == MediumFinalizableBlockWithBarrierType; }
 #else
-    bool IsAnyFinalizableBlock() const { return IsFinalizableBlock(); }
-    bool IsAnyNormalBlock() const { return IsNormalBlock(); }
+    bool IsAnyFinalizableBlock() const {TRACE_IT(23594); return IsFinalizableBlock(); }
+    bool IsAnyNormalBlock() const {TRACE_IT(23595); return IsNormalBlock(); }
 #endif
 
-    bool IsLargeHeapBlock() const { return this->GetHeapBlockType() == LargeBlockType; }
-    char * GetAddress() const { return address; }
-    Segment * GetSegment() const { return segment; }
+    bool IsLargeHeapBlock() const {TRACE_IT(23596); return this->GetHeapBlockType() == LargeBlockType; }
+    char * GetAddress() const {TRACE_IT(23597); return address; }
+    Segment * GetSegment() const {TRACE_IT(23598); return segment; }
 
     template <typename TBlockAttributes>
     SmallNormalHeapBlockT<TBlockAttributes> * AsNormalBlock();
@@ -294,21 +294,21 @@ public:
     HeapBlock(HeapBlockType heapBlockType) :
         heapBlockType(heapBlockType),
         needOOMRescan(false)
-    {
+    {TRACE_IT(23599);
         Assert(GetHeapBlockType() <= HeapBlock::HeapBlockType::BlockTypeCount);
     }
 
     HeapBlockType const GetHeapBlockType() const
-    {
+    {TRACE_IT(23600);
         return (heapBlockType);
     }
 
     IdleDecommitPageAllocator* GetPageAllocator(Recycler* recycler);
 
     bool GetAndClearNeedOOMRescan()
-    {
+    {TRACE_IT(23601);
         if (this->needOOMRescan)
-        {
+        {TRACE_IT(23602);
             this->needOOMRescan = false;
             return true;
         }
@@ -457,23 +457,23 @@ public:
     SmallHeapBlockBitVector explicitFreeBits;
 #endif
     bool IsFreeBitsValid() const
-    {
+    {TRACE_IT(23603);
         return this->freeObjectList == this->lastFreeObjectHead;
     }
 
-    PageSegment * GetPageSegment() const { return (PageSegment *)GetSegment(); }
+    PageSegment * GetPageSegment() const {TRACE_IT(23604); return (PageSegment *)GetSegment(); }
 public:
     ~SmallHeapBlockT();
 
-    void ProtectUnusablePages() {}
-    void RestoreUnusablePages() {}
+    void ProtectUnusablePages() {TRACE_IT(23605);}
+    void RestoreUnusablePages() {TRACE_IT(23606);}
 
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
     virtual void WBVerifyBitIsSet(char* addr) override
     {
         uint index = (uint)(addr - this->address) / sizeof(void*);
         if (!wbVerifyBits.Test(index)) // TODO: (leish)(swb) need interlocked? seems not
-        {
+        {TRACE_IT(23607);
             PrintVerifyMarkFailure(this->GetRecycler(), addr, *(char**)addr);
         }
     }
@@ -486,7 +486,7 @@ public:
     {
         uint index = (uint)(addr - this->address) / sizeof(void*);
         for (uint i = 0; i < count; i++)
-        {
+        {TRACE_IT(23608);
             wbVerifyBits.TestAndSetInterlocked(index + i);
         }
     }
@@ -501,14 +501,14 @@ public:
         uint index = (uint)(addr - this->address) / sizeof(void*);
         uint count = (uint)(this->objectSize / sizeof(void*));
         for (uint i = 0; i < count; i++)
-        {
+        {TRACE_IT(23609);
             wbVerifyBits.TestAndClearInterlocked(index + i);
         }
     }
 #endif
 
     uint GetUnusablePageCount()
-    {
+    {TRACE_IT(23610);
         return 0;
     }
 
@@ -516,14 +516,14 @@ public:
     bool IsWithBarrier() const;
 #endif
     void RemoveFromHeapBlockMap(Recycler* recycler);
-    char* GetAddress() const { return address; }
-    char * GetEndAddress() const { return address + (this->GetPageCount() * AutoSystemInfo::PageSize);  }
-    uint GetObjectWordCount() const { return this->objectSize / sizeof(void *); }
+    char* GetAddress() const {TRACE_IT(23611); return address; }
+    char * GetEndAddress() const {TRACE_IT(23612); return address + (this->GetPageCount() * AutoSystemInfo::PageSize);  }
+    uint GetObjectWordCount() const {TRACE_IT(23613); return this->objectSize / sizeof(void *); }
     uint GetPageCount() const;
 
     template<bool checkPageHeap=true>
     bool HasFreeObject() const
-    {
+    {TRACE_IT(23614);
         return freeObjectList != nullptr;
     }
 
@@ -536,7 +536,7 @@ public:
     void VerifyMarkBitVector();
     bool IsClearedFromAllocator() const;
     void SetIsClearedFromAllocator(bool value);
-    void SetIsIntegratedBlock() { this->isIntegratedBlock = true; }
+    void SetIsIntegratedBlock() {TRACE_IT(23615); this->isIntegratedBlock = true; }
 #endif
 #ifdef RECYCLER_MEMORY_VERIFY
     void SetExplicitFreeBitForObject(void* object);
@@ -564,8 +564,8 @@ public:
     * This means that we don't rescan newly allocated objects during rescan, because rescan doesn't change add new mark bits.
     * Instead, these objects are marked after rescan during in-thread mark if they're actually alive.
     */
-    SmallHeapBlockBitVector * GetMarkedBitVector() { return markBits; }
-    SmallHeapBlockBitVector * GetFreeBitVector() { return &freeBits; }
+    SmallHeapBlockBitVector * GetMarkedBitVector() {TRACE_IT(23616); return markBits; }
+    SmallHeapBlockBitVector * GetFreeBitVector() {TRACE_IT(23617); return &freeBits; }
 
     SmallHeapBlockBitVector const * GetInvalidBitVector();
     BlockInfo const * GetBlockInfo();
@@ -575,25 +575,25 @@ public:
     static uint GetObjectBitDeltaForBucketIndex(uint bucketIndex);
 
     static char* GetBlockStartAddress(char* address)
-    {
+    {TRACE_IT(23618);
         uintptr_t mask = ~((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) - 1);
         return (char*)((uintptr_t)address & mask);
     }
 
     bool IsValidBitIndex(uint bitIndex)
-    {
+    {TRACE_IT(23619);
         Assert(bitIndex < TBlockAttributes::BitVectorCount);
         return bitIndex % GetObjectBitDelta() == 0;
     }
 
     void MarkImplicitRoots();
 
-    void SetNextBlock(SmallHeapBlockT * next) { this->next=next; }
-    SmallHeapBlockT * GetNextBlock() const { return next; }
+    void SetNextBlock(SmallHeapBlockT * next) {TRACE_IT(23620); this->next=next; }
+    SmallHeapBlockT * GetNextBlock() const {TRACE_IT(23621); return next; }
 
-    uint GetObjectSize() const { return objectSize; }
-    uint GetObjectCount() const { return objectCount; }
-    uint GetMarkedCount() const { return markCount; }
+    uint GetObjectSize() const {TRACE_IT(23622); return objectSize; }
+    uint GetObjectCount() const {TRACE_IT(23623); return objectCount; }
+    uint GetMarkedCount() const {TRACE_IT(23624); return markCount; }
 
     // Valid during sweep time
     ushort GetExpectedFreeObjectCount() const;
@@ -601,7 +601,7 @@ public:
     ushort GetExpectedSweepObjectCount() const;
 
 #if DBG || defined(RECYCLER_STATS)
-    SmallHeapBlockBitVector * GetDebugFreeBitVector() { return &debugFreeBits; }
+    SmallHeapBlockBitVector * GetDebugFreeBitVector() {TRACE_IT(23625); return &debugFreeBits; }
 #endif
 #if DBG
     virtual BOOL IsFreeObject(void* objectAddress) override;
@@ -644,7 +644,7 @@ public:
     void EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size));
 
     bool IsImplicitRoot(uint objectIndex)
-    {
+    {TRACE_IT(23626);
         return (this->ObjectInfo(objectIndex) & ImplicitRootBit) != 0;
     }
 
@@ -778,10 +778,10 @@ public:
 
     template <typename TBlockType, typename Fn>
     static void ForEach(TBlockType * list, TBlockType * tail, Fn fn)
-    {
+    {TRACE_IT(23627);
         TBlockType * heapBlock = list;
         while (heapBlock != tail)
-        {
+        {TRACE_IT(23628);
             fn(heapBlock);
             heapBlock = heapBlock->GetNextBlock();
         }
@@ -795,10 +795,10 @@ public:
 
     template <typename TBlockType, typename Fn>
     static void ForEachEditing(TBlockType * list, TBlockType * tail,  Fn fn)
-    {
+    {TRACE_IT(23629);
         TBlockType * heapBlock = list;
         while (heapBlock != tail)
-        {
+        {TRACE_IT(23630);
             TBlockType * nextBlock = heapBlock->GetNextBlock();
             fn(heapBlock);
             heapBlock = nextBlock;
@@ -807,7 +807,7 @@ public:
 
     template <typename TBlockType>
     static size_t Count(TBlockType * list)
-    {
+    {TRACE_IT(23631);
         size_t currentHeapBlockCount = 0;
         HeapBlockList::ForEach(list, [&currentHeapBlockCount](TBlockType * heapBlock)
         {
@@ -818,7 +818,7 @@ public:
 
     template <typename TBlockType>
     static TBlockType * Tail(TBlockType * list)
-    {
+    {TRACE_IT(23632);
         TBlockType * tail = nullptr;
         HeapBlockList::ForEach(list, [&tail](TBlockType * heapBlock)
         {
@@ -830,12 +830,12 @@ public:
 #if DBG
     template <typename TBlockType>
     static bool Contains(TBlockType * block, TBlockType * list, TBlockType * tail = nullptr)
-    {
+    {TRACE_IT(23633);
         TBlockType * heapBlock = list;
         while (heapBlock != tail)
-        {
+        {TRACE_IT(23634);
             if (heapBlock == block)
-            {
+            {TRACE_IT(23635);
                 return true;
             }
             heapBlock = heapBlock->GetNextBlock();

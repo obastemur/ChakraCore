@@ -39,9 +39,9 @@ class ThreadContextScope
 {
 public:
     ThreadContextScope(ThreadContext * threadContext)
-    {
+    {TRACE_IT(37822);
         if (!threadContext->IsThreadBound())
-        {
+        {TRACE_IT(37823);
             originalContext = ThreadContextTLSEntry::GetEntryForCurrentThread() ?
                 ThreadContextTLSEntry::GetEntryForCurrentThread()->GetThreadContext() : NULL;
             wasInUse = threadContext == originalContext;
@@ -49,7 +49,7 @@ public:
             doCleanup = !wasInUse && isValid;
         }
         else
-        {
+        {TRACE_IT(37824);
             Assert(ThreadContext::GetContextForCurrentThread() == threadContext);
             isValid = true;
             wasInUse = true;
@@ -58,9 +58,9 @@ public:
     }
 
     ~ThreadContextScope()
-    {
+    {TRACE_IT(37825);
         if (doCleanup)
-        {
+        {TRACE_IT(37826);
             bool cleared = true;
 
 #if DBG
@@ -70,7 +70,7 @@ public:
             Assert(cleared);
 
             if (originalContext)
-            {
+            {TRACE_IT(37827);
                 bool canSetback = true;
 #if DBG
                 canSetback =
@@ -82,17 +82,17 @@ public:
     }
 
     void Invalidate()
-    {
+    {TRACE_IT(37828);
         this->isValid = false;
     }
 
     bool IsValid() const
-    {
+    {TRACE_IT(37829);
         return this->isValid;
     }
 
     bool WasInUse() const
-    {
+    {TRACE_IT(37830);
         return this->wasInUse;
     }
 

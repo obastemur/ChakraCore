@@ -53,13 +53,13 @@ public:
     Field(ULONG) grfsi;
 
     static SRCINFO* Copy(Recycler* recycler, const SRCINFO* srcInfo)
-    {
+    {TRACE_IT(36598);
         SRCINFO* copySrcInfo = RecyclerNew(recycler, SRCINFO, *srcInfo);
         return copySrcInfo;
     }
 
     SRCINFO()
-    {
+    {TRACE_IT(36599);
     }
     SRCINFO(const SRCINFO& other)
         :sourceContextInfo(other.sourceContextInfo),
@@ -71,7 +71,7 @@ public:
         ulCharOffset(other.ulCharOffset),
         moduleID(other.moduleID),
         grfsi(other.grfsi)
-    {
+    {TRACE_IT(36600);
     }
     SRCINFO(
         SourceContextInfo*sourceContextInfo,
@@ -92,7 +92,7 @@ public:
         ulCharOffset(ulCharOffset),
         moduleID(moduleID),
         grfsi(grfsi)
-    {
+    {TRACE_IT(36601);
     }
 };
 
@@ -125,7 +125,7 @@ enum LoadScriptFlag
 class HostScriptContext
 {
 public:
-    HostScriptContext(Js::ScriptContext* inScriptContext) { this->scriptContext = inScriptContext; }
+    HostScriptContext(Js::ScriptContext* inScriptContext) {TRACE_IT(36602); this->scriptContext = inScriptContext; }
     virtual void Delete() = 0;
     virtual HRESULT GetPreviousHostScriptContext(__deref_out HostScriptContext** ppUnkCaller) = 0;
     virtual HRESULT PushHostScriptContext() = 0;
@@ -155,7 +155,7 @@ public:
     virtual HRESULT FetchImportedModule(Js::ModuleRecordBase* referencingModule, LPCOLESTR specifier, Js::ModuleRecordBase** dependentModuleRecord) = 0;
     virtual HRESULT NotifyHostAboutModuleReady(Js::ModuleRecordBase* referencingModule, Js::Var exceptionVar) = 0;
 
-    Js::ScriptContext* GetScriptContext() { return scriptContext; }
+    Js::ScriptContext* GetScriptContext() {TRACE_IT(36603); return scriptContext; }
 
     virtual bool SetCrossSiteForFunctionType(Js::JavascriptFunction * function) = 0;
 #if DBG_DUMP || defined(PROFILE_EXEC) || defined(PROFILE_MEM)
@@ -178,13 +178,13 @@ public:
 
     HostScriptContextCallbackFunctor()
         : HostData(nullptr), pfOnScriptLoadCallback(nullptr)
-    {
+    {TRACE_IT(36604);
         ;
     }
 
     HostScriptContextCallbackFunctor(FinalizableObject* callbackData, void(*pfcallbackOnScriptLoad)(FinalizableObject* hostData, Js::JavascriptFunction* scriptFunction, Js::Utf8SourceInfo* utf8SourceInfo, CompileScriptException* compileException))
         : HostData(callbackData), pfOnScriptLoadCallback(pfcallbackOnScriptLoad)
-    {
+    {TRACE_IT(36605);
         ;
     }
 };
@@ -196,7 +196,7 @@ namespace Js
 #pragma pack(push, 1)
     struct StackFrameInfo
     {
-        StackFrameInfo() { }
+        StackFrameInfo() {TRACE_IT(36606); }
         StackFrameInfo(DWORD_PTR _scriptContextID
             , UINT32 _sourceLocationLineNumber
             , UINT32 _sourceLocationColumnNumber
@@ -207,7 +207,7 @@ namespace Js
             , sourceLocationColumnNumber(_sourceLocationColumnNumber)
             , methodIDOrNameIndex(_methodIDOrNameIndex)
             , isFrameIndex(_isFrameIndex)
-        { }
+        {TRACE_IT(36607); }
 
         DWORD_PTR scriptContextID;
         UINT32 sourceLocationLineNumber;
@@ -222,14 +222,14 @@ namespace Js
     {
     public:
         ProjectionConfiguration() : targetVersion(0)
-        {
+        {TRACE_IT(36608);
         }
 
-        DWORD GetTargetVersion() const { return this->targetVersion; }
-        void SetTargetVersion(DWORD version) { this->targetVersion = version; }
+        DWORD GetTargetVersion() const {TRACE_IT(36609); return this->targetVersion; }
+        void SetTargetVersion(DWORD version) {TRACE_IT(36610); this->targetVersion = version; }
 
-        bool IsTargetWindows8() const           { return this->targetVersion == NTDDI_WIN8; }
-        bool IsTargetWindowsBlueOrLater() const { return this->targetVersion >= NTDDI_WINBLUE; }
+        bool IsTargetWindows8() const           {TRACE_IT(36611); return this->targetVersion == NTDDI_WIN8; }
+        bool IsTargetWindowsBlueOrLater() const {TRACE_IT(36612); return this->targetVersion >= NTDDI_WINBLUE; }
 
     private:
         DWORD targetVersion;
@@ -247,12 +247,12 @@ namespace Js
             NoNative(Configuration::Global.flags.NoNative),
             isOptimizedForManyInstances(isOptimizedForManyInstances),
             threadConfig(threadConfig)
-        {
+        {TRACE_IT(36613);
         }
 
         // Version
-        bool SupportsES3()                      const { return true; }
-        bool SupportsES3Extensions()            const {
+        bool SupportsES3()                      const {TRACE_IT(36614); return true; }
+        bool SupportsES3Extensions()            const {TRACE_IT(36615);
 #ifdef ENABLE_PROJECTION
             return HostType != HostTypeApplication;
 #else
@@ -260,7 +260,7 @@ namespace Js
 #endif
         }
 
-#define FORWARD_THREAD_CONFIG(flag) inline bool flag() const { return threadConfig->flag(); }
+#define FORWARD_THREAD_CONFIG(flag) inline bool flag() const {TRACE_IT(36616); return threadConfig->flag(); }
 #define FLAG(threadFlag, globalFlag) FORWARD_THREAD_CONFIG(threadFlag)
 #define FLAG_RELEASE(threadFlag, globalFlag) FORWARD_THREAD_CONFIG(threadFlag)
 #include "../Base/ThreadConfigFlagsList.h"
@@ -268,17 +268,17 @@ namespace Js
 #undef FLAG
 #undef FORWARD_THREAD_CONFIG
 
-        bool SupportsCollectGarbage() const { return true; }
+        bool SupportsCollectGarbage() const {TRACE_IT(36617); return true; }
 
-        void ForceNoNative() { this->NoNative = true; }
-        void ForceNative() { this->NoNative = false; }
-        bool IsNoNative() const { return this->NoNative; }
+        void ForceNoNative() {TRACE_IT(36618); this->NoNative = true; }
+        void ForceNative() {TRACE_IT(36619); this->NoNative = false; }
+        bool IsNoNative() const {TRACE_IT(36620); return this->NoNative; }
 
-        void SetCanOptimizeGlobalLookupFlag(BOOL f){ this->fCanOptimizeGlobalLookup = f;}
-        BOOL CanOptimizeGlobalLookup() const { return this->fCanOptimizeGlobalLookup;}
-        bool IsOptimizedForManyInstances() const { return isOptimizedForManyInstances; }
+        void SetCanOptimizeGlobalLookupFlag(BOOL f){TRACE_IT(36621); this->fCanOptimizeGlobalLookup = f;}
+        BOOL CanOptimizeGlobalLookup() const {TRACE_IT(36622); return this->fCanOptimizeGlobalLookup;}
+        bool IsOptimizedForManyInstances() const {TRACE_IT(36623); return isOptimizedForManyInstances; }
         void CopyFrom(ScriptConfiguration& other)
-        {
+        {TRACE_IT(36624);
             this->NoNative = other.NoNative;
             this->fCanOptimizeGlobalLookup = other.fCanOptimizeGlobalLookup;
 #ifdef ENABLE_PROJECTION
@@ -290,24 +290,24 @@ namespace Js
 
 #ifdef ENABLE_PROJECTION
         Number GetHostType() const    // Returns one of enum HostType values (see ConfigFlagsTable.h).
-        {
+        {TRACE_IT(36625);
             AssertMsg(this->HostType >= HostTypeMin && this->HostType <= HostTypeMax, "HostType value is out of valid range.");
             return this->HostType;
         }
 
         ProjectionConfiguration const * GetProjectionConfig() const
-        {
+        {TRACE_IT(36626);
             return &projectionConfiguration;
         }
-        void SetHostType(int32 hostType) { this->HostType = hostType; }
-        void SetWinRTConstructorAllowed(bool allowed) { this->WinRTConstructorAllowed = allowed; }
+        void SetHostType(int32 hostType) {TRACE_IT(36627); this->HostType = hostType; }
+        void SetWinRTConstructorAllowed(bool allowed) {TRACE_IT(36628); this->WinRTConstructorAllowed = allowed; }
         void SetProjectionTargetVersion(DWORD version)
-        {
+        {TRACE_IT(36629);
             projectionConfiguration.SetTargetVersion(version);
         }
-        bool IsWinRTEnabled()           const { return (GetHostType() == Js::HostTypeApplication) || (GetHostType() == Js::HostTypeWebview); }
+        bool IsWinRTEnabled()           const {TRACE_IT(36630); return (GetHostType() == Js::HostTypeApplication) || (GetHostType() == Js::HostTypeWebview); }
 
-        bool IsWinRTConstructorAllowed() const { return (GetHostType() != Js::HostTypeWebview) || this->WinRTConstructorAllowed; }
+        bool IsWinRTConstructorAllowed() const {TRACE_IT(36631); return (GetHostType() != Js::HostTypeWebview) || this->WinRTConstructorAllowed; }
 #endif
     private:
 
@@ -360,7 +360,7 @@ namespace Js
         PropertyString* strLen2[80];
 
         inline static uint PStrMapIndex(char16 ch)
-        {
+        {TRACE_IT(36632);
             Assert(ch >= '0' && ch <= 'z');
             return ch - '0';
         }
@@ -385,9 +385,9 @@ namespace Js
         static CriticalSection cs;
 
     public:
-        JITPageAddrToFuncRangeCache() :jitPageAddrToFuncRangeMap(nullptr), largeJitFuncToSizeMap(nullptr) {}
+        JITPageAddrToFuncRangeCache() :jitPageAddrToFuncRangeMap(nullptr), largeJitFuncToSizeMap(nullptr) {TRACE_IT(36633);}
         ~JITPageAddrToFuncRangeCache()
-        {
+        {TRACE_IT(36634);
             ClearCache();
         }
         void ClearCache();
@@ -397,7 +397,7 @@ namespace Js
         bool IsNativeAddr(void * address);
         JITPageAddrToFuncRangeMap * GetJITPageAddrToFuncRangeMap();
         LargeJITFuncAddrToSizeMap * GetLargeJITFuncAddrToSizeMap();
-        static CriticalSection * GetCriticalSection() { return &cs; }
+        static CriticalSection * GetCriticalSection() {TRACE_IT(36635); return &cs; }
     };
 
     class ScriptContext : public ScriptContextBase, public ScriptContextInfo
@@ -408,24 +408,24 @@ namespace Js
         friend class SourceTextModuleRecord; // for module bytecode gen.
 
     public:
-        static DWORD GetThreadContextOffset() { return offsetof(ScriptContext, threadContext); }
-        static DWORD GetOptimizationOverridesOffset() { return offsetof(ScriptContext, optimizationOverrides); }
-        static DWORD GetRecyclerOffset() { return offsetof(ScriptContext, recycler); }
-        static DWORD GetNumberAllocatorOffset() { return offsetof(ScriptContext, numberAllocator); }
+        static DWORD GetThreadContextOffset() {TRACE_IT(36636); return offsetof(ScriptContext, threadContext); }
+        static DWORD GetOptimizationOverridesOffset() {TRACE_IT(36637); return offsetof(ScriptContext, optimizationOverrides); }
+        static DWORD GetRecyclerOffset() {TRACE_IT(36638); return offsetof(ScriptContext, recycler); }
+        static DWORD GetNumberAllocatorOffset() {TRACE_IT(36639); return offsetof(ScriptContext, numberAllocator); }
 
         JITPageAddrToFuncRangeCache * GetJitFuncRangeCache();
         JITPageAddrToFuncRangeCache * jitFuncRangeCache;
 
         ScriptContext *next;
         ScriptContext *prev;
-        bool IsRegistered() { return next != nullptr || prev != nullptr || threadContext->GetScriptContextList() == this; }
+        bool IsRegistered() {TRACE_IT(36640); return next != nullptr || prev != nullptr || threadContext->GetScriptContextList() == this; }
         union
         {
             int64 int64Val; // stores the double & float result for Asm interpreter
             double dbVal; // stores the double & float result for Asm interpreter
             AsmJsSIMDValue simdVal; // stores raw simd result for Asm interpreter
         } asmJsReturnValue;
-        static DWORD GetAsmJsReturnValueOffset() { return offsetof(ScriptContext, asmJsReturnValue); }
+        static DWORD GetAsmJsReturnValueOffset() {TRACE_IT(36641); return offsetof(ScriptContext, asmJsReturnValue); }
 
         ScriptContextOptimizationOverrideInfo optimizationOverrides;
 
@@ -449,12 +449,12 @@ namespace Js
         CleanupDocumentContextFunction CleanupDocumentContext;
 #endif
 
-        const ScriptContextBase* GetScriptContextBase() const { return static_cast<const ScriptContextBase*>(this); }
+        const ScriptContextBase* GetScriptContextBase() const {TRACE_IT(36642); return static_cast<const ScriptContextBase*>(this); }
 
         void RedeferFunctionBodies(ActiveFunctionSet *pActive, uint inactiveThreshold);
         bool DoUndeferGlobalFunctions() const;
 
-        bool IsUndeclBlockVar(Var var) const { return this->javascriptLibrary->IsUndeclBlockVar(var); }
+        bool IsUndeclBlockVar(Var var) const {TRACE_IT(36643); return this->javascriptLibrary->IsUndeclBlockVar(var); }
 
         void TrackPid(const PropertyRecord* propertyRecord);
         void TrackPid(PropertyId propertyId);
@@ -466,7 +466,7 @@ namespace Js
             isInvalidatedForHostObjects = true;
         }
         bool IsInvalidatedForHostObjects()
-        {
+        {TRACE_IT(36644);
             return isInvalidatedForHostObjects;
         }
 
@@ -478,56 +478,56 @@ namespace Js
         void EmitStackTraceEvent(__in UINT64 operationID, __in USHORT maxFrameCount, bool emitV2AsyncStackEvent);
 #endif
 
-        void SetIsDiagnosticsScriptContext(bool set) { this->isDiagnosticsScriptContext = set; }
-        bool IsDiagnosticsScriptContext() const { return this->isDiagnosticsScriptContext; }
+        void SetIsDiagnosticsScriptContext(bool set) {TRACE_IT(36645); this->isDiagnosticsScriptContext = set; }
+        bool IsDiagnosticsScriptContext() const {TRACE_IT(36646); return this->isDiagnosticsScriptContext; }
 
         bool IsScriptContextInNonDebugMode() const;
         bool IsScriptContextInDebugMode() const;
         bool IsScriptContextInSourceRundownOrDebugMode() const;
-        bool IsRunningScript() const { return this->threadContext->GetScriptEntryExit() != nullptr; }
+        bool IsRunningScript() const {TRACE_IT(36647); return this->threadContext->GetScriptEntryExit() != nullptr; }
 
         typedef JsUtil::List<RecyclerWeakReference<Utf8SourceInfo>*, Recycler, false, Js::WeakRefFreeListedRemovePolicy> CalleeSourceList;
         RecyclerRootPtr<CalleeSourceList> calleeUtf8SourceInfoList;
         void AddCalleeSourceInfoToList(Utf8SourceInfo* sourceInfo);
-        bool HaveCalleeSources() { return calleeUtf8SourceInfoList && !calleeUtf8SourceInfoList->Empty(); }
+        bool HaveCalleeSources() {TRACE_IT(36648); return calleeUtf8SourceInfoList && !calleeUtf8SourceInfoList->Empty(); }
 
         template<class TMapFunction>
         void MapCalleeSources(TMapFunction map)
-        {
+        {TRACE_IT(36649);
             if (this->HaveCalleeSources())
-            {
+            {TRACE_IT(36650);
                 calleeUtf8SourceInfoList->Map([&](uint i, RecyclerWeakReference<Js::Utf8SourceInfo>* sourceInfoWeakRef)
                 {
                     if (calleeUtf8SourceInfoList->IsItemValid(i))
-                    {
+                    {TRACE_IT(36651);
                         Js::Utf8SourceInfo* sourceInfo = sourceInfoWeakRef->Get();
                         map(sourceInfo);
                     }
                 });
             }
             if (calleeUtf8SourceInfoList)
-            {
+            {TRACE_IT(36652);
                 calleeUtf8SourceInfoList.Unroot(this->GetRecycler());
             }
         }
 
 #ifdef ASMJS_PLAT
-        inline AsmJsCodeGenerator* GetAsmJsCodeGenerator() const{return asmJsCodeGenerator;}
+        inline AsmJsCodeGenerator* GetAsmJsCodeGenerator() const{TRACE_IT(36653);return asmJsCodeGenerator;}
         AsmJsCodeGenerator* InitAsmJsCodeGenerator();
 #endif
 
         bool IsExceptionWrapperForBuiltInsEnabled();
         static bool IsExceptionWrapperForBuiltInsEnabled(ScriptContext* scriptContext);
         static bool IsExceptionWrapperForHelpersEnabled(ScriptContext* scriptContext);
-        bool IsEnumerateNonUserFunctionsOnly() const { return m_enumerateNonUserFunctionsOnly; }
+        bool IsEnumerateNonUserFunctionsOnly() const {TRACE_IT(36654); return m_enumerateNonUserFunctionsOnly; }
 #ifdef ENABLE_SCRIPT_PROFILING
-        bool IsTraceDomCall() const { return !!m_fTraceDomCall; }
+        bool IsTraceDomCall() const {TRACE_IT(36655); return !!m_fTraceDomCall; }
 #elif defined(ENABLE_SCRIPT_DEBUGGING)
-        bool IsTraceDomCall() const { return false; }
+        bool IsTraceDomCall() const {TRACE_IT(36656); return false; }
 #endif
 
-        InlineCache * GetValueOfInlineCache() const { return valueOfInlineCache;}
-        InlineCache * GetToStringInlineCache() const { return toStringInlineCache; }
+        InlineCache * GetValueOfInlineCache() const {TRACE_IT(36657); return valueOfInlineCache;}
+        InlineCache * GetToStringInlineCache() const {TRACE_IT(36658); return toStringInlineCache; }
 
     private:
         PropertyStringMap* propertyStrings[80];
@@ -677,7 +677,7 @@ public:
             uint  m_totalBailouts;
 
             RejitStats(ScriptContext *scriptContext) : m_totalRejits(0), m_totalBailouts(0)
-            {
+            {TRACE_IT(36659);
                 m_rejitReasonCounts = AnewArrayZ(scriptContext->GeneralAllocator(), uint, NumRejitReasons);
                 m_bailoutReasonCounts = Anew(scriptContext->GeneralAllocator(), BailoutStatsMap, scriptContext->GeneralAllocator());
             }
@@ -715,7 +715,7 @@ public:
             bool isGetCache;
             Js::PropertyId propertyId;
 
-            CacheData() : hits(0), misses(0), collisions(0), isGetCache(false), propertyId(Js::PropertyIds::_none) { }
+            CacheData() : hits(0), misses(0), collisions(0), isGetCache(false), propertyId(Js::PropertyIds::_none) {TRACE_IT(36660); }
         };
 
         // This is a strongly referenced dictionary, since we want to know hit rates for dead caches.
@@ -734,7 +734,7 @@ public:
             Field(FieldAccessStatsList) stats;
 
             FieldAccessStatsEntry(RecyclerWeakReference<FunctionBody>* functionBodyWeakRef, Recycler* recycler)
-                : functionBodyWeakRef(functionBodyWeakRef), stats(recycler) {}
+                : functionBodyWeakRef(functionBodyWeakRef), stats(recycler) {TRACE_IT(36661);}
         };
 
         typedef JsUtil::BaseDictionary<uint, FieldAccessStatsEntry*, Recycler> FieldAccessStatsByFunctionNumberMap;
@@ -798,12 +798,12 @@ private:
 
 public:
         inline const WCHAR *const GetStandardName(size_t *nameLength, DateTime::YMD *ymd = NULL)
-        {
+        {TRACE_IT(36662);
             return dateTimeUtility.GetStandardName(nameLength, ymd);
         }
 
         inline const WCHAR *const GetDaylightName(size_t *nameLength, DateTime::YMD *ymd = NULL)
-        {
+        {TRACE_IT(36663);
             return dateTimeUtility.GetDaylightName(nameLength, ymd);
         }
 
@@ -914,52 +914,52 @@ private:
         bool isRootTrackerScriptContext;
 #endif
 
-        DateTime::DaylightTimeHelper *GetDaylightTimeHelper() { return &daylightTimeHelper; }
-        DateTime::Utility *GetDateUtility() { return &dateTimeUtility; }
+        DateTime::DaylightTimeHelper *GetDaylightTimeHelper() {TRACE_IT(36664); return &daylightTimeHelper; }
+        DateTime::Utility *GetDateUtility() {TRACE_IT(36665); return &dateTimeUtility; }
 
         virtual bool IsClosed() const override { return isClosed; }
         void SetIsClosed();
 
-        bool IsFinalized() const { return isFinalized; }
-        void SetIsFinalized() { isFinalized = true; }
-        bool IsActuallyClosed() const { return isScriptContextActuallyClosed; }
-        void SetEvalRestriction(bool set) { this->isEvalRestricted = set; }
-        bool IsEvalRestriction() const { return this->isEvalRestricted; }
+        bool IsFinalized() const {TRACE_IT(36666); return isFinalized; }
+        void SetIsFinalized() {TRACE_IT(36667); isFinalized = true; }
+        bool IsActuallyClosed() const {TRACE_IT(36668); return isScriptContextActuallyClosed; }
+        void SetEvalRestriction(bool set) {TRACE_IT(36669); this->isEvalRestricted = set; }
+        bool IsEvalRestriction() const {TRACE_IT(36670); return this->isEvalRestricted; }
 #if ENABLE_NATIVE_CODEGEN
         bool IsClosedNativeCodeGenerator() const
-        {
+        {TRACE_IT(36671);
             return !nativeCodeGen || ::IsClosedNativeCodeGenerator(nativeCodeGen);
         }
 #endif
 
-        void SetHasUsedInlineCache(bool value) { hasUsedInlineCache = value; }
+        void SetHasUsedInlineCache(bool value) {TRACE_IT(36672); hasUsedInlineCache = value; }
 
-        void SetDirectHostTypeId(TypeId typeId) {directHostTypeId = typeId; }
-        TypeId GetDirectHostTypeId() const { return directHostTypeId; }
+        void SetDirectHostTypeId(TypeId typeId) {TRACE_IT(36673);directHostTypeId = typeId; }
+        TypeId GetDirectHostTypeId() const {TRACE_IT(36674); return directHostTypeId; }
 
         PSCRIPTCONTEXT_HANDLE GetRemoteScriptAddr(bool allowInitialize = true)
-        {
+        {TRACE_IT(36675);
 #if ENABLE_OOP_NATIVE_CODEGEN
             if (!m_remoteScriptContextAddr && allowInitialize)
-            {
+            {TRACE_IT(36676);
                 InitializeRemoteScriptContext();
             }
 #endif
             return m_remoteScriptContextAddr;
         }
 
-        char16 const * GetUrl() const { return url; }
+        char16 const * GetUrl() const {TRACE_IT(36677); return url; }
         void SetUrl(BSTR bstr);
 #ifdef RUNTIME_DATA_COLLECTION
-        time_t GetCreateTime() const { return createTime; }
-        uint GetAllocId() const { return allocId; }
+        time_t GetCreateTime() const {TRACE_IT(36678); return createTime; }
+        uint GetAllocId() const {TRACE_IT(36679); return allocId; }
 #endif
         void InitializeArrayMatch()
-        {
+        {TRACE_IT(36680);
             if (!arrayMatchInit)
-            {
+            {TRACE_IT(36681);
                 for (int i=0;i<kArrayMatchCh;i++)
-                {
+                {TRACE_IT(36682);
                     arrayMatchItems[i]= -1;
                 }
                 arrayMatchInit=true;
@@ -967,11 +967,11 @@ private:
         }
 
 #ifdef HEAP_ENUMERATION_VALIDATION
-        bool IsInitialized() { return this->isInitialized; }
+        bool IsInitialized() {TRACE_IT(36683); return this->isInitialized; }
 #endif
 
-        DebugContext* GetDebugContext() const { return this->debugContext; }
-        CriticalSection* GetDebugContextCloseCS() { return &debugContextCloseCS; }
+        DebugContext* GetDebugContext() const {TRACE_IT(36684); return this->debugContext; }
+        CriticalSection* GetDebugContextCloseCS() {TRACE_IT(36685); return &debugContextCloseCS; }
 
         uint callCount;
 
@@ -1000,7 +1000,7 @@ private:
 #endif
         RegexPatternMruMap* GetDynamicRegexMap() const;
 
-        UnifiedRegex::TrigramAlphabet* GetTrigramAlphabet() { return trigramAlphabet; }
+        UnifiedRegex::TrigramAlphabet* GetTrigramAlphabet() {TRACE_IT(36686); return trigramAlphabet; }
 
         void SetTrigramAlphabet(UnifiedRegex::TrigramAlphabet * trigramAlphabet);
 
@@ -1012,10 +1012,10 @@ private:
         void InitializeGlobalObject();
         bool IsIntlEnabled();
         JavascriptLibrary* GetLibrary() const { return javascriptLibrary; }
-        Js::Cache* Cache() const{ return &this->javascriptLibrary->cache; }
-        const JavascriptLibraryBase* GetLibraryBase() const { return javascriptLibrary->GetLibraryBase(); }
+        Js::Cache* Cache() const{TRACE_IT(36688); return &this->javascriptLibrary->cache; }
+        const JavascriptLibraryBase* GetLibraryBase() const {TRACE_IT(36689); return javascriptLibrary->GetLibraryBase(); }
 #if DBG
-        BOOL IsCloningGlobal() const { return isCloningGlobal;}
+        BOOL IsCloningGlobal() const {TRACE_IT(36690); return isCloningGlobal;}
 #endif
         void PushObject(Var object);
         Var PopObject();
@@ -1023,9 +1023,9 @@ private:
 
         inline bool IsHeapEnumInProgress() { return GetRecycler()->IsHeapEnumInProgress(); }
 
-        bool IsInterpreted() { return config.IsNoNative(); }
-        void ForceNoNative() { config.ForceNoNative(); }
-        void ForceNative() { config.ForceNative(); }
+        bool IsInterpreted() {TRACE_IT(36692); return config.IsNoNative(); }
+        void ForceNoNative() {TRACE_IT(36693); config.ForceNoNative(); }
+        void ForceNative() {TRACE_IT(36694); config.ForceNative(); }
         ScriptConfiguration const * GetConfig(void) const { return &config; }
         CharClassifier const * GetCharClassifier(void) const;
 
@@ -1046,7 +1046,7 @@ private:
         template <class TDelegate>
         FunctionBody* FindFunction(TDelegate predicate);
 
-        inline bool EnableEvalMapCleanup() { return CONFIG_FLAG(EnableEvalMapCleanup); };
+        inline bool EnableEvalMapCleanup() {TRACE_IT(36697); return CONFIG_FLAG(EnableEvalMapCleanup); };
         uint GetNextSourceContextId();
 
         bool IsInNewFunctionMap(EvalMapString const& key, FunctionInfo **ppFuncInfo);
@@ -1060,7 +1060,7 @@ private:
 
 #if defined(LEAK_REPORT) || defined(CHECK_MEMORY_LEAK)
         void ClearSourceContextInfoMaps()
-        {
+        {TRACE_IT(36698);
 #if ENABLE_PROFILE_INFO
               this->referencesSharedDynamicSourceContextInfo = false;
 #endif
@@ -1070,25 +1070,25 @@ private:
 #if ENABLE_PROFILE_INFO
 #if DBG_DUMP || defined(DYNAMIC_PROFILE_STORAGE) || defined(RUNTIME_DATA_COLLECTION)
         void ClearDynamicProfileList()
-        {
+        {TRACE_IT(36699);
             if (this->Cache()->profileInfoList)
-            {
+            {TRACE_IT(36700);
                 this->Cache()->profileInfoList->Reset();
                 this->Cache()->profileInfoList = nullptr;
             }
         }
 
-        DynamicProfileInfoList * GetProfileInfoList() { return this->Cache()->profileInfoList; }
+        DynamicProfileInfoList * GetProfileInfoList() {TRACE_IT(36701); return this->Cache()->profileInfoList; }
 #endif
 #endif
 
         SRCINFO const * GetModuleSrcInfo(Js::ModuleID moduleID);
         SourceContextInfoMap* GetSourceContextInfoMap()
-        {
+        {TRACE_IT(36702);
             return this->Cache()->sourceContextInfoMap;
         }
         DynamicSourceContextInfoMap* GetDynamicSourceContextInfoMap()
-        {
+        {TRACE_IT(36703);
             return this->Cache()->dynamicSourceContextInfoMap;
         }
 
@@ -1109,7 +1109,7 @@ private:
         bool TTDSnapshotOrInflateInProgress;
 
         //Check if a snapshot is in progress on this context
-        bool IsTTDSnapshotOrInflateInProgress() const { return this->TTDSnapshotOrInflateInProgress; }
+        bool IsTTDSnapshotOrInflateInProgress() const {TRACE_IT(36704); return this->TTDSnapshotOrInflateInProgress; }
 
         //Memoized results for frequently used Record/Replay action checks
         bool TTDRecordOrReplayModeEnabled;
@@ -1124,28 +1124,28 @@ private:
         bool TTDShouldSuppressGetterInvocationForDebuggerEvaluation;
 
         //Check if the TTD system has been activated (and record/replay may or may not be enabled)
-        bool IsTTDRecordOrReplayModeEnabled() const { return this->TTDRecordOrReplayModeEnabled; }
+        bool IsTTDRecordOrReplayModeEnabled() const {TRACE_IT(36705); return this->TTDRecordOrReplayModeEnabled; }
 
         //Check if the TTD Record system has been activated (and  may or may not be enabled)
-        bool IsTTDRecordModeEnabled() const { return this->TTDRecordModeEnabled; }
+        bool IsTTDRecordModeEnabled() const {TRACE_IT(36706); return this->TTDRecordModeEnabled; }
 
         //Check if the TTD Replay system has been activated (and  may or may not be enabled)
-        bool IsTTDReplayModeEnabled() const { return this->TTDReplayModeEnabled; }
+        bool IsTTDReplayModeEnabled() const {TRACE_IT(36707); return this->TTDReplayModeEnabled; }
 
         //Check if we are in (record OR replay) AND this code is being run on behalf of the user application
-        bool ShouldPerformRecordOrReplayAction() const { return this->TTDShouldPerformRecordOrReplayAction; }
+        bool ShouldPerformRecordOrReplayAction() const {TRACE_IT(36708); return this->TTDShouldPerformRecordOrReplayAction; }
 
         //Use this to check specifically if we are in record AND this code is being run on behalf of the user application
-        bool ShouldPerformRecordAction() const { return this->TTDShouldPerformRecordAction; }
+        bool ShouldPerformRecordAction() const {TRACE_IT(36709); return this->TTDShouldPerformRecordAction; }
 
         //Use this to check specifically if we are in replay mode AND this code is being run on behalf of the user application
-        bool ShouldPerformReplayAction() const { return this->TTDShouldPerformReplayAction; }
+        bool ShouldPerformReplayAction() const {TRACE_IT(36710); return this->TTDShouldPerformReplayAction; }
 
         //Use this to check specifically if we are in debugging mode AND this code is being run on behalf of the user application
-        bool ShouldPerformDebuggerAction() const { return this->TTDShouldPerformDebuggerAction; }
+        bool ShouldPerformDebuggerAction() const {TRACE_IT(36711); return this->TTDShouldPerformDebuggerAction; }
 
         //A special check to see if we are debugging and want to suppress the execution of getters (which may be triggered by displaying values in the debugger)
-        bool ShouldSuppressGetterInvocationForDebuggerEvaluation() const { return this->TTDShouldSuppressGetterInvocationForDebuggerEvaluation; }
+        bool ShouldSuppressGetterInvocationForDebuggerEvaluation() const {TRACE_IT(36712); return this->TTDShouldSuppressGetterInvocationForDebuggerEvaluation; }
 
         //
         //TODO: this is currently called explicitly -- we need to fix up the core image computation and this will be eliminated then
@@ -1154,8 +1154,8 @@ private:
         void InitializeCoreImage_TTD();
 #endif
 
-        void SetFirstInterpreterFrameReturnAddress(void * returnAddress) { firstInterpreterFrameReturnAddress = returnAddress;}
-        void *GetFirstInterpreterFrameReturnAddress() { return firstInterpreterFrameReturnAddress;}
+        void SetFirstInterpreterFrameReturnAddress(void * returnAddress) {TRACE_IT(36713); firstInterpreterFrameReturnAddress = returnAddress;}
+        void *GetFirstInterpreterFrameReturnAddress() {TRACE_IT(36714); return firstInterpreterFrameReturnAddress;}
 
         void CleanupWeakReferenceDictionaries();
 
@@ -1163,14 +1163,14 @@ private:
         bool Close(bool inDestructor);
         void MarkForClose();
 #ifdef ENABLE_PROJECTION
-        void SetHostType(int32 hostType) { config.SetHostType(hostType); }
-        void SetWinRTConstructorAllowed(bool allowed) { config.SetWinRTConstructorAllowed(allowed); }
-        void SetProjectionTargetVersion(DWORD version) { config.SetProjectionTargetVersion(version); }
+        void SetHostType(int32 hostType) {TRACE_IT(36715); config.SetHostType(hostType); }
+        void SetWinRTConstructorAllowed(bool allowed) {TRACE_IT(36716); config.SetWinRTConstructorAllowed(allowed); }
+        void SetProjectionTargetVersion(DWORD version) {TRACE_IT(36717); config.SetProjectionTargetVersion(version); }
 #endif
-        void SetCanOptimizeGlobalLookupFlag(BOOL f){ config.SetCanOptimizeGlobalLookupFlag(f);}
-        BOOL CanOptimizeGlobalLookup(){ return config.CanOptimizeGlobalLookup();}
+        void SetCanOptimizeGlobalLookupFlag(BOOL f){TRACE_IT(36718); config.SetCanOptimizeGlobalLookupFlag(f);}
+        BOOL CanOptimizeGlobalLookup(){TRACE_IT(36719); return config.CanOptimizeGlobalLookup();}
 
-        bool IsFastDOMEnabled() { return fastDOMenabled; }
+        bool IsFastDOMEnabled() {TRACE_IT(36720); return fastDOMenabled; }
         void SetFastDOMenabled();
         BOOL VerifyAlive(BOOL isJSFunction = FALSE, ScriptContext* requestScriptContext = nullptr);
         void VerifyAliveWithHostContext(BOOL isJSFunction, HostScriptContext* requestHostScriptContext);
@@ -1195,7 +1195,7 @@ private:
         }
         PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName);
         template <size_t N> PropertyId GetOrAddPropertyIdTracked(const char16(&propertyName)[N])
-        {
+        {TRACE_IT(36721);
             return GetOrAddPropertyIdTracked(propertyName, N - 1);
         }
         PropertyId GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR pszPropertyName, __in int propertyNameLength);
@@ -1203,14 +1203,14 @@ private:
         BOOL IsNumericPropertyId(PropertyId propertyId, uint32* value);
 
         void RegisterWeakReferenceDictionary(JsUtil::IWeakReferenceDictionary* weakReferenceDictionary);
-        void ResetWeakReferenceDictionaryList() { weakReferenceDictionaryList.Reset(); }
+        void ResetWeakReferenceDictionaryList() {TRACE_IT(36722); weakReferenceDictionaryList.Reset(); }
 
         BOOL ReserveStaticTypeIds(__in int first, __in int last);
         TypeId ReserveTypeIds(int count);
         TypeId CreateTypeId();
 
-        WellKnownHostType GetWellKnownHostType(Js::TypeId typeId) { return threadContext->GetWellKnownHostType(typeId); }
-        void SetWellKnownHostTypeId(WellKnownHostType wellKnownType, Js::TypeId typeId) { threadContext->SetWellKnownHostTypeId(wellKnownType, typeId); }
+        WellKnownHostType GetWellKnownHostType(Js::TypeId typeId) {TRACE_IT(36723); return threadContext->GetWellKnownHostType(typeId); }
+        void SetWellKnownHostTypeId(WellKnownHostType wellKnownType, Js::TypeId typeId) {TRACE_IT(36724); threadContext->SetWellKnownHostTypeId(wellKnownType, typeId); }
 
         ParseNodePtr ParseScript(Parser* parser, const byte* script,
             size_t cb, SRCINFO const * pSrcInfo,
@@ -1224,26 +1224,26 @@ private:
             const char16 *rootDisplayName, LoadScriptFlag loadScriptFlag,
             Js::Var scriptSource = nullptr);
 
-        ArenaAllocator* GeneralAllocator() { return &generalAllocator; }
+        ArenaAllocator* GeneralAllocator() {TRACE_IT(36725); return &generalAllocator; }
 
 #ifdef ENABLE_BASIC_TELEMETRY
-        ArenaAllocator* TelemetryAllocator() { return &telemetryAllocator; }
+        ArenaAllocator* TelemetryAllocator() {TRACE_IT(36726); return &telemetryAllocator; }
 #endif
 
 #ifdef SEPARATE_ARENA
-        ArenaAllocator* SourceCodeAllocator() { return &sourceCodeAllocator; }
-        ArenaAllocator* RegexAllocator() { return &regexAllocator; }
+        ArenaAllocator* SourceCodeAllocator() {TRACE_IT(36727); return &sourceCodeAllocator; }
+        ArenaAllocator* RegexAllocator() {TRACE_IT(36728); return &regexAllocator; }
 #else
-        ArenaAllocator* SourceCodeAllocator() { return &generalAllocator; }
-        ArenaAllocator* RegexAllocator() { return &generalAllocator; }
+        ArenaAllocator* SourceCodeAllocator() {TRACE_IT(36729); return &generalAllocator; }
+        ArenaAllocator* RegexAllocator() {TRACE_IT(36730); return &generalAllocator; }
 #endif
 #ifdef NEED_MISC_ALLOCATOR
-        ArenaAllocator* MiscAllocator() { return &miscAllocator; }
+        ArenaAllocator* MiscAllocator() {TRACE_IT(36731); return &miscAllocator; }
 #endif
-        InlineCacheAllocator* GetInlineCacheAllocator() { return &inlineCacheAllocator; }
-        CacheAllocator* GetIsInstInlineCacheAllocator() { return &isInstInlineCacheAllocator; }
-        CacheAllocator * ForInCacheAllocator() { return &forInCacheAllocator; }
-        ArenaAllocator* DynamicProfileInfoAllocator() { return &dynamicProfileInfoAllocator; }
+        InlineCacheAllocator* GetInlineCacheAllocator() {TRACE_IT(36732); return &inlineCacheAllocator; }
+        CacheAllocator* GetIsInstInlineCacheAllocator() {TRACE_IT(36733); return &isInstInlineCacheAllocator; }
+        CacheAllocator * ForInCacheAllocator() {TRACE_IT(36734); return &forInCacheAllocator; }
+        ArenaAllocator* DynamicProfileInfoAllocator() {TRACE_IT(36735); return &dynamicProfileInfoAllocator; }
 
         ArenaAllocator* AllocatorForDiagnostics();
 
@@ -1256,19 +1256,19 @@ private:
         void ReleaseInterpreterArena();
 
         ArenaAllocator* GetGuestArena() const
-        {
+        {TRACE_IT(36736);
             return guestArena;
         }
 
         void ReleaseGuestArena();
 
-        Recycler* GetRecycler() const { return recycler; }
-        RecyclerJavascriptNumberAllocator * GetNumberAllocator() { return &numberAllocator; }
+        Recycler* GetRecycler() const {TRACE_IT(36737); return recycler; }
+        RecyclerJavascriptNumberAllocator * GetNumberAllocator() {TRACE_IT(36738); return &numberAllocator; }
 #if ENABLE_NATIVE_CODEGEN
-        NativeCodeGenerator * GetNativeCodeGenerator() const { return nativeCodeGen; }
+        NativeCodeGenerator * GetNativeCodeGenerator() const {TRACE_IT(36739); return nativeCodeGen; }
 #endif
 #if ENABLE_BACKGROUND_PARSING
-        BackgroundParser * GetBackgroundParser() const { return backgroundParser; }
+        BackgroundParser * GetBackgroundParser() const {TRACE_IT(36740); return backgroundParser; }
 #endif
 
         void OnScriptStart(bool isRoot, bool isScript);
@@ -1279,7 +1279,7 @@ private:
         template <bool leaveForHost>
         void LeaveScriptEnd(void * frameAddress);
 
-        HostScriptContext * GetHostScriptContext() const { return hostScriptContext; }
+        HostScriptContext * GetHostScriptContext() const {TRACE_IT(36741); return hostScriptContext; }
         void SetHostScriptContext(HostScriptContext *  hostScriptContext);
         void SetScriptEngineHaltCallback(HaltCallback* scriptEngine);
         void ClearHostScriptContext();
@@ -1294,7 +1294,7 @@ private:
         void DisposeScriptContextByFaultInjection();
         void SetDisposeDisposeByFaultInjectionEventHandler(EventHandler eventHandler);
 #endif
-        EnumeratedObjectCache* GetEnumeratedObjectCache() { return &(this->Cache()->enumObjCache); }
+        EnumeratedObjectCache* GetEnumeratedObjectCache() {TRACE_IT(36742); return &(this->Cache()->enumObjCache); }
         PropertyString* TryGetPropertyString(PropertyId propertyId);
         PropertyString* GetPropertyString(PropertyId propertyId);
         void InvalidatePropertyStringCache(PropertyId propertyId, Type* type);
@@ -1307,7 +1307,7 @@ private:
         RecyclableObject* GetMissingPropertyResult();
         RecyclableObject* GetMissingItemResult();
 
-        bool HasRecordedException() const { return threadContext->GetRecordedException() != nullptr; }
+        bool HasRecordedException() const {TRACE_IT(36743); return threadContext->GetRecordedException() != nullptr; }
         Js::JavascriptExceptionObject * GetAndClearRecordedException(bool *considerPassingToDebugger = nullptr);
         void RecordException(Js::JavascriptExceptionObject * exceptionObject, bool propagateToDebugger = false);
         __declspec(noreturn) void RethrowRecordedException(JavascriptExceptionObject::HostWrapperCreateFuncType hostWrapperCreateFunc);
@@ -1324,41 +1324,41 @@ private:
         void CloneSources(ScriptContext* sourceContext);
         Utf8SourceInfo* GetSource(uint sourceIndex);
 
-        uint SourceCount() const { return (uint)sourceList->Count(); }
-        void CleanSourceList() { CleanSourceListInternal(false); }
-        SourceList* GetSourceList() const { return sourceList; }
+        uint SourceCount() const {TRACE_IT(36744); return (uint)sourceList->Count(); }
+        void CleanSourceList() {TRACE_IT(36745); CleanSourceListInternal(false); }
+        SourceList* GetSourceList() const {TRACE_IT(36746); return sourceList; }
         bool IsItemValidInSourceList(int index);
 
         template <typename TFunction>
         void MapScript(TFunction mapper)
-        {
+        {TRACE_IT(36747);
             this->sourceList->Map([mapper] (int, RecyclerWeakReference<Utf8SourceInfo>* sourceInfoWeakReference)
             {
                 Utf8SourceInfo* strongRef = sourceInfoWeakReference->Get();
 
                 if (strongRef)
-                {
+                {TRACE_IT(36748);
                     mapper(strongRef);
                 }
             });
         }
 
 #ifdef CHECK_STACKWALK_EXCEPTION
-        void SetIgnoreStackWalkException() {threadContext->GetScriptEntryExit()->ignoreStackWalkException = true; }
+        void SetIgnoreStackWalkException() {TRACE_IT(36749);threadContext->GetScriptEntryExit()->ignoreStackWalkException = true; }
 #endif
 
         // For debugging scenarios where execution will go to debugging manager and come back to engine again, enforce the current EER to have
         // 'hasCaller' property set, which will enable the stack walking across frames.
         // Do not call this directly, look for ENFORCE_ENTRYEXITRECORD_HASCALLER macro.
-        void EnforceEERHasCaller() { threadContext->GetScriptEntryExit()->hasCaller = true; }
+        void EnforceEERHasCaller() {TRACE_IT(36750); threadContext->GetScriptEntryExit()->hasCaller = true; }
 
         void SetRaiseMessageToDebuggerFunction(RaiseMessageToDebuggerFunctionType function)
-        {
+        {TRACE_IT(36751);
             raiseMessageToDebuggerFunctionType = function;
         }
 
         void RaiseMessageToDebugger(DEBUG_EVENT_INFO_TYPE messageType, LPCWSTR message, LPCWSTR url)
-        {
+        {TRACE_IT(36752);
             if (raiseMessageToDebuggerFunctionType != nullptr)
             {
                 raiseMessageToDebuggerFunctionType(this, messageType, message, url);
@@ -1366,12 +1366,12 @@ private:
         }
 
         void SetTransitionToDebugModeIfFirstSourceFn(TransitionToDebugModeIfFirstSourceFn function)
-        {
+        {TRACE_IT(36753);
             transitionToDebugModeIfFirstSourceFn = function;
         }
 
         void TransitionToDebugModeIfFirstSource(Utf8SourceInfo *sourceInfo)
-        {
+        {TRACE_IT(36754);
             if (transitionToDebugModeIfFirstSourceFn != nullptr)
             {
                 transitionToDebugModeIfFirstSourceFn(this, sourceInfo);
@@ -1379,25 +1379,25 @@ private:
         }
 
         void AddSourceSize(size_t sourceSize)
-        {
+        {TRACE_IT(36755);
             this->sourceSize += sourceSize;
             this->threadContext->AddSourceSize(sourceSize);
         }
 
         size_t GetSourceSize()
-        {
+        {TRACE_IT(36756);
             return this->sourceSize;
         }
 
         BOOL SetDeferredBody(BOOL set)
-        {
+        {TRACE_IT(36757);
             bool old = this->deferredBody;
             this->deferredBody = !!set;
             return old;
         }
 
         BOOL GetDeferredBody(void) const
-        {
+        {TRACE_IT(36758);
             return this->deferredBody;
         }
 
@@ -1441,12 +1441,12 @@ private:
         bool GetLastUtcTimeFromStr(JavascriptString * str, double& dbl);
         void SetLastUtcTimeFromStr(JavascriptString * str, double value);
         bool IsNoContextSourceContextInfo(SourceContextInfo *sourceContextInfo) const
-        {
+        {TRACE_IT(36759);
             return sourceContextInfo == this->Cache()->noContextSourceContextInfo;
         }
 
         BOOL IsProfiling()
-        {
+        {TRACE_IT(36760);
 #ifdef ENABLE_SCRIPT_PROFILING
             return (m_pProfileCallback != nullptr);
 #else
@@ -1455,7 +1455,7 @@ private:
         }
 
         BOOL IsInProfileCallback()
-        {
+        {TRACE_IT(36761);
 #ifdef ENABLE_SCRIPT_PROFILING
             return m_inProfileCallback;
 #else
@@ -1464,29 +1464,29 @@ private:
         }
 
 #if DBG
-        SourceContextInfo const * GetNoContextSourceContextInfo() const { return this->Cache()->noContextSourceContextInfo; }
+        SourceContextInfo const * GetNoContextSourceContextInfo() const {TRACE_IT(36762); return this->Cache()->noContextSourceContextInfo; }
 
 #ifdef ENABLE_SCRIPT_PROFILING
         int GetProfileSession()
-        {
+        {TRACE_IT(36763);
             AssertMsg(m_pProfileCallback != nullptr, "Asking for profile session when we aren't in one.");
             return m_iProfileSession;
         }
 
         void StartNewProfileSession()
-        {
+        {TRACE_IT(36764);
             AssertMsg(m_pProfileCallback != nullptr, "New Session when the profiler isn't set to any callback.");
             m_iProfileSession++;
         }
 
         void StopProfileSession()
-        {
+        {TRACE_IT(36765);
             AssertMsg(m_pProfileCallback == nullptr, "How to stop when there is still the callback out there");
         }
 #endif // ENABLE_SCRIPT_PROFILING
 
         bool hadProfiled;
-        bool HadProfiled() const { return hadProfiled; }
+        bool HadProfiled() const {TRACE_IT(36766); return hadProfiled; }
 #endif
 
         SRCINFO *AddHostSrcInfo(SRCINFO const *pSrcInfo);
@@ -1540,7 +1540,7 @@ private:
         HRESULT OnDebuggerAttachedDetached(bool attach);
         void InitializeDebugging();
         bool IsForceNoNative();
-        bool IsEnumeratingRecyclerObjects() const { return isEnumeratingRecyclerObjects; }
+        bool IsEnumeratingRecyclerObjects() const {TRACE_IT(36767); return isEnumeratingRecyclerObjects; }
 
     private:
         class AutoEnumeratingRecyclerObjects
@@ -1548,13 +1548,13 @@ private:
         public:
             AutoEnumeratingRecyclerObjects(ScriptContext* scriptContext):
                 m_scriptContext(scriptContext)
-            {
+            {TRACE_IT(36768);
                 Assert(!m_scriptContext->IsEnumeratingRecyclerObjects());
                 m_scriptContext->isEnumeratingRecyclerObjects = true;
             }
 
             ~AutoEnumeratingRecyclerObjects()
-            {
+            {TRACE_IT(36769);
                 Assert(m_scriptContext->IsEnumeratingRecyclerObjects());
                 m_scriptContext->isEnumeratingRecyclerObjects = false;
             }
@@ -1567,19 +1567,19 @@ private:
     private:
         ScriptEditQuery* activeScriptEditQuery;
 
-        void BeginScriptEditEnumFunctions(ScriptEditQuery* scriptEditQuery) { Assert(!activeScriptEditQuery); activeScriptEditQuery = scriptEditQuery; }
-        void EndScriptEditEnumFunctions() { Assert(activeScriptEditQuery); activeScriptEditQuery = nullptr; }
+        void BeginScriptEditEnumFunctions(ScriptEditQuery* scriptEditQuery) {TRACE_IT(36770); Assert(!activeScriptEditQuery); activeScriptEditQuery = scriptEditQuery; }
+        void EndScriptEditEnumFunctions() {TRACE_IT(36771); Assert(activeScriptEditQuery); activeScriptEditQuery = nullptr; }
     public:
-        ScriptEditQuery* GetActiveScriptEditQuery() const { return activeScriptEditQuery; }
+        ScriptEditQuery* GetActiveScriptEditQuery() const {TRACE_IT(36772); return activeScriptEditQuery; }
 
         class AutoScriptEditEnumFunctions
         {
         public:
             AutoScriptEditEnumFunctions(ScriptContext* scriptContext, ScriptEditQuery* scriptEditQuery) : m_scriptContext(scriptContext)
-            {
+            {TRACE_IT(36773);
                 scriptContext->BeginScriptEditEnumFunctions(scriptEditQuery);
             }
-            ~AutoScriptEditEnumFunctions() { m_scriptContext->EndScriptEditEnumFunctions(); }
+            ~AutoScriptEditEnumFunctions() {TRACE_IT(36774); m_scriptContext->EndScriptEditEnumFunctions(); }
         private:
             ScriptContext* m_scriptContext;
         };
@@ -1662,11 +1662,11 @@ private:
         void ProfileSuspend(Js::Phase, Js::Profiler::SuspendRecord * suspendRecord);
         void ProfileResume(Js::Profiler::SuspendRecord * suspendRecord);
         void ProfilePrint();
-        bool IsProfilerCreated() const { return isProfilerCreated; }
+        bool IsProfilerCreated() const {TRACE_IT(36775); return isProfilerCreated; }
 #endif
 
 #ifdef PROFILE_MEM
-        void DisableProfileMemoryDumpOnDelete() { profileMemoryDump = false; }
+        void DisableProfileMemoryDumpOnDelete() {TRACE_IT(36776); profileMemoryDump = false; }
 #endif
 
 #ifdef PROFILE_STRINGS
@@ -1725,7 +1725,7 @@ private:
         virtual Field(Js::Var)* GetModuleExportSlotArrayAddress(uint moduleIndex, uint slotIndex) override;
 
         Js::SourceTextModuleRecord* GetModuleRecord(uint moduleId) const
-        {
+        {TRACE_IT(36777);
             return javascriptLibrary->GetModuleRecord(moduleId);
         }
 
@@ -1746,7 +1746,7 @@ private:
         ScriptContext * nextPendingClose;
     public:
         void SetNextPendingClose(ScriptContext * nextPendingClose);
-        inline ScriptContext * GetNextPendingClose() const { return nextPendingClose; }
+        inline ScriptContext * GetNextPendingClose() const {TRACE_IT(36778); return nextPendingClose; }
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
         // Keep track of all breakpoints in order to properly clean up on debugger detach
@@ -1760,12 +1760,12 @@ private:
     public:
         AutoDynamicCodeReference(ScriptContext* scriptContext):
           m_scriptContext(scriptContext)
-          {
+          {TRACE_IT(36779);
               scriptContext->GetLibrary()->BeginDynamicFunctionReferences();
           }
 
           ~AutoDynamicCodeReference()
-          {
+          {TRACE_IT(36780);
               m_scriptContext->GetLibrary()->EndDynamicFunctionReferences();
           }
 
@@ -1775,14 +1775,14 @@ private:
 
     template <typename TCacheType>
     void ScriptContext::CleanDynamicFunctionCache(TCacheType* cacheType)
-    {
+    {TRACE_IT(36781);
         // Remove eval map functions that haven't been recently used
         // TODO: Metric based on allocation size too? So don't clean if there hasn't been much allocated?
 
         cacheType->Clean([this](const typename TCacheType::KeyType& key, typename TCacheType::ValueType value) {
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
             if (CONFIG_FLAG(DumpEvalStringOnRemoval))
-            {
+            {TRACE_IT(36782);
                 Output::Print(_u("EvalMap: Removing Dynamic Function String from dynamic function cache: %s\n"), key.str.GetBuffer()); Output::Flush();
             }
 #endif
@@ -1791,14 +1791,14 @@ private:
 
     template <class TDelegate>
     void ScriptContext::MapFunction(TDelegate mapper)
-    {
+    {TRACE_IT(36783);
         if (this->sourceList)
-        {
+        {TRACE_IT(36784);
             this->sourceList->Map([&mapper](int, RecyclerWeakReference<Js::Utf8SourceInfo>* sourceInfo)
             {
                 Utf8SourceInfo* sourceInfoStrongRef = sourceInfo->Get();
                 if (sourceInfoStrongRef)
-                {
+                {TRACE_IT(36785);
                     sourceInfoStrongRef->MapFunction(mapper);
                 }
             });
@@ -1807,17 +1807,17 @@ private:
 
     template <class TDelegate>
     FunctionBody* ScriptContext::FindFunction(TDelegate predicate)
-    {
+    {TRACE_IT(36786);
         FunctionBody* functionBody = nullptr;
 
         this->sourceList->MapUntil([&functionBody, &predicate](int, RecyclerWeakReference<Js::Utf8SourceInfo>* sourceInfo) -> bool
         {
             Utf8SourceInfo* sourceInfoStrongRef = sourceInfo->Get();
             if (sourceInfoStrongRef)
-            {
+            {TRACE_IT(36787);
                 functionBody = sourceInfoStrongRef->FindFunction(predicate);
                 if (functionBody)
-                {
+                {TRACE_IT(36788);
                     return true;
                 }
             }
@@ -1832,22 +1832,22 @@ private:
     {
     public:
         AutoProfilingPhase(ScriptContext* scriptcontext, Js::Phase phase) : scriptcontext(scriptcontext), phase(phase), isPhaseComplete(false)
-        {
+        {TRACE_IT(36789);
     #ifdef PROFILE_EXEC
             scriptcontext->ProfileBegin(phase);
     #endif
         }
 
         ~AutoProfilingPhase()
-        {
+        {TRACE_IT(36790);
             if(!this->isPhaseComplete)
-            {
+            {TRACE_IT(36791);
                 EndProfile();
             }
         }
 
         void EndProfile()
-        {
+        {TRACE_IT(36792);
             this->isPhaseComplete = true;
 #ifdef PROFILE_EXEC
             scriptcontext->ProfileEnd(phase);

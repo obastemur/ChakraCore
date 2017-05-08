@@ -24,11 +24,11 @@ public:
     static void Delete(SmallNormalHeapBlockT * block);
 
     SmallNormalHeapBlockT * GetNextBlock() const
-    {
+    {TRACE_IT(27004);
         HeapBlock* block = Base::GetNextBlock();
         return block ? block->template AsNormalBlock<TBlockAttributes>() : nullptr;
     }
-    void SetNextBlock(SmallNormalHeapBlockT * next) { Base::SetNextBlock(next); }
+    void SetNextBlock(SmallNormalHeapBlockT * next) {TRACE_IT(27005); Base::SetNextBlock(next); }
 
     void ScanInitialImplicitRoots(Recycler * recycler);
     void ScanNewImplicitRoots(Recycler * recycler);
@@ -73,7 +73,7 @@ public:
     static void Delete(SmallNormalWithBarrierHeapBlockT * heapBlock);
 
     SmallNormalWithBarrierHeapBlockT * GetNextBlock() const
-    {
+    {TRACE_IT(27006);
         HeapBlock* block = SmallHeapBlockT<TBlockAttributes>::GetNextBlock();
         return block ? block->template AsNormalWriteBarrierBlock<TBlockAttributes>() : nullptr;
     }
@@ -85,7 +85,7 @@ public:
 protected:
     SmallNormalWithBarrierHeapBlockT(HeapBucket * bucket, ushort objectSize, ushort objectCount, HeapBlockType heapBlockType) :
         SmallNormalHeapBlockT<TBlockAttributes>(bucket, objectSize, objectCount, heapBlockType)
-    {}
+    {TRACE_IT(27007);}
 
 };
 #endif

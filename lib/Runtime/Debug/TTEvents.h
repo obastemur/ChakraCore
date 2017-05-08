@@ -23,14 +23,14 @@
 
 #define TTD_REPLAY_VALIDATE_JSREF(p) \
         if (p == TTD_REPLAY_JS_INVALID_REFERENCE) \
-        { \
+        {TRACE_IT(44081); \
             return; \
         }
 
 #define TTD_REPLAY_MARSHAL_OBJECT(p, scriptContext) \
         Js::RecyclableObject* __obj = Js::RecyclableObject::FromVar(p); \
         if (__obj->GetScriptContext() != scriptContext) \
-        { \
+        {TRACE_IT(44082); \
             p = Js::CrossSite::MarshalVar(scriptContext, __obj); \
         }
 
@@ -42,30 +42,30 @@
         }
 
 #define TTD_REPLAY_VALIDATE_INCOMING_OBJECT(p, scriptContext) \
-        { \
+        {TRACE_IT(44083); \
             TTD_REPLAY_VALIDATE_JSREF(p); \
             if(!Js::JavascriptOperators::IsObject(p)) \
-            { \
+            {TRACE_IT(44084); \
                 return; \
             } \
             TTD_REPLAY_MARSHAL_OBJECT(p, scriptContext) \
         }
 
 #define TTD_REPLAY_VALIDATE_INCOMING_OBJECT_OR_NULL(p, scriptContext) \
-        { \
+        {TRACE_IT(44085); \
             TTD_REPLAY_VALIDATE_JSREF(p); \
             if(!Js::JavascriptOperators::IsObjectOrNull(p)) \
-            { \
+            {TRACE_IT(44086); \
                 return; \
             } \
             TTD_REPLAY_MARSHAL_OBJECT(p, scriptContext) \
         }
 
 #define TTD_REPLAY_VALIDATE_INCOMING_FUNCTION(p, scriptContext) \
-        { \
+        {TRACE_IT(44087); \
             TTD_REPLAY_VALIDATE_JSREF(p); \
             if(!Js::JavascriptFunction::Is(p)) \
-            { \
+            {TRACE_IT(44088); \
                 return; \
             } \
             TTD_REPLAY_MARSHAL_OBJECT(p, scriptContext) \
@@ -342,7 +342,7 @@ namespace TTD
 
         template <typename T, EventKind tag>
         const T* GetInlineEventDataAs(const EventLogEntry* evt)
-        {
+        {TRACE_IT(44089);
             static_assert(sizeof(T) < EVENT_INLINE_DATA_BYTE_COUNT, "Data is too large for inline representation!!!");
             TTDAssert(evt->EventKind == tag, "Bad tag match!");
 
@@ -351,7 +351,7 @@ namespace TTD
 
         template <typename T, EventKind tag>
         T* GetInlineEventDataAs(EventLogEntry* evt)
-        {
+        {TRACE_IT(44090);
             static_assert(sizeof(T) < EVENT_INLINE_DATA_BYTE_COUNT, "Data is too large for inline representation!!!");
             TTDAssert(evt->EventKind == tag, "Bad tag match!");
 

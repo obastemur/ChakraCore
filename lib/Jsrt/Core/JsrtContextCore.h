@@ -13,7 +13,7 @@ public:
     static JsrtContextCore *New(JsrtRuntime * runtime);
     virtual void Finalize(bool isShutdown) override;
     virtual void Dispose(bool isShutdown) override;
-    ChakraCoreHostScriptContext* GetHostScriptContext() const { return hostContext; }
+    ChakraCoreHostScriptContext* GetHostScriptContext() const {TRACE_IT(27499); return hostContext; }
 
     void OnScriptLoad(Js::JavascriptFunction * scriptFunction, Js::Utf8SourceInfo* utf8SourceInfo, CompileScriptException* compileException);
 private:
@@ -31,57 +31,57 @@ public:
         : HostScriptContext(scriptContext),
         notifyModuleReadyCallback(nullptr),
         fetchImportedModuleCallback(nullptr)
-    {
+    {TRACE_IT(27500);
     }
     ~ChakraCoreHostScriptContext()
-    {
+    {TRACE_IT(27501);
     }
 
     virtual void Delete()
-    {
+    {TRACE_IT(27502);
         HeapDelete(this);
     }
 
     HRESULT GetPreviousHostScriptContext(__deref_out HostScriptContext** previousScriptSite)
-    {
+    {TRACE_IT(27503);
         *previousScriptSite = GetScriptContext()->GetThreadContext()->GetPreviousHostScriptContext();
         return NOERROR;
     }
 
     HRESULT SetCaller(IUnknown *punkNew, IUnknown **ppunkPrev)
-    {
+    {TRACE_IT(27504);
         return NOERROR;
     }
 
     BOOL HasCaller()
-    {
+    {TRACE_IT(27505);
         return FALSE;
     }
 
     HRESULT PushHostScriptContext()
-    {
+    {TRACE_IT(27506);
         GetScriptContext()->GetThreadContext()->PushHostScriptContext(this);
         return NOERROR;
     }
 
     void PopHostScriptContext()
-    {
+    {TRACE_IT(27507);
         GetScriptContext()->GetThreadContext()->PopHostScriptContext();
     }
 
     HRESULT GetDispatchExCaller(_Outptr_result_maybenull_ void** dispatchExCaller)
-    {
+    {TRACE_IT(27508);
         *dispatchExCaller = nullptr;
         return NOERROR;
     }
 
     void ReleaseDispatchExCaller(__in void* dispatchExCaller)
-    {
+    {TRACE_IT(27509);
         return;
     }
 
     Js::ModuleRoot * GetModuleRoot(int moduleID)
-    {
+    {TRACE_IT(27510);
         Assert(false);
         return nullptr;
     }
@@ -171,11 +171,11 @@ public:
 
     HRESULT NotifyHostAboutModuleReady(Js::ModuleRecordBase* referencingModule, Js::Var exceptionVar) override;
 
-    void SetNotifyModuleReadyCallback(NotifyModuleReadyCallback notifyCallback) { this->notifyModuleReadyCallback = notifyCallback; }
-    NotifyModuleReadyCallback GetNotifyModuleReadyCallback() const { return this->notifyModuleReadyCallback; }
+    void SetNotifyModuleReadyCallback(NotifyModuleReadyCallback notifyCallback) {TRACE_IT(27511); this->notifyModuleReadyCallback = notifyCallback; }
+    NotifyModuleReadyCallback GetNotifyModuleReadyCallback() const {TRACE_IT(27512); return this->notifyModuleReadyCallback; }
 
-    void SetFetchImportedModuleCallback(FetchImportedModuleCallBack fetchCallback) { this->fetchImportedModuleCallback = fetchCallback ; }
-    FetchImportedModuleCallBack GetFetchImportedModuleCallback() const { return this->fetchImportedModuleCallback; }
+    void SetFetchImportedModuleCallback(FetchImportedModuleCallBack fetchCallback) {TRACE_IT(27513); this->fetchImportedModuleCallback = fetchCallback ; }
+    FetchImportedModuleCallBack GetFetchImportedModuleCallback() const {TRACE_IT(27514); return this->fetchImportedModuleCallback; }
 
 #if DBG_DUMP || defined(PROFILE_EXEC) || defined(PROFILE_MEM)
     void EnsureParentInfo(Js::ScriptContext* scriptContext = NULL) override

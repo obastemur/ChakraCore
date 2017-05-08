@@ -30,6 +30,6 @@ namespace Js {
     public:
         HRESULT ToString(LPCWSTR functionName, Js::ScriptContext *scriptContext, _In_ LPCWSTR* outResult) const;
         void Init(const JavascriptStackWalker &walker);
-        StackTraceArguments() : types(fCallerIsGlobal) {}
+        StackTraceArguments() : types(fCallerIsGlobal) {TRACE_IT(52896);}
     };
 }

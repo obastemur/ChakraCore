@@ -8,7 +8,7 @@ namespace Memory
 {
 
 #define PreReservedHeapTrace(...) \
-{ \
+{TRACE_IT(27172); \
     OUTPUT_TRACE(Js::PreReservedHeapAllocPhase, __VA_ARGS__); \
 }
 
@@ -27,7 +27,7 @@ public:
 
     static VirtualAllocWrapper Instance;  // single instance
 private:
-    VirtualAllocWrapper() {}
+    VirtualAllocWrapper() {TRACE_IT(27173);}
 };
 
 /*
@@ -62,12 +62,12 @@ public:
     LPVOID      GetPreReservedEndAddress();
     static LPVOID GetPreReservedEndAddress(void * regionStart);
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
-    static int  NumPreReservedSegment() { return numPreReservedSegment; }
+    static int  NumPreReservedSegment() {TRACE_IT(27174); return numPreReservedSegment; }
 #endif
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
     bool        IsPreReservedEndAddress(LPVOID address)
-    {
+    {TRACE_IT(27175);
         return IsPreReservedRegionPresent() && address == GetPreReservedEndAddress();
     }
 #endif

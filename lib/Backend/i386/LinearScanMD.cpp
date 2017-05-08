@@ -9,13 +9,13 @@ extern const IRType RegTypes[RegNumCount];
 
 LinearScanMD::LinearScanMD(Func *func)
     : func(func)
-{
+{TRACE_IT(18286);
     this->byteableRegsBv.ClearAll();
 
     FOREACH_REG(reg)
-    {
+    {TRACE_IT(18287);
         if (LinearScan::GetRegAttribs(reg) & RA_BYTEABLE)
-        {
+        {TRACE_IT(18288);
             this->byteableRegsBv.Set(reg);
         }
     } NEXT_REG;
@@ -27,10 +27,10 @@ LinearScanMD::LinearScanMD(Func *func)
 
 BitVector
 LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageBv) const
-{
+{TRACE_IT(18289);
     // Requires byte-able reg?
     if (sizeUsageBv.Test(1))
-    {
+    {TRACE_IT(18290);
         regsBv.And(this->byteableRegsBv);
     }
 
@@ -39,56 +39,56 @@ LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageB
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, BitVector sizeUsageBv) const
-{
+{TRACE_IT(18291);
     // Requires byte-able reg?
     return !sizeUsageBv.Test(1) || this->byteableRegsBv.Test(reg);
 }
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, IRType type) const
-{
+{TRACE_IT(18292);
     // Requires byte-able reg?
     return TySize[type] != 1 || this->byteableRegsBv.Test(reg);
 }
 
 StackSym *
 LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
-{
+{TRACE_IT(18293);
     Assert(REGNUM_ISXMMXREG(reg));
 
     __analysis_assume(reg - RegXMM0 >= 0 && reg - RegXMM0 < XMM_REGCOUNT);
     StackSym *sym;
     if (type == TyFloat32)
-    {
+    {TRACE_IT(18294);
         sym = this->xmmSymTable32[reg - RegXMM0];
     }
     else if (type == TyFloat64)
-    {
+    {TRACE_IT(18295);
         sym = this->xmmSymTable64[reg - RegXMM0];
     }
     else
-    {
+    {TRACE_IT(18296);
         Assert(IRType_IsSimd128(type));
         sym = this->xmmSymTable128[reg - RegXMM0];
     }
 
     if (sym == NULL)
-    {
+    {TRACE_IT(18297);
         sym = StackSym::New(type, func);
         func->StackAllocate(sym, TySize[type]);
 
         __analysis_assume(reg - RegXMM0 < XMM_REGCOUNT);
 
         if (type == TyFloat32)
-        {
+        {TRACE_IT(18298);
             this->xmmSymTable32[reg - RegXMM0] = sym;
         }
         else if (type == TyFloat64)
-        {
+        {TRACE_IT(18299);
             this->xmmSymTable64[reg - RegXMM0] = sym;
         }
         else
-        {
+        {TRACE_IT(18300);
             Assert(IRType_IsSimd128(type));
             this->xmmSymTable128[reg - RegXMM0] = sym;
         }
@@ -99,12 +99,12 @@ LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
 
 void
 LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCount) StackSym ** registerSaveSyms, uint registerSaveSymsCount)
-{
+{TRACE_IT(18301);
     Func *const func = instr->m_func;
     BailOutInfo *const bailOutInfo = instr->GetBailOutInfo();
     IR::Instr *firstInstr = instr->m_prev;
     if(bailOutInfo->branchConditionOpnd)
-    {
+    {TRACE_IT(18302);
         // Pass in the branch condition
         //     push condition
         IR::Instr *const newInstr = IR::Instr::New(Js::OpCode::PUSH, func);
@@ -116,16 +116,16 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
     // Pass in the bailout record
     //     push bailOutRecord
-    {
+    {TRACE_IT(18303);
         if (!func->IsOOPJIT()) // in-proc jit
-        {
+        {TRACE_IT(18304);
             IR::Instr *const newInstr = IR::Instr::New(Js::OpCode::PUSH, func);
             newInstr->SetSrc1(IR::AddrOpnd::New(bailOutInfo->bailOutRecord, IR::AddrOpndKindDynamicBailOutRecord, func, true));
             instr->InsertBefore(newInstr);
             newInstr->CopyNumber(instr);
         }
         else // oop jit
-        {
+        {TRACE_IT(18305);
             // [esp - 8]: original eax
             // [esp - 4]: bailout record
 
@@ -167,10 +167,10 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
     firstInstr = firstInstr->m_next;
     for(uint i = 0; i < registerSaveSymsCount; i++)
-    {
+    {TRACE_IT(18306);
         StackSym *const stackSym = registerSaveSyms[i];
         if(!stackSym)
-        {
+        {TRACE_IT(18307);
             continue;
         }
 
@@ -182,7 +182,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
 IR::Instr *
 LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, BailOutInfo * bailOutInfo)
-{
+{TRACE_IT(18308);
     BailOutRecord * bailOutRecord = bailOutInfo->bailOutRecord;
     IR::Instr * instrAfter = resumeLabelInstr->m_next;
     IR::Instr * newInstr;
@@ -199,7 +199,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
         IntConstType sizeValue = startCallParamCount;
         int32 stackAlignment = Math::Align<int32>(sizeValue*MachPtr, MachStackAlignment) - sizeValue*MachPtr;
         if (stackAlignment != 0)
-        {
+        {TRACE_IT(18309);
             sizeValue += 1;
         }
         sizeValue *= MachPtr;
@@ -207,9 +207,9 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     });
 
     if (stackAdjustSize != 0)
-    {
+    {TRACE_IT(18310);
         if ((uint32)stackAdjustSize > AutoSystemInfo::PageSize)
-        {
+        {TRACE_IT(18311);
             //     mov eax, sizeOpnd->m_value
             //     call _chkstk
             IR::RegOpnd *eaxOpnd = IR::RegOpnd::New(nullptr, RegEAX, TyMachReg, this->func);
@@ -221,7 +221,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             instrAfter->InsertBefore(newInstr);
         }
         else
-        {
+        {TRACE_IT(18312);
             //     lea esp, [esp - sizeValue]
             IR::RegOpnd * espOpnd = IR::RegOpnd::New(nullptr, LowererMD::GetRegStackPointer(), TyMachReg, this->func);
             newInstr = IR::Instr::New(Js::OpCode::LEA, espOpnd, IR::IndirOpnd::New(espOpnd, -stackAdjustSize, TyMachReg, this->func), this->func);
@@ -253,7 +253,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     Assert(bailOutInfo->capturedValues.copyPropSyms.Empty());
 
     auto restoreSymFn = [this, &eaxRegOpnd, &ecxRegOpnd, &eaxRestoreInstr, &instrInsertStackSym, &instrInsertRegSym](SymID symId)
-    {
+    {TRACE_IT(18313);
         StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
         Assert(stackSym->IsVar());
 
@@ -265,7 +265,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
         Lifetime * lifetime = stackSym->scratch.linearScan.lifetime;
 
         if (lifetime->isSpilled)
-        {
+        {TRACE_IT(18314);
             // stack restores require an extra register since we can't move an indir directly to an indir on x86
             IR::Instr * instr = IR::Instr::New(Js::OpCode::MOV, ecxRegOpnd, srcOpnd, this->func);
             instrInsertStackSym->InsertBefore(instr);
@@ -275,7 +275,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             instrInsertStackSym->InsertBefore(instr);
         }
         else
-        {
+        {TRACE_IT(18315);
             // register restores must come after stack restores so that we have EAX and ECX free to
             // use for stack restores and further EAX must be restored last since it holds the
             // pointer to the InterpreterStackFrame from which we are restoring values.
@@ -288,7 +288,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             instrInsertRegSym->InsertBefore(instr);
 
             if (instrInsertRegSym == instrInsertStackSym)
-            {
+            {TRACE_IT(18316);
                 // this is the first register sym, make sure we don't insert stack stores
                 // after this instruction so we can ensure eax and ecx remain free to use
                 // for restoring spilled stack syms.
@@ -296,7 +296,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             }
 
             if (lifetime->reg == RegEAX)
-            {
+            {TRACE_IT(18317);
                 // ensure eax is restored last
                 Assert(instrInsertRegSym != instrInsertStackSym);
 
@@ -321,7 +321,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     };
 
     FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->byteCodeUpwardExposedUsed)
-    {
+    {TRACE_IT(18318);
         restoreSymFn(symId);
     }
     NEXT_BITSET_IN_SPARSEBV;
@@ -329,7 +329,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     if (bailOutInfo->capturedValues.argObjSyms)
     {
         FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->capturedValues.argObjSyms)
-        {
+        {TRACE_IT(18319);
             restoreSymFn(symId);
         }
         NEXT_BITSET_IN_SPARSEBV;
@@ -361,7 +361,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegisters(BailOutRecord *const bailOutRecord)
-{
+{TRACE_IT(18320);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -398,7 +398,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegisters(BailOutRecord *const bailO
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2(BailOutRecord *const bailOutRecord)
-{
+{TRACE_IT(18321);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -426,7 +426,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2(BailOutRecord *const
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersAndBailOut(BailOutRecord *const bailOutRecord)
-{
+{TRACE_IT(18322);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -438,7 +438,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersAndBailOut(BailOutRecord *c
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBailOut(BailOutRecord *const bailOutRecord)
-{
+{TRACE_IT(18323);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -452,7 +452,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBailOut(BailOutRec
 __declspec(naked) void LinearScanMD::SaveAllRegistersAndBranchBailOut(
     BranchBailOutRecord *const bailOutRecord,
     const BOOL condition)
-{
+{TRACE_IT(18324);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -467,7 +467,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersAndBranchBailOut(
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBranchBailOut(
     BranchBailOutRecord *const bailOutRecord,
     const BOOL condition)
-{
+{TRACE_IT(18325);
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -483,7 +483,7 @@ void
 LinearScanMD::InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlockList)
 {
     FOREACH_SLIST_ENTRY(OpHelperBlock, opHelperBlock, opHelperBlockList)
-    {
+    {TRACE_IT(18326);
         this->InsertOpHelperSpillsAndRestores(opHelperBlock);
     }
     NEXT_SLIST_ENTRY;
@@ -493,20 +493,20 @@ void
 LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock)
 {
     FOREACH_SLIST_ENTRY(OpHelperSpilledLifetime, opHelperSpilledLifetime, &opHelperBlock.spilledLifetime)
-    {
+    {TRACE_IT(18327);
         StackSym* sym = nullptr;
         if (opHelperSpilledLifetime.spillAsArg)
-        {
+        {TRACE_IT(18328);
             sym = opHelperSpilledLifetime.lifetime->sym;
             AnalysisAssert(sym);
             Assert(sym->IsAllocated());
         }
         if (RegTypes[opHelperSpilledLifetime.reg] == TyFloat64)
-        {
+        {TRACE_IT(18329);
             IRType type = opHelperSpilledLifetime.lifetime->sym->GetType();
             IR::RegOpnd * regOpnd = IR::RegOpnd::New(NULL, opHelperSpilledLifetime.reg, type, this->func);
             if (!sym)
-            {
+            {TRACE_IT(18330);
                 sym = EnsureSpillSymForXmmReg(regOpnd->GetReg(), this->func, type);
             }
             IR::Instr * pushInstr = IR::Instr::New(LowererMDArch::GetAssignOp(type), IR::SymOpnd::New(sym, type, this->func), regOpnd, this->func);
@@ -514,36 +514,36 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
             pushInstr->CopyNumber(opHelperBlock.opHelperLabel);
 
             if (opHelperSpilledLifetime.reload)
-            {
+            {TRACE_IT(18331);
                 IR::Instr * popInstr = IR::Instr::New(LowererMDArch::GetAssignOp(type), regOpnd, IR::SymOpnd::New(sym, type, this->func), this->func);
                 opHelperBlock.opHelperEndInstr->InsertBefore(popInstr);
                 popInstr->CopyNumber(opHelperBlock.opHelperEndInstr);
             }
         }
         else
-        {
+        {TRACE_IT(18332);
             IR::RegOpnd * regOpnd;
             if (!sym)
-            {
+            {TRACE_IT(18333);
                 regOpnd = IR::RegOpnd::New(NULL, opHelperSpilledLifetime.reg, TyMachPtr, this->func);
                 IR::Instr * pushInstr = IR::Instr::New(Js::OpCode::PUSH, this->func);
                 pushInstr->SetSrc1(regOpnd);
                 opHelperBlock.opHelperLabel->InsertAfter(pushInstr);
                 pushInstr->CopyNumber(opHelperBlock.opHelperLabel);
                 if (opHelperSpilledLifetime.reload)
-                {
+                {TRACE_IT(18334);
                      IR::Instr * popInstr = IR::Instr::New(Js::OpCode::POP, regOpnd, this->func);
                     opHelperBlock.opHelperEndInstr->InsertBefore(popInstr);
                     popInstr->CopyNumber(opHelperBlock.opHelperEndInstr);
                 }
             }
             else
-            {
+            {TRACE_IT(18335);
                 regOpnd = IR::RegOpnd::New(NULL, opHelperSpilledLifetime.reg, sym->GetType(), this->func);
                 IR::Instr* instr = LowererMD::CreateAssign(IR::SymOpnd::New(sym, sym->GetType(), func), regOpnd, opHelperBlock.opHelperLabel->m_next);
                 instr->CopyNumber(opHelperBlock.opHelperLabel);
                 if (opHelperSpilledLifetime.reload)
-                {
+                {TRACE_IT(18336);
                     instr = LowererMD::CreateAssign(regOpnd, IR::SymOpnd::New(sym, sym->GetType(), func), opHelperBlock.opHelperEndInstr);
                     instr->CopyNumber(opHelperBlock.opHelperEndInstr);
                 }
@@ -555,25 +555,25 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
 }
 
 uint LinearScanMD::GetRegisterSaveIndex(RegNum reg)
-{
+{TRACE_IT(18337);
     if (RegTypes[reg] == TyFloat64)
-    {
+    {TRACE_IT(18338);
         // make room for maximum XMM reg size
         Assert(reg >= RegXMM0);
         return (reg - RegXMM0) * (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0;
     }
     else
-    {
+    {TRACE_IT(18339);
         return reg;
     }
 }
 
 RegNum LinearScanMD::GetRegisterFromSaveIndex(uint offset)
-{
+{TRACE_IT(18340);
     return (RegNum)(offset >= RegXMM0 ? (offset - RegXMM0) / (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0 : offset);
 }
 
 RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
-{
+{TRACE_IT(18341);
     return RegNOREG;
 }

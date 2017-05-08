@@ -8,9 +8,9 @@ namespace Js
 {
     template <>
     Var JavascriptTypedNumber<__int64>::ToVar(__int64 value, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62185);
         if (!TaggedInt::IsOverflow(value))
-        {
+        {TRACE_IT(62186);
             return TaggedInt::ToVarUnchecked((int)value);
         }
         JavascriptTypedNumber<__int64>* number = RecyclerNewLeaf(scriptContext->GetRecycler(), JavascriptInt64Number, value,
@@ -20,9 +20,9 @@ namespace Js
 
     template <>
     Var JavascriptTypedNumber<unsigned __int64>::ToVar(unsigned __int64 value, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62187);
         if (!TaggedInt::IsOverflow(value))
-        {
+        {TRACE_IT(62188);
             return TaggedInt::ToVarUnchecked((uint)value);
         }
         JavascriptTypedNumber<unsigned __int64>* number = RecyclerNewLeaf(scriptContext->GetRecycler(), JavascriptUInt64Number, value,
@@ -32,7 +32,7 @@ namespace Js
 
     template <>
     JavascriptString* JavascriptTypedNumber<__int64>::ToString(Var value, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62189);
         char16 szBuffer[30];
         __int64 val = JavascriptTypedNumber<__int64>::FromVar(value)->GetValue();
         errno_t err = _i64tow_s(val, szBuffer, 30, 10);
@@ -42,7 +42,7 @@ namespace Js
 
     template <>
     JavascriptString* JavascriptTypedNumber<unsigned __int64>::ToString(Var value, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62190);
         char16 szBuffer[30];
         unsigned __int64 val = JavascriptUInt64Number::FromVar(value)->GetValue();
         errno_t err = _ui64tow_s(val, szBuffer, 30, 10);
@@ -52,7 +52,7 @@ namespace Js
 
     template <typename T>
     RecyclableObject* JavascriptTypedNumber<T>::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62191);
         return requestContext->GetLibrary()->CreateNumberObjectWithCheck((double)m_value);
     }
 }

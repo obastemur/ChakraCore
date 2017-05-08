@@ -21,11 +21,11 @@ namespace Js
 
         uint argCount = args.Info.Count;
         for (uint i = 0; i < argCount - 1 && i < 16; i++)
-        {
+        {TRACE_IT(63127);
             b[i] = JavascriptConversion::ToBool(args[i + 1], scriptContext);
         }
         for (uint i = argCount - 1; i < 16; i++)
-        {
+        {TRACE_IT(63128);
             b[i] = JavascriptConversion::ToBool(undefinedVar, scriptContext);
         }
 
@@ -45,7 +45,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63129);
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdBool8x16TypeMismatch, _u("bool8x16"));
@@ -80,7 +80,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63130);
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             bool result = (SIMDUtils::SIMD128ExtractLane<JavascriptSIMDBool8x16, 16, int8>(args[1], laneVar, scriptContext)) ? true : false;
@@ -101,7 +101,7 @@ namespace Js
 
 
         if (args.Info.Count >= 4 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63131);
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();
@@ -127,7 +127,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63132);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             Assert(a);
 
@@ -150,7 +150,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63133);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             Assert(a);
 
@@ -173,7 +173,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool8x16::Is(args[1]))
-        {
+        {TRACE_IT(63134);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             Assert(a);
 
@@ -198,7 +198,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool8x16::Is(args[1]) && JavascriptSIMDBool8x16::Is(args[2]))
-        {
+        {TRACE_IT(63135);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             JavascriptSIMDBool8x16 *b = JavascriptSIMDBool8x16::FromVar(args[2]);
             Assert(a && b);
@@ -229,7 +229,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool8x16::Is(args[1]) && JavascriptSIMDBool8x16::Is(args[2]))
-        {
+        {TRACE_IT(63136);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             JavascriptSIMDBool8x16 *b = JavascriptSIMDBool8x16::FromVar(args[2]);
             Assert(a && b);
@@ -260,7 +260,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool8x16::Is(args[1]) && JavascriptSIMDBool8x16::Is(args[2]))
-        {
+        {TRACE_IT(63137);
             JavascriptSIMDBool8x16 *a = JavascriptSIMDBool8x16::FromVar(args[1]);
             JavascriptSIMDBool8x16 *b = JavascriptSIMDBool8x16::FromVar(args[2]);
             Assert(a && b);

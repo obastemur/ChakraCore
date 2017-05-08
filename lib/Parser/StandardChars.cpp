@@ -208,63 +208,63 @@ END {
         , nonWordSet(0)
         , newlineSet(0)
         , whitespaceSet(0)
-    {
+    {TRACE_IT(32846);
     }
 
     void StandardChars<char16>::SetDigits(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32847);
         set.SetRanges(setAllocator, numDigitPairs, digitStr);
     }
 
     void StandardChars<char16>::SetNonDigits(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32848);
         set.SetNotRanges(setAllocator, numDigitPairs, digitStr);
     }
 
     void StandardChars<char16>::SetWhitespace(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32849);
         set.SetRanges(setAllocator, numWhitespacePairs, whitespaceStr);
     }
 
     void StandardChars<char16>::SetNonWhitespace(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32850);
         set.SetNotRanges(setAllocator, numWhitespacePairs, whitespaceStr);
     }
 
     void StandardChars<char16>::SetWordChars(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32851);
         set.SetRanges(setAllocator, numWordPairs, wordStr);
     }
 
     void StandardChars<char16>::SetNonWordChars(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32852);
         set.SetNotRanges(setAllocator, numWordPairs, wordStr);
     }
 
     void StandardChars<char16>::SetWordIUChars(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32853);
         set.SetRanges(setAllocator, numWordIUPairs, wordIUStr);
     }
 
     void StandardChars<char16>::SetNonWordIUChars(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32854);
         set.SetNotRanges(setAllocator, numWordIUPairs, wordIUStr);
     }
 
     void StandardChars<char16>::SetNewline(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32855);
         set.SetRanges(setAllocator, numNewlinePairs, newlineStr);
     }
 
     void StandardChars<char16>::SetNonNewline(ArenaAllocator* setAllocator, CharSet<Char> &set)
-    {
+    {TRACE_IT(32856);
         set.SetNotRanges(setAllocator, numNewlinePairs, newlineStr);
     }
 
     CharSet<char16>* StandardChars<char16>::GetFullSet()
-    {
+    {TRACE_IT(32857);
         if (fullSet == 0)
-        {
+        {TRACE_IT(32858);
             fullSet = Anew(allocator, UnicodeCharSet);
             fullSet->SetRange(allocator, MinChar, MaxChar);
         }
@@ -272,9 +272,9 @@ END {
     }
 
     CharSet<char16>* StandardChars<char16>::GetEmptySet()
-    {
+    {TRACE_IT(32859);
         if (emptySet == 0)
-        {
+        {TRACE_IT(32860);
             emptySet = Anew(allocator, UnicodeCharSet);
             // leave empty
         }
@@ -282,9 +282,9 @@ END {
     }
 
     CharSet<char16>* StandardChars<char16>::GetWordSet()
-    {
+    {TRACE_IT(32861);
         if (wordSet == 0)
-        {
+        {TRACE_IT(32862);
             wordSet = Anew(allocator, UnicodeCharSet);
             wordSet->SetRanges(allocator, numWordPairs, wordStr);
         }
@@ -292,9 +292,9 @@ END {
     }
 
     CharSet<char16>* StandardChars<char16>::GetNonWordSet()
-    {
+    {TRACE_IT(32863);
         if (nonWordSet == 0)
-        {
+        {TRACE_IT(32864);
             nonWordSet = Anew(allocator, UnicodeCharSet);
             nonWordSet->SetNotRanges(allocator, numWordPairs, wordStr);
         }
@@ -302,9 +302,9 @@ END {
     }
 
     CharSet<char16>* StandardChars<char16>::GetNewlineSet()
-    {
+    {TRACE_IT(32865);
         if (newlineSet == 0)
-        {
+        {TRACE_IT(32866);
             newlineSet = Anew(allocator, UnicodeCharSet);
             newlineSet->SetRanges(allocator, numNewlinePairs, newlineStr);
         }
@@ -312,18 +312,18 @@ END {
     }
 
     CharSet<char16>* StandardChars<char16>::GetWhitespaceSet()
-    {
+    {TRACE_IT(32867);
         if (whitespaceSet == 0)
-        {
+        {TRACE_IT(32868);
             whitespaceSet = Anew(allocator, UnicodeCharSet);
             whitespaceSet->SetRanges(allocator, numWhitespacePairs, whitespaceStr);
         }
         return whitespaceSet;
     }
     CharSet<char16>* StandardChars<char16>::GetSurrogateUpperRange()
-    {
+    {TRACE_IT(32869);
         if (surrogateUpperRange == 0)
-        {
+        {TRACE_IT(32870);
             surrogateUpperRange = Anew(allocator, UnicodeCharSet);
             surrogateUpperRange->SetRange(allocator, (char16)0xDC00u, (char16)0xDFFFu);
         }

@@ -20,40 +20,40 @@ namespace Js
             DataChunk(ArenaAllocator* allocator, uint initSize) :
                 nextChunk(nullptr),
                 byteSize(initSize)
-            {
+            {TRACE_IT(41459);
                 buffer = AnewArray(allocator, byte, initSize);
                 currentByte = buffer;
             }
             inline uint GetSize()
-            {
+            {TRACE_IT(41460);
                 return byteSize;
             }
             inline const byte* GetBuffer()
-            {
+            {TRACE_IT(41461);
                 return buffer;
             }
             inline void Reset()
-            {
+            {TRACE_IT(41462);
                 currentByte = buffer;
             }
             inline uint RemainingBytes()
-            {
+            {TRACE_IT(41463);
                 Assert(byteSize >= GetCurrentOffset());
                 return byteSize - GetCurrentOffset();
             }
             inline uint GetCurrentOffset()
-            {
+            {TRACE_IT(41464);
                 Assert(currentByte >= buffer);
                 return (uint) (currentByte - buffer);
             }
             inline void SetCurrentOffset(uint offset)
-            {
+            {TRACE_IT(41465);
                 currentByte = buffer + offset;
             }
 
             // This does not do check if there is enough space for the copy to succeed.
             inline void WriteUnsafe(__in_bcount(byteSize) const void* data, __in uint byteSize)
-            {
+            {TRACE_IT(41466);
                 AssertMsg(RemainingBytes() >= byteSize, "We do not have enough room");
 
                 js_memcpy_s(currentByte, this->RemainingBytes(), data, byteSize);
@@ -83,15 +83,15 @@ namespace Js
                 tempAllocator(nullptr),
                 currentOffset(0),
                 fixedGrowthPolicy(fixedGrowthPolicy)
-            {
+            {TRACE_IT(41467);
             }
             void Create(uint initSize, ArenaAllocator* tmpAlloc);
-            inline uint GetCurrentOffset() const { return currentOffset; }
-            inline DataChunk * GetCurrentChunk() const { return &(*current); }
+            inline uint GetCurrentOffset() const {TRACE_IT(41468); return currentOffset; }
+            inline DataChunk * GetCurrentChunk() const {TRACE_IT(41469); return &(*current); }
             void SetCurrent(uint offset, DataChunk* currChunk);
             void Copy(Recycler* alloc, ByteBlock ** finalBlock);
-            void Encode(OpCode op, ByteCodeWriter* writer) { EncodeT<Js::SmallLayout>(op, writer); }
-            void Encode(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer) { EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer); }
+            void Encode(OpCode op, ByteCodeWriter* writer) {TRACE_IT(41470); EncodeT<Js::SmallLayout>(op, writer); }
+            void Encode(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer) {TRACE_IT(41471); EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer); }
             void Encode(const void * rawData, int byteSize);
 
             template <LayoutSize layoutSize> void EncodeOpCode(uint16 op, ByteCodeWriter* writer);
@@ -101,8 +101,8 @@ namespace Js
             template <LayoutSize layoutSize> uint EncodeT(OpCode op, ByteCodeWriter* writer);
             template <LayoutSize layoutSize> uint EncodeT(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer);
             // asm.js encoding
-            void Encode(OpCodeAsmJs op, ByteCodeWriter* writer){ EncodeT<Js::SmallLayout>(op, writer, /*isPatching*/false); }
-            void Encode(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false){ EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer, isPatching); }
+            void Encode(OpCodeAsmJs op, ByteCodeWriter* writer){TRACE_IT(41472); EncodeT<Js::SmallLayout>(op, writer, /*isPatching*/false); }
+            void Encode(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false){TRACE_IT(41473); EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer, isPatching); }
             template <LayoutSize layoutSize> uint EncodeT(OpCodeAsmJs op, ByteCodeWriter* writer, bool isPatching);
             template <LayoutSize layoutSize> uint EncodeT(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false);
 
@@ -113,8 +113,8 @@ namespace Js
             uint startOffset;
             uint endOffset;
             bool isNested;
-            LoopHeaderData() {}
-            LoopHeaderData(uint startOffset, uint endOffset, bool isNested) : startOffset(startOffset), endOffset(endOffset), isNested(isNested){}
+            LoopHeaderData() {TRACE_IT(41474);}
+            LoopHeaderData(uint startOffset, uint endOffset, bool isNested) : startOffset(startOffset), endOffset(endOffset), isNested(isNested){TRACE_IT(41475);}
         };
 
         JsUtil::List<uint, ArenaAllocator> * m_labelOffsets;          // Label offsets, once defined
@@ -155,8 +155,8 @@ namespace Js
             ParseNode* node;
             int beginCodeSpan;
 
-            SubexpressionNode() {}
-            SubexpressionNode(ParseNode* node, int beginCodeSpan) : node(node), beginCodeSpan(beginCodeSpan) {}
+            SubexpressionNode() {TRACE_IT(41476);}
+            SubexpressionNode(ParseNode* node, int beginCodeSpan) : node(node), beginCodeSpan(beginCodeSpan) {TRACE_IT(41477);}
         };
         JsUtil::Stack<SubexpressionNode> * m_subexpressionNodesStack; // Parse nodes for Subexpressions not participating in debug-stepping actions
         SmallSpanSequenceIter spanIter;
@@ -173,8 +173,8 @@ namespace Js
         struct CacheIdUnit {
             uint cacheId;
             bool isRootObjectCache;
-            CacheIdUnit() {}
-            CacheIdUnit(uint cacheId, bool isRootObjectCache = false) : cacheId(cacheId), isRootObjectCache(isRootObjectCache) {}
+            CacheIdUnit() {TRACE_IT(41478);}
+            CacheIdUnit(uint cacheId, bool isRootObjectCache = false) : cacheId(cacheId), isRootObjectCache(isRootObjectCache) {TRACE_IT(41479);}
         };
 
     protected:
@@ -217,9 +217,9 @@ namespace Js
         void PopDebuggerScope();
 
     public:
-        ByteCodeWriter() : m_byteCodeCount(/*fixedGrowthPolicy=*/ true), m_currentDebuggerScope(nullptr) {}
+        ByteCodeWriter() : m_byteCodeCount(/*fixedGrowthPolicy=*/ true), m_currentDebuggerScope(nullptr) {TRACE_IT(41480);}
 #if DBG
-        ~ByteCodeWriter() { Assert(!isInUse); }
+        ~ByteCodeWriter() {TRACE_IT(41481); Assert(!isInUse); }
 #endif
 
         void Create();
@@ -357,19 +357,19 @@ namespace Js
         void EndSubexpression(ParseNode* node);
         void RecordFrameDisplayRegister(RegSlot slot);
         void RecordObjectRegister(RegSlot slot);
-        uint GetCurrentOffset() const { return (uint)m_byteCodeData.GetCurrentOffset(); }
-        DataChunk * GetCurrentChunk() const { return m_byteCodeData.GetCurrentChunk(); }
-        void SetCurrent(uint offset, DataChunk * chunk) { m_byteCodeData.SetCurrent(offset, chunk); }
+        uint GetCurrentOffset() const {TRACE_IT(41482); return (uint)m_byteCodeData.GetCurrentOffset(); }
+        DataChunk * GetCurrentChunk() const {TRACE_IT(41483); return m_byteCodeData.GetCurrentChunk(); }
+        void SetCurrent(uint offset, DataChunk * chunk) {TRACE_IT(41484); m_byteCodeData.SetCurrent(offset, chunk); }
         bool ShouldIncrementCallSiteId(OpCode op);
-        inline void SetCallSiteCount(Js::ProfileId callSiteId) { this->m_functionWrite->SetProfiledCallSiteCount(callSiteId); }
+        inline void SetCallSiteCount(Js::ProfileId callSiteId) {TRACE_IT(41485); this->m_functionWrite->SetProfiledCallSiteCount(callSiteId); }
 
         // Debugger methods.
         DebuggerScope* RecordStartScopeObject(DiagExtraScopesType scopeType, RegSlot scopeLocation = Js::Constants::NoRegister, int* index = nullptr);
         void AddPropertyToDebuggerScope(DebuggerScope* debuggerScope, RegSlot location, Js::PropertyId propertyId, bool shouldConsumeRegister = true, DebuggerScopePropertyFlags flags = DebuggerScopePropertyFlags_None, bool isFunctionDeclaration = false);
         void RecordEndScopeObject();
-        DebuggerScope* GetCurrentDebuggerScope() const { return m_currentDebuggerScope; }
+        DebuggerScope* GetCurrentDebuggerScope() const {TRACE_IT(41486); return m_currentDebuggerScope; }
         void UpdateDebuggerPropertyInitializationOffset(Js::DebuggerScope* currentDebuggerScope, Js::RegSlot location, Js::PropertyId propertyId, bool shouldConsumeRegister = true, int byteCodeOffset = Constants::InvalidOffset, bool isFunctionDeclaration = false);
-        FunctionBody* GetFunctionWrite() const { return m_functionWrite; }
+        FunctionBody* GetFunctionWrite() const {TRACE_IT(41487); return m_functionWrite; }
 
         void RecordStatementAdjustment(FunctionBody::StatementAdjustmentType type);
         void RecordCrossFrameEntryExitRecord(bool isEnterBlock);
@@ -378,23 +378,23 @@ namespace Js
         uint EnterLoop(Js::ByteCodeLabel loopEntrance);
         void ExitLoop(uint loopId);
 
-        bool DoJitLoopBodies() const { return m_doJitLoopBodies; }
-        bool DoInterruptProbes() const { return m_doInterruptProbe; }
+        bool DoJitLoopBodies() const {TRACE_IT(41488); return m_doJitLoopBodies; }
+        bool DoInterruptProbes() const {TRACE_IT(41489); return m_doInterruptProbe; }
 
         static bool DoProfileCallOp(OpCode op)
-        {
+        {TRACE_IT(41490);
             return op >= OpCode::CallI && op <= OpCode::CallIExtendedFlags;
         }
 
         bool DoProfileNewScObjectOp(OpCode op)
-        {
+        {TRACE_IT(41491);
             return
                 !PHASE_OFF(InlineConstructorsPhase, m_functionWrite) &&
                 (op == OpCode::NewScObject || op == OpCode::NewScObjectSpread);
         }
 
         bool DoProfileNewScObjArrayOp(OpCode op)
-        {
+        {TRACE_IT(41492);
             return
                 !PHASE_OFF(NativeArrayPhase, m_functionWrite) &&
                 !m_functionWrite->IsInDebugMode() &&
@@ -402,7 +402,7 @@ namespace Js
         }
 
         bool DoProfileNewScArrayOp(OpCode op)
-        {
+        {TRACE_IT(41493);
             return
                 !PHASE_OFF(NativeArrayPhase, m_functionWrite) &&
                 !PHASE_OFF(NativeNewScArrayPhase, m_functionWrite) &&
@@ -411,13 +411,13 @@ namespace Js
         }
 
         uint GetTotalSize()
-        {
+        {TRACE_IT(41494);
             return m_byteCodeData.GetCurrentOffset() + m_auxiliaryData.GetCurrentOffset() + m_auxContextData.GetCurrentOffset();
         }
 
 #if DBG
-        bool IsInitialized() const { return isInitialized; }
-        bool IsInUse() const { return isInUse; }
+        bool IsInitialized() const {TRACE_IT(41495); return isInitialized; }
+        bool IsInUse() const {TRACE_IT(41496); return isInUse; }
 #endif
     };
 }
@@ -429,7 +429,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(41497);
             this->value = 0;
         }
     };

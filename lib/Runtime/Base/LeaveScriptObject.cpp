@@ -8,7 +8,7 @@ namespace Js
 {
     EnterScriptObject::EnterScriptObject(ScriptContext* scriptContext, ScriptEntryExitRecord* entryExitRecord,
         void * returnAddress, bool doCleanup, bool isCallRoot, bool hasCaller)
-    {
+    {TRACE_IT(35774);
         Assert(scriptContext);
 
 #ifdef PROFILE_EXEC
@@ -17,7 +17,7 @@ namespace Js
 
         if (scriptContext->GetThreadContext() &&
             scriptContext->GetThreadContext()->IsNoScriptScope())
-        {
+        {TRACE_IT(35775);
             FromDOM_NoScriptScope_fatal_error();
         }
 
@@ -45,16 +45,16 @@ namespace Js
         entryExitRecord->isCallRoot = isCallRoot;
 #endif
         if (!scriptContext->IsClosed())
-        {
+        {TRACE_IT(35776);
             library = scriptContext->GetLibrary();
         }
         try
-        {
+        {TRACE_IT(35777);
             AUTO_NESTED_HANDLED_EXCEPTION_TYPE(ExceptionType_OutOfMemory);
             scriptContext->GetThreadContext()->PushHostScriptContext(scriptContext->GetHostScriptContext());
         }
         catch (Js::OutOfMemoryException)
-        {
+        {TRACE_IT(35778);
             this->hr = E_OUTOFMEMORY;
         }
         BEGIN_NO_EXCEPTION
@@ -69,19 +69,19 @@ namespace Js
     }
 
     void EnterScriptObject::VerifyEnterScript()
-    {
+    {TRACE_IT(35779);
         if (FAILED(hr))
-        {
+        {TRACE_IT(35780);
             Assert(hr == E_OUTOFMEMORY);
             throw Js::OutOfMemoryException();
         }
     }
 
     EnterScriptObject::~EnterScriptObject()
-    {
+    {TRACE_IT(35781);
         scriptContext->OnScriptEnd(isCallRoot, hasForcedEnter);
         if (SUCCEEDED(hr))
-        {
+        {TRACE_IT(35782);
             scriptContext->GetThreadContext()->PopHostScriptContext();
         }
         scriptContext->GetThreadContext()->EnterScriptEnd(entryExitRecord, doCleanup);

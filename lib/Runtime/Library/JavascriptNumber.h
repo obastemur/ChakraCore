@@ -24,7 +24,7 @@ namespace Js
 #endif
         );
         static uint32 GetValueOffset()
-        {
+        {TRACE_IT(60299);
             return offsetof(JavascriptNumber, m_value);
         }
 
@@ -54,7 +54,7 @@ namespace Js
         static bool TryToVarFast(int32 nValue, Var* result);
         static bool TryToVarFastWithCheck(double value, Var* result);
 
-        inline static BOOL IsNan(double value) { return NumberUtilities::IsNan(value); }
+        inline static BOOL IsNan(double value) {TRACE_IT(60300); return NumberUtilities::IsNan(value); }
         static bool IsZero(double value);
         static BOOL IsNegZero(double value);
         static bool IsPosInf(double value);
@@ -62,12 +62,12 @@ namespace Js
 
         template<bool acceptNegZero = false>
         static bool TryGetInt32Value(const double value, int32 *const int32Value)
-        {
+        {TRACE_IT(60301);
             Assert(int32Value);
 
             const int32 i = static_cast<int32>(value);
             if (static_cast<double>(i) != value || (!acceptNegZero && IsNegZero(value)))
-            {
+            {TRACE_IT(60302);
                 return false;
             }
 
@@ -129,8 +129,8 @@ namespace Js
 #endif
 #endif
 
-        inline static bool IsSpecial(double value, uint64 nSpecial) { return NumberUtilities::IsSpecial(value, nSpecial); }
-        inline static uint64 ToSpecial(double value) { return NumberUtilities::ToSpecial(value); }
+        inline static bool IsSpecial(double value, uint64 nSpecial) {TRACE_IT(60303); return NumberUtilities::IsSpecial(value, nSpecial); }
+        inline static uint64 ToSpecial(double value) {TRACE_IT(60304); return NumberUtilities::ToSpecial(value); }
 
         static JavascriptString* ToStringNan(ScriptContext* scriptContext);
         static JavascriptString* ToStringRadix10(double dValue, ScriptContext* scriptContext);
@@ -159,17 +159,17 @@ namespace Js
 
     private:
         void SetValue(double value)
-        {
+        {TRACE_IT(60305);
             m_value = value;
         }
 
         double GetValue() const
-        {
+        {TRACE_IT(60306);
             return m_value;
         }
 
         void SetSpecial(uint64 value)
-        {
+        {TRACE_IT(60307);
             uint64* pnOverwrite = reinterpret_cast<uint64 *>(&this->m_value);
             *pnOverwrite = value;
         }
@@ -199,7 +199,7 @@ namespace Js
     // A float can have all 14 bits 0 iff it was a NaN in the first place. Since
     // we can only produce NaNs with top 13 bits set (see k_Nan) - this cannot happen.
     inline bool JavascriptNumber::Is_NoTaggedIntCheck(Var aValue)
-    {
+    {TRACE_IT(60308);
         return ((uint64)aValue >> 50) != 0;
     }
 
@@ -213,44 +213,44 @@ namespace Js
 #endif
 
     inline bool JavascriptNumber::IsZero(double value)
-    {
+    {TRACE_IT(60309);
         // succeeds for -0.0 as well
         return value == 0.0;
     }
 
     inline bool JavascriptNumber::IsPosInf(double value)
-    {
+    {TRACE_IT(60310);
         return IsSpecial(value, k_PosInf);
     }
 
     inline bool JavascriptNumber::IsNegInf(double value)
-    {
+    {TRACE_IT(60311);
         return IsSpecial(value, k_NegInf);
     }
 
     inline BOOL JavascriptNumber::IsNegZero(double value)
-    {
+    {TRACE_IT(60312);
         return IsSpecial(value, k_NegZero);
     }
 
     template <class Lib>
     inline typename Lib::LibStringType JavascriptNumber::ToStringNan(const Lib& lib)
-    {
+    {TRACE_IT(60313);
         return lib.CreateStringFromCppLiteral(_u("NaN"));
     }
 
     template <class Lib>
     inline typename Lib::LibStringType JavascriptNumber::ToStringNanOrInfinite(double value, const Lib& lib)
-    {
+    {TRACE_IT(60314);
         if(!NumberUtilities::IsFinite(value))
-        {
+        {TRACE_IT(60315);
             if(IsNan(value))
-            {
+            {TRACE_IT(60316);
                 return ToStringNan(lib);
             }
 
             if(IsPosInf(value))
-            {
+            {TRACE_IT(60317);
                 return lib.CreateStringFromCppLiteral(_u("Infinity"));
             }
             else

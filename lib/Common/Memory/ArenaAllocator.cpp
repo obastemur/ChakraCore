@@ -23,17 +23,17 @@ ArenaData::ArenaData(PageAllocator * pageAllocator) :
     fullBlocks(nullptr),
     cacheBlockCurrent(nullptr),
     lockBlockList(false)
-{
+{TRACE_IT(22677);
 }
 
 void ArenaData::UpdateCacheBlock() const
-{
+{TRACE_IT(22678);
     if (bigBlocks != nullptr)
-    {
+    {TRACE_IT(22679);
         size_t currentByte = (cacheBlockCurrent - bigBlocks->GetBytes());
         // Avoid writing to the page unnecessary, it might be write watched
         if (currentByte != bigBlocks->currentByte)
-        {
+        {TRACE_IT(22680);
             bigBlocks->currentByte = currentByte;
         }
     }
@@ -51,7 +51,7 @@ ArenaAllocatorBase(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOf
     largestHole(0),
     cacheBlockEnd(nullptr),
     blockState(0)
-{
+{TRACE_IT(22681);
 #ifdef PROFILE_MEM
     this->name = name;
     LogBegin();
@@ -65,13 +65,13 @@ ArenaAllocatorBase(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOf
 template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool RequireObjectAlignment, size_t MaxObjectSize>
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 ~ArenaAllocatorBase()
-{
+{TRACE_IT(22682);
     Assert(!lockBlockList);
     ArenaMemoryTracking::ReportFreeAll(this);
     ArenaMemoryTracking::ArenaDestroyed(this);
 
     if (!pageAllocator->IsClosed())
-    {
+    {TRACE_IT(22683);
         ReleasePageMemory();
     }
     ReleaseHeapMemory();
@@ -86,7 +86,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 Move(ArenaAllocatorBase *srcAllocator)
-{
+{TRACE_IT(22684);
     Assert(!lockBlockList);
     Assert(srcAllocator != nullptr);
     Allocator::Move(srcAllocator);
@@ -112,11 +112,11 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 size_t
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 AllocatedSize(ArenaMemoryBlock * blockList)
-{
+{TRACE_IT(22685);
     ArenaMemoryBlock * memoryBlock = blockList;
     size_t totalBytes = 0;
     while (memoryBlock != NULL)
-    {
+    {TRACE_IT(22686);
         totalBytes += memoryBlock->nbytes;
         memoryBlock = memoryBlock->next;
     }
@@ -127,7 +127,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 size_t
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 AllocatedSize()
-{
+{TRACE_IT(22687);
     UpdateCacheBlock();
     return AllocatedSize(this->fullBlocks) + AllocatedSize(this->bigBlocks) + AllocatedSize(this->mallocBlocks);
 }
@@ -136,7 +136,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 size_t
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 Size()
-{
+{TRACE_IT(22688);
     UpdateCacheBlock();
     return Size(this->fullBlocks) + Size(this->bigBlocks) + AllocatedSize(this->mallocBlocks);
 }
@@ -145,11 +145,11 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 size_t
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 Size(BigBlock * blockList)
-{
+{TRACE_IT(22689);
     BigBlock * memoryBlock = blockList;
     size_t totalBytes = 0;
     while (memoryBlock != NULL)
-    {
+    {TRACE_IT(22690);
         totalBytes += memoryBlock->currentByte;
         memoryBlock = (BigBlock *)memoryBlock->next;
     }
@@ -160,7 +160,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 RealAlloc(size_t nbytes)
-{
+{TRACE_IT(22691);
     return RealAllocInlined(nbytes);
 }
 
@@ -168,12 +168,12 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 RealAllocInlined(size_t nbytes)
-{
+{TRACE_IT(22692);
     Assert(nbytes != 0);
 
 #ifdef ARENA_MEMORY_VERIFY
     if (Js::Configuration::Global.flags.ArenaUseHeapAlloc)
-    {
+    {TRACE_IT(22693);
         return AllocFromHeap<true>(nbytes);
     }
 #endif
@@ -181,7 +181,7 @@ RealAllocInlined(size_t nbytes)
     Assert(cacheBlockEnd >= cacheBlockCurrent);
     char * p = cacheBlockCurrent;
     if ((size_t)(cacheBlockEnd - p) >= nbytes)
-    {
+    {TRACE_IT(22694);
         Assert(cacheBlockEnd == bigBlocks->GetBytes() + bigBlocks->nbytes);
         Assert(bigBlocks->GetBytes() <= cacheBlockCurrent && cacheBlockCurrent <= cacheBlockEnd);
         cacheBlockCurrent = p + nbytes;
@@ -199,23 +199,23 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 SetCacheBlock(BigBlock * newCacheBlock)
-{
+{TRACE_IT(22695);
     if (bigBlocks != nullptr)
-    {
+    {TRACE_IT(22696);
         Assert(cacheBlockEnd == bigBlocks->GetBytes() + bigBlocks->nbytes);
         Assert(bigBlocks->GetBytes() <= cacheBlockCurrent && cacheBlockCurrent <= cacheBlockEnd);
 
         bigBlocks->currentByte = (cacheBlockCurrent - bigBlocks->GetBytes());
         uint cacheBlockRemainBytes = (uint)(cacheBlockEnd - cacheBlockCurrent);
         if (cacheBlockRemainBytes < ObjectAlignment && !lockBlockList)
-        {
+        {TRACE_IT(22697);
             BigBlock * cacheBlock = bigBlocks;
             bigBlocks = bigBlocks->nextBigBlock;
             cacheBlock->next = fullBlocks;
             fullBlocks = cacheBlock;
         }
         else
-        {
+        {TRACE_IT(22698);
             largestHole = max(largestHole, static_cast<size_t>(cacheBlockRemainBytes));
         }
     }
@@ -229,12 +229,12 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 SnailAlloc(size_t nbytes)
-{
+{TRACE_IT(22699);
     BigBlock* blockp = NULL;
     size_t currentLargestHole = 0;
 
     if (nbytes <= largestHole)
-    {
+    {TRACE_IT(22700);
         Assert(bigBlocks != nullptr);
         Assert(cacheBlockEnd == bigBlocks->GetBytes() + bigBlocks->nbytes);
         Assert(bigBlocks->GetBytes() <= cacheBlockCurrent && cacheBlockCurrent <= cacheBlockEnd);
@@ -244,24 +244,24 @@ SnailAlloc(size_t nbytes)
         blockp = bigBlocks->nextBigBlock;
         int giveUpAfter = 10;
         do
-        {
+        {TRACE_IT(22701);
             size_t remainingBytes = blockp->nbytes - blockp->currentByte;
             if (remainingBytes >= nbytes)
-            {
+            {TRACE_IT(22702);
                 char *p = blockp->GetBytes() + blockp->currentByte;
                 blockp->currentByte += nbytes;
                 if (remainingBytes == largestHole || currentLargestHole > largestHole)
-                {
+                {TRACE_IT(22703);
                     largestHole = currentLargestHole;
                 }
                 remainingBytes -= nbytes;
                 if (remainingBytes > cacheBlock->nbytes - cacheBlock->currentByte)
-                {
+                {TRACE_IT(22704);
                     *pPrev = blockp->nextBigBlock;
                     SetCacheBlock(blockp);
                 }
                 else if (remainingBytes < ObjectAlignment && !lockBlockList)
-                {
+                {TRACE_IT(22705);
                     *pPrev = blockp->nextBigBlock;
                     blockp->nextBigBlock = fullBlocks;
                     fullBlocks = blockp;
@@ -273,7 +273,7 @@ SnailAlloc(size_t nbytes)
             }
             currentLargestHole = max(currentLargestHole, remainingBytes);
             if (--giveUpAfter == 0)
-            {
+            {TRACE_IT(22706);
                 break;
             }
             pPrev = &(blockp->nextBigBlock);
@@ -284,7 +284,7 @@ SnailAlloc(size_t nbytes)
 
     blockp = AddBigBlock(nbytes);
     if (blockp == nullptr)
-    {
+    {TRACE_IT(22707);
         return AllocFromHeap<false>(nbytes);    // Passing DoRecoverMemory=false as we already tried recovering memory in AddBigBlock, and it is costly.
     }
 
@@ -304,7 +304,7 @@ template <bool DoRecoverMemory>
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 AllocFromHeap(size_t requestBytes)
-{
+{TRACE_IT(22708);
     size_t allocBytes = AllocSizeMath::Add(requestBytes, sizeof(ArenaMemoryBlock));
 
     ARENA_FAULTINJECT_MEMORY(this->name, requestBytes);
@@ -312,18 +312,18 @@ AllocFromHeap(size_t requestBytes)
     char * buffer = HeapNewNoThrowArray(char, allocBytes);
 
     if (buffer == nullptr)
-    {
+    {TRACE_IT(22709);
         if (DoRecoverMemory && recoverMemoryFunc)
-        {
+        {TRACE_IT(22710);
             // Try to recover some memory and see if after that we can allocate.
             recoverMemoryFunc();
             buffer = HeapNewNoThrowArray(char, allocBytes);
         }
 
         if (buffer == nullptr)
-        {
+        {TRACE_IT(22711);
             if (outOfMemoryFunc)
-            {
+            {TRACE_IT(22712);
                 outOfMemoryFunc();
             }
             return nullptr;
@@ -345,7 +345,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 BigBlock *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 AddBigBlock(size_t requestBytes)
-{
+{TRACE_IT(22713);
 
     FAULTINJECT_MEMORY_NOTHROW(this->name, requestBytes);
 
@@ -354,15 +354,15 @@ AddBigBlock(size_t requestBytes)
     PageAllocation * allocation = this->GetPageAllocator()->AllocPagesForBytes(allocBytes);
 
     if (allocation == nullptr)
-    {
+    {TRACE_IT(22714);
         // Try to recover some memory and see if after that we can allocate.
         if (recoverMemoryFunc)
-        {
+        {TRACE_IT(22715);
             recoverMemoryFunc();
             allocation = this->GetPageAllocator()->AllocPagesForBytes(allocBytes);
         }
         if (allocation == nullptr)
-        {
+        {TRACE_IT(22716);
             return nullptr;
         }
     }
@@ -381,15 +381,15 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 FullReset()
-{
+{TRACE_IT(22717);
     BigBlock * initBlock = this->bigBlocks;
     if (initBlock != nullptr)
-    {
+    {TRACE_IT(22718);
         this->bigBlocks = initBlock->nextBigBlock;
     }
     Clear();
     if (initBlock != nullptr)
-    {
+    {TRACE_IT(22719);
         this->blockState = 1;
         initBlock->currentByte = 0;
         SetCacheBlock(initBlock);
@@ -400,7 +400,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 ReleaseMemory()
-{
+{TRACE_IT(22720);
     ReleasePageMemory();
     ReleaseHeapMemory();
 }
@@ -409,18 +409,18 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 ReleasePageMemory()
-{
+{TRACE_IT(22721);
     pageAllocator->SuspendIdleDecommit();
 #ifdef ARENA_MEMORY_VERIFY
     bool reenableDisablePageReuse = false;
     if (Js::Configuration::Global.flags.ArenaNoPageReuse)
-    {
+    {TRACE_IT(22722);
         reenableDisablePageReuse = !pageAllocator->DisablePageReuse();
     }
 #endif
     BigBlock *blockp = bigBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22723);
         PageAllocation * allocation = blockp->allocation;
         blockp = blockp->nextBigBlock;
         GetPageAllocator()->ReleaseAllocationNoSuspend(allocation);
@@ -428,7 +428,7 @@ ReleasePageMemory()
 
     blockp = fullBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22724);
         PageAllocation * allocation = blockp->allocation;
         blockp = blockp->nextBigBlock;
         GetPageAllocator()->ReleaseAllocationNoSuspend(allocation);
@@ -436,7 +436,7 @@ ReleasePageMemory()
 
 #ifdef ARENA_MEMORY_VERIFY
     if (reenableDisablePageReuse)
-    {
+    {TRACE_IT(22725);
         pageAllocator->ReenablePageReuse();
     }
 #endif
@@ -448,10 +448,10 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 ReleaseHeapMemory()
-{
+{TRACE_IT(22726);
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22727);
         ArenaMemoryBlock * next = memoryBlock->next;
         HeapDeleteArray(memoryBlock->nbytes + sizeof(ArenaMemoryBlock), (char *)memoryBlock);
         memoryBlock = next;
@@ -469,16 +469,16 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 AllocInternal(size_t requestedBytes)
-{
+{TRACE_IT(22728);
     Assert(requestedBytes != 0);
 
     if (MaxObjectSize > 0)
-    {
+    {TRACE_IT(22729);
         Assert(requestedBytes <= MaxObjectSize);
     }
 
     if (RequireObjectAlignment)
-    {
+    {TRACE_IT(22730);
         Assert(requestedBytes % ObjectAlignment == 0);
     }
 
@@ -490,7 +490,7 @@ AllocInternal(size_t requestedBytes)
 
     size_t nbytes;
     if (freeList != nullptr && requestedBytes > 0 && requestedBytes <= ArenaAllocatorBase::MaxSmallObjectSize)
-    {
+    {TRACE_IT(22731);
         // We have checked the size requested, so no integer overflow check
         nbytes = Math::Align(requestedBytes, ArenaAllocator::ObjectAlignment);
         Assert(nbytes <= ArenaAllocator::MaxSmallObjectSize);
@@ -500,7 +500,7 @@ AllocInternal(size_t requestedBytes)
         void * freeObject = TFreeListPolicy::Allocate(this->freeList, nbytes);
 
         if (freeObject != nullptr)
-        {
+        {TRACE_IT(22732);
 #ifdef ARENA_MEMORY_VERIFY
             TFreeListPolicy::VerifyFreeObjectIsFreeMemFilled(freeObject, nbytes);
 #endif
@@ -517,7 +517,7 @@ AllocInternal(size_t requestedBytes)
         }
     }
     else
-    {
+    {TRACE_IT(22733);
         nbytes = AllocSizeMath::Align(requestedBytes, ArenaAllocator::ObjectAlignment);
 #ifdef PROFILE_MEM
         LogAlloc(requestedBytes, nbytes);
@@ -531,17 +531,17 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 Free(void * buffer, size_t byteSize)
-{
+{TRACE_IT(22734);
     ASSERT_THREAD();
     Assert(byteSize != 0);
 
     if (MaxObjectSize > 0)
-    {
+    {TRACE_IT(22735);
         Assert(byteSize <= MaxObjectSize);
     }
 
     if (RequireObjectAlignment)
-    {
+    {TRACE_IT(22736);
         Assert(byteSize % ObjectAlignment == 0);
     }
 
@@ -553,12 +553,12 @@ Free(void * buffer, size_t byteSize)
 
 #ifdef ARENA_MEMORY_VERIFY
     if (Js::Configuration::Global.flags.ArenaNoFreeList)
-    {
+    {TRACE_IT(22737);
         return;
     }
 #endif
     if (buffer == cacheBlockCurrent - byteSize)
-    {
+    {TRACE_IT(22738);
 #ifdef PROFILE_MEM
         LogFree(byteSize);
 #endif
@@ -566,22 +566,22 @@ Free(void * buffer, size_t byteSize)
         return;
     }
     else if (this->pageAllocator->IsClosed())
-    {
+    {TRACE_IT(22739);
         return;
     }
     else if (size <= ArenaAllocator::MaxSmallObjectSize)
-    {
+    {TRACE_IT(22740);
         // If we plan to free-list this object, we must prepare (typically, debug pattern fill) its memory here, in case we fail to allocate the free list because we're out of memory (see below),
         // and we never get to call TFreeListPolicy::Free.
         TFreeListPolicy::PrepareFreeObject(buffer, size);
 
         if (freeList == nullptr)
-        {
+        {TRACE_IT(22741);
             // Caution: TFreeListPolicy::New may fail silently if we're out of memory.
             freeList = TFreeListPolicy::New(this);
 
             if (freeList == nullptr)
-            {
+            {TRACE_IT(22742);
                 return;
             }
         }
@@ -589,7 +589,7 @@ Free(void * buffer, size_t byteSize)
         void **policy = &this->freeList;
 #if DBG
         if (needsDelayFreeList)
-        {
+        {TRACE_IT(22743);
             void *delayFreeList = reinterpret_cast<FreeObject **>(this->freeList) + (MaxSmallObjectSize >> ObjectAlignmentBitShift);
             policy = &delayFreeList;
         }
@@ -613,22 +613,22 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 char *
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 Realloc(void* buffer, size_t existingBytes, size_t requestedBytes)
-{
+{TRACE_IT(22744);
     ASSERT_THREAD();
 
     if (existingBytes == 0)
-    {
+    {TRACE_IT(22745);
         Assert(buffer == nullptr);
         return AllocInternal(requestedBytes);
     }
 
     if (MaxObjectSize > 0)
-    {
+    {TRACE_IT(22746);
         Assert(requestedBytes <= MaxObjectSize);
     }
 
     if (RequireObjectAlignment)
-    {
+    {TRACE_IT(22747);
         Assert(requestedBytes % ObjectAlignment == 0);
     }
 
@@ -639,12 +639,12 @@ Realloc(void* buffer, size_t existingBytes, size_t requestedBytes)
     Assert(nbytesExisting >= existingBytes);
 
     if (nbytes == nbytesExisting)
-    {
+    {TRACE_IT(22748);
         return (char *)buffer;
     }
 
     if (nbytes < nbytesExisting)
-    {
+    {TRACE_IT(22749);
         ArenaMemoryTracking::ReportReallocation(this, buffer, nbytesExisting, nbytes);
 
         Free(((char *)buffer) + nbytes, nbytesExisting - nbytes);
@@ -653,7 +653,7 @@ Realloc(void* buffer, size_t existingBytes, size_t requestedBytes)
 
     char* replacementBuf = nullptr;
     if (requestedBytes > 0)
-    {
+    {TRACE_IT(22750);
         replacementBuf = AllocInternal(requestedBytes);
         if (replacementBuf != nullptr)
         {
@@ -673,7 +673,7 @@ Realloc(void* buffer, size_t existingBytes, size_t requestedBytes)
 template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool RequireObjectAlignment, size_t MaxObjectSize>
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::MergeDelayFreeList()
-{
+{TRACE_IT(22751);
     Assert(needsDelayFreeList);
     TFreeListPolicy::MergeDelayFreeList(freeList);
 }
@@ -684,7 +684,7 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogBegin()
-{
+{TRACE_IT(22752);
     memoryData = MemoryProfiler::Begin(this->name);
 }
 
@@ -692,9 +692,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogReset()
-{
+{TRACE_IT(22753);
     if (memoryData)
-    {
+    {TRACE_IT(22754);
         MemoryProfiler::Reset(this->name, memoryData);
     }
 }
@@ -703,9 +703,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogEnd()
-{
+{TRACE_IT(22755);
     if (memoryData)
-    {
+    {TRACE_IT(22756);
         MemoryProfiler::End(this->name, memoryData);
     }
 }
@@ -714,9 +714,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogAlloc(size_t requestedBytes, size_t allocateBytes)
-{
+{TRACE_IT(22757);
     if (memoryData)
-    {
+    {TRACE_IT(22758);
         memoryData->requestCount++;
         memoryData->requestBytes += requestedBytes;
         memoryData->alignmentBytes += allocateBytes - requestedBytes;
@@ -727,9 +727,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogRealAlloc(size_t size)
-{
+{TRACE_IT(22759);
     if (memoryData)
-    {
+    {TRACE_IT(22760);
         memoryData->allocatedBytes += size;
     }
 }
@@ -738,9 +738,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogFree(size_t size)
-{
+{TRACE_IT(22761);
     if (memoryData)
-    {
+    {TRACE_IT(22762);
         memoryData->freelistBytes += size;
         memoryData->freelistCount++;
     }
@@ -750,9 +750,9 @@ template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool Require
 void
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
 LogReuse(size_t size)
-{
+{TRACE_IT(22763);
     if (memoryData)
-    {
+    {TRACE_IT(22764);
         memoryData->reuseCount++;
         memoryData->reuseBytes += size;
     }
@@ -760,12 +760,12 @@ LogReuse(size_t size)
 #endif
 
 void * InPlaceFreeListPolicy::New(ArenaAllocatorBase<InPlaceFreeListPolicy> * allocator)
-{
+{TRACE_IT(22765);
 #if DBG
     // Allocate freeList followed by delayFreeList
     // A delayFreeList will enable us to detect use-after free scenarios in debug builds
     if (allocator->HasDelayFreeList())
-    {
+    {TRACE_IT(22766);
         return AllocatorNewNoThrowNoRecoveryArrayZ(ArenaAllocator, allocator, FreeObject *, 2 * buckets);
     }
 #endif
@@ -773,7 +773,7 @@ void * InPlaceFreeListPolicy::New(ArenaAllocatorBase<InPlaceFreeListPolicy> * al
 }
 
 void * InPlaceFreeListPolicy::Allocate(void * policy, size_t size)
-{
+{TRACE_IT(22767);
     Assert(policy);
 
     FreeObject ** freeObjectLists = reinterpret_cast<FreeObject **>(policy);
@@ -781,7 +781,7 @@ void * InPlaceFreeListPolicy::Allocate(void * policy, size_t size)
     FreeObject * freeObject = freeObjectLists[index];
 
     if (NULL != freeObject)
-    {
+    {TRACE_IT(22768);
         freeObjectLists[index] = freeObject->next;
 
 #ifdef ARENA_MEMORY_VERIFY
@@ -801,7 +801,7 @@ void * InPlaceFreeListPolicy::Allocate(void * policy, size_t size)
 }
 
 void * InPlaceFreeListPolicy::Free(void * policy, void * object, size_t size)
-{
+{TRACE_IT(22769);
     Assert(policy);
     void * freeList = policy;
     FreeObject ** freeObjectLists = reinterpret_cast<FreeObject **>(freeList);
@@ -814,26 +814,26 @@ void * InPlaceFreeListPolicy::Free(void * policy, void * object, size_t size)
 }
 
 void * InPlaceFreeListPolicy::Reset(void * policy)
-{
+{TRACE_IT(22770);
     return NULL;
 }
 
 #if DBG
 void InPlaceFreeListPolicy::MergeDelayFreeList(void * freeList)
-{
+{TRACE_IT(22771);
     if (!freeList) return;
 
     FreeObject ** freeObjectLists = reinterpret_cast<FreeObject **>(freeList);
     FreeObject ** delayFreeObjectLists = freeObjectLists + buckets;
 
     for (int i = 0; i < buckets; i++)
-    {
+    {TRACE_IT(22772);
         int size = (i + 1) << ArenaAllocator::ObjectAlignmentBitShift;
         FreeObject *delayObject = delayFreeObjectLists[i];
         FreeObject *lastDelayObject = nullptr;
 
         while (delayObject != nullptr)
-        {
+        {TRACE_IT(22773);
             FreeObject *nextDelayObject = delayObject->next;
             // DebugPatternFill is required here, because we set isDeleted bit on freed Opnd
             PrepareFreeObject(delayObject, size);
@@ -843,11 +843,11 @@ void InPlaceFreeListPolicy::MergeDelayFreeList(void * freeList)
         }
 
         if (freeObjectLists[i] == nullptr)
-        {
+        {TRACE_IT(22774);
             freeObjectLists[i] = delayFreeObjectLists[i];
             delayFreeObjectLists[i] = nullptr;
         }
-        else if (lastDelayObject != nullptr) {
+        else if (lastDelayObject != nullptr) {TRACE_IT(22775);
             FreeObject * firstFreeObject = freeObjectLists[i];
             freeObjectLists[i] = delayFreeObjectLists[i];
             lastDelayObject->next = firstFreeObject;
@@ -859,22 +859,22 @@ void InPlaceFreeListPolicy::MergeDelayFreeList(void * freeList)
 
 #ifdef ARENA_MEMORY_VERIFY
 void InPlaceFreeListPolicy::VerifyFreeObjectIsFreeMemFilled(void * object, size_t size)
-{
+{TRACE_IT(22776);
     unsigned char * bytes = reinterpret_cast<unsigned char*>(object);
     for (size_t i = 0; i < size; i++)
-    {
+    {TRACE_IT(22777);
         Assert(bytes[i] == InPlaceFreeListPolicy::DbgFreeMemFill);
     }
 }
 #endif
 
 void * StandAloneFreeListPolicy::New(ArenaAllocatorBase<StandAloneFreeListPolicy> * /*allocator*/)
-{
+{TRACE_IT(22778);
     return NewInternal(InitialEntries);
 }
 
 void * StandAloneFreeListPolicy::Allocate(void * policy, size_t size)
-{
+{TRACE_IT(22779);
     Assert(policy);
 
     StandAloneFreeListPolicy * _this = reinterpret_cast<StandAloneFreeListPolicy *>(policy);
@@ -883,7 +883,7 @@ void * StandAloneFreeListPolicy::Allocate(void * policy, size_t size)
 
     uint * freeObjectList = &_this->freeObjectLists[index];
     if (0 != *freeObjectList)
-    {
+    {TRACE_IT(22780);
         FreeObjectListEntry * entry = &_this->entries[*freeObjectList - 1];
         uint oldFreeList = _this->freeList;
 
@@ -899,14 +899,14 @@ void * StandAloneFreeListPolicy::Allocate(void * policy, size_t size)
 }
 
 void * StandAloneFreeListPolicy::Free(void * policy, void * object, size_t size)
-{
+{TRACE_IT(22781);
     Assert(policy);
 
     StandAloneFreeListPolicy * _this = reinterpret_cast<StandAloneFreeListPolicy *>(policy);
     size_t index = (size >> ArenaAllocator::ObjectAlignmentBitShift) - 1;
 
     if (TryEnsureFreeListEntry(_this))
-    {
+    {TRACE_IT(22782);
         Assert(_this->freeList != 0);
 
         uint * freeObjectList = &_this->freeObjectLists[index];
@@ -923,7 +923,7 @@ void * StandAloneFreeListPolicy::Free(void * policy, void * object, size_t size)
 }
 
 void * StandAloneFreeListPolicy::Reset(void * policy)
-{
+{TRACE_IT(22783);
     Assert(policy);
 
     StandAloneFreeListPolicy * _this = reinterpret_cast<StandAloneFreeListPolicy *>(policy);
@@ -941,30 +941,30 @@ void StandAloneFreeListPolicy::MergeDelayFreeList(void * freeList)
 
 #ifdef ARENA_MEMORY_VERIFY
 void StandAloneFreeListPolicy::VerifyFreeObjectIsFreeMemFilled(void * object, size_t size)
-{
+{TRACE_IT(22784);
     char * bytes = reinterpret_cast<char*>(object);
     for (size_t i = 0; i < size; i++)
-    {
+    {TRACE_IT(22785);
         Assert(bytes[i] == StandAloneFreeListPolicy::DbgFreeMemFill);
     }
 }
 #endif
 
 void StandAloneFreeListPolicy::Release(void * policy)
-{
+{TRACE_IT(22786);
     if (NULL != policy)
-    {
+    {TRACE_IT(22787);
         Reset(policy);
     }
 }
 
 StandAloneFreeListPolicy * StandAloneFreeListPolicy::NewInternal(uint entries)
-{
+{TRACE_IT(22788);
     size_t plusSize = buckets * sizeof(uint) + entries * sizeof(FreeObjectListEntry);
     StandAloneFreeListPolicy * _this = HeapNewNoThrowPlusZ(plusSize, StandAloneFreeListPolicy);
 
     if (NULL != _this)
-    {
+    {TRACE_IT(22789);
         _this->allocated = entries;
         _this->freeObjectLists = (uint *)(_this + 1);
         _this->entries = (FreeObjectListEntry *)(_this->freeObjectLists + buckets);
@@ -974,23 +974,23 @@ StandAloneFreeListPolicy * StandAloneFreeListPolicy::NewInternal(uint entries)
 }
 
 bool StandAloneFreeListPolicy::TryEnsureFreeListEntry(StandAloneFreeListPolicy *& _this)
-{
+{TRACE_IT(22790);
     if (0 == _this->freeList)
-    {
+    {TRACE_IT(22791);
         if (_this->used < _this->allocated)
-        {
+        {TRACE_IT(22792);
             _this->used++;
             _this->freeList = _this->used;
         }
         else
-        {
+        {TRACE_IT(22793);
             Assert(_this->used == _this->allocated);
 
             StandAloneFreeListPolicy * oldThis = _this;
             uint entries = oldThis->allocated + min(oldThis->allocated, MaxEntriesGrowth);
             StandAloneFreeListPolicy * newThis = NewInternal(entries);
             if (NULL != newThis)
-            {
+            {TRACE_IT(22794);
                 uint sizeInBytes = buckets * sizeof(uint);
                 js_memcpy_s(newThis->freeObjectLists, sizeInBytes, oldThis->freeObjectLists, sizeInBytes);
                 js_memcpy_s(newThis->entries, newThis->allocated * sizeof(FreeObjectListEntry), oldThis->entries, oldThis->used * sizeof(FreeObjectListEntry));
@@ -1000,7 +1000,7 @@ bool StandAloneFreeListPolicy::TryEnsureFreeListEntry(StandAloneFreeListPolicy *
                 HeapDeletePlus(GetPlusSize(oldThis), oldThis);
             }
             else
-            {
+            {TRACE_IT(22795);
                 return false;
             }
         }
@@ -1012,32 +1012,32 @@ bool StandAloneFreeListPolicy::TryEnsureFreeListEntry(StandAloneFreeListPolicy *
 #ifdef PERSISTENT_INLINE_CACHES
 
 void * InlineCacheFreeListPolicy::New(ArenaAllocatorBase<InlineCacheAllocatorTraits> * allocator)
-{
+{TRACE_IT(22796);
     return NewInternal();
 }
 
 InlineCacheFreeListPolicy * InlineCacheFreeListPolicy::NewInternal()
-{
+{TRACE_IT(22797);
     InlineCacheFreeListPolicy * _this = HeapNewNoThrowZ(InlineCacheFreeListPolicy);
     return _this;
 }
 
 InlineCacheFreeListPolicy::InlineCacheFreeListPolicy()
-{
+{TRACE_IT(22798);
     Assert(AreFreeListBucketsEmpty());
 }
 
 bool InlineCacheFreeListPolicy::AreFreeListBucketsEmpty()
-{
+{TRACE_IT(22799);
     for (int b = 0; b < bucketCount; b++)
-    {
+    {TRACE_IT(22800);
         if (this->freeListBuckets[b] != 0) return false;
     }
     return true;
 }
 
 void * InlineCacheFreeListPolicy::Allocate(void * policy, size_t size)
-{
+{TRACE_IT(22801);
     Assert(policy);
 
     FreeObject ** freeObjectLists = reinterpret_cast<FreeObject **>(policy);
@@ -1045,7 +1045,7 @@ void * InlineCacheFreeListPolicy::Allocate(void * policy, size_t size)
     FreeObject * freeObject = freeObjectLists[index];
 
     if (NULL != freeObject)
-    {
+    {TRACE_IT(22802);
         freeObjectLists[index] = reinterpret_cast<FreeObject *>(reinterpret_cast<intptr_t>(freeObject->next) & ~InlineCacheFreeListTag);
 
 #ifdef ARENA_MEMORY_VERIFY
@@ -1058,7 +1058,7 @@ void * InlineCacheFreeListPolicy::Allocate(void * policy, size_t size)
 }
 
 void * InlineCacheFreeListPolicy::Free(void * policy, void * object, size_t size)
-{
+{TRACE_IT(22803);
     Assert(policy);
 
     FreeObject ** freeObjectLists = reinterpret_cast<FreeObject **>(policy);
@@ -1071,7 +1071,7 @@ void * InlineCacheFreeListPolicy::Free(void * policy, void * object, size_t size
 }
 
 void * InlineCacheFreeListPolicy::Reset(void * policy)
-{
+{TRACE_IT(22804);
     Assert(policy);
 
     InlineCacheFreeListPolicy * _this = reinterpret_cast<InlineCacheFreeListPolicy *>(policy);
@@ -1089,10 +1089,10 @@ void InlineCacheFreeListPolicy::MergeDelayFreeList(void * freeList)
 
 #ifdef ARENA_MEMORY_VERIFY
 void InlineCacheFreeListPolicy::VerifyFreeObjectIsFreeMemFilled(void * object, size_t size)
-{
+{TRACE_IT(22805);
     unsigned char * bytes = reinterpret_cast<unsigned char*>(object);
     for (size_t i = 0; i < size; i++)
-    {
+    {TRACE_IT(22806);
         // We must allow for zero-filled free listed objects (at least their weakRefs/blankSlots bytes), because during garbage collection, we may zero out
         // some of the weakRefs (those that have become unreachable), and this is NOT a sign of "use after free" problem.  It would be nice if during collection
         // we could reliably distinguish free-listed objects from live caches, but that's not possible because caches can be allocated and freed in batches
@@ -1103,30 +1103,30 @@ void InlineCacheFreeListPolicy::VerifyFreeObjectIsFreeMemFilled(void * object, s
 #endif
 
 void InlineCacheFreeListPolicy::Release(void * policy)
-{
+{TRACE_IT(22807);
     if (NULL != policy)
-    {
+    {TRACE_IT(22808);
         Reset(policy);
     }
 }
 
 #if DBG
 bool InlineCacheAllocator::IsAllZero()
-{
+{TRACE_IT(22809);
     UpdateCacheBlock();
 
     // See InlineCacheAllocator::ZeroAll for why we ignore the strongRef slot of the CacheLayout.
 
     BigBlock *bigBlock = this->bigBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22810);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22811);
             unsigned char* weakRefBytes = (unsigned char *)cache->weakRefs;
             for (size_t i = 0; i < sizeof(cache->weakRefs); i++)
-            {
+            {TRACE_IT(22812);
                 // If we're verifying arena memory (in debug builds) caches on the free list
                 // will be debug pattern filled (specifically, at least their weak reference slots).
                 // All other caches must be zeroed out (again, at least their weak reference slots).
@@ -1150,14 +1150,14 @@ bool InlineCacheAllocator::IsAllZero()
 
     bigBlock = this->fullBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22813);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22814);
             char* weakRefBytes = (char *)cache->weakRefs;
             for (size_t i = 0; i < sizeof(cache->weakRefs); i++)
-            {
+            {TRACE_IT(22815);
                 // If we're verifying arena memory (in debug builds) caches on the free list
                 // will be debug pattern filled (specifically, their weak reference slots).
                 // All other caches must be zeroed out (again, their weak reference slots).
@@ -1181,15 +1181,15 @@ bool InlineCacheAllocator::IsAllZero()
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22816);
         Assert(memoryBlock->nbytes % sizeof(CacheLayout) == 0);
         ArenaMemoryBlock * next = memoryBlock->next;
         CacheLayout* endPtr = (CacheLayout*)(memoryBlock->GetBytes() + memoryBlock->nbytes);
         for (CacheLayout* cache = (CacheLayout*)memoryBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22817);
             unsigned char* weakRefBytes = (unsigned char *)cache->weakRefs;
             for (size_t i = 0; i < sizeof(cache->weakRefs); i++)
-            {
+            {TRACE_IT(22818);
 #ifdef ARENA_MEMORY_VERIFY
                 if (weakRefBytes[i] != NULL && weakRefBytes[i] != InlineCacheFreeListPolicy::DbgFreeMemFill)
                 {
@@ -1213,7 +1213,7 @@ bool InlineCacheAllocator::IsAllZero()
 #endif
 
 void InlineCacheAllocator::ZeroAll()
-{
+{TRACE_IT(22819);
     UpdateCacheBlock();
 
     // We zero the weakRefs part of each cache in the arena unconditionally.  The strongRef slot is zeroed only
@@ -1225,11 +1225,11 @@ void InlineCacheAllocator::ZeroAll()
 
     BigBlock *bigBlock = this->bigBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22820);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22821);
             memset(cache->weakRefs, 0, sizeof(cache->weakRefs));
             // We want to preserve the free list, whose next pointers are tagged with InlineCacheFreeListTag.
             if ((cache->strongRef & InlineCacheFreeListTag) == 0) cache->strongRef = 0;
@@ -1244,11 +1244,11 @@ void InlineCacheAllocator::ZeroAll()
 
     bigBlock = this->fullBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22822);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22823);
             memset(cache->weakRefs, 0, sizeof(cache->weakRefs));
             // We want to preserve the free list, whose next pointers are tagged with InlineCacheFreeListTag.
             if ((cache->strongRef & InlineCacheFreeListTag) == 0) cache->strongRef = 0;
@@ -1263,12 +1263,12 @@ void InlineCacheAllocator::ZeroAll()
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22824);
         Assert(memoryBlock->nbytes % sizeof(CacheLayout) == 0);
         ArenaMemoryBlock * next = memoryBlock->next;
         CacheLayout* endPtr = (CacheLayout*)(memoryBlock->GetBytes() + memoryBlock->nbytes);
         for (CacheLayout* cache = (CacheLayout*)memoryBlock->GetBytes(); cache < endPtr; cache++)
-        {
+        {TRACE_IT(22825);
             memset(cache->weakRefs, 0, sizeof(cache->weakRefs));
             // We want to preserve the free list, whose next pointers are tagged with InlineCacheFreeListTag.
             if ((cache->strongRef & InlineCacheFreeListTag) == 0) cache->strongRef = 0;
@@ -1283,31 +1283,31 @@ void InlineCacheAllocator::ZeroAll()
 }
 
 bool InlineCacheAllocator::IsDeadWeakRef(Recycler* recycler, void* ptr)
-{
+{TRACE_IT(22826);
     return recycler->IsObjectMarked(ptr);
 }
 
 bool InlineCacheAllocator::CacheHasDeadWeakRefs(Recycler* recycler, CacheLayout* cache)
-{
+{TRACE_IT(22827);
     for (intptr_t* curWeakRefPtr = cache->weakRefs; curWeakRefPtr < &cache->strongRef; curWeakRefPtr++)
-    {
+    {TRACE_IT(22828);
         intptr_t curWeakRef = *curWeakRefPtr;
 
         if (curWeakRef == 0)
-        {
+        {TRACE_IT(22829);
             continue;
         }
 
         curWeakRef &= ~(intptr_t)InlineCacheAuxSlotTypeTag;
 
         if ((curWeakRef & (HeapConstants::ObjectGranularity - 1)) != 0)
-        {
+        {TRACE_IT(22830);
             continue;
         }
 
 
         if (!recycler->IsObjectMarked((void*)curWeakRef))
-        {
+        {TRACE_IT(22831);
             return true;
         }
     }
@@ -1316,18 +1316,18 @@ bool InlineCacheAllocator::CacheHasDeadWeakRefs(Recycler* recycler, CacheLayout*
 }
 
 bool InlineCacheAllocator::HasNoDeadWeakRefs(Recycler* recycler)
-{
+{TRACE_IT(22832);
     UpdateCacheBlock();
 
     BigBlock *bigBlock = this->bigBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22833);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
         {
             if (CacheHasDeadWeakRefs(recycler, cache))
-            {
+            {TRACE_IT(22834);
                 return false;
             }
         }
@@ -1335,13 +1335,13 @@ bool InlineCacheAllocator::HasNoDeadWeakRefs(Recycler* recycler)
     }
     bigBlock = this->fullBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22835);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
         {
             if (CacheHasDeadWeakRefs(recycler, cache))
-            {
+            {TRACE_IT(22836);
                 return false;
             }
         }
@@ -1350,14 +1350,14 @@ bool InlineCacheAllocator::HasNoDeadWeakRefs(Recycler* recycler)
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22837);
         Assert(memoryBlock->nbytes % sizeof(CacheLayout) == 0);
         ArenaMemoryBlock * next = memoryBlock->next;
         CacheLayout* endPtr = (CacheLayout*)(memoryBlock->GetBytes() + memoryBlock->nbytes);
         for (CacheLayout* cache = (CacheLayout*)memoryBlock->GetBytes(); cache < endPtr; cache++)
         {
             if (CacheHasDeadWeakRefs(recycler, cache))
-            {
+            {TRACE_IT(22838);
                 return false;
             }
         }
@@ -1368,25 +1368,25 @@ bool InlineCacheAllocator::HasNoDeadWeakRefs(Recycler* recycler)
 }
 
 void InlineCacheAllocator::ClearCacheIfHasDeadWeakRefs(Recycler* recycler, CacheLayout* cache)
-{
+{TRACE_IT(22839);
     for (intptr_t* curWeakRefPtr = cache->weakRefs; curWeakRefPtr < &cache->strongRef; curWeakRefPtr++)
-    {
+    {TRACE_IT(22840);
         intptr_t curWeakRef = *curWeakRefPtr;
 
         if (curWeakRef == 0)
-        {
+        {TRACE_IT(22841);
             continue;
         }
 
         curWeakRef &= ~(intptr_t)InlineCacheAuxSlotTypeTag;
 
         if ((curWeakRef & (HeapConstants::ObjectGranularity - 1)) != 0)
-        {
+        {TRACE_IT(22842);
             continue;
         }
 
         if (!recycler->IsObjectMarked((void*)curWeakRef))
-        {
+        {TRACE_IT(22843);
             cache->weakRefs[0] = 0;
             cache->weakRefs[1] = 0;
             cache->weakRefs[2] = 0;
@@ -1396,12 +1396,12 @@ void InlineCacheAllocator::ClearCacheIfHasDeadWeakRefs(Recycler* recycler, Cache
 }
 
 void InlineCacheAllocator::ClearCachesWithDeadWeakRefs(Recycler* recycler)
-{
+{TRACE_IT(22844);
     UpdateCacheBlock();
 
     BigBlock *bigBlock = this->bigBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22845);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
@@ -1412,7 +1412,7 @@ void InlineCacheAllocator::ClearCachesWithDeadWeakRefs(Recycler* recycler)
     }
     bigBlock = this->fullBlocks;
     while (bigBlock != NULL)
-    {
+    {TRACE_IT(22846);
         Assert(bigBlock->currentByte % sizeof(CacheLayout) == 0);
         CacheLayout* endPtr = (CacheLayout*)(bigBlock->GetBytes() + bigBlock->currentByte);
         for (CacheLayout* cache = (CacheLayout*)bigBlock->GetBytes(); cache < endPtr; cache++)
@@ -1424,7 +1424,7 @@ void InlineCacheAllocator::ClearCachesWithDeadWeakRefs(Recycler* recycler)
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22847);
         Assert(memoryBlock->nbytes % sizeof(CacheLayout) == 0);
         ArenaMemoryBlock * next = memoryBlock->next;
         CacheLayout* endPtr = (CacheLayout*)(memoryBlock->GetBytes() + memoryBlock->nbytes);
@@ -1440,15 +1440,15 @@ void InlineCacheAllocator::ClearCachesWithDeadWeakRefs(Recycler* recycler)
 
 #if DBG
 bool InlineCacheAllocator::IsAllZero()
-{
+{TRACE_IT(22848);
     UpdateCacheBlock();
     BigBlock *blockp = this->bigBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22849);
         for (size_t i = 0; i < blockp->currentByte; i++)
-        {
+        {TRACE_IT(22850);
             if (blockp->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22851);
                 return false;
             }
         }
@@ -1457,11 +1457,11 @@ bool InlineCacheAllocator::IsAllZero()
     }
     blockp = this->fullBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22852);
         for (size_t i = 0; i < blockp->currentByte; i++)
-        {
+        {TRACE_IT(22853);
             if (blockp->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22854);
                 return false;
             }
         }
@@ -1470,12 +1470,12 @@ bool InlineCacheAllocator::IsAllZero()
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22855);
         ArenaMemoryBlock * next = memoryBlock->next;
         for (size_t i = 0; i < memoryBlock->nbytes; i++)
-        {
+        {TRACE_IT(22856);
             if (memoryBlock->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22857);
                 return false;
             }
         }
@@ -1486,24 +1486,24 @@ bool InlineCacheAllocator::IsAllZero()
 #endif
 
 void InlineCacheAllocator::ZeroAll()
-{
+{TRACE_IT(22858);
     UpdateCacheBlock();
     BigBlock *blockp = this->bigBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22859);
         memset(blockp->GetBytes(), 0, blockp->currentByte);
         blockp = blockp->nextBigBlock;
     }
     blockp = this->fullBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22860);
         memset(blockp->GetBytes(), 0, blockp->currentByte);
         blockp = blockp->nextBigBlock;
     }
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22861);
         ArenaMemoryBlock * next = memoryBlock->next;
         memset(memoryBlock->GetBytes(), 0, memoryBlock->nbytes);
         memoryBlock = next;
@@ -1514,15 +1514,15 @@ void InlineCacheAllocator::ZeroAll()
 
 #if DBG
 bool CacheAllocator::IsAllZero()
-{
+{TRACE_IT(22862);
     UpdateCacheBlock();
     BigBlock *blockp = this->bigBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22863);
         for (size_t i = 0; i < blockp->currentByte; i++)
-        {
+        {TRACE_IT(22864);
             if (blockp->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22865);
                 return false;
             }
         }
@@ -1531,11 +1531,11 @@ bool CacheAllocator::IsAllZero()
     }
     blockp = this->fullBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22866);
         for (size_t i = 0; i < blockp->currentByte; i++)
-        {
+        {TRACE_IT(22867);
             if (blockp->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22868);
                 return false;
             }
         }
@@ -1544,12 +1544,12 @@ bool CacheAllocator::IsAllZero()
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22869);
         ArenaMemoryBlock * next = memoryBlock->next;
         for (size_t i = 0; i < memoryBlock->nbytes; i++)
-        {
+        {TRACE_IT(22870);
             if (memoryBlock->GetBytes()[i] != 0)
-            {
+            {TRACE_IT(22871);
                 return false;
             }
         }
@@ -1560,24 +1560,24 @@ bool CacheAllocator::IsAllZero()
 #endif
 
 void CacheAllocator::ZeroAll()
-{
+{TRACE_IT(22872);
     UpdateCacheBlock();
     BigBlock *blockp = this->bigBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22873);
         memset(blockp->GetBytes(), 0, blockp->currentByte);
         blockp = blockp->nextBigBlock;
     }
     blockp = this->fullBlocks;
     while (blockp != NULL)
-    {
+    {TRACE_IT(22874);
         memset(blockp->GetBytes(), 0, blockp->currentByte);
         blockp = blockp->nextBigBlock;
     }
 
     ArenaMemoryBlock * memoryBlock = this->mallocBlocks;
     while (memoryBlock != nullptr)
-    {
+    {TRACE_IT(22875);
         ArenaMemoryBlock * next = memoryBlock->next;
         memset(memoryBlock->GetBytes(), 0, memoryBlock->nbytes);
         memoryBlock = next;

@@ -7,61 +7,61 @@
 #include "JsrtContextCore.h"
 
 JsrtContext *JsrtContext::New(JsrtRuntime * runtime)
-{
+{TRACE_IT(27480);
     return JsrtContextCore::New(runtime);
 }
 
 /* static */
 bool JsrtContext::Is(void * ref)
-{
+{TRACE_IT(27481);
     return VirtualTableInfo<JsrtContextCore>::HasVirtualTable(ref);
 }
 
 void JsrtContext::OnScriptLoad(Js::JavascriptFunction * scriptFunction, Js::Utf8SourceInfo* utf8SourceInfo, CompileScriptException* compileException)
-{
+{TRACE_IT(27482);
     ((JsrtContextCore *)this)->OnScriptLoad(scriptFunction, utf8SourceInfo, compileException);
 }
 
 #if ENABLE_TTD
 void JsrtContext::OnScriptLoad_TTDCallback(FinalizableObject* jsrtCtx, Js::JavascriptFunction * scriptFunction, Js::Utf8SourceInfo* utf8SourceInfo, CompileScriptException* compileException)
-{
+{TRACE_IT(27483);
     ((JsrtContextCore *)jsrtCtx)->OnScriptLoad(scriptFunction, utf8SourceInfo, compileException);
 }
 
 void JsrtContext::OnReplayDisposeContext_TTDCallback(FinalizableObject* jsrtCtx)
-{
+{TRACE_IT(27484);
     ((JsrtContextCore *)jsrtCtx)->Dispose(false);
 }
 #endif
 
 JsrtContextCore::JsrtContextCore(JsrtRuntime * runtime) :
     JsrtContext(runtime)
-{
+{TRACE_IT(27485);
     EnsureScriptContext();
     Link();
 }
 
 /* static */
 JsrtContextCore *JsrtContextCore::New(JsrtRuntime * runtime)
-{
+{TRACE_IT(27486);
     return RecyclerNewFinalized(runtime->GetThreadContext()->EnsureRecycler(), JsrtContextCore, runtime);
 }
 
 void JsrtContextCore::Dispose(bool isShutdown)
-{
+{TRACE_IT(27487);
     if (this->GetJavascriptLibrary())
-    {
+    {TRACE_IT(27488);
         Unlink();
         this->SetJavascriptLibrary(nullptr);
     }
 }
 
 void JsrtContextCore::Finalize(bool isShutdown)
-{
+{TRACE_IT(27489);
 }
 
 Js::ScriptContext* JsrtContextCore::EnsureScriptContext()
-{
+{TRACE_IT(27490);
     Assert(this->GetJavascriptLibrary() == nullptr);
 
     ThreadContext* localThreadContext = this->GetRuntime()->GetThreadContext();
@@ -86,18 +86,18 @@ Js::ScriptContext* JsrtContextCore::EnsureScriptContext()
 }
 
 void JsrtContextCore::OnScriptLoad(Js::JavascriptFunction * scriptFunction, Js::Utf8SourceInfo* utf8SourceInfo, CompileScriptException* compileException)
-{
+{TRACE_IT(27491);
     JsrtDebugManager* jsrtDebugManager = this->GetRuntime()->GetJsrtDebugManager();
     if (jsrtDebugManager != nullptr)
-    {
+    {TRACE_IT(27492);
         jsrtDebugManager->ReportScriptCompile(scriptFunction, utf8SourceInfo, compileException);
     }
 }
 
 HRESULT ChakraCoreHostScriptContext::FetchImportedModule(Js::ModuleRecordBase* referencingModule, LPCOLESTR specifier, Js::ModuleRecordBase** dependentModuleRecord)
-{
+{TRACE_IT(27493);
     if (fetchImportedModuleCallback == nullptr)
-    {
+    {TRACE_IT(27494);
         return E_INVALIDARG;
     }
     Js::JavascriptString* specifierVar = Js::JavascriptString::NewCopySz(specifier, GetScriptContext());
@@ -106,7 +106,7 @@ HRESULT ChakraCoreHostScriptContext::FetchImportedModule(Js::ModuleRecordBase* r
         AUTO_NO_EXCEPTION_REGION;
         JsErrorCode errorCode = fetchImportedModuleCallback(referencingModule, specifierVar, &dependentRecord);
         if (errorCode == JsNoError)
-        {
+        {TRACE_IT(27495);
             *dependentModuleRecord = static_cast<Js::ModuleRecordBase*>(dependentRecord);
             return NOERROR;
         }
@@ -115,16 +115,16 @@ HRESULT ChakraCoreHostScriptContext::FetchImportedModule(Js::ModuleRecordBase* r
 }
 
 HRESULT ChakraCoreHostScriptContext::NotifyHostAboutModuleReady(Js::ModuleRecordBase* referencingModule, Js::Var exceptionVar)
-{
+{TRACE_IT(27496);
     if (notifyModuleReadyCallback == nullptr)
-    {
+    {TRACE_IT(27497);
         return E_INVALIDARG;
     }
     {
         AUTO_NO_EXCEPTION_REGION;
         JsErrorCode errorCode = notifyModuleReadyCallback(referencingModule, exceptionVar);
         if (errorCode == JsNoError)
-        {
+        {TRACE_IT(27498);
             return NOERROR;
         }
     }

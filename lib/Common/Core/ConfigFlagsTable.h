@@ -137,13 +137,13 @@ namespace Js
         ///----------------------------------------------------------------------------
 
         String& operator=(__in_z_opt const char16* psz)
-        {
+        {TRACE_IT(19834);
             Set(psz);
             return *this;
         }
 
         String &operator =(const String &other)
-        {
+        {TRACE_IT(19835);
             return (*this = other.pszValue);
         }
 
@@ -154,7 +154,7 @@ namespace Js
         ///----------------------------------------------------------------------------
 
         operator const char16* () const
-        {
+        {TRACE_IT(19836);
             return this->pszValue;
         }
 
@@ -169,7 +169,7 @@ namespace Js
         NumberSet();
         void Add(uint32 x);
         bool Contains(uint32 x);
-        bool Empty() const { return set.Count() == 0; }
+        bool Empty() const {TRACE_IT(19837); return set.Count() == 0; }
     private:
         JsUtil::BaseHashSet<uint32, NoCheckHeapAllocator, PrimeSizePolicy> set;
     };
@@ -177,11 +177,11 @@ namespace Js
     class NumberPair
     {
     public:
-        NumberPair(uint32 x, uint32 y) : x(x), y(y) {}
-        NumberPair() : x((uint32)-1), y((uint32)-1) {}
+        NumberPair(uint32 x, uint32 y) : x(x), y(y) {TRACE_IT(19838);}
+        NumberPair() : x((uint32)-1), y((uint32)-1) {TRACE_IT(19839);}
 
-        operator hash_t() const { return (x << 16) + y; }
-        bool operator ==(const NumberPair &other) const { return x == other.x && y == other.y; }
+        operator hash_t() const {TRACE_IT(19840); return (x << 16) + y; }
+        bool operator ==(const NumberPair &other) const {TRACE_IT(19841); return x == other.x && y == other.y; }
     private:
         uint32 x;
         uint32 y;
@@ -193,7 +193,7 @@ namespace Js
         NumberPairSet();
         void Add(uint32 x, uint32 y);
         bool Contains(uint32 x, uint32 y);
-        bool Empty() const { return set.Count() == 0; }
+        bool Empty() const {TRACE_IT(19842); return set.Count() == 0; }
     private:
         JsUtil::BaseHashSet<NumberPair, NoCheckHeapAllocator, PrimeSizePolicy> set;
     };
@@ -203,7 +203,7 @@ namespace Js
         uint sourceContextId;
         Js::LocalFunctionId functionId;
         SourceFunctionNode(uint sourceContextId, Js::LocalFunctionId functionId) : sourceContextId(sourceContextId), functionId(functionId) {}
-        SourceFunctionNode() : sourceContextId(0), functionId(0){}
+        SourceFunctionNode() : sourceContextId(0), functionId(0){TRACE_IT(19843);}
     };
 
     ///----------------------------------------------------------------------------
@@ -219,16 +219,16 @@ namespace Js
     struct RangeUnit
     {
         TRangeUnitData i, j;
-        RangeUnit() {}
+        RangeUnit() {TRACE_IT(19844);}
         RangeUnit(TRangeUnitData x, TRangeUnitData y) :
             i(x),
             j(y)
-        {}
+        {TRACE_IT(19845);}
     };
 
     template <typename TRangeUnitData>
     bool RangeUnitContains(RangeUnit<TRangeUnitData> unit, TRangeUnitData item)
-    {
+    {TRACE_IT(19846);
         return (item >= unit.i && item <= unit.j);
     }
 
@@ -237,7 +237,7 @@ namespace Js
 
     template <typename TRangeUnitData>
     RangeUnit<TRangeUnitData> GetFullRange()
-    {
+    {TRACE_IT(19847);
         RangeUnit<TRangeUnitData> unit;
         unit.i = INT_MIN;
         unit.j = INT_MAX;
@@ -249,7 +249,7 @@ namespace Js
 
     template <typename TRangeUnitData>
     TRangeUnitData GetPrevious(TRangeUnitData unit)
-    {
+    {TRACE_IT(19848);
         return unit - 1;
     }
 
@@ -258,7 +258,7 @@ namespace Js
 
     template <typename TRangeUnitData>
     TRangeUnitData GetNext(TRangeUnitData unit)
-    {
+    {TRACE_IT(19849);
         return unit + 1;
     }
 
@@ -292,7 +292,7 @@ namespace Js
 
     // Construction
     public:
-        RangeBase() : range(&NoCheckHeapAllocator::Instance) {}
+        RangeBase() : range(&NoCheckHeapAllocator::Instance) {TRACE_IT(19850);}
 
     // Methods
     public:
@@ -305,7 +305,7 @@ namespace Js
 #if DBG_RANGE
         template <typename TFunction>
         void Map(TFunction fn) const
-        {
+        {TRACE_IT(19851);
             range.Map(fn);
         }
 #endif
@@ -355,7 +355,7 @@ namespace Js
 
         // Construction
         public:
-            UnitPhase() : valid(false) { }
+            UnitPhase() : valid(false) {TRACE_IT(19852); }
 
         // Data
         public:
@@ -370,7 +370,7 @@ namespace Js
 
     // Constructors
     public:
-        Phases() {}
+        Phases() {TRACE_IT(19853);}
 
     // Methods
     public:
@@ -634,56 +634,56 @@ namespace Js
 
 #define PHASE_PRINT_TRACE1(phase, ...) \
     if (PHASE_TRACE1(phase)) \
-    { \
+    {TRACE_IT(19854); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define CUSTOM_PHASE_PRINT_TRACE1(flags, phase, ...) \
     if (CUSTOM_PHASE_TRACE1(flags, phase)) \
-    { \
+    {TRACE_IT(19855); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_TRACE(phase, func, ...) \
     if (PHASE_TRACE(phase, func)) \
-    { \
+    {TRACE_IT(19856); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_TRACE_RAW(phase, sourceId, functionId, ...) \
     if (PHASE_TRACE_RAW(phase, sourceId, functionId)) \
-    { \
+    {TRACE_IT(19857); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TRACE1(phase, ...) \
     if (PHASE_VERBOSE_TRACE1(phase)) \
-    { \
+    {TRACE_IT(19858); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define CUSTOM_PHASE_PRINT_VERBOSE_TRACE1(flags, phase, ...) \
     if (CUSTOM_PHASE_VERBOSE_TRACE1(flags, phase)) \
-    { \
+    {TRACE_IT(19859); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TRACE(phase, func, ...) \
     if (PHASE_VERBOSE_TRACE(phase, func)) \
-    { \
+    {TRACE_IT(19860); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TRACE_RAW(phase, sourceId, functionId, ...) \
     if (PHASE_VERBOSE_TRACE_RAW(phase, sourceId, functionId)) \
-    { \
+    {TRACE_IT(19861); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
@@ -696,42 +696,42 @@ namespace Js
 
 #define PHASE_PRINT_TESTTRACE1(phase, ...) \
     if (PHASE_TESTTRACE1(phase)) \
-    { \
+    {TRACE_IT(19862); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_TESTTRACE(phase, func, ...) \
     if (PHASE_TESTTRACE(phase, func)) \
-    { \
+    {TRACE_IT(19863); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_TESTTRACE_RAW(phase, sourceId, functionId, ...) \
     if (PHASE_TESTTRACE_RAW(phase, sourceId, functionId)) \
-    { \
+    {TRACE_IT(19864); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TESTTRACE1(phase, ...) \
     if (PHASE_VERBOSE_TESTTRACE1(phase)) \
-    { \
+    {TRACE_IT(19865); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TESTTRACE(phase, func, ...) \
     if (PHASE_VERBOSE_TESTTRACE(phase, func)) \
-    { \
+    {TRACE_IT(19866); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
 
 #define PHASE_PRINT_VERBOSE_TESTTRACE_RAW(phase, sourceId, functionId, ...) \
     if (PHASE_VERBOSE_TESTTRACE_RAW(phase, sourceId, functionId)) \
-    { \
+    {TRACE_IT(19867); \
         Output::Print(__VA_ARGS__); \
         Output::Flush(); \
     }
@@ -853,19 +853,19 @@ RangeBase<TRangeUnitData>::Add(TRangeUnitData i, RangeBase<TRangeUnitData>* oppo
 template <typename TRangeUnitData>
 void
 RangeBase<TRangeUnitData>::Add(TRangeUnitData i, TRangeUnitData j, RangeBase<TRangeUnitData>* oppositeRange)
-{
+{TRACE_IT(19868);
     RangeUnit<TRangeUnitData> a(i, j);
     range.Prepend(a);
     if (oppositeRange)
-    {
+    {TRACE_IT(19869);
         if (oppositeRange->range.Empty())
-        {
+        {TRACE_IT(19870);
             oppositeRange->range.Prepend(GetFullRange<TRangeUnitData>());
         }
         // Do an intersection
         auto it = oppositeRange->range.GetEditingIterator();
         while (it.Next())
-        {
+        {TRACE_IT(19871);
             Unit& unit = it.Data();
             bool c1 = RangeUnitContains(unit, i);
             bool c2 = RangeUnitContains(unit, j);
@@ -891,7 +891,7 @@ RangeBase<TRangeUnitData>::Add(TRangeUnitData i, TRangeUnitData j, RangeBase<TRa
                 // Nothing to do
                 break;
             case AddedFullyContained:
-            {
+            {TRACE_IT(19872);
                 // Need to break the current in 2
                 Unit lowUnit = unit;
                 Unit topUnit = unit;
@@ -930,14 +930,14 @@ RangeBase<TRangeUnitData>::Add(TRangeUnitData i, TRangeUnitData j, RangeBase<TRa
 template <typename TRangeUnitData>
 bool
 RangeBase<TRangeUnitData>::ContainsAll()
-{
+{TRACE_IT(19873);
     return range.Empty();
 }
 
 template <typename TRangeUnitData>
 void
 Js::RangeBase<TRangeUnitData>::Clear()
-{
+{TRACE_IT(19874);
     range.Clear();
 }
 
@@ -953,13 +953,13 @@ Js::RangeBase<TRangeUnitData>::Clear()
 
 template <typename TRangeUnitData>
 bool RangeBase<TRangeUnitData>::InRange(TRangeUnitData n)
-{
+{TRACE_IT(19875);
     if (range.Empty())
-    {
+    {TRACE_IT(19876);
         return true;
     }
     else
-    {
+    {TRACE_IT(19877);
         return range.MapUntil([n](RangeUnit<TRangeUnitData> const& unit)
         {
             return RangeUnitContains(unit, n);

@@ -26,11 +26,11 @@ namespace JsUtil
         ThreadService(ThreadServiceCallback threadService) :
             threadService(threadService),
             isInCallback(false)
-        {
+        {TRACE_IT(19470);
         }
 
         bool Invoke(BackgroundWorkItemCallback callback, void * callbackData)
-        {
+        {TRACE_IT(19471);
             isInCallback = true;
             bool result = threadService(callback, callbackData);
             isInCallback = false;
@@ -38,12 +38,12 @@ namespace JsUtil
         }
 
         bool HasCallback() const
-        {
+        {TRACE_IT(19472);
             return this != nullptr && threadService != nullptr;
         }
 
         bool IsInCallback() const
-        {
+        {TRACE_IT(19473);
             return isInCallback;
         }
     };

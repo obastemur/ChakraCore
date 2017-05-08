@@ -15,9 +15,9 @@ namespace Js
         EHBailoutData * child;
 
     public:
-        EHBailoutData() : nestingDepth(-1), catchOffset(0), parent(nullptr), child(nullptr) {}
+        EHBailoutData() : nestingDepth(-1), catchOffset(0), parent(nullptr), child(nullptr) {TRACE_IT(48134);}
         EHBailoutData(int32 nestingDepth, int32 catchOffset, EHBailoutData * parent)
-        {
+        {TRACE_IT(48135);
             this->nestingDepth = nestingDepth;
             this->catchOffset = catchOffset;
             this->parent = parent;

@@ -34,9 +34,9 @@ CodeGenWorkItem::CodeGenWorkItem(
 }
 
 CodeGenWorkItem::~CodeGenWorkItem()
-{
+{TRACE_IT(1563);
     if(queuedFullJitWorkItem)
-    {
+    {TRACE_IT(1564);
         HeapDelete(queuedFullJitWorkItem);
     }
 }
@@ -48,15 +48,15 @@ CodeGenWorkItem::~CodeGenWorkItem()
 // regression on a test).
 //
 bool CodeGenWorkItem::ShouldSpeculativelyJit(uint byteCodeSizeGenerated) const
-{
+{TRACE_IT(1565);
     if(PHASE_OFF(Js::FullJitPhase, this->functionBody))
-    {
+    {TRACE_IT(1566);
         return false;
     }
 
     byteCodeSizeGenerated += this->GetByteCodeCount();
     if(CONFIG_FLAG(ProfileBasedSpeculativeJit))
-    {
+    {TRACE_IT(1567);
         Assert(!CONFIG_ISENABLED(Js::NoDynamicProfileInMemoryCacheFlag));
 
         // JIT this now if we are under the speculation cap.
@@ -68,13 +68,13 @@ bool CodeGenWorkItem::ShouldSpeculativelyJit(uint byteCodeSizeGenerated) const
             );
     }
     else
-    {
+    {TRACE_IT(1568);
         return byteCodeSizeGenerated < (uint)CONFIG_FLAG(SpeculationCap);
     }
 }
 
 bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
-{
+{TRACE_IT(1569);
     Js::FunctionBody* functionBody = this->GetFunctionBody();
 
     uint loopPercentage = (functionBody->GetByteCodeInLoopCount()*100) / (functionBody->GetByteCodeCount() + 1);
@@ -82,20 +82,20 @@ bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
 
     // This ensures only small and loopy functions are prejitted.
     if(loopPercentage >= 50 || straightLineSize < 300)
-    {
+    {TRACE_IT(1570);
         Js::SourceDynamicProfileManager* profileManager = functionBody->GetSourceContextInfo()->sourceDynamicProfileManager;
         if(profileManager != nullptr)
-        {
+        {TRACE_IT(1571);
             functionBody->SetIsSpeculativeJitCandidate();
 
             if(!functionBody->HasDynamicProfileInfo())
-            {
+            {TRACE_IT(1572);
                 return false;
             }
 
             Js::ExecutionFlags executionFlags = profileManager->IsFunctionExecuted(functionBody->GetLocalFunctionId());
             if(executionFlags == Js::ExecutionFlags_Executed)
-            {
+            {TRACE_IT(1573);
                 return true;
             }
         }
@@ -120,19 +120,19 @@ bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
 */
 
 void CodeGenWorkItem::OnAddToJitQueue()
-{
+{TRACE_IT(1574);
     Assert(!this->isInJitQueue);
     this->isInJitQueue = true;
     VerifyJitMode();
 
     this->entryPointInfo->SetCodeGenQueued();
     if(IS_JS_ETW(EventEnabledJSCRIPT_FUNCTION_JIT_QUEUED()))
-    {
+    {TRACE_IT(1575);
         WCHAR displayNameBuffer[256];
         WCHAR* displayName = displayNameBuffer;
         size_t sizeInChars = this->GetDisplayName(displayName, 256);
         if(sizeInChars > 256)
-        {
+        {TRACE_IT(1576);
             displayName = HeapNewArray(WCHAR, sizeInChars);
             this->GetDisplayName(displayName, 256);
         }
@@ -150,7 +150,7 @@ void CodeGenWorkItem::OnAddToJitQueue()
 }
 
 void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
-{
+{TRACE_IT(1577);
     // This is called from within the lock
 
     this->isInJitQueue = false;
@@ -159,12 +159,12 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
     this->recyclableData = nullptr;
 
     if(IS_JS_ETW(EventEnabledJSCRIPT_FUNCTION_JIT_DEQUEUED()))
-    {
+    {TRACE_IT(1578);
         WCHAR displayNameBuffer[256];
         WCHAR* displayName = displayNameBuffer;
         size_t sizeInChars = this->GetDisplayName(displayName, 256);
         if(sizeInChars > 256)
-        {
+        {TRACE_IT(1579);
             displayName = HeapNewArray(WCHAR, sizeInChars);
             this->GetDisplayName(displayName, 256);
         }
@@ -181,7 +181,7 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
     }
 
     if(this->Type() == JsLoopBodyWorkItemType)
-    {
+    {TRACE_IT(1580);
         // Go ahead and delete it and let it re-queue if more interpreting of the loop happens
         auto loopBodyWorkItem = static_cast<JsLoopBodyCodeGen*>(this);
         loopBodyWorkItem->loopHeader->ResetInterpreterCount();
@@ -189,7 +189,7 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
         HeapDelete(loopBodyWorkItem);
     }
     else
-    {
+    {TRACE_IT(1581);
         Assert(GetJitMode() == ExecutionMode::FullJit); // simple JIT work items are not removed from the queue
 
         GetFunctionBody()->OnFullJitDequeued(static_cast<Js::FunctionEntryPointInfo *>(GetEntryPoint()));
@@ -200,9 +200,9 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
 }
 
 void CodeGenWorkItem::OnWorkItemProcessFail(NativeCodeGenerator* codeGen)
-{
+{TRACE_IT(1582);
     if (!isAllocationCommitted && this->allocation != nullptr && this->allocation->allocation != nullptr)
-    {
+    {TRACE_IT(1583);
 #if DBG
         this->allocation->allocation->isNotExecutableBecauseOOM = true;
 #endif
@@ -211,14 +211,14 @@ void CodeGenWorkItem::OnWorkItemProcessFail(NativeCodeGenerator* codeGen)
 }
 
 QueuedFullJitWorkItem *CodeGenWorkItem::GetQueuedFullJitWorkItem() const
-{
+{TRACE_IT(1584);
     return queuedFullJitWorkItem;
 }
 
 QueuedFullJitWorkItem *CodeGenWorkItem::EnsureQueuedFullJitWorkItem()
-{
+{TRACE_IT(1585);
     if(queuedFullJitWorkItem)
-    {
+    {TRACE_IT(1586);
         return queuedFullJitWorkItem;
     }
 

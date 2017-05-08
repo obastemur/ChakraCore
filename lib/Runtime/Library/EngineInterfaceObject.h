@@ -23,11 +23,11 @@ namespace Js
         EngineExtensionObjectBase(EngineInterfaceExtensionKind kind, Js::ScriptContext * context) :
             extensionKind(kind),
             scriptContext(context)
-        {
+        {TRACE_IT(55244);
         }
 
-        EngineInterfaceExtensionKind GetExtensionKind() const { return extensionKind; }
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        EngineInterfaceExtensionKind GetExtensionKind() const {TRACE_IT(55245); return extensionKind; }
+        ScriptContext* GetScriptContext() const {TRACE_IT(55246); return scriptContext; }
         virtual void Initialize() = 0;
 #if DBG
         virtual void DumpByteCode() = 0;
@@ -57,8 +57,8 @@ namespace Js
         Field(EngineExtensionObjectBase*) engineExtensions[MaxEngineInterfaceExtensionKind + 1];
 
     public:
-        EngineInterfaceObject(DynamicType * type) : DynamicObject(type) {}
-        DynamicObject* GetCommonNativeInterfaces() const { return commonNativeInterfaces; }
+        EngineInterfaceObject(DynamicType * type) : DynamicObject(type) {TRACE_IT(55247);}
+        DynamicObject* GetCommonNativeInterfaces() const {TRACE_IT(55248); return commonNativeInterfaces; }
         EngineExtensionObjectBase* GetEngineExtension(EngineInterfaceExtensionKind extensionKind) const;
         void SetEngineExtension(EngineInterfaceExtensionKind extensionKind, EngineExtensionObjectBase* extensionObject);
 

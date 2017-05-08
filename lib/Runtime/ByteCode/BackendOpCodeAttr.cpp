@@ -79,14 +79,14 @@ static const int BackendOpCodeAttributes[] =
 };
 
 static const int GetOpCodeAttributes(Js::OpCode op)
-{
+{TRACE_IT(38316);
     if (op <= Js::OpCode::MaxByteSizedOpcodes)
-    {
+    {TRACE_IT(38317);
         AnalysisAssert(op < _countof(OpcodeAttributes));
         return OpcodeAttributes[(int)op];
     }
     else if (op < Js::OpCode::ByteCodeLast)
-    {
+    {TRACE_IT(38318);
         uint opIndex = op - (Js::OpCode::MaxByteSizedOpcodes + 1);
         AnalysisAssert(opIndex < _countof(ExtendedOpcodeAttributes));
         return ExtendedOpcodeAttributes[opIndex];
@@ -97,139 +97,139 @@ static const int GetOpCodeAttributes(Js::OpCode op)
 }
 
 bool HasSideEffects(Js::OpCode opcode)
-{
+{TRACE_IT(38319);
     return ((GetOpCodeAttributes(opcode) & OpSideEffect) != 0);
 };
 bool CanCSE(Js::OpCode opcode)
-{
+{TRACE_IT(38320);
     Assert(((GetOpCodeAttributes(opcode) & OpCanCSE) == 0) || ((GetOpCodeAttributes(opcode) & OpSideEffect) == 0));
     return ((GetOpCodeAttributes(opcode) & OpCanCSE) != 0);
 };
 bool UseAllFields(Js::OpCode opcode)
-{
+{TRACE_IT(38321);
     return ((GetOpCodeAttributes(opcode) & OpUseAllFields) != 0);
 }
 bool NonTempNumberSources(Js::OpCode opcode)
-{
+{TRACE_IT(38322);
     return ((GetOpCodeAttributes(opcode) & OpTempNumberSources) == 0);
 }
 bool TempNumberSources(Js::OpCode opcode)
-{
+{TRACE_IT(38323);
     return ((GetOpCodeAttributes(opcode) & OpTempNumberSources) != 0);
 }
 bool TempNumberProducing(Js::OpCode opcode)
-{
+{TRACE_IT(38324);
     return ((GetOpCodeAttributes(opcode) & OpTempNumberProducing) != 0);
 }
 bool TempNumberTransfer(Js::OpCode opcode)
-{
+{TRACE_IT(38325);
     return ((GetOpCodeAttributes(opcode) & OpTempNumberTransfer) == OpTempNumberTransfer);
 }
 
 bool TempObjectSources(Js::OpCode opcode)
-{
+{TRACE_IT(38326);
     return ((GetOpCodeAttributes(opcode) & OpTempObjectSources) != 0);
 }
 bool TempObjectProducing(Js::OpCode opcode)
-{
+{TRACE_IT(38327);
     return ((GetOpCodeAttributes(opcode) & OpTempObjectProducing) != 0);
 }
 bool TempObjectTransfer(Js::OpCode opcode)
-{
+{TRACE_IT(38328);
     return ((GetOpCodeAttributes(opcode) & OpTempObjectTransfer) == OpTempObjectTransfer);
 }
 bool TempObjectCanStoreTemp(Js::OpCode opcode)
-{
+{TRACE_IT(38329);
     return ((GetOpCodeAttributes(opcode) & OpTempObjectCanStoreTemp) == OpTempObjectCanStoreTemp);
 }
 bool CallInstr(Js::OpCode opcode)
-{
+{TRACE_IT(38330);
     return ((GetOpCodeAttributes(opcode) & OpCallInstr) != 0);
 }
 bool InlineCallInstr(Js::OpCode opcode)
-{
+{TRACE_IT(38331);
     return ((GetOpCodeAttributes(opcode) & OpInlineCallInstr) != 0);
 }
 bool OpndHasImplicitCall(Js::OpCode opcode)
-{
+{TRACE_IT(38332);
     return ((GetOpCodeAttributes(opcode) & OpOpndHasImplicitCall) != 0);
 }
 bool FastFldInstr(Js::OpCode opcode)
-{
+{TRACE_IT(38333);
     return ((GetOpCodeAttributes(opcode) & OpFastFldInstr) != 0);
 }
 bool BailOutRec(Js::OpCode opcode)
-{
+{TRACE_IT(38334);
     return ((GetOpCodeAttributes(opcode) & OpBailOutRec) != 0);
 }
 bool ByteCodeOnly(Js::OpCode opcode)
-{
+{TRACE_IT(38335);
     return ((GetOpCodeAttributes(opcode) & OpByteCodeOnly) != 0);
 }
 bool BackEndOnly(Js::OpCode opcode)
-{
+{TRACE_IT(38336);
     return ((GetOpCodeAttributes(opcode) & OpBackEndOnly) != 0);
 }
 bool DoNotTransfer(Js::OpCode opcode)
-{
+{TRACE_IT(38337);
     return ((GetOpCodeAttributes(opcode) & OpDoNotTransfer) != 0);
 }
 bool HasImplicitCall(Js::OpCode opcode)
-{
+{TRACE_IT(38338);
     return ((GetOpCodeAttributes(opcode) & OpHasImplicitCall) != 0);
 }
 bool IsProfiledOp(Js::OpCode opcode)
-{
+{TRACE_IT(38339);
     return ((GetOpCodeAttributes(opcode) & OpProfiled) != 0);
 }
 bool IsProfiledOpWithICIndex(Js::OpCode opcode)
-{
+{TRACE_IT(38340);
     return ((GetOpCodeAttributes(opcode) & OpProfiledWithICIndex) != 0);
 }
 bool IsInlineBuiltIn(Js::OpCode opcode)
-{
+{TRACE_IT(38341);
     return ((GetOpCodeAttributes(opcode) & OpInlinableBuiltIn) != 0);
 }
 bool NonIntTransfer(Js::OpCode opcode)
-{
+{TRACE_IT(38342);
     return ((GetOpCodeAttributes(opcode) & OpNonIntTransfer) != 0);
 }
 bool IsInt32(Js::OpCode opcode)
-{
+{TRACE_IT(38343);
     return ((GetOpCodeAttributes(opcode) & OpIsInt32) != 0);
 }
 bool ProducesNumber(Js::OpCode opcode)
-{
+{TRACE_IT(38344);
     return ((GetOpCodeAttributes(opcode) & OpProducesNumber) != 0);
 }
 bool HasFallThrough(Js::OpCode opcode)
-{
+{TRACE_IT(38345);
     return ((GetOpCodeAttributes(opcode) & OpNoFallThrough) == 0);
 }
 bool NeedsPostOpDbgBailOut(Js::OpCode opcode)
-{
+{TRACE_IT(38346);
     return ((GetOpCodeAttributes(opcode) & OpPostOpDbgBailOut) != 0);
 }
 
 bool HasMultiSizeLayout(Js::OpCode opcode)
-{
+{TRACE_IT(38347);
     return ((GetOpCodeAttributes(opcode) & OpHasMultiSizeLayout) != 0);
 }
 
 bool HasProfiledOp(Js::OpCode opcode)
-{
+{TRACE_IT(38348);
     return ((GetOpCodeAttributes(opcode) & OpHasProfiled) != 0);
 }
 bool HasProfiledOpWithICIndex(Js::OpCode opcode)
-{
+{TRACE_IT(38349);
     return ((GetOpCodeAttributes(opcode) & OpHasProfiledWithICIndex) != 0);
 }
 bool HasDeadFallThrough(Js::OpCode opcode)
-{
+{TRACE_IT(38350);
     return ((GetOpCodeAttributes(opcode) & OpDeadFallThrough) != 0);
 }
 bool CanLoadFixedFields(Js::OpCode opcode)
-{
+{TRACE_IT(38351);
     return ((GetOpCodeAttributes(opcode) & OpCanLoadFixedFields) != 0);
 }
 

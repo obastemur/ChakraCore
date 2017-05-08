@@ -118,7 +118,7 @@ public:
         mapViewOfSection(NULL),
         unmapViewOfSection(NULL),
         close(NULL)
-    {
+    {TRACE_IT(20027);
         this->EnsureFromSystemDirOnly();
     }
 

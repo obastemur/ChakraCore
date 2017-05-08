@@ -8,22 +8,22 @@
 namespace Js
 {
     JavascriptSIMDFloat64x2::JavascriptSIMDFloat64x2(SIMDValue *val, StaticType *type) : RecyclableObject(type), value(*val)
-    {
+    {TRACE_IT(61450);
         Assert(type->GetTypeId() == TypeIds_SIMDFloat64x2);
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::New(SIMDValue *val, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61451);
         return (JavascriptSIMDFloat64x2 *)AllocatorNew(Recycler, requestContext->GetRecycler(), JavascriptSIMDFloat64x2, val, requestContext->GetLibrary()->GetSIMDFloat64x2TypeStatic());
     }
 
     bool  JavascriptSIMDFloat64x2::Is(Var instance)
-    {
+    {TRACE_IT(61452);
         return JavascriptOperators::GetTypeId(instance) == TypeIds_SIMDFloat64x2;
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromVar(Var aValue)
-    {
+    {TRACE_IT(61453);
         Assert(aValue);
         AssertMsg(Is(aValue), "Ensure var is actually a 'JavascriptSIMDFloat64x2'");
 
@@ -31,34 +31,34 @@ namespace Js
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromFloat32x4(JavascriptSIMDFloat32x4 *instance, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61454);
         SIMDValue result = SIMDFloat64x2Operation::OpFromFloat32x4(instance->GetValue());
         return JavascriptSIMDFloat64x2::New(&result, requestContext);
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromInt32x4(JavascriptSIMDInt32x4   *instance, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61455);
         SIMDValue result = SIMDFloat64x2Operation::OpFromInt32x4(instance->GetValue());
         return JavascriptSIMDFloat64x2::New(&result, requestContext);
     }
 
     BOOL JavascriptSIMDFloat64x2::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61456);
         return GetPropertyBuiltIns(propertyId, value, requestContext);
     }
 
     RecyclableObject * JavascriptSIMDFloat64x2::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61457);
         return JavascriptSIMDFloat64x2::New(&value, requestContext);
     }
 
     BOOL JavascriptSIMDFloat64x2::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61458);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
-        {
+        {TRACE_IT(61459);
             return true;
         }
 
@@ -67,12 +67,12 @@ namespace Js
     }
 
     BOOL JavascriptSIMDFloat64x2::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61460);
         return JavascriptSIMDFloat64x2::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     bool JavascriptSIMDFloat64x2::GetPropertyBuiltIns(PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61461);
         switch (propertyId)
         {
         case PropertyIds::toString:
@@ -97,7 +97,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || JavascriptOperators::GetTypeId(args[0]) != TypeIds_SIMDFloat64x2)
-        {
+        {TRACE_IT(61462);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, _u("SIMDFloat64x2.toString"));
         }
 
@@ -117,7 +117,7 @@ namespace Js
     // End Entry Points
 
     Var JavascriptSIMDFloat64x2::Copy(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61463);
         return JavascriptSIMDFloat64x2::New(&this->value, requestContext);
     }
 }

@@ -6,7 +6,7 @@
 
 uint32
 Math::NextPowerOf2(uint32 n)
-{
+{TRACE_IT(19091);
     n = n - 1;
     n = n | (n >> 1);
     n = n | (n >> 2);
@@ -19,7 +19,7 @@ Math::NextPowerOf2(uint32 n)
 
 UINT_PTR
 Math::Rand()
-{
+{TRACE_IT(19092);
     unsigned int rand;
     rand_s(&rand);
     UINT_PTR newRand = static_cast<UINT_PTR>(rand);
@@ -33,6 +33,6 @@ Math::Rand()
 }
 
 __declspec(noreturn) void Math::DefaultOverflowPolicy()
-{
+{TRACE_IT(19093);
     Js::Throw::OutOfMemory();
 }

@@ -48,13 +48,13 @@ public:
     // This points to the current function body which can be reused when parsing a subtree (called due to deferred parsing logic).
     Js::FunctionBody * pCurrentFunction;
 
-    bool InDestructuredPattern() const { return inDestructuredPattern; }
-    void SetInDestructuredPattern(bool in) { inDestructuredPattern = in; }
+    bool InDestructuredPattern() const {TRACE_IT(40692); return inDestructuredPattern; }
+    void SetInDestructuredPattern(bool in) {TRACE_IT(40693); inDestructuredPattern = in; }
 
-    bool InPrologue() const { return inPrologue; }
-    void SetInPrologue(bool val) { inPrologue = val; }
-    Parser* GetParser() { return parser; }
-    Js::ParseableFunctionInfo * GetRootFunc(){return pRootFunc;}
+    bool InPrologue() const {TRACE_IT(40694); return inPrologue; }
+    void SetInPrologue(bool val) {TRACE_IT(40695); inPrologue = val; }
+    Parser* GetParser() {TRACE_IT(40696); return parser; }
+    Js::ParseableFunctionInfo * GetRootFunc(){TRACE_IT(40697);return pRootFunc;}
     void SetRootFuncInfo(FuncInfo* funcInfo);
     // Treat the return value register like a constant register so that the byte code writer maps it to the bottom
     // of the register range.
@@ -68,67 +68,67 @@ public:
 
 #if DBG_DUMP
     bool Trace() const
-    {
+    {TRACE_IT(40698);
         return Js::Configuration::Global.flags.Trace.IsEnabled(Js::ByteCodePhase);
     }
 #else
     bool Trace() const
-    {
+    {TRACE_IT(40699);
         return false;
     }
 #endif
 
-    Js::ScriptContext* GetScriptContext() { return scriptContext; }
+    Js::ScriptContext* GetScriptContext() {TRACE_IT(40700); return scriptContext; }
 
-    Scope *GetCurrentScope() const { return currentScope; }
+    Scope *GetCurrentScope() const {TRACE_IT(40701); return currentScope; }
 
-    void SetCurrentBlock(ParseNode *pnode) { currentBlock = pnode; }
-    ParseNode *GetCurrentBlock() const { return currentBlock; }
+    void SetCurrentBlock(ParseNode *pnode) {TRACE_IT(40702); currentBlock = pnode; }
+    ParseNode *GetCurrentBlock() const {TRACE_IT(40703); return currentBlock; }
 
-    void SetCurrentTopStatement(ParseNode *pnode) { currentTopStatement = pnode; }
-    ParseNode *GetCurrentTopStatement() const { return currentTopStatement; }
+    void SetCurrentTopStatement(ParseNode *pnode) {TRACE_IT(40704); currentTopStatement = pnode; }
+    ParseNode *GetCurrentTopStatement() const {TRACE_IT(40705); return currentTopStatement; }
 
     Js::ModuleID GetModuleID() const
-    {
+    {TRACE_IT(40706);
         return m_utf8SourceInfo->GetSrcInfo()->moduleID;
     }
 
     void SetFlags(uint32 grfscr)
-    {
+    {TRACE_IT(40707);
         flags = grfscr;
     }
 
     uint32 GetFlags(void)
-    {
+    {TRACE_IT(40708);
         return flags;
     }
 
     bool IsConsoleScopeEval(void)
-    {
+    {TRACE_IT(40709);
         return (flags & fscrConsoleScopeEval) == fscrConsoleScopeEval;
     }
 
     bool IsModuleCode()
-    {
+    {TRACE_IT(40710);
         return (flags & fscrIsModuleCode) == fscrIsModuleCode;
     }
 
-    bool IsBinding() const {
+    bool IsBinding() const {TRACE_IT(40711);
         return isBinding;
     }
 
-    Js::ByteCodeWriter *Writer() {
+    Js::ByteCodeWriter *Writer() {TRACE_IT(40712);
         return &m_writer;
     }
 
-    ArenaAllocator *GetAllocator() {
+    ArenaAllocator *GetAllocator() {TRACE_IT(40713);
         return alloc;
     }
 
     Js::PropertyRecordList* EnsurePropertyRecordList()
-    {
+    {TRACE_IT(40714);
         if (this->propertyRecords == nullptr)
-        {
+        {TRACE_IT(40715);
             Recycler* recycler = this->scriptContext->GetRecycler();
             this->propertyRecords = RecyclerNew(recycler, Js::PropertyRecordList, recycler);
         }
@@ -137,16 +137,16 @@ public:
     }
 
     bool IsEvalWithNoParentScopeInfo()
-    {
+    {TRACE_IT(40716);
         return (flags & fscrEvalCode) && !HasParentScopeInfo();
     }
 
     Js::ProfileId GetNextCallSiteId(Js::OpCode op)
-    {
+    {TRACE_IT(40717);
         if (m_writer.ShouldIncrementCallSiteId(op))
-        {
+        {TRACE_IT(40718);
             if (m_callSiteId != Js::Constants::NoProfileId)
-            {
+            {TRACE_IT(40719);
                 return m_callSiteId++;
             }
         }
@@ -158,8 +158,8 @@ public:
     FuncInfo *TopFuncInfo() const;
 
     void EnterLoop();
-    void ExitLoop() { loopDepth--; }
-    BOOL IsInLoop() const { return loopDepth > 0; }
+    void ExitLoop() {TRACE_IT(40720); loopDepth--; }
+    BOOL IsInLoop() const {TRACE_IT(40721); return loopDepth > 0; }
     // TODO: per-function register assignment for env and global symbols
     void AssignRegister(Symbol *sym);
     void AddTargetStmt(ParseNode *pnodeStmt);
@@ -192,12 +192,12 @@ public:
     static Js::JavascriptArray* BuildArrayFromStringList(ParseNode* stringNodeList, uint arrayLength, Js::ScriptContext* scriptContext);
 
     bool HasParentScopeInfo() const
-    {
+    {TRACE_IT(40722);
         return this->parentScopeInfo != nullptr;
     }
 
     Js::RegSlot EmitLdObjProto(Js::OpCode op, Js::RegSlot objReg, FuncInfo *funcInfo)
-    {
+    {TRACE_IT(40723);
         // LdHomeObjProto protoReg, objReg
         // LdFuncObjProto protoReg, objReg
         Js::RegSlot protoReg = funcInfo->AcquireTmpRegister();
@@ -323,12 +323,12 @@ public:
 
     void InvalidateCachedOuterScopes(FuncInfo *funcInfo);
 
-    bool InDynamicScope() const { return dynamicScopeCount != 0; }
+    bool InDynamicScope() const {TRACE_IT(40724); return dynamicScopeCount != 0; }
 
     Scope * FindScopeForSym(Scope *symScope, Scope *scope, Js::PropertyId *envIndex, FuncInfo *funcInfo) const;
 
     static Js::OpCode GetStFldOpCode(bool isStrictMode, bool isRoot, bool isLetDecl, bool isConstDecl, bool isClassMemberInit)
-    {
+    {TRACE_IT(40725);
         return isClassMemberInit ? Js::OpCode::InitClassMember :
             isConstDecl ? (isRoot ? Js::OpCode::InitRootConstFld : Js::OpCode::InitConstFld) :
             isLetDecl ? (isRoot ? Js::OpCode::InitRootLetFld : Js::OpCode::InitLetFld) :
@@ -337,12 +337,12 @@ public:
     }
     static Js::OpCode GetStFldOpCode(FuncInfo* funcInfo, bool isRoot, bool isLetDecl, bool isConstDecl, bool isClassMemberInit);
     static Js::OpCode GetScopedStFldOpCode(bool isStrictMode)
-    {
+    {TRACE_IT(40726);
         return isStrictMode ? Js::OpCode::ScopedStFldStrict : Js::OpCode::ScopedStFld;
     }
     static Js::OpCode GetScopedStFldOpCode(FuncInfo* funcInfo, bool isConsoleScopeLetConst = false);
     static Js::OpCode GetStElemIOpCode(bool isStrictMode)
-    {
+    {TRACE_IT(40727);
         return isStrictMode ? Js::OpCode::StElemI_A_Strict : Js::OpCode::StElemI_A;
     }
     static Js::OpCode GetStElemIOpCode(FuncInfo* funcInfo);
@@ -355,8 +355,8 @@ public:
         __in uint32 grfscr,
         __in Js::ParseableFunctionInfo* pRootFunc);
 
-    void SetCurrentSourceIndex(uint sourceIndex) { this->sourceIndex = sourceIndex; }
-    uint GetCurrentSourceIndex() { return sourceIndex; }
+    void SetCurrentSourceIndex(uint sourceIndex) {TRACE_IT(40728); this->sourceIndex = sourceIndex; }
+    uint GetCurrentSourceIndex() {TRACE_IT(40729); return sourceIndex; }
 
     static bool IsFalse(ParseNode* node);
 
@@ -408,10 +408,10 @@ private:
 };
 
 template<class Fn> void ByteCodeGenerator::IterateBlockScopedVariables(ParseNode *pnodeBlock, Fn fn)
-{
+{TRACE_IT(40730);
     Assert(pnodeBlock->nop == knopBlock);
     for (auto lexvar = pnodeBlock->sxBlock.pnodeLexVars; lexvar; lexvar = lexvar->sxVar.pnodeNext)
-    {
+    {TRACE_IT(40731);
         fn(lexvar);
     }
 }

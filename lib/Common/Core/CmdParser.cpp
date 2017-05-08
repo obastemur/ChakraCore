@@ -27,19 +27,19 @@ using namespace Js;
 
 LPWSTR
 CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ceBuffer, bool fTreatColonAsSeparator)
-{
+{TRACE_IT(19630);
 
     char16 *out = buffer;
     size_t len = 0;
 
     if('"' == CurChar())
-    {
+    {TRACE_IT(19631);
         NextChar();
 
         while('"' != CurChar())
-        {
+        {TRACE_IT(19632);
             if(0 == CurChar())
-            {
+            {TRACE_IT(19633);
                 throw Exception(_u("Unmatched quote"));
             }
 
@@ -47,7 +47,7 @@ CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ce
             // MaxTokenSize - 1 because we need 1 extra position for null termination
             //
             if (len >= ceBuffer - 1)
-            {
+            {TRACE_IT(19634);
                 throw Exception(_u("String token too large to parse"));
             }
 
@@ -58,11 +58,11 @@ CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ce
         NextChar();
     }
     else
-    {
+    {TRACE_IT(19635);
         bool fDone = false;
 
         while(!fDone)
-        {
+        {TRACE_IT(19636);
             switch(CurChar())
             {
             case ' ':
@@ -73,17 +73,17 @@ CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ce
             case '-':
             case ':':
                 if(fTreatColonAsSeparator)
-                {
+                {TRACE_IT(19637);
                     fDone = true;
                     break;
                 }
                 else
-                {
+                {TRACE_IT(19638);
                     // Fallthrough
                 }
             default:
                 if(len >= MaxTokenSize -1)
-                {
+                {TRACE_IT(19639);
                     throw Exception(_u("String token too large to parse"));
                 }
                 out[len++] = CurChar();
@@ -93,7 +93,7 @@ CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ce
     }
 
     if(0 == len)
-    {
+    {TRACE_IT(19640);
         throw Exception(_u("String Token Expected"));
     }
 
@@ -111,45 +111,45 @@ CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ce
 
 Js::SourceFunctionNode
 CmdLineArgsParser::ParseSourceFunctionIds()
-{
+{TRACE_IT(19641);
     uint functionId, sourceId;
 
     if ('*' == CurChar())
-    {
+    {TRACE_IT(19642);
         sourceId = 1;
         functionId = (uint)-2;
         NextChar();
     }
     else if ('+' == CurChar())
-    {
+    {TRACE_IT(19643);
         sourceId = 1;
         functionId = (uint)-1;
         NextChar();
     }
     else
-    {
+    {TRACE_IT(19644);
         functionId = sourceId = ParseInteger();
 
         if ('.' == CurChar())
-        {
+        {TRACE_IT(19645);
             NextChar();
             if ('*' == CurChar())
-            {
+            {TRACE_IT(19646);
                 functionId = (uint)-2;
                 NextChar();
             }
             else if ('+' == CurChar())
-            {
+            {TRACE_IT(19647);
                 functionId = (uint)-1;
                 NextChar();
             }
             else
-            {
+            {TRACE_IT(19648);
                 functionId = ParseInteger();
             }
         }
         else
-        {
+        {TRACE_IT(19649);
             sourceId = 1;
         }
     }
@@ -165,27 +165,27 @@ CmdLineArgsParser::ParseSourceFunctionIds()
 
 int
 CmdLineArgsParser::ParseInteger()
-{
+{TRACE_IT(19650);
     int result  = 0;
     int sign    = 1;
 
     if('-' == CurChar())
-    {
+    {TRACE_IT(19651);
         sign = -1;
         NextChar();
     }
     if(!IsDigit())
-    {
+    {TRACE_IT(19652);
         throw Exception(_u("Integer Expected"));
     }
 
     int base = 10;
 
     if ('0' == CurChar())
-    {
+    {TRACE_IT(19653);
         NextChar();
         if (CurChar() == 'x')
-        {
+        {TRACE_IT(19654);
             NextChar();
             base = 16;
         }
@@ -193,17 +193,17 @@ CmdLineArgsParser::ParseInteger()
     }
 
     while(IsDigit() || (base == 16 && IsHexDigit()))
-    {
+    {TRACE_IT(19655);
         int currentDigit = (int)(CurChar() - '0');
         if (currentDigit > 9)
-        {
+        {TRACE_IT(19656);
             Assert(base == 16);
             if (CurChar() < 'F')
-            {
+            {TRACE_IT(19657);
                 currentDigit = 10 + (int)(CurChar() - 'A');
             }
             else
-            {
+            {TRACE_IT(19658);
                 currentDigit = 10 + (int)(CurChar() - 'a');
             }
 
@@ -212,7 +212,7 @@ CmdLineArgsParser::ParseInteger()
 
         result = result * base + (int)(CurChar() - '0');
         if(result < 0)
-        {
+        {TRACE_IT(19659);
             // overflow or underflow in case sign = -1
             throw Exception(_u("Integer too large to parse"));
         }
@@ -235,7 +235,7 @@ CmdLineArgsParser::ParseInteger()
 
 void
 CmdLineArgsParser::ParseRange(Js::Range *pRange, Js::Range *oppositeRange)
-{
+{TRACE_IT(19660);
     SourceFunctionNode r1 = ParseSourceFunctionIds();
     SourceFunctionNode r2;
     switch(CurChar())
@@ -245,12 +245,12 @@ CmdLineArgsParser::ParseRange(Js::Range *pRange, Js::Range *oppositeRange)
         r2 = ParseSourceFunctionIds();
 
         if (r1.sourceContextId > r2.sourceContextId)
-        {
+        {TRACE_IT(19661);
             throw Exception(_u("Left source index must be smaller than the Right source Index"));
         }
         if ((r1.sourceContextId == r2.sourceContextId) &&
             (r1.functionId > r2.functionId))
-        {
+        {TRACE_IT(19662);
             throw Exception(_u("Left functionId must be smaller than the Right functionId when Source file is the same"));
         }
 
@@ -291,7 +291,7 @@ CmdLineArgsParser::ParseRange(Js::Range *pRange, Js::Range *oppositeRange)
 
 void
 CmdLineArgsParser::ParseNumberRange(Js::NumberRange *pRange)
-{
+{TRACE_IT(19663);
     int start = ParseInteger();
     int end;
 
@@ -302,7 +302,7 @@ CmdLineArgsParser::ParseNumberRange(Js::NumberRange *pRange)
         end = ParseInteger();
 
         if (start > end)
-        {
+        {TRACE_IT(19664);
             throw Exception(_u("Range start must be less than range end"));
         }
 
@@ -351,13 +351,13 @@ CmdLineArgsParser::ParseNumberRange(Js::NumberRange *pRange)
 
 void
 CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
-{
+{TRACE_IT(19665);
     char16 buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
     Phase phase = ConfigFlagsTable::GetPhase(ParseString(buffer));
     if(InvalidPhase == phase)
-    {
+    {TRACE_IT(19666);
         throw Exception(_u("Invalid phase :"));
     }
 
@@ -365,11 +365,11 @@ CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
     switch(CurChar())
     {
     case ':':
-    {
+    {TRACE_IT(19667);
         NextChar();
         Js::Range* oppositeRange = nullptr;
         if (oppositePhase && oppositePhase->IsEnabled(phase))
-        {
+        {TRACE_IT(19668);
             oppositeRange = oppositePhase->GetRange(phase);
         }
         ParseRange(pPhaseList->GetRange(phase), oppositeRange);
@@ -378,7 +378,7 @@ CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
     case ',':
         NextChar();
         if (oppositePhase)
-        {
+        {TRACE_IT(19669);
             // The whole phase is turned on/off so disable the opposite
             oppositePhase->Disable(phase);
         }
@@ -386,7 +386,7 @@ CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
         break;
     default:
         if (oppositePhase)
-        {
+        {TRACE_IT(19670);
             // The whole phase is turned on/off so disable the opposite
             oppositePhase->Disable(phase);
         }
@@ -397,9 +397,9 @@ CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
 
 void
 CmdLineArgsParser::ParseNumberSet(Js::NumberSet * numberPairSet)
-{
+{TRACE_IT(19671);
     while (true)
-    {
+    {TRACE_IT(19672);
         int x = ParseInteger();
         numberPairSet->Add(x);
 
@@ -413,13 +413,13 @@ CmdLineArgsParser::ParseNumberSet(Js::NumberSet * numberPairSet)
 
 void
 CmdLineArgsParser::ParseNumberPairSet(Js::NumberPairSet * numberPairSet)
-{
+{TRACE_IT(19673);
     while (true)
-    {
+    {TRACE_IT(19674);
         int line = ParseInteger();
         int col = -1;
         if (CurChar() == ',')
-        {
+        {TRACE_IT(19675);
             NextChar();
             col = ParseInteger();
         }
@@ -436,24 +436,24 @@ CmdLineArgsParser::ParseNumberPairSet(Js::NumberPairSet * numberPairSet)
 
 bool
 CmdLineArgsParser::ParseBoolean()
-{
+{TRACE_IT(19676);
     if (CurChar() == ':')
-    {
+    {TRACE_IT(19677);
         throw Exception(_u("':' not expected with a boolean flag"));
     }
     else if (CurChar() != '-' && CurChar() != ' ' && CurChar() != 0)
-    {
+    {TRACE_IT(19678);
         throw Exception(_u("Invalid character after boolean flag"));
     }
     else
-    {
+    {TRACE_IT(19679);
         return (CurChar() != '-');
     }
 }
 
 BSTR
 CmdLineArgsParser::GetCurrentString()
-{
+{TRACE_IT(19680);
     char16 buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
@@ -491,18 +491,18 @@ CmdLineArgsParser::GetCurrentString()
 
 void
 CmdLineArgsParser::ParseFlag()
-{
+{TRACE_IT(19681);
     char16 buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
     LPWSTR flagString = ParseString(buffer);
     Flag flag = ConfigFlagsTable::GetFlag(flagString);
     if(InvalidFlag == flag)
-    {
+    {TRACE_IT(19682);
         if (pCustomConfigFlags != nullptr)
-        {
+        {TRACE_IT(19683);
             if (pCustomConfigFlags->ParseFlag(flagString, this))
-            {
+            {TRACE_IT(19684);
                 return;
             }
         }
@@ -516,13 +516,13 @@ CmdLineArgsParser::ParseFlag()
     this->flagTable.Enable(flag);
 
     if(FlagBoolean == flagType)
-    {
+    {TRACE_IT(19685);
         Boolean boolValue = ParseBoolean();
 
         this->flagTable.SetAsBoolean(flag, boolValue);
     }
     else
-    {
+    {TRACE_IT(19686);
         switch(CurChar())
         {
         case ':':
@@ -530,11 +530,11 @@ CmdLineArgsParser::ParseFlag()
             switch(flagType)
             {
             case FlagPhases:
-            {
+            {TRACE_IT(19687);
                 Flag oppositeFlag = this->flagTable.GetOppositePhaseFlag(flag);
                 Phases* oppositePhase = nullptr;
                 if (oppositeFlag != InvalidFlag)
-                {
+                {TRACE_IT(19688);
                     this->flagTable.Enable(oppositeFlag);
                     oppositePhase = this->flagTable.GetAsPhase(oppositeFlag);
                 }
@@ -585,19 +585,19 @@ CmdLineArgsParser::ParseFlag()
 
 int
 CmdLineArgsParser::Parse(int argc, __in_ecount(argc) LPWSTR argv[])
-{
+{TRACE_IT(19689);
     int err = 0;
 
     for(int i = 1; i < argc; i++)
-    {
+    {TRACE_IT(19690);
         if ((err = Parse(argv[i])) != 0)
-        {
+        {TRACE_IT(19691);
             break;
         }
     }
 
     if(this->flagTable.Filename == nullptr)
-    {
+    {TRACE_IT(19692);
         this->flagTable.Filename = _u("ttdSentinal.js");
     }
 
@@ -605,7 +605,7 @@ CmdLineArgsParser::Parse(int argc, __in_ecount(argc) LPWSTR argv[])
 }
 
 int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
-{
+{TRACE_IT(19693);
     int err = 0;
     char16 buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
@@ -613,12 +613,12 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
     this->pszCurrentArg = oneArg;
     AssertMsg(NULL != this->pszCurrentArg, "How can command line give NULL argv's");
     try
-    {
+    {TRACE_IT(19694);
         switch(CurChar())
         {
         case '-' :
             if ('-' == PeekChar())
-            {
+            {TRACE_IT(19695);
                 //support --
                 NextChar();
             }
@@ -630,7 +630,7 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
 #endif
             NextChar();
             if('?' == CurChar())
-            {
+            {TRACE_IT(19696);
                 PrintUsage();
                 return -1;
             }
@@ -638,7 +638,7 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
             break;
         default:
             if(NULL != this->flagTable.Filename)
-            {
+            {TRACE_IT(19697);
                 throw Exception(_u("Duplicate filename entry"));
             }
 
@@ -647,7 +647,7 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
         }
     }
     catch(Exception &exp)
-    {
+    {TRACE_IT(19698);
         wprintf(_u("%s : %s\n"), (LPCWSTR)exp, oneArg);
         err = -1;
     }
@@ -665,19 +665,19 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
 
 CmdLineArgsParser::CmdLineArgsParser(ICustomConfigFlags * pCustomConfigFlags, Js::ConfigFlagsTable& flagTable) :
     flagTable(flagTable), pCustomConfigFlags(pCustomConfigFlags)
-{
+{TRACE_IT(19699);
     this->pszCurrentArg = NULL;
 }
 
 CmdLineArgsParser::~CmdLineArgsParser()
-{
+{TRACE_IT(19700);
     flagTable.FinalizeConfiguration();
 }
 
 void CmdLineArgsParser::PrintUsage()
-{
+{TRACE_IT(19701);
     if (pCustomConfigFlags)
-    {
+    {TRACE_IT(19702);
         pCustomConfigFlags->PrintUsage();
         return;
     }

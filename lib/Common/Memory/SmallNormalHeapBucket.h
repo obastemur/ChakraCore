@@ -92,7 +92,7 @@ class SmallNormalWithBarrierHeapBucketT : public SmallNormalHeapBucketBase<Small
 {
 public:
     void Initialize(HeapInfo * heapInfo, uint sizeCat)
-    {
+    {TRACE_IT(27053);
         CompileAssert(SmallNormalWithBarrierHeapBucketT::IsLeafBucket == false);
         __super::Initialize(heapInfo, sizeCat);
     }

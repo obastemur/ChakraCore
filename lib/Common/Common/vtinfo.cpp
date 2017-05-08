@@ -11,10 +11,10 @@ VirtualTableRegistry::TableEntry VirtualTableRegistry::m_knownVtables[MAX_KNOWN_
 UINT VirtualTableRegistry::m_knownVtableCount = 0;
 
 void VirtualTableRegistry::Add(INT_PTR vtable, LPCSTR className)
-{
+{TRACE_IT(19549);
     Assert(m_knownVtableCount < MAX_KNOWN_VTABLES);
     if (m_knownVtableCount < MAX_KNOWN_VTABLES)
-    {
+    {TRACE_IT(19550);
         m_knownVtables[m_knownVtableCount].vtable = vtable;
         m_knownVtables[m_knownVtableCount].className = className;
         ++m_knownVtableCount;
@@ -23,7 +23,7 @@ void VirtualTableRegistry::Add(INT_PTR vtable, LPCSTR className)
 
 VtableHashMap *
 VirtualTableRegistry::CreateVtableHashMap(ArenaAllocator * alloc)
-{
+{TRACE_IT(19551);
     VtableHashMap * vtableHashMap = Anew(alloc, VtableHashMap, alloc, MAX_KNOWN_VTABLES);
 
     // All classes that derive from RecyclableObject must include DEFINE_VTABLE_CTOR which invokes VirtualTableRegistry::Add
@@ -32,7 +32,7 @@ VirtualTableRegistry::CreateVtableHashMap(ArenaAllocator * alloc)
     // in a debug build. If we wanted use in a release build, we'll have to explicitly add the vtables to the hash and
     // then validate that we have got all the vtables by comparing in chk build against VirtualTableRegistry.
     for (UINT i=0; i < VirtualTableRegistry::m_knownVtableCount; i++)
-    {
+    {TRACE_IT(19552);
         INT_PTR vtable = VirtualTableRegistry::m_knownVtables[i].vtable;
         LPCSTR className = VirtualTableRegistry::m_knownVtables[i].className;
         vtableHashMap->Add(vtable, className);

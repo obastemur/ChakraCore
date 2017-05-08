@@ -33,11 +33,11 @@ public:
             LowererMDArch(Func* function)
                 : m_func(function),
                   bailOutStackRestoreLabel(nullptr)
-            {
+            {TRACE_IT(18656);
             }
 
     static  bool                IsLegalMemLoc(IR::MemRefOpnd *opnd)
-            {
+            {TRACE_IT(18657);
                 return true;
             }
 
@@ -113,10 +113,10 @@ public:
 
             IR::LabelInstr *    GetBailOutStackRestoreLabel(BailOutInfo * bailOutInfo, IR::LabelInstr * exitTargetInstr);
             IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr);
-            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) { Assert(false); return instr; }
+            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) {TRACE_IT(18658); Assert(false); return instr; }
             void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr);
-            int                 GetHelperArgsCount() { return this->helperCallArgsCount; }
-            void                ResetHelperArgsCount() { this->helperCallArgsCount = 0; }
+            int                 GetHelperArgsCount() {TRACE_IT(18659); return this->helperCallArgsCount; }
+            void                ResetHelperArgsCount() {TRACE_IT(18660); this->helperCallArgsCount = 0; }
 
 
             void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd);

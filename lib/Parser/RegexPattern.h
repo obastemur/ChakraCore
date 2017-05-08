@@ -34,7 +34,7 @@ namespace UnifiedRegex
         {
             Field(UnifiedRep) unified;
 
-            Rep() : unified() {}
+            Rep() : unified() {TRACE_IT(31897);}
         };
         Field(Rep) rep;
 
@@ -48,7 +48,7 @@ namespace UnifiedRegex
 
         Js::ScriptContext *GetScriptContext() const;
 
-        inline bool IsLiteral() const { return isLiteral; }
+        inline bool IsLiteral() const {TRACE_IT(31898); return isLiteral; }
         int NumGroups() const;
         bool IsIgnoreCase() const;
         bool IsGlobal() const;

@@ -19,12 +19,12 @@ public:
     ~SmartFPUControlT();
 
     bool HasErr() const
-    {
+    {TRACE_IT(19468);
         return m_err != 0;
     }
 
     HRESULT GetErr() const
-    {
+    {TRACE_IT(19469);
         Assert(HasErr());
         return HRESULT_FROM_WIN32(m_err);
     }

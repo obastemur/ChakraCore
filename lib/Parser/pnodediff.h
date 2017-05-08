@@ -64,18 +64,18 @@ private:
         int x[]; // Stores x for endpoints on the (d+1) diagonals. y == x - k.
 
         EndPoints(int d) : d(d)
-        {
+        {TRACE_IT(33121);
         }
 
     public:
         int getd() const
-        {
+        {TRACE_IT(33122);
             return d;
         }
 
         // Get x of furthest reaching endpoint on diagonal k.
         int operator[](int k) const
-        {
+        {TRACE_IT(33123);
             Assert(k >= -d && k <= d && (d - k) % 2 == 0); // k must be in [-d, -d+2, ..., d-2, d]
             int i = (k + d) / 2;
             return x[i];
@@ -83,14 +83,14 @@ private:
 
         // Get x reference of furthest reaching endpoint on diagonal k.
         int& operator[](int k)
-        {
+        {TRACE_IT(33124);
             Assert(k >= -d && k <= d && (d - k) % 2 == 0); // k must be in [-d, -d+2, ..., d-2, d]
             int i = (k + d) / 2;
             return x[i];
         }
 
         static EndPoints* New(Allocator* alloc, int d)
-        {
+        {TRACE_IT(33125);
             Assert(d >= 0);
             return AllocatorNewPlusLeaf(Allocator, alloc, sizeof(int) * (d + 1), EndPoints, d);
         }
@@ -112,7 +112,7 @@ private:
 
         // Add EndPoints storage for d-path
         EndPoints* AddEndPoints(int d)
-        {
+        {TRACE_IT(33126);
             int i = m_endPoints.Add(nullptr);
             EndPoints* e = EndPoints::New(m_endPoints.GetAllocator(), d);
             m_endPoints.Item(i, e);
@@ -120,15 +120,15 @@ private:
         }
 
     public:
-        EditGraph(Allocator* alloc) : m_endPoints(alloc) {}
+        EditGraph(Allocator* alloc) : m_endPoints(alloc) {TRACE_IT(33127);}
 
         ~EditGraph()
-        {
+        {TRACE_IT(33128);
             Allocator* alloc = m_endPoints.GetAllocator();
             m_endPoints.Map([=](int, EndPoints* e)
             {
                 if (e)
-                {
+                {TRACE_IT(33129);
                     e->Destroy(alloc);
                 }
             });
@@ -143,42 +143,42 @@ private:
         //
         template <class ItemEquals>
         void FindPath(int lengthA, int lengthB, const ItemEquals& equals)
-        {
+        {TRACE_IT(33130);
             Assert(m_endPoints.Empty()); // Only support one FindPath
 
             int maxD;
             if (Int32Math::Add(lengthA, lengthB, &maxD) || maxD > INT_MAX / 2) // Limits maxD to simplify overflow handling
-            {
+            {TRACE_IT(33131);
                 Math::DefaultOverflowPolicy();
             }
 
             // Pre-add virtual path -1
-            {
+            {TRACE_IT(33132);
                 EndPoints& pre = *AddEndPoints(1);
                 pre[1] = 0;
             }
 
             bool found = false;
             for (int d = 0; d <= maxD && !found; d++)
-            {
+            {TRACE_IT(33133);
                 const EndPoints& v = *m_endPoints.Item(d);      // d-1 path
                 EndPoints& cur = *AddEndPoints(d);              // d path
 
                 for (int k = -d; k <= d; k += 2)
-                {
+                {TRACE_IT(33134);
                     const bool verticalMove = (k == -d || (k != d && v[k - 1] < v[k + 1]));
                     int x = verticalMove ? v[k + 1] : v[k - 1] + 1;
                     int y = x - k;
 
                     while (x < lengthA && y < lengthB && equals(x, y))
-                    {
+                    {TRACE_IT(33135);
                         x++;
                         y++;
                     }
                     cur[k] = x; // furthest reaching end point
 
                     if (x == lengthA && y == lengthB)
-                    {
+                    {TRACE_IT(33136);
                         m_diagonal = k;
                         found = true;
                         break;
@@ -191,13 +191,13 @@ private:
 
         template <class Func>
         void MapEdits(const Func& map) const
-        {
+        {TRACE_IT(33137);
             // m_endPoints contains endPoints for paths: -1, 0, 1, ..., d
             int d = m_endPoints.Count() - 2;
             int k = m_diagonal;
 
             for (; d >= 0; d--)
-            {
+            {TRACE_IT(33138);
                 const EndPoints& v = *m_endPoints.Item(d);          // d-1 path
                 const EndPoints& cur = *m_endPoints.Item(d + 1);    // d path
                 Assert(cur.getd() == d);
@@ -208,20 +208,20 @@ private:
                 int x = cur[k];
                 int y = x - k;
                 while (x > x0)
-                {
+                {TRACE_IT(33139);
                     map(EditKind::Update, --x, --y);
                 }
 
                 if (verticalMove)
-                {
+                {TRACE_IT(33140);
                     if (d > 0) // Don't emit virtual initial move from path -1 to 0
-                    {
+                    {TRACE_IT(33141);
                         map(EditKind::Insert, -1, --y);
                     }
                     k++;
                 }
                 else
-                {
+                {TRACE_IT(33142);
                     map(EditKind::Delete, --x, -1);
                     k--;
                 }
@@ -235,10 +235,10 @@ private:
         int indexA;
         int indexB;
 
-        Edit() {}
+        Edit() {TRACE_IT(33143);}
         Edit(EditKind kind, int indexA, int indexB) :
             kind(kind), indexA(indexA), indexB(indexB)
-        {
+        {TRACE_IT(33144);
             Assert((kind == EditKind::Insert && indexA == -1 && indexB >= 0)
                 || (kind == EditKind::Delete && indexA >= 0 && indexB == -1)
                 || (kind == EditKind::Update && indexA >= 0 && indexB >= 0));
@@ -253,7 +253,7 @@ public:
     template <class ItemEquals>
     LongestCommonSubsequence(Allocator* alloc, int lengthA, int lengthB, const ItemEquals& equals) :
         m_edits(alloc)
-    {
+    {TRACE_IT(33145);
         EditGraph graph(alloc);
         graph.FindPath(lengthA, lengthB, equals);
         graph.MapEdits([this](EditKind kind, int indexA, int indexB)
@@ -264,9 +264,9 @@ public:
 
     template <class Func>
     void MapEdits(const Func& map) const
-    {
+    {TRACE_IT(33146);
         for (int i = m_edits.Count() - 1; i >= 0; i--)
-        {
+        {TRACE_IT(33147);
             const Edit& e = m_edits.Item(i);
             map(e.kind, e.indexA, e.indexB);
         }
@@ -274,7 +274,7 @@ public:
 
     template <class Func>
     void MapMatches(const Func& map) const
-    {
+    {TRACE_IT(33148);
         MapEdits([&](EditKind kind, int indexA, int indexB)
         {
             if (kind == EditKind::Update)
@@ -290,10 +290,10 @@ public:
 //
 template <class Allocator, class ItemEquals>
 double ComputeLongestCommonSubsequenceDistance(Allocator* alloc, int lengthA, int lengthB, const ItemEquals& equals)
-{
+{TRACE_IT(33149);
     Assert(lengthA >= 0 && lengthB >= 0);
     if (lengthA == 0 || lengthB == 0)
-    {
+    {TRACE_IT(33150);
         return (lengthA == lengthB) ? 0.0 : 1.0;
     }
 
@@ -319,46 +319,46 @@ struct TreeComparerBase
     static const double ExactMatchDistance;
     static const double EpsilonDistance;
 
-    const SubClass* pThis() const { return static_cast<const SubClass*>(this); }
-    SubClass* pThis() { return static_cast<SubClass*>(this); }
+    const SubClass* pThis() const {TRACE_IT(33151); return static_cast<const SubClass*>(this); }
+    SubClass* pThis() {TRACE_IT(33152); return static_cast<SubClass*>(this); }
 
     // The number of distinct labels used in the tree.
-    int LabelCount() const { return 0; }
+    int LabelCount() const {TRACE_IT(33153); return 0; }
 
     // Returns an integer label corresponding to the given node.
     // Returned value must be within [0, LabelCount).
-    int GetLabel(PNode x) const { return 0; }
+    int GetLabel(PNode x) const {TRACE_IT(33154); return 0; }
 
     // Returns N > 0 if the node with specified label can't change its N-th ancestor node, zero otherwise.
     // 1st ancestor is the node's parent node.
     // 2nd ancestor is the node's grandparent node.
     // etc.
-    int TiedToAncestor(int label) { return 0; }
+    int TiedToAncestor(int label) {TRACE_IT(33155); return 0; }
 
     // Calculates the distance [0..1] of two nodes.
     // The more similar the nodes the smaller the distance.
     //
     // Used to determine whether two nodes of the same label match.
     // Even if 0 is returned the nodes might be slightly different.
-    double GetDistance(PNode x, PNode y) const { return 0; }
+    double GetDistance(PNode x, PNode y) const {TRACE_IT(33156); return 0; }
 
     // Returns true if the specified nodes have equal values.
     // Called with matching nodes (oldNode, newNode).
     // Return true if the values of the nodes are the same, or their difference is not important.
-    bool ValuesEqual(PNode oldNode, PNode newNode) const { return true; }
+    bool ValuesEqual(PNode oldNode, PNode newNode) const {TRACE_IT(33157); return true; }
 
-    PNode GetParent(PNode x) const { return nullptr; }
+    PNode GetParent(PNode x) const {TRACE_IT(33158); return nullptr; }
 
     bool TryGetParent(PNode x, _Out_ PNode* p) const
-    {
+    {TRACE_IT(33159);
         *p = pThis()->GetParent(x);
         return *p != nullptr;
     }
 
     PNode GetAncestor(PNode node, int level) const
-    {
+    {TRACE_IT(33160);
         while (level > 0)
-        {
+        {TRACE_IT(33161);
             node = pThis()->GetParent(node);
             level--;
         }
@@ -368,7 +368,7 @@ struct TreeComparerBase
 
     // Map children nodes of x
     template <class Func>
-    void MapChildren(PNode x, const Func& func) const {}
+    void MapChildren(PNode x, const Func& func) const {TRACE_IT(33162);}
 
     // Map all descendant nodes of x (not including x itself)
     template <class Func>
@@ -384,13 +384,13 @@ struct TreeComparerBase
     // Map every node in the (sub)tree x.
     template <class Func>
     void MapTree(PNode x, const Func& func) const
-    {
+    {TRACE_IT(33163);
         func(x);
         pThis()->MapDescendants(x, func);
     }
 
     // Return true if specified nodes belong to the same tree. For debug only.
-    bool TreesEqual(PNode left, PNode right) const { return true; }
+    bool TreesEqual(PNode left, PNode right) const {TRACE_IT(33164); return true; }
 };
 
 template <class SubClass, class Node> const double TreeComparerBase<SubClass, Node>::ExactMatchDistance = 0.0;
@@ -431,7 +431,7 @@ private:
 public:
     TreeMatch(Allocator* alloc, PNode root1, PNode root2, const TreeComparer& comparer = TreeComparer()) :
         alloc(alloc), root1(root1), root2(root2), comparer(comparer)
-    {
+    {TRACE_IT(33165);
         const int labelCount = comparer.LabelCount();
 
         // calculate chains (not including root node)
@@ -458,36 +458,36 @@ public:
         DeleteObject<Allocator>(alloc, twoToOne);
     }
 
-    const TreeComparer& Comparer() const { return comparer; }
-    PNode OldRoot() const { return root1;  }
-    PNode NewRoot() const { return root2; }
+    const TreeComparer& Comparer() const {TRACE_IT(33166); return comparer; }
+    PNode OldRoot() const {TRACE_IT(33167); return root1;  }
+    PNode NewRoot() const {TRACE_IT(33168); return root2; }
 
     bool HasPartnerInTree1(PNode node2) const
-    {
+    {TRACE_IT(33169);
         Assert(comparer.TreesEqual(node2, root2));
         return twoToOne->ContainsKey(node2);
     }
 
     bool HasPartnerInTree2(PNode node1) const
-    {
+    {TRACE_IT(33170);
         Assert(comparer.TreesEqual(node1, root1));
         return oneToTwo->ContainsKey(node1);
     }
 
     bool TryGetPartnerInTree1(PNode node2, PNode* partner1) const
-    {
+    {TRACE_IT(33171);
         Assert(comparer.TreesEqual(node2, root2));
         return twoToOne->TryGetValue(node2, partner1);
     }
 
     bool TryGetPartnerInTree2(PNode node1, PNode* partner2) const
-    {
+    {TRACE_IT(33172);
         Assert(comparer.TreesEqual(node1, root1));
         return oneToTwo->TryGetValue(node1, partner2);
     }
 
     bool Contains(PNode node1, PNode node2) const
-    {
+    {TRACE_IT(33173);
         Assert(comparer.TreesEqual(node2, root2));
 
         PNode partner2;
@@ -496,7 +496,7 @@ public:
 
 private:
     int CategorizeNodesByLabels(PNode root, int labelCount, _Out_writes_(labelCount) NodeList* nodes[])
-    {
+    {TRACE_IT(33174);
         int count = 0;
         comparer.MapDescendants(root, [&](PNode node)
         {
@@ -505,7 +505,7 @@ private:
 
             NodeList* list = nodes[label];
             if (!list)
-            {
+            {TRACE_IT(33175);
                 list = NodeList::New(alloc);
                 nodes[label] = list;
             }
@@ -518,7 +518,7 @@ private:
     }
 
     void ComputeMatch(_In_reads_(labelCount) NodeList* nodes1[], _In_reads_(labelCount) NodeList* nodes2[], int labelCount)
-    {
+    {TRACE_IT(33176);
         // Root nodes always match but they might have been added as knownMatches
         if (!HasPartnerInTree2(root1))
         {
@@ -556,7 +556,7 @@ private:
         //    We first try to match nodes of the same labels to the exactly matching or almost matching counterparts.
         //    Then we keep increasing the threshold and keep adding matches.
         for (int label = 0; label < labelCount; label++)
-        {
+        {TRACE_IT(33177);
             if (nodes1[label] && nodes2[label])
             {
                 ComputeMatchForLabel(label, *nodes1[label], *nodes2[label]);
@@ -565,7 +565,7 @@ private:
     }
 
     void ComputeMatchForLabel(int label, NodeList& s1, NodeList& s2)
-    {
+    {TRACE_IT(33178);
         int tiedToAncestor = comparer.TiedToAncestor(label);
 
         ComputeMatchForLabel(s1, s2, tiedToAncestor, EpsilonDistance);     // almost exact match
@@ -576,7 +576,7 @@ private:
     }
 
     void ComputeMatchForLabel(NodeList& s1, NodeList& s2, int tiedToAncestor, double maxAcceptableDistance)
-    {
+    {TRACE_IT(33179);
         // Obviously, the algorithm below is O(n^2). However, in the common case, the 2 lists will
         // be sequences that exactly match. The purpose of "firstNonMatch2" is to reduce the complexity
         // to O(n) in this case. Basically, the pointer is the 1st non-matched node in the list of nodes of tree2
@@ -587,7 +587,7 @@ private:
 
         UnmatchedIterator i1(s1);
         for (;;)
-        {
+        {TRACE_IT(33180);
             PNode node1 = i1.GetNextUnmatched();
             if (!node1) break;
             Assert(!HasPartnerInTree2(node1));
@@ -601,14 +601,14 @@ private:
             UnmatchedIterator i2(s2);
 
             for (;;)
-            {
+            {TRACE_IT(33181);
                 PNode node2 = i2.GetNextUnmatched();
                 if (!node2) break;
                 Assert(!HasPartnerInTree1(node2));
 
                 // this requires parents to be processed before their children:
                 if (tiedToAncestor > 0)
-                {
+                {TRACE_IT(33182);
                     // TODO: For nodes tied to their parents,
                     // consider avoiding matching them to all other nodes of the same label.
                     // Rather we should only match them with their siblings that share the same parent.
@@ -618,7 +618,7 @@ private:
                     Assert(comparer.GetLabel(ancestor1) < comparer.GetLabel(node1));
 
                     if (!Contains(ancestor1, ancestor2))
-                    {
+                    {TRACE_IT(33183);
                         continue;
                     }
                 }
@@ -632,7 +632,7 @@ private:
                 //
                 double distance = comparer.GetDistance(node1, node2);
                 if (distance < bestDistance)
-                {
+                {TRACE_IT(33184);
                     matched = true;
                     bestMatch = node2;
                     bestMatchIndex = i2.CurIndex();
@@ -644,7 +644,7 @@ private:
                     // but different types. Since the type is not part of the value, we don't want
                     // to stop looking for the best match if we don't have an exact match).
                     if (distance == ExactMatchDistance)
-                    {
+                    {TRACE_IT(33185);
                         break;
                     }
                 }
@@ -661,7 +661,7 @@ private:
     }
 
     void Add(PNode node1, PNode node2)
-    {
+    {TRACE_IT(33186);
         Assert(comparer.TreesEqual(node1, root1));
         Assert(comparer.TreesEqual(node2, root2));
 
@@ -706,12 +706,12 @@ private:
             list(list),
             lastMatched(-1),
             index(-1)
-        {
+        {TRACE_IT(33187);
             VerifySize(list);
         }
 
         ~UnmatchedIterator()
-        {
+        {TRACE_IT(33188);
             // If we have lastMatched, we could have one of following:
             //      * index is matched by MarkCurrentMatched(). Link lastMatched -> index (== lastMatched). GetNextUnmatched() can handle it.
             //      * index remains unmatched (ends a matched sequence). Link lastMatched -> index.
@@ -724,7 +724,7 @@ private:
         }
 
         PNode GetNextUnmatched()
-        {
+        {TRACE_IT(33189);
             // If current ends a matched sequence, make a link [lastMatched -> current).
             if (lastMatched >= 0 && !IsMatched(index))
             {
@@ -734,24 +734,24 @@ private:
 
             ++index;
             if (index < list.Count())
-            {
+            {TRACE_IT(33190);
                 if (IsMatched(index))
-                {
+                {TRACE_IT(33191);
                     if (lastMatched < 0) // Check if current starts a matched sequence
-                    {
+                    {TRACE_IT(33192);
                         lastMatched = index;
                     }
 
                     // Jumps all matched span, until sees an unmatched entry or the end.
                     int next;
                     while (index < list.Count() && IsNext(list.Item(index), &next))
-                    {
+                    {TRACE_IT(33193);
                         index = max(next, index + 1); // Ensure moves forward (next could be 0, from individual MarkMatched() call).
                     }
                 }
 
                 if (index < list.Count())
-                {
+                {TRACE_IT(33194);
                     return list.Item(index);
                 }
             }
@@ -759,36 +759,36 @@ private:
             return nullptr;
         }
 
-        int CurIndex() const { return index; }
+        int CurIndex() const {TRACE_IT(33195); return index; }
 
         void MarkMatched(int i)
-        {
+        {TRACE_IT(33196);
             if (i == index)
-            {
+            {TRACE_IT(33197);
                 MarkCurrentMatched();
             }
             else
-            {
+            {TRACE_IT(33198);
                 SetMatched(i);
             }
         }
 
         void MarkCurrentMatched()
-        {
+        {TRACE_IT(33199);
             Assert(!IsMatched(index));
             SetMatched(index);
 
             if (lastMatched < 0) // If current starts a matched sequence
-            {
+            {TRACE_IT(33200);
                 lastMatched = index;
             }
         }
 
     private:
         static void VerifySize(const NodeList& list)
-        {
+        {TRACE_IT(33201);
             if (list.Count() > INT_MAX / 2) // Limit max size as we used bit0
-            {
+            {TRACE_IT(33202);
                 Math::DefaultOverflowPolicy();
             }
         }
@@ -800,22 +800,22 @@ private:
         }
 
         static bool IsMatched(PNode node)
-        {
+        {TRACE_IT(33203);
             return !!(reinterpret_cast<UINT_PTR>(node) & 1);
         }
 
         template <class P>
         static void SetNext(P& node, int next)
-        {
+        {TRACE_IT(33204);
             UINT_PTR value = (static_cast<UINT_PTR>(next) << 1) | 1;
             node = reinterpret_cast<PNode>(value);
         }
 
         static bool IsNext(PNode node, _Out_ int* next)
-        {
+        {TRACE_IT(33205);
             UINT_PTR value = reinterpret_cast<UINT_PTR>(node);
             if (value & 1)
-            {
+            {TRACE_IT(33206);
                 *next = static_cast<int>(value >> 1);
                 return true;
             }
@@ -823,10 +823,10 @@ private:
             return false;
         }
 
-        void SetMatched(int i) { SetMatched(list.Item(i)); }
-        bool IsMatched(int i) const { return IsMatched(list.Item(i)); }
-        void SetNext(int i, int next) { SetNext(list.Item(i), next); }
-        bool IsNext(int i, _Out_ int* next) const { return IsNext(list.Item(i), next); }
+        void SetMatched(int i) {TRACE_IT(33207); SetMatched(list.Item(i)); }
+        bool IsMatched(int i) const {TRACE_IT(33208); return IsMatched(list.Item(i)); }
+        void SetNext(int i, int next) {TRACE_IT(33209); SetNext(list.Item(i), next); }
+        bool IsNext(int i, _Out_ int* next) const {TRACE_IT(33210); return IsNext(list.Item(i), next); }
     };
 };
 
@@ -849,7 +849,7 @@ private:
     PNode node2;
 
 public:
-    Edit() {}
+    Edit() {TRACE_IT(33211);}
 
     //
     //  Insert      nullptr    NewNode
@@ -858,14 +858,14 @@ public:
     //
     Edit(EditKind kind, PNode node1, PNode node2) :
         kind(kind), node1(node1), node2(node2)
-    {
+    {TRACE_IT(33212);
         Assert((node1 == nullptr) == (kind == EditKind::Insert));
         Assert((node2 == nullptr) == (kind == EditKind::Delete));
     }
 
-    EditKind Kind() const { return kind; }
-    PNode OldNode() const { return node1; }
-    PNode NewNode() const { return node2; }
+    EditKind Kind() const {TRACE_IT(33213); return kind; }
+    PNode OldNode() const {TRACE_IT(33214); return node1; }
+    PNode NewNode() const {TRACE_IT(33215); return node2; }
 };
 
 //-----------------------------------------------------------------------------
@@ -889,19 +889,19 @@ private:
 public:
     EditScript(Allocator* alloc, const TreeMatch& match) :
         match(match), comparer(match.Comparer()), edits(alloc)
-    {
+    {TRACE_IT(33216);
         AddUpdatesInsertsMoves();
         AddDeletes();
     }
 
-    const EditList& Edits() const { return edits; }
+    const EditList& Edits() const {TRACE_IT(33217); return edits; }
 
 private:
-    PNode Root1() const { return match.OldRoot(); }
-    PNode Root2() const { return match.NewRoot(); }
+    PNode Root1() const {TRACE_IT(33218); return match.OldRoot(); }
+    PNode Root2() const {TRACE_IT(33219); return match.NewRoot(); }
 
     void AddUpdatesInsertsMoves()
-    {
+    {TRACE_IT(33220);
         // Breadth-first traversal.
         ProcessNode(Root2());
 
@@ -909,7 +909,7 @@ private:
         queue.Enqueue(Root2());
 
         while (!queue.Empty())
-        {
+        {TRACE_IT(33221);
             PNode head = queue.Dequeue();
             comparer.MapChildren(head, [&](PNode child)
             {
@@ -920,7 +920,7 @@ private:
     }
 
     void ProcessNode(PNode x)
-    {
+    {TRACE_IT(33222);
         Assert(comparer.TreesEqual(x, Root2()));
 
         // NOTE:
@@ -945,7 +945,7 @@ private:
         bool hasParent = comparer.TryGetParent(x, &y);
 
         if (!hasPartner)
-        {
+        {TRACE_IT(33223);
             // b) If x has no partner in M'.
             //   i. k := FindPos(x)
             //  ii. Append INS((w, a, value(x)), z, k) to E for a new identifier w.
@@ -956,7 +956,7 @@ private:
             // We don't update M' here.
         }
         else if (hasParent)
-        {
+        {TRACE_IT(33224);
             // c) else if x is not a root
             // i. Let w be the partner of x in M', and let v = parent(w) in T1.
             PNode v = comparer.GetParent(w);
@@ -968,7 +968,7 @@ private:
             // Let the Comparer decide whether an update should be added to the edit list.
             // The Comparer defines what changes in node values it cares about.
             if (!comparer.ValuesEqual(w, x))
-            {
+            {TRACE_IT(33225);
                 edits.Add(Edit<PNode>(EditKind::Update, /*node1*/w, /*node2*/x));
             }
 
@@ -976,7 +976,7 @@ private:
             // iii. if not (v, y) in M'
             // NOTE: The paper says (y, v) but that seems wrong since M': T1 -> T2 and w,v in T1 and x,y in T2.
             if (!match.Contains(v, y))
-            {
+            {TRACE_IT(33226);
                 // A. Let z be the partner of y in M'. (NOTE: z not needed)
                 // B. k := FindPos(x)
                 // C. Append MOV(w, z, k)
@@ -996,7 +996,7 @@ private:
     }
 
     void AddDeletes()
-    {
+    {TRACE_IT(33227);
         // 3. Do a post-order traversal of T1.
         //    a) Let w be the current node in the post-order traversal of T1.
         //    b) If w has no partner in M' then append DEL(w) to E and apply DEL(w) to T1.
@@ -1010,14 +1010,14 @@ private:
         comparer.MapDescendants(Root1(), [&](PNode w)
         {
             if (!match.HasPartnerInTree2(w))
-            {
+            {TRACE_IT(33228);
                 edits.Add(Edit<PNode>(EditKind::Delete, /*node1*/w, /*node2*/nullptr));
             }
         });
     }
 
     void AlignChildren(PNode w, PNode x)
-    {
+    {TRACE_IT(33229);
         Assert(comparer.TreesEqual(w, Root1()));
         Assert(comparer.TreesEqual(x, Root2()));
         Allocator* alloc = edits.GetAllocator();
@@ -1041,7 +1041,7 @@ private:
         //  Define the function Equal(a,b) to be true if and only if  (a,b) in M'
         //  Let S <- LCS(S1, S2, Equal)
         NodeMap s(alloc);
-        {
+        {TRACE_IT(33230);
             LongestCommonSubsequence<Allocator> lcs(alloc, s1.Count(), s2.Count(), [&](int indexA, int indexB)
             {
                 return match.Contains(s1.Item(indexA), s2.Item(indexB));
@@ -1069,7 +1069,7 @@ private:
             if (match.TryGetPartnerInTree2(a, &b)   // (a,b) in M
                 && comparer.GetParent(b) == x       // => b in S2 since S2 == { b | parent(b) == x && parent(partner(b)) == w }
                 && !ContainsPair(s, a, b))          // (a,b) not in S
-            {
+            {TRACE_IT(33231);
                 Assert(comparer.TreesEqual(a, Root1()));
                 Assert(comparer.TreesEqual(b, Root2()));
 
@@ -1081,13 +1081,13 @@ private:
     // Helper: Get the sequence of children of x whose partner are children of y.
     template <class TryGetPartnerFunc>
     bool TryGetMatchedChildren(NodeList& nodes, PNode x, PNode y, const TryGetPartnerFunc& tryGetPartner)
-    {
+    {TRACE_IT(33232);
         Assert(nodes.Empty());
         comparer.MapChildren(x, [&](PNode e)
         {
             PNode partner;
             if (tryGetPartner(e, &partner) && comparer.GetParent(partner) == y)
-            {
+            {TRACE_IT(33233);
                 nodes.Add(e);
             }
         });
@@ -1095,7 +1095,7 @@ private:
     }
 
     static bool ContainsPair(const NodeMap& dict, PNode a, PNode b)
-    {
+    {TRACE_IT(33234);
         PNode value;
         return dict.TryGetValue(a, &value) && value == b;
     }

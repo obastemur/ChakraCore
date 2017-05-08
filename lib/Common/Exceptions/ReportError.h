@@ -75,7 +75,7 @@ void RpcFailure_fatal_error(HRESULT hr);
 // Use UnhandleExceptionFilter to let the default handler handles it.
 inline LONG FatalExceptionFilter(
     __in LPEXCEPTION_POINTERS lpep)
-{
+{TRACE_IT(22547);
     LONG rc = UnhandledExceptionFilter(lpep);
 
     // re == EXCEPTION_EXECUTE_HANDLER means there is no debugger attached, let's terminate
@@ -83,14 +83,14 @@ inline LONG FatalExceptionFilter(
     // Note: in case when postmortem debugger is registered but no actual debugger attached,
     //       rc will be 0 (and EXCEPTION_EXECUTE_HANDLER is 1), so it acts as if there is debugger attached.
     if (rc == EXCEPTION_EXECUTE_HANDLER)
-    {
+    {TRACE_IT(22548);
         TerminateProcess(GetCurrentProcess(), (UINT)DBG_TERMINATE_PROCESS);
     }
     else
-    {
+    {TRACE_IT(22549);
         // However, if debugger was not attached for some reason, terminate the process.
         if (!IsDebuggerPresent())
-        {
+        {TRACE_IT(22550);
             TerminateProcess(GetCurrentProcess(), (UINT)DBG_TERMINATE_PROCESS);
         }
         DebugBreak();
@@ -103,7 +103,7 @@ inline LONG FatalExceptionFilter(
 
 template<class Fn>
 static STDMETHODIMP DebugApiWrapper(Fn fn)
-{
+{TRACE_IT(22551);
     // If an assertion or AV is hit, it triggers a SEH exception. SEH exceptions escaped here will be eaten by PDM. To prevent assertions
     // from getting unnoticed, we install a SEH exception filter and crash the process.
 #if ENABLE_DEBUG_API_WRAPPER
@@ -114,7 +114,7 @@ static STDMETHODIMP DebugApiWrapper(Fn fn)
 #if ENABLE_DEBUG_API_WRAPPER
     }
     __except(FatalExceptionFilter(GetExceptionInformation()))
-    {
+    {TRACE_IT(22552);
     }
     return E_FAIL;
 #endif

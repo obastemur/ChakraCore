@@ -42,13 +42,13 @@ public:
     CustomHeap::OOPCodePageAllocators  * GetCodePageAllocators();
     SectionAllocWrapper * GetSectionAllocator();
     void UpdateNumericPropertyBV(BVSparseNode * newProps);
-    void SetWellKnownHostTypeId(Js::TypeId typeId) { this->wellKnownHostTypeHTMLAllCollectionTypeId = typeId; }
+    void SetWellKnownHostTypeId(Js::TypeId typeId) {TRACE_IT(15403); this->wellKnownHostTypeHTMLAllCollectionTypeId = typeId; }
     void AddRef();
     void Release();
     void Close();
     PageAllocator * GetForegroundPageAllocator();
 #ifdef STACK_BACK_TRACE
-    DWORD GetRuntimePid() { return m_pid; }
+    DWORD GetRuntimePid() {TRACE_IT(15404); return m_pid; }
 #endif
 
     intptr_t GetRuntimeChakraBaseAddress() const;
@@ -60,8 +60,8 @@ private:
     class AutoCloseHandle
     {
     public:
-        AutoCloseHandle(HANDLE handle) : handle(handle) { Assert(handle != GetCurrentProcess()); }
-        ~AutoCloseHandle() { CloseHandle(this->handle); }
+        AutoCloseHandle(HANDLE handle) : handle(handle) {TRACE_IT(15405); Assert(handle != GetCurrentProcess()); }
+        ~AutoCloseHandle() {TRACE_IT(15406); CloseHandle(this->handle); }
     private:
         HANDLE handle;
     };

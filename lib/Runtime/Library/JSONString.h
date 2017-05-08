@@ -16,7 +16,7 @@ namespace Js
     class WritableStringBuffer
     {
     public:
-        WritableStringBuffer(_In_count_(length) char16* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {}
+        WritableStringBuffer(_In_count_(length) char16* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {TRACE_IT(55975);}
 
         void Append(char16 c);
         void Append(const char16 * str, charcount_t countNeeded);
@@ -27,7 +27,7 @@ namespace Js
         charcount_t m_length;
 #if DBG
         charcount_t GetCount()
-        {
+        {TRACE_IT(55976);
             Assert(m_pszCurrentPtr >= m_pszString);
             Assert(m_pszCurrentPtr - m_pszString <= MaxCharCount);
             return static_cast<charcount_t>(m_pszCurrentPtr - m_pszString);
@@ -54,16 +54,16 @@ namespace Js
     public:
         template <EscapingOperation op>
         static Js::JavascriptString* Escape(Js::JavascriptString* value, uint start = 0, WritableStringBuffer* outputString = nullptr)
-        {
+        {TRACE_IT(55977);
             uint len = value->GetLength();
 
             if (0 == len)
-            {
+            {TRACE_IT(55978);
                 Js::ScriptContext* scriptContext = value->GetScriptContext();
                 return scriptContext->GetLibrary()->GetQuotesString();
             }
             else
-            {
+            {TRACE_IT(55979);
                 const char16* szValue = value->GetSz();
                 return EscapeNonEmptyString<op, Js::JSONString, Js::ConcatStringWrapping<_u('"'), _u('"')>, Js::JavascriptString*>(value, szValue, start, len, outputString);
             }
@@ -71,17 +71,17 @@ namespace Js
 
         template <EscapingOperation op, class TJSONString, class TConcatStringWrapping, class TJavascriptString>
         static TJavascriptString EscapeNonEmptyString(Js::JavascriptString* value, const char16* szValue, uint start, charcount_t len, WritableStringBuffer* outputString)
-        {
+        {TRACE_IT(55980);
             charcount_t extra = 0;
             TJavascriptString result;
 
             // Optimize for the case when we don't need to change anything, just wrap with quotes.
             // If we realize we need to change the inside of the string, start over in "modification needed" mode.
             if (op == EscapingOperation_Escape)
-            {
+            {TRACE_IT(55981);
                 outputString->Append(_u('\"'));
                 if (start != 0)
-                {
+                {TRACE_IT(55982);
                     outputString->AppendLarge(szValue, start);
                 }
             }
@@ -89,53 +89,53 @@ namespace Js
             const wchar* startSz = szValue + start;
             const wchar* lastFlushSz = startSz;
             for (const wchar* current = startSz; current < endSz; current++)
-            {
+            {TRACE_IT(55983);
                 WCHAR wch = *current;
 
                 if (op == EscapingOperation_Count)
-                {
+                {TRACE_IT(55984);
                     if (wch < _countof(escapeMap))
-                    {
+                    {TRACE_IT(55985);
                         extra = UInt32Math::Add(extra, escapeMapCount[static_cast<int>((char)wch)]);
                     }
                 }
                 else
-                {
+                {TRACE_IT(55986);
                     WCHAR specialChar;
                     if (wch < _countof(escapeMap))
-                    {
+                    {TRACE_IT(55987);
                         specialChar = escapeMap[static_cast<int>((char)wch)];
                     }
                     else
-                    {
+                    {TRACE_IT(55988);
                         specialChar = '\0';
                     }
 
                     if (specialChar != '\0')
                     {
                         if (op == EscapingOperation_Escape)
-                        {
+                        {TRACE_IT(55989);
                             outputString->AppendLarge(lastFlushSz, (charcount_t)(current - lastFlushSz));
                             lastFlushSz = current + 1;
                             outputString->Append(_u('\\'));
                             outputString->Append(specialChar);
                             if (specialChar == _u('u'))
-                            {
+                            {TRACE_IT(55990);
                                 char16 bf[5];
                                 _ltow_s(wch, bf, _countof(bf), 16);
                                 size_t count = wcslen(bf);
                                 if (count < 4)
-                                {
+                                {TRACE_IT(55991);
                                     if (count == 1)
-                                    {
+                                    {TRACE_IT(55992);
                                         outputString->Append(_u("000"), 3);
                                     }
                                     else if (count == 2)
-                                    {
+                                    {TRACE_IT(55993);
                                         outputString->Append(_u("00"), 2);
                                     }
                                     else
-                                    {
+                                    {TRACE_IT(55994);
                                         outputString->Append(_u("0"), 1);
                                     }
                                 }
@@ -143,7 +143,7 @@ namespace Js
                             }
                         }
                         else
-                        {
+                        {TRACE_IT(55995);
                             charcount_t i = (charcount_t)(current - startSz);
                             return EscapeNonEmptyString<EscapingOperation_Count, TJSONString, TConcatStringWrapping, TJavascriptString>(value, szValue, i ? i - 1 : 0, len, outputString);
                         }
@@ -152,20 +152,20 @@ namespace Js
             } // for.
 
             if (op == EscapingOperation_Escape)
-            {
+            {TRACE_IT(55996);
                 if (lastFlushSz < endSz)
-                {
+                {TRACE_IT(55997);
                     outputString->AppendLarge(lastFlushSz, (charcount_t)(endSz - lastFlushSz));
                 }
                 outputString->Append(_u('\"'));
                 result = nullptr;
             }
             else if (op == EscapingOperation_Count)
-            {
+            {TRACE_IT(55998);
                 result = TJSONString::New(value, start, extra);
             }
             else
-            {
+            {TRACE_IT(55999);
                 // If we got here, we don't need to change the inside, just wrap the string with quotes.
                 result = TConcatStringWrapping::New(value);
             }
@@ -174,7 +174,7 @@ namespace Js
         }
 
         static WCHAR* EscapeNonEmptyString(ArenaAllocator* allocator, const char16* szValue)
-        {
+        {TRACE_IT(56000);
             WCHAR* result = nullptr;
             StringProxy::allocator = allocator;
             charcount_t len = (charcount_t)wcslen(szValue);
@@ -192,17 +192,17 @@ namespace Js
             static ArenaAllocator* allocator;
 
             StringProxy()
-            {
+            {TRACE_IT(56001);
                 this->m_needEscape = false;
             }
 
             StringProxy(int start, int extra) : m_start(start), m_extra(extra)
-            {
+            {TRACE_IT(56002);
                 this->m_needEscape = true;
             }
 
             static StringProxy* New(Js::JavascriptString* value)
-            {
+            {TRACE_IT(56003);
                 // Case 1: The string do not need to be escaped at all
                 Assert(value == nullptr);
                 Assert(allocator != nullptr);
@@ -210,7 +210,7 @@ namespace Js
             }
 
             static StringProxy* New(Js::JavascriptString* value, uint start, uint length)
-            {
+            {TRACE_IT(56004);
                 // Case 2: The string requires escaping, and the length is computed
                 Assert(value == nullptr);
                 Assert(allocator != nullptr);
@@ -218,9 +218,9 @@ namespace Js
             }
 
             WCHAR* GetResult(const WCHAR* originalString, charcount_t originalLength)
-            {
+            {TRACE_IT(56005);
                 if (this->m_needEscape)
-                {
+                {TRACE_IT(56006);
                     charcount_t unescapedStringLength = originalLength + m_extra + 2 /* for the quotes */;
                     WCHAR* buffer = AnewArray(allocator, WCHAR, unescapedStringLength + 1); /* for terminating null */
                     buffer[unescapedStringLength] = '\0';
@@ -231,7 +231,7 @@ namespace Js
                     return buffer;
                 }
                 else
-                {
+                {TRACE_IT(56007);
                     WCHAR* buffer = AnewArray(allocator, WCHAR, originalLength + 3); /* quotes and terminating null */
                     buffer[0] = _u('\"');
                     buffer[originalLength + 1] = _u('\"');

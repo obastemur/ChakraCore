@@ -10,14 +10,14 @@ namespace Js
 {
     IndexPropertyDescriptorMap::IndexPropertyDescriptorMap(Recycler* recycler)
         : recycler(recycler), indexList(nullptr), lastIndexAt(-1)
-    {
+    {TRACE_IT(66122);
         indexPropertyMap = RecyclerNew(recycler, InnerMap, recycler);
     }
 
     void IndexPropertyDescriptorMap::Add(uint32 key, const IndexPropertyDescriptor& value)
-    {
+    {TRACE_IT(66123);
         if (indexPropertyMap->Count() >= (INT_MAX / 2))
-        {
+        {TRACE_IT(66124);
             Js::Throw::OutOfMemory(); // Would possibly overflow our dictionary
         }
 
@@ -29,15 +29,15 @@ namespace Js
     // Build sorted index list if not found.
     //
     void IndexPropertyDescriptorMap::EnsureIndexList()
-    {
+    {TRACE_IT(66125);
         if (!indexList)
-        {
+        {TRACE_IT(66126);
             int length = Count();
             indexList = RecyclerNewArrayLeaf(recycler, uint32, length);
             lastIndexAt = -1; // Reset lastAccessorIndexAt
 
             for (int i = 0; i < length; i++)
-            {
+            {TRACE_IT(66127);
                 indexList[i] = GetKeyAt(i);
             }
 
@@ -49,9 +49,9 @@ namespace Js
     // Try get the last index in this map if it contains any valid index.
     //
     bool IndexPropertyDescriptorMap::TryGetLastIndex(uint32* lastIndex)
-    {
+    {TRACE_IT(66128);
         if (Count() == 0)
-        {
+        {TRACE_IT(66129);
             return false;
         }
 
@@ -59,7 +59,7 @@ namespace Js
 
         // Search the index list backwards for the last index
         for (int i = Count() - 1; i >= 0; i--)
-        {
+        {TRACE_IT(66130);
             uint32 key = indexList[i];
 
             IndexPropertyDescriptor* descriptor;
@@ -67,7 +67,7 @@ namespace Js
             Assert(b && descriptor);
 
             if (!(descriptor->Attributes & PropertyDeleted))
-            {
+            {TRACE_IT(66131);
                 *lastIndex = key;
                 return true;
             }
@@ -80,16 +80,16 @@ namespace Js
     // Get the next index in the map, similar to JavascriptArray::GetNextIndex().
     //
     BOOL IndexPropertyDescriptorMap::IsValidDescriptorToken(void * descriptorValidationToken) const
-    {
+    {TRACE_IT(66132);
         return indexList != nullptr && descriptorValidationToken == indexList;
     }
 
     uint32 IndexPropertyDescriptorMap::GetNextDescriptor(uint32 key, IndexPropertyDescriptor** ppDescriptor, void ** pDescriptorValidationToken)
-    {
+    {TRACE_IT(66133);
         *pDescriptorValidationToken = nullptr;
         *ppDescriptor = nullptr;
         if (Count() == 0)
-        {
+        {TRACE_IT(66134);
             return JavascriptArray::InvalidIndex;
         }
 
@@ -98,29 +98,29 @@ namespace Js
         // Find the first item index > key
         int low = 0;
         if (key != JavascriptArray::InvalidIndex)
-        {
+        {TRACE_IT(66135);
             Assert(lastIndexAt < Count()); // lastIndexAt must be either -1 or in range [0, Count)
             if (lastIndexAt >= 0 && indexList[lastIndexAt] == key)
-            {
+            {TRACE_IT(66136);
                 low = lastIndexAt + 1;
             }
             else
-            {
+            {TRACE_IT(66137);
                 int high = Count() - 1;
                 while (low < high)
-                {
+                {TRACE_IT(66138);
                     int mid = (low + high) / 2;
                     if (indexList[mid] <= key)
-                    {
+                    {TRACE_IT(66139);
                         low = mid + 1;
                     }
                     else
-                    {
+                    {TRACE_IT(66140);
                         high = mid;
                     }
                 }
                 if (low < Count() && indexList[low] <= key)
-                {
+                {TRACE_IT(66141);
                     ++low;
                 }
             }
@@ -128,14 +128,14 @@ namespace Js
 
         // Search for the next valid index
         for (; low < Count(); low++)
-        {
+        {TRACE_IT(66142);
             uint32 index = indexList[low];
             IndexPropertyDescriptor* descriptor;
             bool b = TryGetReference(index, &descriptor);
             Assert(b && descriptor);
 
             if (!(descriptor->Attributes & PropertyDeleted))
-            {
+            {TRACE_IT(66143);
                 lastIndexAt = low; // Save last index location
                 *pDescriptorValidationToken = indexList; // use the index list to keep track of where the descriptor has been changed.
                 *ppDescriptor = descriptor;
@@ -151,15 +151,15 @@ namespace Js
     // [[CanDelete]] is false. Return the index where [index, ...) are all deleted.
     //
     uint32 IndexPropertyDescriptorMap::DeleteDownTo(uint32 firstKey)
-    {
+    {TRACE_IT(66144);
         EnsureIndexList();
 
         // Iterate the index list backwards to delete from right to left
         for (int i = Count() - 1; i >= 0; i--)
-        {
+        {TRACE_IT(66145);
             uint32 key = indexList[i];
             if (key < firstKey)
-            {
+            {TRACE_IT(66146);
                 break; // We are done, [firstKey, ...) have already been deleted
             }
 
@@ -168,18 +168,18 @@ namespace Js
             Assert(b && descriptor);
 
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66147);
                 continue; // Skip empty entry
             }
 
             if (descriptor->Attributes & PropertyConfigurable)
-            {
+            {TRACE_IT(66148);
                 descriptor->Getter = nullptr;
                 descriptor->Setter = nullptr;
                 descriptor->Attributes = PropertyDeleted | PropertyWritable | PropertyConfigurable;
             }
             else
-            {
+            {TRACE_IT(66149);
                 // Cannot delete key, and [key + 1, ...) are all deleted
                 return key + 1;
             }
@@ -190,34 +190,34 @@ namespace Js
 
     template <class T>
     ES5ArrayTypeHandlerBase<T>* ES5ArrayTypeHandlerBase<T>::New(Recycler * recycler, int initialCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
-    {
+    {TRACE_IT(66150);
         return DictionaryTypeHandlerBase<T>::template NewTypeHandler<ES5ArrayTypeHandlerBase<T>>(recycler, initialCapacity, inlineSlotCapacity, offsetOfInlineSlots);
     }
 
     template <class T>
     ES5ArrayTypeHandlerBase<T>::ES5ArrayTypeHandlerBase(Recycler* recycler)
         : DictionaryTypeHandlerBase<T>(recycler), dataItemAttributes(PropertyDynamicTypeDefaults), lengthWritable(true)
-    {
+    {TRACE_IT(66151);
         indexPropertyMap = RecyclerNew(recycler, IndexPropertyDescriptorMap, recycler);
     }
 
     template <class T>
     ES5ArrayTypeHandlerBase<T>::ES5ArrayTypeHandlerBase(Recycler* recycler, int slotCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
         : DictionaryTypeHandlerBase<T>(recycler, slotCapacity, inlineSlotCapacity, offsetOfInlineSlots), dataItemAttributes(PropertyDynamicTypeDefaults), lengthWritable(true)
-    {
+    {TRACE_IT(66152);
         indexPropertyMap = RecyclerNew(recycler, IndexPropertyDescriptorMap, recycler);
     }
 
     template <class T>
     ES5ArrayTypeHandlerBase<T>::ES5ArrayTypeHandlerBase(Recycler* recycler, DictionaryTypeHandlerBase<T>* typeHandler)
         : DictionaryTypeHandlerBase<T>(typeHandler), dataItemAttributes(PropertyDynamicTypeDefaults), lengthWritable(true)
-    {
+    {TRACE_IT(66153);
         indexPropertyMap = RecyclerNew(recycler, IndexPropertyDescriptorMap, recycler);
     }
 
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetIsPrototype(DynamicObject * instance)
-    {
+    {TRACE_IT(66154);
         __super::SetIsPrototype(instance);
 
         // We have ES5 array has array/object prototype, we can't use array fast path for set
@@ -229,10 +229,10 @@ namespace Js
 
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetInstanceTypeHandler(DynamicObject* instance, bool hasChanged)
-    {
+    {TRACE_IT(66155);
         Assert(JavascriptArray::Is(instance));
         if (this->GetFlags() & DynamicTypeHandler::IsPrototypeFlag)
-        {
+        {TRACE_IT(66156);
             // We have ES5 array has array/object prototype, we can't use array fast path for set
             // as index could be readonly or be getter/setter in the prototype
             // TODO: we may be able to separate out the array fast path and the object array fast path
@@ -251,15 +251,15 @@ namespace Js
         bool isCrossSiteObject = false;
 
         try
-        {
+        {TRACE_IT(66157);
             if (!CrossSite::IsCrossSiteObjectTyped(arrayInstance))
-            {
+            {TRACE_IT(66158);
                 // Convert instance to an ES5Array
                 Assert(VirtualTableInfo<JavascriptArray>::HasVirtualTable(arrayInstance));
                 VirtualTableInfo<ES5Array>::SetVirtualTable(arrayInstance);
             }
             else
-            {
+            {TRACE_IT(66159);
                 // If instance was a cross-site JavascriptArray, convert to a cross-site ES5Array
                 Assert(VirtualTableInfo<CrossSiteObject<JavascriptArray>>::HasVirtualTable(arrayInstance));
                 VirtualTableInfo<CrossSiteObject<ES5Array>>::SetVirtualTable(arrayInstance);
@@ -273,16 +273,16 @@ namespace Js
 #endif
         }
         catch(Js::ExceptionBase)
-        {
+        {TRACE_IT(66160);
             Assert(!doneConversion);
             // change vtbl shouldn't OOM. revert back the vtable.
             if (isCrossSiteObject)
-            {
+            {TRACE_IT(66161);
                 Assert(VirtualTableInfo<CrossSiteObject<ES5Array>>::HasVirtualTable(arrayInstance));
                 VirtualTableInfo<CrossSiteObject<JavascriptArray>>::SetVirtualTable(arrayInstance);
             }
             else
-            {
+            {TRACE_IT(66162);
                 Assert(VirtualTableInfo<ES5Array>::HasVirtualTable(arrayInstance));
                 VirtualTableInfo<JavascriptArray>::SetVirtualTable(arrayInstance);
             }
@@ -294,7 +294,7 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::HasDataItem(ES5Array* arr, uint32 index)
-    {
+    {TRACE_IT(66163);
         Var value;
         return arr->DirectGetItemAt(index, &value);
     }
@@ -305,12 +305,12 @@ namespace Js
     //
     template <class T>
     bool ES5ArrayTypeHandlerBase<T>::HasAnyDataItemNotInMap(ES5Array* arr)
-    {
+    {TRACE_IT(66164);
         JavascriptArray::ArrayElementEnumerator e(arr);
         while (e.MoveNext<Var>())
-        {
+        {TRACE_IT(66165);
             if (!indexPropertyMap->ContainsKey(e.GetIndex()))
-            {
+            {TRACE_IT(66166);
                 return true;
             }
         }
@@ -320,42 +320,42 @@ namespace Js
 
     template <class T>
     PropertyAttributes ES5ArrayTypeHandlerBase<T>::GetDataItemAttributes() const
-    {
+    {TRACE_IT(66167);
         return dataItemAttributes;
     }
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetDataItemSealed()
-    {
+    {TRACE_IT(66168);
         dataItemAttributes &= ~(PropertyConfigurable);
     }
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetDataItemFrozen()
-    {
+    {TRACE_IT(66169);
         dataItemAttributes &= ~(PropertyWritable | PropertyConfigurable);
         this->ClearHasOnlyWritableDataProperties();
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::CantAssign(PropertyOperationFlags flags, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(66170);
         JavascriptError::ThrowCantAssignIfStrictMode(flags, scriptContext);
         return false;
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::CantExtend(PropertyOperationFlags flags, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(66171);
         JavascriptError::ThrowCantExtendIfStrictMode(flags, scriptContext);
         return false;
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::HasItem(ES5Array* arr, uint32 index)
-    {
+    {TRACE_IT(66172);
         // We have the item if we have its descriptor.
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66173);
             return !(descriptor->Attributes & PropertyDeleted);
         }
 
@@ -365,22 +365,22 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItem(ES5Array* arr, DynamicObject* instance, uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66174);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         // Reject if we need to grow non-writable length
         if (!CanSetItemAt(arr, index))
-        {
+        {TRACE_IT(66175);
             return CantExtend(flags, scriptContext);
         }
 
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66176);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66177);
                 if (!(this->GetFlags() & this->IsExtensibleFlag))
-                {
+                {TRACE_IT(66178);
                     return CantExtend(flags, scriptContext);
                 }
 
@@ -394,16 +394,16 @@ namespace Js
             }
 
             if (!(descriptor->Attributes & PropertyWritable))
-            {
+            {TRACE_IT(66179);
                 return CantAssign(flags, scriptContext);
             }
 
             if (HasDataItem(arr, index))
-            {
+            {TRACE_IT(66180);
                 arr->DirectSetItemAt(index, value);
             }
             else if (descriptor->Setter)
-            {
+            {TRACE_IT(66181);
                 RecyclableObject* func = RecyclableObject::FromVar(descriptor->Setter);
                 // TODO : request context
                 JavascriptOperators::CallSetter(func, instance, value, NULL);
@@ -418,11 +418,11 @@ namespace Js
         if (!(this->GetFlags() & this->IsExtensibleFlag))
         {
             if (!HasDataItem(arr, index))
-            {
+            {TRACE_IT(66182);
                 return CantExtend(flags, scriptContext);
             }
             else if (!(GetDataItemAttributes() & PropertyWritable))
-            {
+            {TRACE_IT(66183);
                 return CantAssign(flags, scriptContext);
             }
         }
@@ -439,7 +439,7 @@ namespace Js
     {
         // Reject if we need to grow non-writable length
         if (!CanSetItemAt(arr, index))
-        {
+        {TRACE_IT(66184);
             return false;
         }
 
@@ -451,19 +451,19 @@ namespace Js
         Assert(!arr->GetHasNoEnumerableProperties());
 
         if (!(attributes & PropertyWritable))
-        {
+        {TRACE_IT(66185);
             this->ClearHasOnlyWritableDataProperties();
             if(this->GetFlags() & this->IsPrototypeFlag)
-            {
+            {TRACE_IT(66186);
                 instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
             }
         }
 
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66187);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66188);
                 Assert(!descriptor->Getter && !descriptor->Setter);
                 descriptor->Attributes = attributes;
                 arr->DirectSetItemAt(index, value);
@@ -473,18 +473,18 @@ namespace Js
             descriptor->Attributes = attributes;
 
             if (HasDataItem(arr, index))
-            {
+            {TRACE_IT(66189);
                 arr->DirectSetItemAt(index, value);
             }
             else if (descriptor->Setter)
-            {
+            {TRACE_IT(66190);
                 RecyclableObject* func = RecyclableObject::FromVar(descriptor->Setter);
                 // TODO : request context
                 JavascriptOperators::CallSetter(func, instance, value, NULL);
             }
         }
         else
-        {
+        {TRACE_IT(66191);
             // See comment for the same assert above.
             Assert(!arr->GetHasNoEnumerableProperties());
 
@@ -498,12 +498,12 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItemAttributes(ES5Array* arr, DynamicObject* instance, uint32 index, PropertyAttributes attributes)
-    {
+    {TRACE_IT(66192);
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66193);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66194);
                 return false;
             }
 
@@ -512,26 +512,26 @@ namespace Js
 
             descriptor->Attributes = (descriptor->Attributes & ~PropertyDynamicTypeDefaults) | (attributes & PropertyDynamicTypeDefaults);
             if (!(descriptor->Attributes & PropertyWritable))
-            {
+            {TRACE_IT(66195);
                 this->ClearHasOnlyWritableDataProperties();
                 if(this->GetFlags() & this->IsPrototypeFlag)
-                {
+                {TRACE_IT(66196);
                     instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
                 }
             }
             return true;
         }
         else if (HasDataItem(arr, index))
-        {
+        {TRACE_IT(66197);
             // No need to change hasNoEnumerableProperties. See comment in ES5ArrayTypeHandlerBase<T>::SetItemWithAttributes.
             Assert(!arr->GetHasNoEnumerableProperties());
 
             indexPropertyMap->Add(index, IndexPropertyDescriptor(attributes & PropertyDynamicTypeDefaults));
             if (!(attributes & PropertyWritable))
-            {
+            {TRACE_IT(66198);
                 this->ClearHasOnlyWritableDataProperties();
                 if(this->GetFlags() & this->IsPrototypeFlag)
-                {
+                {TRACE_IT(66199);
                     instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
                 }
             }
@@ -546,17 +546,17 @@ namespace Js
     {
         // Reject if we need to grow non-writable length
         if (!CanSetItemAt(arr, index))
-        {
+        {TRACE_IT(66200);
             return false;
         }
 
         JavascriptLibrary* lib = instance->GetLibrary();
         if (getter)
-        {
+        {TRACE_IT(66201);
             getter = this->CanonicalizeAccessor(getter, lib);
         }
         if (setter)
-        {
+        {TRACE_IT(66202);
             setter = this->CanonicalizeAccessor(setter, lib);
         }
 
@@ -565,27 +565,27 @@ namespace Js
 
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66203);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66204);
                 descriptor->Attributes = PropertyDynamicTypeDefaults;
             }
             if (getter)
-            {
+            {TRACE_IT(66205);
                 descriptor->Getter = getter;
             }
             if (setter)
-            {
+            {TRACE_IT(66206);
                 descriptor->Setter = setter;
             }
         }
         else
-        {
+        {TRACE_IT(66207);
             indexPropertyMap->Add(index, IndexPropertyDescriptor(getter, setter));
         }
 
         if (arr->GetLength() <= index)
-        {
+        {TRACE_IT(66208);
             uint32 newLength = index;
             UInt32Math::Inc(newLength);
             arr->SetLength(newLength);
@@ -593,7 +593,7 @@ namespace Js
 
         this->ClearHasOnlyWritableDataProperties();
         if(this->GetFlags() & this->IsPrototypeFlag)
-        {
+        {TRACE_IT(66209);
             instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
         }
         return true;
@@ -601,17 +601,17 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetItemAccessors(ES5Array* arr, DynamicObject* instance, uint32 index, Var* getter, Var* setter)
-    {
+    {TRACE_IT(66210);
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66211);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66212);
                 return false;
             }
 
             if (!HasDataItem(arr, index)) // if not shadowed by data item
-            {
+            {TRACE_IT(66213);
                 *getter = descriptor->Getter;
                 *setter = descriptor->Setter;
                 return descriptor->Getter || descriptor->Setter;
@@ -624,22 +624,22 @@ namespace Js
     // Check if this array can set item at the given index.
     template <class T>
     bool ES5ArrayTypeHandlerBase<T>::CanSetItemAt(ES5Array* arr, uint32 index) const
-    {
+    {TRACE_IT(66214);
         return IsLengthWritable() || index < arr->GetLength();
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::DeleteItem(ES5Array* arr, DynamicObject* instance, uint32 index, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(66215);
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66216);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66217);
                 return true;
             }
             else if (!(descriptor->Attributes & PropertyConfigurable))
-            {
+            {TRACE_IT(66218);
                 JavascriptError::ThrowCantDelete(propertyOperationFlags, instance->GetScriptContext(), TaggedInt::ToString(index, instance->GetScriptContext())->GetString());
 
                 return false;
@@ -654,7 +654,7 @@ namespace Js
 
         // Not in attribute map
         if (!(GetDataItemAttributes() & PropertyConfigurable))
-        {
+        {TRACE_IT(66219);
             return !HasDataItem(arr, index); // CantDelete
         }
         return arr->DirectDeleteItemAt<Var>(index);
@@ -662,28 +662,28 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetItem(ES5Array* arr, DynamicObject* instance, Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66220);
         if (arr->DirectGetItemAt<Var>(index, value))
-        {
+        {TRACE_IT(66221);
             return true;
         }
 
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66222);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66223);
                 *value = requestContext->GetMissingItemResult();
                 return false;
             }
 
             if (descriptor->Getter)
-            {
+            {TRACE_IT(66224);
                 RecyclableObject* func = RecyclableObject::FromVar(descriptor->Getter);
                 *value = Js::JavascriptOperators::CallGetter(func, originalInstance, requestContext);
             }
             else
-            {
+            {TRACE_IT(66225);
                 *value = requestContext->GetMissingItemResult();
             }
             return true;
@@ -695,28 +695,28 @@ namespace Js
 
     template <class T>
     DescriptorFlags ES5ArrayTypeHandlerBase<T>::GetItemSetter(ES5Array* arr, DynamicObject* instance, uint32 index, Var* setterValue, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66226);
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66227);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66228);
                 return None;
             }
 
             if (HasDataItem(ES5Array::FromVar(instance), index))
-            {
+            {TRACE_IT(66229);
                 // not a setter but shadows
                 return (descriptor->Attributes & PropertyWritable) ? WritableData : Data;
             }
             else if (descriptor->Setter)
-            {
+            {TRACE_IT(66230);
                 *setterValue = descriptor->Setter;
                 return Accessor;
             }
         }
         else if (HasDataItem(ES5Array::FromVar(instance), index))
-        {
+        {TRACE_IT(66231);
             return (GetDataItemAttributes() & PropertyWritable) ? WritableData : Data;
         }
 
@@ -725,17 +725,17 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::HasProperty(DynamicObject* instance, PropertyId propertyId, bool *noRedecl)
-    {
+    {TRACE_IT(66232);
         ScriptContext* scriptContext = instance->GetScriptContext();
         uint32 index;
 
         if (noRedecl != nullptr)
-        {
+        {TRACE_IT(66233);
             *noRedecl = false;
         }
 
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66234);
             // Call my version of HasItem
             return ES5ArrayTypeHandlerBase<T>::HasItem(instance, index);
         }
@@ -745,7 +745,7 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::HasProperty(DynamicObject* instance, JavascriptString* propertyNameString)
-    {
+    {TRACE_IT(66235);
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord*");
 
@@ -754,11 +754,11 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetProperty(DynamicObject* instance, Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66236);
         ScriptContext* scriptContext = instance->GetScriptContext();
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66237);
             return GetItem(ES5Array::FromVar(instance), instance, index, value, requestContext);
         }
 
@@ -767,7 +767,7 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetProperty(DynamicObject* instance, Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66238);
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord*");
 
@@ -776,12 +776,12 @@ namespace Js
 
     template <class T>
     DescriptorFlags ES5ArrayTypeHandlerBase<T>::GetSetter(DynamicObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66239);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66240);
             PropertyValueInfo::SetNoCache(info, instance);
             return ES5ArrayTypeHandlerBase<T>::GetItemSetter(instance, index, setterValue, requestContext);
         }
@@ -791,7 +791,7 @@ namespace Js
 
     template <class T>
     DescriptorFlags ES5ArrayTypeHandlerBase<T>::GetSetter(DynamicObject* instance, JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66241);
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord*");
 
@@ -800,11 +800,11 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::DeleteProperty(DynamicObject* instance, PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66242);
         ScriptContext* scriptContext = instance->GetScriptContext();
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66243);
             return DeleteItem(ES5Array::FromVar(instance), instance, index, flags);
         }
 
@@ -813,65 +813,65 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::HasItem(DynamicObject* instance, uint32 index)
-    {
+    {TRACE_IT(66244);
         return HasItem(ES5Array::FromVar(instance), index);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItem(DynamicObject* instance, uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66245);
         return SetItem(ES5Array::FromVar(instance), instance, index, value, flags);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItemWithAttributes(DynamicObject* instance, uint32 index, Var value, PropertyAttributes attributes)
-    {
+    {TRACE_IT(66246);
         return SetItemWithAttributes(ES5Array::FromVar(instance), instance, index, value, attributes);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItemAttributes(DynamicObject* instance, uint32 index, PropertyAttributes attributes)
-    {
+    {TRACE_IT(66247);
         return SetItemAttributes(ES5Array::FromVar(instance), instance, index, attributes);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetItemAccessors(DynamicObject* instance, uint32 index, Var getter, Var setter)
-    {
+    {TRACE_IT(66248);
         return SetItemAccessors(ES5Array::FromVar(instance), instance, index, getter, setter);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::DeleteItem(DynamicObject* instance, uint32 index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(66249);
         return DeleteItem(ES5Array::FromVar(instance), instance, index, flags);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetItem(DynamicObject* instance, Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66250);
         return GetItem(ES5Array::FromVar(instance), instance, originalInstance, index, value, requestContext);
     }
 
     template <class T>
     DescriptorFlags ES5ArrayTypeHandlerBase<T>::GetItemSetter(DynamicObject* instance, uint32 index, Var* setterValue, ScriptContext* requestContext)
-    {
+    {TRACE_IT(66251);
         return GetItemSetter(ES5Array::FromVar(instance), instance, index, setterValue, requestContext);
     }
 
     template <class T>
     bool ES5ArrayTypeHandlerBase<T>::IsLengthWritable() const
-    {
+    {TRACE_IT(66252);
         return lengthWritable;
     }
 
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetLengthWritable(bool writable)
-    {
+    {TRACE_IT(66253);
         lengthWritable = writable;
 
         if (!writable)
-        {
+        {TRACE_IT(66254);
             this->ClearHasOnlyWritableDataProperties();
         }
     }
@@ -885,18 +885,18 @@ namespace Js
     //
     template <class T>
     uint32 ES5ArrayTypeHandlerBase<T>::DeleteDownTo(ES5Array* arr, uint32 first, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(66255);
         Assert(first < arr->GetLength()); // Only called when newLen < oldLen
 
         // If the number of elements to be deleted is small, iterate on it.
         uint32 count = arr->GetLength() - first;
         if (count < 5)
-        {
+        {TRACE_IT(66256);
             uint32 oldLen = arr->GetLength();
             while (first < oldLen)
-            {
+            {TRACE_IT(66257);
                 if (!arr->DeleteItem(oldLen - 1, propertyOperationFlags))
-                {
+                {TRACE_IT(66258);
                     break;
                 }
                 --oldLen;
@@ -907,19 +907,19 @@ namespace Js
 
         // If data items are [[CanDelete]], check attribute map only.
         if (GetDataItemAttributes() & PropertyConfigurable)
-        {
+        {TRACE_IT(66259);
             return indexPropertyMap->DeleteDownTo(first);
         }
         else
-        {
+        {TRACE_IT(66260);
             // The array isSealed. No existing item can be deleted. Look for the max index.
             uint32 lastIndex;
             if (indexPropertyMap->TryGetLastIndex(&lastIndex) && lastIndex >= first)
-            {
+            {TRACE_IT(66261);
                 first = lastIndex + 1;
             }
             if (TryGetLastDataItemIndex(arr, first, &lastIndex))
-            {
+            {TRACE_IT(66262);
                 first = lastIndex + 1;
             }
             return first;
@@ -931,17 +931,17 @@ namespace Js
     //
     template <class T>
     bool ES5ArrayTypeHandlerBase<T>::TryGetLastDataItemIndex(ES5Array* arr, uint32 first, uint32* lastIndex)
-    {
+    {TRACE_IT(66263);
         uint32 index = JavascriptArray::InvalidIndex;
 
         JavascriptArray::ArrayElementEnumerator e(arr, first);
         while (e.MoveNext<Var>())
-        {
+        {TRACE_IT(66264);
             index = e.GetIndex();
         }
 
         if (index != JavascriptArray::InvalidIndex)
-        {
+        {TRACE_IT(66265);
             *lastIndex = index;
             return true;
         }
@@ -951,11 +951,11 @@ namespace Js
 
     template <class T>
     void ES5ArrayTypeHandlerBase<T>::SetLength(ES5Array* arr, uint32 newLen, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(66266);
         Assert(IsLengthWritable()); // Should have already checked
 
         if (newLen < arr->GetLength())
-        {
+        {TRACE_IT(66267);
             newLen = DeleteDownTo(arr, newLen, propertyOperationFlags); // Result newLen might be different
         }
 
@@ -970,17 +970,17 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsAttributeSet(uint32 index, PropertyAttributes attr)
-    {
+    {TRACE_IT(66268);
         IndexPropertyDescriptor* descriptor;
         if (indexPropertyMap->TryGetReference(index, &descriptor))
-        {
+        {TRACE_IT(66269);
             if (!(descriptor->Attributes & PropertyDeleted))
-            {
+            {TRACE_IT(66270);
                 return descriptor->Attributes & attr;
             }
         }
         else
-        {
+        {TRACE_IT(66271);
             return GetDataItemAttributes() & attr;
         }
 
@@ -989,13 +989,13 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsAttributeSet(DynamicObject* instance, PropertyId propertyId, PropertyAttributes attr, BOOL& isNumericPropertyId)
-    {
+    {TRACE_IT(66272);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         uint32 index;
         isNumericPropertyId = scriptContext->IsNumericPropertyId(propertyId, &index);
         if (isNumericPropertyId)
-        {
+        {TRACE_IT(66273);
             return IsAttributeSet(index, attr);
         }
 
@@ -1004,63 +1004,63 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::UpdateAttribute(DynamicObject* instance, PropertyId propertyId, PropertyAttributes attr, BOOL value, BOOL& isNumericPropertyId)
-    {
+    {TRACE_IT(66274);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         uint32 index;
         isNumericPropertyId = scriptContext->IsNumericPropertyId(propertyId, &index);
         if (isNumericPropertyId)
-        {
+        {TRACE_IT(66275);
             IndexPropertyDescriptor* descriptor;
             if (indexPropertyMap->TryGetReference(index, &descriptor))
-            {
+            {TRACE_IT(66276);
                 if (descriptor->Attributes & PropertyDeleted)
-                {
+                {TRACE_IT(66277);
                     return false;
                 }
 
                 if (value)
-                {
+                {TRACE_IT(66278);
                     descriptor->Attributes |= attr;
                 }
                 else
-                {
+                {TRACE_IT(66279);
                     descriptor->Attributes &= (~attr);
                     if (!(descriptor->Attributes & PropertyWritable))
-                    {
+                    {TRACE_IT(66280);
                         this->ClearHasOnlyWritableDataProperties();
                         if(this->GetFlags() & this->IsPrototypeFlag)
-                        {
+                        {TRACE_IT(66281);
                             instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
                         }
                     }
                 }
             }
             else
-            {
+            {TRACE_IT(66282);
                 if (!HasDataItem(ES5Array::FromVar(instance), index))
-                {
+                {TRACE_IT(66283);
                     return false;
                 }
 
                 PropertyAttributes newAttr = GetDataItemAttributes();
                 if (value)
-                {
+                {TRACE_IT(66284);
                     newAttr |= attr;
                 }
                 else
-                {
+                {TRACE_IT(66285);
                     newAttr &= (~attr);
                 }
 
                 if (newAttr != GetDataItemAttributes())
-                {
+                {TRACE_IT(66286);
                     indexPropertyMap->Add(index, IndexPropertyDescriptor(newAttr));
                     if (!(newAttr & PropertyWritable))
-                    {
+                    {TRACE_IT(66287);
                         this->ClearHasOnlyWritableDataProperties();
                         if(this->GetFlags() & this->IsPrototypeFlag)
-                        {
+                        {TRACE_IT(66288);
                             instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
                         }
                     }
@@ -1075,13 +1075,13 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsItemEnumerable(ES5Array* arr, uint32 index)
-    {
+    {TRACE_IT(66289);
         return IsAttributeSet(index, PropertyEnumerable);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsEnumerable(DynamicObject* instance, PropertyId propertyId)
-    {
+    {TRACE_IT(66290);
         BOOL isNumericPropertyId;
         return IsAttributeSet(instance, propertyId, PropertyEnumerable, isNumericPropertyId)
             && (isNumericPropertyId || __super::IsEnumerable(instance, propertyId));
@@ -1089,7 +1089,7 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsWritable(DynamicObject* instance, PropertyId propertyId)
-    {
+    {TRACE_IT(66291);
         BOOL isNumericPropertyId;
         return IsAttributeSet(instance, propertyId, PropertyWritable, isNumericPropertyId)
             && (isNumericPropertyId || __super::IsWritable(instance, propertyId));
@@ -1097,7 +1097,7 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsConfigurable(DynamicObject* instance, PropertyId propertyId)
-    {
+    {TRACE_IT(66292);
         BOOL isNumericPropertyId;
         return IsAttributeSet(instance, propertyId, PropertyConfigurable, isNumericPropertyId)
             && (isNumericPropertyId || __super::IsConfigurable(instance, propertyId));
@@ -1105,9 +1105,9 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetEnumerable(DynamicObject* instance, PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(66293);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(66294);
             Assert(!value); // Can only set enumerable to false
             return true;
         }
@@ -1119,12 +1119,12 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetWritable(DynamicObject* instance, PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(66295);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(66296);
             SetLengthWritable(value ? true : false);
             if(!value && this->GetFlags() & this->IsPrototypeFlag)
-            {
+            {TRACE_IT(66297);
                 instance->GetLibrary()->NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
             }
             return true;
@@ -1137,9 +1137,9 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetConfigurable(DynamicObject* instance, PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(66298);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(66299);
             Assert(!value); // Can only set configurable to false
             return true;
         }
@@ -1151,12 +1151,12 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::GetAccessors(DynamicObject* instance, PropertyId propertyId, Var* getter, Var* setter)
-    {
+    {TRACE_IT(66300);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66301);
             return GetItemAccessors(ES5Array::FromVar(instance), instance, index, getter, setter);
         }
 
@@ -1165,10 +1165,10 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::Seal(DynamicObject* instance)
-    {
+    {TRACE_IT(66302);
         IndexPropertyDescriptor* descriptor = NULL;
         for (int i = 0; i < indexPropertyMap->Count(); i++)
-        {
+        {TRACE_IT(66303);
             descriptor = indexPropertyMap->GetReferenceAt(i);
             descriptor->Attributes &= (~PropertyConfigurable);
         }
@@ -1180,21 +1180,21 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::FreezeImpl(DynamicObject* instance, bool isConvertedType)
-    {
+    {TRACE_IT(66304);
         ES5Array* arr = ES5Array::FromVar(instance);
 
         for (int i = 0; i < indexPropertyMap->Count(); i++)
-        {
+        {TRACE_IT(66305);
             uint32 index = indexPropertyMap->GetKeyAt(i);
             IndexPropertyDescriptor* descriptor = indexPropertyMap->GetReferenceAt(i);
 
             if (HasDataItem(arr, index))
-            {
+            {TRACE_IT(66306);
                 //Only data descriptor has Writable property
                 descriptor->Attributes &= ~(PropertyWritable | PropertyConfigurable);
             }
             else
-            {
+            {TRACE_IT(66307);
                 descriptor->Attributes &= ~(PropertyConfigurable);
             }
         }
@@ -1207,27 +1207,27 @@ namespace Js
 
     template <class T>
     BigDictionaryTypeHandler* ES5ArrayTypeHandlerBase<T>::NewBigDictionaryTypeHandler(Recycler* recycler, int slotCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
-    {
+    {TRACE_IT(66308);
         return RecyclerNew(recycler, BigES5ArrayTypeHandler, recycler, slotCapacity, inlineSlotCapacity, offsetOfInlineSlots, this);
     }
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsSealed(DynamicObject* instance)
-    {
+    {TRACE_IT(66309);
         if (!__super::IsSealed(instance))
-        {
+        {TRACE_IT(66310);
             return false;
         }
 
         for (int i = 0; i < indexPropertyMap->Count(); i++)
-        {
+        {TRACE_IT(66311);
             IndexPropertyDescriptor* descriptor = indexPropertyMap->GetReferenceAt(i);
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66312);
                 continue; // Skip deleted
             }
             if (descriptor->Attributes & PropertyConfigurable)
-            {
+            {TRACE_IT(66313);
                 //[[Configurable]] must be false for all properties.
                 return false;
             }
@@ -1235,9 +1235,9 @@ namespace Js
 
         // Check data item not in map
         if (this->GetDataItemAttributes() & PropertyConfigurable)
-        {
+        {TRACE_IT(66314);
             if (HasAnyDataItemNotInMap(ES5Array::FromVar(instance)))
-            {
+            {TRACE_IT(66315);
                 return false;
             }
         }
@@ -1251,28 +1251,28 @@ namespace Js
     //
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsObjectArrayFrozen(ES5Array* arr)
-    {
+    {TRACE_IT(66316);
         if (!__super::IsFrozen(arr))
-        {
+        {TRACE_IT(66317);
             return false;
         }
 
         for (int i = 0; i < indexPropertyMap->Count(); i++)
-        {
+        {TRACE_IT(66318);
             uint32 index = indexPropertyMap->GetKeyAt(i);
             IndexPropertyDescriptor* descriptor = indexPropertyMap->GetReferenceAt(i);
 
             if (descriptor->Attributes & PropertyDeleted)
-            {
+            {TRACE_IT(66319);
                 continue; // Skip deleted
             }
             if (descriptor->Attributes & PropertyConfigurable)
-            {
+            {TRACE_IT(66320);
                 return false;
             }
 
             if ((descriptor->Attributes & PropertyWritable) && HasDataItem(arr, index))
-            {
+            {TRACE_IT(66321);
                 //Only data descriptor has Writable property
                 return false;
             }
@@ -1280,9 +1280,9 @@ namespace Js
 
         // Check data item not in map
         if (this->GetDataItemAttributes() & (PropertyWritable | PropertyConfigurable))
-        {
+        {TRACE_IT(66322);
             if (HasAnyDataItemNotInMap(arr))
-            {
+            {TRACE_IT(66323);
                 return false;
             }
         }
@@ -1292,10 +1292,10 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsFrozen(DynamicObject* instance)
-    {
+    {TRACE_IT(66324);
         // We need to check "length" frozen for standalone ES5Array
         if (IsLengthWritable())
-        {
+        {TRACE_IT(66325);
             return false;
         }
 
@@ -1304,12 +1304,12 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::SetAttributes(DynamicObject* instance, PropertyId propertyId, PropertyAttributes attributes)
-    {
+    {TRACE_IT(66326);
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(66327);
             return SetItemAttributes(ES5Array::FromVar(instance), instance, index, attributes);
         }
 
@@ -1318,18 +1318,18 @@ namespace Js
 
     template <class T>
     BOOL ES5ArrayTypeHandlerBase<T>::IsValidDescriptorToken(void * descriptorValidationToken) const
-    {
+    {TRACE_IT(66328);
         return indexPropertyMap->IsValidDescriptorToken(descriptorValidationToken);
     }
 
     template <class T>
     uint32 ES5ArrayTypeHandlerBase<T>::GetNextDescriptor(uint32 key, IndexPropertyDescriptor** descriptor, void ** descriptorValidationToken)
-    {
+    {TRACE_IT(66329);
         return indexPropertyMap->GetNextDescriptor(key, descriptor, descriptorValidationToken);
     }
 
     template <class T>
-    BOOL ES5ArrayTypeHandlerBase<T>::GetDescriptor(uint32 index, Js::IndexPropertyDescriptor **ppDescriptor) {
+    BOOL ES5ArrayTypeHandlerBase<T>::GetDescriptor(uint32 index, Js::IndexPropertyDescriptor **ppDescriptor) {TRACE_IT(66330);
         return indexPropertyMap->TryGetReference(index, ppDescriptor);
     }
 

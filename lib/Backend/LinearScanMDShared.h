@@ -8,7 +8,7 @@ class LinearScan;
 class LinearScanMDShared
 {
 public:
-    void Init(LinearScan * linearScan) { this->linearScan = linearScan; }
+    void Init(LinearScan * linearScan) {TRACE_IT(10808); this->linearScan = linearScan; }
 
 protected:
     LinearScan * linearScan;

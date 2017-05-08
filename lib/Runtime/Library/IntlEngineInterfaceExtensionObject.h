@@ -22,11 +22,11 @@ namespace Js
         void Initialize();
         void InjectIntlLibraryCode(_In_ ScriptContext * scriptContext, DynamicObject* intlObject, IntlInitializationType intlInitializationType);
 
-        JavascriptFunction* GetDateToLocaleString() { return dateToLocaleString; }
-        JavascriptFunction* GetDateToLocaleTimeString() { return dateToLocaleTimeString; }
-        JavascriptFunction* GetDateToLocaleDateString() { return dateToLocaleDateString; }
-        JavascriptFunction* GetNumberToLocaleString() { return numberToLocaleString; }
-        JavascriptFunction* GetStringLocaleCompare() { return stringLocaleCompare; }
+        JavascriptFunction* GetDateToLocaleString() {TRACE_IT(55681); return dateToLocaleString; }
+        JavascriptFunction* GetDateToLocaleTimeString() {TRACE_IT(55682); return dateToLocaleTimeString; }
+        JavascriptFunction* GetDateToLocaleDateString() {TRACE_IT(55683); return dateToLocaleDateString; }
+        JavascriptFunction* GetNumberToLocaleString() {TRACE_IT(55684); return numberToLocaleString; }
+        JavascriptFunction* GetStringLocaleCompare() {TRACE_IT(55685); return stringLocaleCompare; }
         static void __cdecl InitializeIntlNativeInterfaces(DynamicObject* intlNativeInterfaces, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode);
 
 #if DBG

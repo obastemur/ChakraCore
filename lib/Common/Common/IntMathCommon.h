@@ -56,7 +56,7 @@ public:
 
 template <class T>
 bool IntMathCommon<T>::Add(T left, T right, T *pResult)
-{
+{TRACE_IT(18849);
 #if __has_builtin(__builtin_add_overflow)
     return __builtin_add_overflow(left, right, pResult);
 #else
@@ -70,7 +70,7 @@ bool IntMathCommon<T>::Add(T left, T right, T *pResult)
 
 template <class T>
 bool IntMathCommon<T>::Sub(T left, T right, T *pResult)
-{
+{TRACE_IT(18850);
 #if __has_builtin(__builtin_sub_overflow)
     return __builtin_sub_overflow(left, right, pResult);
 #else
@@ -85,18 +85,18 @@ bool IntMathCommon<T>::Sub(T left, T right, T *pResult)
 #if __has_builtin(__builtin_mul_overflow) && !(defined(_ARM_) && defined(__clang__))
 template <class T>
 bool IntMathCommon<T>::Mul(T left, T right, T *pResult)
-{
+{TRACE_IT(18851);
     return __builtin_mul_overflow(left, right, pResult);
 }
 #endif
 
 template <class T>
 bool IntMathCommon<T>::Div(T left, T right, T *pResult)
-{
+{TRACE_IT(18852);
     AssertMsg(right != 0, "Divide by zero...");
 
     if (right == -1 && left == MinValue)
-    {
+    {TRACE_IT(18853);
         // Special check for MinValue/-1
         return true;
     }
@@ -107,10 +107,10 @@ bool IntMathCommon<T>::Div(T left, T right, T *pResult)
 
 template <class T>
 bool IntMathCommon<T>::Mod(T left, T right, T *pResult)
-{
+{TRACE_IT(18854);
     AssertMsg(right != 0, "Mod by zero...");
     if (right == -1 && left == MinValue)
-    {
+    {TRACE_IT(18855);
         //Special check for MinValue/-1
         return true;
     }
@@ -120,30 +120,30 @@ bool IntMathCommon<T>::Mod(T left, T right, T *pResult)
 
 template <class T>
 bool IntMathCommon<T>::And(T left, T right, T *pResult)
-{
+{TRACE_IT(18856);
     *pResult = left & right;
     return false;
 }
 
 template <class T>
 bool IntMathCommon<T>::Or(T left, T right, T *pResult)
-{
+{TRACE_IT(18857);
     *pResult = left | right;
     return false;
 }
 
 template <class T>
 bool IntMathCommon<T>::Xor(T left, T right, T *pResult)
-{
+{TRACE_IT(18858);
     *pResult = left ^ right;
     return false;
 }
 
 template <class T>
 bool IntMathCommon<T>::Neg(T val, T *pResult)
-{
+{TRACE_IT(18859);
     if (val == MinValue)
-    {
+    {TRACE_IT(18860);
         *pResult = val;
         return true;
     }
@@ -153,14 +153,14 @@ bool IntMathCommon<T>::Neg(T val, T *pResult)
 
 template <class T>
 bool IntMathCommon<T>::Not(T val, T *pResult)
-{
+{TRACE_IT(18861);
     *pResult = ~val;
     return false;
 }
 
 template <class T>
 bool IntMathCommon<T>::Inc(T val, T *pResult)
-{
+{TRACE_IT(18862);
 #if __has_builtin(__builtin_add_overflow)
     return __builtin_add_overflow(val, 1, pResult);
 #else
@@ -173,7 +173,7 @@ bool IntMathCommon<T>::Inc(T val, T *pResult)
 
 template <class T>
 bool IntMathCommon<T>::Dec(T val, T *pResult)
-{
+{TRACE_IT(18863);
 #if __has_builtin(__builtin_sub_overflow)
     return __builtin_sub_overflow(val, 1, pResult);
 #else
@@ -186,7 +186,7 @@ bool IntMathCommon<T>::Dec(T val, T *pResult)
 
 template <class T>
 T IntMathCommon<T>::NearestInRangeTo(const T value, const T minimum, const T maximum) // inclusive
-{
+{TRACE_IT(18864);
     Assert(minimum <= maximum);
     return minimum >= value ? minimum : maximum <= value ? maximum : value;
 }

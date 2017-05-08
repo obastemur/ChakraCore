@@ -49,7 +49,7 @@ namespace Js
         virtual BOOL SetRootProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info) override;
         virtual BOOL DeleteRootProperty(PropertyId propertyId, PropertyOperationFlags flags) override;
 
-        ModuleID GetModuleID() { return moduleID;}
+        ModuleID GetModuleID() {TRACE_IT(62632); return moduleID;}
         static bool Is(Var aValue);
 
     protected:

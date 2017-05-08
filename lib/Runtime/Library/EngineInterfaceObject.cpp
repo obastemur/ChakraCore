@@ -12,7 +12,7 @@
 
 #define IfFailThrowHr(op) \
     if (FAILED(hr=(op))) \
-    { \
+    {TRACE_IT(55219); \
     JavascriptError::MapAndThrowError(scriptContext, hr); \
     } \
 
@@ -75,10 +75,10 @@
 namespace Js
 {
     EngineExtensionObjectBase* EngineInterfaceObject::GetEngineExtension(EngineInterfaceExtensionKind extensionKind) const
-    {
+    {TRACE_IT(55220);
         AnalysisAssert(extensionKind >= 0 && extensionKind <= MaxEngineInterfaceExtensionKind);
         if (extensionKind <= MaxEngineInterfaceExtensionKind)
-        {
+        {TRACE_IT(55221);
             Assert(engineExtensions[extensionKind] == nullptr || engineExtensions[extensionKind]->GetExtensionKind() == extensionKind);
             return engineExtensions[extensionKind];
         }
@@ -86,10 +86,10 @@ namespace Js
     }
 
     void EngineInterfaceObject::SetEngineExtension(EngineInterfaceExtensionKind extensionKind, EngineExtensionObjectBase* extensionObject)
-    {
+    {TRACE_IT(55222);
         AnalysisAssert(extensionKind >= 0 && extensionKind <= MaxEngineInterfaceExtensionKind);
         if (extensionKind <= MaxEngineInterfaceExtensionKind)
-        {
+        {TRACE_IT(55223);
             Assert(engineExtensions[extensionKind] == nullptr);
             engineExtensions[extensionKind] = extensionObject;
         }
@@ -123,17 +123,17 @@ namespace Js
 #endif
 
     EngineInterfaceObject * EngineInterfaceObject::New(Recycler * recycler, DynamicType * type)
-    {
+    {TRACE_IT(55224);
         EngineInterfaceObject* newObject = NewObject<EngineInterfaceObject>(recycler, type);
         for (uint i = 0; i <= MaxEngineInterfaceExtensionKind; i++)
-        {
+        {TRACE_IT(55225);
             newObject->engineExtensions[i] = nullptr;
         }
         return newObject;
     }
 
     bool EngineInterfaceObject::Is(Var aValue)
-    {
+    {TRACE_IT(55226);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_EngineInterfaceObject;
     }
 
@@ -145,7 +145,7 @@ namespace Js
     }
 
     void EngineInterfaceObject::Initialize()
-    {
+    {TRACE_IT(55227);
         Recycler* recycler = this->GetRecycler();
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptLibrary* library = scriptContext->GetLibrary();
@@ -158,9 +158,9 @@ namespace Js
         library->AddMember(this, Js::PropertyIds::Common, this->commonNativeInterfaces);
 
         for (uint i = 0; i <= MaxEngineInterfaceExtensionKind; i++)
-        {
+        {TRACE_IT(55228);
             if (engineExtensions[i] != nullptr)
-            {
+            {TRACE_IT(55229);
                 engineExtensions[i]->Initialize();
             }
         }
@@ -168,28 +168,28 @@ namespace Js
 
 #if ENABLE_TTD
     void EngineInterfaceObject::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {TRACE_IT(55230);
         extractor->MarkVisitVar(this->commonNativeInterfaces);
     }
 
     void EngineInterfaceObject::ProcessCorePaths()
-    {
+    {TRACE_IT(55231);
         this->GetScriptContext()->TTDWellKnownInfo->EnqueueNewPathVarAsNeeded(this, this->commonNativeInterfaces, L"!commonNativeInterfaces");
     }
 
     TTD::NSSnapObjects::SnapObjectType EngineInterfaceObject::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(55232);
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void EngineInterfaceObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(55233);
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<void*, TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject>(objData, nullptr);
     }
 #endif
 
     void EngineInterfaceObject::InitializeCommonNativeInterfaces(DynamicObject* commonNativeInterfaces, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {TRACE_IT(55234);
         typeHandler->Convert(commonNativeInterfaces, mode, 38);
 
         ScriptContext* scriptContext = commonNativeInterfaces->GetScriptContext();
@@ -235,7 +235,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2)
-        {
+        {TRACE_IT(55235);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -262,7 +262,7 @@ namespace Js
         OLECHAR errorString[strLength];
 
         if(FGetResourceString(resourceId, errorString, strLength))
-        {
+        {TRACE_IT(55236);
             return Js::JavascriptString::NewCopySz(errorString, scriptContext);
         }
 
@@ -276,7 +276,7 @@ namespace Js
 
 #if DBG
         if (callInfo.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {TRACE_IT(55237);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -294,18 +294,18 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count >= 2 && JavascriptFunction::Is(args.Values[1]))
-        {
+        {TRACE_IT(55238);
             JavascriptFunction* func = JavascriptFunction::FromVar(args.Values[1]);
             func->GetFunctionProxy()->SetIsPublicLibraryCode();
 
             if (callInfo.Count >= 3 && JavascriptString::Is(args.Values[2]))
-            {
+            {TRACE_IT(55239);
                 JavascriptString* customFunctionName = JavascriptString::FromVar(args.Values[2]);
                 // tagPublicFunction("Intl.Collator", Collator); in Intl.js calls TagPublicLibraryCode the expected name is Collator so we need to calculate the offset
                 const char16 * shortName = wcsrchr(customFunctionName->GetString(), _u('.'));
                 uint shortNameOffset = 0;
                 if (shortName != nullptr)
-                {
+                {TRACE_IT(55240);
                     // JavascriptString length is bounded by uint max
                     shortName++;
                     shortNameOffset = static_cast<uint>(shortName - customFunctionName->GetString());
@@ -337,7 +337,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 2 || !JavascriptString::Is(args.Values[1])) \
-        { \
+        {TRACE_IT(55241); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \
@@ -350,7 +350,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 3 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2])) \
-        { \
+        {TRACE_IT(55242); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \
@@ -363,7 +363,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 4 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2]) || !JavascriptString::Is(args.Values[3])) \
-        { \
+        {TRACE_IT(55243); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \

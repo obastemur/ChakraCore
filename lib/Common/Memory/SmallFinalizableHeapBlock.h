@@ -25,11 +25,11 @@ public:
     static void Delete(SmallFinalizableHeapBlockT * block);
 
     SmallFinalizableHeapBlockT * GetNextBlock() const
-    {
+    {TRACE_IT(26879);
         HeapBlock* block = SmallHeapBlockT<TBlockAttributes>::GetNextBlock();
         return block ? block->template AsFinalizableBlock<TBlockAttributes>() : nullptr;
     }
-    void SetNextBlock(SmallFinalizableHeapBlockT * next) { Base::SetNextBlock(next); }
+    void SetNextBlock(SmallFinalizableHeapBlockT * next) {TRACE_IT(26880); Base::SetNextBlock(next); }
 
     bool TryGetAddressOfAttributes(void* objectAddress, unsigned char **ppAttr);
     bool TryGetAttributes(void* objectAddress, unsigned char *pAttr);
@@ -49,28 +49,28 @@ public:
     void TransferDisposedObjects();
 
     bool HasPendingDisposeObjects() const
-    {
+    {TRACE_IT(26881);
         return (this->pendingDisposeCount != 0);
     }
 
     void AddPendingDisposeObject()
-    {
+    {TRACE_IT(26882);
         this->pendingDisposeCount++;
         Assert(this->pendingDisposeCount <= this->objectCount);
     }
 
-    bool HasDisposedObjects() const { return this->disposedObjectList != nullptr; }
-    bool HasAnyDisposeObjects() const { return this->HasPendingDisposeObjects() || this->HasDisposedObjects(); }
+    bool HasDisposedObjects() const {TRACE_IT(26883); return this->disposedObjectList != nullptr; }
+    bool HasAnyDisposeObjects() const {TRACE_IT(26884); return this->HasPendingDisposeObjects() || this->HasDisposedObjects(); }
 
     template <typename Fn>
     void ForEachPendingDisposeObject(Fn fn)
-    {
+    {TRACE_IT(26885);
         if (this->HasPendingDisposeObjects())
-        {
+        {TRACE_IT(26886);
             for (uint i = 0; i < this->objectCount; i++)
-            {
+            {TRACE_IT(26887);
                 if ((this->ObjectInfo(i) & PendingDisposeBit) != 0)
-                {
+                {TRACE_IT(26888);
                     // When pending dispose, exactly the PendingDisposeBits should be set
                     Assert(this->ObjectInfo(i) == PendingDisposeObjectBits);
 
@@ -79,10 +79,10 @@ public:
             }
         }
         else
-        {
+        {TRACE_IT(26889);
 #if DBG
             for (uint i = 0; i < this->objectCount; i++)
-            {
+            {TRACE_IT(26890);
                 Assert((this->ObjectInfo(i) & PendingDisposeBit) == 0);
             }
 #endif
@@ -98,13 +98,13 @@ public:
 #if ENABLE_PARTIAL_GC
     void FinishPartialCollect();
 #endif
-    bool IsPendingDispose() const { return isPendingDispose; }
-    void SetIsPendingDispose() { isPendingDispose = true; }
+    bool IsPendingDispose() const {TRACE_IT(26891); return isPendingDispose; }
+    void SetIsPendingDispose() {TRACE_IT(26892); isPendingDispose = true; }
 #endif
     void FinalizeAllObjects();
 
 #ifdef DUMP_FRAGMENTATION_STATS
-    ushort GetFinalizeCount() {
+    ushort GetFinalizeCount() {TRACE_IT(26893);
         return finalizeCount;
     }
 #endif
@@ -150,7 +150,7 @@ public:
     static void Delete(SmallFinalizableWithBarrierHeapBlockT * block);
 
     SmallFinalizableWithBarrierHeapBlockT * GetNextBlock() const
-    {
+    {TRACE_IT(26894);
         HeapBlock* block = SmallHeapBlockT<TBlockAttributes>::GetNextBlock();
         return block ? block->template AsFinalizableWriteBarrierBlock<TBlockAttributes>() : nullptr;
     }
@@ -162,7 +162,7 @@ public:
 protected:
     SmallFinalizableWithBarrierHeapBlockT(HeapBucketT<SmallFinalizableWithBarrierHeapBlockT> * bucket, ushort objectSize, ushort objectCount)
         : SmallFinalizableHeapBlockT<TBlockAttributes>(bucket, objectSize, objectCount, TBlockAttributes::IsSmallBlock ? Base::SmallFinalizableBlockWithBarrierType : Base::MediumFinalizableBlockWithBarrierType)
-    {
+    {TRACE_IT(26895);
     }
 };
 #endif

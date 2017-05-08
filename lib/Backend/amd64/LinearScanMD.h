@@ -27,10 +27,10 @@ public:
     BitVector   FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageBv) const;
     bool        FitRegIntSizeConstraints(RegNum reg, BitVector sizeUsageBv) const;
     bool        FitRegIntSizeConstraints(RegNum reg, IRType type) const;
-    bool        IsAllocatable(RegNum reg, Func *func) const { return true; }
-    uint        UnAllocatableRegCount(Func *func) const { return 2; /* RSP, RBP */ }
-    void        LegalizeDef(IR::Instr * instr) { /* This is a nop for amd64 */ }
-    void        LegalizeUse(IR::Instr * instr, IR::Opnd * opnd) { /* A nop for amd64 */ }
+    bool        IsAllocatable(RegNum reg, Func *func) const {TRACE_IT(16321); return true; }
+    uint        UnAllocatableRegCount(Func *func) const {TRACE_IT(16322); return 2; /* RSP, RBP */ }
+    void        LegalizeDef(IR::Instr * instr) {TRACE_IT(16323); /* This is a nop for amd64 */ }
+    void        LegalizeUse(IR::Instr * instr, IR::Opnd * opnd) {TRACE_IT(16324); /* A nop for amd64 */ }
     void        LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd);
     void        InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlockList);
     void        EndOfHelperBlock(uint32 helperSpilledLiveranges);
@@ -46,7 +46,7 @@ public:
     static void SaveAllRegistersAndBranchBailOut(BranchBailOutRecord *const bailOutRecord, const BOOL condition);
     static RegNum GetParamReg(IR::SymOpnd *symOpnd, Func *func);
 
-    static uint GetRegisterSaveSlotCount() {
+    static uint GetRegisterSaveSlotCount() {TRACE_IT(16325);
         return RegisterSaveSlotCount;
     }
 

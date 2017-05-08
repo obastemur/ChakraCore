@@ -11,29 +11,29 @@ struct BackgroundParseItem sealed : public JsUtil::Job
 {
     BackgroundParseItem(JsUtil::JobManager *const manager, Parser *const parser, ParseNode *parseNode, bool defer);
 
-    ParseContext *GetParseContext() { return &parseContext; }
-    ParseNode *GetParseNode() const { return parseNode; }
-    CompileScriptException *GetPSE() const { return pse; }
-    HRESULT GetHR() const { return hr; }
-    bool IsStrictMode() const { return strictMode; }
-    bool Succeeded() const { return hr == S_OK; }
-    bool IsInParseQueue() const { return inParseQueue; }
-    bool IsDeferred() const { return isDeferred;}
-    void SetHR(HRESULT hr) { this->hr = hr; }
-    void SetCompleted(bool has) { completed = has; }
-    void SetPSE(CompileScriptException *pse) { this->pse = pse; }
+    ParseContext *GetParseContext() {TRACE_IT(28598); return &parseContext; }
+    ParseNode *GetParseNode() const {TRACE_IT(28599); return parseNode; }
+    CompileScriptException *GetPSE() const {TRACE_IT(28600); return pse; }
+    HRESULT GetHR() const {TRACE_IT(28601); return hr; }
+    bool IsStrictMode() const {TRACE_IT(28602); return strictMode; }
+    bool Succeeded() const {TRACE_IT(28603); return hr == S_OK; }
+    bool IsInParseQueue() const {TRACE_IT(28604); return inParseQueue; }
+    bool IsDeferred() const {TRACE_IT(28605); return isDeferred;}
+    void SetHR(HRESULT hr) {TRACE_IT(28606); this->hr = hr; }
+    void SetCompleted(bool has) {TRACE_IT(28607); completed = has; }
+    void SetPSE(CompileScriptException *pse) {TRACE_IT(28608); this->pse = pse; }
 
-    uint GetMaxBlockId() const { return maxBlockId; }
-    void SetMaxBlockId(uint blockId) { maxBlockId = blockId; }
-    Parser *GetParser() const { return parser; }
-    void SetParser(Parser *p) { parser = p; }
-    BackgroundParseItem *GetNext() const { return nextItem; }
-    void SetNext(BackgroundParseItem *item) { nextItem = item; }
-    BackgroundParseItem *GetNextUnprocessedItem() const { return nextUnprocessedItem; }
-    void SetNextUnprocessedItem(BackgroundParseItem *item) { nextUnprocessedItem = item; }
-    BackgroundParseItem *GetPrevUnprocessedItem() const { return prevUnprocessedItem; }
-    void SetPrevUnprocessedItem(BackgroundParseItem *item) { prevUnprocessedItem = item; }
-    DList<ParseNode*, ArenaAllocator>* RegExpNodeList() { return regExpNodes; }
+    uint GetMaxBlockId() const {TRACE_IT(28609); return maxBlockId; }
+    void SetMaxBlockId(uint blockId) {TRACE_IT(28610); maxBlockId = blockId; }
+    Parser *GetParser() const {TRACE_IT(28611); return parser; }
+    void SetParser(Parser *p) {TRACE_IT(28612); parser = p; }
+    BackgroundParseItem *GetNext() const {TRACE_IT(28613); return nextItem; }
+    void SetNext(BackgroundParseItem *item) {TRACE_IT(28614); nextItem = item; }
+    BackgroundParseItem *GetNextUnprocessedItem() const {TRACE_IT(28615); return nextUnprocessedItem; }
+    void SetNextUnprocessedItem(BackgroundParseItem *item) {TRACE_IT(28616); nextUnprocessedItem = item; }
+    BackgroundParseItem *GetPrevUnprocessedItem() const {TRACE_IT(28617); return prevUnprocessedItem; }
+    void SetPrevUnprocessedItem(BackgroundParseItem *item) {TRACE_IT(28618); prevUnprocessedItem = item; }
+    DList<ParseNode*, ArenaAllocator>* RegExpNodeList() {TRACE_IT(28619); return regExpNodes; }
 
     void OnAddToParseQueue();
     void OnRemoveFromParseQueue();
@@ -65,7 +65,7 @@ public:
     static BackgroundParser * New(Js::ScriptContext *scriptContext);
     static void Delete(BackgroundParser *backgroundParser);
 
-    volatile uint* GetPendingBackgroundItemsPtr() const { return (volatile uint*)&pendingBackgroundItems; }
+    volatile uint* GetPendingBackgroundItemsPtr() const {TRACE_IT(28620); return (volatile uint*)&pendingBackgroundItems; }
 
     virtual bool Process(JsUtil::Job *const job, JsUtil::ParallelThreadData *threadData) override;
     virtual void JobProcessed(JsUtil::Job *const job, const bool succeeded) override;
@@ -84,9 +84,9 @@ public:
     void AddUnprocessedItem(BackgroundParseItem *const item);
     void RemoveFromUnprocessedItems(BackgroundParseItem *const item);
 
-    void SetFailedBackgroundParseItem(BackgroundParseItem *item) { failedBackgroundParseItem = item; }
-    BackgroundParseItem *GetFailedBackgroundParseItem() const { return failedBackgroundParseItem; }
-    bool HasFailedBackgroundParseItem() const { return failedBackgroundParseItem != nullptr; }
+    void SetFailedBackgroundParseItem(BackgroundParseItem *item) {TRACE_IT(28621); failedBackgroundParseItem = item; }
+    BackgroundParseItem *GetFailedBackgroundParseItem() const {TRACE_IT(28622); return failedBackgroundParseItem; }
+    bool HasFailedBackgroundParseItem() const {TRACE_IT(28623); return failedBackgroundParseItem != nullptr; }
 
 private:
     void AddToParseQueue(BackgroundParseItem *const item, bool prioritize, bool lock);

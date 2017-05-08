@@ -17,34 +17,34 @@
  */
 
 ULONG CaseSensitiveComputeHash(LPCOLESTR prgch, LPCOLESTR end)
-{
+{TRACE_IT(29271);
     ULONG luHash = 0;
 
     while (prgch < end)
-    {
+    {TRACE_IT(29272);
         luHash = 17 * luHash + *(char16 *)prgch++;
     }
     return luHash;
 }
 
 ULONG CaseSensitiveComputeHash(LPCUTF8 prgch, LPCUTF8 end)
-{
+{TRACE_IT(29273);
     utf8::DecodeOptions options = utf8::doAllowThreeByteSurrogates;
     ULONG luHash = 0;
 
     while (prgch < end)
-    {
+    {TRACE_IT(29274);
         luHash = 17 * luHash + utf8::Decode(prgch, end, options);
     }
     return luHash;
 }
 
 ULONG CaseSensitiveComputeHash(char const * prgch, char const * end)
-{
+{TRACE_IT(29275);
     ULONG luHash = 0;
 
     while (prgch < end)
-    {
+    {TRACE_IT(29276);
         Assert(utf8::IsStartByte(*prgch) && !utf8::IsLeadByte(*prgch));
         luHash = 17 * luHash + *prgch++;
     }
@@ -52,11 +52,11 @@ ULONG CaseSensitiveComputeHash(char const * prgch, char const * end)
 }
 
 ULONG CaseInsensitiveComputeHash(LPCOLESTR posz)
-{
+{TRACE_IT(29277);
     ULONG luHash = 0;
     char16 ch;
     while (0 != (ch = *(char16 *)posz++))
-    {
+    {TRACE_IT(29278);
         if (ch <= 'Z' && ch >= 'A')
             ch += 'a' - 'A';
         luHash = 17 * luHash + ch;

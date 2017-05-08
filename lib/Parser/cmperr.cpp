@@ -9,7 +9,7 @@
 #endif //DEBUG
 
 void ErrHandler::Throw(HRESULT hr)
-{
+{TRACE_IT(32984);
     Assert(fInited);
     Assert(FAILED(hr));
     m_hr = hr;

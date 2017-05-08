@@ -43,7 +43,7 @@
 #define PROCESS_OPCODE_FN_NAME(fnSuffix) CONCAT_TOKENS(INTERPRETERLOOPNAME, fnSuffix)
 
 const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(ExtendedOpcodePrefix)(const byte* ip)
-{
+{TRACE_IT(48570);
     INTERPRETER_OPCODE op = READ_EXT_OP(ip);
     switch (op)
     {
@@ -63,7 +63,7 @@ const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(ExtendedOpcodePref
 }
 
 const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(MediumLayoutPrefix)(const byte* ip, Var& yieldValue)
-{
+{TRACE_IT(48571);
     INTERPRETER_OPCODE op = READ_OP(ip);
     switch (op)
     {
@@ -88,7 +88,7 @@ const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(MediumLayoutPrefix
 }
 
 const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(ExtendedMediumLayoutPrefix)(const byte* ip)
-{
+{TRACE_IT(48572);
     INTERPRETER_OPCODE op = READ_EXT_OP(ip);
     switch (op)
     {
@@ -106,7 +106,7 @@ const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(ExtendedMediumLayo
 }
 
 const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(LargeLayoutPrefix)(const byte* ip, Var& yieldValue)
-{
+{TRACE_IT(48573);
     INTERPRETER_OPCODE op = READ_OP(ip);
     switch (op)
     {
@@ -131,7 +131,7 @@ const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(LargeLayoutPrefix)
 }
 
 const byte* Js::InterpreterStackFrame::PROCESS_OPCODE_FN_NAME(ExtendedLargeLayoutPrefix)(const byte* ip)
-{
+{TRACE_IT(48574);
     INTERPRETER_OPCODE op = READ_EXT_OP(ip);
     switch (op)
     {
@@ -162,7 +162,7 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
     PROBE_STACK(scriptContext, Js::Constants::MinStackInterpreter);
 
     if (!this->closureInitDone)
-    {
+    {TRACE_IT(48575);
         // If this is the start of the function, then we've waited until after the stack probe above
         // to set up the FD/SS pointers, so do it now.
         Assert(this->m_reader.GetCurrentOffset() == 0);
@@ -184,12 +184,12 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
     // track the ip.
     const byte* ip = m_reader.GetIP();
     while (true)
-    {
+    {TRACE_IT(48576);
         INTERPRETER_OPCODE op = READ_OP(ip);
 
 #ifdef ENABLE_BASIC_TELEMETRY
         if( TELEMETRY_OPCODE_OFFSET_ENABLED )
-        {
+        {TRACE_IT(48577);
             OpcodeTelemetry& opcodeTelemetry = this->scriptContext->GetTelemetry().GetOpcodeTelemetry();
             opcodeTelemetry.ProgramLocationFunctionId    ( this->function->GetFunctionInfo()->GetLocalFunctionId() );
             opcodeTelemetry.ProgramLocationBytecodeOffset( this->m_reader.GetCurrentOffset() );
@@ -199,16 +199,16 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
 #if DEBUGGING_LOOP
         if (this->scriptContext->GetThreadContext()->GetDebugManager()->stepController.IsActive() &&
             this->scriptContext->GetThreadContext()->GetDebugManager()->stepController.IsStepComplete_AllowingFalsePositives(this))
-        {
+        {TRACE_IT(48578);
             // BrLong is used for branch island, we don't want to break over there, as they don't belong to any statement. Just skip this.
             if (!InterpreterStackFrame::IsBrLong(op, ip) && !this->m_functionBody->GetUtf8SourceInfo()->GetIsLibraryCode())
-            {
+            {TRACE_IT(48579);
                 uint prevOffset = m_reader.GetCurrentOffset();
 
 #if ENABLE_TTD
                 bool bpTaken = (!this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode()) || this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPreBreak(this->m_functionBody);
                 if(bpTaken)
-                {
+                {TRACE_IT(48580);
                     InterpreterHaltState haltState(STOP_STEPCOMPLETE, m_functionBody);
                     this->scriptContext->GetDebugContext()->GetProbeContainer()->DispatchStepHandler(&haltState, &op);
                 }
@@ -219,13 +219,13 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
 
 #if ENABLE_TTD
                 if(bpTaken && this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode())
-                {
+                {TRACE_IT(48581);
                     this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPostBreak(this->m_functionBody);
                 }
 #endif
 
                 if (prevOffset != m_reader.GetCurrentOffset())
-                {
+                {TRACE_IT(48582);
                     // The location of the statement has been changed, setnextstatement was called.
                     // Reset m_outParams and m_outSp as before SetNext was called, we could be in the middle of StartCall.
                     // It's fine to do because SetNext can only be done to a statement -- function-level destination,
@@ -238,15 +238,15 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
         }
         // The break opcode will be handled later in the switch block.
         if (op != OpCode::Break && this->scriptContext->GetThreadContext()->GetDebugManager()->asyncBreakController.IsBreak())
-        {
+        {TRACE_IT(48583);
             if (!InterpreterStackFrame::IsBrLong(op, ip) && !this->m_functionBody->GetUtf8SourceInfo()->GetIsLibraryCode())
-            {
+            {TRACE_IT(48584);
                 uint prevOffset = m_reader.GetCurrentOffset();
 
 #if ENABLE_TTD
                 bool bpTaken = (!this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode()) || this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPreBreak(this->m_functionBody);
                 if(bpTaken)
-                {
+                {TRACE_IT(48585);
                     InterpreterHaltState haltState(STOP_ASYNCBREAK, m_functionBody);
                     this->scriptContext->GetDebugContext()->GetProbeContainer()->DispatchAsyncBreak(&haltState);
                 }
@@ -257,13 +257,13 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
 
 #if ENABLE_TTD
                 if(bpTaken && this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode())
-                {
+                {TRACE_IT(48586);
                     this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPostBreak(this->m_functionBody);
                 }
 #endif
 
                 if (prevOffset != m_reader.GetCurrentOffset())
-                {
+                {TRACE_IT(48587);
                     // The location of the statement has been changed, setnextstatement was called.
                     ip = m_reader.GetIP();
                     continue;
@@ -275,7 +275,7 @@ SWAP_BP_FOR_OPCODE:
         switch (op)
         {
         case INTERPRETER_OPCODE::Ret:
-            {
+            {TRACE_IT(48588);
                 //
                 // Return "Reg: 0" as the return-value.
                 // - JavaScript functions always return a value, and this value is always
@@ -292,7 +292,7 @@ SWAP_BP_FOR_OPCODE:
 
 #ifndef INTERPRETER_ASMJS
         case INTERPRETER_OPCODE::Yield:
-            {
+            {TRACE_IT(48589);
                 m_reader.Reg2_Small(ip);
                 return GetReg(GetFunctionBody()->GetYieldRegister());
             }
@@ -344,7 +344,7 @@ SWAP_BP_FOR_OPCODE:
             ExtendedCase(ExtendedLargeLayoutPrefix)
 
             case INTERPRETER_OPCODE::MediumLayoutPrefix:
-            {
+            {TRACE_IT(48590);
                 Var yieldValue = nullptr;
                 ip = PROCESS_OPCODE_FN_NAME(MediumLayoutPrefix)(ip, yieldValue);
                 CHECK_YIELD_VALUE();
@@ -353,7 +353,7 @@ SWAP_BP_FOR_OPCODE:
             }
 
             case INTERPRETER_OPCODE::LargeLayoutPrefix:
-            {
+            {TRACE_IT(48591);
                 Var yieldValue = nullptr;
                 ip = PROCESS_OPCODE_FN_NAME(LargeLayoutPrefix)(ip, yieldValue);
                 CHECK_YIELD_VALUE();
@@ -362,7 +362,7 @@ SWAP_BP_FOR_OPCODE:
             }
 
             case INTERPRETER_OPCODE::EndOfBlock:
-            {
+            {TRACE_IT(48592);
                 // Note that at this time though ip was advanced by 'OpCode op = ReadByteOp<INTERPRETER_OPCODE>(ip)',
                 // we haven't advanced m_reader.m_currentLocation yet, thus m_reader.m_currentLocation still points to EndOfBLock,
                 // and that +1 will point to 1st byte past the buffer.
@@ -388,17 +388,17 @@ SWAP_BP_FOR_OPCODE:
 
 #ifndef INTERPRETER_ASMJS
             case INTERPRETER_OPCODE::Break:
-            {
+            {TRACE_IT(48593);
 #if DEBUGGING_LOOP
                 // The reader has already advanced the IP:
                 if (this->m_functionBody->ProbeAtOffset(m_reader.GetCurrentOffset(), &op))
-                {
+                {TRACE_IT(48594);
                     uint prevOffset = m_reader.GetCurrentOffset();
 
 #if ENABLE_TTD
                     bool bpTaken = (!this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode()) || this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPreBreak(this->m_functionBody);
                     if(bpTaken)
-                    {
+                    {TRACE_IT(48595);
                         InterpreterHaltState haltState(STOP_BREAKPOINT, m_functionBody);
                         this->scriptContext->GetDebugContext()->GetProbeContainer()->DispatchProbeHandlers(&haltState);
                     }
@@ -409,13 +409,13 @@ SWAP_BP_FOR_OPCODE:
 
 #if ENABLE_TTD
                     if(bpTaken && this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode())
-                    {
+                    {TRACE_IT(48596);
                         this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPostBreak(this->m_functionBody);
                     }
 #endif
 
                     if (prevOffset != m_reader.GetCurrentOffset())
-                    {
+                    {TRACE_IT(48597);
                         // The location of the statement has been changed, setnextstatement was called.
                         ip = m_reader.GetIP();
                         continue;
@@ -424,17 +424,17 @@ SWAP_BP_FOR_OPCODE:
                     goto SWAP_BP_FOR_OPCODE;
                 }
                 else
-                {
+                {TRACE_IT(48598);
 #if DEBUGGING_LOOP
                     // an inline break statement rather than a probe
                     if (!this->scriptContext->GetThreadContext()->GetDebugManager()->stepController.ContinueFromInlineBreakpoint())
-                    {
+                    {TRACE_IT(48599);
                         uint prevOffset = m_reader.GetCurrentOffset();
 
 #if ENABLE_TTD
                         bool bpTaken = (!this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode()) || this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPreBreak(this->m_functionBody);
                         if(bpTaken)
-                        {
+                        {TRACE_IT(48600);
                             InterpreterHaltState haltState(STOP_INLINEBREAKPOINT, m_functionBody);
                             this->scriptContext->GetDebugContext()->GetProbeContainer()->DispatchInlineBreakpoint(&haltState);
                         }
@@ -445,13 +445,13 @@ SWAP_BP_FOR_OPCODE:
 
 #if ENABLE_TTD
                         if(bpTaken && this->scriptContext->GetThreadContext()->IsRuntimeInTTDMode())
-                        {
+                        {TRACE_IT(48601);
                             this->scriptContext->GetThreadContext()->TTDLog->ProcessBPInfoPostBreak(this->m_functionBody);
                         }
 #endif
 
                         if (prevOffset != m_reader.GetCurrentOffset())
-                        {
+                        {TRACE_IT(48602);
                             // The location of the statement has been changed, setnextstatement was called.
                             ip = m_reader.GetIP();
                             continue;

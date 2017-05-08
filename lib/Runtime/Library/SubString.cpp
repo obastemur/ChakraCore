@@ -10,7 +10,7 @@ namespace Js
 
     inline SubString::SubString(void const * originalFullStringReference, const char16* subString, charcount_t length, ScriptContext *scriptContext) :
         JavascriptString(scriptContext->GetLibrary()->GetStringTypeStatic())
-    {
+    {TRACE_IT(63765);
         this->SetBuffer(subString);
         this->originalFullStringReference = originalFullStringReference;
         this->SetLength(length);
@@ -27,7 +27,7 @@ namespace Js
 
         ScriptContext *scriptContext = string->GetScriptContext();
         if (!length)
-        {
+        {TRACE_IT(63766);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -46,7 +46,7 @@ namespace Js
         AssertMsg( IsValidCharCount(length), "length is out of range" );
 
         if (!length)
-        {
+        {TRACE_IT(63767);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -55,9 +55,9 @@ namespace Js
     }
 
     const char16* SubString::GetSz()
-    {
+    {TRACE_IT(63768);
         if (originalFullStringReference)
-        {
+        {TRACE_IT(63769);
             Recycler* recycler = this->GetScriptContext()->GetRecycler();
             char16 * newInstance = AllocateLeafAndCopySz(recycler, UnsafeGetBuffer(), GetLength());
             this->SetBuffer(newInstance);
@@ -70,27 +70,27 @@ namespace Js
     }
 
     const void * SubString::GetOriginalStringReference()
-    {
+    {TRACE_IT(63770);
         if (originalFullStringReference != nullptr)
-        {
+        {TRACE_IT(63771);
             return originalFullStringReference;
         }
         return __super::GetOriginalStringReference();
     }
 
     size_t SubString::GetAllocatedByteCount() const
-    {
+    {TRACE_IT(63772);
         if (originalFullStringReference)
-        {
+        {TRACE_IT(63773);
             return 0;
         }
         return __super::GetAllocatedByteCount();
     }
 
     bool SubString::IsSubstring() const
-    {
+    {TRACE_IT(63774);
         if (originalFullStringReference)
-        {
+        {TRACE_IT(63775);
             return true;
         }
         return false;

@@ -23,19 +23,19 @@
 ///         s6 = MOV [s5 + offset]
 ///----------------------------------------------------------------------------
 void AgenPeeps::PeepFunc()
-{
+{TRACE_IT(0);
     int distance = 0;
     IR::Instr *blockStart, *nextRealInstr;
     const uint stall_cycles = 3;
 
     if (AutoSystemInfo::Data.IsAtomPlatform())
-    {
+    {TRACE_IT(1);
         // On Atom, always optimize unless phase is off
         if (PHASE_OFF(Js::AtomPhase, func) || PHASE_OFF(Js::AgenPeepsPhase, func))
             return;
     }
     else
-    {
+    {TRACE_IT(2);
         // On other platforms, don't optimize unless phase is forced
         if (!PHASE_FORCE(Js::AtomPhase, func) && !PHASE_FORCE(Js::AgenPeepsPhase, func))
             return;
@@ -43,13 +43,13 @@ void AgenPeeps::PeepFunc()
 
     blockStart = nullptr;
     FOREACH_INSTR_IN_FUNC_EDITING(instr, instrNext, this->func)
-    {
+    {TRACE_IT(3);
         if (!instr->IsRealInstr() && !instr->IsLabelInstr())
             continue;
 
         // BB boundary ?
         if (instr->EndsBasicBlock() || instr->StartsBasicBlock())
-        {
+        {TRACE_IT(4);
             distance = 0;
             instrNext = blockStart = instr->GetNextRealInstr();
             continue;
@@ -58,7 +58,7 @@ void AgenPeeps::PeepFunc()
         // Check for AGEN dependency with the next instruction in the same BB
         if (!nextRealInstr->EndsBasicBlock() && !nextRealInstr->StartsBasicBlock() &&
             AgenDependentInstrs(instr, nextRealInstr))
-        {
+        {TRACE_IT(5);
             Assert(blockStart);
             // Move instr up
             distance = MoveInstrUp(instr, blockStart, distance) - stall_cycles;
@@ -77,7 +77,7 @@ void AgenPeeps::PeepFunc()
 ///----------------------------------------------------------------------------
 
 int AgenPeeps::MoveInstrUp(IR::Instr *instrToMove, IR::Instr *blockStart, int bound)
-{
+{TRACE_IT(6);
     AssertMsg(LowererMD::IsAssign(instrToMove), "We only reschedule move instructions for now");
     IR::Instr *instr;
     int i = 1;
@@ -88,9 +88,9 @@ int AgenPeeps::MoveInstrUp(IR::Instr *instrToMove, IR::Instr *blockStart, int bo
     instrToMove->Unlink();
 
     while (!DependentInstrs(instrToMove, instr))
-    {
+    {TRACE_IT(7);
         if (instr == blockStart || (bound > 0 && i == bound))
-        {
+        {TRACE_IT(8);
             instr->InsertBefore(instrToMove);
             return i;
         }
@@ -111,13 +111,13 @@ int AgenPeeps::MoveInstrUp(IR::Instr *instrToMove, IR::Instr *blockStart, int bo
 ///
 ///----------------------------------------------------------------------------
 bool AgenPeeps::AgenDependentInstrs(IR::Instr *instr1, IR::Instr *instr2)
-{
+{TRACE_IT(9);
     // We only deal with assign instructions for now.
     if (!LowererMD::IsAssign(instr1) || !DependentInstrs(instr1, instr2))
         return false;
 
     if (instr1->GetDst()->IsRegOpnd())
-    {
+    {TRACE_IT(10);
         IR::IndirOpnd *src1 = (instr2->GetSrc1() && instr2->GetSrc1()->IsIndirOpnd()) ? instr2->GetSrc1()->AsIndirOpnd() : nullptr;
         IR::IndirOpnd *src2 = (instr2->GetSrc2() && instr2->GetSrc2()->IsIndirOpnd()) ? instr2->GetSrc2()->AsIndirOpnd() : nullptr;
         IR::IndirOpnd *dst  = (instr2->GetDst()  && instr2->GetDst()->IsIndirOpnd())  ? instr2->GetDst()->AsIndirOpnd() : nullptr;
@@ -125,21 +125,21 @@ bool AgenPeeps::AgenDependentInstrs(IR::Instr *instr1, IR::Instr *instr2)
 
         IR::RegOpnd *base, *index;
         if (src1)
-        {
+        {TRACE_IT(11);
             base = src1->GetBaseOpnd();
             index = src1->GetIndexOpnd();
             return (base && regOpnd->IsSameRegUntyped(base)) || (index && regOpnd->IsSameRegUntyped(index));
         }
 
         if (src2)
-        {
+        {TRACE_IT(12);
             base = src2->GetBaseOpnd();
             index = src2->GetIndexOpnd();
             return (base && regOpnd->IsSameRegUntyped(base)) || (index && regOpnd->IsSameRegUntyped(index));
         }
 
         if (dst)
-        {
+        {TRACE_IT(13);
             base = dst->GetBaseOpnd();
             index = dst->GetIndexOpnd();
             return (base && regOpnd->IsSameRegUntyped(base)) || (index && regOpnd->IsSameRegUntyped(index));
@@ -156,7 +156,7 @@ bool AgenPeeps::AgenDependentInstrs(IR::Instr *instr1, IR::Instr *instr2)
 ///
 ///----------------------------------------------------------------------------
 bool AgenPeeps::DependentInstrs(IR::Instr *instr1, IR::Instr *instr2)
-{
+{TRACE_IT(14);
 
     if (AlwaysDependent(instr1) || AlwaysDependent(instr2))
         return true;
@@ -178,7 +178,7 @@ bool AgenPeeps::DependentInstrs(IR::Instr *instr1, IR::Instr *instr2)
 
 // Being conservative here about instructions that implicitly reads/writes memory/regs without explicit Opnds
 bool AgenPeeps::AlwaysDependent(IR::Instr *instr)
-{
+{TRACE_IT(15);
     return LowererMD::IsCall(instr) ||
         instr->m_opcode == Js::OpCode::PUSH ||
         instr->m_opcode == Js::OpCode::POP ||
@@ -195,7 +195,7 @@ bool AgenPeeps::AlwaysDependent(IR::Instr *instr)
 ///
 ///----------------------------------------------------------------------------
 bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
-{
+{TRACE_IT(16);
 #if defined (_M_IX86)
     const RegNum baseReg = RegEBP;
 #elif defined (_M_X64)
@@ -209,12 +209,12 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
 
     // Memory dependence
     if (IsMemoryOpnd(opnd1) && IsMemoryOpnd(opnd2))
-    {
+    {TRACE_IT(17);
         IR::SymOpnd *symOpnd1 = opnd1->IsSymOpnd() ? opnd1->AsSymOpnd() : nullptr;
         IR::SymOpnd *symOpnd2 = opnd2->IsSymOpnd() ? opnd2->AsSymOpnd() : nullptr;
 
         if (symOpnd1 || symOpnd2)
-        {
+        {TRACE_IT(18);
             // SymOpnd do not alias with  MemRefOpnd/IndirOpnd
             if (opnd1->IsMemRefOpnd() || opnd2->IsMemRefOpnd() || opnd1->IsIndirOpnd() || opnd2->IsIndirOpnd())
                 return false;
@@ -222,7 +222,7 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
             // Two symOpnds are dependent if they point to the same stack symbol
             if (symOpnd1 && symOpnd2 &&
                 symOpnd1->m_sym->IsStackSym() && symOpnd2->m_sym->IsStackSym() )
-            {
+            {TRACE_IT(19);
                 return symOpnd1->m_sym->AsStackSym()->m_offset == symOpnd2->m_sym->AsStackSym()->m_offset;
             }
         }
@@ -234,7 +234,7 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
 
     // Register dependences
     if (opnd1->IsRegOpnd())
-    {
+    {TRACE_IT(20);
         regOpnd = opnd1->AsRegOpnd();
         // reg-to-reg
         if (opnd2->IsRegOpnd() && regOpnd->IsSameRegUntyped(opnd2->AsRegOpnd()))
@@ -242,7 +242,7 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
 
         // opnd2 = [base + indx + offset] and (opnd1 = base or opnd1 = indx)
         if (opnd2->IsIndirOpnd())
-        {
+        {TRACE_IT(21);
             base = opnd2->AsIndirOpnd()->GetBaseOpnd();
             index = opnd2->AsIndirOpnd()->GetIndexOpnd();
             if ( (base && regOpnd->IsSameRegUntyped(base)) || (index && regOpnd->IsSameRegUntyped(index)) )
@@ -254,12 +254,12 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
     }
 
     if (opnd2->IsRegOpnd())
-    {
+    {TRACE_IT(22);
         regOpnd = opnd2->AsRegOpnd();
 
         // opnd1 = [base + indx + offset] and (opnd2 = base or opnd2 = indx)
         if (opnd1->IsIndirOpnd())
-        {
+        {TRACE_IT(23);
             base = opnd1->AsIndirOpnd()->GetBaseOpnd();
             index = opnd1->AsIndirOpnd()->GetIndexOpnd();
             if ( (base && regOpnd->IsSameRegUntyped(base)) || (index && regOpnd->IsSameRegUntyped(index)) )
@@ -274,6 +274,6 @@ bool AgenPeeps::DependentOpnds(IR::Opnd *opnd1, IR::Opnd *opnd2)
 }
 
 bool AgenPeeps::IsMemoryOpnd(IR::Opnd *opnd)
-{
+{TRACE_IT(24);
     return opnd->IsSymOpnd() || opnd->IsIndirOpnd() || opnd->IsMemRefOpnd();
 }

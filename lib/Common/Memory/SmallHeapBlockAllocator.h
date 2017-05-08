@@ -25,8 +25,8 @@ public:
     template <bool canFaultInject>
     inline char* InlinedAllocImpl(Recycler * recycler, DECLSPEC_GUARD_OVERFLOW size_t sizeCat, ObjectInfoBits attributes);
 
-    TBlockType * GetHeapBlock() const { return heapBlock; }
-    SmallHeapBlockAllocator * GetNext() const { return next; }
+    TBlockType * GetHeapBlock() const {TRACE_IT(26948); return heapBlock; }
+    SmallHeapBlockAllocator * GetNext() const {TRACE_IT(26949); return next; }
 
     void Set(TBlockType * heapBlock);
     void SetNew(TBlockType * heapBlock);
@@ -34,41 +34,41 @@ public:
     void UpdateHeapBlock();
     void SetExplicitFreeList(FreeObject* list);
 
-    static uint32 GetEndAddressOffset() { return offsetof(SmallHeapBlockAllocator, endAddress); }
-    char *GetEndAddress() { return endAddress; }
-    static uint32 GetFreeObjectListOffset() { return offsetof(SmallHeapBlockAllocator, freeObjectList); }
-    FreeObject *GetFreeObjectList() { return freeObjectList; }
-    void SetFreeObjectList(FreeObject *freeObject) { freeObjectList = freeObject; }
+    static uint32 GetEndAddressOffset() {TRACE_IT(26950); return offsetof(SmallHeapBlockAllocator, endAddress); }
+    char *GetEndAddress() {TRACE_IT(26951); return endAddress; }
+    static uint32 GetFreeObjectListOffset() {TRACE_IT(26952); return offsetof(SmallHeapBlockAllocator, freeObjectList); }
+    FreeObject *GetFreeObjectList() {TRACE_IT(26953); return freeObjectList; }
+    void SetFreeObjectList(FreeObject *freeObject) {TRACE_IT(26954); freeObjectList = freeObject; }
 
 #if defined(PROFILE_RECYCLER_ALLOC) || defined(RECYCLER_MEMORY_VERIFY) || defined(MEMSPECT_TRACKING) || defined(ETW_MEMORY_TRACKING)
     void SetTrackNativeAllocatedObjectCallBack(void (*pfnCallBack)(Recycler *, void *, size_t))
-    {
+    {TRACE_IT(26955);
         pfnTrackNativeAllocatedObjectCallBack = pfnCallBack;
     }
 #endif
 #if DBG
     FreeObject * GetExplicitFreeList() const
-    {
+    {TRACE_IT(26956);
         Assert(IsExplicitFreeObjectListAllocMode());
         return this->freeObjectList;
     }
 #endif
 
     bool IsBumpAllocMode() const
-    {
+    {TRACE_IT(26957);
         return endAddress != nullptr;
     }
     bool IsExplicitFreeObjectListAllocMode() const
-    {
+    {TRACE_IT(26958);
         return this->heapBlock == nullptr;
     }
     bool IsFreeListAllocMode() const
-    {
+    {TRACE_IT(26959);
         return !IsBumpAllocMode() && !IsExplicitFreeObjectListAllocMode();
     }
 private:
     static bool NeedSetAttributes(ObjectInfoBits attributes)
-    {
+    {TRACE_IT(26960);
         return attributes != LeafBit && (attributes & InternalObjectInfoBitMask) != 0;
     }
 
@@ -101,7 +101,7 @@ template <typename TBlockType>
 template <bool canFaultInject>
 inline char*
 SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(26961);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 #ifdef RECYCLER_WRITE_BARRIER
     Assert(!CONFIG_FLAG(ForceSoftwareWriteBarrier) || (attributes & WithBarrierBit) || (attributes & LeafBit));
@@ -109,7 +109,7 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
 
     AUTO_NO_EXCEPTION_REGION;
     if (canFaultInject)
-    {
+    {TRACE_IT(26962);
         FAULTINJECT_MEMORY_NOTHROW(_u("InlinedAllocImpl"), sizeCat);
     }
 
@@ -118,7 +118,7 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
     char * endAddress = this->endAddress;
 
     if (nextCurrentAddress <= endAddress)
-    {
+    {TRACE_IT(26963);
         // Bump Allocation
         Assert(this->IsBumpAllocMode());
 #ifdef RECYCLER_TRACK_NATIVE_ALLOCATED_OBJECTS
@@ -128,7 +128,7 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
         freeObjectList = (FreeObject *)nextCurrentAddress;
 
         if (NeedSetAttributes(attributes))
-        {
+        {TRACE_IT(26964);
             heapBlock->SetAttributes(memBlock, (attributes & StoredObjectInfoBitMask));
         }
 
@@ -136,14 +136,14 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
     }
 
     if (memBlock != nullptr && endAddress == nullptr)
-    {
+    {TRACE_IT(26965);
         // Free list allocation
         Assert(!this->IsBumpAllocMode());
         if (NeedSetAttributes(attributes))
-        {
+        {TRACE_IT(26966);
             TBlockType * allocationHeapBlock = this->heapBlock;
             if (allocationHeapBlock == nullptr)
-            {
+            {TRACE_IT(26967);
                 Assert(this->IsExplicitFreeObjectListAllocMode());
                 allocationHeapBlock = (TBlockType *)recycler->FindHeapBlock(memBlock);
                 Assert(allocationHeapBlock != nullptr);
@@ -157,7 +157,7 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
         ((FreeObject *)memBlock)->DebugFillNext();
 
         if (this->IsExplicitFreeObjectListAllocMode())
-        {
+        {TRACE_IT(26968);
             HeapBlock* heapBlock = recycler->FindHeapBlock(memBlock);
             Assert(heapBlock != nullptr);
             Assert(!heapBlock->IsLargeHeapBlock());
@@ -168,7 +168,7 @@ SmallHeapBlockAllocator<TBlockType>::InlinedAllocImpl(Recycler * recycler, size_
 
 #if DBG || defined(RECYCLER_STATS)
         if (!IsExplicitFreeObjectListAllocMode())
-        {
+        {TRACE_IT(26969);
             BOOL isSet = heapBlock->GetDebugFreeBitVector()->TestAndClear(heapBlock->GetAddressBitIndex(memBlock));
             Assert(isSet);
         }
@@ -184,7 +184,7 @@ template <typename TBlockType>
 template <ObjectInfoBits attributes>
 inline char *
 SmallHeapBlockAllocator<TBlockType>::InlinedAlloc(Recycler * recycler, size_t sizeCat)
-{
+{TRACE_IT(26970);
     return InlinedAllocImpl<true /* allow fault injection */>(recycler, sizeCat, attributes);
 }
 
@@ -193,7 +193,7 @@ template <bool canFaultInject>
 inline
 char *
 SmallHeapBlockAllocator<TBlockType>::SlowAlloc(Recycler * recycler, size_t sizeCat, ObjectInfoBits attributes)
-{
+{TRACE_IT(26971);
     Assert((attributes & InternalObjectInfoBitMask) == attributes);
 
     return InlinedAllocImpl<canFaultInject>(recycler, sizeCat, attributes);

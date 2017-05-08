@@ -105,13 +105,13 @@ namespace Js
 
         template<class TMapFunction>
         void MapProbes(TMapFunction map)
-        {
+        {TRACE_IT(43374);
             this->diagProbeList->Map(map);
         }
 
         template<class TMapFunction>
         void MapProbesUntil(TMapFunction map)
-        {
+        {TRACE_IT(43375);
             this->diagProbeList->MapUntil(map);
         }
 
@@ -145,8 +145,8 @@ namespace Js
         bool AdvanceToNextUserStatement(Js::FunctionBody* functionBody, ByteCodeReader* reader);
 
         void SetNextStatementAt(int bytecodeOffset);
-        bool IsSetNextStatementCalled() const { return IsNextStatementChanged; }
-        int GetByteCodeOffset() const { Assert(IsNextStatementChanged); return bytecodeOffset; }
+        bool IsSetNextStatementCalled() const {TRACE_IT(43376); return IsNextStatementChanged; }
+        int GetByteCodeOffset() const {TRACE_IT(43377); Assert(IsNextStatementChanged); return bytecodeOffset; }
 
         void AsyncActivate(HaltCallback* haltCallback);
         void AsyncDeactivate();
@@ -158,25 +158,25 @@ namespace Js
         bool IsContextRegistered(DWORD_PTR context);
         FunctionBody * GetGlobalFunc(ScriptContext* scriptContext, DWORD_PTR secondaryHostSourceContext);
 
-        Var GetExceptionObject() { return jsExceptionObject; }
+        Var GetExceptionObject() {TRACE_IT(43378); return jsExceptionObject; }
 
         bool HasAllowedForException(__in JavascriptExceptionObject* exceptionObject);
 
-        void SetThrowIsInternal(bool set) { isThrowInternal = set; }
+        void SetThrowIsInternal(bool set) {TRACE_IT(43379); isThrowInternal = set; }
 
         bool IsExceptionReportingEnabled();
         bool IsFirstChanceExceptionEnabled();
         bool IsNonUserCodeSupportEnabled();
         bool IsLibraryStackFrameSupportEnabled();
 
-        void SetCurrentTmpRegCount(uint32 set) { tmpRegCount = set; }
-        uint32 GetCurrentTmpRegCount() const { return tmpRegCount; }
+        void SetCurrentTmpRegCount(uint32 set) {TRACE_IT(43380); tmpRegCount = set; }
+        uint32 GetCurrentTmpRegCount() const {TRACE_IT(43381); return tmpRegCount; }
         void PinPropertyRecord(const Js::PropertyRecord *propertyRecord);
 
-        bool IsPrimaryBrokenToDebuggerContext() const { return isPrimaryBrokenToDebuggerContext; }
-        void SetIsPrimaryBrokenToDebuggerContext(bool set) { isPrimaryBrokenToDebuggerContext = set; }
+        bool IsPrimaryBrokenToDebuggerContext() const {TRACE_IT(43382); return isPrimaryBrokenToDebuggerContext; }
+        void SetIsPrimaryBrokenToDebuggerContext(bool set) {TRACE_IT(43383); isPrimaryBrokenToDebuggerContext = set; }
 
-        DebugManager *GetDebugManager() const { return this->debugManager; }
+        DebugManager *GetDebugManager() const {TRACE_IT(43384); return this->debugManager; }
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
         typedef JsUtil::List<RecyclerWeakReference<Js::MutationBreakpoint>*, Recycler, false, Js::WeakRefFreeListedRemovePolicy> MutationBreakpointList;

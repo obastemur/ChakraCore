@@ -66,7 +66,7 @@ class X64WriteBarrierCardTableManager
 public:
     X64WriteBarrierCardTableManager() :
         _cardTable(nullptr)
-    {
+    {TRACE_IT(26679);
     }
 
     ~X64WriteBarrierCardTableManager();
@@ -83,20 +83,20 @@ public:
     bool OnSegmentFree(_In_ char* segmentAddress, size_t numPages);
 
     // Get the card table for the 64 bit address space
-    BYTE * GetAddressOfCardTable() { return _cardTable; }
+    BYTE * GetAddressOfCardTable() {TRACE_IT(26680); return _cardTable; }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     void AssertWriteToAddress(_In_ void* address)
-    {
+    {TRACE_IT(26681);
         Assert(_cardTable);
         Assert(committedSections.Test(GetSectionIndex(address)));
     }
     BOOLEAN IsCardTableCommited(_In_ uintptr_t index)
-    {
+    {TRACE_IT(26682);
         return committedSections.Test((BVIndex)(index/ AutoSystemInfo::PageSize));
     }
     BOOLEAN IsCardTableCommited(_In_ void* address)
-    {
+    {TRACE_IT(26683);
         return committedSections.Test(GetSectionIndex(address));
     }
 #endif
@@ -168,7 +168,7 @@ public:
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     static bool IsCardTableCommited(_In_ uintptr_t index)
-    {
+    {TRACE_IT(26684);
 #ifdef _M_X64_OR_ARM64
         return x64CardTableManager.IsCardTableCommited(index) != FALSE;
 #else
@@ -176,7 +176,7 @@ public:
 #endif
     }
     static bool IsCardTableCommitedAddress(_In_ void* address)
-    {
+    {TRACE_IT(26685);
 #ifdef _M_X64_OR_ARM64
         return x64CardTableManager.IsCardTableCommited(address) != FALSE;
 #else
@@ -189,12 +189,12 @@ public:
     static uintptr_t GetCardTableIndex(void * address);
 #ifdef RECYCLER_WRITE_BARRIER_BYTE
 #ifdef _M_X64_OR_ARM64
-    static BYTE * GetAddressOfCardTable() { return x64CardTableManager.GetAddressOfCardTable(); }
+    static BYTE * GetAddressOfCardTable() {TRACE_IT(26686); return x64CardTableManager.GetAddressOfCardTable(); }
 #else
-    static BYTE * GetAddressOfCardTable() { return cardTable; }
+    static BYTE * GetAddressOfCardTable() {TRACE_IT(26687); return cardTable; }
 #endif
 #else
-    static DWORD * GetAddressOfCardTable() { return cardTable; }
+    static DWORD * GetAddressOfCardTable() {TRACE_IT(26688); return cardTable; }
 #endif
 
     // For GC
@@ -242,20 +242,20 @@ private:
 #ifdef RECYCLER_TRACE
 #define SwbTrace(flags, ...) \
 if (flags.Trace.IsEnabled(Js::MemoryAllocationPhase)) \
-{ \
+{TRACE_IT(26689); \
     Output::Print(__VA_ARGS__); \
 }
 #define GlobalSwbVerboseTrace(...) \
 if (Js::Configuration::Global.flags.Verbose && \
     Js::Configuration::Global.flags.Trace.IsEnabled(Js::MemoryAllocationPhase)) \
-{ \
+{TRACE_IT(26690); \
     Output::Print(__VA_ARGS__); \
 }
 
 #define SwbVerboseTrace(flags, ...) \
 if (flags.Verbose && \
     flags.Trace.IsEnabled(Js::MemoryAllocationPhase)) \
-{ \
+{TRACE_IT(26691); \
     Output::Print(__VA_ARGS__); \
 }
 #else

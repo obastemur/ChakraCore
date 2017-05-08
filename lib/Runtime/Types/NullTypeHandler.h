@@ -61,8 +61,8 @@ namespace Js
 
 #if DBG
         virtual bool SupportsPrototypeInstances() const override { return this->isPrototype; }
-        virtual bool RespectsIsolatePrototypes() const { return false; }
-        virtual bool RespectsChangeTypeOnProto() const { return false; }
+        virtual bool RespectsIsolatePrototypes() const {TRACE_IT(66462); return false; }
+        virtual bool RespectsChangeTypeOnProto() const {TRACE_IT(66463); return false; }
 #endif
 
     private:

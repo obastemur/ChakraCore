@@ -24,7 +24,7 @@ namespace Js
             || JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch);
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(60366);
             switch (JavascriptOperators::GetTypeId(args[1]))
             {
             case TypeIds_Undefined:
@@ -53,7 +53,7 @@ namespace Js
             default:
                 RecyclableObject* result = nullptr;
                 if (FALSE == JavascriptConversion::ToObject(args[1], scriptContext, &result))
-                {
+                {TRACE_IT(60367);
                     // JavascriptConversion::ToObject should only return FALSE for null and undefined.
                     Assert(false);
                 }
@@ -65,7 +65,7 @@ namespace Js
         }
 
         if (callInfo.Flags & CallFlags_NotUsed)
-        {
+        {TRACE_IT(60368);
             return args[0];
         }
         Var newObj = scriptContext->GetLibrary()->CreateObject(true);
@@ -87,13 +87,13 @@ namespace Js
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {TRACE_IT(60369);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.hasOwnProperty"));
         }
 
         // no property specified
         if (args.Info.Count == 1)
-        {
+        {TRACE_IT(60370);
             return scriptContext->GetLibrary()->GetFalse();
         }
 
@@ -101,7 +101,7 @@ namespace Js
         JavascriptConversion::ToPropertyKey(args[1], scriptContext, &propertyRecord);
 
         if (JavascriptOperators::HasOwnProperty(dynamicObject, propertyRecord->GetPropertyId(), scriptContext))
-        {
+        {TRACE_IT(60371);
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -121,12 +121,12 @@ namespace Js
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {TRACE_IT(60372);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.propertyIsEnumerable"));
         }
 
         if (args.Info.Count >= 2)
-        {
+        {TRACE_IT(60373);
             const PropertyRecord* propertyRecord;
             JavascriptConversion::ToPropertyKey(args[1], scriptContext, &propertyRecord);
             PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -134,9 +134,9 @@ namespace Js
             PropertyDescriptor currentDescriptor;
             BOOL isCurrentDescriptorDefined = JavascriptOperators::GetOwnPropertyDescriptor(dynamicObject, propertyId, scriptContext, &currentDescriptor);
             if (isCurrentDescriptorDefined == TRUE)
-            {
+            {TRACE_IT(60374);
                 if (currentDescriptor.IsEnumerable())
-                {
+                {TRACE_IT(60375);
                     return scriptContext->GetLibrary()->GetTrue();
                 }
             }
@@ -145,7 +145,7 @@ namespace Js
     }
 
     BOOL JavascriptObject::ChangePrototype(RecyclableObject* object, RecyclableObject* newPrototype, bool shouldThrow, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60376);
         // 8.3.2    [[SetInheritance]] (V)
         // When the [[SetInheritance]] internal method of O is called with argument V the following steps are taken:
         // 1.   Assert: Either Type(V) is Object or Type(V) is Null.
@@ -153,7 +153,7 @@ namespace Js
         Assert(JavascriptOperators::IsObjectOrNull(newPrototype));
 
         if (JavascriptProxy::Is(object))
-        {
+        {TRACE_IT(60377);
             JavascriptProxy* proxy = JavascriptProxy::FromVar(object);
             CrossSite::ForceCrossSiteThunkOnPrototypeChain(newPrototype);
             return proxy->SetPrototypeTrap(newPrototype, shouldThrow);
@@ -163,22 +163,22 @@ namespace Js
         // 3.   Let current be the value of the [[Prototype]] internal data property of O.
         // 4.   If SameValue(V, current), then return true.
         if (newPrototype == JavascriptObject::GetPrototypeOf(object, scriptContext))
-        {
+        {TRACE_IT(60378);
             return TRUE;
         }
 
         // 5.   If extensible is false, then return false.
         if (!object->IsExtensible())
-        {
+        {TRACE_IT(60379);
             if (shouldThrow)
-            {
+            {TRACE_IT(60380);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NonExtensibleObject);
             }
             return FALSE;
         }
 
         if (object->IsProtoImmutable())
-        {
+        {TRACE_IT(60381);
             // ES2016 19.1.3:
             // The Object prototype object is the intrinsic object %ObjectPrototype%.
             // The Object prototype object is an immutable prototype exotic object.
@@ -195,9 +195,9 @@ namespace Js
         //      iii.    ReturnIfAbrupt(nextp).
         //      iv. Let  p be nextp.
         if (IsPrototypeOf(object, newPrototype, scriptContext)) // Reject cycle
-        {
+        {TRACE_IT(60382);
             if (shouldThrow)
-            {
+            {TRACE_IT(60383);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_CyclicProtoValue);
             }
             return FALSE;
@@ -213,11 +213,11 @@ namespace Js
         // Simply assign it a new type so if this object used protoInlineCache in past, it will
         // be invalidated because of type mismatch and subsequently we will update its protoInlineCache
         if (!(obj->GetDynamicType()->GetTypeHandler()->GetFlags() & DynamicTypeHandler::IsPrototypeFlag))
-        {
+        {TRACE_IT(60384);
             // If object has locked type, skip changing its type here as it will be changed anyway below
             // when object gets newPrototype object.
             if (!obj->HasLockedType())
-            {
+            {TRACE_IT(60385);
                 obj->ChangeType();
             }
             Assert(!obj->GetScriptContext()->GetThreadContext()->IsObjectRegisteredInProtoInlineCaches(obj));
@@ -226,7 +226,7 @@ namespace Js
         }
 
         if (isInvalidationOfInlineCacheNeeded)
-        {
+        {TRACE_IT(60386);
             // Notify old prototypes that they are being removed from a prototype chain. This triggers invalidating protocache, etc.
             JavascriptOperators::MapObjectAndPrototypes<true>(object->GetPrototype(), [=](RecyclableObject* obj)
             {
@@ -239,7 +239,7 @@ namespace Js
 
             if (!objectAndPrototypeChainHasOnlyWritableDataProperties
                 || object->GetScriptContext() != newPrototype->GetScriptContext())
-            {
+            {TRACE_IT(60387);
                 // The HaveOnlyWritableDataProperties cache is cleared when a property is added or changed,
                 // but only for types in the same script context. Therefore, if the prototype is in another
                 // context, the object's cache won't be cleared when a property is added or changed on the prototype.
@@ -254,12 +254,12 @@ namespace Js
             }
 
             if (!objectAndPrototypeChainHasOnlyWritableDataProperties)
-            {
+            {TRACE_IT(60388);
                 // Invalidate StoreField/PropertyGuards for any non-WritableData property in the new chain
                 JavascriptOperators::MapObjectAndPrototypes<true>(newPrototype, [=](RecyclableObject* obj)
                 {
                     if (!obj->HasOnlyWritableDataProperties())
-                    {
+                    {TRACE_IT(60389);
                         obj->AddToPrototype(scriptContext);
                     }
                 });
@@ -268,7 +268,7 @@ namespace Js
 
         // Set to new prototype
         if (object->IsExternal() || (DynamicType::Is(object->GetTypeId()) && (DynamicObject::FromVar(object))->IsCrossSiteObject()))
-        {
+        {TRACE_IT(60390);
             CrossSite::ForceCrossSiteThunkOnPrototypeChain(newPrototype);
         }
         object->SetPrototype(newPrototype);
@@ -288,27 +288,27 @@ namespace Js
 
         // no property specified
         if (args.Info.Count == 1 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60391);
             return scriptContext->GetLibrary()->GetFalse();
         }
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {TRACE_IT(60392);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.isPrototypeOf"));
         }
         RecyclableObject* value = RecyclableObject::FromVar(args[1]);
 
         if (dynamicObject->GetTypeId() == TypeIds_GlobalObject)
-        {
+        {TRACE_IT(60393);
             dynamicObject = RecyclableObject::FromVar(static_cast<Js::GlobalObject*>(dynamicObject)->ToThis());
         }
 
         while (JavascriptOperators::GetTypeId(value) != TypeIds_Null)
-        {
+        {TRACE_IT(60394);
             value = JavascriptOperators::GetPrototype(value);
             if (dynamicObject == value)
-            {
+            {TRACE_IT(60395);
                 return scriptContext->GetLibrary()->GetTrue();
             }
         }
@@ -330,13 +330,13 @@ namespace Js
         RecyclableObject* dynamicObject = nullptr;
 
         if (FALSE == JavascriptConversion::ToObject(thisValue, scriptContext, &dynamicObject))
-        {
+        {TRACE_IT(60396);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.toLocaleString"));
         }
 
         Var toStringVar = nullptr;
         if (!JavascriptOperators::GetProperty(thisValue, dynamicObject, Js::PropertyIds::toString, &toStringVar, scriptContext) || !JavascriptConversion::IsCallable(toStringVar))
-        {
+        {TRACE_IT(60397);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.toLocaleString"));
         }
 
@@ -359,17 +359,17 @@ namespace Js
 
     // ES2017 19.1.3.6 Object.prototype.toString()
     JavascriptString* JavascriptObject::ToStringTagHelper(Var thisArg, ScriptContext *scriptContext, TypeId type)
-    {
+    {TRACE_IT(60398);
         JavascriptLibrary *library = scriptContext->GetLibrary();
 
         // 1. If the this value is undefined, return "[object Undefined]".
         if (type == TypeIds_Undefined)
-        {
+        {TRACE_IT(60399);
             return library->CreateStringFromCppLiteral(_u("[object Undefined]"));
         }
         // 2. If the this value is null, return "[object Null]".
         if (type == TypeIds_Null)
-        {
+        {TRACE_IT(60400);
             return library->CreateStringFromCppLiteral(_u("[object Null]"));
         }
 
@@ -384,7 +384,7 @@ namespace Js
         Var tag = JavascriptOperators::GetProperty(thisArgAsObject, PropertyIds::_symbolToStringTag, scriptContext); // Let tag be the result of Get(O, @@toStringTag).
 
         // 17. Return the String that is the result of concatenating "[object ", tag, and "]". 
-        auto buildToString = [&scriptContext](Var tag) {
+        auto buildToString = [&scriptContext](Var tag) {TRACE_IT(60401);
             JavascriptString *tagStr = JavascriptString::FromVar(tag);
 
             CompoundString::Builder<32> stringBuilder(scriptContext);
@@ -397,13 +397,13 @@ namespace Js
             return stringBuilder.ToString();
         };
         if (tag != nullptr && JavascriptString::Is(tag))
-        {
+        {TRACE_IT(60402);
             return buildToString(tag);
         }
 
         // If we don't have a tag or it's not a string, use the 'built in tag'.
         if (isArray)
-        {
+        {TRACE_IT(60403);
             // 5. If isArray is true, let builtinTag be "Array".
             return library->CreateStringFromCppLiteral(_u("[object Array]"));
         }
@@ -460,13 +460,13 @@ namespace Js
 
             // 14. Else, let builtinTag be "Object".
         default:
-        {
+        {TRACE_IT(60404);
             if (thisArgAsObject->IsExternal())
-            {
+            {TRACE_IT(60405);
                 builtInTag = buildToString(thisArgAsObject->GetClassName(scriptContext));
             }
             else
-            {
+            {TRACE_IT(60406);
                 builtInTag = library->GetObjectDisplayString(); // [object Object]
             }
             break;
@@ -479,23 +479,23 @@ namespace Js
     }
 
     Var JavascriptObject::ToStringHelper(Var thisArg, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60407);
         TypeId type = JavascriptOperators::GetTypeId(thisArg);
 
         // We first need to make sure we are in the right context.
         if (type == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60408);
             RecyclableObject* hostDispatchObject = RecyclableObject::FromVar(thisArg);
             const DynamicObject* remoteObject = hostDispatchObject->GetRemoteObject();
             if (!remoteObject)
-            {
+            {TRACE_IT(60409);
                 Var result = nullptr;
                 Js::Var values[1];
                 Js::CallInfo info(Js::CallFlags_Value, 1);
                 Js::Arguments args(info, values);
                 values[0] = thisArg;
                 if (hostDispatchObject->InvokeBuiltInOperationRemotely(EntryToString, args, &result))
-                {
+                {TRACE_IT(60410);
                     return result;
                 }
             }
@@ -503,7 +503,7 @@ namespace Js
 
         // Dispatch to @@toStringTag implementation.
         if (type >= TypeIds_TypedArrayMin && type <= TypeIds_TypedArrayMax && !scriptContext->GetThreadContext()->IsScriptActive())
-        {
+        {TRACE_IT(60411);
             // Use external call for typedarray in the debugger.
             Var toStringValue = nullptr;
             BEGIN_JS_RUNTIME_CALL_EX(scriptContext, false);
@@ -540,11 +540,11 @@ namespace Js
         // throw a TypeError if TypeId is null or undefined, and apply ToObject to the 'this' value otherwise.
 
         if ((argType == TypeIds_Null) || (argType == TypeIds_Undefined))
-        {
+        {TRACE_IT(60412);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.valueOf"));
         }
         else
-        {
+        {TRACE_IT(60413);
             return JavascriptOperators::ToObject(args[0], scriptContext);
         }
     }
@@ -560,21 +560,21 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60414);
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(scriptContext->GetLibrary()->GetUndefined(), scriptContext));
         }
         else
-        {
+        {TRACE_IT(60415);
             // Convert the argument to object first
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(args[1], scriptContext));
         }
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60416);
             Var result;
             if (obj->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyDescriptor, args, &result))
-            {
+            {TRACE_IT(60417);
                 return result;
             }
         }
@@ -585,7 +585,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetOwnPropertyDescriptorHelper(RecyclableObject* obj, Var propertyKey, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60418);
         const PropertyRecord* propertyRecord;
         JavascriptConversion::ToPropertyKey(propertyKey, scriptContext, &propertyRecord);
         PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -596,7 +596,7 @@ namespace Js
         BOOL isPropertyDescriptorDefined;
         isPropertyDescriptorDefined = JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propertyId, scriptContext, propertyDescriptor);
         if (!isPropertyDescriptorDefined)
-        {
+        {TRACE_IT(60419);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -604,15 +604,15 @@ namespace Js
     }
 
     BOOL JavascriptObject::GetOwnPropertyDescriptorHelper(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor& propertyDescriptor)
-    {
+    {TRACE_IT(60420);
         BOOL isPropertyDescriptorDefined;
         if (obj->CanHaveInterceptors())
-        {
+        {TRACE_IT(60421);
             isPropertyDescriptorDefined = obj->HasOwnProperty(propertyId) ?
                 JavascriptOperators::GetOwnPropertyDescriptor(obj, propertyId, scriptContext, &propertyDescriptor) : obj->GetDefaultPropertyDescriptor(propertyDescriptor);
         }
         else
-        {
+        {TRACE_IT(60422);
             isPropertyDescriptorDefined = JavascriptOperators::GetOwnPropertyDescriptor(obj, propertyId, scriptContext, &propertyDescriptor) ||
                 obj->GetDefaultPropertyDescriptor(propertyDescriptor);
         }
@@ -631,21 +631,21 @@ namespace Js
         RecyclableObject* obj = nullptr;
 
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60423);
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(scriptContext->GetLibrary()->GetUndefined(), scriptContext));
         }
         else
-        {
+        {TRACE_IT(60424);
             // Convert the argument to object first
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(args[1], scriptContext));
         }
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60425);
             Var result;
             if (obj->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyDescriptors, args, &result))
-            {
+            {TRACE_IT(60426);
                 return result;
             }
         }
@@ -657,12 +657,12 @@ namespace Js
         Var propKey = nullptr;
 
         for (uint i = 0; i < ownPropertyKeys->GetLength(); i++)
-        {
+        {TRACE_IT(60427);
             BOOL getPropResult = ownPropertyKeys->DirectGetItemAt(i, &propKey);
             Assert(getPropResult);
 
             if (!getPropResult)
-            {
+            {TRACE_IT(60428);
                 continue;
             }
             
@@ -671,7 +671,7 @@ namespace Js
 
             Var newDescriptor = JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propKey, scriptContext);
             if (!JavascriptOperators::IsUndefined(newDescriptor))
-            {
+            {TRACE_IT(60429);
                 resultObj->SetProperty(propertyRecord->GetPropertyId(), newDescriptor, PropertyOperation_None, nullptr);
             }
         }
@@ -697,7 +697,7 @@ namespace Js
         // 1. Let obj be ToObject(O).
         // 2. ReturnIfAbrupt(obj).
         if (args.Info.Count < 2 || !JavascriptConversion::ToObject(args[1], scriptContext, &object))
-        {
+        {TRACE_IT(60430);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.getPrototypeOf"));
         }
 
@@ -722,22 +722,22 @@ namespace Js
         int32 errCode = NOERROR;
 
         if (args.Info.Count < 2 || !JavascriptConversion::CheckObjectCoercible(args[1], scriptContext))
-        {
+        {TRACE_IT(60431);
             errCode = JSERR_FunctionArgument_NeedObject;
         }
         else if (args.Info.Count < 3 || !JavascriptOperators::IsObjectOrNull(args[2]))
-        {
+        {TRACE_IT(60432);
             errCode = JSERR_FunctionArgument_NotObjectOrNull;
         }
 
         if (errCode != NOERROR)
-        {
+        {TRACE_IT(60433);
             JavascriptError::ThrowTypeError(scriptContext, errCode, _u("Object.setPrototypeOf"));
         }
 
         // 4. If Type(O) is not Object, return O.
         if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60434);
             return args[1];
         }
 
@@ -769,11 +769,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.17
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60435);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60436);
             return args[1];
         }
 
@@ -782,7 +782,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60437);
             globalObject->Seal();
         }
 
@@ -802,11 +802,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.5
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60438);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60439);
             return args[1];
         }
 
@@ -814,7 +814,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60440);
             globalObject->Freeze();
         }
 
@@ -834,11 +834,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.15
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60441);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60442);
             return args[1];
         }
 
@@ -846,7 +846,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60443);
             globalObject->PreventExtensions();
         }
 
@@ -866,7 +866,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Object_Constructor_isSealed);
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60444);
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -876,7 +876,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isSealed && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60445);
             isSealed = globalObject->IsSealed();
         }
 
@@ -894,7 +894,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Object_Constructor_isFrozen);
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60446);
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -904,7 +904,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isFrozen && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60447);
             isFrozen = globalObject->IsFrozen();
         }
 
@@ -922,7 +922,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60448);
             return scriptContext->GetLibrary()->GetFalse();
         }
 
@@ -931,7 +931,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isExtensible && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {TRACE_IT(60449);
             isExtensible = globalObject->IsExtensible();
         }
 
@@ -952,10 +952,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60450);
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyNames, args, &result))
-            {
+            {TRACE_IT(60451);
                 return result;
             }
         }
@@ -976,10 +976,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60452);
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryGetOwnPropertySymbols, args, &result))
-            {
+            {TRACE_IT(60453);
                 return result;
             }
         }
@@ -1001,10 +1001,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60454);
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryKeys, args, &result))
-            {
+            {TRACE_IT(60455);
                 return result;
             }
         }
@@ -1012,7 +1012,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetValuesOrEntries(RecyclableObject* object, bool valuesToReturn, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60456);
         Assert(object != nullptr);
         Assert(scriptContext != nullptr);
         JavascriptArray* valuesArray = scriptContext->GetLibrary()->CreateArray(0);
@@ -1024,7 +1024,7 @@ namespace Js
         const PropertyRecord* propertyRecord = nullptr;
         PropertyId propertyId;
         for (uint32 i = 0, index = 0; i < length; i++)
-        {
+        {TRACE_IT(60457);
             nextKey = ownKeysResult->DirectGetItem(i);
             Assert(JavascriptString::Is(nextKey));
 
@@ -1035,12 +1035,12 @@ namespace Js
             Assert(propertyId != Constants::NoProperty);
 
             if (JavascriptOperators::GetOwnPropertyDescriptor(object, propertyId, scriptContext, &propertyDescriptor))
-            {
+            {TRACE_IT(60458);
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {TRACE_IT(60459);
                     Var value = JavascriptOperators::GetProperty(object, propertyId, scriptContext);
                     if (!valuesToReturn)
-                    {
+                    {TRACE_IT(60460);
                         // For Object.entries each entry is key, value pair
                         JavascriptArray* entry = scriptContext->GetLibrary()->CreateArray(2);
                         entry->DirectSetItemAt(0, CrossSite::MarshalVar(scriptContext, nextKey));
@@ -1088,33 +1088,33 @@ namespace Js
     }
 
     JavascriptArray* JavascriptObject::CreateOwnSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60461);
         return CreateKeysHelper(object, scriptContext, TRUE, true /*includeSymbolsOnly */, false, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnStringPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60462);
         return CreateKeysHelper(object, scriptContext, TRUE, false, true /*includeStringsOnly*/, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnStringSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60463);
         return CreateKeysHelper(object, scriptContext, TRUE, true/*includeSymbolsOnly*/, true /*includeStringsOnly*/, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnEnumerableStringPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60464);
         return CreateKeysHelper(object, scriptContext, FALSE, false, true/*includeStringsOnly*/, false);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnEnumerableStringSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60465);
         return CreateKeysHelper(object, scriptContext, FALSE, true/*includeSymbolsOnly*/, true/*includeStringsOnly*/, false);
     }
 
     // 9.1.12 [[OwnPropertyKeys]] () in RC#4 dated April 3rd 2015.
     JavascriptArray* JavascriptObject::CreateKeysHelper(RecyclableObject* object, ScriptContext* scriptContext, BOOL includeNonEnumerable, bool includeSymbolProperties, bool includeStringProperties, bool includeSpecialProperties)
-    {
+    {TRACE_IT(60466);
         //1. Let keys be a new empty List.
         //2. For each own property key P of O that is an integer index, in ascending numeric index order
         //      a. Add P as the last element of keys.
@@ -1130,15 +1130,15 @@ namespace Js
         JavascriptArray* newArrForSymbols = scriptContext->GetLibrary()->CreateArray(0);
         EnumeratorFlags flags = EnumeratorFlags::None;
         if (includeNonEnumerable)
-        {
+        {TRACE_IT(60467);
             flags |= EnumeratorFlags::EnumNonEnumerable;
         }
         if (includeSymbolProperties)
-        {
+        {TRACE_IT(60468);
             flags |= EnumeratorFlags::EnumSymbols;
         }
         if (!object->GetEnumerator(&enumerator, flags, scriptContext))
-        {
+        {TRACE_IT(60469);
             return newArr;  // Return an empty array if we don't have an enumerator
         }
 
@@ -1151,15 +1151,15 @@ namespace Js
         JavascriptSymbol* symbol;
 
         while ((propertyName = enumerator.MoveAndGetNext(propertyId)) != NULL)
-        {
+        {TRACE_IT(60470);
             if (!JavascriptOperators::IsUndefinedObject(propertyName, undefined)) //There are some code paths in which GetCurrentIndex can return undefined
-            {
+            {TRACE_IT(60471);
                 if (includeSymbolProperties)
-                {
+                {TRACE_IT(60472);
                     propertyRecord = scriptContext->GetPropertyName(propertyId);
 
                     if (propertyRecord->IsSymbol())
-                    {
+                    {TRACE_IT(60473);
                         symbol = scriptContext->GetLibrary()->CreateSymbol(propertyRecord);
                         // no need to marshal symbol because it is created from scriptContext
                         newArrForSymbols->DirectSetItemAt(symbolIndex++, symbol);
@@ -1167,7 +1167,7 @@ namespace Js
                     }
                 }
                 if (includeStringProperties)
-                {
+                {TRACE_IT(60474);
                     newArr->DirectSetItemAt(propertyIndex++, CrossSite::MarshalVar(scriptContext, propertyName));
                 }
             }
@@ -1175,12 +1175,12 @@ namespace Js
 
         // Special properties
         if (includeSpecialProperties && includeStringProperties)
-        {
+        {TRACE_IT(60475);
             uint32 index = 0;
             while (object->GetSpecialPropertyName(index, &propertyName, scriptContext))
-            {
+            {TRACE_IT(60476);
                 if (!JavascriptOperators::IsUndefinedObject(propertyName, undefined))
-                {
+                {TRACE_IT(60477);
                     newArr->DirectSetItemAt(propertyIndex++, propertyName);
                 }
                 index++;
@@ -1190,7 +1190,7 @@ namespace Js
         // Append all the symbols at the end of list
         uint32 totalSymbols = newArrForSymbols->GetLength();
         for (uint32 symIndex = 0; symIndex < totalSymbols; symIndex++)
-        {
+        {TRACE_IT(60478);
             newArr->DirectSetItemAt(propertyIndex++, newArrForSymbols->DirectGetItem(symIndex));
         }
 
@@ -1210,7 +1210,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60479);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.defineProperty"));
         }
 
@@ -1221,9 +1221,9 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60480);
             if (obj->InvokeBuiltInOperationRemotely(EntryDefineProperty, args, NULL))
-            {
+            {TRACE_IT(60481);
                 return obj;
             }
         }
@@ -1235,7 +1235,7 @@ namespace Js
         Var descVar = args.Info.Count > 3 ? args[3] : obj->GetLibrary()->GetUndefined();
         PropertyDescriptor propertyDescriptor;
         if (!JavascriptOperators::ToPropertyDescriptor(descVar, &propertyDescriptor, scriptContext))
-        {
+        {TRACE_IT(60482);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propertyRecord->GetPropertyId())->GetBuffer());
         }
 
@@ -1261,7 +1261,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {TRACE_IT(60483);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.defineProperties"));
         }
 
@@ -1272,9 +1272,9 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(60484);
             if (object->InvokeBuiltInOperationRemotely(EntryDefineProperties, args, NULL))
-            {
+            {TRACE_IT(60485);
                 return object;
             }
         }
@@ -1282,7 +1282,7 @@ namespace Js
         Var propertiesVar = args.Info.Count > 2 ? args[2] : object->GetLibrary()->GetUndefined();
         RecyclableObject* properties = nullptr;
         if (FALSE == JavascriptConversion::ToObject(propertiesVar, scriptContext, &properties))
-        {
+        {TRACE_IT(60486);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NullOrUndefined, _u("Object.defineProperties"));
         }
 
@@ -1316,7 +1316,7 @@ namespace Js
         Var getterFunc = args.Info.Count > 2 ? args[2] : obj->GetLibrary()->GetUndefined();
 
         if (!JavascriptConversion::IsCallable(getterFunc))
-        {
+        {TRACE_IT(60487);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.__defineGetter__"));
         }
 
@@ -1354,7 +1354,7 @@ namespace Js
         Var setterFunc = args.Info.Count > 2 ? args[2] : obj->GetLibrary()->GetUndefined();
 
         if (!JavascriptConversion::IsCallable(setterFunc))
-        {
+        {TRACE_IT(60488);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.__defineSetter__"));
         }
 
@@ -1380,7 +1380,7 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
-        {
+        {TRACE_IT(60489);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.__lookupGetter__"));
         }
 
@@ -1391,9 +1391,9 @@ namespace Js
         Var getter = nullptr;
         Var unused = nullptr;
         if (JavascriptOperators::GetAccessors(obj, propertyRecord->GetPropertyId(), scriptContext, &getter, &unused))
-        {
+        {TRACE_IT(60490);
             if (getter != nullptr)
-            {
+            {TRACE_IT(60491);
                 return getter;
             }
         }
@@ -1413,7 +1413,7 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
-        {
+        {TRACE_IT(60492);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.__lookupSetter__"));
         }
 
@@ -1424,9 +1424,9 @@ namespace Js
         Var unused = nullptr;
         Var setter = nullptr;
         if (JavascriptOperators::GetAccessors(obj, propertyRecord->GetPropertyId(), scriptContext, &unused, &setter))
-        {
+        {TRACE_IT(60493);
             if (setter != nullptr)
-            {
+            {TRACE_IT(60494);
                 return setter;
             }
         }
@@ -1464,19 +1464,19 @@ namespace Js
         // 3  If only one argument was passed, return to.
         RecyclableObject* to = nullptr;
         if (args.Info.Count == 1 || !JavascriptConversion::ToObject(args[1], scriptContext, &to))
-        {
+        {TRACE_IT(60495);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.assign"));
         }
 
         if (args.Info.Count < 3)
-        {
+        {TRACE_IT(60496);
             return to;
         }
 
         // 4. Let sources be the List of argument values starting with the second argument.
         // 5. For each element nextSource of sources, in ascending index order,
         for (unsigned int i = 2; i < args.Info.Count; i++)
-        {
+        {TRACE_IT(60497);
             //      a. If nextSource is undefined or null, let keys be an empty List.
             //      b. Else,
             //          i.Let from be ToObject(nextSource).
@@ -1484,13 +1484,13 @@ namespace Js
             //          iii.Let keys be from.[[OwnPropertyKeys]]().
             //          iv.ReturnIfAbrupt(keys).
             if (JavascriptOperators::IsUndefinedOrNull(args[i]))
-            {
+            {TRACE_IT(60498);
                 continue;
             }
 
             RecyclableObject* from = nullptr;
             if (!JavascriptConversion::ToObject(args[i], scriptContext, &from))
-            {
+            {TRACE_IT(60499);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.assign"));
             }
 
@@ -1515,10 +1515,10 @@ namespace Js
     }
 
     void JavascriptObject::AssignForGenericObjects(RecyclableObject* from, RecyclableObject* to, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60500);
         JavascriptStaticEnumerator enumerator;
         if (!from->GetEnumerator(&enumerator, EnumeratorFlags::SnapShotSemantics | EnumeratorFlags::EnumSymbols, scriptContext))
-        {
+        {TRACE_IT(60501);
             //nothing to enumerate, continue with the nextSource.
             return;
         }
@@ -1529,11 +1529,11 @@ namespace Js
 
         //enumerate through each property of properties and fetch the property descriptor
         while ((propertyVar = enumerator.MoveAndGetNext(nextKey)) != NULL)
-        {
+        {TRACE_IT(60502);
             if (nextKey == Constants::NoProperty)
-            {
+            {TRACE_IT(60503);
                 if (JavascriptOperators::IsUndefinedObject(propertyVar)) //There are some code paths in which GetCurrentIndex can return undefined
-                {
+                {TRACE_IT(60504);
                     continue;
                 }
 
@@ -1545,19 +1545,19 @@ namespace Js
             }
 
             if (!JavascriptOperators::GetOwnProperty(from, nextKey, &propValue, scriptContext))
-            {
+            {TRACE_IT(60505);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
             }
 
             if (!JavascriptOperators::SetProperty(to, to, nextKey, propValue, scriptContext, PropertyOperationFlags::PropertyOperation_ThrowIfNonWritable))
-            {
+            {TRACE_IT(60506);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
             }
         }
     }
 
     void JavascriptObject::AssignForProxyObjects(RecyclableObject* from, RecyclableObject* to, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60507);
          JavascriptArray *keys = JavascriptOperators::GetOwnEnumerablePropertyNamesSymbols(from, scriptContext);
 
         //      c. Repeat for each element nextKey of keys in List order,
@@ -1574,7 +1574,7 @@ namespace Js
         PropertyId propertyId;
         Var propValue = nullptr;
         for (uint32 j = 0; j < length; j++)
-        {
+        {TRACE_IT(60508);
             PropertyDescriptor propertyDescriptor;
             nextKey = keys->DirectGetItem(j);
             AssertMsg(JavascriptSymbol::Is(nextKey) || JavascriptString::Is(nextKey), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
@@ -1583,15 +1583,15 @@ namespace Js
             propertyId = propertyRecord->GetPropertyId();
             AssertMsg(propertyId != Constants::NoProperty, "AssignForProxyObjects - OwnPropertyKeys returned a propertyId with value NoProperty.");
             if (JavascriptOperators::GetOwnPropertyDescriptor(from, propertyRecord->GetPropertyId(), scriptContext, &propertyDescriptor))
-            {
+            {TRACE_IT(60509);
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {TRACE_IT(60510);
                     if (!JavascriptOperators::GetOwnProperty(from, propertyId, &propValue, scriptContext))
-                    {
+                    {TRACE_IT(60511);
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
                     }
                     if (!JavascriptOperators::SetProperty(to, to, propertyId, propValue, scriptContext))
-                    {
+                    {TRACE_IT(60512);
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
                     }
                 }
@@ -1614,13 +1614,13 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(60513);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NotObjectOrNull, _u("Object.create"));
         }
 
         TypeId typeId = JavascriptOperators::GetTypeId(args[1]);
         if (typeId != TypeIds_Null && !JavascriptOperators::IsObjectType(typeId))
-        {
+        {TRACE_IT(60514);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NotObjectOrNull, _u("Object.create"));
         }
 
@@ -1633,16 +1633,16 @@ namespace Js
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(object));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {TRACE_IT(60515);
             object = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(object));
         }
 #endif
 
         if (args.Info.Count > 2 && JavascriptOperators::GetTypeId(args[2]) != TypeIds_Undefined)
-        {
+        {TRACE_IT(60516);
             RecyclableObject* properties = nullptr;
             if (FALSE == JavascriptConversion::ToObject(args[2], scriptContext, &properties))
-            {
+            {TRACE_IT(60517);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NullOrUndefined, _u("Object.create"));
             }
             return DefinePropertiesHelper(object, properties, scriptContext);
@@ -1651,20 +1651,20 @@ namespace Js
     }
 
     Var JavascriptObject::DefinePropertiesHelper(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(60518);
         if (JavascriptProxy::Is(props))
-        {
+        {TRACE_IT(60519);
             return DefinePropertiesHelperForProxyObjects(object, props, scriptContext);
         }
         else
-        {
+        {TRACE_IT(60520);
             return DefinePropertiesHelperForGenericObjects(object, props, scriptContext);
         }
     }
 
 
     Var JavascriptObject::DefinePropertiesHelperForGenericObjects(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(60521);
         size_t descSize = 16;
         size_t descCount = 0;
         struct DescriptorMap
@@ -1676,7 +1676,7 @@ namespace Js
 
         JavascriptStaticEnumerator enumerator;
         if (!props->GetEnumerator(&enumerator, EnumeratorFlags::EnumSymbols, scriptContext))
-        {
+        {TRACE_IT(60522);
             return object;
         }
 
@@ -1691,34 +1691,34 @@ namespace Js
 
         //enumerate through each property of properties and fetch the property descriptor
         while ((tempVar = enumerator.MoveAndGetNext(propId)) != NULL)
-        {
+        {TRACE_IT(60523);
             if (propId == Constants::NoProperty) //try current property id query first
-            {
+            {TRACE_IT(60524);
                 if (!JavascriptOperators::IsUndefinedObject(tempVar, undefined)) //There are some enumerators returning propertyName but not propId
-                {
+                {TRACE_IT(60525);
                     propertyName = JavascriptString::FromVar(tempVar);
                     scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propertyRecord);
                     propId = propertyRecord->GetPropertyId();
                 }
                 else
-                {
+                {TRACE_IT(60526);
                     continue;
                 }
             }
             else
-            {
+            {TRACE_IT(60527);
                 propertyRecord = scriptContext->GetPropertyName(propId);
             }
 
             if (descCount == descSize)
-            {
+            {TRACE_IT(60528);
                 //reallocate - consider linked list of DescriptorMap if the descSize is too high
                 descSize = AllocSizeMath::Mul(descCount, 2);
                 __analysis_assume(descSize == descCount * 2);
                 DescriptorMap *temp = RecyclerNewArray(scriptContext->GetRecycler(), DescriptorMap, descSize);
 
                 for (size_t i = 0; i < descCount; i++)
-                {
+                {TRACE_IT(60529);
                     temp[i] = descriptors[i];
                 }
                 descriptors = temp;
@@ -1728,7 +1728,7 @@ namespace Js
 
             AnalysisAssert(descCount < descSize);
             if (!JavascriptOperators::ToPropertyDescriptor(tempVar, &descriptors[descCount].descriptor, scriptContext))
-            {
+            {TRACE_IT(60530);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propId)->GetBuffer());
             }
             // In proxy, we need to get back the original ToPropertDescriptor var in [[defineProperty]] trap.
@@ -1757,7 +1757,7 @@ namespace Js
 
     //ES5 15.2.3.7
     Var JavascriptObject::DefinePropertiesHelperForProxyObjects(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(60531);
         Assert(JavascriptProxy::Is(props));
 
         //1.  If Type(O) is not Object throw a TypeError exception.
@@ -1794,7 +1794,7 @@ namespace Js
         PropertyId propertyId;
         Var descObj;
         for (uint32 j = 0; j < length; j++)
-        {
+        {TRACE_IT(60532);
             PropertyDescriptor propertyDescriptor;
             nextKey = keys->DirectGetItem(j);
             AssertMsg(JavascriptSymbol::Is(nextKey) || JavascriptString::Is(nextKey), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
@@ -1803,13 +1803,13 @@ namespace Js
             AssertMsg(propertyId != Constants::NoProperty, "DefinePropertiesHelper - OwnPropertyKeys returned a propertyId with value NoProperty.");
 
             if (JavascriptOperators::GetOwnPropertyDescriptor(props, propertyRecord->GetPropertyId(), scriptContext, &propertyDescriptor))
-            {
+            {TRACE_IT(60533);
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {TRACE_IT(60534);
                     descObj = JavascriptOperators::GetProperty(props, propertyId, scriptContext);
 
                     if (!JavascriptOperators::ToPropertyDescriptor(descObj, &descriptors[descCount].descriptor, scriptContext))
-                    {
+                    {TRACE_IT(60535);
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propertyId)->GetBuffer());
                     }
 
@@ -1843,7 +1843,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetPrototypeOf(RecyclableObject* obj, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60536);
         return obj->IsExternal() ? obj->GetConfigurablePrototype(scriptContext) : obj->GetPrototype();
     }
 
@@ -1851,7 +1851,7 @@ namespace Js
     // Check if "proto" is a prototype of "object" (on its prototype chain).
     //
     bool JavascriptObject::IsPrototypeOf(RecyclableObject* proto, RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60537);
         return JavascriptOperators::MapObjectAndPrototypesUntil<false>(object, [=](RecyclableObject* obj)
         {
             return obj == proto;
@@ -1862,16 +1862,16 @@ namespace Js
 
     /*static*/
     char16 * JavascriptObject::ConstructName(const PropertyRecord * propertyRecord, const char16 * getOrSetStr, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60538);
         Assert(propertyRecord);
         Assert(scriptContext);
         char16 * finalName = nullptr;
         size_t propertyLength = (size_t)propertyRecord->GetLength();
         if (propertyLength > 0)
-        {
+        {TRACE_IT(60539);
             size_t totalChars;
             if (SizeTAdd(propertyLength, ConstructNameGetSetLength, &totalChars) == S_OK)
-            {
+            {TRACE_IT(60540);
                 finalName = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, totalChars);
                 Assert(finalName != nullptr);
                 const char16* propertyName = propertyRecord->GetBuffer();
@@ -1889,21 +1889,21 @@ namespace Js
 
     /*static*/
     void JavascriptObject::ModifyGetterSetterFuncName(const PropertyRecord * propertyRecord, const PropertyDescriptor& descriptor, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60541);
         Assert(scriptContext);
         Assert(propertyRecord);
         if (descriptor.GetterSpecified() || descriptor.SetterSpecified())
-        {
+        {TRACE_IT(60542);
             charcount_t propertyLength = propertyRecord->GetLength();
 
             if (descriptor.GetterSpecified()
                 && Js::ScriptFunction::Is(descriptor.GetGetter())
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetGetter())->GetFunctionProxy()->GetDisplayName(), _u("get")) == 0)
-            {
+            {TRACE_IT(60543);
                 // modify to name.get
                 const char16* finalName = ConstructName(propertyRecord, _u(".get"), scriptContext);
                 if (finalName != nullptr)
-                {
+                {TRACE_IT(60544);
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);
 
                     Js::ScriptFunction::FromVar(descriptor.GetGetter())->GetFunctionProxy()->SetDisplayName(finalName,
@@ -1914,11 +1914,11 @@ namespace Js
             if (descriptor.SetterSpecified()
                 && Js::ScriptFunction::Is(descriptor.GetSetter())
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetSetter())->GetFunctionProxy()->GetDisplayName(), _u("set")) == 0)
-            {
+            {TRACE_IT(60545);
                 // modify to name.set
                 const char16* finalName = ConstructName(propertyRecord, _u(".set"), scriptContext);
                 if (finalName != nullptr)
-                {
+                {TRACE_IT(60546);
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);
 
                     Js::ScriptFunction::FromVar(descriptor.GetSetter())->GetFunctionProxy()->SetDisplayName(finalName,
@@ -1929,7 +1929,7 @@ namespace Js
     }
 
     BOOL JavascriptObject::DefineOwnPropertyHelper(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor, ScriptContext* scriptContext, bool throwOnError /* = true*/)
-    {
+    {TRACE_IT(60547);
         BOOL returnValue;
         obj->ThrowIfCannotDefineProperty(propId, descriptor);
 
@@ -1939,35 +1939,35 @@ namespace Js
         // HostDispatch: it doesn't support changing property attributes and default attributes are not per ES5,
         // so there is no benefit in using ES5 DefineOwnPropertyDescriptor for it, use old implementation.
         if (TypeIds_HostDispatch != obj->GetTypeId())
-        {
+        {TRACE_IT(60548);
             if (DynamicObject::IsAnyArray(obj))
-            {
+            {TRACE_IT(60549);
                 returnValue = JavascriptOperators::DefineOwnPropertyForArray(
                     JavascriptArray::FromAnyArray(obj), propId, descriptor, throwOnError, scriptContext);
             }
             else
-            {
+            {TRACE_IT(60550);
                 returnValue = JavascriptOperators::DefineOwnPropertyDescriptor(obj, propId, descriptor, throwOnError, scriptContext);
                 if (propId == PropertyIds::__proto__)
-                {
+                {TRACE_IT(60551);
                     scriptContext->GetLibrary()->GetObjectPrototypeObject()->PostDefineOwnProperty__proto__(obj);
                 }
             }
         }
         else
-        {
+        {TRACE_IT(60552);
             returnValue = JavascriptOperators::SetPropertyDescriptor(obj, propId, descriptor);
         }
 
         if (propId == PropertyIds::_symbolSpecies && obj == scriptContext->GetLibrary()->GetArrayConstructor())
-        {
+        {TRACE_IT(60553);
             scriptContext->GetLibrary()->SetArrayObjectHasUserDefinedSpecies(true);
         }
 
         if (obj->IsWritableDataOnlyDetectionBitSet())
-        {
+        {TRACE_IT(60554);
             if (obj->GetType() == oldType)
-            {
+            {TRACE_IT(60555);
                 // Also, if the object's type has not changed, we need to ensure that
                 // the cached property string for this property, if any, does not
                 // specify this object's type.
@@ -1976,7 +1976,7 @@ namespace Js
         }
 
         if (descriptor.IsAccessorDescriptor())
-        {
+        {TRACE_IT(60556);
             scriptContext->optimizationOverrides.SetSideEffects(Js::SideEffects_Accessor);
         }
         return returnValue;

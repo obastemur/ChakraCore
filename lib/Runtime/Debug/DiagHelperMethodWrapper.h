@@ -45,15 +45,15 @@ namespace Js
     //   needed in case of library call and not needed in case of helper.
     template <bool doCheckParentInterpreterFrame, typename Fn>
     Var HelperOrLibraryMethodWrapper(ScriptContext* scriptContext, Fn fn)
-    {
+    {TRACE_IT(42300);
         Assert(scriptContext);
         JavascriptExceptionObject* exceptionObject = nullptr;
         try
-        {
+        {TRACE_IT(42301);
             return fn();
         }
         catch (const JavascriptException& err)
-        {
+        {TRACE_IT(42302);
             exceptionObject = err.GetAndClear();
         }
 

@@ -11,7 +11,7 @@ namespace Js
 {
     // SIMD.Int8x16 operation wrappers that cover intrinsics for x86/x64 system
     SIMDValue SIMDInt8x16Operation::OpInt8x16(int8 values[])
-    {
+    {TRACE_IT(52465);
         X86SIMDValue x86Result;
         // Sets the 16 signed 8-bit integer values, note in revised order: starts with x15 below
         x86Result.m128i_value = _mm_set_epi8(values[15], values[14], values[13], values[12],
@@ -23,7 +23,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpSplat(int8 x)
-    {
+    {TRACE_IT(52466);
         X86SIMDValue x86Result;
         // set 16 signed 8-bit integers values to input value x
         x86Result.m128i_value = _mm_set1_epi8(x);
@@ -34,7 +34,7 @@ namespace Js
     //// Unary Ops
 
     SIMDValue SIMDInt8x16Operation::OpNeg(const SIMDValue& value)
-    {
+    {TRACE_IT(52467);
         X86SIMDValue x86Result;
 
         X86SIMDValue SIGNMASK, temp;
@@ -49,7 +49,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52468);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -60,7 +60,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52469);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -71,7 +71,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52470);
         X86SIMDValue x86Result;
         X86SIMDValue x86tmp1;
         X86SIMDValue x86tmp2;
@@ -95,7 +95,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpAddSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52471);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -106,7 +106,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpSubSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52472);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -118,7 +118,7 @@ namespace Js
 
 
     SIMDValue SIMDInt8x16Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52473);
         //Only available in SSE 4
         //x86Result.m128i_value = _mm_min_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // min a b
         //SSE 2
@@ -127,7 +127,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52474);
         //Only available in SSE 4
         //x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // min a b
         //SSE 2
@@ -136,7 +136,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52475);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -146,17 +146,17 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52476);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
         if (AutoSystemInfo::Data.SSE4_1Available())
-        {
+        {TRACE_IT(52477);
             x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  max(a,b) == a
             x86Result.m128i_value = _mm_cmpeq_epi8(tmpbValue.m128i_value, x86Result.m128i_value); //
         }
         else
-        {
+        {TRACE_IT(52478);
             X86SIMDValue x86Tmp1, x86Tmp2;
             x86Tmp1.m128i_value = _mm_cmplt_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // compare a > b?
             x86Tmp2.m128i_value = _mm_cmpeq_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // compare a == b?
@@ -167,7 +167,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52479);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -177,7 +177,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52480);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -191,7 +191,7 @@ namespace Js
 
 
     SIMDValue SIMDInt8x16Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52481);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -201,17 +201,17 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52482);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
         if (AutoSystemInfo::Data.SSE4_1Available())
-        {
+        {TRACE_IT(52483);
             x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  max(a,b) == b
             x86Result.m128i_value = _mm_cmpeq_epi8(tmpaValue.m128i_value, x86Result.m128i_value); //
         }
         else
-        {
+        {TRACE_IT(52484);
             X86SIMDValue x86Tmp1, x86Tmp2;
             x86Tmp1.m128i_value = _mm_cmpgt_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // compare a > b?
             x86Tmp2.m128i_value = _mm_cmpeq_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value); // compare a == b?
@@ -223,7 +223,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpShiftLeftByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52485);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(value);
         X86SIMDValue x86tmp1;
@@ -242,7 +242,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52486);
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(value);
         X86SIMDValue x86tmp1;
@@ -263,7 +263,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt8x16Operation::OpSelect(const SIMDValue& mV, const SIMDValue& tV, const SIMDValue& fV)
-    {
+    {TRACE_IT(52487);
         X86SIMDValue x86Result;
         X86SIMDValue maskValue  = X86SIMDValue::ToX86SIMDValue(mV);
         X86SIMDValue trueValue  = X86SIMDValue::ToX86SIMDValue(tV);

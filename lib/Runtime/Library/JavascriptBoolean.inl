@@ -9,7 +9,7 @@ namespace Js
 {
     // These function needs to be in INL file for static lib
     inline bool JavascriptBoolean::Is(Var aValue)
-    {
+    {TRACE_IT(58215);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Boolean;
     }
 

@@ -16,21 +16,21 @@ namespace Js
     JavascriptExternalFunction::JavascriptExternalFunction(ExternalMethod entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58515);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(ExternalMethod entryPoint, DynamicType* type, InitializeMethod method, unsigned short deferredSlotCount, bool accessors)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(method),
         oneBit(1), typeSlots(deferredSlotCount), hasAccessors(accessors),prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58516);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(DynamicType* type, InitializeMethod method, unsigned short deferredSlotCount, bool accessors)
         : RuntimeFunction(type, &EntryInfo::DefaultExternalFunctionThunk), nativeMethod(nullptr), signature(nullptr), callbackState(nullptr), initMethod(method),
         oneBit(1), typeSlots(deferredSlotCount), hasAccessors(accessors), prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58517);
         DebugOnly(VerifyEntryPoint());
     }
 
@@ -38,26 +38,26 @@ namespace Js
     JavascriptExternalFunction::JavascriptExternalFunction(JavascriptExternalFunction* entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::WrappedFunctionThunk), wrappedMethod(entryPoint), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58518);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(StdCallJavascriptMethod entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::StdCallExternalFunctionThunk), stdCallNativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58519);
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(DynamicType *type)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(nullptr), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {TRACE_IT(58520);
         DebugOnly(VerifyEntryPoint());
     }
 
     void __cdecl JavascriptExternalFunction::DeferredInitializer(DynamicObject* instance, DeferredTypeHandlerBase* typeHandler, DeferredInitializeMode mode)
-    {
+    {TRACE_IT(58521);
         JavascriptExternalFunction* object = static_cast<JavascriptExternalFunction*>(instance);
         HRESULT hr = E_FAIL;
 
@@ -65,14 +65,14 @@ namespace Js
         AnalysisAssert(scriptContext);
         // Don't call the implicit call if disable implicit call
         if (scriptContext->GetThreadContext()->IsDisableImplicitCall())
-        {
+        {TRACE_IT(58522);
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_External);
             //we will return if we get call further into implicitcalls.
             return;
         }
 
         if (scriptContext->IsClosed() || scriptContext->IsInvalidatedForHostObjects())
-        {
+        {TRACE_IT(58523);
             Js::JavascriptError::MapAndThrowError(scriptContext, E_ACCESSDENIED);
         }
         ThreadContext* threadContext = scriptContext->GetThreadContext();
@@ -80,7 +80,7 @@ namespace Js
         typeHandler->Convert(instance, mode, object->typeSlots, object->hasAccessors);
 
         BEGIN_LEAVE_SCRIPT_INTERNAL(scriptContext)
-        {
+        {TRACE_IT(58524);
             ASYNC_HOST_OPERATION_START(threadContext);
 
             hr = object->initMethod(instance);
@@ -90,21 +90,21 @@ namespace Js
         END_LEAVE_SCRIPT_INTERNAL(scriptContext);
 
         if (FAILED(hr))
-        {
+        {TRACE_IT(58525);
             Js::JavascriptError::MapAndThrowError(scriptContext, hr);
         }
 
         JavascriptString * functionName = nullptr;
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled() &&
             object->GetFunctionName(&functionName))
-        {
+        {TRACE_IT(58526);
             object->SetPropertyWithAttributes(PropertyIds::name, functionName, PropertyConfigurable, nullptr);
         }
 
     }
 
     void JavascriptExternalFunction::PrepareExternalCall(Js::Arguments * args)
-    {
+    {TRACE_IT(58527);
         ScriptContext * scriptContext = this->type->GetScriptContext();
         Assert(!scriptContext->GetThreadContext()->IsDisableImplicitException());
         scriptContext->VerifyAlive();
@@ -112,7 +112,7 @@ namespace Js
         Assert(scriptContext->GetThreadContext()->IsScriptActive());
 
         if (args->Info.Count == 0)
-        {
+        {TRACE_IT(58528);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined);
         }
 
@@ -130,7 +130,7 @@ namespace Js
             Assert(!Js::RecyclableObject::Is(thisVar));
             break;
         default:
-            {
+            {TRACE_IT(58529);
                 Assert(Js::RecyclableObject::Is(thisVar));
 
                 ScriptContext* scriptContextThisVar = Js::RecyclableObject::FromVar(thisVar)->GetScriptContext();
@@ -143,12 +143,12 @@ namespace Js
                 switch(typeId)
                 {
                 case Js::TypeIds_GlobalObject:
-                    {
+                    {TRACE_IT(58530);
                         Js::GlobalObject* srcGlobalObject = (Js::GlobalObject*)(void*)(thisVar);
                         directHostObject = srcGlobalObject->GetDirectHostObject();
                         // For jsrt, direct host object can be null. If thats the case don't change it.
                         if (directHostObject != nullptr)
-                        {
+                        {TRACE_IT(58531);
                             thisVar = directHostObject;
                         }
 
@@ -156,14 +156,14 @@ namespace Js
                     break;
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
-                    {
+                    {TRACE_IT(58532);
                         // Call to DOM function with this as "undefined" or "null"
                         // This should be converted to Global object
                         Js::GlobalObject* srcGlobalObject = scriptContextThisVar->GetGlobalObject() ;
                         directHostObject = srcGlobalObject->GetDirectHostObject();
                         // For jsrt, direct host object can be null. If thats the case don't change it.
                         if (directHostObject != nullptr)
-                        {
+                        {TRACE_IT(58533);
                             thisVar = directHostObject;
                         }
                     }
@@ -191,13 +191,13 @@ namespace Js
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformRecordOrReplayAction())
-        {
+        {TRACE_IT(58534);
             result = JavascriptExternalFunction::HandleRecordReplayExternalFunction_Thunk(externalFunction, callInfo, args, scriptContext);
         }
         else
-        {
+        {TRACE_IT(58535);
             BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-            {
+            {TRACE_IT(58536);
                 // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
                 result = externalFunction->nativeMethod(function, callInfo, args.Values);
             }
@@ -206,7 +206,7 @@ namespace Js
 #else
         Var result = nullptr;
         BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-        {
+        {TRACE_IT(58537);
             // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
             result = externalFunction->nativeMethod(function, callInfo, args.Values);
         }
@@ -214,14 +214,14 @@ namespace Js
 #endif
 
         if (result == nullptr)
-        {
+        {TRACE_IT(58538);
 #pragma warning(push)
 #pragma warning(disable:6011) // scriptContext cannot be null here
             result = scriptContext->GetLibrary()->GetUndefined();
 #pragma warning(pop)
         }
         else
-        {
+        {TRACE_IT(58539);
             result = CrossSite::MarshalVar(scriptContext, result);
         }
 
@@ -265,29 +265,29 @@ namespace Js
 
 #if ENABLE_TTD
         if(scriptContext->ShouldPerformRecordOrReplayAction())
-        {
+        {TRACE_IT(58540);
             result = JavascriptExternalFunction::HandleRecordReplayExternalFunction_StdThunk(function, callInfo, args, scriptContext);
         }
         else
-        {
+        {TRACE_IT(58541);
             BEGIN_LEAVE_SCRIPT(scriptContext)
-            {
+            {TRACE_IT(58542);
                 result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
             }
             END_LEAVE_SCRIPT(scriptContext);
         }
 #else
         BEGIN_LEAVE_SCRIPT(scriptContext)
-        {
+        {TRACE_IT(58543);
             result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
         }
         END_LEAVE_SCRIPT(scriptContext);
 #endif
 
         if (result != nullptr && !Js::TaggedNumber::Is(result))
-        {
+        {TRACE_IT(58544);
             if (!Js::RecyclableObject::Is(result))
-            {
+            {TRACE_IT(58545);
                 Js::Throw::InternalError();
             }
 
@@ -296,35 +296,35 @@ namespace Js
             // For JSRT, we could get result marshalled in different context.
             bool isJSRT = scriptContext->GetThreadContext()->IsJSRT();
             if (!isJSRT && obj->GetScriptContext() != scriptContext)
-            {
+            {TRACE_IT(58546);
                 Js::Throw::InternalError();
             }
         }
 
         if (scriptContext->HasRecordedException())
-        {
+        {TRACE_IT(58547);
             bool considerPassingToDebugger = false;
             JavascriptExceptionObject* recordedException = scriptContext->GetAndClearRecordedException(&considerPassingToDebugger);
             if (recordedException != nullptr)
-            {
+            {TRACE_IT(58548);
                 // If this is script termination, then throw ScriptAbortExceptio, else throw normal Exception object.
                 if (recordedException == scriptContext->GetThreadContext()->GetPendingTerminatedErrorObject())
-                {
+                {TRACE_IT(58549);
                     throw Js::ScriptAbortException();
                 }
                 else
-                {
+                {TRACE_IT(58550);
                     JavascriptExceptionOperators::RethrowExceptionObject(recordedException, scriptContext, considerPassingToDebugger);
                 }
             }
         }
 
         if (result == nullptr)
-        {
+        {TRACE_IT(58551);
             result = scriptContext->GetLibrary()->GetUndefined();
         }
         else
-        {
+        {TRACE_IT(58552);
             result = CrossSite::MarshalVar(scriptContext, result);
         }
 
@@ -332,35 +332,35 @@ namespace Js
     }
 
     BOOL JavascriptExternalFunction::SetLengthProperty(Var length)
-    {
+    {TRACE_IT(58553);
         return DynamicObject::SetPropertyWithAttributes(PropertyIds::length, length, PropertyConfigurable, NULL, PropertyOperation_None, SideEffects_None);
     }
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptExternalFunction::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(58554);
         return TTD::NSSnapObjects::SnapObjectType::SnapExternalFunctionObject;
     }
 
     void JavascriptExternalFunction::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(58555);
         TTD::TTDVar fnameId = TTD_CONVERT_JSVAR_TO_TTDVAR(this->functionNameId);
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::TTDVar, TTD::NSSnapObjects::SnapObjectType::SnapExternalFunctionObject>(objData, fnameId);
     }
 
     Var JavascriptExternalFunction::HandleRecordReplayExternalFunction_Thunk(Js::JavascriptFunction* function, CallInfo& callInfo, Arguments& args, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58556);
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(function);
 
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformReplayAction())
-        {
+        {TRACE_IT(58557);
             TTD::TTDNestingDepthAutoAdjuster logPopper(scriptContext->GetThreadContext());
             scriptContext->GetThreadContext()->TTDLog->ReplayExternalCallEvent(externalFunction, args.Info.Count, args.Values, &result);
         }
         else
-        {
+        {TRACE_IT(58558);
             TTDAssert(scriptContext->ShouldPerformRecordAction(), "Check either record/replay before calling!!!");
 
             TTD::EventLog* elog = scriptContext->GetThreadContext()->TTDLog;
@@ -369,7 +369,7 @@ namespace Js
             TTD::NSLogEvents::EventLogEntry* callEvent = elog->RecordExternalCallEvent(externalFunction, scriptContext->GetThreadContext()->TTDRootNestingCount, args.Info.Count, args.Values, false);
 
             BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-            {
+            {TRACE_IT(58559);
                 // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
                 result = externalFunction->nativeMethod(function, callInfo, args.Values);
             }
@@ -383,18 +383,18 @@ namespace Js
     }
 
     Var JavascriptExternalFunction::HandleRecordReplayExternalFunction_StdThunk(Js::RecyclableObject* function, CallInfo& callInfo, Arguments& args, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58560);
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(function);
 
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformReplayAction())
-        {
+        {TRACE_IT(58561);
             TTD::TTDNestingDepthAutoAdjuster logPopper(scriptContext->GetThreadContext());
             scriptContext->GetThreadContext()->TTDLog->ReplayExternalCallEvent(externalFunction, args.Info.Count, args.Values, &result);
         }
         else
-        {
+        {TRACE_IT(58562);
             TTDAssert(scriptContext->ShouldPerformRecordAction(), "Check either record/replay before calling!!!");
 
             TTD::EventLog* elog = scriptContext->GetThreadContext()->TTDLog;
@@ -403,7 +403,7 @@ namespace Js
             TTD::NSLogEvents::EventLogEntry* callEvent = elog->RecordExternalCallEvent(externalFunction, scriptContext->GetThreadContext()->TTDRootNestingCount, args.Info.Count, args.Values, true);
 
             BEGIN_LEAVE_SCRIPT(scriptContext)
-            {
+            {TRACE_IT(58563);
                 result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
             }
             END_LEAVE_SCRIPT(scriptContext);
@@ -415,7 +415,7 @@ namespace Js
     }
 
     Var __stdcall JavascriptExternalFunction::TTDReplayDummyExternalMethod(Js::Var callee, bool isConstructCall, Var *args, USHORT cargs, void *callbackState)
-    {
+    {TRACE_IT(58564);
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(callee);
 
         ScriptContext* scriptContext = externalFunction->type->GetScriptContext();

@@ -9,32 +9,32 @@ namespace Js
     const char16 JavascriptSIMDFloat32x4::TypeName[] = _u("SIMD.Float32x4");
 
     JavascriptSIMDFloat32x4::JavascriptSIMDFloat32x4(StaticType *type) : JavascriptSIMDType(type)
-    {
+    {TRACE_IT(61436);
         Assert(type->GetTypeId() == TypeIds_SIMDFloat32x4);
     }
 
     JavascriptSIMDFloat32x4::JavascriptSIMDFloat32x4(SIMDValue *val, StaticType *type) : JavascriptSIMDType(val, type)
-    {
+    {TRACE_IT(61437);
         Assert(type->GetTypeId() == TypeIds_SIMDFloat32x4);
     }
 
     JavascriptSIMDFloat32x4* JavascriptSIMDFloat32x4::AllocUninitialized(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61438);
         return (JavascriptSIMDFloat32x4 *)AllocatorNew(Recycler, requestContext->GetRecycler(), JavascriptSIMDFloat32x4, requestContext->GetLibrary()->GetSIMDFloat32x4TypeStatic());
     }
 
     JavascriptSIMDFloat32x4* JavascriptSIMDFloat32x4::New(SIMDValue *val, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61439);
         return (JavascriptSIMDFloat32x4 *)AllocatorNew(Recycler, requestContext->GetRecycler(), JavascriptSIMDFloat32x4, val, requestContext->GetLibrary()->GetSIMDFloat32x4TypeStatic());
     }
 
     bool  JavascriptSIMDFloat32x4::Is(Var instance)
-    {
+    {TRACE_IT(61440);
         return JavascriptOperators::GetTypeId(instance) == TypeIds_SIMDFloat32x4;
     }
 
     JavascriptSIMDFloat32x4* JavascriptSIMDFloat32x4::FromVar(Var aValue)
-    {
+    {TRACE_IT(61441);
         Assert(aValue);
         AssertMsg(Is(aValue), "Ensure var is actually a 'JavascriptSIMDFloat32x4'");
 
@@ -43,14 +43,14 @@ namespace Js
 
     Var JavascriptSIMDFloat32x4::CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue,
         const Var* args, uint numArgs, CallInfo callInfo)
-    {
+    {TRACE_IT(61442);
         const char16 *typeString = _u("SIMD.Float32x4(");
         return JavascriptSIMDObject::FromVar(&obj)->ToLocaleString<float, 4>(args, numArgs, typeString,
             simdValue.f32, &callInfo, &requestContext);
     }
 
     void JavascriptSIMDFloat32x4::ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) char16* stringBuffer, size_t countBuffer, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61443);
         const char16* f0 = JavascriptNumber::ToStringRadix10((double)value.f32[0], scriptContext)->GetSz();
         const char16* f1 = JavascriptNumber::ToStringRadix10((double)value.f32[1], scriptContext)->GetSz();
         const char16* f2 = JavascriptNumber::ToStringRadix10((double)value.f32[2], scriptContext)->GetSz();
@@ -60,22 +60,22 @@ namespace Js
     }
 
     const char16* JavascriptSIMDFloat32x4::GetTypeName()
-    {
+    {TRACE_IT(61444);
         return JavascriptSIMDFloat32x4::TypeName;
     }
 
     RecyclableObject * JavascriptSIMDFloat32x4::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61445);
         return JavascriptSIMDFloat32x4::New(&value, requestContext);
     }
 
     bool JavascriptSIMDFloat32x4::GetPropertyBuiltIns(PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61446);
         return false;
     }
 
     Var JavascriptSIMDFloat32x4::Copy(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61447);
         return JavascriptSIMDFloat32x4::New(&this->value, requestContext);
     }
 

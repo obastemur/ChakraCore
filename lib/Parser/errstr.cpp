@@ -12,7 +12,7 @@ HANDLE g_hInstance;
 const char16 g_wszPrefix[] = _u("js");
 
 static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax) WCHAR * psz, int cchMax)
-{
+{TRACE_IT(32988);
     // NOTE - istring is expected to be HRESULT
 
     Assert(0 < cchMax);
@@ -54,7 +54,7 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
 
     pchCur = pchRes;
     for (cstring = istring; cstring-- > 0;)
-    {
+    {TRACE_IT(32989);
         if (cbRes - sizeof(WORD) < sizeof(WCHAR) * (pchCur - pchRes))
             goto LError;
 
@@ -100,7 +100,7 @@ LError:
     // Unlock/FreeResource non-essential on win32/64.
     //
     if (NULL != hgl)
-    {
+    {TRACE_IT(32990);
         if (NULL != pchRes)
             UnlockResource(hgl);
         FreeResource(hgl);
@@ -113,14 +113,14 @@ LError:
 
 
 BOOL FGetResourceString(int32 isz, __out_ecount(cchMax) OLECHAR *psz, int cchMax)
-{
+{TRACE_IT(32991);
     return FGetStringFromLibrary((HINSTANCE)g_hInstance, isz, psz, cchMax);
 }
 
 // Get a bstr version of the error string
 _NOINLINE // Don't inline. This function needs 2KB stack.
 BSTR BstrGetResourceString(int32 isz)
-{
+{TRACE_IT(32992);
     // NOTE - isz is expected to be HRESULT
 
 #ifdef _WIN32
@@ -128,7 +128,7 @@ BSTR BstrGetResourceString(int32 isz)
 
     if (!FGetResourceString(isz, szT,
         sizeof(szT) / sizeof(szT[0]) - 1))
-    {
+    {TRACE_IT(32993);
         return NULL;
     }
 #else
@@ -137,7 +137,7 @@ BSTR BstrGetResourceString(int32 isz)
     UINT id = (WORD)isz;
     const char16* szT = LoadResourceStr(id);
     if (!szT || !szT[0])
-    {
+    {TRACE_IT(32994);
         return NULL;
     }
 

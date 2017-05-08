@@ -27,7 +27,7 @@ namespace Js
 
         JavascriptError(DynamicType* type, BOOL isExternalError = FALSE, BOOL isPrototype = FALSE) :
             DynamicObject(type), originalRuntimeErrorMessage(nullptr), isExternalError(isExternalError), isPrototype(isPrototype), isStackPropertyRedefined(false)
-        {
+        {TRACE_IT(58506);
             Assert(type->GetTypeId() == TypeIds_Error);
             exceptionObject = nullptr;
             m_errorType = kjstCustomError;
@@ -36,7 +36,7 @@ namespace Js
         static bool Is(Var aValue);
         static bool IsRemoteError(Var aValue);
 
-        ErrorTypeEnum GetErrorType() { return m_errorType; }
+        ErrorTypeEnum GetErrorType() {TRACE_IT(58507); return m_errorType; }
 
         virtual bool HasDebugInfo();
 
@@ -132,20 +132,20 @@ namespace Js
         static bool ThrowIfStrictModeUndefinedSetter(PropertyOperationFlags flags, Var setterValue, ScriptContext* scriptContext);
         static bool ThrowIfNotExtensibleUndefinedSetter(PropertyOperationFlags flags, Var setterValue, ScriptContext* scriptContext);
 
-        BOOL IsExternalError() const { return isExternalError; }
-        BOOL IsPrototype() const { return isPrototype; }
-        bool IsStackPropertyRedefined() const { return isStackPropertyRedefined; }
-        void SetStackPropertyRedefined(const bool value) { isStackPropertyRedefined = value; }
+        BOOL IsExternalError() const {TRACE_IT(58508); return isExternalError; }
+        BOOL IsPrototype() const {TRACE_IT(58509); return isPrototype; }
+        bool IsStackPropertyRedefined() const {TRACE_IT(58510); return isStackPropertyRedefined; }
+        void SetStackPropertyRedefined(const bool value) {TRACE_IT(58511); isStackPropertyRedefined = value; }
         virtual BOOL GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext) override;
         virtual BOOL GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext) override;
 
         void SetJavascriptExceptionObject(JavascriptExceptionObject *exceptionObject)
-        {
+        {TRACE_IT(58512);
             Assert(exceptionObject);
             this->exceptionObject = exceptionObject;
         }
 
-        JavascriptExceptionObject *GetJavascriptExceptionObject() { return exceptionObject; }
+        JavascriptExceptionObject *GetJavascriptExceptionObject() {TRACE_IT(58513); return exceptionObject; }
 
         static DWORD GetAdjustedResourceStringHr(DWORD hr, bool isFormatString);
 
@@ -168,7 +168,7 @@ namespace Js
         static void Trace(const char16 *form, ...) // const
         {
             if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::ErrorPhase))
-            {
+            {TRACE_IT(58514);
                 va_list argptr;
                 va_start(argptr, form);
                 Output::Print(_u("Error: "));

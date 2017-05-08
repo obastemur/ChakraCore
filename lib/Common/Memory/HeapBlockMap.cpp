@@ -28,12 +28,12 @@ HeapBlockMap32::HeapBlockMap32() :
 }
 
 HeapBlockMap32::~HeapBlockMap32()
-{
+{TRACE_IT(23664);
     for (uint i = 0; i < _countof(map); i++)
-    {
+    {TRACE_IT(23665);
         L2MapChunk * chunk = map[i];
         if (chunk)
-        {
+        {TRACE_IT(23666);
             NoMemProtectHeapDelete(chunk);
         }
     }
@@ -41,12 +41,12 @@ HeapBlockMap32::~HeapBlockMap32()
 
 HeapBlock *
 HeapBlockMap32::GetHeapBlock(void * address)
-{
+{TRACE_IT(23667);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
     if (l2map == nullptr)
-    {
+    {TRACE_IT(23668);
         return nullptr;
     }
 
@@ -55,19 +55,19 @@ HeapBlockMap32::GetHeapBlock(void * address)
 
 bool
 HeapBlockMap32::EnsureHeapBlock(void * address, uint pageCount)
-{
+{TRACE_IT(23669);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(23670);
         if (map[id1] == nullptr)
-        {
+        {TRACE_IT(23671);
             L2MapChunk * newChunk = NoMemProtectHeapNewNoThrowZ(L2MapChunk);
             if (newChunk == nullptr)
-            {
+            {TRACE_IT(23672);
                 // Leave any previously allocated L2MapChunks in place --
                 // the concurrent thread may have already accessed them.
                 // These will be cleaned up in the Cleanup method, after Sweep is complete.
@@ -80,7 +80,7 @@ HeapBlockMap32::EnsureHeapBlock(void * address, uint pageCount)
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(23673);
             break;
         }
 
@@ -94,21 +94,21 @@ HeapBlockMap32::EnsureHeapBlock(void * address, uint pageCount)
 
 void
 HeapBlockMap32::SetHeapBlockNoCheck(void * address, uint pageCount, HeapBlock * heapBlock, HeapBlock::HeapBlockType blockType, byte bucketIndex)
-{
+{TRACE_IT(23674);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(23675);
         Assert(map[id1] != nullptr);
 
         map[id1]->Set(id2, currentPageCount, heapBlock, blockType, bucketIndex);
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(23676);
             return;
         }
 
@@ -124,7 +124,7 @@ HeapBlockMap32::SetHeapBlock(void * address, uint pageCount, HeapBlock * heapBlo
     // First, make sure we have all the necessary L2MapChunks we'll need.
     // This ensures that in case of failure, the concurrent thread won't see an inconsistent state.
     if (!EnsureHeapBlock(address, pageCount))
-    {
+    {TRACE_IT(23677);
         return false;
     }
 
@@ -135,21 +135,21 @@ HeapBlockMap32::SetHeapBlock(void * address, uint pageCount, HeapBlock * heapBlo
 
 void
 HeapBlockMap32::ClearHeapBlock(void * address, uint pageCount)
-{
+{TRACE_IT(23678);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(23679);
         Assert(map[id1] != nullptr);
 
         map[id1]->Clear(id2, currentPageCount);
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(23680);
             return;
         }
 
@@ -161,12 +161,12 @@ HeapBlockMap32::ClearHeapBlock(void * address, uint pageCount)
 
 HeapBlockMap32::PageMarkBitVector *
 HeapBlockMap32::GetPageMarkBitVector(void * address)
-{
+{TRACE_IT(23681);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
     if (l2map == nullptr)
-    {
+    {TRACE_IT(23682);
         return nullptr;
     }
 
@@ -176,12 +176,12 @@ HeapBlockMap32::GetPageMarkBitVector(void * address)
 template <size_t BitCount>
 BVStatic<BitCount>*
 HeapBlockMap32::GetMarkBitVectorForPages(void * address)
-{
+{TRACE_IT(23683);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
     if (l2map == nullptr)
-    {
+    {TRACE_IT(23684);
         return nullptr;
     }
 
@@ -193,7 +193,7 @@ template BVStatic<MediumAllocationBlockAttributes::BitVectorCount>* HeapBlockMap
 
 uint
 HeapBlockMap32::GetMarkCount(void * address, uint pageCount)
-{
+{TRACE_IT(23685);
     uint markCount = 0;
 
     ForEachChunkInAddressRange(address, pageCount, [&](L2MapChunk* l2Map, uint chunkId)
@@ -207,17 +207,17 @@ HeapBlockMap32::GetMarkCount(void * address, uint pageCount)
 template <class Fn>
 void
 HeapBlockMap32::ForEachChunkInAddressRange(void * address, size_t pageCount, Fn fn)
-{
+{TRACE_IT(23686);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     while (true)
-    {
+    {TRACE_IT(23687);
         L2MapChunk * l2map = map[id1];
         Assert(l2map != nullptr);
 
         if (l2map != nullptr)
-        {
+        {TRACE_IT(23688);
             while (id2 < L2Count)
             {
                 fn(l2map, id2);
@@ -225,7 +225,7 @@ HeapBlockMap32::ForEachChunkInAddressRange(void * address, size_t pageCount, Fn 
                 id2++;
                 pageCount--;
                 if (pageCount == 0)
-                {
+                {TRACE_IT(23689);
                     return;
                 }
             }
@@ -238,7 +238,7 @@ HeapBlockMap32::ForEachChunkInAddressRange(void * address, size_t pageCount, Fn 
 
 bool
 HeapBlockMap32::IsMarked(void * address) const
-{
+{TRACE_IT(23690);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * chunk = map[id1];
@@ -249,7 +249,7 @@ HeapBlockMap32::IsMarked(void * address) const
 
 void
 HeapBlockMap32::SetMark(void * address)
-{
+{TRACE_IT(23691);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * chunk = map[id1];
@@ -260,12 +260,12 @@ HeapBlockMap32::SetMark(void * address)
 
 bool
 HeapBlockMap32::TestAndSetMark(void * address)
-{
+{TRACE_IT(23692);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * chunk = map[id1];
     if (chunk == nullptr)
-    {
+    {TRACE_IT(23693);
         // False reference
         return false;
     }
@@ -276,12 +276,12 @@ HeapBlockMap32::TestAndSetMark(void * address)
 
 void
 HeapBlockMap32::ResetMarks()
-{
+{TRACE_IT(23694);
     for (uint i = 0; i < L1Count; i++)
-    {
+    {TRACE_IT(23695);
         L2MapChunk * chunk = map[i];
         if (chunk == nullptr)
-        {
+        {TRACE_IT(23696);
             continue;
         }
 
@@ -293,7 +293,7 @@ HeapBlockMap32::ResetMarks()
 
 #if DBG
         for (uint j = 0; j < L2Count; j++)
-        {
+        {TRACE_IT(23697);
             chunk->pageMarkCount[j] = 0;
         }
 #endif
@@ -303,7 +303,7 @@ HeapBlockMap32::ResetMarks()
 #if DBG
 ushort
 HeapBlockMap32::GetPageMarkCount(void * address) const
-{
+{TRACE_IT(23698);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
@@ -316,7 +316,7 @@ HeapBlockMap32::GetPageMarkCount(void * address) const
 
 void
 HeapBlockMap32::SetPageMarkCount(void * address, ushort markCount)
-{
+{TRACE_IT(23699);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
@@ -338,7 +338,7 @@ template void HeapBlockMap32::VerifyMarkCountForPages<MediumAllocationBlockAttri
 template <uint BitVectorCount>
 void
 HeapBlockMap32::VerifyMarkCountForPages(void * address, uint pageCount)
-{
+{TRACE_IT(23700);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
@@ -348,7 +348,7 @@ HeapBlockMap32::VerifyMarkCountForPages(void * address, uint pageCount)
 
     Assert(id2 + pageCount <= L2Count);
     for (uint i = id2; i < pageCount + id2; i++)
-    {
+    {TRACE_IT(23701);
         uint markCountForPage = l2map->GetPageMarkBitVector(i)->Count();
         Assert(markCountForPage == l2map->pageMarkCount[i]);
     }
@@ -356,7 +356,7 @@ HeapBlockMap32::VerifyMarkCountForPages(void * address, uint pageCount)
 #endif
 
 HeapBlockMap32::L2MapChunk::L2MapChunk()
-{
+{TRACE_IT(23702);
     // We are zero-initialized so don't need to actually init.
 
     // Mark bits should be cleared by default
@@ -368,14 +368,14 @@ HeapBlockMap32::L2MapChunk::L2MapChunk()
 
 #if DBG
     for (uint i = 0; i < L2Count; i++)
-    {
+    {TRACE_IT(23703);
         Assert(pageMarkCount[i] == 0);
     }
 #endif
 }
 
 HeapBlockMap32::L2MapChunk::~L2MapChunk()
-{
+{TRACE_IT(23704);
     // In debug builds, we guarantee that the heap block is clear on shutdown.
     // In free builds, we skip this to save time.
     // So this assert is only true in debug builds.
@@ -384,7 +384,7 @@ HeapBlockMap32::L2MapChunk::~L2MapChunk()
 
 HeapBlock *
 HeapBlockMap32::L2MapChunk::Get(void * address)
-{
+{TRACE_IT(23705);
     uint id2 = GetLevel2Id(address);
     Assert(id2 < L2Count);
     __analysis_assume(id2 < L2Count);
@@ -393,14 +393,14 @@ HeapBlockMap32::L2MapChunk::Get(void * address)
 
 void
 HeapBlockMap32::L2MapChunk::Set(uint id2, uint pageCount, HeapBlock * heapBlock, HeapBlock::HeapBlockType blockType, byte bucketIndex)
-{
+{TRACE_IT(23706);
     uint id2End = id2 + pageCount;
 
     Assert(id2 < L2Count);
     Assert(id2End <= L2Count);
 
     for (uint i = id2; i < id2End; i++)
-    {
+    {TRACE_IT(23707);
         __analysis_assume(i < L2Count);
         Assert(map[i] == nullptr);
         Assert(blockInfo[i].blockType == HeapBlock::HeapBlockType::FreeBlockType);
@@ -420,14 +420,14 @@ HeapBlockMap32::L2MapChunk::Set(uint id2, uint pageCount, HeapBlock * heapBlock,
 
 void
 HeapBlockMap32::L2MapChunk::Clear(uint id2, uint pageCount)
-{
+{TRACE_IT(23708);
     uint id2End = id2 + pageCount;
 
     Assert(id2 < L2Count);
     Assert(id2End <= L2Count);
 
     for (uint i = id2; i < id2End; i++)
-    {
+    {TRACE_IT(23709);
         __analysis_assume(i < L2Count);
         Assert(map[i] != nullptr);
         Assert(blockInfo[i].blockType != HeapBlock::HeapBlockType::FreeBlockType);
@@ -442,11 +442,11 @@ HeapBlockMap32::L2MapChunk::Clear(uint id2, uint pageCount)
 
 bool
 HeapBlockMap32::L2MapChunk::IsEmpty() const
-{
+{TRACE_IT(23710);
     for (uint i = 0; i < L2Count; i++)
-    {
+    {TRACE_IT(23711);
         if (map[i] != nullptr)
-        {
+        {TRACE_IT(23712);
             return false;
         }
     }
@@ -456,7 +456,7 @@ HeapBlockMap32::L2MapChunk::IsEmpty() const
 
 HeapBlockMap32::PageMarkBitVector *
 HeapBlockMap32::L2MapChunk::GetPageMarkBitVector(void * address)
-{
+{TRACE_IT(23713);
     uint id2 = GetLevel2Id(address);
     Assert(id2 < L2Count);
     __analysis_assume(id2 < L2Count);
@@ -465,14 +465,14 @@ HeapBlockMap32::L2MapChunk::GetPageMarkBitVector(void * address)
 
 HeapBlockMap32::PageMarkBitVector *
 HeapBlockMap32::L2MapChunk::GetPageMarkBitVector(uint pageIndex)
-{
+{TRACE_IT(23714);
     return markBits.GetRange<PageMarkBitCount>(pageIndex * PageMarkBitCount);
 }
 
 template <size_t BitCount>
 BVStatic<BitCount> *
 HeapBlockMap32::L2MapChunk::GetMarkBitVectorForPages(void * address)
-{
+{TRACE_IT(23715);
     uint id2 = GetLevel2Id(address);
     Assert(id2 < L2Count);
     __analysis_assume(id2 < L2Count);
@@ -482,46 +482,46 @@ HeapBlockMap32::L2MapChunk::GetMarkBitVectorForPages(void * address)
 template <size_t BitCount>
 BVStatic<BitCount> *
 HeapBlockMap32::L2MapChunk::GetMarkBitVectorForPages(uint pageIndex)
-{
+{TRACE_IT(23716);
     return markBits.GetRange<BitCount>(pageIndex * PageMarkBitCount);
 }
 
 bool
 HeapBlockMap32::L2MapChunk::IsMarked(void * address) const
-{
+{TRACE_IT(23717);
     return markBits.Test(GetMarkBitIndex(address)) == TRUE;
 }
 
 void
 HeapBlockMap32::L2MapChunk::SetMark(void * address)
-{
+{TRACE_IT(23718);
     markBits.Set(GetMarkBitIndex(address));
 }
 
 #ifdef RECYCLER_STRESS
 void
 HeapBlockMap32::InduceFalsePositives(Recycler * recycler)
-{
+{TRACE_IT(23719);
     for (uint i = 0; i < L1Count; i++)
-    {
+    {TRACE_IT(23720);
         L2MapChunk * chunk = map[i];
         if (chunk == nullptr)
-        {
+        {TRACE_IT(23721);
             continue;
         }
 
         for (uint j = 0; j < L2Count; j++)
-        {
+        {TRACE_IT(23722);
             HeapBlock * block = chunk->map[j];
 
             if (block == nullptr)
-            {
+            {TRACE_IT(23723);
                 // Unallocated block.  Try to mark the first offset, in case
                 // we are simultaneously allocating this block on the main thread.
                 recycler->TryMarkNonInterior((void *)GetAddressFromIds(i, j), nullptr);
             }
             else if (!block->IsLargeHeapBlock())
-            {
+            {TRACE_IT(23724);
                 ((SmallHeapBlock *)block)->InduceFalsePositive(recycler);
             }
         }
@@ -532,7 +532,7 @@ HeapBlockMap32::InduceFalsePositives(Recycler * recycler)
 #ifdef RECYCLER_VERIFY_MARK
 bool
 HeapBlockMap32::IsAddressInNewChunk(void * address)
-{
+{TRACE_IT(23725);
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
@@ -544,28 +544,28 @@ HeapBlockMap32::IsAddressInNewChunk(void * address)
 template <class Fn>
 void
 HeapBlockMap32::ForEachSegment(Recycler * recycler, Fn func)
-{
+{TRACE_IT(23726);
     Segment * currentSegment = nullptr;
 
     for (uint i = 0; i < L1Count; i++)
-    {
+    {TRACE_IT(23727);
         L2MapChunk * chunk = map[i];
         if (chunk == nullptr)
-        {
+        {TRACE_IT(23728);
             continue;
         }
 
         for (uint j = 0; j < L2Count; j++)
-        {
+        {TRACE_IT(23729);
             HeapBlock * block = chunk->map[j];
             if (block == nullptr)
-            {
+            {TRACE_IT(23730);
                 continue;
             }
 
             Assert(block->GetSegment() != nullptr);
             if (block->GetSegment() == currentSegment)
-            {
+            {TRACE_IT(23731);
                 Assert(currentSegment != nullptr);
                 Assert(currentSegment->IsInSegment(block->GetAddress()));
                 continue;
@@ -586,14 +586,14 @@ HeapBlockMap32::ForEachSegment(Recycler * recycler, Fn func)
             // Limit the processing to the portion of the segment in this HeapBlockMap32.
             // We'll process other portions when we visit the other HeapBlockMap32 structures.
             if (segmentStart < this->startAddress)
-            {
+            {TRACE_IT(23732);
                 Assert(segmentLength > (size_t)(this->startAddress - segmentStart));
                 segmentLength -= (this->startAddress - segmentStart);
                 segmentStart = this->startAddress;
             }
 
             if ((segmentStart - this->startAddress) + segmentLength > HeapBlockMap32::TotalSize)
-            {
+            {TRACE_IT(23733);
                 segmentLength = HeapBlockMap32::TotalSize - (segmentStart - this->startAddress);
             }
 #endif
@@ -606,16 +606,16 @@ HeapBlockMap32::ForEachSegment(Recycler * recycler, Fn func)
 #if ENABLE_CONCURRENT_GC
 void
 HeapBlockMap32::ResetDirtyPages(Recycler * recycler)
-{
+{TRACE_IT(23734);
     this->ForEachSegment(recycler, [=](char * segmentStart, size_t segmentLength, Segment * segment, PageAllocator * segmentPageAllocator) {
 
         Assert(segmentLength % AutoSystemInfo::PageSize == 0);
 
 #ifdef RECYCLER_WRITE_WATCH
         if (!CONFIG_FLAG(ForceSoftwareWriteBarrier))
-        {
+        {TRACE_IT(23735);
             if (segmentPageAllocator->IsWriteWatchEnabled())
-            {
+            {TRACE_IT(23736);
                 // Call ResetWriteWatch for Small non-leaf and Large segments.
                 UINT ret = ::ResetWriteWatch(segmentStart, segmentLength);
                 Assert(ret == 0);
@@ -627,7 +627,7 @@ HeapBlockMap32::ResetDirtyPages(Recycler * recycler)
 #if defined(_M_X64_OR_ARM64)
         if (segment->IsWriteBarrierEnabled())
 #endif
-        {
+        {TRACE_IT(23737);
             // Reset software write barrier for barrier segments.
             RecyclerWriteBarrierManager::ResetWriteBarrier(segmentStart, segmentLength / AutoSystemInfo::PageSize);
         }
@@ -638,11 +638,11 @@ HeapBlockMap32::ResetDirtyPages(Recycler * recycler)
 
 bool
 HeapBlockMap32::RescanPage(void * dirtyPage, bool* anyObjectsMarkedOnPage, Recycler * recycler)
-{
+{TRACE_IT(23738);
     uint id1 = GetLevel1Id(dirtyPage);
     L2MapChunk * chunk = map[id1];
     if (chunk != nullptr)
-    {
+    {TRACE_IT(23739);
         uint id2 = GetLevel2Id(dirtyPage);
         HeapBlock::HeapBlockType blockType = chunk->blockInfo[id2].blockType;
         // Determine block type and process as appropriate
@@ -690,7 +690,7 @@ template bool HeapBlockMap32::RescanHeapBlock<MediumFinalizableHeapBlock>(void *
 template <class TBlockType>
 bool
 HeapBlockMap32::RescanHeapBlock(void * dirtyPage, HeapBlock::HeapBlockType blockType, L2MapChunk* chunk, uint id2, bool* anyObjectsMarkedOnPage, Recycler * recycler)
-{
+{TRACE_IT(23740);
     Assert(chunk != nullptr);
     char* heapBlockPageAddress = TBlockType::GetBlockStartAddress((char*) dirtyPage);
 
@@ -700,7 +700,7 @@ HeapBlockMap32::RescanHeapBlock(void * dirtyPage, HeapBlock::HeapBlockType block
     // mark bit vector because the object that's dirty on the page could have started on an earlier page
     auto markBits = chunk->GetMarkBitVectorForPages<TBlockAttributes::BitVectorCount>(heapBlockPageAddress);
     if (!markBits->IsAllClear())
-    {
+    {TRACE_IT(23741);
         Assert(chunk->map[id2]->GetHeapBlockType() == blockType);
 
         // Small finalizable heap blocks require the HeapBlock * (to look up object attributes).
@@ -709,7 +709,7 @@ HeapBlockMap32::RescanHeapBlock(void * dirtyPage, HeapBlock::HeapBlockType block
         uint bucketIndex = chunk->blockInfo[id2].bucketIndex;
         if (!SmallNormalHeapBucketBase<TBlockType>::RescanObjectsOnPage(block,
             (char *)dirtyPage, heapBlockPageAddress, markBits, HeapInfo::GetObjectSizeForBucketIndex<TBlockAttributes>(bucketIndex), bucketIndex, anyObjectsMarkedOnPage, recycler))
-        {
+        {TRACE_IT(23742);
             // Failed due to OOM
             ((TBlockType*) chunk->map[id2])->SetNeedOOMRescan(recycler);
             return false;
@@ -725,46 +725,46 @@ HeapBlockMap32::RescanHeapBlock(void * dirtyPage, HeapBlock::HeapBlockType block
 template <typename TBlockType>
 TBlockType*
 HeapBlockMap32::GetHeapBlockForRescan(HeapBlockMap32::L2MapChunk* chunk, uint id2) const
-{
+{TRACE_IT(23743);
     return nullptr;
 }
 
 template <>
 SmallFinalizableHeapBlock*
 HeapBlockMap32::GetHeapBlockForRescan(HeapBlockMap32::L2MapChunk* chunk, uint id2) const
-{
+{TRACE_IT(23744);
     return (SmallFinalizableHeapBlock*) chunk->map[id2];
 }
 
 template <>
 MediumFinalizableHeapBlock*
 HeapBlockMap32::GetHeapBlockForRescan(HeapBlockMap32::L2MapChunk* chunk, uint id2) const
-{
+{TRACE_IT(23745);
     return (MediumFinalizableHeapBlock*)chunk->map[id2];
 }
 
 void
 HeapBlockMap32::MakeAllPagesReadOnly(Recycler* recycler)
-{
+{TRACE_IT(23746);
     this->ChangeProtectionLevel(recycler, PAGE_READONLY, PAGE_READWRITE);
 }
 
 void
 HeapBlockMap32::MakeAllPagesReadWrite(Recycler* recycler)
-{
+{TRACE_IT(23747);
     this->ChangeProtectionLevel(recycler, PAGE_READWRITE, PAGE_READONLY);
 }
 
 void
 HeapBlockMap32::ChangeProtectionLevel(Recycler* recycler, DWORD protectFlags, DWORD expectedOldFlags)
-{
+{TRACE_IT(23748);
     this->ForEachSegment(recycler, [&](char* segmentStart, size_t segmentLength, Segment* currentSegment, PageAllocator* segmentPageAllocator)
     {
         // Ideally, we shouldn't to exclude LargeBlocks here but guest arenas are allocated
         // from this allocator and we touch them during marking if they're pending delete
         if ((segmentPageAllocator != recycler->GetRecyclerLeafPageAllocator())
             && (segmentPageAllocator != recycler->GetRecyclerLargeBlockPageAllocator()))
-        {
+        {TRACE_IT(23749);
             Assert(currentSegment->IsPageSegment());
             ((PageSegment*)currentSegment)->ChangeSegmentProtection(protectFlags, expectedOldFlags);
         }
@@ -781,25 +781,25 @@ HeapBlockMap32::ChangeProtectionLevel(Recycler* recycler, DWORD protectFlags, DW
 UINT
 HeapBlockMap32::GetWriteWatchHelper(Recycler * recycler, DWORD writeWatchFlags, void* baseAddress, size_t regionSize,
     void** addresses, ULONG_PTR* count, LPDWORD granularity)
-{
+{TRACE_IT(23750);
     UINT ret = 0;
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     if (recycler->GetRecyclerFlagsTable().ForceGetWriteWatchOOM)
-    {
+    {TRACE_IT(23751);
         if (regionSize != AutoSystemInfo::PageSize)
-        {
+        {TRACE_IT(23752);
             ret = (UINT) -1;
         }
     }
     else
 #endif
-    {
+    {TRACE_IT(23753);
         ret = ::GetWriteWatch(writeWatchFlags, baseAddress, regionSize, addresses, count, granularity);
     }
 
     if (ret != 0 && regionSize != AutoSystemInfo::PageSize)
-    {
+    {TRACE_IT(23754);
        ret = GetWriteWatchHelperOnOOM(writeWatchFlags, baseAddress, regionSize, addresses, count, granularity);
     }
 
@@ -814,7 +814,7 @@ HeapBlockMap32::GetWriteWatchHelper(Recycler * recycler, DWORD writeWatchFlags, 
 UINT
 HeapBlockMap32::GetWriteWatchHelperOnOOM(DWORD writeWatchFlags, _In_ void* baseAddress, size_t regionSize,
     _Out_writes_(*count) void** addresses, _Inout_ ULONG_PTR* count, LPDWORD granularity)
-{
+{TRACE_IT(23755);
     const size_t pageCount = (regionSize / AutoSystemInfo::PageSize);
 
     // Ensure target buffer
@@ -824,7 +824,7 @@ HeapBlockMap32::GetWriteWatchHelperOnOOM(DWORD writeWatchFlags, _In_ void* baseA
     size_t dirtyCount = 0;
 
     for (size_t i = 0; i < pageCount; i++)
-    {
+    {TRACE_IT(23756);
         result = nullptr;
         char* pageAddress = ((char*)baseAddress) + (i * AutoSystemInfo::PageSize);
         ULONG_PTR resultBufferCount = 1;
@@ -836,7 +836,7 @@ HeapBlockMap32::GetWriteWatchHelperOnOOM(DWORD writeWatchFlags, _In_ void* baseA
 
         // The requested page was dirty
         if (resultBufferCount == 1)
-        {
+        {TRACE_IT(23757);
             Assert(result == pageAddress);
 #pragma prefast(suppress:22102)
             addresses[dirtyCount] = pageAddress;
@@ -854,7 +854,7 @@ HeapBlockMap32::GetWriteWatchHelperOnOOM(DWORD writeWatchFlags, _In_ void* baseA
 #if ENABLE_CONCURRENT_GC
 uint
 HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
-{
+{TRACE_IT(23758);
     // Loop through segments and find dirty pages.
     uint scannedPageCount = 0;
     bool anyObjectsScannedOnPage = false;
@@ -865,11 +865,11 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
 
 #ifdef RECYCLER_WRITE_WATCH
         if (!CONFIG_FLAG(ForceSoftwareWriteBarrier))
-        {
+        {TRACE_IT(23759);
             // Call GetWriteWatch for Small non-leaf segments.
             // Large blocks have their own separate write watch handling.
             if (segmentPageAllocator == recycler->GetRecyclerPageAllocator())
-            {
+            {TRACE_IT(23760);
                 Assert(segmentLength <= MaxGetWriteWatchPages * PageSize);
 
                 void * dirtyPageAddresses[MaxGetWriteWatchPages];
@@ -885,7 +885,7 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
                 // Process results:
                 // Loop through reported dirty pages and set their write watch bit.
                 for (uint i = 0; i < pageCount; i++)
-                {
+                {TRACE_IT(23761);
                     char * dirtyPage = (char *)dirtyPageAddresses[i];
                     Assert((((size_t)dirtyPage) % PageSize) == 0);
                     Assert(dirtyPage >= segmentStart);
@@ -896,7 +896,7 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
 #endif
 
                     if (RescanPage(dirtyPage, &anyObjectsScannedOnPage, recycler) && anyObjectsScannedOnPage)
-                    {
+                    {TRACE_IT(23762);
                         scannedPageCount++;
                     }
                 }
@@ -907,11 +907,11 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
 
 #ifdef RECYCLER_WRITE_BARRIER
         if (segmentPageAllocator == recycler->GetRecyclerWithBarrierPageAllocator())
-        {
+        {TRACE_IT(23763);
             // Loop through pages for this segment and check write barrier.
             size_t pageCount = segmentLength / AutoSystemInfo::PageSize;
             for (size_t i = 0; i < pageCount; i++)
-            {
+            {TRACE_IT(23764);
                 char * pageAddress = segmentStart + (i * AutoSystemInfo::PageSize);
                 Assert((size_t)(pageAddress - segmentStart) < segmentLength);
 
@@ -929,7 +929,7 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
                 if (isDirty)
                 {
                     if (RescanPage(pageAddress, &anyObjectsScannedOnPage, recycler) && anyObjectsScannedOnPage)
-                    {
+                    {TRACE_IT(23765);
                         scannedPageCount++;
                     }
                 }
@@ -947,7 +947,7 @@ HeapBlockMap32::Rescan(Recycler * recycler, bool resetWriteWatch)
 
 bool
 HeapBlockMap32::OOMRescan(Recycler * recycler)
-{
+{TRACE_IT(23766);
     this->anyHeapBlockRescannedDuringOOM = false;
     bool noHeapBlockNeedsRescan = true;
 
@@ -963,9 +963,9 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
             || segmentPageAllocator == recycler->GetRecyclerWithBarrierPageAllocator()
 #endif
             )
-        {
+        {TRACE_IT(23767);
             if (recycler->NeedOOMRescan())
-            {
+            {TRACE_IT(23768);
                 // We hit OOM again.  Don't try to process any more blocks, leave them for the next OOM pass.
                 return;
             }
@@ -973,7 +973,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
             // Loop through pages for this segment and check OOM flag.
             size_t pageCount = segmentLength / AutoSystemInfo::PageSize;
             for (size_t i = 0; i < pageCount; i++)
-            {
+            {TRACE_IT(23769);
                 char * pageAddress = segmentStart + (i * AutoSystemInfo::PageSize);
                 Assert((size_t)(pageAddress - segmentStart) < segmentLength);
 
@@ -984,13 +984,13 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
                 uint id1 = GetLevel1Id(pageAddress);
                 L2MapChunk * chunk = map[id1];
                 if (chunk != nullptr)
-                {
+                {TRACE_IT(23770);
                     uint id2 = GetLevel2Id(pageAddress);
                     HeapBlock * heapBlock = chunk->map[id2];
                     if (heapBlock != nullptr && heapBlock->GetAddress() == pageAddress)
-                    {
+                    {TRACE_IT(23771);
                         if (heapBlock->GetAndClearNeedOOMRescan())
-                        {
+                        {TRACE_IT(23772);
                             noHeapBlockNeedsRescan = false;
 
                             HeapBlock::HeapBlockType blockType = chunk->blockInfo[id2].blockType;
@@ -1008,7 +1008,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
                             case HeapBlock::HeapBlockType::SmallNormalBlockWithBarrierType:
 #endif
                                 if (!RescanHeapBlockOnOOM<SmallNormalHeapBlock>((SmallNormalHeapBlock*)heapBlock, pageAddress, blockType, chunk->blockInfo[id2].bucketIndex, chunk, recycler))
-                                {
+                                {TRACE_IT(23773);
                                     return;
                                 }
                                 break;
@@ -1018,7 +1018,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
                             case HeapBlock::HeapBlockType::SmallFinalizableBlockWithBarrierType:
 #endif
                                 if (!RescanHeapBlockOnOOM<SmallFinalizableHeapBlock>((SmallFinalizableHeapBlock*) heapBlock, pageAddress, blockType, chunk->blockInfo[id2].bucketIndex, chunk, recycler))
-                                {
+                                {TRACE_IT(23774);
                                     return;
                                 }
                                 break;
@@ -1028,7 +1028,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
                             case HeapBlock::HeapBlockType::MediumNormalBlockWithBarrierType:
 #endif
                                 if (!RescanHeapBlockOnOOM<MediumNormalHeapBlock>((MediumNormalHeapBlock*)heapBlock, pageAddress, blockType, chunk->blockInfo[id2].bucketIndex, chunk, recycler))
-                                {
+                                {TRACE_IT(23775);
                                     return;
                                 }
                                 break;
@@ -1038,7 +1038,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
                             case HeapBlock::HeapBlockType::MediumFinalizableBlockWithBarrierType:
 #endif
                                 if (!RescanHeapBlockOnOOM<MediumFinalizableHeapBlock>((MediumFinalizableHeapBlock*) heapBlock, pageAddress, blockType, chunk->blockInfo[id2].bucketIndex, chunk, recycler))
-                                {
+                                {TRACE_IT(23776);
                                     return;
                                 }
                                 break;
@@ -1054,7 +1054,7 @@ HeapBlockMap32::OOMRescan(Recycler * recycler)
             }
         }
         else
-        {
+        {TRACE_IT(23777);
             Assert(segmentPageAllocator == recycler->GetRecyclerLeafPageAllocator() ||
                 segmentPageAllocator == recycler->GetRecyclerLargeBlockPageAllocator());
         }
@@ -1076,7 +1076,7 @@ template bool HeapBlockMap32::RescanHeapBlockOnOOM<MediumFinalizableHeapBlock>(M
 template <class TBlockType>
 bool
 HeapBlockMap32::RescanHeapBlockOnOOM(TBlockType* heapBlock, char* pageAddress, HeapBlock::HeapBlockType blockType, uint bucketIndex, L2MapChunk * chunk, Recycler * recycler)
-{
+{TRACE_IT(23778);
     // In the OOM codepath, we expect the heap block to be dereferenced since perf is not critical
     Assert(heapBlock != nullptr);
     Assert(heapBlock->GetHeapBlockType() == blockType);
@@ -1089,18 +1089,18 @@ HeapBlockMap32::RescanHeapBlockOnOOM(TBlockType* heapBlock, char* pageAddress, H
 
     int inUsePageCount = heapBlock->GetPageCount() - heapBlock->GetUnusablePageCount();
     for (int i = 0; i < inUsePageCount; i++)
-    {
+    {TRACE_IT(23779);
         char* pageAddressToScan = blockStartAddress + (i * AutoSystemInfo::PageSize);
 
         if (!SmallNormalHeapBucketBase<TBlockType>::RescanObjectsOnPage(heapBlock,
             pageAddressToScan, blockStartAddress, markBits, HeapInfo::template GetObjectSizeForBucketIndex<typename TBlockType::HeapBlockAttributes>(bucketIndex), bucketIndex, nullptr, recycler))
-        {
+        {TRACE_IT(23780);
             // Failed due to OOM
             ((TBlockType*)heapBlock)->SetNeedOOMRescan(recycler);
         }
 
         if (recycler->NeedOOMRescan())
-        {
+        {TRACE_IT(23781);
             // We hit OOM again.  Don't try to process any more blocks, leave them for the next OOM pass.
             return false;
         }
@@ -1115,12 +1115,12 @@ HeapBlockMap32::RescanHeapBlockOnOOM(TBlockType* heapBlock, char* pageAddress, H
 
 void
 HeapBlockMap32::Cleanup(bool concurrentFindImplicitRoot)
-{
+{TRACE_IT(23782);
     for (uint id1 = 0; id1 < L1Count; id1++)
-    {
+    {TRACE_IT(23783);
         L2MapChunk * l2map = map[id1];
         if (l2map != nullptr && l2map->IsEmpty())
-        {
+        {TRACE_IT(23784);
             // Concurrent searches for implicit roots will never see empty L2 maps.
             map[id1] = nullptr;
             NoMemProtectHeapDelete(l2map);
@@ -1134,16 +1134,16 @@ HeapBlockMap32::Cleanup(bool concurrentFindImplicitRoot)
 
 HeapBlockMap64::HeapBlockMap64():
     list(nullptr)
-{
+{TRACE_IT(23785);
 }
 
 HeapBlockMap64::~HeapBlockMap64()
-{
+{TRACE_IT(23786);
     Node * node = list;
     list = nullptr;
 
     while (node != nullptr)
-    {
+    {TRACE_IT(23787);
         Node * next = node->next;
         NoMemProtectHeapDelete(node);
         node = next;
@@ -1152,32 +1152,32 @@ HeapBlockMap64::~HeapBlockMap64()
 
 bool
 HeapBlockMap64::EnsureHeapBlock(void * address, size_t pageCount)
-{
+{TRACE_IT(23788);
     uint lowerBitsAddress = ::Math::PointerCastToIntegralTruncate<uint>(address);
     size_t pageCountLeft = pageCount;
     uint nodePages = HeapBlockMap64::PagesPer4GB - lowerBitsAddress / AutoSystemInfo::PageSize;
     if (pageCountLeft < nodePages)
-    {
+    {TRACE_IT(23789);
         nodePages = (uint)pageCountLeft;
     }
 
     do
-    {
+    {TRACE_IT(23790);
         Node * node = FindOrInsertNode(address);
         if (node == nullptr || !node->map.EnsureHeapBlock(address, nodePages))
-        {
+        {TRACE_IT(23791);
             return false;
         }
 
         pageCountLeft -= nodePages;
         if (pageCountLeft == 0)
-        {
+        {TRACE_IT(23792);
             return true;
         }
         address = (void *)((size_t)address + (nodePages * AutoSystemInfo::PageSize));
         nodePages = HeapBlockMap64::PagesPer4GB;
         if (pageCountLeft < HeapBlockMap64::PagesPer4GB)
-        {
+        {TRACE_IT(23793);
             nodePages = (uint)pageCountLeft;
         }
     }
@@ -1198,7 +1198,7 @@ bool
 HeapBlockMap64::SetHeapBlock(void * address, size_t pageCount, HeapBlock * heapBlock, HeapBlock::HeapBlockType blockType, byte bucketIndex)
 {
     if (!EnsureHeapBlock(address, pageCount))
-    {
+    {TRACE_IT(23794);
         return false;
     }
 
@@ -1218,29 +1218,29 @@ void HeapBlockMap64::ClearHeapBlock(void * address, size_t pageCount)
 
 template <class Fn>
 void HeapBlockMap64::ForEachNodeInAddressRange(void * address, size_t pageCount, Fn fn)
-{
+{TRACE_IT(23795);
     uint lowerBitsAddress = ::Math::PointerCastToIntegralTruncate<uint>(address);
     uint nodePages = HeapBlockMap64::PagesPer4GB - lowerBitsAddress / AutoSystemInfo::PageSize;
     if (pageCount < nodePages)
-    {
+    {TRACE_IT(23796);
         nodePages = (uint)pageCount;
     }
 
     do
-    {
+    {TRACE_IT(23797);
         Node * node = FindNode(address);
 
         fn(node, address, nodePages);
 
         pageCount -= nodePages;
         if (pageCount == 0)
-        {
+        {TRACE_IT(23798);
             break;
         }
         address = (void *)((size_t)address + (nodePages * AutoSystemInfo::PageSize));
         nodePages = HeapBlockMap64::PagesPer4GB;
         if (pageCount < HeapBlockMap64::PagesPer4GB)
-        {
+        {TRACE_IT(23799);
             nodePages = (uint)pageCount;
         }
     } while (true);
@@ -1248,10 +1248,10 @@ void HeapBlockMap64::ForEachNodeInAddressRange(void * address, size_t pageCount,
 
 HeapBlock *
 HeapBlockMap64::GetHeapBlock(void * address)
-{
+{TRACE_IT(23800);
     Node * node = FindNode(address);
     if (node == nullptr)
-    {
+    {TRACE_IT(23801);
         return nullptr;
     }
     return node->map.GetHeapBlock(address);
@@ -1259,7 +1259,7 @@ HeapBlockMap64::GetHeapBlock(void * address)
 
 HeapBlockMap32::PageMarkBitVector *
 HeapBlockMap64::GetPageMarkBitVector(void * address)
-{
+{TRACE_IT(23802);
     Node * node = FindNode(address);
     Assert(node != nullptr);
     return node->map.GetPageMarkBitVector(address);
@@ -1267,7 +1267,7 @@ HeapBlockMap64::GetPageMarkBitVector(void * address)
 
 template <size_t BitCount>
 BVStatic<BitCount>* HeapBlockMap64::GetMarkBitVectorForPages(void * address)
-{
+{TRACE_IT(23803);
     Node * node = FindNode(address);
     Assert(node != nullptr);
     return node->map.GetMarkBitVectorForPages<BitCount>(address);
@@ -1278,7 +1278,7 @@ template BVStatic<MediumAllocationBlockAttributes::BitVectorCount>* HeapBlockMap
 
 uint
 HeapBlockMap64::GetMarkCount(void * address, uint pageCount)
-{
+{TRACE_IT(23804);
     uint markCount = 0;
 
     ForEachNodeInAddressRange(address, pageCount, [&](Node* node, void* address, uint nodePageCount)
@@ -1292,10 +1292,10 @@ HeapBlockMap64::GetMarkCount(void * address, uint pageCount)
 
 bool
 HeapBlockMap64::IsMarked(void * address) const
-{
+{TRACE_IT(23805);
     Node * node = FindNode(address);
     if (node != nullptr)
-    {
+    {TRACE_IT(23806);
         return node->map.IsMarked(address);
     }
     return false;
@@ -1303,20 +1303,20 @@ HeapBlockMap64::IsMarked(void * address) const
 
 void
 HeapBlockMap64::SetMark(void * address)
-{
+{TRACE_IT(23807);
     Node * node = FindNode(address);
     if (node != nullptr)
-    {
+    {TRACE_IT(23808);
         node->map.SetMark(address);
     }
 }
 
 bool
 HeapBlockMap64::TestAndSetMark(void * address)
-{
+{TRACE_IT(23809);
     Node * node = FindNode(address);
     if (node == nullptr)
-    {
+    {TRACE_IT(23810);
         return false;
     }
 
@@ -1325,14 +1325,14 @@ HeapBlockMap64::TestAndSetMark(void * address)
 
 HeapBlockMap64::Node *
 HeapBlockMap64::FindOrInsertNode(void * address)
-{
+{TRACE_IT(23811);
     Node * node = FindNode(address);
 
     if (node == nullptr)
-    {
+    {TRACE_IT(23812);
         node = NoMemProtectHeapNewNoThrowZ(Node, GetNodeStartAddress(address));
         if (node != nullptr)
-        {
+        {TRACE_IT(23813);
             node->nodeIndex = GetNodeIndex(address);
             node->next = list;
 #ifdef _M_ARM64
@@ -1348,14 +1348,14 @@ HeapBlockMap64::FindOrInsertNode(void * address)
 
 HeapBlockMap64::Node *
 HeapBlockMap64::FindNode(void * address) const
-{
+{TRACE_IT(23814);
     uint index = GetNodeIndex(address);
 
     Node * node = list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23815);
         if (node->nodeIndex == index)
-        {
+        {TRACE_IT(23816);
             return node;
         }
 
@@ -1367,10 +1367,10 @@ HeapBlockMap64::FindNode(void * address) const
 
 void
 HeapBlockMap64::ResetMarks()
-{
+{TRACE_IT(23817);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23818);
         node->map.ResetMarks();
         node = node->next;
     }
@@ -1378,12 +1378,12 @@ HeapBlockMap64::ResetMarks()
 
 bool
 HeapBlockMap64::OOMRescan(Recycler * recycler)
-{
+{TRACE_IT(23819);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23820);
         if (!node->map.OOMRescan(recycler))
-        {
+        {TRACE_IT(23821);
             return false;
         }
 
@@ -1395,10 +1395,10 @@ HeapBlockMap64::OOMRescan(Recycler * recycler)
 #if ENABLE_CONCURRENT_GC
 void
 HeapBlockMap64::ResetDirtyPages(Recycler * recycler)
-{
+{TRACE_IT(23822);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23823);
         node->map.ResetDirtyPages(recycler);
         node = node->next;
     }
@@ -1407,10 +1407,10 @@ HeapBlockMap64::ResetDirtyPages(Recycler * recycler)
 
 void
 HeapBlockMap64::MakeAllPagesReadOnly(Recycler* recycler)
-{
+{TRACE_IT(23824);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23825);
         node->map.MakeAllPagesReadOnly(recycler);
         node = node->next;
     }
@@ -1418,10 +1418,10 @@ HeapBlockMap64::MakeAllPagesReadOnly(Recycler* recycler)
 
 void
 HeapBlockMap64::MakeAllPagesReadWrite(Recycler* recycler)
-{
+{TRACE_IT(23826);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23827);
         node->map.MakeAllPagesReadWrite(recycler);
         node = node->next;
     }
@@ -1430,12 +1430,12 @@ HeapBlockMap64::MakeAllPagesReadWrite(Recycler* recycler)
 #if ENABLE_CONCURRENT_GC
 uint
 HeapBlockMap64::Rescan(Recycler * recycler, bool resetWriteWatch)
-{
+{TRACE_IT(23828);
     uint scannedPageCount = 0;
 
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23829);
         scannedPageCount += node->map.Rescan(recycler, resetWriteWatch);
         node = node->next;
     }
@@ -1446,22 +1446,22 @@ HeapBlockMap64::Rescan(Recycler * recycler, bool resetWriteWatch)
 
 void
 HeapBlockMap64::Cleanup(bool concurrentFindImplicitRoot)
-{
+{TRACE_IT(23830);
     Node ** prevnext = &this->list;
     Node * node = *prevnext;
     while (node != nullptr)
-    {
+    {TRACE_IT(23831);
         node->map.Cleanup(concurrentFindImplicitRoot);
         Node * nextNode = node->next;
         if (!concurrentFindImplicitRoot && node->map.Empty())
-        {
+        {TRACE_IT(23832);
             // Concurrent traversals of the node list would result in a race and possible UAF.
             // Currently we simply defer node free for the lifetime of the heap (only affects MemProtect).
             *prevnext = node->next;
             NoMemProtectHeapDelete(node);
         }
         else
-        {
+        {TRACE_IT(23833);
             prevnext = &node->next;
         }
         node = nextNode;
@@ -1471,7 +1471,7 @@ HeapBlockMap64::Cleanup(bool concurrentFindImplicitRoot)
 #if DBG
 ushort
 HeapBlockMap64::GetPageMarkCount(void * address) const
-{
+{TRACE_IT(23834);
     Node * node = FindNode(address);
     Assert(node != nullptr);
 
@@ -1480,7 +1480,7 @@ HeapBlockMap64::GetPageMarkCount(void * address) const
 
 void
 HeapBlockMap64::SetPageMarkCount(void * address, ushort markCount)
-{
+{TRACE_IT(23835);
     Node * node = FindNode(address);
     Assert(node != nullptr);
 
@@ -1493,7 +1493,7 @@ template void HeapBlockMap64::VerifyMarkCountForPages<MediumAllocationBlockAttri
 template <uint BitVectorCount>
 void
 HeapBlockMap64::VerifyMarkCountForPages(void * address, uint pageCount)
-{
+{TRACE_IT(23836);
     Node * node = FindNode(address);
     Assert(node != nullptr);
 
@@ -1505,10 +1505,10 @@ HeapBlockMap64::VerifyMarkCountForPages(void * address, uint pageCount)
 #ifdef RECYCLER_STRESS
 void
 HeapBlockMap64::InduceFalsePositives(Recycler * recycler)
-{
+{TRACE_IT(23837);
     Node * node = this->list;
     while (node != nullptr)
-    {
+    {TRACE_IT(23838);
         node->map.InduceFalsePositives(recycler);
         node = node->next;
     }
@@ -1518,7 +1518,7 @@ HeapBlockMap64::InduceFalsePositives(Recycler * recycler)
 #ifdef RECYCLER_VERIFY_MARK
 bool
 HeapBlockMap64::IsAddressInNewChunk(void * address)
-{
+{TRACE_IT(23839);
     Node * node = FindNode(address);
     Assert(node != nullptr);
 

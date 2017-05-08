@@ -8,10 +8,10 @@ class StackProber
 {
 public:
     void Initialize();
-    size_t GetScriptStackLimit() const { return stackLimit; }
+    size_t GetScriptStackLimit() const {TRACE_IT(36888); return stackLimit; }
 #if DBG
     void AdjustKnownStackLimit(size_t sp, size_t size)
-    {
+    {TRACE_IT(36889);
         if (knownStackLimit == 0) knownStackLimit = sp - size;
         knownStackLimit = ((sp - size) < knownStackLimit) ? (sp - size) : knownStackLimit;
     }

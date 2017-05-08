@@ -26,7 +26,7 @@ DbgHelpSymbolManager DbgHelpSymbolManager::Instance;
 
 void
 DbgHelpSymbolManager::Initialize()
-{
+{TRACE_IT(19960);
     char16 *wszSearchPath = nullptr;
     char16 *wszModuleDrive = nullptr;
     char16 *wszModuleDir = nullptr;
@@ -40,13 +40,13 @@ DbgHelpSymbolManager::Initialize()
     const size_t ceNewSearchPath = ceOldSearchPath + _MAX_PATH + 1;
 
     if (isInitialized)
-    {
+    {TRACE_IT(19961);
         return;
     }
 
     AutoCriticalSection autocs(&cs);
     if (isInitialized)
-    {
+    {TRACE_IT(19962);
         goto end;
     }
     isInitialized = true;
@@ -57,33 +57,33 @@ DbgHelpSymbolManager::Initialize()
     wszModule = AutoSystemInfo::GetJscriptDllFileName();
     wszModuleName = NoCheckHeapNewArray(char16, ceModuleName);
     if (wszModuleName == nullptr)
-    {
+    {TRACE_IT(19963);
         goto end;
     }
 
     if (wcscmp(wszModule, _u("")) == 0)
     {
         if (GetModuleFileName(NULL, wszModuleName, static_cast<DWORD>(ceModuleName)))
-        {
+        {TRACE_IT(19964);
             wszModule = wszModuleName;
         }
         else
-        {
+        {TRACE_IT(19965);
             wszModule = nullptr;
         }
     }
 
     if (wszModule != nullptr)
-    {
+    {TRACE_IT(19966);
         wszModuleDrive = NoCheckHeapNewArray(char16, _MAX_DRIVE);
         if (wszModuleDrive == nullptr)
-        {
+        {TRACE_IT(19967);
             goto end;
         }
 
         wszModuleDir = NoCheckHeapNewArray(char16, _MAX_DIR);
         if (wszModuleDir == nullptr)
-        {
+        {TRACE_IT(19968);
             goto end;
         }
 
@@ -92,13 +92,13 @@ DbgHelpSymbolManager::Initialize()
 
         wszOldSearchPath = NoCheckHeapNewArray(char16, ceOldSearchPath);
         if (wszOldSearchPath == nullptr)
-        {
+        {TRACE_IT(19969);
             goto end;
         }
 
         wszNewSearchPath = NoCheckHeapNewArray(char16, ceNewSearchPath);
         if (wszNewSearchPath == nullptr)
-        {
+        {TRACE_IT(19970);
             goto end;
         }
 
@@ -108,14 +108,14 @@ DbgHelpSymbolManager::Initialize()
             wszSearchPath = wszNewSearchPath;
         }
         else
-        {
+        {TRACE_IT(19971);
             wszSearchPath = wszModuleName;
         }
     }
 
     hDbgHelpModule = LoadLibraryEx(_u("dbghelp.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (hDbgHelpModule == nullptr)
-    {
+    {TRACE_IT(19972);
         goto end;
     }
 
@@ -173,13 +173,13 @@ end:
 }
 
 DbgHelpSymbolManager::~DbgHelpSymbolManager()
-{
+{TRACE_IT(19973);
     if (hDbgHelpModule)
-    {
+    {TRACE_IT(19974);
         typedef BOOL(__stdcall *PfnSymCleanup)(HANDLE);
         PfnSymCleanup pfnSymCleanup = (PfnSymCleanup)GetProcAddress(hDbgHelpModule, "SymCleanup");
         if (pfnSymCleanup)
-        {
+        {TRACE_IT(19975);
             pfnSymCleanup(hProcess);
         }
 
@@ -189,9 +189,9 @@ DbgHelpSymbolManager::~DbgHelpSymbolManager()
 
 BOOL
 DbgHelpSymbolManager::SymFromAddr(PVOID address, DWORD64 * dwDisplacement, PSYMBOL_INFO pSymbol)
-{
+{TRACE_IT(19976);
     if (Instance.pfnSymFromAddrW)
-    {
+    {TRACE_IT(19977);
         return Instance.pfnSymFromAddrW(Instance.hProcess, (DWORD64)address, dwDisplacement, pSymbol);
     }
     return FALSE;
@@ -199,9 +199,9 @@ DbgHelpSymbolManager::SymFromAddr(PVOID address, DWORD64 * dwDisplacement, PSYMB
 
 BOOL
 DbgHelpSymbolManager::SymGetLineFromAddr64(_In_ PVOID address, _Out_ PDWORD pdwDisplacement, _Out_ PIMAGEHLP_LINEW64 pLine)
-{
+{TRACE_IT(19978);
     if (pdwDisplacement != nullptr)
-    {
+    {TRACE_IT(19979);
         *pdwDisplacement = 0;
     }
 
@@ -212,14 +212,14 @@ DbgHelpSymbolManager::SymGetLineFromAddr64(_In_ PVOID address, _Out_ PDWORD pdwD
     }
 
     if (Instance.pfnSymGetLineFromAddr64W)
-    {
+    {TRACE_IT(19980);
         return Instance.pfnSymGetLineFromAddr64W(Instance.hProcess, (DWORD64)address, pdwDisplacement, pLine);
     }
     return FALSE;
 }
 
 size_t DbgHelpSymbolManager::PrintSymbol(PVOID address)
-{
+{TRACE_IT(19981);
     size_t retValue = 0;
     DWORD64  dwDisplacement = 0;
     char buffer[sizeof(SYMBOL_INFO)+MAX_SYM_NAME * sizeof(TCHAR)];
@@ -232,20 +232,20 @@ size_t DbgHelpSymbolManager::PrintSymbol(PVOID address)
     lineInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
     if (DbgHelpSymbolManager::SymFromAddr(address, &dwDisplacement, pSymbol))
-    {
+    {TRACE_IT(19982);
         DWORD dwDisplacementDWord = static_cast<DWORD>(dwDisplacement);
         if (DbgHelpSymbolManager::SymGetLineFromAddr64(address, &dwDisplacementDWord, &lineInfo))
-        {
+        {TRACE_IT(19983);
             retValue += Output::Print(_u("0x%p %s+0x%llx (%s:%d)"), address, pSymbol->Name, dwDisplacement, lineInfo.FileName, lineInfo.LineNumber);
         }
         else
-        {
+        {TRACE_IT(19984);
             // SymGetLineFromAddr64 failed
             retValue += Output::Print(_u("0x%p %s+0x%llx"), address, pSymbol->Name, dwDisplacement);
         }
     }
     else
-    {
+    {TRACE_IT(19985);
         // SymFromAddr failed
         retValue += Output::Print(_u("0x%p"), address);
     }

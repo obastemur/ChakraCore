@@ -48,18 +48,18 @@ private:
         };
 
         void SetOffset(unsigned __int8 offset)
-        {
+        {TRACE_IT(15106);
             CodeOffset = offset;
         }
 
         void SetOp(unsigned __int8 op)
-        {
+        {TRACE_IT(15107);
             Assert(IS_UNIBBLE(op));
             UnwindOp = TO_UNIBBLE(op);
         }
 
         void SetOpInfo(unsigned __int8 info)
-        {
+        {TRACE_IT(15108);
             Assert(IS_UNIBBLE(info));
             OpInfo = TO_UNIBBLE(info);
         }
@@ -97,13 +97,13 @@ private:
 
     public:
         void SetValue(unsigned __int16 value)
-        {
+        {TRACE_IT(15109);
             Assert(UnwindOp && (UnwindOp == UWOP_ALLOC_LARGE));
             u.uint16Val = value;
         }
 
         void SetValue(unsigned __int32 value)
-        {
+        {TRACE_IT(15110);
             Assert(UnwindOp && (UnwindOp == UWOP_ALLOC_LARGE));
 
             // insert assert to check that value actually warrants the use of
@@ -138,7 +138,7 @@ public:
         : requiredUnwindCodeNodeCount(0),
           currentUnwindCodeNodeIndex(0),
           currentInstrOffset(0)
-    {
+    {TRACE_IT(15111);
     }
 
     void RecordNonVolRegSave();
@@ -157,8 +157,8 @@ public:
     //
     // Win8 PDATA registration.
     //
-    void Begin(size_t prologStartOffset) {}  // No op on _WIN32
-    void End() {}  // No op on _WIN32
+    void Begin(size_t prologStartOffset) {TRACE_IT(15112);}  // No op on _WIN32
+    void End() {TRACE_IT(15113);}  // No op on _WIN32
     DWORD SizeOfUnwindInfo();
     BYTE *GetUnwindInfo();
     void FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize);
@@ -192,11 +192,11 @@ public:
     PrologEncoder()
         :ehFrame(buffer, JIT_EHFRAME_SIZE),
           cfiInstrOffset(0), currentInstrOffset(0), cfaWordOffset(1)
-    {}
+    {TRACE_IT(15114);}
 
-    void RecordNonVolRegSave() {}
-    void RecordXmmRegSave() {}
-    void RecordAlloca(size_t size) {}
+    void RecordNonVolRegSave() {TRACE_IT(15115);}
+    void RecordXmmRegSave() {TRACE_IT(15116);}
+    void RecordAlloca(size_t size) {TRACE_IT(15117);}
     void EncodeInstr(IR::Instr *instr, uint8 size);
 
     void EncodeSmallProlog(uint8 prologSize, size_t size);
@@ -205,8 +205,8 @@ public:
 
     void Begin(size_t prologStartOffset);
     void End();
-    DWORD SizeOfUnwindInfo() { return SizeOfPData(); }
-    BYTE *GetUnwindInfo() { return ehFrame.Buffer(); }
+    DWORD SizeOfUnwindInfo() {TRACE_IT(15118); return SizeOfPData(); }
+    BYTE *GetUnwindInfo() {TRACE_IT(15119); return ehFrame.Buffer(); }
     void FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize);
 };
 

@@ -10,11 +10,11 @@
 namespace WAsmJs
 {
 
-template<> Types RegisterSpace::GetRegisterSpaceType<int32>(){return WAsmJs::INT32;}
-template<> Types RegisterSpace::GetRegisterSpaceType<int64>(){return WAsmJs::INT64;}
-template<> Types RegisterSpace::GetRegisterSpaceType<float>(){return WAsmJs::FLOAT32;}
-template<> Types RegisterSpace::GetRegisterSpaceType<double>(){return WAsmJs::FLOAT64;}
-template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WAsmJs::SIMD;}
+template<> Types RegisterSpace::GetRegisterSpaceType<int32>(){TRACE_IT(53217);return WAsmJs::INT32;}
+template<> Types RegisterSpace::GetRegisterSpaceType<int64>(){TRACE_IT(53218);return WAsmJs::INT64;}
+template<> Types RegisterSpace::GetRegisterSpaceType<float>(){TRACE_IT(53219);return WAsmJs::FLOAT32;}
+template<> Types RegisterSpace::GetRegisterSpaceType<double>(){TRACE_IT(53220);return WAsmJs::FLOAT64;}
+template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){TRACE_IT(53221);return WAsmJs::SIMD;}
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     void TraceAsmJsArgsIn(Js::Var function, int n, ...)
@@ -26,7 +26,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 
         Output::Print(_u("Executing function %s("), asmFunction->GetFunctionBody()->GetDisplayName());
         for (int i = 0; i < n ; i++)
-        {
+        {TRACE_IT(53222);
             IRType type = (IRType)va_arg(argptr, int32);
             switch (type)
             {
@@ -39,7 +39,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
                 Output::Print(_u("%lld, "), va_arg(argptr, int64));
                 break;
             case TyFloat32:
-            {
+            {TRACE_IT(53223);
                 int v = va_arg(argptr, int);
                 Output::Print(_u("%.2f, "), *(float*)v);
                 break;
@@ -56,23 +56,23 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 #endif
 
     uint32 ConvertOffset(uint32 ptr, uint32 fromSize, uint32 toSize)
-    {
+    {TRACE_IT(53224);
         if (fromSize == toSize)
-        {
+        {TRACE_IT(53225);
             return ptr;
         }
         uint64 tmp = ptr * fromSize;
         tmp = Math::Align<uint64>(tmp, toSize);
         tmp /= toSize;
         if (tmp > (uint64)UINT32_MAX)
-        {
+        {TRACE_IT(53226);
             Math::DefaultOverflowPolicy();
         }
         return (uint32)tmp;
     }
 
     uint32 GetTypeByteSize(Types type)
-    {
+    {TRACE_IT(53227);
         // Since this needs to be done manually for each type, this assert will make sure to not forget to update this if a new type is added
         CompileAssert(WAsmJs::LIMIT == 5);
         switch (type)
@@ -88,7 +88,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     WAsmJs::Types FromIRType(IRType irType)
-    {
+    {TRACE_IT(53228);
         switch(irType)
         {
         case TyInt8:
@@ -123,7 +123,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 
 #if DBG_DUMP
     void RegisterSpace::GetTypeDebugName(Types type, char16* buf, uint bufsize, bool shortName)
-    {
+    {TRACE_IT(53229);
         // Since this needs to be done manually for each type, this assert will make sure to not forget to update this if a new type is added
         CompileAssert(LIMIT == 5);
 
@@ -139,9 +139,9 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     void RegisterSpace::PrintTmpRegisterAllocation(RegSlot loc, bool deallocation)
-    {
+    {TRACE_IT(53230);
         if (PHASE_TRACE1(Js::AsmjsTmpRegisterAllocationPhase))
-        {
+        {TRACE_IT(53231);
             char16 buf[16];
             GetTypeDebugName(mType, buf, 16, true);
             Output::Print(_u("%s%s %d\n"), deallocation ? _u("-") : _u("+"), buf, loc);
@@ -150,17 +150,17 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 #endif
 
     TypedRegisterAllocator::TypedRegisterAllocator(ArenaAllocator* allocator, AllocateRegisterSpaceFunc allocateFunc, uint32 excludedMask/* = 0*/)
-    {
+    {TRACE_IT(53232);
         Assert(allocateFunc);
         AssertMsg(excludedMask >> WAsmJs::LIMIT == 0, "Invalid type in the excluded mask");
         mExcludedMask = excludedMask;
 
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(53233);
             Types type = (Types)i;
             mTypeSpaces[i] = nullptr;
             if (!IsTypeExcluded(type))
-            {
+            {TRACE_IT(53234);
                 mTypeSpaces[i] = allocateFunc(allocator, type);
 #if DBG_DUMP
                 mTypeSpaces[i]->mType = type;
@@ -170,13 +170,13 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     void TypedRegisterAllocator::CommitToFunctionInfo(Js::AsmJsFunctionInfo* funcInfo, Js::FunctionBody* body) const
-    {
+    {TRACE_IT(53235);
         uint32 offset = Js::AsmJsFunctionMemory::RequiredVarConstants * sizeof(Js::Var);
         WAsmJs::TypedConstSourcesInfo constSourcesInfo = GetConstSourceInfos();
 
 #if DBG_DUMP
         if (PHASE_TRACE(Js::AsmjsInterpreterStackPhase, body))
-        {
+        {TRACE_IT(53236);
             Output::Print(_u("ASMFunctionInfo Stack Data for %s\n"), body->GetDisplayName());
             Output::Print(_u("==========================\n"));
             Output::Print(_u("RequiredVarConstants:%d\n"), Js::AsmJsFunctionMemory::RequiredVarConstants);
@@ -184,13 +184,13 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 #endif
 
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(53237);
             Types type = (Types)i;
 
             TypedSlotInfo& slotInfo = *funcInfo->GetTypedSlotInfo(type);
             // Check if we don't want to commit this type
             if (!IsTypeExcluded(type))
-            {
+            {TRACE_IT(53238);
                 RegisterSpace* registerSpace = GetRegisterSpace(type);
                 slotInfo.constCount = registerSpace->GetConstCount();
                 slotInfo.varCount = registerSpace->GetVarCount();
@@ -209,7 +209,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
                 offset = UInt32Math::Add(offset, UInt32Math::Mul(totalTypeCount, GetTypeByteSize(type)));
 #if DBG_DUMP
                 if (PHASE_TRACE(Js::AsmjsInterpreterStackPhase, body))
-                {
+                {TRACE_IT(53239);
                     char16 buf[16];
                     RegisterSpace::GetTypeDebugName(type, buf, 16);
                     Output::Print(_u("%s Offset:%d  ConstCount:%d  VarCount:%d  TmpCount:%d = %d * %d = 0x%x bytes\n"),
@@ -234,7 +234,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 
         uint32 jsVarNeededForVars = totalVarsNeeded - jsVarUsedForConstsTable;
         if (totalVarsNeeded < jsVarUsedForConstsTable)
-        {
+        {TRACE_IT(53240);
             // If for some reason we allocated more space in the const table than what we need, just don't allocate anymore vars
             jsVarNeededForVars = 0;
         }
@@ -244,7 +244,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 
 #if DBG_DUMP
         if (PHASE_TRACE(Js::AsmjsInterpreterStackPhase, body))
-        {
+        {TRACE_IT(53241);
             Output::Print(_u("Total memory required: (%u consts + %u vars) * sizeof(Js::Var) >= %u * sizeof(Js::Var) = 0x%x bytes\n"),
                           jsVarUsedForConstsTable,
                           jsVarNeededForVars,
@@ -255,7 +255,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     void TypedRegisterAllocator::CommitToFunctionBody(Js::FunctionBody* body)
-    {
+    {TRACE_IT(53242);
         // this value is the number of Var slots needed to allocate all the const
         uint32 bytesUsedForConst = GetConstSourceInfos().bytesUsed;
         // Add the registers not included in the const table
@@ -264,15 +264,15 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     WAsmJs::TypedConstSourcesInfo TypedRegisterAllocator::GetConstSourceInfos() const
-    {
+    {TRACE_IT(53243);
         WAsmJs::TypedConstSourcesInfo infos;
         // The const table doesn't contain the first reg slots (aka return register)
         uint32 offset = ConvertOffset<Js::Var, byte>(Js::AsmJsFunctionMemory::RequiredVarConstants - Js::FunctionBody::FirstRegSlot);
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(53244);
             Types type = (Types)i;
             if (!IsTypeExcluded(type))
-            {
+            {TRACE_IT(53245);
                 infos.srcByteOffsets[i] = offset;
                 uint32 typeSize = GetTypeByteSize(type);
                 uint32 constCount = GetRegisterSpace(type)->GetConstCount();
@@ -281,7 +281,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
                 offset = UInt32Math::Add(offset, typeBytesUsage);
             }
             else
-            {
+            {TRACE_IT(53246);
                 infos.srcByteOffsets[i] = (uint32)Js::Constants::InvalidOffset;
             }
         }
@@ -290,23 +290,23 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     bool TypedRegisterAllocator::IsValidType(Types type) const
-    {
+    {TRACE_IT(53247);
         return (uint)type < WAsmJs::LIMIT;
     }
 
     bool TypedRegisterAllocator::IsTypeExcluded(Types type) const
-    {
+    {TRACE_IT(53248);
         return !IsValidType(type) || (mExcludedMask & (1 << type)) != 0;
     }
 
 #if DBG_DUMP
     void TypedRegisterAllocator::DumpLocalsInfo() const
-    {
+    {TRACE_IT(53249);
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(53250);
             Types type = (Types)i;
             if (!IsTypeExcluded(type))
-            {
+            {TRACE_IT(53251);
                 char16 typeName[16];
                 char16 shortTypeName[16];
                 RegisterSpace::GetTypeDebugName(type, typeName, 16);
@@ -324,12 +324,12 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
     void TypedRegisterAllocator::GetArgumentStartIndex(uint32* indexes) const
-    {
+    {TRACE_IT(53252);
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {TRACE_IT(53253);
             Types type = (Types)i;
             if (!IsTypeExcluded(type))
-            {
+            {TRACE_IT(53254);
                 // Arguments starts right after the consts
                 indexes[i] = GetRegisterSpace(type)->GetConstCount();
             }
@@ -338,9 +338,9 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 #endif
 
     RegisterSpace* TypedRegisterAllocator::GetRegisterSpace(Types type) const
-    {
+    {TRACE_IT(53255);
         if (!IsValidType(type))
-        {
+        {TRACE_IT(53256);
             Assert("Invalid type for RegisterSpace in TypedMemoryStructure");
             Js::Throw::InternalError();
         }

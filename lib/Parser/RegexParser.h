@@ -40,7 +40,7 @@ namespace UnifiedRegex
                 , length(length)
                 , multiUnits(multiUnits)
                 , rangeLocation(nullptr)
-            {
+            {TRACE_IT(31872);
             }
 
             SurrogatePairTracker(const EncodedChar* location, const EncodedChar* rangeLocation, codepoint_t value, uint32 length, size_t multiUnits)
@@ -50,11 +50,11 @@ namespace UnifiedRegex
                 , length(length)
                 , multiUnits(multiUnits)
                 , rangeLocation(rangeLocation)
-            {
+            {TRACE_IT(31873);
             }
 
             bool IsInsideRange() const
-            {
+            {TRACE_IT(31874);
                 return this->rangeLocation != nullptr;
             }
         };
@@ -259,10 +259,10 @@ namespace UnifiedRegex
         // of underlying UTF-8 characters
         void CaptureSourceAndGroups(Recycler* recycler, Program* program, const EncodedChar* body, CharCount bodyChars, CharCount bodyEncodedChars);
 
-        inline const Char* GetLitbuf() { return litbuf; }
+        inline const Char* GetLitbuf() {TRACE_IT(31875); return litbuf; }
 
         void FreeBody();
 
-        size_t GetMultiUnits() { return this->m_cMultiUnits; }
+        size_t GetMultiUnits() {TRACE_IT(31876); return this->m_cMultiUnits; }
     };
 }

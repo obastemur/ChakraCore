@@ -28,33 +28,34 @@ HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes> HeapInfo::mediumAllo
 template <class TBlockAttributes>
 ValidPointers<TBlockAttributes>::ValidPointers(ushort const * validPointers)
     : validPointers(validPointers)
-{
+{TRACE_IT(24068);
 }
 
 template <class TBlockAttributes>
 ushort ValidPointers<TBlockAttributes>::GetAddressIndex(uint index) const
-{
+{TRACE_IT(24069);
     Assert(index < TBlockAttributes::MaxSmallObjectCount);
     return validPointers[index];
 }
 
 template <class TBlockAttributes>
 ushort ValidPointers<TBlockAttributes>::GetInteriorAddressIndex(uint index) const
-{
+{TRACE_IT(24070);
     Assert(index < TBlockAttributes::MaxSmallObjectCount);
     return validPointers[index + TBlockAttributes::MaxSmallObjectCount];
 }
 
 template <class TBlockAttributes>
-void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(ValidPointersMapTable& validTable, InvalidBitsTable& invalidTable, BlockInfoMapTable& blockInfoTable)
-{
+void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(ValidPointersMapTable& validTable,
+    InvalidBitsTable& invalidTable, BlockInfoMapTable& blockInfoTable)
+{TRACE_IT(24071);
     // Create the valid pointer map to be shared by the buckets.
     // Also create the invalid objects bit vector.
     ushort * buffer = &validTable[0][0];
     memset(buffer, -1, sizeof(ushort)* 2 * TBlockAttributes::MaxSmallObjectCount * TBlockAttributes::BucketCount);
 
     for (uint i = 0; i < TBlockAttributes::BucketCount; i++)
-    {
+    {TRACE_IT(24072);
         // Non-interior first
         ushort * validPointers = buffer;
         buffer += TBlockAttributes::MaxSmallObjectCount;
@@ -65,11 +66,11 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
         uint bucketSize;
 
         if (TBlockAttributes::IsSmallBlock)
-        {
+        {TRACE_IT(24073);
             bucketSize = TBlockAttributes::MinObjectSize + HeapConstants::ObjectGranularity * i;
         }
         else
-        {
+        {TRACE_IT(24074);
             bucketSize = TBlockAttributes::MinObjectSize + HeapConstants::MediumObjectGranularity * (i + 1);
         }
 
@@ -81,7 +82,7 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
         memset(blockInfoRow, 0, sizeof(BlockInfoMapRow));
 
         for (ushort j = 0; j < maxObjectCountForBucket; j++)
-        {
+        {TRACE_IT(24075);
             validPointers[j * stride] = j;
 
             uintptr_t objectAddress = j * bucketSize;
@@ -98,11 +99,11 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
         ushort * validInteriorPointers = buffer;
         buffer += TBlockAttributes::MaxSmallObjectCount;
         for (ushort j = 0; j < maxObjectCountForBucket; j++)
-        {
+        {TRACE_IT(24076);
             uint start = j * stride;
             uint end = min(start + stride, TBlockAttributes::MaxSmallObjectCount);
             for (uint k = start; k < end; k++)
-            {
+            {TRACE_IT(24077);
                 validInteriorPointers[k] = j;
             }
         }
@@ -111,8 +112,8 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
 
 template <>
 HRESULT HeapInfo::ValidPointersMap<SmallAllocationBlockAttributes>::GenerateValidPointersMapForBlockType(FILE* file)
-{
-#define IfErrorGotoCleanup(result) if ((result) < 0) { hr = E_FAIL; goto cleanup; }
+{TRACE_IT(24078);
+#define IfErrorGotoCleanup(result) if ((result) < 0) {TRACE_IT(24079); hr = E_FAIL; goto cleanup; }
 
     Assert(file != nullptr);
     HRESULT hr = S_OK;
@@ -124,7 +125,7 @@ HRESULT HeapInfo::ValidPointersMap<SmallAllocationBlockAttributes>::GenerateVali
     BlockInfoMapTable *blockMap = (BlockInfoMapTable*)malloc(sizeof(BlockInfoMapTable));
 
     if (valid == nullptr || invalid == nullptr || blockMap == nullptr)
-    {
+    {TRACE_IT(24080);
         hr = E_FAIL;
         goto cleanup;
     }
@@ -155,7 +156,7 @@ HRESULT HeapInfo::ValidPointersMap<SmallAllocationBlockAttributes>::GenerateVali
         IfErrorGotoCleanup(fwprintf(file, _u("    {\n        ")));
 
         for (unsigned j = 0; j < (*invalid)[i].wordCount; ++j)
-        {
+        {TRACE_IT(24081);
             const char16 *format = (j < (*invalid)[i].wordCount - 1) ?
 #if defined(_M_IX86_OR_ARM32)
                 _u("0x%08X, ") : _u("0x%08X")
@@ -208,8 +209,8 @@ cleanup:
 
 template <>
 HRESULT HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes>::GenerateValidPointersMapForBlockType(FILE* file)
-{
-#define IfErrorGotoCleanup(result) if ((result) < 0) { hr = E_FAIL; goto cleanup; }
+{TRACE_IT(24082);
+#define IfErrorGotoCleanup(result) if ((result) < 0) {TRACE_IT(24083); hr = E_FAIL; goto cleanup; }
 
     Assert(file != nullptr);
     HRESULT hr = S_OK;
@@ -221,7 +222,7 @@ HRESULT HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes>::GenerateVal
     BlockInfoMapTable *blockMap = (BlockInfoMapTable *)malloc(sizeof(BlockInfoMapTable));
 
     if (valid == nullptr || invalid == nullptr || blockMap == nullptr)
-    {
+    {TRACE_IT(24084);
         hr = E_FAIL;
         goto cleanup;
     }
@@ -252,7 +253,7 @@ HRESULT HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes>::GenerateVal
         IfErrorGotoCleanup(fwprintf(file, _u("    {\n        ")));
 
         for (unsigned j = 0; j < (*invalid)[i].wordCount; ++j)
-        {
+        {TRACE_IT(24085);
             const char16 *format = (j < (*invalid)[i].wordCount - 1) ?
 #if defined(_M_IX86_OR_ARM32)
                 _u("0x%08X, ") : _u("0x%08X")
@@ -305,13 +306,13 @@ cleanup:
 
 template <class TBlockAttributes>
 HRESULT HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMapHeader(LPCWSTR vpmFullPath)
-{
+{TRACE_IT(24086);
     Assert(vpmFullPath != nullptr);
     HRESULT hr = E_FAIL;
     FILE * file = nullptr;
 
     if (_wfopen_s(&file, vpmFullPath, _u("w")) == 0 && file != nullptr)
-    {
+    {TRACE_IT(24087);
         const char16 * header =
             _u("//-------------------------------------------------------------------------------------------------------\n")
             _u("// Copyright (C) Microsoft. All rights reserved.\n")
@@ -328,10 +329,10 @@ HRESULT HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMapHe
             _u("#if USE_STATIC_VPM\n")
             _u("\n");
         if (fwprintf(file, header) >= 0)
-        {
+        {TRACE_IT(24088);
             hr = ValidPointersMap<SmallAllocationBlockAttributes>::GenerateValidPointersMapForBlockType(file);
             if (SUCCEEDED(hr))
-            {
+            {TRACE_IT(24089);
                 hr = ValidPointersMap<MediumAllocationBlockAttributes>::GenerateValidPointersMapForBlockType(file);
             }
 
@@ -385,18 +386,18 @@ HeapInfo::HeapInfo() :
 }
 
 HeapInfo::~HeapInfo()
-{
+{TRACE_IT(24090);
     RECYCLER_SLOW_CHECK(this->VerifySmallHeapBlockCount());
 
     // Finalize all finalizable object first
     for (uint i=0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24091);
         heapBuckets[i].FinalizeAllObjects();
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i=0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24092);
         mediumHeapBuckets[i].FinalizeAllObjects();
     }
 #endif
@@ -425,7 +426,7 @@ HeapInfo::~HeapInfo()
     uint mediumBlockCount = 0;
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24093);
         mediumBlockCount += mediumHeapBuckets[i].GetLargeHeapBlockCount(false);
     }
 #endif
@@ -465,11 +466,11 @@ HeapInfo::Initialize(Recycler * recycler
     , bool captureFreeCallStack
 #endif
 )
-{
+{TRACE_IT(24094);
     this->recycler = recycler;
 #ifdef DUMP_FRAGMENTATION_STATS
     if (recycler->GetRecyclerFlagsTable().flags.DumpFragmentationStats)
-    {
+    {TRACE_IT(24095);
         printf("[FRAG %d] Start", ::GetTickCount());
     }
 #endif
@@ -480,7 +481,7 @@ HeapInfo::Initialize(Recycler * recycler
     Js::NumberRange bucketNumberRange;
     Js::NumberRange* pBucketNumberRange = &bucketNumberRange;
     if (pageheapmode == PageHeapMode::PageHeapModeOff)
-    {
+    {TRACE_IT(24096);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         isPageHeapEnabled = recycler->GetRecyclerFlagsTable().PageHeap != PageHeapMode::PageHeapModeOff;
         pageheapmode = (PageHeapMode)recycler->GetRecyclerFlagsTable().PageHeap;
@@ -495,13 +496,13 @@ HeapInfo::Initialize(Recycler * recycler
 #endif
     }
     else
-    {
+    {TRACE_IT(24097);
         isPageHeapEnabled = true;
     }
 
 #ifdef RECYCLER_PAGE_HEAP
     if (isPageHeapEnabled)
-    {
+    {TRACE_IT(24098);
         this->captureAllocCallStack = captureAllocCallStack;
         this->captureFreeCallStack = captureFreeCallStack;
 
@@ -513,7 +514,7 @@ HeapInfo::Initialize(Recycler * recycler
 #endif
 
     if (IsPageHeapEnabled())
-    {
+    {TRACE_IT(24099);
         this->pageHeapMode = pageheapmode;
 
         // Use one of the two modes with -PageHeap flag
@@ -522,36 +523,36 @@ HeapInfo::Initialize(Recycler * recycler
         this->pageHeapBlockType = blockTypeFilter;
 
         for (int i = 0; i < HeapConstants::BucketCount + HeapConstants::MediumBucketCount; i++)
-        {
+        {TRACE_IT(24100);
             if (pBucketNumberRange->InRange(i))
-            {
+            {TRACE_IT(24101);
                 if (i < HeapConstants::BucketCount)
-                {
+                {TRACE_IT(24102);
                     this->smallBlockPageHeapBucketFilter.Set(i);
                 }
                 else
-                {
+                {TRACE_IT(24103);
                     this->mediumBlockPageHeapBucketFilter.Set(i - HeapConstants::BucketCount);
                 }
             }
         }
     }
     else
-    {
+    {TRACE_IT(24104);
         // These should not be set if we're not in page heap mode
         Assert(!(captureAllocCallStack || captureFreeCallStack));
     }
 #endif
 
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24105);
         heapBuckets[i].Initialize(this, (i + 1) << HeapConstants::ObjectAllocationShift);
     }
     RECYCLER_SLOW_CHECK(memset(this->heapBlockCount, 0, sizeof(this->heapBlockCount)));
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24106);
 #if SMALLBLOCK_MEDIUM_ALLOC
         mediumHeapBuckets[i].Initialize(this, HeapConstants::MaxSmallObjectSize + ((i + 1) * HeapConstants::MediumObjectGranularity));
 #else
@@ -572,7 +573,7 @@ HeapInfo::Initialize(Recycler * recycler, void(*trackNativeAllocCallBack)(Recycl
 , bool captureFreeCallStack
 #endif
 )
-{
+{TRACE_IT(24107);
     Initialize(recycler
 #ifdef RECYCLER_PAGE_HEAP
         , pageheapmode
@@ -582,13 +583,13 @@ HeapInfo::Initialize(Recycler * recycler, void(*trackNativeAllocCallBack)(Recycl
         );
 
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24108);
         heapBuckets[i].GetBucket<NoBit>().GetAllocator()->SetTrackNativeAllocatedObjectCallBack(trackNativeAllocCallBack);
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24109);
         mediumHeapBuckets[i].GetBucket<NoBit>().GetAllocator()->SetTrackNativeAllocatedObjectCallBack(trackNativeAllocCallBack);
     }
 #endif
@@ -602,19 +603,19 @@ template bool HeapInfo::IsPageHeapEnabledForBlock<LargeAllocationBlockAttributes
 
 template <typename TBlockAttributes>
 bool HeapInfo::IsPageHeapEnabledForBlock(const size_t objectSize)
-{
+{TRACE_IT(24110);
     if (IsPageHeapEnabled())
-    {
+    {TRACE_IT(24111);
         if (TBlockAttributes::IsSmallBlock)
-        {
+        {TRACE_IT(24112);
             return smallBlockPageHeapBucketFilter.Test(GetBucketIndex(objectSize)) != 0;
         }
         else if (TBlockAttributes::IsMediumBlock)
-        {
+        {TRACE_IT(24113);
             return mediumBlockPageHeapBucketFilter.Test(GetMediumBucketIndex(objectSize)) != 0;
         }
         else
-        {
+        {TRACE_IT(24114);
             return ((byte)this->pageHeapBlockType & (byte)PageHeapBlockTypeFilter::PageHeapBlockTypeFilterLarge) != 0;
         }
     }
@@ -624,14 +625,14 @@ bool HeapInfo::IsPageHeapEnabledForBlock(const size_t objectSize)
 
 void
 HeapInfo::ResetMarks(ResetMarkFlags flags)
-{
+{TRACE_IT(24115);
     for (uint i=0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24116);
         heapBuckets[i].ResetMarks(flags);
     }
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i=0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24117);
         mediumHeapBuckets[i].ResetMarks(flags);
     }
 #endif
@@ -640,7 +641,7 @@ HeapInfo::ResetMarks(ResetMarkFlags flags)
 
 #if ENABLE_CONCURRENT_GC
     if ((flags & ResetMarkFlags_ScanImplicitRoot) != 0)
-    {
+    {TRACE_IT(24118);
         HeapBlockList::ForEach(newLeafHeapBlockList, [flags](SmallLeafHeapBlock * heapBlock)
         {
             heapBlock->MarkImplicitRoots();
@@ -700,14 +701,14 @@ HeapInfo::ResetMarks(ResetMarkFlags flags)
 
 void
 HeapInfo::ScanInitialImplicitRoots()
-{
+{TRACE_IT(24119);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24120);
         heapBuckets[i].ScanInitialImplicitRoots(recycler);
     }
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24121);
         mediumHeapBuckets[i].ScanInitialImplicitRoots(recycler);
     }
 #endif
@@ -773,14 +774,14 @@ HeapInfo::ScanInitialImplicitRoots()
 
 void
 HeapInfo::ScanNewImplicitRoots()
-{
+{TRACE_IT(24122);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24123);
         heapBuckets[i].ScanNewImplicitRoots(recycler);
     }
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24124);
         mediumHeapBuckets[i].ScanNewImplicitRoots(recycler);
     }
 #endif
@@ -850,25 +851,25 @@ HeapInfo::ScanNewImplicitRoots()
 
 LargeHeapBlock *
 HeapInfo::AddLargeHeapBlock(size_t size)
-{
+{TRACE_IT(24125);
     // Do a no-throwing allocation here
     return largeObjectBucket.AddLargeHeapBlock(size, /* nothrow = */ true);
 }
 
 void HeapInfo::SweepBuckets(RecyclerSweep& recyclerSweep, bool concurrent)
-{
+{TRACE_IT(24126);
     Recycler * recycler = recyclerSweep.GetRecycler();
     // TODO: Remove below workaround for unreferenced local after enabled -profile for GC
     static_cast<Recycler*>(recycler);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24127);
         heapBuckets[i].SweepFinalizableObjects(recyclerSweep);
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     // CONCURRENT-TODO: Allow this in the background as well
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24128);
         mediumHeapBuckets[i].SweepFinalizableObjects(recyclerSweep);
     }
 #endif
@@ -876,18 +877,18 @@ void HeapInfo::SweepBuckets(RecyclerSweep& recyclerSweep, bool concurrent)
 
 #if ENABLE_CONCURRENT_GC
     if (concurrent)
-    {
+    {TRACE_IT(24129);
         RECYCLER_SLOW_CHECK(VerifySmallHeapBlockCount());
         RECYCLER_SLOW_CHECK(VerifyLargeHeapBlockCount());
     }
 
     if (concurrent)
-    {
+    {TRACE_IT(24130);
         this->SetupBackgroundSweep(recyclerSweep);
     }
     else
 #endif
-    {
+    {TRACE_IT(24131);
         this->SweepSmallNonFinalizable(recyclerSweep);
     }
 
@@ -896,7 +897,7 @@ void HeapInfo::SweepBuckets(RecyclerSweep& recyclerSweep, bool concurrent)
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !(SMALLBLOCK_MEDIUM_ALLOC)
     // CONCURRENT-TODO: Allow this in the background as well
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24132);
         mediumHeapBuckets[i].Sweep(recyclerSweep);
     }
 #endif
@@ -905,7 +906,7 @@ void HeapInfo::SweepBuckets(RecyclerSweep& recyclerSweep, bool concurrent)
 
 void
 HeapInfo::Sweep(RecyclerSweep& recyclerSweep, bool concurrent)
-{
+{TRACE_IT(24133);
 #ifdef RECYCLER_FINALIZE_CHECK
     this->newFinalizableObjectCount = 0;
 #endif
@@ -927,7 +928,7 @@ HeapInfo::Sweep(RecyclerSweep& recyclerSweep, bool concurrent)
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !(SMALLBLOCK_MEDIUM_ALLOC)
     for (uint i=0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24134);
         mediumHeapBuckets[i].Finalize();
     }
 #endif
@@ -952,15 +953,15 @@ HeapInfo::Sweep(RecyclerSweep& recyclerSweep, bool concurrent)
 #if ENABLE_CONCURRENT_GC
 void
 HeapInfo::SetupBackgroundSweep(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24135);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24136);
         this->heapBuckets[i].SetupBackgroundSweep(recyclerSweep);
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24137);
         this->mediumHeapBuckets[i].SetupBackgroundSweep(recyclerSweep);
     }
 #endif
@@ -969,7 +970,7 @@ HeapInfo::SetupBackgroundSweep(RecyclerSweep& recyclerSweep)
 
 void
 HeapInfo::SweepSmallNonFinalizable(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24138);
 #if ENABLE_CONCURRENT_GC
     recyclerSweep.MergePendingNewHeapBlockList<SmallLeafHeapBlock>();
     recyclerSweep.MergePendingNewHeapBlockList<SmallNormalHeapBlock>();
@@ -984,25 +985,25 @@ HeapInfo::SweepSmallNonFinalizable(RecyclerSweep& recyclerSweep)
     Assert(!recyclerSweep.HasPendingNewHeapBlocks());
 #endif
     if (!recyclerSweep.IsBackground())
-    {
+    {TRACE_IT(24139);
         // finalizer may trigger arena allocations, do don't suspend the leaf (thread) page allocator
         // until  we are going to sweep leaf pages.
         recycler->GetRecyclerLeafPageAllocator()->SuspendIdleDecommit();
     }
     for (uint i=0; i<HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24140);
         heapBuckets[i].Sweep(recyclerSweep);
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24141);
         mediumHeapBuckets[i].Sweep(recyclerSweep);
     }
 #endif
 
     if (!recyclerSweep.IsBackground())
-    {
+    {TRACE_IT(24142);
         // large block don't use the leaf page allocator, we can resume idle decommit now
         recycler->GetRecyclerLeafPageAllocator()->ResumeIdleDecommit();
 
@@ -1013,17 +1014,17 @@ HeapInfo::SweepSmallNonFinalizable(RecyclerSweep& recyclerSweep)
 
 size_t
 HeapInfo::Rescan(RescanFlags flags)
-{
+{TRACE_IT(24143);
     size_t scannedPageCount = 0;
 
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24144);
         scannedPageCount += heapBuckets[i].Rescan(recycler, flags);
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24145);
 #if SMALLBLOCK_MEDIUM_ALLOC
         scannedPageCount += mediumHeapBuckets[i].Rescan(recycler, flags);
 #else
@@ -1039,7 +1040,7 @@ HeapInfo::Rescan(RescanFlags flags)
 
 template <ObjectInfoBits TBucketType, class TBlockAttributes>
 void DumpBucket(uint bucketIndex, typename SmallHeapBlockType<TBucketType, TBlockAttributes>::BucketType& bucket)
-{
+{TRACE_IT(24146);
     HeapBucketStats stats = { 0 };
 
     bucket.AggregateBucketStats(stats);
@@ -1051,7 +1052,7 @@ void DumpBucket(uint bucketIndex, typename SmallHeapBlockType<TBucketType, TBloc
 #ifdef DUMP_FRAGMENTATION_STATS
 void
 HeapInfo::DumpFragmentationStats()
-{
+{TRACE_IT(24147);
     Output::Print(_u("[FRAG %d] Post-Collection State\n"), ::GetTickCount());
     Output::Print(_u("Bucket,SizeCat,Block Count,Finalizable Block Count,Empty Block Count, Object Count, Finalizable Object Count, Object size, Block Size\n"));
 
@@ -1076,17 +1077,17 @@ HeapInfo::DumpFragmentationStats()
 #if ENABLE_PARTIAL_GC
 void
 HeapInfo::SweepPartialReusePages(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24148);
     RECYCLER_PROFILE_EXEC_THREAD_BEGIN(recyclerSweep.IsBackground(), recyclerSweep.GetRecycler(), Js::SweepPartialReusePhase);
 
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24149);
         heapBuckets[i].SweepPartialReusePages(recyclerSweep);
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24150);
         mediumHeapBuckets[i].SweepPartialReusePages(recyclerSweep);
     }
 #endif
@@ -1099,21 +1100,21 @@ HeapInfo::SweepPartialReusePages(RecyclerSweep& recyclerSweep)
     // Only count the byte that we would have freed but we are not reusing it if we are doing a partial GC
     // This will increase the GC pressure and make partial less and less likely.
     if (recyclerSweep.InPartialCollect())
-    {
+    {TRACE_IT(24151);
         this->unusedPartialCollectFreeBytes += recyclerSweep.GetPartialUnusedFreeByteCount();
     }
 }
 
 void HeapInfo::FinishPartialCollect(RecyclerSweep * recyclerSweep)
-{
+{TRACE_IT(24152);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24153);
         heapBuckets[i].FinishPartialCollect(recyclerSweep);
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24154);
         mediumHeapBuckets[i].FinishPartialCollect(recyclerSweep);
     }
 #endif
@@ -1125,15 +1126,15 @@ void HeapInfo::FinishPartialCollect(RecyclerSweep * recyclerSweep)
 #if ENABLE_CONCURRENT_GC
 void
 HeapInfo::PrepareSweep()
-{
+{TRACE_IT(24155);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24156);
         heapBuckets[i].PrepareSweep();
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24157);
         mediumHeapBuckets[i].PrepareSweep();
     }
 #endif
@@ -1143,17 +1144,17 @@ HeapInfo::PrepareSweep()
 #if ENABLE_CONCURRENT_GC
 void
 HeapInfo::SweepPendingObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24158);
     if (recyclerSweep.HasPendingSweepSmallHeapBlocks())
-    {
+    {TRACE_IT(24159);
         for (uint i = 0; i < HeapConstants::BucketCount; i++)
-        {
+        {TRACE_IT(24160);
             heapBuckets[i].SweepPendingObjects(recyclerSweep);
         }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
         for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-        {
+        {TRACE_IT(24161);
             mediumHeapBuckets[i].SweepPendingObjects(recyclerSweep);
         }
 #endif
@@ -1161,7 +1162,7 @@ HeapInfo::SweepPendingObjects(RecyclerSweep& recyclerSweep)
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24162);
         mediumHeapBuckets[i].SweepPendingObjects(recyclerSweep);
     }
 #endif
@@ -1173,19 +1174,19 @@ HeapInfo::SweepPendingObjects(RecyclerSweep& recyclerSweep)
 #if ENABLE_CONCURRENT_GC
 void
 HeapInfo::TransferPendingHeapBlocks(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24163);
     Assert(!recyclerSweep.IsBackground());
     RECYCLER_SLOW_CHECK(VerifySmallHeapBlockCount());
     if (recyclerSweep.HasPendingEmptyBlocks())
-    {
+    {TRACE_IT(24164);
         for (uint i = 0; i < HeapConstants::BucketCount; i++)
-        {
+        {TRACE_IT(24165);
             heapBuckets[i].TransferPendingEmptyHeapBlocks(recyclerSweep);
         }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
         for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-        {
+        {TRACE_IT(24166);
             mediumHeapBuckets[i].TransferPendingEmptyHeapBlocks(recyclerSweep);
         }
 #endif
@@ -1201,7 +1202,7 @@ HeapInfo::TransferPendingHeapBlocks(RecyclerSweep& recyclerSweep)
 
 void
 HeapInfo::ConcurrentTransferSweptObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24167);
 #if ENABLE_PARTIAL_GC
     Assert(!recyclerSweep.InPartialCollectMode());
 #endif
@@ -1210,7 +1211,7 @@ HeapInfo::ConcurrentTransferSweptObjects(RecyclerSweep& recyclerSweep)
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24168);
         mediumHeapBuckets[i].ConcurrentTransferSweptObjects(recyclerSweep);
     }
 #endif
@@ -1221,7 +1222,7 @@ HeapInfo::ConcurrentTransferSweptObjects(RecyclerSweep& recyclerSweep)
 #if ENABLE_PARTIAL_GC
 void
 HeapInfo::ConcurrentPartialTransferSweptObjects(RecyclerSweep& recyclerSweep)
-{
+{TRACE_IT(24169);
     Assert(recyclerSweep.InPartialCollectMode());
     Assert(!recyclerSweep.IsBackground());
     TransferPendingHeapBlocks(recyclerSweep);
@@ -1230,7 +1231,7 @@ HeapInfo::ConcurrentPartialTransferSweptObjects(RecyclerSweep& recyclerSweep)
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24170);
         mediumHeapBuckets[i].ConcurrentPartialTransferSweptObjects(recyclerSweep);
     }
 #endif
@@ -1244,21 +1245,21 @@ HeapInfo::ConcurrentPartialTransferSweptObjects(RecyclerSweep& recyclerSweep)
 
 void
 HeapInfo::DisposeObjects()
-{
+{TRACE_IT(24171);
     Recycler * recycler = this->recycler;
     do
-    {
+    {TRACE_IT(24172);
         recycler->hasDisposableObject = false;
 
         // finalizing the objects
         for (uint i = 0; i < HeapConstants::BucketCount; i++)
-        {
+        {TRACE_IT(24173);
             heapBuckets[i].DisposeObjects();
         }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
         for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-        {
+        {TRACE_IT(24174);
             mediumHeapBuckets[i].DisposeObjects();
         }
 #endif
@@ -1272,7 +1273,7 @@ HeapInfo::DisposeObjects()
 #if ENABLE_CONCURRENT_GC
     if (!recycler->IsConcurrentExecutingState())
 #endif
-    {
+    {TRACE_IT(24175);
         // Can't transfer disposed object when the background thread is walking the heap block list
         // That includes reset mark, background rescan and concurrent sweep. Delay the transfer later.
         // NOTE1: During concurrent sweep,  we can't do this only if the bucket has "stopped" allocation
@@ -1288,7 +1289,7 @@ HeapInfo::DisposeObjects()
 
 void
 HeapInfo::TransferDisposedObjects()
-{
+{TRACE_IT(24176);
     Recycler * recycler = this->recycler;
     Assert(recycler->hasPendingTransferDisposedObjects);
 #if ENABLE_CONCURRENT_GC
@@ -1298,13 +1299,13 @@ HeapInfo::TransferDisposedObjects()
 
     // move the disposed object back to the free lists
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24177);
         heapBuckets[i].TransferDisposedObjects();
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24178);
         mediumHeapBuckets[i].TransferDisposedObjects();
     }
 #endif
@@ -1313,15 +1314,15 @@ HeapInfo::TransferDisposedObjects()
 }
 void
 HeapInfo::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(void * address, size_t size))
-{
+{TRACE_IT(24179);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24180);
         heapBuckets[i].EnumerateObjects(infoBits, CallBackFunction);
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24181);
         mediumHeapBuckets[i].EnumerateObjects(infoBits, CallBackFunction);
     }
 #endif
@@ -1352,17 +1353,17 @@ HeapInfo::EnumerateObjects(ObjectInfoBits infoBits, void (*CallBackFunction)(voi
 #if DBG || defined(RECYCLER_SLOW_CHECK_ENABLED)
 size_t
 HeapInfo::GetSmallHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(24182);
     size_t currentSmallHeapBlockCount = 0;
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24183);
         currentSmallHeapBlockCount += heapBuckets[i].GetNonEmptyHeapBlockCount(checkCount);
         currentSmallHeapBlockCount += heapBuckets[i].GetEmptyHeapBlockCount();
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24184);
         currentSmallHeapBlockCount += mediumHeapBuckets[i].GetNonEmptyHeapBlockCount(checkCount);
         currentSmallHeapBlockCount += mediumHeapBuckets[i].GetEmptyHeapBlockCount();
     }
@@ -1388,7 +1389,7 @@ HeapInfo::GetSmallHeapBlockCount(bool checkCount) const
     // TODO: Update recycler sweep
     // Recycler can be null if we have OOM in the ctor
     if (this->recycler && this->recycler->recyclerSweep != nullptr)
-    {
+    {TRACE_IT(24185);
         // This function can't be called in the background
         Assert(!this->recycler->recyclerSweep->IsBackground());
         currentSmallHeapBlockCount += this->recycler->recyclerSweep->SetPendingMergeNewHeapBlockCount();
@@ -1420,12 +1421,12 @@ HeapInfo::GetSmallHeapBlockCount(bool checkCount) const
 
 size_t
 HeapInfo::GetLargeHeapBlockCount(bool checkCount) const
-{
+{TRACE_IT(24186);
     size_t currentLargeHeapBlockCount = 0;
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && !SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24187);
         currentLargeHeapBlockCount += mediumHeapBuckets[i].GetLargeHeapBlockCount(checkCount);
     }
 #endif
@@ -1441,12 +1442,12 @@ HeapInfo::GetLargeHeapBlockCount(bool checkCount) const
 #ifdef RECYCLER_SLOW_CHECK_ENABLED
 void
 HeapInfo::Check()
-{
+{TRACE_IT(24188);
     Assert(!this->recycler->CollectionInProgress());
 
     size_t currentSmallHeapBlockCount = 0;
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24189);
         currentSmallHeapBlockCount += heapBuckets[i].Check();
         currentSmallHeapBlockCount += heapBuckets[i].GetEmptyHeapBlockCount();
     }
@@ -1454,7 +1455,7 @@ HeapInfo::Check()
     size_t currentLargeHeapBlockCount = 0;
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24190);
 #if SMALLBLOCK_MEDIUM_ALLOC
         currentSmallHeapBlockCount += mediumHeapBuckets[i].Check();
         currentSmallHeapBlockCount += mediumHeapBuckets[i].GetEmptyHeapBlockCount();
@@ -1511,7 +1512,7 @@ HeapInfo::Check()
 template <typename TBlockType>
 size_t
 HeapInfo::Check(bool expectFull, bool expectPending, TBlockType * list, TBlockType * tail)
-{
+{TRACE_IT(24191);
     size_t heapBlockCount = 0;
     HeapBlockList::ForEach(list, tail, [&heapBlockCount, expectFull, expectPending](TBlockType * heapBlock)
     {
@@ -1541,12 +1542,12 @@ template size_t HeapInfo::Check<MediumFinalizableWithBarrierHeapBlock>(bool expe
 
 void
 HeapInfo::VerifySmallHeapBlockCount()
-{
+{TRACE_IT(24192);
     GetSmallHeapBlockCount(true);
 }
 void
 HeapInfo::VerifyLargeHeapBlockCount()
-{
+{TRACE_IT(24193);
     GetLargeHeapBlockCount(true);
 }
 #endif
@@ -1554,16 +1555,16 @@ HeapInfo::VerifyLargeHeapBlockCount()
 #ifdef RECYCLER_MEMORY_VERIFY
 void
 HeapInfo::Verify()
-{
+{TRACE_IT(24194);
     Assert(!this->recycler->CollectionInProgress());
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24195);
         heapBuckets[i].Verify();
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24196);
         mediumHeapBuckets[i].Verify();
     }
 #endif
@@ -1625,15 +1626,15 @@ HeapInfo::Verify()
 #ifdef RECYCLER_VERIFY_MARK
 void
 HeapInfo::VerifyMark()
-{
+{TRACE_IT(24197);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24198);
         heapBuckets[i].VerifyMark();
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24199);
         mediumHeapBuckets[i].VerifyMark();
     }
 #endif
@@ -1695,7 +1696,7 @@ HeapInfo::VerifyMark()
 #ifdef RECYCLER_FINALIZE_CHECK
 void
 HeapInfo::VerifyFinalize()
-{
+{TRACE_IT(24200);
     // We can't check this if we are marking
     Assert(!this->recycler->IsMarkState());
 
@@ -1704,7 +1705,7 @@ HeapInfo::VerifyFinalize()
     Assert(currentFinalizableObjectCount == this->recycler->collectionStats.finalizeCount);
 #else
     if (currentFinalizableObjectCount != this->recycler->collectionStats.finalizeCount)
-    {
+    {TRACE_IT(24201);
         Output::Print(_u("ERROR: Recycler dropped some finalizable objects"));
         DebugBreak();
     }
@@ -1715,20 +1716,20 @@ HeapInfo::VerifyFinalize()
 #if DBG
 bool
 HeapInfo::AllocatorsAreEmpty()
-{
+{TRACE_IT(24202);
     for (uint i = 0; i < HeapConstants::BucketCount; i++)
-    {
+    {TRACE_IT(24203);
         if (!heapBuckets[i].AllocatorsAreEmpty())
-        {
+        {TRACE_IT(24204);
             return false;
         }
     }
 
 #if defined(BUCKETIZE_MEDIUM_ALLOCATIONS) && SMALLBLOCK_MEDIUM_ALLOC
     for (uint i = 0; i < HeapConstants::MediumBucketCount; i++)
-    {
+    {TRACE_IT(24205);
         if (!mediumHeapBuckets[i].AllocatorsAreEmpty())
-        {
+        {TRACE_IT(24206);
             return false;
         }
     }
@@ -1742,13 +1743,13 @@ HeapInfo::AllocatorsAreEmpty()
 // Block attribute functions
 /* static */
 BOOL SmallAllocationBlockAttributes::IsAlignedObjectSize(size_t sizeCat)
-{
+{TRACE_IT(24207);
     return HeapInfo::IsAlignedSmallObjectSize(sizeCat);
 }
 
 /* static */
 BOOL MediumAllocationBlockAttributes::IsAlignedObjectSize(size_t sizeCat)
-{
+{TRACE_IT(24208);
     return HeapInfo::IsAlignedMediumObjectSize(sizeCat);
 }
 

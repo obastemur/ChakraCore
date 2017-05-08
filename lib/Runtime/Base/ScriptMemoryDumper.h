@@ -22,7 +22,7 @@ public:
     ScriptMemoryDumper(Js::ScriptContext* scriptContext);
 
     ~ScriptMemoryDumper()
-    {
+    {TRACE_IT(36881);
         // just to reduce the noise on the stack.
         dumpObject = nullptr;
     }

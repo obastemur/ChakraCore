@@ -106,9 +106,9 @@ public:
 
     void QueueFreeNativeCodeGenAllocation(void* address);
 
-    bool IsClosed() { return isClosed; }
+    bool IsClosed() {TRACE_IT(14246); return isClosed; }
     void AddWorkItem(CodeGenWorkItem* workItem);
-    InProcCodeGenAllocators* GetCodeGenAllocator(PageAllocator* pageallocator){ return EnsureForegroundAllocators(pageallocator); }
+    InProcCodeGenAllocators* GetCodeGenAllocator(PageAllocator* pageallocator){TRACE_IT(14247); return EnsureForegroundAllocators(pageallocator); }
 
 #if DBG_DUMP
     FILE * asmFile;
@@ -128,19 +128,19 @@ private:
     void CodeGen(PageAllocator * pageAllocator, CodeGenWorkItem* workItem, const bool foreground);
 
     InProcCodeGenAllocators *CreateAllocators(PageAllocator *const pageAllocator)
-    {
+    {TRACE_IT(14248);
         return HeapNew(InProcCodeGenAllocators, pageAllocator->GetAllocationPolicyManager(), scriptContext, scriptContext->GetThreadContext()->GetCodePageAllocators(), GetCurrentProcess());
     }
 
     InProcCodeGenAllocators *EnsureForegroundAllocators(PageAllocator * pageAllocator)
-    {
+    {TRACE_IT(14249);
         if (this->foregroundAllocators == nullptr)
-        {
+        {TRACE_IT(14250);
             this->foregroundAllocators = CreateAllocators(pageAllocator);
 
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
             if (this->scriptContext->webWorkerId != Js::Constants::NonWebWorkerContextId)
-            {
+            {TRACE_IT(14251);
                 this->foregroundAllocators->canCreatePreReservedSegment = true;
             }
 #endif
@@ -151,7 +151,7 @@ private:
 
 
     InProcCodeGenAllocators * GetBackgroundAllocator(PageAllocator *pageAllocator)
-    {
+    {TRACE_IT(14252);
         return this->backgroundAllocators;
     }
 
@@ -160,9 +160,9 @@ private:
     void  AllocateBackgroundCodeGenProfiler(PageAllocator * pageAllocator);
 
     void AllocateBackgroundAllocators(PageAllocator * pageAllocator)
-    {
+    {TRACE_IT(14253);
         if (!this->backgroundAllocators)
-        {
+        {TRACE_IT(14254);
             this->backgroundAllocators = CreateAllocators(pageAllocator);
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
             this->backgroundAllocators->canCreatePreReservedSegment = true;
@@ -201,7 +201,7 @@ private:
           JsUtil::Job(manager),
           codeAddress(address),
           heapAllocated(isHeapAllocated)
-        {
+        {TRACE_IT(14255);
         }
 
         bool heapAllocated;
@@ -224,50 +224,50 @@ private:
         }
 
         virtual ~FreeLoopBodyJobManager()
-        {
+        {TRACE_IT(14256);
             if (autoClose && !isClosed)
-            {
+            {TRACE_IT(14257);
                 Close();
             }
             Assert(this->isClosed);
         }
 
         void Close()
-        {
+        {TRACE_IT(14258);
             Assert(!this->isClosed);
             Processor()->RemoveManager(this);
             this->isClosed = true;
         }
 
         void SetAutoClose(bool autoClose)
-        {
+        {TRACE_IT(14259);
             this->autoClose = autoClose;
         }
 
         FreeLoopBodyJob* GetJob(FreeLoopBodyJob* job)
-        {
+        {TRACE_IT(14260);
             if (!job->heapAllocated)
-            {
+            {TRACE_IT(14261);
                 return this->stackJobProcessed ? nullptr : job;
             }
             else
-            {
+            {TRACE_IT(14262);
                 return job;
             }
         }
 
         bool WasAddedToJobProcessor(JsUtil::Job *const job) const
-        {
+        {TRACE_IT(14263);
             return true;
         }
 
         void SetNativeCodeGen(NativeCodeGenerator* nativeCodeGen)
-        {
+        {TRACE_IT(14264);
             this->nativeCodeGen = nativeCodeGen;
         }
 
-        void BeforeWaitForJob(FreeLoopBodyJob*) const {}
-        void AfterWaitForJob(FreeLoopBodyJob*) const {}
+        void BeforeWaitForJob(FreeLoopBodyJob*) const {TRACE_IT(14265);}
+        void AfterWaitForJob(FreeLoopBodyJob*) const {TRACE_IT(14266);}
 
         virtual bool Process(JsUtil::Job *const job, JsUtil::ParallelThreadData *threadData) override
         {
@@ -284,11 +284,11 @@ private:
             FreeLoopBodyJob* freeLoopBodyJob = static_cast<FreeLoopBodyJob*>(job);
 
             if (freeLoopBodyJob->heapAllocated)
-            {
+            {TRACE_IT(14267);
                 HeapDelete(freeLoopBodyJob);
             }
             else
-            {
+            {TRACE_IT(14268);
 #if DBG
                 Assert(this->waitingForStackJob);
                 this->waitingForStackJob = false;

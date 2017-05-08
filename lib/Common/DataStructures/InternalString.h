@@ -13,7 +13,7 @@ namespace Js
         Field(const char16*) m_content;
 
     public:
-        InternalString() : m_charLength(0), m_content(nullptr), m_offset(0) { };
+        InternalString() : m_charLength(0), m_content(nullptr), m_offset(0) {TRACE_IT(21708); };
         InternalString(const char16* content, DECLSPEC_GUARD_OVERFLOW charcount_t charLength, unsigned char offset = 0);
         InternalString(const char16* content, _no_write_barrier_tag, DECLSPEC_GUARD_OVERFLOW charcount_t charLength, unsigned char offset = 0);
 
@@ -22,12 +22,12 @@ namespace Js
         static InternalString* NewNoCopy(ArenaAllocator* alloc, const char16* content, DECLSPEC_GUARD_OVERFLOW charcount_t length);
 
         inline charcount_t GetLength() const
-        {
+        {TRACE_IT(21709);
             return m_charLength;
         }
 
         inline const char16* GetBuffer() const
-        {
+        {TRACE_IT(21710);
             return m_content + m_offset;
         }
     };
@@ -35,13 +35,13 @@ namespace Js
     struct InternalStringComparer
     {
         inline static bool Equals(InternalString const& str1, InternalString const& str2)
-        {
+        {TRACE_IT(21711);
             return str1.GetLength() == str2.GetLength() &&
                 JsUtil::CharacterBuffer<char16>::StaticEquals(str1.GetBuffer(), str2.GetBuffer(), str1.GetLength());
         }
 
         inline static hash_t GetHashCode(InternalString const& str)
-        {
+        {TRACE_IT(21712);
             return JsUtil::CharacterBuffer<char16>::StaticGetHashCode(str.GetBuffer(), str.GetLength());
         }
     };

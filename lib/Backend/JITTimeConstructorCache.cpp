@@ -8,7 +8,7 @@
 CompileAssert(sizeof(JITTimeConstructorCache) == sizeof(JITTimeConstructorCacheIDL));
 
 JITTimeConstructorCache::JITTimeConstructorCache(const Js::JavascriptFunction* constructor, Js::ConstructorCache* runtimeCache)
-{
+{TRACE_IT(9751);
     Assert(constructor != nullptr);
     Assert(runtimeCache != nullptr);
     m_data.runtimeCacheAddr = runtimeCache;
@@ -21,13 +21,13 @@ JITTimeConstructorCache::JITTimeConstructorCache(const Js::JavascriptFunction* c
     m_data.isUsed = false;
     m_data.guardedPropOps = 0;
     if (runtimeCache->IsNormal())
-    {
+    {TRACE_IT(9752);
         JITType::BuildFromJsType(runtimeCache->content.type, (JITType*)&m_data.type);
     }
 }
 
 JITTimeConstructorCache::JITTimeConstructorCache(const JITTimeConstructorCache* other)
-{
+{TRACE_IT(9753);
     Assert(other != nullptr);
     Assert(other->GetRuntimeCacheAddr() != 0);
     m_data.runtimeCacheAddr = reinterpret_cast<void*>(other->GetRuntimeCacheAddr());
@@ -44,21 +44,21 @@ JITTimeConstructorCache::JITTimeConstructorCache(const JITTimeConstructorCache* 
 
 JITTimeConstructorCache*
 JITTimeConstructorCache::Clone(JitArenaAllocator* allocator) const
-{
+{TRACE_IT(9754);
     JITTimeConstructorCache* clone = Anew(allocator, JITTimeConstructorCache, this);
     return clone;
 }
 BVSparse<JitArenaAllocator>*
 JITTimeConstructorCache::GetGuardedPropOps() const
-{
+{TRACE_IT(9755);
     return (BVSparse<JitArenaAllocator>*)(m_data.guardedPropOps & ~(intptr_t)1);
 }
 
 void
 JITTimeConstructorCache::EnsureGuardedPropOps(JitArenaAllocator* allocator)
-{
+{TRACE_IT(9756);
     if (GetGuardedPropOps() == nullptr)
-    {
+    {TRACE_IT(9757);
         m_data.guardedPropOps = (intptr_t)Anew(allocator, BVSparse<JitArenaAllocator>, allocator);
         m_data.guardedPropOps |= 1; // tag it to prevent false positive after the arena address reuse in recycler
     }
@@ -66,82 +66,82 @@ JITTimeConstructorCache::EnsureGuardedPropOps(JitArenaAllocator* allocator)
 
 void
 JITTimeConstructorCache::SetGuardedPropOp(uint propOpId)
-{
+{TRACE_IT(9758);
     Assert(GetGuardedPropOps() != nullptr);
     GetGuardedPropOps()->Set(propOpId);
 }
 
 void
 JITTimeConstructorCache::AddGuardedPropOps(const BVSparse<JitArenaAllocator>* propOps)
-{
+{TRACE_IT(9759);
     Assert(GetGuardedPropOps() != nullptr);
     GetGuardedPropOps()->Or(propOps);
 }
 
 intptr_t
 JITTimeConstructorCache::GetRuntimeCacheAddr() const
-{
+{TRACE_IT(9760);
     return reinterpret_cast<intptr_t>(PointerValue(m_data.runtimeCacheAddr));
 }
 
 intptr_t
 JITTimeConstructorCache::GetRuntimeCacheGuardAddr() const
-{
+{TRACE_IT(9761);
     return reinterpret_cast<intptr_t>(PointerValue(m_data.runtimeCacheGuardAddr));
 }
 
 JITTypeHolder
 JITTimeConstructorCache::GetType() const
-{
+{TRACE_IT(9762);
     return JITTypeHolder((JITType*)&m_data.type);
 }
 
 int
 JITTimeConstructorCache::GetSlotCount() const
-{
+{TRACE_IT(9763);
     return m_data.slotCount;
 }
 
 int16
 JITTimeConstructorCache::GetInlineSlotCount() const
-{
+{TRACE_IT(9764);
     return m_data.inlineSlotCount;
 }
 
 bool
 JITTimeConstructorCache::SkipNewScObject() const
-{
+{TRACE_IT(9765);
     return m_data.skipNewScObject != FALSE;
 }
 
 bool
 JITTimeConstructorCache::CtorHasNoExplicitReturnValue() const
-{
+{TRACE_IT(9766);
     return m_data.ctorHasNoExplicitReturnValue != FALSE;
 }
 
 bool
 JITTimeConstructorCache::IsTypeFinal() const
-{
+{TRACE_IT(9767);
     return m_data.typeIsFinal != FALSE;
 }
 
 bool
 JITTimeConstructorCache::IsUsed() const
-{
+{TRACE_IT(9768);
     return m_data.isUsed != FALSE;
 }
 
 // TODO: OOP JIT, does this need to flow back?
 void
 JITTimeConstructorCache::SetUsed(bool val)
-{
+{TRACE_IT(9769);
     m_data.isUsed = val;
 }
 
 JITTimeConstructorCacheIDL *
 JITTimeConstructorCache::GetData()
-{
+{TRACE_IT(9770);
     return &m_data;
 }
 

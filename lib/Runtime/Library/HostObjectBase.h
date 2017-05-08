@@ -13,6 +13,6 @@ namespace Js
 
     protected:
         DEFINE_VTABLE_CTOR(HostObjectBase, DynamicObject);
-        HostObjectBase(DynamicType * type) : DynamicObject(type) {};
+        HostObjectBase(DynamicType * type) : DynamicObject(type) {TRACE_IT(55554);};
     };
 };

@@ -11,7 +11,7 @@ extern "C" {
         VOID EtwCallback(
         ULONG controlCode,
         PVOID callbackContext)
-    {
+    {TRACE_IT(20028);
         EtwCallbackApi::OnSessionChange(controlCode, callbackContext);
     }
 }
@@ -23,9 +23,9 @@ bool EtwTraceCore::s_registered = false;
 // After registration, we will receive callbacks when ETW tracing is enabled/disabled.
 //
 void EtwTraceCore::Register()
-{
+{TRACE_IT(20029);
     if (!s_registered)
-    {
+    {TRACE_IT(20030);
         s_registered = true;
 
 #ifdef NTBUILD
@@ -49,9 +49,9 @@ void EtwTraceCore::Register()
 // Unregister to ensure we do not get callbacks.
 //
 void EtwTraceCore::UnRegister()
-{
+{TRACE_IT(20031);
     if (s_registered)
-    {
+    {TRACE_IT(20032);
         s_registered = false;
 
 #ifdef NTBUILD

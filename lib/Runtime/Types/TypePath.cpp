@@ -13,20 +13,20 @@ namespace Js {
 #endif
 
     TypePath* TypePath::New(Recycler* recycler, uint size)
-    {
+    {TRACE_IT(67947);
         Assert(size <= MaxPathTypeHandlerLength);
         size = max(size, InitialTypePathSize);
 
 
         if (PHASE_OFF1(Js::TypePathDynamicSizePhase))
-        {
+        {TRACE_IT(67948);
             size = MaxPathTypeHandlerLength;
         }
         else
-        {
+        {TRACE_IT(67949);
             size = PowerOf2Policy::GetSize(size - TYPE_PATH_ALLOC_GRANULARITY_GAP);
             if (size < MaxPathTypeHandlerLength)
-            {
+            {TRACE_IT(67950);
                 size += TYPE_PATH_ALLOC_GRANULARITY_GAP;
             }
         }
@@ -41,21 +41,21 @@ namespace Js {
     }
 
     PropertyIndex TypePath::Lookup(PropertyId propId,int typePathLength)
-    {
+    {TRACE_IT(67951);
         return LookupInline(propId,typePathLength);
     }
 
     PropertyIndex TypePath::LookupInline(PropertyId propId,int typePathLength)
-    {
+    {TRACE_IT(67952);
         if (propId == Constants::NoProperty)
-        {
+        {TRACE_IT(67953);
            return Constants::NoSlot;
         }
 
         PropertyIndex propIndex = Constants::NoSlot;
         if (this->GetData()->map.TryGetValue(propId, &propIndex, assignments) &&
             propIndex < typePathLength)
-        {
+        {TRACE_IT(67954);
             return propIndex;
         }
 
@@ -63,7 +63,7 @@ namespace Js {
     }
 
     TypePath * TypePath::Branch(Recycler * recycler, int pathLength, bool couldSeeProto)
-    {
+    {TRACE_IT(67955);
         AssertMsg(pathLength < this->GetPathLength(), "Why are we branching at the tip of the type path?");
 
         // Ensure there is at least one free entry in the new path, so we can extend it.
@@ -71,14 +71,14 @@ namespace Js {
         TypePath * branchedPath = TypePath::New(recycler, pathLength + 1);
 
         for (PropertyIndex i = 0; i < pathLength; i++)
-        {
+        {TRACE_IT(67956);
             branchedPath->AddInternal(assignments[i]);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             if (couldSeeProto)
-            {
+            {TRACE_IT(67957);
                 if (this->GetData()->usedFixedFields.Test(i))
-                {
+                {TRACE_IT(67958);
                     // We must conservatively copy all used as fixed bits if some prototype instance could also take
                     // this transition.  See comment in PathTypeHandlerBase::ConvertToSimpleDictionaryType.
                     // Yes, we could devise a more efficient way of copying bits 1 through pathLength, if performance of this
@@ -86,7 +86,7 @@ namespace Js {
                     branchedPath->GetData()->usedFixedFields.Set(i);
                 }
                 else if (this->GetData()->fixedFields.Test(i))
-                {
+                {TRACE_IT(67959);
                     // We must clear any fixed fields that are not also used as fixed if some prototype instance could also take
                     // this transition.  See comment in PathTypeHandlerBase::ConvertToSimpleDictionaryType.
                     this->GetData()->fixedFields.Clear(i);
@@ -103,7 +103,7 @@ namespace Js {
         // and the instance from the old branch later switched to the new branch, it would magically gain a different set
         // of fixed properties!
         if (this->GetMaxInitializedLength() < pathLength)
-        {
+        {TRACE_IT(67960);
             this->SetMaxInitializedLength(pathLength);
         }
         branchedPath->SetMaxInitializedLength(pathLength);
@@ -111,12 +111,12 @@ namespace Js {
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {TRACE_IT(67961);
             Output::Print(_u("FixedFields: TypePath::Branch: singleton: 0x%p(0x%p)\n"), PointerValue(this->singletonInstance), this->singletonInstance->Get());
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {TRACE_IT(67962);
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -131,7 +131,7 @@ namespace Js {
     }
 
     TypePath * TypePath::Grow(Recycler * recycler)
-    {
+    {TRACE_IT(67963);
         uint currentPathLength = this->GetPathLength();
         AssertMsg(this->GetPathSize() == currentPathLength, "Why are we growing the type path?");
 
@@ -156,7 +156,7 @@ namespace Js {
 
 #if DBG
     bool TypePath::HasSingletonInstanceOnlyIfNeeded()
-    {
+    {TRACE_IT(67964);
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         return DynamicTypeHandler::AreSingletonInstancesNeeded() || this->singletonInstance == nullptr;
 #else
@@ -166,14 +166,14 @@ namespace Js {
 #endif
 
     Var TypePath::GetSingletonFixedFieldAt(PropertyIndex index, int typePathLength, ScriptContext * requestContext)
-    {
+    {TRACE_IT(67965);
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         Assert(index < this->GetPathLength());
         Assert(index < typePathLength);
         Assert(typePathLength <= this->GetPathLength());
 
         if (!CanHaveFixedFields(typePathLength))
-        {
+        {TRACE_IT(67966);
             return nullptr;
         }
 
@@ -187,11 +187,11 @@ namespace Js {
     }
 
     int TypePath::Data::Add(const PropertyRecord* propId, Field(const PropertyRecord *)* assignments)
-    {
+    {TRACE_IT(67967);
         uint currentPathLength = this->pathLength;
         Assert(currentPathLength < this->pathSize);
         if (currentPathLength >= this->pathSize)
-        {
+        {TRACE_IT(67968);
             Throw::InternalError();
         }
 
@@ -209,18 +209,18 @@ namespace Js {
     }
 
     int TypePath::AddInternal(const PropertyRecord * propId)
-    {
+    {TRACE_IT(67969);
         int propertyIndex = this->GetData()->Add(propId, assignments);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {TRACE_IT(67970);
             Output::Print(_u("FixedFields: TypePath::AddInternal: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {TRACE_IT(67971);
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -235,19 +235,19 @@ namespace Js {
     }
 
     void TypePath::AddBlankFieldAt(PropertyIndex index, int typePathLength)
-    {
+    {TRACE_IT(67972);
         Assert(index >= this->GetMaxInitializedLength());
         this->SetMaxInitializedLength(index + 1);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {TRACE_IT(67973);
             Output::Print(_u("FixedFields: TypePath::AddBlankFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {TRACE_IT(67974);
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -260,7 +260,7 @@ namespace Js {
     }
 
     void TypePath::AddSingletonInstanceFieldAt(DynamicObject* instance, PropertyIndex index, bool isFixed, int typePathLength)
-    {
+    {TRACE_IT(67975);
         Assert(index < this->GetPathLength());
         Assert(typePathLength >= this->GetMaxInitializedLength());
         Assert(index >= this->GetMaxInitializedLength());
@@ -270,26 +270,26 @@ namespace Js {
         Assert(!this->GetData()->fixedFields.Test(index) && !this->GetData()->usedFixedFields.Test(index));
 
         if (this->singletonInstance == nullptr)
-        {
+        {TRACE_IT(67976);
             this->singletonInstance = instance->CreateWeakReferenceToSelf();
         }
 
         this->SetMaxInitializedLength(index + 1);
 
         if (isFixed)
-        {
+        {TRACE_IT(67977);
             this->GetData()->fixedFields.Set(index);
         }
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {TRACE_IT(67978);
             Output::Print(_u("FixedFields: TypePath::AddSingletonInstanceFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {TRACE_IT(67979);
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -302,7 +302,7 @@ namespace Js {
     }
 
     void TypePath::AddSingletonInstanceFieldAt(PropertyIndex index, int typePathLength)
-    {
+    {TRACE_IT(67980);
         Assert(index < this->GetPathLength());
         Assert(typePathLength >= this->GetMaxInitializedLength());
         Assert(index >= this->GetMaxInitializedLength());
@@ -312,13 +312,13 @@ namespace Js {
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {TRACE_IT(67981);
             Output::Print(_u("FixedFields: TypePath::AddSingletonInstanceFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {TRACE_IT(67982);
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,

@@ -9,53 +9,53 @@ namespace Js
 
 #if defined(__clang__) && defined(_M_IX86)
     inline bool TaggedInt::IsOverflow(intptr_t nValue)
-    {
+    {TRACE_IT(52956);
         return (nValue < k_nMinValue) || (nValue > k_nMaxValue);
     }
 #endif
     inline bool TaggedInt::IsOverflow(int32 nValue)
-    {
+    {TRACE_IT(52957);
         return (nValue < k_nMinValue) || (nValue > k_nMaxValue);
     }
 
     inline bool TaggedInt::IsOverflow(uint32 nValue)
-    {
+    {TRACE_IT(52958);
         return nValue > k_nMaxValue;
     }
 
     inline bool TaggedInt::IsOverflow(int64 nValue)
-    {
+    {TRACE_IT(52959);
         return (nValue < k_nMinValue) || (nValue > k_nMaxValue);
     }
 
     inline bool TaggedInt::IsOverflow(uint64 nValue)
-    {
+    {TRACE_IT(52960);
         return nValue > k_nMaxValue;
     }
 
 #if INT32VAR
     inline bool TaggedInt::Is(Var aValue)
-    {
+    {TRACE_IT(52961);
         bool result = (((uintptr_t) aValue) >> VarTag_Shift) == AtomTag;
         if(result)
-        {
+        {TRACE_IT(52962);
             Assert((uintptr_t)aValue >> 32 == (AtomTag << 16));
         }
         return result;
     }
 
     inline bool TaggedInt::Is(intptr_t aValue)
-    {
+    {TRACE_IT(52963);
         bool result = (aValue >> VarTag_Shift) == AtomTag;
         if (result)
-        {
+        {TRACE_IT(52964);
             Assert((aValue >> 32) == (AtomTag << 16));
         }
         return result;
     }
 
     inline bool TaggedInt::IsPair(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(52965);
         uint32 tags = (uint32)((uint64)aLeft >> 32 | (uint64)aRight >> 48);
         bool result = (tags == AtomTag_Pair);
         AssertMsg(result == (TaggedInt::Is(aLeft) && TaggedInt::Is(aRight)), "TaggedInt::IsPair() logic is incorrect");
@@ -102,7 +102,7 @@ namespace Js
     }
 
     inline double TaggedInt::ToDouble(Var aValue)
-    {
+    {TRACE_IT(52966);
         return (double)::Math::PointerCastToIntegralTruncate<int32>(aValue);
     }
 
@@ -120,17 +120,17 @@ namespace Js
 
 #else
     inline bool TaggedInt::Is(const Var aValue)
-    {
+    {TRACE_IT(52967);
         return (((uintptr_t) aValue) & AtomTag) == AtomTag_IntPtr;
     }
 
     __inline bool TaggedInt::Is(intptr_t aValue)
-    {
+    {TRACE_IT(52968);
         return (aValue & AtomTag) == AtomTag_IntPtr;
     }
 
     inline bool TaggedInt::IsPair(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(52969);
         //
         // Check if both Atoms are tagged as "SmInts":
         // - Because we're checking tag bits, we don't need to check against 'null', since it won't
@@ -155,7 +155,7 @@ namespace Js
     }
 
     inline uint32 TaggedInt::ToUInt32(Var aValue)
-    {
+    {TRACE_IT(52970);
         //
         // To convert from a var, must use ToInt32() to properly sign-extend negative values, then
         // convert to an (unsigned) uint32.
@@ -188,7 +188,7 @@ namespace Js
     }
 
     inline double TaggedInt::ToDouble(Var aValue)
-    {
+    {TRACE_IT(52971);
         return (double) ToInt32(aValue);
     }
 
@@ -261,7 +261,7 @@ LblDone:
 
         int64 nResult64 = ToInt64(aLeft) + ToInt64(aRight);
         if (IsOverflow(nResult64))
-        {
+        {TRACE_IT(52972);
             //
             // Promote result to double.
             //
@@ -269,7 +269,7 @@ LblDone:
             return JavascriptNumber::ToVarNoCheck((double) nResult64, scriptContext);
         }
         else
-        {
+        {TRACE_IT(52973);
             //
             // Return A3
             //
@@ -290,7 +290,7 @@ LblDone:
     // True if the value is a tagged number representation (for x64 - float & integers) - otherwise false.
     //
     inline bool TaggedNumber::Is(const Var aValue)
-    {
+    {TRACE_IT(52974);
         bool isTaggedNumber;
 #if FLOATVAR
         // If we add another tagged representation that is not numerical - this will not work.

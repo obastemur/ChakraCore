@@ -16,23 +16,23 @@ CompileAssert(false)
 #endif
 
 XDataAllocator::XDataAllocator(BYTE* address, uint size)
-{
+{TRACE_IT(27203);
     Assert(size == 0);
 }
 
 
 void XDataAllocator::Delete()
-{
+{TRACE_IT(27204);
     HeapDelete(this);
 }
 
 bool XDataAllocator::Initialize(void* segmentStart, void* segmentEnd)
-{
+{TRACE_IT(27205);
     return true;
 }
 
 bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize, ushort pdataCount, ushort xdataSize, SecondaryAllocation* allocation)
-{
+{TRACE_IT(27206);
     XDataAllocation* xdata = static_cast<XDataAllocation*>(allocation);
     Assert(pdataCount > 0);
     Assert(xdataSize >= 0);
@@ -41,7 +41,7 @@ bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize, ushort p
     DWORD size = GetAllocSize(pdataCount, xdataSize);
     BYTE* alloc = HeapNewNoThrowArray(BYTE, size);
     if (alloc != nullptr)
-    {
+    {TRACE_IT(27207);
         xdata->address = alloc;
         xdata->xdataSize = xdataSize;
         xdata->pdataCount = pdataCount;
@@ -53,27 +53,27 @@ bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize, ushort p
 
 
 void XDataAllocator::Release(const SecondaryAllocation& allocation)
-{
+{TRACE_IT(27208);
     const XDataAllocation& xdata = static_cast<const XDataAllocation&>(allocation);
     if(xdata.address  != nullptr)
-    {
+    {TRACE_IT(27209);
         HeapDeleteArray(GetAllocSize(xdata.pdataCount, xdata.xdataSize), xdata.address);
     }
 }
 
 /* static */
 void XDataAllocator::Register(XDataAllocation * xdataInfo, DWORD functionStart, DWORD functionSize)
-{
+{TRACE_IT(27210);
 #ifdef _WIN32
     RUNTIME_FUNCTION* pdataArray = xdataInfo->GetPdataArray();
     for (ushort i = 0; i < xdataInfo->pdataCount; i++)
-    {
+    {TRACE_IT(27211);
         RUNTIME_FUNCTION* pdata = pdataArray + i;
         Assert(pdata->UnwindData != 0);
         Assert(pdata->BeginAddress != 0);
         pdata->BeginAddress = pdata->BeginAddress - (DWORD)functionStart;
         if (pdata->Flag != 1) // if it is not packed unwind data
-        {
+        {TRACE_IT(27212);
             pdata->UnwindData = pdata->UnwindData - (DWORD)functionStart;
         }
     }
@@ -98,7 +98,7 @@ void XDataAllocator::Register(XDataAllocation * xdataInfo, DWORD functionStart, 
 
 /* static */
 void XDataAllocator::Unregister(XDataAllocation * xdataInfo)
-{
+{TRACE_IT(27213);
 #ifdef _WIN32
     NtdllLibrary::Instance->DeleteGrowableFunctionTable(xdataInfo->functionTable);
 #else  // !_WIN32
@@ -108,6 +108,6 @@ void XDataAllocator::Unregister(XDataAllocation * xdataInfo)
 }
 
 bool XDataAllocator::CanAllocate()
-{
+{TRACE_IT(27214);
     return true;
 }

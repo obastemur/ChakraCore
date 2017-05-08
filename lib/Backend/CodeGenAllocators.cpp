@@ -17,14 +17,14 @@ CodeGenAllocators<TAlloc, TPreReservedAlloc>::CodeGenAllocators(AllocationPolicy
 
 template<typename TAlloc, typename TPreReservedAlloc>
 CodeGenAllocators<TAlloc, TPreReservedAlloc>::~CodeGenAllocators()
-{
+{TRACE_IT(1488);
 }
 
 #if DBG
 template<typename TAlloc, typename TPreReservedAlloc>
 void
 CodeGenAllocators<TAlloc, TPreReservedAlloc>::ClearConcurrentThreadId()
-{    
+{TRACE_IT(1489);    
     this->pageAllocator.ClearConcurrentThreadId();
 }
 #endif

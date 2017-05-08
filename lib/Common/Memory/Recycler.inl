@@ -8,7 +8,7 @@
 template <ObjectInfoBits attributes>
 bool
 Recycler::IntegrateBlock(char * blockAddress, PageSegment * segment, size_t allocSize, size_t objectSize)
-{
+{TRACE_IT(26226);
     // We only support no bit and leaf bit right now, where we don't need to set the object info in either case
     CompileAssert(attributes == NoBit || attributes == LeafBit);
 
@@ -22,7 +22,7 @@ Recycler::IntegrateBlock(char * blockAddress, PageSegment * segment, size_t allo
     bool success = autoHeap.IntegrateBlock<attributes>(blockAddress, segment, this, allocSize);
 #ifdef PROFILE_RECYCLER_ALLOC
     if (success)
-    {
+    {TRACE_IT(26227);
         TrackAllocData trackAllocData;
         ClearTrackAllocInfo(&trackAllocData);
         TrackIntegrate(blockAddress, SmallAllocationBlockAttributes::PageCount * AutoSystemInfo::PageSize, allocSize, objectSize, trackAllocData);
@@ -36,16 +36,16 @@ namespace Memory
 class DummyVTableObject : public FinalizableObject
 {
 public:
-    virtual void Finalize(bool isShutdown) {}
-    virtual void Dispose(bool isShutdown) {}
-    virtual void Mark(Recycler * recycler) {}
+    virtual void Finalize(bool isShutdown) {TRACE_IT(26228);}
+    virtual void Dispose(bool isShutdown) {TRACE_IT(26229);}
+    virtual void Mark(Recycler * recycler) {TRACE_IT(26230);}
 };
 }
 
 template <ObjectInfoBits attributes, bool nothrow>
 inline char *
 Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
-{
+{TRACE_IT(26231);
     // All tracked objects are client tracked objects
     CompileAssert((attributes & TrackBit) == 0 || (attributes & ClientTrackedBit) != 0);
     Assert(this->enableScanImplicitRoots || (attributes & ImplicitRootBit) == 0);
@@ -73,18 +73,18 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
     size_t allocSize = size;
 #ifdef RECYCLER_MEMORY_VERIFY
     if (this->VerifyEnabled())
-    {
+    {TRACE_IT(26232);
         allocSize += verifyPad + sizeof(size_t);
         if (allocSize < size)
-        {
+        {TRACE_IT(26233);
             // An overflow occurred- if nothrow is false, we can throw here
             // Otherwise, return null
             if (nothrow == false)
-            {
+            {TRACE_IT(26234);
                 this->OutOfMemory();
             }
             else
-            {
+            {TRACE_IT(26235);
                 return nullptr;
             }
         }
@@ -94,30 +94,30 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
     char* memBlock = nullptr;
 #if GLOBAL_ENABLE_WRITE_BARRIER
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier))
-    {
+    {TRACE_IT(26236);
         if ((attributes & InternalObjectInfoBitMask) != LeafBit)
-        {
+        {TRACE_IT(26237);
             // none leaf allocation or Finalizable Leaf allocation,  adding WithBarrierBit
             memBlock = RealAlloc<(ObjectInfoBits)((attributes | WithBarrierBit) & InternalObjectInfoBitMask), nothrow>(&autoHeap, allocSize);
         }
         else
-        {
+        {TRACE_IT(26238);
             // pure Leaf allocation
             memBlock = RealAlloc<(ObjectInfoBits)(attributes & InternalObjectInfoBitMask), nothrow>(&autoHeap, allocSize);
         }
     }
     else
 #endif
-    {
+    {TRACE_IT(26239);
         memBlock = RealAlloc<(ObjectInfoBits)(attributes & InternalObjectInfoBitMask), nothrow>(&autoHeap, allocSize);
     }
 
     if (nothrow)
-    {
+    {TRACE_IT(26240);
         // If we aren't allowed to throw, then the memblock returned could be null
         // so we should check for that and bail out early here
         if (memBlock == nullptr)
-        {
+        {TRACE_IT(26241);
             return nullptr;
         }
     }
@@ -131,13 +131,13 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
     RECYCLER_PERF_COUNTER_SUB(FreeObjectSize, HeapInfo::GetAlignedSizeNoCheck(allocSize));
 
     if (HeapInfo::IsSmallBlockAllocation(HeapInfo::GetAlignedSizeNoCheck(allocSize)))
-    {
+    {TRACE_IT(26242);
         RECYCLER_PERF_COUNTER_INC(SmallHeapBlockLiveObject);
         RECYCLER_PERF_COUNTER_ADD(SmallHeapBlockLiveObjectSize, HeapInfo::GetAlignedSizeNoCheck(allocSize));
         RECYCLER_PERF_COUNTER_SUB(SmallHeapBlockFreeObjectSize, HeapInfo::GetAlignedSizeNoCheck(allocSize));
     }
     else
-    {
+    {TRACE_IT(26243);
         RECYCLER_PERF_COUNTER_INC(LargeHeapBlockLiveObject);
         RECYCLER_PERF_COUNTER_ADD(LargeHeapBlockLiveObjectSize, HeapInfo::GetAlignedSizeNoCheck(allocSize));
         RECYCLER_PERF_COUNTER_SUB(LargeHeapBlockFreeObjectSize, HeapInfo::GetAlignedSizeNoCheck(allocSize));
@@ -147,7 +147,7 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
     size_t alignedSize = HeapInfo::GetAlignedSizeNoCheck(allocSize);
 
     if (HeapInfo::IsMediumObject(allocSize))
-    {
+    {TRACE_IT(26244);
 #if SMALLBLOCK_MEDIUM_ALLOC
         alignedSize = HeapInfo::GetMediumObjectAlignedSizeNoCheck(allocSize);
 #else
@@ -156,7 +156,7 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
         LargeHeapBlock* largeHeapBlock = (LargeHeapBlock*) heapBlock;
         LargeObjectHeader* header = nullptr;
         if (largeHeapBlock->GetObjectHeader(memBlock, &header))
-        {
+        {TRACE_IT(26245);
             size = header->objectSize - (verifyPad + sizeof(size_t));
             alignedSize = HeapInfo::GetAlignedSizeNoCheck(header->objectSize);
         }
@@ -169,7 +169,7 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 
 #pragma prefast(suppress:6313, "attributes is a template parameter and can be 0")
     if (attributes & (FinalizeBit | TrackBit))
-    {
+    {TRACE_IT(26246);
         // Make sure a valid vtable is installed in case of OOM before the real vtable is set
         memBlock = (char *)new (memBlock) DummyVTableObject();
     }
@@ -179,7 +179,7 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 
 #pragma prefast(suppress:6313, "attributes is a template parameter and can be 0")
     if (attributes & NewTrackBit & WithBarrierBit)
-    {
+    {TRACE_IT(26247);
         //REVIEW: is following comment correct? I added WithBarrierBit above
         // why we need to set write barrier bit for none write barrier page address
 
@@ -195,16 +195,16 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 #if ENABLE_PARTIAL_GC
 #pragma prefast(suppress:6313, "attributes is a template parameter and can be 0")
     if (attributes & ClientTrackedBit)
-    {
+    {TRACE_IT(26248);
         if (this->inPartialCollectMode)
-        {
+        {TRACE_IT(26249);
             // with partial GC, we don't traverse ITrackable
             // So we have to mark all objects that could be in the ITrackable graph
             // This includes JavascriptDispatch and HostVariant
             this->clientTrackedObjectList.Prepend(&this->clientTrackedObjectAllocator, memBlock);
         }
         else
-        {
+        {TRACE_IT(26250);
 #if ENABLE_CONCURRENT_GC
             Assert(this->hasBackgroundFinishPartial || this->clientTrackedObjectList.Empty());
 #else
@@ -223,15 +223,15 @@ Recycler::AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 template <ObjectInfoBits attributes, bool nothrow>
 inline char *
 Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
-{
+{TRACE_IT(26251);
     char* obj = AllocWithAttributesInlined<attributes, nothrow>(size);
 
     if (nothrow)
-    {
+    {TRACE_IT(26252);
         // If we aren't allowed to throw, then the obj returned could be null
         // so we should check for that and bail out early here
         if (obj == nullptr)
-        {
+        {TRACE_IT(26253);
             return nullptr;
         }
     }
@@ -248,20 +248,20 @@ Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 #else
     if (((attributes & LeafBit) == LeafBit) && HeapInfo::IsSmallBlockAllocation(size))
 #endif
-    {
+    {TRACE_IT(26254);
         // If this was allocated from the small heap block, it's not
         // guaranteed to be zero so we should zero out here.
         memset((void*) obj, 0, size);
     }
     else
-    {
+    {TRACE_IT(26255);
         if (IsPageHeapEnabled())
-        {
+        {TRACE_IT(26256);
             // don't corrupt the page heap filled pattern
             memset((void*)obj, 0, min(size, sizeof(void*)));
         }
         else
-        {
+        {TRACE_IT(26257);
             // All recycler memory are allocated with zero except for the first word,
             // which store the next pointer for the free list.  Just zero that one out
             ((FreeObject *)obj)->ZeroNext();
@@ -274,7 +274,7 @@ Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(RecyclerVerifyMark))
-    {
+    {TRACE_IT(26258);
         this->FindHeapBlock(obj)->WBClearObject(obj);
     }
 #endif
@@ -284,22 +284,22 @@ Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 
 template<ObjectInfoBits attributes>
 bool Recycler::IsPageHeapEnabled(size_t size)
-{
+{TRACE_IT(26259);
     if (IsPageHeapEnabled())
-    {
+    {TRACE_IT(26260);
         size_t sizeCat = HeapInfo::GetAlignedSizeNoCheck(size);
         if (HeapInfo::IsSmallObject(size))
-        {
+        {TRACE_IT(26261);
             auto& bucket = this->autoHeap.GetBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat);
             return bucket.IsPageHeapEnabled(attributes);
         }
         else if (HeapInfo::IsMediumObject(size))
-        {
+        {TRACE_IT(26262);
             auto& bucket = this->autoHeap.GetMediumBucket<(ObjectInfoBits)(attributes & GetBlockTypeBitMask)>(sizeCat);
             return bucket.IsPageHeapEnabled(attributes);
         }
         else
-        {
+        {TRACE_IT(26263);
             return this->autoHeap.largeObjectBucket.IsPageHeapEnabled(attributes);
         }
     }
@@ -309,25 +309,25 @@ bool Recycler::IsPageHeapEnabled(size_t size)
 #if DBG
 template <ObjectInfoBits attributes>
 void Recycler::VerifyPageHeapFillAfterAlloc(char* memBlock, size_t size)
-{
+{TRACE_IT(26264);
     if (IsPageHeapEnabled() && memBlock != nullptr)
-    {
+    {TRACE_IT(26265);
         HeapBlock* heapBlock = this->FindHeapBlock(memBlock);
 
         if (this->IsPageHeapEnabled<attributes>(size))
-        {
+        {TRACE_IT(26266);
             if (heapBlock->IsLargeHeapBlock())
-            {
+            {TRACE_IT(26267);
                 LargeHeapBlock* largeHeapBlock = (LargeHeapBlock*)heapBlock;
                 if (largeHeapBlock->InPageHeapMode())
-                {
+                {TRACE_IT(26268);
                     LargeObjectHeader* header = (LargeObjectHeader*)(memBlock - sizeof(LargeObjectHeader));
                     largeHeapBlock->VerifyPageHeapPattern();
                     header->isPageHeapFillVerified = true;
                 }
             }
             else
-            {
+            {TRACE_IT(26269);
                 // currently we don't support integration of large blocks
                 Assert(((SmallHeapBlockT<SmallAllocationBlockAttributes>*)heapBlock)->isIntegratedBlock);
             }
@@ -339,20 +339,20 @@ void Recycler::VerifyPageHeapFillAfterAlloc(char* memBlock, size_t size)
 template <ObjectInfoBits attributes, bool isSmallAlloc, bool nothrow>
 inline char*
 Recycler::RealAllocFromBucket(HeapInfo* heap, size_t size)
-{
+{TRACE_IT(26270);
     // Align the size
     Assert(HeapInfo::GetAlignedSizeNoCheck(size) <= UINT_MAX);
     uint sizeCat;
     char * memBlock;
 
     if (isSmallAlloc)
-    {
+    {TRACE_IT(26271);
         sizeCat = (uint)HeapInfo::GetAlignedSizeNoCheck(size);
         memBlock = heap->RealAlloc<attributes, nothrow>(this, sizeCat, size);
     }
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     else
-    {
+    {TRACE_IT(26272);
         sizeCat = (uint)HeapInfo::GetMediumObjectAlignedSizeNoCheck(size);
         memBlock = heap->MediumAlloc<attributes, nothrow>(this, sizeCat, size);
     }
@@ -361,14 +361,14 @@ Recycler::RealAllocFromBucket(HeapInfo* heap, size_t size)
     // If we are not allowed to throw, then the memory returned here could be null so check for that
     // If we are allowed to throw, then memBlock is not allowed to null so assert that
     if (nothrow)
-    {
+    {TRACE_IT(26273);
         if (memBlock == nullptr)
-        {
+        {TRACE_IT(26274);
             return nullptr;
         }
     }
     else
-    {
+    {TRACE_IT(26275);
         Assert(memBlock != nullptr);
     }
 
@@ -379,21 +379,21 @@ Recycler::RealAllocFromBucket(HeapInfo* heap, size_t size)
         && (attributes & WithBarrierBit) == 0
 #endif
         )
-    {
+    {TRACE_IT(26276);
         // TODO: looks the check has been done already
         if (this->IsPageHeapEnabled<attributes>(size))
         {
             VerifyZeroFill(memBlock, size);
         }
         else
-        {
+        {TRACE_IT(26277);
             VerifyZeroFill(memBlock + sizeof(FreeObject), sizeCat - (2 * sizeof(FreeObject)));
         }
     }
 #endif
 #ifdef PROFILE_MEM
     if (this->memoryData)
-    {
+    {TRACE_IT(26278);
         this->memoryData->requestCount++;
         this->memoryData->requestBytes += size;
         this->memoryData->alignmentBytes += sizeCat - size;
@@ -407,28 +407,28 @@ Recycler::RealAllocFromBucket(HeapInfo* heap, size_t size)
 template <ObjectInfoBits attributes, bool nothrow>
 inline char*
 Recycler::RealAlloc(HeapInfo* heap, size_t size)
-{
+{TRACE_IT(26279);
 #ifdef RECYCLER_STRESS
     this->StressCollectNow();
 #endif
 
     if (nothrow)
-    {
+    {TRACE_IT(26280);
         FAULTINJECT_MEMORY_NOTHROW(_u("Recycler"), size);
     }
     else
-    {
+    {TRACE_IT(26281);
         FAULTINJECT_MEMORY_THROW(_u("Recycler"), size);
     }
 
     if (HeapInfo::IsSmallObject(size))
-    {
+    {TRACE_IT(26282);
         return RealAllocFromBucket<attributes, /* isSmallAlloc = */ true, nothrow>(heap, size);
     }
 
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS
     if (HeapInfo::IsMediumObject(size))
-    {
+    {TRACE_IT(26283);
         return RealAllocFromBucket<attributes, /* isSmallAlloc = */ false, nothrow>(heap, size);
     }
 #endif
@@ -442,14 +442,14 @@ Recycler::RealAlloc(HeapInfo* heap, size_t size)
 
 template<typename T>
 inline RecyclerWeakReference<T>* Recycler::CreateWeakReferenceHandle(T* pStrongReference)
-{
+{TRACE_IT(26284);
     // Return the weak reference that calling Add on the WR map returns
     // The entry returned is recycler-allocated memory
     RecyclerWeakReference<T>* weakRef = (RecyclerWeakReference<T>*) this->weakReferenceMap.Add((char*) pStrongReference, this);
 #if DBG
 #if ENABLE_RECYCLER_TYPE_TRACKING
     if (weakRef->typeInfo == nullptr)
-    {
+    {TRACE_IT(26285);
         weakRef->typeInfo = &typeid(T);
 #ifdef TRACK_ALLOC
         TrackAllocWeakRef(weakRef);
@@ -462,13 +462,13 @@ inline RecyclerWeakReference<T>* Recycler::CreateWeakReferenceHandle(T* pStrongR
 
 template<typename T>
 inline bool Recycler::FindOrCreateWeakReferenceHandle(T* pStrongReference, RecyclerWeakReference<T> **ppWeakRef)
-{
+{TRACE_IT(26286);
     // Ensure that the given strong ref has a weak ref in the map.
     // Return a result to indicate whether a new weak ref was created.
     bool ret = this->weakReferenceMap.FindOrAdd((char*) pStrongReference, this, (RecyclerWeakReferenceBase**)ppWeakRef);
 #if DBG
     if (!ret)
-    {
+    {TRACE_IT(26287);
 #if ENABLE_RECYCLER_TYPE_TRACKING
         (*ppWeakRef)->typeInfo = &typeid(T);
 #ifdef TRACK_ALLOC
@@ -482,20 +482,20 @@ inline bool Recycler::FindOrCreateWeakReferenceHandle(T* pStrongReference, Recyc
 
 template<typename T>
 inline bool Recycler::TryGetWeakReferenceHandle(T* pStrongReference, RecyclerWeakReference<T> **weakReference)
-{
+{TRACE_IT(26288);
     return this->weakReferenceMap.TryGetValue((char*) pStrongReference, (RecyclerWeakReferenceBase**)weakReference);
 }
 
 inline HeapBlock*
 Recycler::FindHeapBlock(void* candidate)
-{
+{TRACE_IT(26289);
     if ((size_t)candidate < 0x10000)
-    {
+    {TRACE_IT(26290);
         return nullptr;
     }
 
     if (!HeapInfo::IsAlignedAddress(candidate))
-    {
+    {TRACE_IT(26291);
         return nullptr;
     }
     return heapBlockMap.GetHeapBlock(candidate);
@@ -503,7 +503,7 @@ Recycler::FindHeapBlock(void* candidate)
 
 inline void
 Recycler::ScanObjectInline(void ** obj, size_t byteCount)
-{
+{TRACE_IT(26292);
     // This is never called during parallel marking
     Assert(this->collectionState != CollectionStateParallelMark);
     if (this->enableScanInteriorPointers)
@@ -511,14 +511,14 @@ Recycler::ScanObjectInline(void ** obj, size_t byteCount)
         ScanObjectInlineInterior(obj, byteCount);
     }
     else
-    {
+    {TRACE_IT(26293);
         markContext.ScanObject<false, false>(obj, byteCount);
     }
 }
 
 inline void
 Recycler::ScanObjectInlineInterior(void ** obj, size_t byteCount)
-{
+{TRACE_IT(26294);
     // This is never called during parallel marking
     Assert(this->collectionState != CollectionStateParallelMark);
     Assert(this->enableScanInteriorPointers);
@@ -528,22 +528,22 @@ Recycler::ScanObjectInlineInterior(void ** obj, size_t byteCount)
 template <bool doSpecialMark>
 inline void
 Recycler::ScanMemoryInline(void ** obj, size_t byteCount)
-{
+{TRACE_IT(26295);
     // This is never called during parallel marking
     Assert(this->collectionState != CollectionStateParallelMark);
     if (this->enableScanInteriorPointers)
-    {
+    {TRACE_IT(26296);
         markContext.ScanMemory<false, true, doSpecialMark>(obj, byteCount);
     }
     else
-    {
+    {TRACE_IT(26297);
         markContext.ScanMemory<false, false, doSpecialMark>(obj, byteCount);
     }
 }
 
 inline bool
 Recycler::AddMark(void * candidate, size_t byteCount) throw()
-{
+{TRACE_IT(26298);
     // This is never called during parallel marking
     Assert(this->collectionState != CollectionStateParallelMark);
     return markContext.AddMarkedObject(candidate, byteCount);
@@ -553,11 +553,11 @@ Recycler::AddMark(void * candidate, size_t byteCount) throw()
 template <typename T>
 void
 Recycler::NotifyFree(T * heapBlock)
-{
+{TRACE_IT(26299);
     bool forceSweepObject = ForceSweepObject();
 
     if (forceSweepObject)
-    {
+    {TRACE_IT(26300);
 #if DBG || defined(RECYCLER_STATS)
         this->isForceSweeping = true;
         heapBlock->isForceSweeping = true;
@@ -585,7 +585,7 @@ Recycler::NotifyFree(T * heapBlock)
         }
     }
     else
-    {
+    {TRACE_IT(26301);
         heapBlock->UpdatePerfCountersOnFree();
     }
 #endif
@@ -594,7 +594,7 @@ Recycler::NotifyFree(T * heapBlock)
 template <class TBlockAttributes>
 inline ushort
 SmallHeapBlockT<TBlockAttributes>::GetObjectBitDelta()
-{
+{TRACE_IT(26302);
     return this->objectSize / HeapConstants::ObjectGranularity;
 }
 
@@ -603,7 +603,7 @@ SmallHeapBlockT<TBlockAttributes>::GetObjectBitDelta()
 template <class TBlockAttributes>
 __forceinline ushort
 SmallHeapBlockT<TBlockAttributes>::GetAddressBitIndex(void * objectAddress)
-{
+{TRACE_IT(26303);
     Assert(HeapInfo::IsAlignedAddress(objectAddress));
 
     ushort offset = (ushort)(::Math::PointerCastToIntegralTruncate<uint>(objectAddress) % (TBlockAttributes::PageCount * AutoSystemInfo::PageSize));
@@ -617,7 +617,7 @@ SmallHeapBlockT<TBlockAttributes>::GetAddressBitIndex(void * objectAddress)
 template <class TBlockAttributes>
 __forceinline ushort
 SmallHeapBlockT<TBlockAttributes>::GetObjectIndexFromBitIndex(ushort bitIndex)
-{
+{TRACE_IT(26304);
     Assert(bitIndex <= TBlockAttributes::MaxAddressBit);
 
     ushort objectIndex = validPointers.GetAddressIndex(bitIndex);
@@ -629,7 +629,7 @@ SmallHeapBlockT<TBlockAttributes>::GetObjectIndexFromBitIndex(ushort bitIndex)
 template <class TBlockAttributes>
 __forceinline void *
 SmallHeapBlockT<TBlockAttributes>::GetRealAddressFromInterior(void * interiorAddress, uint objectSize, byte bucketIndex)
-{
+{TRACE_IT(26305);
     const ValidPointers<TBlockAttributes> validPointers = HeapInfo::GetValidPointersMapForBucket<TBlockAttributes>(bucketIndex);
     size_t rawInteriorAddress = reinterpret_cast<size_t>(interiorAddress);
     size_t baseAddress = rawInteriorAddress & ~(TBlockAttributes::PageCount * AutoSystemInfo::PageSize - 1);
@@ -637,7 +637,7 @@ SmallHeapBlockT<TBlockAttributes>::GetRealAddressFromInterior(void * interiorAdd
     offset = validPointers.GetInteriorAddressIndex(offset >> HeapConstants::ObjectAllocationShift);
 
     if (offset == SmallHeapBlockT<TBlockAttributes>::InvalidAddressBit)
-    {
+    {TRACE_IT(26306);
         return nullptr;
     }
 

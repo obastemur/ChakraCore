@@ -91,7 +91,7 @@ namespace Js
             significantDigitsRounderActivationFactory(nullptr),
 #endif // ENABLE_INTL_OBJECT
             unicodeStatics(nullptr)
-        { }
+        {TRACE_IT(38095); }
 
 #ifdef ENABLE_INTL_OBJECT
         HRESULT EnsureCommonObjectsInitialized(DelayLoadWindowsGlobalization *library);
@@ -132,7 +132,7 @@ namespace Js
         // TODO: Move the management of this interface to the Platform Agnostic Interface Layer
         // TODO: Subsume the Windows Globalization Adapter into the Platform Agnostic Interface Layer
         Windows::Data::Text::IUnicodeCharactersStatics* GetUnicodeStatics()
-        {
+        {TRACE_IT(38096);
             return unicodeStatics;
         }
 #endif

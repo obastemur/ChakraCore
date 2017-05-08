@@ -67,7 +67,7 @@ namespace Js {
     THREAD_LOCAL StackBackTrace * Throw::stackBackTrace = nullptr;
 #endif
     void Throw::FatalInternalError()
-    {
+    {TRACE_IT(22553);
         int scenario = 2;
         ReportFatalException(NULL, E_FAIL, Fatal_Internal_Error, scenario);
     }
@@ -78,7 +78,7 @@ namespace Js {
     }
 
     void Throw::FatalProjectionError()
-    {
+    {TRACE_IT(22554);
         RaiseException((DWORD)DBG_TERMINATE_PROCESS, EXCEPTION_NONCONTINUABLE, 0, NULL);
     }
 
@@ -88,10 +88,10 @@ namespace Js {
     }
 
     void Throw::OutOfMemory()
-    {
+    {TRACE_IT(22555);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (CONFIG_FLAG(PrintSystemException))
-        {
+        {TRACE_IT(22556);
             Output::Print(_u("SystemException: OutOfMemory\n"));
             Output::Flush();
         }
@@ -103,17 +103,17 @@ namespace Js {
         throw OutOfMemoryException();
     }
     void Throw::CheckAndThrowOutOfMemory(BOOLEAN status)
-    {
+    {TRACE_IT(22557);
         if (!status)
-        {
+        {TRACE_IT(22558);
             OutOfMemory();
         }
     }
     void Throw::StackOverflow(ScriptContext *scriptContext, PVOID returnAddress)
-    {
+    {TRACE_IT(22559);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (CONFIG_FLAG(PrintSystemException))
-        {
+        {TRACE_IT(22560);
             Output::Print(_u("SystemException: StackOverflow\n"));
             Output::Flush();
         }
@@ -135,11 +135,11 @@ namespace Js {
 #ifdef GENERATE_DUMP
     CriticalSection Throw::csGenerateDump;
     void Throw::GenerateDump(LPCWSTR filePath, bool terminate, bool needLock)
-    {
+    {TRACE_IT(22561);
         __try
         {
             if (terminate)
-            {
+            {TRACE_IT(22562);
                 RaiseException((DWORD)DBG_TERMINATE_PROCESS, EXCEPTION_NONCONTINUABLE, 0, NULL);
             }
             else
@@ -149,36 +149,36 @@ namespace Js {
         }
         __except(Throw::GenerateDump(GetExceptionInformation(), filePath,
             terminate? EXCEPTION_CONTINUE_SEARCH : EXCEPTION_EXECUTE_HANDLER), needLock)
-        {
+        {TRACE_IT(22563);
             // we don't do anything interesting in this handler
         }
     }
 
     void Throw::GenerateDumpForAssert(LPCWSTR filePath)
-    {
+    {TRACE_IT(22564);
         __try
         {
             RaiseException(STATUS_ASSERTION_FAILURE, EXCEPTION_NONCONTINUABLE, 0, NULL);
         }
         __except (Throw::GenerateDump(GetExceptionInformation(), filePath, EXCEPTION_CONTINUE_SEARCH), false)
-        {
+        {TRACE_IT(22565);
             // no-op
         }
     }
 
     int Throw::GenerateDump(PEXCEPTION_POINTERS exceptInfo, LPCWSTR filePath, int ret, bool needLock)
-    {
+    {TRACE_IT(22566);
         WCHAR tempFilePath[MAX_PATH];
         WCHAR tempFileName[MAX_PATH];
         HANDLE hTempFile;
         DWORD retVal;
 
         if (filePath == NULL)
-        {
+        {TRACE_IT(22567);
             retVal = GetTempPath(MAX_PATH, tempFilePath);
 
             if (retVal > MAX_PATH || (retVal == 0))
-            {
+            {TRACE_IT(22568);
                 return ret;
             }
             filePath = tempFilePath;
@@ -191,7 +191,7 @@ namespace Js {
         hTempFile = CreateFile(tempFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
             FILE_ATTRIBUTE_NORMAL, NULL);
         if (hTempFile == INVALID_HANDLE_VALUE)
-        {
+        {TRACE_IT(22569);
             return GetLastError();
         }
 
@@ -205,13 +205,13 @@ namespace Js {
 
             // Generating full dump for the TE process (reason : it contains both managed and native memory)
             if (CONFIG_FLAG(FullMemoryDump))
-            {
+            {TRACE_IT(22570);
                 dumpType = static_cast<MINIDUMP_TYPE>(dumpType | MiniDumpWithFullMemory);
             }
 
             BOOL dumpGenerated = false;
             if (needLock)
-            {
+            {TRACE_IT(22571);
                 // the critical section might have been destructed at process shutdown time. At that time we don't need
                 // to lock.
                 AutoCriticalSection autocs(&csGenerateDump);
@@ -225,7 +225,7 @@ namespace Js {
                     NULL);
             }
             else
-            {
+            {TRACE_IT(22572);
                 dumpGenerated = MiniDumpWriteDump(GetCurrentProcess(),
                     GetCurrentProcessId(),
                     hTempFile,
@@ -235,7 +235,7 @@ namespace Js {
                     NULL);
             }
             if (!dumpGenerated)
-            {
+            {TRACE_IT(22573);
                 Output::Print(_u("Unable to write minidump (0x%08X)\n"), GetLastError());
                 Output::Flush();
             }
@@ -250,7 +250,7 @@ namespace Js {
     // After assert the program should terminate. Sometime we saw the program continue somehow
     // log the existence of assert for debugging.
     void Throw::LogAssert()
-    {
+    {TRACE_IT(22574);
         IsInAssert = true;
 
 #if defined(GENERATE_DUMP) && defined(STACK_BACK_TRACE)
@@ -264,15 +264,15 @@ namespace Js {
 #endif
 
     bool Throw::ReportAssert(__in LPCSTR fileName, uint lineNumber, __in LPCSTR error, __in LPCSTR message)
-    {
+    {TRACE_IT(22575);
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::AssertBreakFlag))
-        {
+        {TRACE_IT(22576);
             DebugBreak();
             return false;
         }
         if (Js::Configuration::Global.flags.IsEnabled(Js::AssertIgnoreFlag))
-        {
+        {TRACE_IT(22577);
             return true;
         }
 #endif
@@ -283,7 +283,7 @@ namespace Js {
 #ifdef GENERATE_DUMP
             // force dump if we have assert in jc.exe. check build only.
             if (!Js::Configuration::Global.flags.IsEnabled(Js::DumpOnCrashFlag))
-            {
+            {TRACE_IT(22578);
                 return false;
             }
             Throw::GenerateDumpForAssert(Js::Configuration::Global.flags.DumpOnCrash);
@@ -299,7 +299,7 @@ namespace Js {
         // otherwise if will raise a non-continuable exception, generate the dump and terminate the process.
         // the popup message box might be useful when testing in IE
         if (Js::Configuration::Global.flags.AssertPopUp && IsMessageBoxWPresent())
-        {
+        {TRACE_IT(22579);
             char16 buff[1024];
 
             swprintf_s(buff, _countof(buff), _u("%S (%u)\n%S\n%S"), fileName, lineNumber, message, error);

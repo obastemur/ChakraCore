@@ -19,7 +19,7 @@ namespace Js
         reset(false),
         lastPattern(nullptr),
         lastMatch() // undefined
-    {
+    {TRACE_IT(61125);
         DebugOnly(VerifyEntryPoint());
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptString* emptyString = scriptContext->GetLibrary()->GetEmptyString();
@@ -30,20 +30,20 @@ namespace Js
         this->leftContext = emptyString;
         this->rightContext = emptyString;
         for (int i = 0; i < NumCtorCaptures; i++)
-        {
+        {TRACE_IT(61126);
             this->captures[i] = emptyString;
         }
     }
 
     BOOL JavascriptRegExpConstructor::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache)
-    {
+    {TRACE_IT(61127);
         return GetEnumeratorWithPrefix(
             RecyclerNew(GetScriptContext()->GetRecycler(), JavascriptRegExpEnumerator, this, flags, requestContext),
             enumerator, flags, requestContext, forInCache);
     }
 
     void JavascriptRegExpConstructor::SetLastMatch(UnifiedRegex::RegexPattern* lastPattern, JavascriptString* lastInput, UnifiedRegex::GroupInfo lastMatch)
-    {
+    {TRACE_IT(61128);
         AssertMsg(!lastMatch.IsUndefined(), "SetLastMatch should only be called if there's a successful match");
         AssertMsg(lastPattern != nullptr, "lastPattern should not be null");
         AssertMsg(lastInput != nullptr, "lastInput should not be null");
@@ -56,9 +56,9 @@ namespace Js
     }
 
     void JavascriptRegExpConstructor::EnsureValues()
-    {
+    {TRACE_IT(61129);
         if (reset)
-        {
+        {TRACE_IT(61130);
             Assert(!lastMatch.IsUndefined());
             ScriptContext* scriptContext = this->GetScriptContext();
             UnifiedRegex::RegexPattern* pattern = lastPattern;
@@ -75,13 +75,13 @@ namespace Js
             captures[0] = RegexHelper::GetString(scriptContext, lastInput, nonMatchValue, lastMatch);
             int numGroups = pattern->NumGroups();
             if (numGroups > 1)
-            {
+            {TRACE_IT(61131);
                 // The RegExp constructor's lastMatch holds the last *successful* match on any regular expression.
                 // That regular expression may since have been used for *unsuccessful* matches, in which case
                 // its groups will have been reset. Updating the RegExp constructor with the group binding after
                 // every match is prohibitively slow. Instead, run the match again using the known last input string.
                 if (!pattern->WasLastMatchSuccessful())
-                {
+                {TRACE_IT(61132);
                     RegexHelper::SimpleMatch(scriptContext, pattern, lastInput->GetString(), lastInputLen, lastMatch.offset);
                 }
                 Assert(pattern->WasLastMatchSuccessful());
@@ -93,7 +93,7 @@ namespace Js
                     RegexHelper::GetGroup(scriptContext, pattern, lastInput, nonMatchValue, numGroups - 1);
             }
             else
-            {
+            {TRACE_IT(61133);
                 this->lastParen = emptyString;
             }
             for (int groupId = numGroups; groupId < NumCtorCaptures; groupId++)
@@ -142,7 +142,7 @@ namespace Js
     };
 
     BOOL JavascriptRegExpConstructor::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(61134);
         switch (propertyId)
         {
         case PropertyIds::lastMatch:
@@ -172,15 +172,15 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61135);
         return JavascriptRegExpConstructor::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptRegExpConstructor::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61136);
         BOOL result;
         if (GetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {TRACE_IT(61137);
             return result;
         }
 
@@ -188,13 +188,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61138);
         BOOL result;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {TRACE_IT(61139);
             return result;
         }
 
@@ -202,7 +202,7 @@ namespace Js
     }
 
     bool JavascriptRegExpConstructor::GetPropertyBuiltIns(PropertyId propertyId, Var* value, BOOL* result)
-    {
+    {TRACE_IT(61140);
         switch (propertyId)
         {
         case PropertyIds::input:
@@ -291,10 +291,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61141);
         BOOL result;
         if (SetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {TRACE_IT(61142);
             return result;
         }
 
@@ -302,13 +302,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61143);
         BOOL result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {TRACE_IT(61144);
             return result;
         }
 
@@ -316,7 +316,7 @@ namespace Js
     }
 
     bool JavascriptRegExpConstructor::SetPropertyBuiltIns(PropertyId propertyId, Var value, BOOL* result)
-    {
+    {TRACE_IT(61145);
         switch (propertyId)
         {
         case PropertyIds::input:
@@ -352,12 +352,12 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(61146);
         return SetProperty(propertyId, value, flags, info);
     }
 
     BOOL JavascriptRegExpConstructor::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(61147);
         switch (propertyId)
         {
             // all globals are 'fNoDelete' in V5.8
@@ -390,7 +390,7 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(61148);
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::input.Equals(propertyName)
             || BuiltInPropertyRecords::$_.Equals(propertyName)
@@ -413,7 +413,7 @@ namespace Js
             || BuiltInPropertyRecords::$8.Equals(propertyName)
             || BuiltInPropertyRecords::$9.Equals(propertyName)
             || BuiltInPropertyRecords::index.Equals(propertyName))
-        {
+        {TRACE_IT(61149);
             JavascriptError::ThrowCantDeleteIfStrictMode(flags, GetScriptContext(), propertyNameString->GetString());
             return false;
         }
@@ -422,19 +422,19 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61150);
         stringBuilder->AppendCppLiteral(JS_DIAG_VALUE_JavascriptRegExpConstructor);
         return TRUE;
     }
 
     BOOL JavascriptRegExpConstructor::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61151);
         stringBuilder->AppendCppLiteral(JS_DIAG_TYPE_JavascriptRegExpConstructor);
         return TRUE;
     }
 
     BOOL JavascriptRegExpConstructor::IsEnumerable(PropertyId propertyId)
-    {
+    {TRACE_IT(61152);
         switch (propertyId)
         {
         case PropertyIds::input:
@@ -465,7 +465,7 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::IsConfigurable(PropertyId propertyId)
-    {
+    {TRACE_IT(61153);
         switch (propertyId)
         {
         case PropertyIds::input:
@@ -500,10 +500,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {TRACE_IT(61154);
         uint length = GetSpecialNonEnumerablePropertyCount();
         if (index < length)
-        {
+        {TRACE_IT(61155);
             *propertyName = requestContext->GetPropertyString(specialnonEnumPropertyIds[index]);
             return true;
         }
@@ -512,22 +512,22 @@ namespace Js
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyCount() const
-    {
+    {TRACE_IT(61156);
         return _countof(specialnonEnumPropertyIds);
     }
 
     // Returns the list of special properties for the type.
     PropertyId const * JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyIds() const
-    {
+    {TRACE_IT(61157);
         return specialnonEnumPropertyIds;
     }
 
 
     BOOL JavascriptRegExpConstructor::GetSpecialEnumerablePropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {TRACE_IT(61158);
         uint length = GetSpecialEnumerablePropertyCount();
         if (index < length)
-        {
+        {TRACE_IT(61159);
             *propertyName = requestContext->GetPropertyString(specialEnumPropertyIds[index]);
             return true;
         }
@@ -535,32 +535,32 @@ namespace Js
     }
 
     PropertyId const * JavascriptRegExpConstructor::GetSpecialEnumerablePropertyIds() const
-    {
+    {TRACE_IT(61160);
         return specialEnumPropertyIds;
     }
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExpConstructor::GetSpecialEnumerablePropertyCount() const
-    {
+    {TRACE_IT(61161);
         return _countof(specialEnumPropertyIds);
     }
 
     // Returns the list of special properties for the type.
     PropertyId const * JavascriptRegExpConstructor::GetSpecialPropertyIds() const
-    {
+    {TRACE_IT(61162);
         return specialPropertyIds;
     }
 
     uint JavascriptRegExpConstructor::GetSpecialPropertyCount() const
-    {
+    {TRACE_IT(61163);
         return _countof(specialPropertyIds);
     }
 
     BOOL JavascriptRegExpConstructor::GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {TRACE_IT(61164);
         uint length = GetSpecialPropertyCount();
         if (index < length)
-        {
+        {TRACE_IT(61165);
             *propertyName = requestContext->GetPropertyString(specialPropertyIds[index]);
             return true;
         }

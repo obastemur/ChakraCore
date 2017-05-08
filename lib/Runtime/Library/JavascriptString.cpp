@@ -54,7 +54,7 @@ namespace Js
     //0x3000
     //0xfeff // <ZWNBSP>
     bool IsWhiteSpaceCharacter(char16 ch)
-    {
+    {TRACE_IT(61571);
         return ch >= 0x9 &&
             (ch <= 0xd ||
                 (ch <= 0x200a &&
@@ -68,7 +68,7 @@ namespace Js
 
     template <typename T, bool copyBuffer>
     JavascriptString* JavascriptString::NewWithBufferT(const char16 * content, charcount_t cchUseLength, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(61572);
         AssertMsg(content != nullptr, "NULL value passed to JavascriptString::New");
         AssertMsg(IsValidCharCount(cchUseLength), "String length will overflow an int");
         switch (cchUseLength)
@@ -89,7 +89,7 @@ namespace Js
 
         charcount_t cchUseBoundLength = static_cast<charcount_t>(cchUseLength);
         if (copyBuffer)
-        {
+        {TRACE_IT(61573);
              buffer = JavascriptString::AllocateLeafAndCopySz(recycler, content, cchUseBoundLength);
         }
 
@@ -97,39 +97,39 @@ namespace Js
     }
 
     JavascriptString* JavascriptString::NewWithSz(__in_z const char16 * content, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(61574);
         AssertMsg(content != nullptr, "NULL value passed to JavascriptString::New");
         return NewWithBuffer(content, GetBufferLength(content), scriptContext);
     }
 
     JavascriptString* JavascriptString::NewWithArenaSz(__in_z const char16 * content, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(61575);
         AssertMsg(content != nullptr, "NULL value passed to JavascriptString::New");
         return NewWithArenaBuffer(content, GetBufferLength(content), scriptContext);
     }
 
     JavascriptString* JavascriptString::NewWithBuffer(__in_ecount(cchUseLength) const char16 * content, charcount_t cchUseLength, ScriptContext * scriptContext)
-    {
+    {TRACE_IT(61576);
         return NewWithBufferT<LiteralString, false>(content, cchUseLength, scriptContext);
     }
 
     JavascriptString* JavascriptString::NewWithArenaBuffer(__in_ecount(cchUseLength) const char16* content, charcount_t cchUseLength, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61577);
         return NewWithBufferT<ArenaLiteralString, false>(content, cchUseLength, scriptContext);
     }
 
     JavascriptString* JavascriptString::NewCopySz(__in_z const char16* content, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61578);
         return NewCopyBuffer(content, GetBufferLength(content), scriptContext);
     }
 
     JavascriptString* JavascriptString::NewCopyBuffer(__in_ecount(cchUseLength) const char16* content, charcount_t cchUseLength, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61579);
         return NewWithBufferT<LiteralString, true>(content, cchUseLength, scriptContext);
     }
 
     JavascriptString* JavascriptString::NewCopySzFromArena(__in_z const char16* content, ScriptContext* scriptContext, ArenaAllocator *arena)
-    {
+    {TRACE_IT(61580);
         AssertMsg(content != nullptr, "NULL value passed to JavascriptString::New");
 
         charcount_t cchUseLength = JavascriptString::GetBufferLength(content);
@@ -158,9 +158,9 @@ namespace Js
         Var result;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61581);
             if (JavascriptSymbol::Is(args[1]) && !(callInfo.Flags & CallFlags_New))
-            {
+            {TRACE_IT(61582);
                 // By ES2015 21.1.1.1 step 2, calling the String constructor directly results in an explicit ToString, which does not throw.
                 return JavascriptSymbol::ToString(JavascriptSymbol::FromVar(args[1])->GetValue(), scriptContext);
                 // Calling with new is an implicit ToString on the Symbol, resulting in a throw. For this case we can let JavascriptConversion handle the call.
@@ -168,16 +168,16 @@ namespace Js
             str = JavascriptConversion::ToString(args[1], scriptContext);
         }
         else
-        {
+        {TRACE_IT(61583);
             str = scriptContext->GetLibrary()->GetEmptyString();
         }
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {TRACE_IT(61584);
             result = scriptContext->GetLibrary()->CreateStringObject(str);
         }
         else
-        {
+        {TRACE_IT(61585);
             result = str;
         }
 
@@ -188,61 +188,61 @@ namespace Js
 
     // static
     bool IsValidCharCount(size_t charCount)
-    {
+    {TRACE_IT(61586);
         return charCount <= JavascriptString::MaxCharLength;
     }
 
     JavascriptString::JavascriptString(StaticType * type)
         : RecyclableObject(type), m_charLength(0), m_pszValue(nullptr)
-    {
+    {TRACE_IT(61587);
         Assert(type->GetTypeId() == TypeIds_String);
     }
 
     JavascriptString::JavascriptString(StaticType * type, charcount_t charLength, const char16* szValue)
         : RecyclableObject(type), m_pszValue(szValue)
-    {
+    {TRACE_IT(61588);
         Assert(type->GetTypeId() == TypeIds_String);
         SetLength(charLength);
     }
 
     _Ret_range_(m_charLength, m_charLength)
     charcount_t JavascriptString::GetLength() const
-    {
+    {TRACE_IT(61589);
         return m_charLength;
     }
 
     int JavascriptString::GetLengthAsSignedInt() const
-    {
+    {TRACE_IT(61590);
         Assert(IsValidCharCount(m_charLength));
         return static_cast<int>(m_charLength);
     }
 
     const char16* JavascriptString::UnsafeGetBuffer() const
-    {
+    {TRACE_IT(61591);
         return m_pszValue;
     }
 
     void JavascriptString::SetLength(charcount_t newLength)
-    {
+    {TRACE_IT(61592);
         if (!IsValidCharCount(newLength))
-        {
+        {TRACE_IT(61593);
             JavascriptExceptionOperators::ThrowOutOfMemory(this->GetScriptContext());
         }
         m_charLength = newLength;
     }
 
     void JavascriptString::SetBuffer(const char16* buffer)
-    {
+    {TRACE_IT(61594);
         m_pszValue = buffer;
     }
 
     bool JavascriptString::IsValidIndexValue(charcount_t idx) const
-    {
+    {TRACE_IT(61595);
         return IsValidCharCount(idx) && idx < GetLength();
     }
 
     bool JavascriptString::Is(Var aValue)
-    {
+    {TRACE_IT(61596);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_String;
     }
 
@@ -255,12 +255,12 @@ namespace Js
 
     charcount_t
     JavascriptString::GetBufferLength(const char16 * content)
-    {
+    {TRACE_IT(61597);
         size_t cchActual = wcslen(content);
 
 #if defined(_M_X64_OR_ARM64)
         if (!IsValidCharCount(cchActual))
-        {
+        {TRACE_IT(61598);
             // Limit javascript string to 31-bit length
             Js::Throw::OutOfMemory();
         }
@@ -276,7 +276,7 @@ namespace Js
     JavascriptString::GetBufferLength(
         const char16 * content,                     // Value to examine
         int charLengthOrMinusOne)                    // Optional length, in characters
-    {
+    {TRACE_IT(61599);
         //
         // Determine the actual length, in characters, not including a terminating '\0':
         // - If a length was not specified (charLength < 0), search for a terminating '\0'.
@@ -284,18 +284,18 @@ namespace Js
 
         charcount_t cchActual;
         if (charLengthOrMinusOne < 0)
-        {
+        {TRACE_IT(61600);
             AssertMsg(charLengthOrMinusOne == -1, "The only negative value allowed is -1");
             cchActual = GetBufferLength(content);
         }
         else
-        {
+        {TRACE_IT(61601);
             cchActual = static_cast<charcount_t>(charLengthOrMinusOne);
         }
 #ifdef CHECK_STRING
         // removed this to accommodate much larger string constant in regex-dna.js
         if (cchActual > 64 * 1024)
-        {
+        {TRACE_IT(61602);
             //
             // String was probably not '\0' terminated:
             // - We need to validate that the string's contents always fit within 1 GB to avoid
@@ -310,34 +310,34 @@ namespace Js
 
     template< size_t N >
     Var JavascriptString::StringBracketHelper(Arguments args, ScriptContext *scriptContext, const char16(&tag)[N])
-    {
+    {TRACE_IT(61603);
         CompileAssert(0 < N && N <= JavascriptString::MaxCharLength);
         return StringBracketHelper(args, scriptContext, tag, static_cast<charcount_t>(N - 1), nullptr, 0);
     }
 
     template< size_t N1, size_t N2 >
     Var JavascriptString::StringBracketHelper(Arguments args, ScriptContext *scriptContext, const char16(&tag)[N1], const char16(&prop)[N2])
-    {
+    {TRACE_IT(61604);
         CompileAssert(0 < N1 && N1 <= JavascriptString::MaxCharLength);
         CompileAssert(0 < N2 && N2 <= JavascriptString::MaxCharLength);
         return StringBracketHelper(args, scriptContext, tag, static_cast<charcount_t>(N1 - 1), prop, static_cast<charcount_t>(N2 - 1));
     }
 
     BOOL JavascriptString::BufferEquals(__in_ecount(otherLength) LPCWSTR otherBuffer, __in charcount_t otherLength)
-    {
+    {TRACE_IT(61605);
         return otherLength == this->GetLength() &&
             JsUtil::CharacterBuffer<WCHAR>::StaticEquals(this->GetString(), otherBuffer, otherLength);
     }
 
     BOOL JavascriptString::HasItemAt(charcount_t index)
-    {
+    {TRACE_IT(61606);
         return IsValidIndexValue(index);
     }
 
     BOOL JavascriptString::GetItemAt(charcount_t index, Var* value)
-    {
+    {TRACE_IT(61607);
         if (!IsValidIndexValue(index))
-        {
+        {TRACE_IT(61608);
             return false;
         }
 
@@ -357,7 +357,7 @@ namespace Js
     }
 
     void JavascriptString::CopyHelper(__out_ecount(countNeeded) char16 *dst, __in_ecount(countNeeded) const char16 * str, charcount_t countNeeded)
-    {
+    {TRACE_IT(61609);
         switch(countNeeded)
         {
         case 0:
@@ -404,36 +404,36 @@ case_2:
     }
 
     JavascriptString* JavascriptString::ConcatDestructive(JavascriptString* pstRight)
-    {
+    {TRACE_IT(61610);
         Assert(pstRight);
 
         if(!IsFinalized())
-        {
+        {TRACE_IT(61611);
             if(CompoundString::Is(this))
-            {
+            {TRACE_IT(61612);
                 return ConcatDestructive_Compound(pstRight);
             }
 
             if(VirtualTableInfo<ConcatString>::HasVirtualTable(this))
-            {
+            {TRACE_IT(61613);
                 JavascriptString *const s = ConcatDestructive_ConcatToCompound(pstRight);
                 if(s)
-                {
+                {TRACE_IT(61614);
                     return s;
                 }
             }
         }
         else
-        {
+        {TRACE_IT(61615);
             const CharCount leftLength = GetLength();
             const CharCount rightLength = pstRight->GetLength();
             if(leftLength == 0 || rightLength == 0)
-            {
+            {TRACE_IT(61616);
                 return ConcatDestructive_OneEmpty(pstRight);
             }
 
             if(CompoundString::ShouldAppendChars(leftLength) && CompoundString::ShouldAppendChars(rightLength))
-            {
+            {TRACE_IT(61617);
                 return ConcatDestructive_CompoundAppendChars(pstRight);
             }
         }
@@ -442,7 +442,7 @@ case_2:
         StringProfiler::RecordConcatenation(GetScriptContext(), GetLength(), pstRight->GetLength(), ConcatType_ConcatTree);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61618);
             Output::Print(
                 _u("JavascriptString::ConcatDestructive(\"%.8s%s\") - creating ConcatString\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -454,7 +454,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::ConcatDestructive_Compound(JavascriptString* pstRight)
-    {
+    {TRACE_IT(61619);
         Assert(CompoundString::Is(this));
         Assert(pstRight);
 
@@ -462,7 +462,7 @@ case_2:
         StringProfiler::RecordConcatenation(GetScriptContext(), GetLength(), pstRight->GetLength(), ConcatType_CompoundString);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61620);
             Output::Print(
                 _u("JavascriptString::ConcatDestructive(\"%.8s%s\") - appending to CompoundString\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -477,19 +477,19 @@ case_2:
     }
 
     JavascriptString* JavascriptString::ConcatDestructive_ConcatToCompound(JavascriptString* pstRight)
-    {
+    {TRACE_IT(61621);
         Assert(VirtualTableInfo<ConcatString>::HasVirtualTable(this));
         Assert(pstRight);
 
         const ConcatString *const leftConcatString = static_cast<const ConcatString *>(this);
         JavascriptString *const leftLeftString = leftConcatString->LeftString();
         if(VirtualTableInfo<ConcatString>::HasVirtualTable(leftLeftString))
-        {
+        {TRACE_IT(61622);
 #ifdef PROFILE_STRINGS
             StringProfiler::RecordConcatenation(GetScriptContext(), GetLength(), pstRight->GetLength(), ConcatType_CompoundString);
 #endif
             if(PHASE_TRACE_StringConcat)
-            {
+            {TRACE_IT(61623);
                 Output::Print(
                     _u("JavascriptString::ConcatDestructive(\"%.8s%s\") - converting ConcatString to CompoundString\n"),
                     pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -509,7 +509,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::ConcatDestructive_OneEmpty(JavascriptString* pstRight)
-    {
+    {TRACE_IT(61624);
         Assert(pstRight);
         Assert(GetLength() == 0 || pstRight->GetLength() == 0);
 
@@ -517,7 +517,7 @@ case_2:
         StringProfiler::RecordConcatenation(GetScriptContext(), GetLength(), pstRight->GetLength());
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61625);
             Output::Print(
                 _u("JavascriptString::ConcatDestructive(\"%.8s%s\") - one side empty, using other side\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -526,7 +526,7 @@ case_2:
         }
 
         if(GetLength() == 0)
-        {
+        {TRACE_IT(61626);
             return CompoundString::GetImmutableOrScriptUnreferencedString(pstRight);
         }
         Assert(CompoundString::GetImmutableOrScriptUnreferencedString(this) == this);
@@ -534,7 +534,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::ConcatDestructive_CompoundAppendChars(JavascriptString* pstRight)
-    {
+    {TRACE_IT(61627);
         Assert(pstRight);
         Assert(
             GetLength() != 0 &&
@@ -545,7 +545,7 @@ case_2:
         StringProfiler::RecordConcatenation(GetScriptContext(), GetLength(), pstRight->GetLength(), ConcatType_CompoundString);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61628);
             Output::Print(
                 _u("JavascriptString::ConcatDestructive(\"%.8s%s\") - creating CompoundString, appending chars\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -560,34 +560,34 @@ case_2:
     }
 
     JavascriptString* JavascriptString::Concat(JavascriptString* pstLeft, JavascriptString* pstRight)
-    {
+    {TRACE_IT(61629);
         AssertMsg(pstLeft != nullptr, "Must have a valid left string");
         AssertMsg(pstRight != nullptr, "Must have a valid right string");
 
         if(!pstLeft->IsFinalized())
-        {
+        {TRACE_IT(61630);
             if(CompoundString::Is(pstLeft))
-            {
+            {TRACE_IT(61631);
                 return Concat_Compound(pstLeft, pstRight);
             }
 
             if(VirtualTableInfo<ConcatString>::HasVirtualTable(pstLeft))
-            {
+            {TRACE_IT(61632);
                 return Concat_ConcatToCompound(pstLeft, pstRight);
             }
         }
         else if(pstLeft->GetLength() == 0 || pstRight->GetLength() == 0)
-        {
+        {TRACE_IT(61633);
             return Concat_OneEmpty(pstLeft, pstRight);
         }
 
         if(pstLeft->GetLength() != 1 || pstRight->GetLength() != 1)
-        {
+        {TRACE_IT(61634);
 #ifdef PROFILE_STRINGS
             StringProfiler::RecordConcatenation(pstLeft->GetScriptContext(), pstLeft->GetLength(), pstRight->GetLength(), ConcatType_ConcatTree);
 #endif
             if(PHASE_TRACE_StringConcat)
-            {
+            {TRACE_IT(61635);
                 Output::Print(
                     _u("JavascriptString::Concat(\"%.8s%s\") - creating ConcatString\n"),
                     pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -602,7 +602,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::Concat_Compound(JavascriptString * pstLeft, JavascriptString * pstRight)
-    {
+    {TRACE_IT(61636);
         Assert(pstLeft);
         Assert(CompoundString::Is(pstLeft));
         Assert(pstRight);
@@ -611,7 +611,7 @@ case_2:
         StringProfiler::RecordConcatenation(pstLeft->GetScriptContext(), pstLeft->GetLength(), pstRight->GetLength(), ConcatType_CompoundString);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61637);
             Output::Print(
                 _u("JavascriptString::Concat(\"%.8s%s\") - cloning CompoundString, appending to clone\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -624,14 +624,14 @@ case_2:
         const bool needAppend = pstRight->GetLength() != 0;
         CompoundString *const leftCs = CompoundString::FromVar(pstLeft)->Clone(needAppend);
         if(needAppend)
-        {
+        {TRACE_IT(61638);
             leftCs->Append(pstRight);
         }
         return leftCs;
     }
 
     JavascriptString* JavascriptString::Concat_ConcatToCompound(JavascriptString * pstLeft, JavascriptString * pstRight)
-    {
+    {TRACE_IT(61639);
         Assert(pstLeft);
         Assert(VirtualTableInfo<ConcatString>::HasVirtualTable(pstLeft));
         Assert(pstRight);
@@ -640,7 +640,7 @@ case_2:
         StringProfiler::RecordConcatenation(pstLeft->GetScriptContext(), pstLeft->GetLength(), pstRight->GetLength(), ConcatType_CompoundString);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61640);
             Output::Print(
                 _u("JavascriptString::Concat(\"%.8s%s\") - converting ConcatString to CompoundString\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -657,7 +657,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::Concat_OneEmpty(JavascriptString * pstLeft, JavascriptString * pstRight)
-    {
+    {TRACE_IT(61641);
         Assert(pstLeft);
         Assert(pstRight);
         Assert(pstLeft->GetLength() == 0 || pstRight->GetLength() == 0);
@@ -666,7 +666,7 @@ case_2:
         StringProfiler::RecordConcatenation(pstLeft->GetScriptContext(), pstLeft->GetLength(), pstRight->GetLength());
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61642);
             Output::Print(
                 _u("JavascriptString::Concat(\"%.8s%s\") - one side empty, using other side\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -675,7 +675,7 @@ case_2:
         }
 
         if(pstLeft->GetLength() == 0)
-        {
+        {TRACE_IT(61643);
             return CompoundString::GetImmutableOrScriptUnreferencedString(pstRight);
         }
         Assert(CompoundString::GetImmutableOrScriptUnreferencedString(pstLeft) == pstLeft);
@@ -683,7 +683,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::Concat_BothOneChar(JavascriptString * pstLeft, JavascriptString * pstRight)
-    {
+    {TRACE_IT(61644);
         Assert(pstLeft);
         Assert(pstLeft->GetLength() == 1);
         Assert(pstRight);
@@ -693,7 +693,7 @@ case_2:
         StringProfiler::RecordConcatenation(pstLeft->GetScriptContext(), pstLeft->GetLength(), pstRight->GetLength(), ConcatType_BufferString);
 #endif
         if(PHASE_TRACE_StringConcat)
-        {
+        {TRACE_IT(61645);
             Output::Print(
                 _u("JavascriptString::Concat(\"%.8s%s\") - both sides length 1, creating BufferStringBuilder::WritableString\n"),
                 pstRight->IsFinalized() ? pstRight->GetString() : _u(""),
@@ -735,7 +735,7 @@ case_2:
 
         charcount_t idxPosition = 0;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61646);
             idxPosition = ConvertToIndex(args[1], scriptContext);
         }
 
@@ -745,11 +745,11 @@ case_2:
 
         Var value;
         if (pThis->GetItemAt(idxPosition, &value))
-        {
+        {TRACE_IT(61647);
             return value;
         }
         else
-        {
+        {TRACE_IT(61648);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
     }
@@ -780,7 +780,7 @@ case_2:
 
         charcount_t idxPosition = 0;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61649);
             idxPosition = ConvertToIndex(args[1], scriptContext);
         }
 
@@ -790,7 +790,7 @@ case_2:
 
         charcount_t charLength = pThis->GetLength();
         if (idxPosition >= charLength)
-        {
+        {TRACE_IT(61650);
             return scriptContext->GetLibrary()->GetNaN();
         }
 
@@ -811,13 +811,13 @@ case_2:
 
         charcount_t idxPosition = 0;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61651);
             idxPosition = ConvertToIndex(args[1], scriptContext);
         }
 
         charcount_t charLength = pThis->GetLength();
         if (idxPosition >= charLength)
-        {
+        {TRACE_IT(61652);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -825,10 +825,10 @@ case_2:
         // Lower part is in range [0xD800 - 0xDBFF], while the higher is [0xDC00 - 0xDFFF].
         char16 first = pThis->GetItem(idxPosition);
         if (first >= 0xD800u && first < 0xDC00u && (uint)(idxPosition + 1) < pThis->GetLength())
-        {
+        {TRACE_IT(61653);
             char16 second = pThis->GetItem(idxPosition + 1);
             if (second >= 0xDC00 && second < 0xE000)
-            {
+            {TRACE_IT(61654);
                 return TaggedInt::ToVarUnchecked(NumberUtilities::SurrogatePairAsCodePoint(first, second));
             }
         }
@@ -860,34 +860,34 @@ case_2:
         //
 
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61655);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.prototype.concat"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
         if (!JavascriptConversion::CheckObjectCoercible(args[0], scriptContext))
-        {
+        {TRACE_IT(61656);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("String.prototype.concat"));
         }
 
         JavascriptString* pstr = nullptr;
         JavascriptString* accum = nullptr;
         for (uint index = 0; index < args.Info.Count; index++)
-        {
+        {TRACE_IT(61657);
             if (JavascriptString::Is(args[index]))
-            {
+            {TRACE_IT(61658);
                 pstr = JavascriptString::FromVar(args[index]);
             }
             else
-            {
+            {TRACE_IT(61659);
                 pstr = JavascriptConversion::ToString(args[index], scriptContext);
             }
 
             if (index == 0)
-            {
+            {TRACE_IT(61660);
                 accum = pstr;
             }
             else
-            {
+            {TRACE_IT(61661);
                 accum = Concat(accum,pstr);
             }
 
@@ -910,7 +910,7 @@ case_2:
         // - Don't include the 'this' parameter.
         //
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61662);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.fromCharCode"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
@@ -919,7 +919,7 @@ case_2:
 
         // Special case for single char
         if( charLength == 1 )
-        {
+        {TRACE_IT(61663);
             char16 ch = JavascriptConversion::ToUInt16(args[1], scriptContext);
             return scriptContext->GetLibrary()->GetCharStringCache().GetStringForChar(ch);
         }
@@ -932,7 +932,7 @@ case_2:
         //
 
         for (uint idxArg = 1; idxArg < args.Info.Count; idxArg++)
-        {
+        {TRACE_IT(61664);
             *stringBuffer++ = JavascriptConversion::ToUInt16(args[idxArg], scriptContext);
         }
 
@@ -954,26 +954,26 @@ case_2:
         AssertMsg(args.Info.Count > 0, "Negative argument count");
 
         if (args.Info.Count <= 1)
-        {
+        {TRACE_IT(61665);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
         else if (args.Info.Count == 2)
-        {
+        {TRACE_IT(61666);
             // Special case for a single char string formed from only code point in range [0x0, 0xFFFF]
             double num = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             if (!NumberUtilities::IsFinite(num))
-            {
+            {TRACE_IT(61667);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidCodePoint);
             }
 
             if (num < 0 || num > 0x10FFFF || floor(num) != num)
-            {
+            {TRACE_IT(61668);
                 JavascriptError::ThrowRangeErrorVar(scriptContext, JSERR_InvalidCodePoint, Js::JavascriptConversion::ToString(args[1], scriptContext)->GetSz());
             }
 
             if (num < 0x10000)
-            {
+            {TRACE_IT(61669);
                 return scriptContext->GetLibrary()->GetCharStringCache().GetStringForChar((uint16)num);
             }
         }
@@ -985,21 +985,21 @@ case_2:
         uint32 count = 0;
 
         for (uint i = 1; i < args.Info.Count; i++)
-        {
+        {TRACE_IT(61670);
             double num = JavascriptConversion::ToNumber(args[i], scriptContext);
 
             if (!NumberUtilities::IsFinite(num))
-            {
+            {TRACE_IT(61671);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidCodePoint);
             }
 
             if (num < 0 || num > 0x10FFFF || floor(num) != num)
-            {
+            {TRACE_IT(61672);
                 JavascriptError::ThrowRangeErrorVar(scriptContext, JSERR_InvalidCodePoint, Js::JavascriptConversion::ToString(args[i], scriptContext)->GetSz());
             }
 
             if (num < 0x10000)
-            {
+            {TRACE_IT(61673);
                 __analysis_assume(count < bufferLength);
                 Assert(count < bufferLength);
 #pragma prefast(suppress: 22102, "I have an assert in place to guard against overflow. Even though this should never happen.")
@@ -1007,7 +1007,7 @@ case_2:
                 count++;
             }
             else
-            {
+            {TRACE_IT(61674);
                 __analysis_assume(count + 1 < bufferLength);
                 Assert(count  + 1 < bufferLength);
                 NumberUtilities::CodePointAsSurrogatePair((codepoint_t)num, (tempBuffer + count), (tempBuffer + count + 1));
@@ -1038,7 +1038,7 @@ case_2:
     }
 
     int JavascriptString::IndexOf(ArgumentReader& args, ScriptContext* scriptContext, const char16* apiNameForErrorMsg, bool isRegExpAnAllowedArg)
-    {
+    {TRACE_IT(61675);
         // The algorithm steps in the spec are the same between String.prototype.indexOf and
         // String.prototype.includes, except that includes returns true if an index is found,
         // false otherwise.  Share the implementation between these two APIs.
@@ -1066,13 +1066,13 @@ case_2:
         int position = 0;
 
         if (args.Info.Count > 2)
-        {
+        {TRACE_IT(61676);
             if (JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {TRACE_IT(61677);
                 position = 0;
             }
             else
-            {
+            {TRACE_IT(61678);
                 position = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
                 position = min(max(position, 0), len);  // adjust position within string limits
             }
@@ -1080,35 +1080,35 @@ case_2:
 
         // Zero length search strings are always found at the current search position
         if (searchLen == 0)
-        {
+        {TRACE_IT(61679);
             return position;
         }
 
         int result = -1;
 
         if (position < pThis->GetLengthAsSignedInt())
-        {
+        {TRACE_IT(61680);
             const char16* searchStr = searchString->GetString();
             const char16* inputStr = pThis->GetString();
             if (searchLen == 1)
-            {
+            {TRACE_IT(61681);
                 int i = position;
                 for(; i < len && inputStr[i] != *searchStr ; i++);
                 if (i < len)
-                {
+                {TRACE_IT(61682);
                     result = i;
                 }
             }
             else
-            {
+            {TRACE_IT(61683);
                 JmpTable jmpTable;
                 bool fAsciiJumpTable = BuildLastCharForwardBoyerMooreTable(jmpTable, searchStr, searchLen);
                 if (!fAsciiJumpTable)
-                {
+                {TRACE_IT(61684);
                     result = JavascriptString::strstr(pThis, searchString, false, position);
                 }
                 else
-                {
+                {TRACE_IT(61685);
                     result = IndexOfUsingJmpTable(jmpTable, inputStr, len, searchStr, searchLen, position);
                 }
             }
@@ -1138,18 +1138,18 @@ case_2:
         // default search string if the search argument is not provided
         JavascriptString * searchArg;
         if(args.Info.Count > 1)
-        {
+        {TRACE_IT(61686);
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(61687);
                 searchArg = JavascriptString::FromVar(args[1]);
             }
             else
-            {
+            {TRACE_IT(61688);
                 searchArg = JavascriptConversion::ToString(args[1], scriptContext);
             }
         }
         else
-        {
+        {TRACE_IT(61689);
             searchArg = scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
 
@@ -1168,18 +1168,18 @@ case_2:
 
         // Determine if the main string can't contain the search string by length
         if (searchLen > inputLen)
-        {
+        {TRACE_IT(61690);
             return JavascriptNumber::ToVar(-1, scriptContext);
         }
 
         if (args.Info.Count > 2)
-        {
+        {TRACE_IT(61691);
             double pos = JavascriptConversion::ToNumber(args[2], scriptContext);
             if (!JavascriptNumber::IsNan(pos))
-            {
+            {TRACE_IT(61692);
                 pos = JavascriptConversion::ToInteger(pos);
                 if (pos > inputLen - searchLen)
-                {
+                {TRACE_IT(61693);
                     // No point searching beyond the possible end point.
                     pos = inputLen - searchLen;
                 }
@@ -1188,7 +1188,7 @@ case_2:
         }
 
         if (position > inputLen - searchLen)
-        {
+        {TRACE_IT(61694);
             // No point searching beyond the possible end point.
             position = inputLen - searchLen;
         }
@@ -1204,17 +1204,17 @@ case_2:
 
         // Zero length search strings are always found at the current search position
         if (searchLen == 0)
-        {
+        {TRACE_IT(61695);
             return JavascriptNumber::ToVar(position, scriptContext);
         }
         else if (searchLen == 1)
-        {
+        {TRACE_IT(61696);
             char16 const * current = searchUpperBound;
             while (*current != *searchStr)
-            {
+            {TRACE_IT(61697);
                 current--;
                 if (current < inputStr)
-                {
+                {TRACE_IT(61698);
                     return JavascriptNumber::ToVar(-1, scriptContext);
                 }
             }
@@ -1224,7 +1224,7 @@ case_2:
         // Structure for a partial ASCII Boyer-Moore
         JmpTable jmpTable;
         if (BuildFirstCharBackwardBoyerMooreTable(jmpTable, searchStr, searchLen))
-        {
+        {TRACE_IT(61699);
             int result = LastIndexOfUsingJmpTable(jmpTable, inputStr, inputLen, searchStr, searchLen, position);
             return JavascriptNumber::ToVar(result, scriptContext);
         }
@@ -1233,12 +1233,12 @@ case_2:
         char16 const * currentPos = searchUpperBound;
         Assert(currentPos - searchLowerBound + searchLen <= inputLen);
         while (currentPos >= searchLowerBound)
-        {
+        {TRACE_IT(61700);
             if (*currentPos == *searchStr)
             {
                 // Quick start char chec
                 if (wmemcmp(currentPos, searchStr, searchLen) == 0)
-                {
+                {TRACE_IT(61701);
                     return JavascriptNumber::ToVar(currentPos - searchLowerBound, scriptContext);
                 }
             }
@@ -1252,20 +1252,20 @@ case_2:
     // 2. Let S be ToString(O).
     // 3. ReturnIfAbrupt(S).
     void JavascriptString::GetThisStringArgument(ArgumentReader& args, ScriptContext* scriptContext, const char16* apiNameForErrorMsg, JavascriptString** ppThis)
-    {
+    {TRACE_IT(61702);
         if (args.Info.Count == 0)
-        {
+        {TRACE_IT(61703);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, apiNameForErrorMsg);
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
 
         JavascriptString * pThis;
         if (JavascriptString::Is(args[0]))
-        {
+        {TRACE_IT(61704);
             pThis = JavascriptString::FromVar(args[0]);
         }
         else
-        {
+        {TRACE_IT(61705);
 
             pThis = JavascriptConversion::CoerseString(args[0], scriptContext , apiNameForErrorMsg);
 
@@ -1286,17 +1286,17 @@ case_2:
 
         JavascriptString * pSearch = scriptContext->GetLibrary()->GetUndefinedDisplayString();
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61706);
             if (!isRegExpAnAllowedArg && JavascriptRegExp::IsRegExpLike(args[1], scriptContext))
-            {
+            {TRACE_IT(61707);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_FirstCannotBeRegExp, apiNameForErrorMsg);
             }
             else if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(61708);
                 pSearch = JavascriptString::FromVar(args[1]);
             }
             else
-            {
+            {TRACE_IT(61709);
                 pSearch = JavascriptConversion::ToString(args[1], scriptContext);
             }
         }
@@ -1314,7 +1314,7 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61710);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.prototype.localeCompare"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
@@ -1326,29 +1326,29 @@ case_2:
 
 #ifdef ENABLE_INTL_OBJECT
         if (CONFIG_FLAG(IntlBuiltIns) && scriptContext->IsIntlEnabled())
-        {
+        {TRACE_IT(61711);
             EngineInterfaceObject* nativeEngineInterfaceObj = scriptContext->GetLibrary()->GetEngineInterfaceObject();
             if (nativeEngineInterfaceObj)
-            {
+            {TRACE_IT(61712);
                 IntlEngineInterfaceExtensionObject* intlExtensionObject = static_cast<IntlEngineInterfaceExtensionObject*>(nativeEngineInterfaceObj->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
                 if (args.Info.Count == 2)
-                {
+                {TRACE_IT(61713);
                     auto undefined = scriptContext->GetLibrary()->GetUndefined();
                     CallInfo toPass(callInfo.Flags, 7);
                     return intlExtensionObject->EntryIntl_CompareString(function, toPass, undefined, pThis, pThat, undefined, undefined, undefined, undefined);
                 }
                 else
-                {
+                {TRACE_IT(61714);
                     JavascriptFunction* func = intlExtensionObject->GetStringLocaleCompare();
                     if (func)
-                    {
+                    {TRACE_IT(61715);
                         return func->CallFunction(args);
                     }
                     // Initialize String.prototype.toLocaleCompare
                     scriptContext->GetLibrary()->InitializeIntlForStringPrototype();
                     func = intlExtensionObject->GetStringLocaleCompare();
                     if (func)
-                    {
+                    {TRACE_IT(61716);
                         return func->CallFunction(args);
                     }
                 }
@@ -1369,7 +1369,7 @@ case_2:
         LCID lcid = GetUserDefaultLCID();
         int result = CompareStringW(lcid, NULL, pThisStr, thisStrCount, pThatStr, thatStrCount );
         if (result == 0)
-        {
+        {TRACE_IT(61717);
             // TODO there is no spec on the error thrown here.
             // When the support for HR errors is implemented replace this with the same error reported by v5.8
             JavascriptError::ThrowRangeError(function->GetScriptContext(),
@@ -1398,11 +1398,11 @@ case_2:
         AUTO_TAG_NATIVE_LIBRARY_ENTRY(function, callInfo, varName);
 
         auto fallback = [&](JavascriptString* stringObj)
-        {
+        {TRACE_IT(61718);
             Var regExp = (args.Info.Count > 1) ? args[1] : scriptContext->GetLibrary()->GetUndefined();
 
             if (!scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-            {
+            {TRACE_IT(61719);
                 JavascriptRegExp * regExObj = JavascriptRegExp::CreateRegEx(regExp, nullptr, scriptContext);
                 return RegexHelper::RegexMatch(
                     scriptContext,
@@ -1411,7 +1411,7 @@ case_2:
                     RegexHelper::IsResultNotUsed(callInfo.Flags));
             }
             else
-            {
+            {TRACE_IT(61720);
                 JavascriptRegExp * regExObj = JavascriptRegExp::CreateRegExNoCoerce(regExp, nullptr, scriptContext);
                 Var symbolFn = GetRegExSymbolFunction(regExObj, PropertyIds::_symbolMatch, scriptContext);
                 return CallRegExSymbolFunction<1>(symbolFn, regExObj, args, varName, scriptContext);
@@ -1437,37 +1437,37 @@ case_2:
         UnicodeText::NormalizationForm form = UnicodeText::NormalizationForm::C;
 
         if (args.Info.Count >= 2 && !(JavascriptOperators::IsUndefinedObject(args.Values[1])))
-        {
+        {TRACE_IT(61721);
             JavascriptString *formStr = nullptr;
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(61722);
                 formStr = JavascriptString::FromVar(args[1]);
             }
             else
-            {
+            {TRACE_IT(61723);
                 formStr = JavascriptConversion::ToString(args[1], scriptContext);
             }
 
             if (formStr->BufferEquals(_u("NFD"), 3))
-            {
+            {TRACE_IT(61724);
                 form = UnicodeText::NormalizationForm::D;
             }
             else if (formStr->BufferEquals(_u("NFKC"), 4))
-            {
+            {TRACE_IT(61725);
                 form = UnicodeText::NormalizationForm::KC;
             }
             else if (formStr->BufferEquals(_u("NFKD"), 4))
-            {
+            {TRACE_IT(61726);
                 form = UnicodeText::NormalizationForm::KD;
             }
             else if (!formStr->BufferEquals(_u("NFC"), 3))
-            {
+            {TRACE_IT(61727);
                 JavascriptError::ThrowRangeErrorVar(scriptContext, JSERR_InvalidNormalizationForm, formStr->GetString());
             }
         }
 
         if (UnicodeText::IsNormalizedString(form, pThis->GetSz(), pThis->GetLength()))
-        {
+        {TRACE_IT(61728);
             return pThis;
         }
 
@@ -1477,12 +1477,12 @@ case_2:
         char16* buffer = pThis->GetNormalizedString(form, tempAllocator, sizeEstimate);
         JavascriptString * retVal;
         if (buffer == nullptr)
-        {
+        {TRACE_IT(61729);
             Assert(sizeEstimate == 0);
             retVal = scriptContext->GetLibrary()->GetEmptyString();
         }
         else
-        {
+        {TRACE_IT(61730);
             retVal = JavascriptString::NewCopyBuffer(buffer, sizeEstimate, scriptContext);
         }
 
@@ -1503,7 +1503,7 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2)
-        {
+        {TRACE_IT(61731);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("String.raw"));
         }
 
@@ -1514,18 +1514,18 @@ case_2:
         // Call ToObject on the first argument to get the callSite (which is also cooked string array)
         // ToObject returns false if the parameter is null or undefined
         if (!JavascriptConversion::ToObject(args[1], scriptContext, &callSite))
-        {
+        {TRACE_IT(61732);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("String.raw"));
         }
 
         // Get the raw property from the callSite object
         if (!callSite->GetProperty(callSite, Js::PropertyIds::raw, &rawVar, nullptr, scriptContext))
-        {
+        {TRACE_IT(61733);
             rawVar = scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (!JavascriptConversion::ToObject(rawVar, scriptContext, &raw))
-        {
+        {TRACE_IT(61734);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("String.raw"));
         }
 
@@ -1533,7 +1533,7 @@ case_2:
 
         // If there are no raw strings (somehow), return empty string
         if (length <= 0)
-        {
+        {TRACE_IT(61735);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -1543,7 +1543,7 @@ case_2:
 
         // If there is only one raw string, just return that one raw string (doesn't matter if there are replacements)
         if (length == 1)
-        {
+        {TRACE_IT(61736);
             return string;
         }
 
@@ -1561,11 +1561,11 @@ case_2:
         // expr2   \__ step 3
         // strcon3 /
         for (uint32 i = 1; i < length; ++i)
-        {
+        {TRACE_IT(61737);
             // First append the next substitution expression
             // If we have an arg at [i+1] use that one, otherwise empty string (which is nop)
             if (i+1 < args.Info.Count)
-            {
+            {TRACE_IT(61738);
                 string = JavascriptConversion::ToString(args[i+1], scriptContext);
 
                 stringBuilder.Append(string);
@@ -1596,14 +1596,14 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         auto fallback = [&](JavascriptString* stringObj)
-        {
+        {TRACE_IT(61739);
             return DoStringReplace(args, callInfo, stringObj, scriptContext);
         };
         return DelegateToRegExSymbolFunction<2>(args, PropertyIds::_symbolReplace, fallback, varName, scriptContext);
     }
 
     Var JavascriptString::DoStringReplace(Arguments& args, CallInfo& callInfo, JavascriptString* input, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61740);
         //
         // TODO: Move argument processing into DirectCall with proper handling.
         //
@@ -1618,26 +1618,26 @@ case_2:
         ReplaceValueHelper(scriptContext, ((args.Info.Count > 2) ? args[2] : scriptContext->GetLibrary()->GetUndefined()), &replacefn, &pReplace);
 
         if (pRegEx != nullptr)
-        {
+        {TRACE_IT(61741);
             if (replacefn != nullptr)
-            {
+            {TRACE_IT(61742);
                 return RegexHelper::RegexReplaceFunction(scriptContext, pRegEx, input, replacefn);
             }
             else
-            {
+            {TRACE_IT(61743);
                 return RegexHelper::RegexReplace(scriptContext, pRegEx, input, pReplace, RegexHelper::IsResultNotUsed(callInfo.Flags));
             }
         }
 
         AssertMsg(pMatch != nullptr, "Match string shouldn't be null");
         if (replacefn != nullptr)
-        {
+        {TRACE_IT(61744);
             return RegexHelper::StringReplace(pMatch, input, replacefn);
         }
         else
-        {
+        {TRACE_IT(61745);
             if (callInfo.Flags & CallFlags_NotUsed)
-            {
+            {TRACE_IT(61746);
                 return scriptContext->GetLibrary()->GetEmptyString();
             }
             return RegexHelper::StringReplace(pMatch, input, pReplace);
@@ -1645,41 +1645,41 @@ case_2:
     }
 
     void JavascriptString::SearchValueHelper(ScriptContext* scriptContext, Var aValue, JavascriptRegExp ** ppSearchRegEx, JavascriptString ** ppSearchString)
-    {
+    {TRACE_IT(61747);
         *ppSearchRegEx = nullptr;
         *ppSearchString = nullptr;
 
         // When the config is enabled, the operation is handled by a Symbol function (e.g. Symbol.replace).
         if (!scriptContext->GetConfig()->IsES6RegExSymbolsEnabled()
             && JavascriptRegExp::Is(aValue))
-        {
+        {TRACE_IT(61748);
             *ppSearchRegEx = JavascriptRegExp::FromVar(aValue);
         }
         else if (JavascriptString::Is(aValue))
-        {
+        {TRACE_IT(61749);
             *ppSearchString = JavascriptString::FromVar(aValue);
         }
         else
-        {
+        {TRACE_IT(61750);
             *ppSearchString = JavascriptConversion::ToString(aValue, scriptContext);
         }
     }
 
     void JavascriptString::ReplaceValueHelper(ScriptContext* scriptContext, Var aValue, JavascriptFunction ** ppReplaceFn, JavascriptString ** ppReplaceString)
-    {
+    {TRACE_IT(61751);
         *ppReplaceFn = nullptr;
         *ppReplaceString = nullptr;
 
         if (JavascriptFunction::Is(aValue))
-        {
+        {TRACE_IT(61752);
             *ppReplaceFn = JavascriptFunction::FromVar(aValue);
         }
         else if (JavascriptString::Is(aValue))
-        {
+        {TRACE_IT(61753);
             *ppReplaceString = JavascriptString::FromVar(aValue);
         }
         else
-        {
+        {TRACE_IT(61754);
             *ppReplaceString = JavascriptConversion::ToString(aValue, scriptContext);
         }
     }
@@ -1698,16 +1698,16 @@ case_2:
         AUTO_TAG_NATIVE_LIBRARY_ENTRY(function, callInfo, varName);
 
         auto fallback = [&](JavascriptString* stringObj)
-        {
+        {TRACE_IT(61755);
             Var regExp = (args.Info.Count > 1) ? args[1] : scriptContext->GetLibrary()->GetUndefined();
 
             if (!scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-            {
+            {TRACE_IT(61756);
                 JavascriptRegExp * regExObj = JavascriptRegExp::CreateRegEx(regExp, nullptr, scriptContext);
                 return RegexHelper::RegexSearch(scriptContext, regExObj, stringObj);
             }
             else
-            {
+            {TRACE_IT(61757);
                 JavascriptRegExp * regExObj = JavascriptRegExp::CreateRegExNoCoerce(regExp, nullptr, scriptContext);
                 Var symbolFn = GetRegExSymbolFunction(regExObj, PropertyIds::_symbolSearch, scriptContext);
                 return CallRegExSymbolFunction<1>(symbolFn, regExObj, args, varName, scriptContext);
@@ -1718,20 +1718,20 @@ case_2:
 
     template<int argCount, typename FallbackFn>
     Var JavascriptString::DelegateToRegExSymbolFunction(ArgumentReader &args, PropertyId symbolPropertyId, FallbackFn fallback, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61758);
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-        {
+        {TRACE_IT(61759);
             if (args.Info.Count == 0 || !JavascriptConversion::CheckObjectCoercible(args[0], scriptContext))
-            {
+            {TRACE_IT(61760);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, varName);
             }
 
             if (args.Info.Count >= 2 && !JavascriptOperators::IsUndefinedOrNull(args[1]))
-            {
+            {TRACE_IT(61761);
                 Var regExp = args[1];
                 Var symbolFn = GetRegExSymbolFunction(regExp, symbolPropertyId, scriptContext);
                 if (!JavascriptOperators::IsUndefinedOrNull(symbolFn))
-                {
+                {TRACE_IT(61762);
                     return CallRegExSymbolFunction<argCount>(symbolFn, regExp, args, varName, scriptContext);
                 }
             }
@@ -1743,7 +1743,7 @@ case_2:
     }
 
     Var JavascriptString::GetRegExSymbolFunction(Var regExp, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61763);
         return JavascriptOperators::GetProperty(
             RecyclableObject::FromVar(JavascriptOperators::ToObject(regExp, scriptContext)),
             propertyId,
@@ -1752,9 +1752,9 @@ case_2:
 
     template<int argCount>
     Var JavascriptString::CallRegExSymbolFunction(Var fn, Var regExp, Arguments& args, PCWSTR const varName, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61764);
         if (!JavascriptConversion::IsCallable(fn))
-        {
+        {TRACE_IT(61765);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_Invalid, varName);
         }
 
@@ -1764,20 +1764,20 @@ case_2:
 
     template<>
     Var JavascriptString::CallRegExFunction<1>(RecyclableObject* fnObj, Var regExp, Arguments& args)
-    {
+    {TRACE_IT(61766);
         // args[0]: String
         return CALL_FUNCTION(fnObj, CallInfo(CallFlags_Value, 2), regExp, args[0]);
     }
 
     template<>
     Var JavascriptString::CallRegExFunction<2>(RecyclableObject* fnObj, Var regExp, Arguments& args)
-    {
+    {TRACE_IT(61767);
         // args[0]: String
         // args[1]: RegExp (ignored since we need to create one when the argument is "undefined")
         // args[2]: Var
 
         if (args.Info.Count < 3)
-        {
+        {TRACE_IT(61768);
             return CallRegExFunction<1>(fnObj, regExp, args);
         }
 
@@ -1802,34 +1802,34 @@ case_2:
         int idxEnd = len;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61769);
             idxStart = JavascriptOperators::IsUndefinedObject(args[1], scriptContext) ? 0 : ConvertToIndex(args[1], scriptContext);
             if (args.Info.Count > 2)
-            {
+            {TRACE_IT(61770);
                 idxEnd = JavascriptOperators::IsUndefinedObject(args[2], scriptContext) ? len : ConvertToIndex(args[2], scriptContext);
             }
         }
 
         if (idxStart < 0)
-        {
+        {TRACE_IT(61771);
             idxStart = max(len + idxStart, 0);
         }
         else if (idxStart > len)
-        {
+        {TRACE_IT(61772);
             idxStart = len;
         }
 
         if (idxEnd < 0)
-        {
+        {TRACE_IT(61773);
             idxEnd = max(len + idxEnd, 0);
         }
         else if (idxEnd > len )
-        {
+        {TRACE_IT(61774);
             idxEnd = len;
         }
 
         if (idxEnd < idxStart)
-        {
+        {TRACE_IT(61775);
             idxEnd = idxStart;
         }
         return SubstringCore(pThis, idxStart, idxEnd - idxStart, scriptContext);
@@ -1849,56 +1849,56 @@ case_2:
         AUTO_TAG_NATIVE_LIBRARY_ENTRY(function, callInfo, varName);
 
         auto fallback = [&](JavascriptString* stringObj)
-        {
+        {TRACE_IT(61776);
             return DoStringSplit(args, callInfo, stringObj, scriptContext);
         };
         return DelegateToRegExSymbolFunction<2>(args, PropertyIds::_symbolSplit, fallback, varName, scriptContext);
     }
 
     Var JavascriptString::DoStringSplit(Arguments& args, CallInfo& callInfo, JavascriptString* input, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61777);
         if (args.Info.Count == 1)
-        {
+        {TRACE_IT(61778);
             JavascriptArray* ary = scriptContext->GetLibrary()->CreateArray(1);
             ary->DirectSetItemAt(0, input);
             return ary;
         }
         else
-        {
+        {TRACE_IT(61779);
             uint32 limit;
             if (args.Info.Count < 3 || JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {TRACE_IT(61780);
                 limit = UINT_MAX;
             }
             else
-            {
+            {TRACE_IT(61781);
                 limit = JavascriptConversion::ToUInt32(args[2], scriptContext);
             }
 
             // When the config is enabled, the operation is handled by RegExp.prototype[@@split].
             if (!scriptContext->GetConfig()->IsES6RegExSymbolsEnabled()
                 && JavascriptRegExp::Is(args[1]))
-            {
+            {TRACE_IT(61782);
                 return RegexHelper::RegexSplit(scriptContext, JavascriptRegExp::FromVar(args[1]), input, limit,
                     RegexHelper::IsResultNotUsed(callInfo.Flags));
             }
             else
-            {
+            {TRACE_IT(61783);
                 JavascriptString* separator = JavascriptConversion::ToString(args[1], scriptContext);
 
                 if (callInfo.Flags & CallFlags_NotUsed)
-                {
+                {TRACE_IT(61784);
                     return scriptContext->GetLibrary()->GetNull();
                 }
 
                 if (!limit)
-                {
+                {TRACE_IT(61785);
                     JavascriptArray* ary = scriptContext->GetLibrary()->CreateArray(0);
                     return ary;
                 }
 
                 if (JavascriptOperators::GetTypeId(args[1]) == TypeIds_Undefined)
-                {
+                {TRACE_IT(61786);
                     JavascriptArray* ary = scriptContext->GetLibrary()->CreateArray(1);
                     ary->DirectSetItemAt(0, input);
                     return ary;
@@ -1927,10 +1927,10 @@ case_2:
         int idxEnd = len;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61787);
             idxStart = JavascriptOperators::IsUndefinedObject(args[1], scriptContext) ? 0 : ConvertToIndex(args[1], scriptContext);
             if (args.Info.Count > 2)
-            {
+            {TRACE_IT(61788);
                 idxEnd = JavascriptOperators::IsUndefinedObject(args[2], scriptContext) ? len : ConvertToIndex(args[2], scriptContext);
             }
         }
@@ -1938,7 +1938,7 @@ case_2:
         idxStart = min(max(idxStart, 0), len);
         idxEnd = min(max(idxEnd, 0), len);
         if(idxEnd < idxStart)
-        {
+        {TRACE_IT(61789);
             //swap
             idxStart ^= idxEnd;
             idxEnd ^= idxStart;
@@ -1946,7 +1946,7 @@ case_2:
         }
 
         if (idxStart == 0 && idxEnd == len)
-        {
+        {TRACE_IT(61790);
             //return the string if we need to substring entire span
             return pThis;
         }
@@ -1972,37 +1972,37 @@ case_2:
         int idxEnd = len;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61791);
             idxStart = JavascriptOperators::IsUndefinedObject(args[1], scriptContext) ? 0 : ConvertToIndex(args[1], scriptContext);
             if (args.Info.Count > 2)
-            {
+            {TRACE_IT(61792);
                 idxEnd = JavascriptOperators::IsUndefinedObject(args[2], scriptContext) ? len : ConvertToIndex(args[2], scriptContext);
             }
         }
         if (idxStart < 0)
-        {
+        {TRACE_IT(61793);
             idxStart = max(len + idxStart, 0);
         }
         else if (idxStart > len)
-        {
+        {TRACE_IT(61794);
             idxStart = len;
         }
 
         if (idxEnd < 0)
-        {
+        {TRACE_IT(61795);
             idxEnd = idxStart;
         }
         else if (idxEnd > len - idxStart)
-        {
+        {TRACE_IT(61796);
             idxEnd = len;
         }
         else
-        {
+        {TRACE_IT(61797);
             idxEnd += idxStart;
         }
 
         if (idxStart == 0 && idxEnd == len)
-        {
+        {TRACE_IT(61798);
             //return the string if we need to substr entire span
             return pThis;
         }
@@ -2012,7 +2012,7 @@ case_2:
     }
 
     Var JavascriptString::SubstringCore(JavascriptString* pThis, int idxStart, int span, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61799);
         return SubString::New(pThis, idxStart, span);
     }
 
@@ -2049,43 +2049,43 @@ case_2:
     }
 
     JavascriptString* JavascriptString::PadCore(ArgumentReader& args, JavascriptString *mainString, bool isPadStart, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61800);
         Assert(mainString != nullptr);
         Assert(args.Info.Count > 0);
 
         if (args.Info.Count == 1)
-        {
+        {TRACE_IT(61801);
             return mainString;
         }
 
         int64 maxLength = JavascriptConversion::ToLength(args[1], scriptContext);
         charcount_t currentLength = mainString->GetLength();
         if (maxLength <= currentLength)
-        {
+        {TRACE_IT(61802);
             return mainString;
         }
 
         if (maxLength > JavascriptString::MaxCharLength)
-        {
+        {TRACE_IT(61803);
             Throw::OutOfMemory();
         }
 
         JavascriptString * fillerString = nullptr;
         if (args.Info.Count > 2 && !JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-        {
+        {TRACE_IT(61804);
             JavascriptString *argStr = JavascriptConversion::ToString(args[2], scriptContext);
             if (argStr->GetLength() > 0)
-            {
+            {TRACE_IT(61805);
                 fillerString = argStr;
             }
             else
-            {
+            {TRACE_IT(61806);
                 return mainString;
             }
         }
 
         if (fillerString == nullptr)
-        {
+        {TRACE_IT(61807);
             fillerString = NewWithBuffer(_u(" "), 1, scriptContext);
         }
 
@@ -2095,13 +2095,13 @@ case_2:
         charcount_t count = fillLength / fillerString->GetLength();
         JavascriptString * finalPad = scriptContext->GetLibrary()->GetEmptyString();
         if (count > 0)
-        {
+        {TRACE_IT(61808);
             finalPad = RepeatCore(fillerString, count, scriptContext);
             fillLength -= (count * fillerString->GetLength());
         }
 
         if (fillLength > 0)
-        {
+        {TRACE_IT(61809);
             finalPad = Concat(finalPad, SubString::New(fillerString, 0, fillLength));
         }
 
@@ -2146,7 +2146,7 @@ case_2:
 
         // Fast path for one character strings
         if (pThis->GetLength() == 1)
-        {
+        {TRACE_IT(61810);
             char16 inChar = pThis->GetString()[0];
             char16 outChar = inChar;
 #if DBG
@@ -2173,19 +2173,19 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61811);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.prototype.toString"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
 
         JavascriptString* str = nullptr;
         if (!GetThisValueVar(args[0], &str, scriptContext))
-        {
+        {TRACE_IT(61812);
             if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-            {
+            {TRACE_IT(61813);
                 Var result;
                 if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(EntryToString, args, &result))
-                {
+                {TRACE_IT(61814);
                     return result;
                 }
             }
@@ -2210,7 +2210,7 @@ case_2:
 
         // Fast path for one character strings
         if (pThis->GetLength() == 1)
-        {
+        {TRACE_IT(61815);
             char16 inChar = pThis->GetString()[0];
             char16 outChar = inChar;
 #if DBG
@@ -2228,7 +2228,7 @@ case_2:
     }
 
     Var JavascriptString::ToCaseCore(JavascriptString* pThis, ToCase toCase)
-    {
+    {TRACE_IT(61816);
         charcount_t count = pThis->GetLength();
 
         const char16* inStr = pThis->GetString();
@@ -2237,35 +2237,35 @@ case_2:
 
         // Try to find out the chars that do not need casing (in the ASCII range)
         if (toCase == ToUpper)
-        {
+        {TRACE_IT(61817);
             while (i < inStrLim)
-            {
+            {TRACE_IT(61818);
                 // first range of ascii lower-case (97-122)
                 // second range of ascii lower-case (223-255)
                 // non-ascii chars (255+)
                 if (*i >= 'a')
-                {
-                    if (*i <= 'z') { break; }
-                    if (*i >= 223) { break; }
+                {TRACE_IT(61819);
+                    if (*i <= 'z') {TRACE_IT(61820); break; }
+                    if (*i >= 223) {TRACE_IT(61821); break; }
                 }
                 i++;
             }
         }
         else
-        {
+        {TRACE_IT(61822);
             Assert(toCase == ToLower);
             while (i < inStrLim)
-            {
+            {TRACE_IT(61823);
                 // first range of ascii uppercase (65-90)
                 // second range of ascii uppercase (192-222)
                 // non-ascii chars (255+)
                 if (*i >= 'A')
-                {
-                    if (*i <= 'Z') { break; }
+                {TRACE_IT(61824);
+                    if (*i <= 'Z') {TRACE_IT(61825); break; }
                     if (*i >= 192)
-                    {
-                        if (*i < 223) { break; }
-                        if (*i >= 255) { break; }
+                    {TRACE_IT(61826);
+                        if (*i < 223) {TRACE_IT(61827); break; }
+                        if (*i >= 255) {TRACE_IT(61828); break; }
                     }
                 }
                 i++;
@@ -2273,7 +2273,7 @@ case_2:
         }
 
         // If no char needs casing, return immediately
-        if (i == inStrLim) { return pThis; }
+        if (i == inStrLim) {TRACE_IT(61829); return pThis; }
 
         // Otherwise, copy the string and start casing
         charcount_t countToCase = (charcount_t)(inStrLim - i);
@@ -2284,12 +2284,12 @@ case_2:
         char16 *o = outStr;
 
         while (o < outStrLim)
-        {
+        {TRACE_IT(61830);
             *o++ = *inStr++;
         }
 
         if(toCase == ToUpper)
-        {
+        {TRACE_IT(61831);
 #if DBG
             DWORD converted =
 #endif
@@ -2299,7 +2299,7 @@ case_2:
             Assert(converted == countToCase);
         }
         else
-        {
+        {TRACE_IT(61832);
             Assert(toCase == ToLower);
 #if DBG
             DWORD converted =
@@ -2379,7 +2379,7 @@ case_2:
 
     template <bool trimLeft, bool trimRight>
     Var JavascriptString::TrimLeftRightHelper(JavascriptString* arg, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61833);
         static_assert(trimLeft || trimRight, "bad template instance of TrimLeftRightHelper()");
 
         int len = arg->GetLength();
@@ -2387,46 +2387,46 @@ case_2:
 
         int idxStart = 0;
         if (trimLeft)
-        {
+        {TRACE_IT(61834);
             for (; idxStart < len; idxStart++)
-            {
+            {TRACE_IT(61835);
                 char16 ch = string[idxStart];
                 if (IsWhiteSpaceCharacter(ch))
-                {
+                {TRACE_IT(61836);
                     continue;
                 }
                 break;
             }
 
             if (len == idxStart)
-            {
+            {TRACE_IT(61837);
                 return (scriptContext->GetLibrary()->GetEmptyString());
             }
         }
 
         int idxEnd = len - 1;
         if (trimRight)
-        {
+        {TRACE_IT(61838);
             for (; idxEnd >= 0; idxEnd--)
-            {
+            {TRACE_IT(61839);
                 char16 ch = string[idxEnd];
                 if (IsWhiteSpaceCharacter(ch))
-                {
+                {TRACE_IT(61840);
                     continue;
                 }
                 break;
             }
 
             if (!trimLeft)
-            {
+            {TRACE_IT(61841);
                 if (idxEnd < 0)
-                {
+                {TRACE_IT(61842);
                     Assert(idxEnd == -1);
                     return (scriptContext->GetLibrary()->GetEmptyString());
                 }
             }
             else
-            {
+            {TRACE_IT(61843);
                 Assert(idxEnd >= 0);
             }
         }
@@ -2454,12 +2454,12 @@ case_2:
         charcount_t count = 0;
 
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(61844);
             if (!JavascriptOperators::IsUndefinedObject(args[1], scriptContext))
-            {
+            {TRACE_IT(61845);
                 double countDbl = JavascriptConversion::ToInteger(args[1], scriptContext);
                 if (JavascriptNumber::IsPosInf(countDbl) || countDbl < 0.0)
-                {
+                {TRACE_IT(61846);
                     JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgumentOutOfRange, _u("String.prototype.repeat"));
                 }
 
@@ -2468,11 +2468,11 @@ case_2:
         }
 
         if (count == 0 || pThis->GetLength() == 0)
-        {
+        {TRACE_IT(61847);
             return scriptContext->GetLibrary()->GetEmptyString();
         }
         else if (count == 1)
-        {
+        {TRACE_IT(61848);
             return pThis;
         }
 
@@ -2480,7 +2480,7 @@ case_2:
     }
 
     JavascriptString* JavascriptString::RepeatCore(JavascriptString* currentString, charcount_t count, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61849);
         Assert(currentString != nullptr);
         Assert(currentString->GetLength() > 0);
         Assert(count > 0);
@@ -2497,7 +2497,7 @@ case_2:
             buffer[finalBufferCount - 1] = '\0';
         }
         else
-        {
+        {TRACE_IT(61850);
             char16* bufferDst = buffer;
             size_t bufferDstSize = finalBufferCount;
             AnalysisAssert(bufferDstSize > currentLength);
@@ -2545,9 +2545,9 @@ case_2:
         int startPosition = 0;
 
         if (args.Info.Count > 2)
-        {
+        {TRACE_IT(61851);
             if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {TRACE_IT(61852);
                 startPosition = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
                 startPosition = min(max(startPosition, 0), thisStrLen);
             }
@@ -2557,10 +2557,10 @@ case_2:
         // adding searchStrLen and startPosition.  The subtraction cannot underflow because maximum string length is
         // MaxCharCount == INT_MAX-1.  I.e. the RHS can be == 0 - (INT_MAX-1) == 1 - INT_MAX which would not underflow.
         if (startPosition <= thisStrLen - searchStrLen)
-        {
+        {TRACE_IT(61853);
             Assert(searchStrLen <= thisStrLen - startPosition);
             if (wmemcmp(thisStr + startPosition, searchStr, searchStrLen) == 0)
-            {
+            {TRACE_IT(61854);
                 return scriptContext->GetLibrary()->GetTrue();
             }
         }
@@ -2598,9 +2598,9 @@ case_2:
         int endPosition = thisStrLen;
 
         if (args.Info.Count > 2)
-        {
+        {TRACE_IT(61855);
             if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {TRACE_IT(61856);
                 endPosition = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
                 endPosition = min(max(endPosition, 0), thisStrLen);
             }
@@ -2609,11 +2609,11 @@ case_2:
         int startPosition = endPosition - searchStrLen;
 
         if (startPosition >= 0)
-        {
+        {TRACE_IT(61857);
             Assert(startPosition <= thisStrLen);
             Assert(searchStrLen <= thisStrLen - startPosition);
             if (wmemcmp(thisStr + startPosition, searchStr, searchStrLen) == 0)
-            {
+            {TRACE_IT(61858);
                 return scriptContext->GetLibrary()->GetTrue();
             }
         }
@@ -2650,19 +2650,19 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61859);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.prototype.valueOf"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
 
         JavascriptString* str = nullptr;
         if (!GetThisValueVar(args[0], &str, scriptContext))
-        {
+        {TRACE_IT(61860);
             if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-            {
+            {TRACE_IT(61861);
                 Var result;
                 if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(EntryValueOf, args, &result))
-                {
+                {TRACE_IT(61862);
                     return result;
                 }
             }
@@ -2683,13 +2683,13 @@ case_2:
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0)
-        {
+        {TRACE_IT(61863);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedString, _u("String.prototype[Symbol.iterator]"));
         }
         AssertMsg(args.Info.Count > 0, "Negative argument count");
 
         if (!JavascriptConversion::CheckObjectCoercible(args[0], scriptContext))
-        {
+        {TRACE_IT(61864);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("String.prototype[Symbol.iterator]"));
         }
 
@@ -2699,15 +2699,15 @@ case_2:
     }
 
     const char16 * JavascriptString::GetSz()
-    {
+    {TRACE_IT(61865);
         Assert(m_pszValue[m_charLength] == _u('\0'));
         return m_pszValue;
     }
 
     const char16 * JavascriptString::GetString()
-    {
+    {TRACE_IT(61866);
         if (!this->IsFinalized())
-        {
+        {TRACE_IT(61867);
             this->GetSz();
             Assert(m_pszValue);
         }
@@ -2715,34 +2715,34 @@ case_2:
     }
 
     void const * JavascriptString::GetOriginalStringReference()
-    {
+    {TRACE_IT(61868);
         // Just return the string buffer
         return GetString();
     }
 
     size_t JavascriptString::GetAllocatedByteCount() const
-    {
+    {TRACE_IT(61869);
         if (!this->IsFinalized())
-        {
+        {TRACE_IT(61870);
             return 0;
         }
         return this->m_charLength * sizeof(WCHAR);
     }
 
     bool JavascriptString::IsSubstring() const
-    {
+    {TRACE_IT(61871);
         return false;
     }
 
     bool JavascriptString::IsNegZero(JavascriptString *string)
-    {
+    {TRACE_IT(61872);
         return string->GetLength() == 2 && wmemcmp(string->GetString(), _u("-0"), 2) == 0;
     }
 
     void JavascriptString::FinishCopy(__inout_xcount(m_charLength) char16 *const buffer, StringCopyInfoStack &nestedStringTreeCopyInfos)
-    {
+    {TRACE_IT(61873);
         while (!nestedStringTreeCopyInfos.IsEmpty())
-        {
+        {TRACE_IT(61874);
             const StringCopyInfo copyInfo(nestedStringTreeCopyInfos.Pop());
             Assert(copyInfo.SourceString()->GetLength() <= GetLength());
             Assert(copyInfo.DestinationBuffer() >= buffer);
@@ -2755,19 +2755,19 @@ case_2:
         _Out_writes_(m_charLength) char16 *const buffer,
         StringCopyInfoStack &nestedStringTreeCopyInfos,
         const byte recursionDepth)
-    {
+    {TRACE_IT(61875);
         Assert(buffer);
         Assert(!this->IsFinalized());   // CopyVirtual should only be called for unfinalized buffers
         CopyHelper(buffer, GetString(), GetLength());
     }
 
     char16* JavascriptString::GetSzCopy()
-    {
+    {TRACE_IT(61876);
         return AllocateLeafAndCopySz(this->GetScriptContext()->GetRecycler(), GetString(), GetLength());
     }
 
     LPCWSTR JavascriptString::GetSzCopy(ArenaAllocator* alloc)
-    {
+    {TRACE_IT(61877);
         return AllocateAndCopySz(alloc, GetString(), GetLength());
     }
 
@@ -2822,7 +2822,7 @@ case_2:
 
     // NumberUtil::FIntRadStrToDbl and parts of GlobalObject::EntryParseInt were refactored into ToInteger
     Var JavascriptString::ToInteger(int radix)
-    {
+    {TRACE_IT(61878);
         AssertMsg(radix == 0 || radix >= 2 && radix <= 36, "'radix' is invalid");
         const char16* pchStart = GetString();
         const char16* pchEnd =  pchStart + m_charLength;
@@ -2835,34 +2835,34 @@ case_2:
             // Fall through.
         case '+':
             if(pch < pchEnd)
-            {
+            {TRACE_IT(61879);
                 pch++;
             }
             break;
         }
 
         if (0 == radix)
-        {
+        {TRACE_IT(61880);
             if (pch < pchEnd && '0' != pch[0])
-            {
+            {TRACE_IT(61881);
                 radix = 10;
             }
             else if (('x' == pch[1] || 'X' == pch[1]) && pchEnd - pch >= 2)
-            {
+            {TRACE_IT(61882);
                 radix = 16;
                 pch += 2;
             }
             else
-            {
+            {TRACE_IT(61883);
                  // ES5's 'parseInt' does not allow treating a string beginning with a '0' as an octal value. ES3 does not specify a
                  // behavior
                  radix = 10;
             }
         }
         else if (16 == radix)
-        {
+        {TRACE_IT(61884);
             if('0' == pch[0] && ('x' == pch[1] || 'X' == pch[1]) && pchEnd - pch >= 2)
-            {
+            {TRACE_IT(61885);
                 pch += 2;
             }
         }
@@ -2873,15 +2873,15 @@ case_2:
         const char16 *const pchMin = pch;
         __analysis_assume(radix < _countof(maxUintStringLengthTable));
         if(length <= maxUintStringLengthTable[radix])
-        {
+        {TRACE_IT(61886);
             // Use uint32 as integer being parsed - much faster than BigInt
             uint32 value = 0;
             for ( ; pch < pchEnd ; pch++)
-            {
+            {TRACE_IT(61887);
                 char16 ch = *pch;
 
                 if(ch >= _countof(stringToIntegerMap) || (ch = stringToIntegerMap[ch]) >= radix)
-                {
+                {TRACE_IT(61888);
                     break;
                 }
                 uint32 beforeValue = value;
@@ -2890,15 +2890,15 @@ case_2:
             }
 
             if(pchMin == pch)
-            {
+            {TRACE_IT(61889);
                 return GetScriptContext()->GetLibrary()->GetNaN();
             }
 
             if(isNegative)
-            {
+            {TRACE_IT(61890);
                 // negative zero can only be represented by doubles
                 if(value <= INT_MAX && value != 0)
-                {
+                {TRACE_IT(61891);
                     int32 result = -((int32)value);
                     return JavascriptNumber::ToVar(result, this->GetScriptContext());
                 }
@@ -2910,21 +2910,21 @@ case_2:
 
         BigInt bi;
         for ( ; pch < pchEnd ; pch++)
-        {
+        {TRACE_IT(61892);
             char16 ch = *pch;
 
             if(ch >= _countof(stringToIntegerMap) || (ch = stringToIntegerMap[ch]) >= radix)
-            {
+            {TRACE_IT(61893);
                 break;
             }
             if (!bi.FMulAdd(radix, ch))
-            {
+            {TRACE_IT(61894);
                 //Mimic IE8 which threw an OutOfMemory exception in this case.
                 JavascriptError::ThrowOutOfMemoryError(GetScriptContext());
             }
             // If we ever have more than 32 ulongs, the result must be infinite.
             if (bi.Clu() > 32)
-            {
+            {TRACE_IT(61895);
                 Var result = isNegative ?
                     GetScriptContext()->GetLibrary()->GetNegativeInfinite() :
                     GetScriptContext()->GetLibrary()->GetPositiveInfinite();
@@ -2933,14 +2933,14 @@ case_2:
         }
 
         if (pchMin == pch)
-        {
+        {TRACE_IT(61896);
             return GetScriptContext()->GetLibrary()->GetNaN();
         }
 
         // Convert to a double.
         double result = bi.GetDbl();
         if(isNegative)
-        {
+        {TRACE_IT(61897);
             result = -result;
         }
 
@@ -2948,17 +2948,17 @@ case_2:
     }
 
     bool JavascriptString::ToDouble(double * result)
-    {
+    {TRACE_IT(61898);
         const char16* pch;
         int32 len = this->m_charLength;
         if (0 == len)
-        {
+        {TRACE_IT(61899);
             *result = 0;
             return true;
         }
 
         if (1 == len && NumberUtilities::IsDigit(this->GetString()[0]))
-        {
+        {TRACE_IT(61900);
             *result = (double)(this->GetString()[0] - '0');
             return true;
         }
@@ -2967,14 +2967,14 @@ case_2:
         for (pch = this->GetSz(); IsWhiteSpaceCharacter(*pch); pch++)
             ;
         if (0 == *pch)
-        {
+        {TRACE_IT(61901);
             *result = 0;
             return true;
         }
 
         bool isNumericLiteral = false;
         if (*pch == '0')
-        {
+        {TRACE_IT(61902);
             const char16 *pchT = pch + 2;
             switch (pch[1])
             {
@@ -2996,20 +2996,20 @@ case_2:
                 break;
             }
             if (pchT == pch && isNumericLiteral)
-            {
+            {TRACE_IT(61903);
                 *result = JavascriptNumber::NaN;
                 return false;
             }
         }
         if (!isNumericLiteral)
-        {
+        {TRACE_IT(61904);
             *result = NumberUtilities::StrToDbl(pch, &pch, GetScriptContext());
         }
 
         while (IsWhiteSpaceCharacter(*pch))
             pch++;
         if (pch != this->m_pszValue + len)
-        {
+        {TRACE_IT(61905);
             *result = JavascriptNumber::NaN;
             return false;
         }
@@ -3017,14 +3017,14 @@ case_2:
     }
 
     double JavascriptString::ToDouble()
-    {
+    {TRACE_IT(61906);
         double result;
         this->ToDouble(&result);
         return result;
     }
 
     bool JavascriptString::Equals(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(61907);
         return JavascriptStringHelpers<JavascriptString>::Equals(aLeft, aRight);
     }
 
@@ -3033,14 +3033,14 @@ case_2:
     // returns false for same string pattern
     //
     bool JavascriptString::LessThan(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(61908);
         AssertMsg(JavascriptString::Is(aLeft) && JavascriptString::Is(aRight), "string LessThan");
 
         JavascriptString *leftString  = JavascriptString::FromVar(aLeft);
         JavascriptString *rightString = JavascriptString::FromVar(aRight);
 
         if (JavascriptString::strcmp(leftString, rightString) < 0)
-        {
+        {TRACE_IT(61909);
             return true;
         }
         return false;
@@ -3048,18 +3048,18 @@ case_2:
 
     // thisStringValue(value) abstract operation as defined in ES6.0 (Draft 25) Section 21.1.3
     BOOL JavascriptString::GetThisValueVar(Var aValue, JavascriptString** pString, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61910);
         Assert(pString);
 
         // 1. If Type(value) is String, return value.
         if (JavascriptString::Is(aValue))
-        {
+        {TRACE_IT(61911);
             *pString = JavascriptString::FromVar(aValue);
             return TRUE;
         }
         // 2. If Type(value) is Object and value has a [[StringData]] internal slot
         else if ( JavascriptStringObject::Is(aValue))
-        {
+        {TRACE_IT(61912);
             JavascriptStringObject* pStringObj = JavascriptStringObject::FromVar(aValue);
 
             // a. Let s be the value of value's [[StringData]] internal slot.
@@ -3093,7 +3093,7 @@ case_2:
 
     Var JavascriptString::StringBracketHelper(Arguments args, ScriptContext *scriptContext, __in_ecount(cchTag) char16 const *pszTag,
                                                 charcount_t cchTag, __in_ecount_opt(cchProp) char16 const *pszProp, charcount_t cchProp)
-    {
+    {TRACE_IT(61913);
         charcount_t cchThis;
         charcount_t cchPropertyValue;
         charcount_t cchTotalChars;
@@ -3127,24 +3127,24 @@ case_2:
         // Note: Without ES6FixesEnabled, the tag and prop strings should be capitalized.
 
         if(args.Info.Count == 0)
-        {
+        {TRACE_IT(61914);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedString);
         }
 
         if (ES6FixesEnabled)
-        {
+        {TRACE_IT(61915);
             if (!JavascriptConversion::CheckObjectCoercible(args[0], scriptContext))
-            {
+            {TRACE_IT(61916);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, pszTag);
             }
         }
 
         if (JavascriptString::Is(args[0]))
-        {
+        {TRACE_IT(61917);
             pThis = JavascriptString::FromVar(args[0]);
         }
         else
-        {
+        {TRACE_IT(61918);
             pThis = JavascriptConversion::ToString(args[0], scriptContext);
         }
 
@@ -3155,21 +3155,21 @@ case_2:
         cchTotalChars = UInt32Math::Add(cchTotalChars, 5);
 
         if (nullptr != pszProp)
-        {
+        {TRACE_IT(61919);
             // Need one string argument.
             if (args.Info.Count >= 2)
-            {
+            {TRACE_IT(61920);
                 if (JavascriptString::Is(args[1]))
-                {
+                {TRACE_IT(61921);
                     pPropertyValue = JavascriptString::FromVar(args[1]);
                 }
                 else
-                {
+                {TRACE_IT(61922);
                     pPropertyValue = JavascriptConversion::ToString(args[1], scriptContext);
                 }
             }
             else
-            {
+            {TRACE_IT(61923);
                 pPropertyValue = scriptContext->GetLibrary()->GetUndefinedDisplayString();
             }
 
@@ -3177,12 +3177,12 @@ case_2:
             propertyValueStr = pPropertyValue->GetString();
 
             if (ES6FixesEnabled)
-            {
+            {TRACE_IT(61924);
                 // Count the number of " characters we need to escape.
                 for (ich = 0; ich < cchPropertyValue; ich++)
-                {
+                {TRACE_IT(61925);
                     if (propertyValueStr[ich] == _u('"'))
-                    {
+                    {TRACE_IT(61926);
                         ++quotesCount;
                     }
                 }
@@ -3194,20 +3194,20 @@ case_2:
             cchTotalChars = UInt32Math::Add(cchTotalChars, 4);
 
             if (ES6FixesEnabled)
-            {
+            {TRACE_IT(61927);
                 // Account for the " escaping (&quot;)
                 cchTotalChars = UInt32Math::Add(cchTotalChars, UInt32Math::Mul(quotesCount, quotStrLen)) - quotesCount;
             }
         }
         else
-        {
+        {TRACE_IT(61928);
             cchPropertyValue = 0;
             cchProp = 0;
         }
         cchTotalChars = UInt32Math::Add(cchTotalChars, cchThis);
         cchTotalChars = UInt32Math::Add(cchTotalChars, cchPropertyValue);
         if (!IsValidCharCount(cchTotalChars) || cchTotalChars < cchThis || cchTotalChars < cchPropertyValue)
-        {
+        {TRACE_IT(61929);
             Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
         }
 
@@ -3216,14 +3216,14 @@ case_2:
 
         *pResult++ = _u('<');
         for (ich = 0; ich < cchTag; ich++)
-        {
+        {TRACE_IT(61930);
             *pResult++ = ES6FixesEnabled ? pszTag[ich] : towupper(pszTag[ich]);
         }
         if (nullptr != pszProp)
-        {
+        {TRACE_IT(61931);
             *pResult++ = _u(' ');
             for (ich = 0; ich < cchProp; ich++)
-            {
+            {TRACE_IT(61932);
                 *pResult++ = ES6FixesEnabled ? pszProp[ich] : towupper(pszProp[ich]);
             }
             *pResult++ = _u('=');
@@ -3240,11 +3240,11 @@ case_2:
 
                 pResult += cchPropertyValue;
             }
-            else {
+            else {TRACE_IT(61933);
                 for (ich = 0; ich < cchPropertyValue; ich++)
-                {
+                {TRACE_IT(61934);
                     if (propertyValueStr[ich] == _u('"'))
-                    {
+                    {TRACE_IT(61935);
                         charcount_t destLengthLeft = (cchTotalChars - (charcount_t)(pResult - builder.DangerousGetWritableBuffer() + 1));
 
                         // Copy the quote string into result beginning at the index where the quote would appear
@@ -3260,7 +3260,7 @@ case_2:
 
                         // We only need to check to see if we have no more quotes after eating a quote
                         if (quotesCount == 0)
-                        {
+                        {TRACE_IT(61936);
                             // Skip the quote character.
                             // Note: If ich is currently the last character (cchPropertyValue-1), it becomes cchPropertyValue after incrementing.
                             // At that point, cchPropertyValue - ich == 0 so we will not increment pResult and will call memcpy for zero bytes.
@@ -3278,7 +3278,7 @@ case_2:
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(61937);
                         // Each non-quote character just gets copied into result string
                         *pResult++ = propertyValueStr[ich];
                     }
@@ -3296,7 +3296,7 @@ case_2:
         *pResult++ = _u('<');
         *pResult++ = _u('/');
         for (ich = 0; ich < cchTag; ich++)
-        {
+        {TRACE_IT(61938);
             *pResult++ = ES6FixesEnabled ? pszTag[ich] : towupper(pszTag[ich]);
         }
         *pResult++ = _u('>');
@@ -3307,23 +3307,23 @@ case_2:
         return builder.ToString();
     }
     Var JavascriptString::ToLocaleCaseHelper(Var thisObj, bool toUpper, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61939);
         using namespace PlatformAgnostic::UnicodeText;
 
         JavascriptString * pThis;
 
         if (JavascriptString::Is(thisObj))
-        {
+        {TRACE_IT(61940);
             pThis = JavascriptString::FromVar(thisObj);
         }
         else
-        {
+        {TRACE_IT(61941);
             pThis = JavascriptConversion::ToString(thisObj, scriptContext);
         }
 
         uint32 strLength = pThis->GetLength();
         if (strLength == 0)
-        {
+        {TRACE_IT(61942);
             return pThis;
         }
 
@@ -3334,7 +3334,7 @@ case_2:
         int32 count = PlatformAgnostic::UnicodeText::ChangeStringLinguisticCase(caseFlags, str, strLength, nullptr, 0, &err);
 
         if (count <= 0)
-        {
+        {TRACE_IT(61943);
             AssertMsg(err != ApiError::NoError, "LCMapString failed");
             Throw::InternalError();
         }
@@ -3345,7 +3345,7 @@ case_2:
         int count1 = PlatformAgnostic::UnicodeText::ChangeStringLinguisticCase(caseFlags, str, count, stringBuffer, count, &err);
 
         if (count1 <= 0)
-        {
+        {TRACE_IT(61944);
             AssertMsg(err != ApiError::NoError, "LCMapString failed");
             Throw::InternalError();
         }
@@ -3354,46 +3354,46 @@ case_2:
     }
 
     int JavascriptString::IndexOfUsingJmpTable(JmpTable jmpTable, const char16* inputStr, charcount_t len, const char16* searchStr, int searchLen, int position)
-    {
+    {TRACE_IT(61945);
         int result = -1;
 
         const char16 searchLast = searchStr[searchLen-1];
 
         uint32 lMatchedJump = searchLen;
         if (jmpTable[searchLast].shift > 0)
-        {
+        {TRACE_IT(61946);
             lMatchedJump = jmpTable[searchLast].shift;
         }
 
         char16 const * p = inputStr + position + searchLen-1;
         WCHAR c;
         while(p < inputStr + len)
-        {
+        {TRACE_IT(61947);
             // first character match, keep checking
             if (*p == searchLast)
-            {
+            {TRACE_IT(61948);
                 if ( wmemcmp(p-searchLen+1, searchStr, searchLen) == 0 )
-                {
+                {TRACE_IT(61949);
                     break;
                 }
                 p += lMatchedJump;
             }
             else
-            {
+            {TRACE_IT(61950);
                 c = *p;
                 if ( 0 == ( c & ~0x7f ) && jmpTable[c].shift != 0 )
-                {
+                {TRACE_IT(61951);
                     p += jmpTable[c].shift;
                 }
                 else
-                {
+                {TRACE_IT(61952);
                     p += searchLen;
                 }
             }
         }
 
         if (p >= inputStr+position && p < inputStr + len)
-        {
+        {TRACE_IT(61953);
             result = (int)(p - inputStr) - searchLen + 1;
         }
 
@@ -3401,35 +3401,35 @@ case_2:
     }
 
     int JavascriptString::LastIndexOfUsingJmpTable(JmpTable jmpTable, const char16* inputStr, charcount_t len, const char16* searchStr, charcount_t searchLen, charcount_t position)
-    {
+    {TRACE_IT(61954);
         const char16 searchFirst = searchStr[0];
         uint32 lMatchedJump = searchLen;
         if (jmpTable[searchFirst].shift > 0)
-        {
+        {TRACE_IT(61955);
             lMatchedJump = jmpTable[searchFirst].shift;
         }
         WCHAR c;
         char16 const * p = inputStr + min(len - searchLen, position);
         while(p >= inputStr)
-        {
+        {TRACE_IT(61956);
             // first character match, keep checking
             if (*p == searchFirst)
             {
                 if ( wmemcmp(p, searchStr, searchLen) == 0 )
-                {
+                {TRACE_IT(61957);
                     break;
                 }
                 p -= lMatchedJump;
             }
             else
-            {
+            {TRACE_IT(61958);
                 c = *p;
                 if ( 0 == ( c & ~0x7f ) && jmpTable[c].shift != 0 )
-                {
+                {TRACE_IT(61959);
                     p -= jmpTable[c].shift;
                 }
                 else
-                {
+                {TRACE_IT(61960);
                     p -= searchLen;
                 }
             }
@@ -3438,7 +3438,7 @@ case_2:
     }
 
     bool JavascriptString::BuildLastCharForwardBoyerMooreTable(JmpTable jmpTable, const char16* searchStr, int searchLen)
-    {
+    {TRACE_IT(61961);
         AssertMsg(searchLen >= 1, "Table for non-empty string");
         memset(jmpTable, 0, sizeof(JmpTable));
 
@@ -3447,17 +3447,17 @@ case_2:
 
         // Determine if we can do a partial ASCII Boyer-Moore
         while (p2 >= begin)
-        {
+        {TRACE_IT(61962);
             WCHAR c = *p2;
             if ( 0 == ( c & ~0x7f ))
-            {
+            {TRACE_IT(61963);
                 if ( jmpTable[c].shift == 0 )
-                {
+                {TRACE_IT(61964);
                     jmpTable[c].shift = (uint32)(searchStr + searchLen - 1 - p2);
                 }
             }
             else
-            {
+            {TRACE_IT(61965);
                 return false;
             }
             p2--;
@@ -3467,7 +3467,7 @@ case_2:
     }
 
     bool JavascriptString::BuildFirstCharBackwardBoyerMooreTable(JmpTable jmpTable, const char16* searchStr, int searchLen)
-    {
+    {TRACE_IT(61966);
         AssertMsg(searchLen >= 1, "Table for non-empty string");
         memset(jmpTable, 0, sizeof(JmpTable));
 
@@ -3476,17 +3476,17 @@ case_2:
 
         // Determine if we can do a partial ASCII Boyer-Moore
         while (p2 < end)
-        {
+        {TRACE_IT(61967);
             WCHAR c = *p2;
             if ( 0 == ( c & ~0x7f ))
-            {
+            {TRACE_IT(61968);
                 if ( jmpTable[c].shift == 0 )
-                {
+                {TRACE_IT(61969);
                     jmpTable[c].shift = (uint32)(p2 - searchStr);
                 }
             }
             else
-            {
+            {TRACE_IT(61970);
                 return false;
             }
             p2++;
@@ -3496,7 +3496,7 @@ case_2:
     }
 
     uint JavascriptString::strstr(JavascriptString *string, JavascriptString *substring, bool useBoyerMoore, uint start)
-    {
+    {TRACE_IT(61971);
         uint i;
 
         const char16 *stringOrig = string->GetString();
@@ -3507,37 +3507,37 @@ case_2:
         uint substringLen = substring->GetLength();
 
         if (useBoyerMoore && substringLen > 2)
-        {
+        {TRACE_IT(61972);
             JmpTable jmpTable;
             bool fAsciiJumpTable = BuildLastCharForwardBoyerMooreTable(jmpTable, substringSz, substringLen);
             if (fAsciiJumpTable)
-            {
+            {TRACE_IT(61973);
                 int result = IndexOfUsingJmpTable(jmpTable, stringOrig, stringLenOrig, substringSz, substringLen, start);
                 if (result != -1)
-                {
+                {TRACE_IT(61974);
                     return result;
                 }
                 else
-                {
+                {TRACE_IT(61975);
                     return (uint)-1;
                 }
             }
         }
 
         if (stringLen >= substringLen)
-        {
+        {TRACE_IT(61976);
             // If substring is empty, it matches anything...
             if (substringLen == 0)
-            {
+            {TRACE_IT(61977);
                 return 0;
             }
             for (i = 0; i <= stringLen - substringLen; i++)
-            {
+            {TRACE_IT(61978);
                 // Quick check for first character.
                 if (stringSz[i] == substringSz[0])
-                {
+                {TRACE_IT(61979);
                     if (substringLen == 1 || memcmp(stringSz+i+1, substringSz+1, (substringLen-1)*sizeof(char16)) == 0)
-                    {
+                    {TRACE_IT(61980);
                         return i + start;
                     }
                 }
@@ -3548,7 +3548,7 @@ case_2:
     }
 
     int JavascriptString::strcmp(JavascriptString *string1, JavascriptString *string2)
-    {
+    {TRACE_IT(61981);
         uint string1Len = string1->GetLength();
         uint string2Len = string2->GetLength();
 
@@ -3558,11 +3558,11 @@ case_2:
     }
 
     /*static*/ charcount_t JavascriptString::SafeSzSize(charcount_t cch)
-    {
+    {TRACE_IT(61982);
         // JavascriptString::MaxCharLength is valid; however, we are incrementing below by 1 and want to make sure we aren't overflowing
         // Nor going outside of valid range.
         if (cch >= JavascriptString::MaxCharLength)
-        {
+        {TRACE_IT(61983);
             Throw::OutOfMemory();
         }
 
@@ -3573,12 +3573,12 @@ case_2:
     }
 
     charcount_t JavascriptString::SafeSzSize() const
-    {
+    {TRACE_IT(61984);
         return SafeSzSize(GetLength());
     }
 
     /*static*/ __ecount(length+1) char16* JavascriptString::AllocateLeafAndCopySz(__in Recycler* recycler, __in_ecount(length) const char16* content, charcount_t length)
-    {
+    {TRACE_IT(61985);
         // Note: Intentionally not using SafeSzSize nor hoisting common
         // sub-expression "length + 1" into a local variable otherwise
         // Prefast gets confused and cannot track buffer's length.
@@ -3586,7 +3586,7 @@ case_2:
         // JavascriptString::MaxCharLength is valid; however, we are incrementing below by 1 and want to make sure we aren't overflowing
         // Nor going outside of valid range.
         if (length >= JavascriptString::MaxCharLength)
-        {
+        {TRACE_IT(61986);
             Throw::OutOfMemory();
         }
 
@@ -3600,7 +3600,7 @@ case_2:
     }
 
     /*static*/ __ecount(length+1) char16* JavascriptString::AllocateAndCopySz(__in ArenaAllocator* arena, __in_ecount(length) const char16* content, charcount_t length)
-    {
+    {TRACE_IT(61987);
         // Note: Intentionally not using SafeSzSize nor hoisting common
         // sub-expression "length + 1" into a local variable otherwise
         // Prefast gets confused and cannot track buffer's length.
@@ -3608,7 +3608,7 @@ case_2:
         // JavascriptString::MaxCharLength is valid; however, we are incrementing below by 1 and want to make sure we aren't overflowing
         // Nor going outside of valid range.
         if (length >= JavascriptString::MaxCharLength)
-        {
+        {TRACE_IT(61988);
             Throw::OutOfMemory();
         }
 
@@ -3621,26 +3621,26 @@ case_2:
     }
 
     RecyclableObject * JavascriptString::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(61989);
         return JavascriptString::NewWithBuffer(this->GetSz(), this->GetLength(), requestContext);
     }
 
     charcount_t JavascriptString::ConvertToIndex(Var varIndex, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(61990);
         if (TaggedInt::Is(varIndex))
-        {
+        {TRACE_IT(61991);
             return TaggedInt::ToInt32(varIndex);
         }
         return NumberUtilities::LwFromDblNearest(JavascriptConversion::ToInteger(varIndex, scriptContext));
     }
 
     char16* JavascriptString::GetNormalizedString(PlatformAgnostic::UnicodeText::NormalizationForm form, ArenaAllocator* tempAllocator, charcount_t& sizeOfNormalizedStringWithoutNullTerminator)
-    {
+    {TRACE_IT(61992);
         using namespace PlatformAgnostic;
 
         ScriptContext* scriptContext = this->GetScriptContext();
         if (this->GetLength() == 0)
-        {
+        {TRACE_IT(61993);
             sizeOfNormalizedStringWithoutNullTerminator = 0;
             return nullptr;
         }
@@ -3663,13 +3663,13 @@ case_2:
         char16 *tmpBuffer = nullptr;
         //Loop while the size estimate is bigger than 0
         while (error == UnicodeText::ApiError::InsufficientBuffer)
-        {
+        {TRACE_IT(61994);
             tmpBuffer = AnewArray(tempAllocator, char16, sizeEstimate);
             sizeEstimate = UnicodeText::NormalizeString(form, this->GetSz(), this->GetLength() + 1, tmpBuffer, sizeEstimate, &error);
 
             // Success, sizeEstimate is the exact size including the null terminator
             if (sizeEstimate > 0)
-            {
+            {TRACE_IT(61995);
                 sizeOfNormalizedStringWithoutNullTerminator = sizeEstimate - 1;
                 return tmpBuffer;
             }
@@ -3705,7 +3705,7 @@ case_2:
     }
 
     void JavascriptString::InstantiateForceInlinedMembers()
-    {
+    {TRACE_IT(61996);
         // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in
         // the same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined
         // function is not referenced in the same translation unit, it will not be generated and the linker is not able to find
@@ -3719,24 +3719,24 @@ case_2:
 
     JavascriptString *
     JavascriptString::Concat3(JavascriptString * pstLeft, JavascriptString * pstCenter, JavascriptString * pstRight)
-    {
+    {TRACE_IT(61997);
         ConcatStringMulti * concatString = ConcatStringMulti::New(3, pstLeft, pstCenter, pstLeft->GetScriptContext());
         concatString->SetItem(2, pstRight);
         return concatString;
     }
 
     BOOL JavascriptString::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(61998);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(61999);
             return true;
         }
         ScriptContext* scriptContext = GetScriptContext();
         charcount_t index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(62000);
             if (index < this->GetLength())
-            {
+            {TRACE_IT(62001);
                 return true;
             }
         }
@@ -3744,13 +3744,13 @@ case_2:
     }
 
     BOOL JavascriptString::IsEnumerable(PropertyId propertyId)
-    {
+    {TRACE_IT(62002);
         ScriptContext* scriptContext = GetScriptContext();
         charcount_t index;
         if (scriptContext->IsNumericPropertyId(propertyId, &index))
-        {
+        {TRACE_IT(62003);
             if (index < this->GetLength())
-            {
+            {TRACE_IT(62004);
                 return true;
             }
         }
@@ -3758,16 +3758,16 @@ case_2:
     }
 
     BOOL JavascriptString::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62005);
         return GetPropertyBuiltIns(propertyId, value, requestContext);
     }
     BOOL JavascriptString::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62006);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
-        {
+        {TRACE_IT(62007);
             return true;
         }
 
@@ -3775,9 +3775,9 @@ case_2:
         return false;
     }
     bool JavascriptString::GetPropertyBuiltIns(PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62008);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(62009);
             *value = JavascriptNumber::ToVar(this->GetLength(), requestContext);
             return true;
         }
@@ -3786,14 +3786,14 @@ case_2:
         return false;
     }
     BOOL JavascriptString::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62010);
         return JavascriptString::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptString::SetItem(uint32 index, Var value, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(62011);
         if (this->HasItemAt(index))
-        {
+        {TRACE_IT(62012);
             JavascriptError::ThrowCantAssignIfStrictMode(propertyOperationFlags, this->GetScriptContext());
 
             return FALSE;
@@ -3803,9 +3803,9 @@ case_2:
     }
 
     BOOL JavascriptString::DeleteItem(uint32 index, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(62013);
         if (this->HasItemAt(index))
-        {
+        {TRACE_IT(62014);
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), TaggedInt::ToString(index, this->GetScriptContext())->GetString());
 
             return FALSE;
@@ -3815,34 +3815,34 @@ case_2:
     }
 
     BOOL JavascriptString::HasItem(uint32 index)
-    {
+    {TRACE_IT(62015);
         return this->HasItemAt(index);
     }
 
     BOOL JavascriptString::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62016);
         // String should always be marshalled to the current context
         Assert(requestContext == this->GetScriptContext());
         return this->GetItemAt(index, value);
     }
 
     BOOL JavascriptString::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62017);
         // String should always be marshalled to the current context
         return this->GetItemAt(index, value);
     }
 
     BOOL JavascriptString::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache)
-    {
+    {TRACE_IT(62018);
         return enumerator->Initialize(
             RecyclerNew(GetScriptContext()->GetRecycler(), JavascriptStringEnumerator, this, requestContext),
             nullptr, nullptr, flags, requestContext, forInCache);
     }
 
     BOOL JavascriptString::DeleteProperty(PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(62019);
         if (propertyId == PropertyIds::length)
-        {
+        {TRACE_IT(62020);
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), this->GetScriptContext()->GetPropertyName(propertyId)->GetBuffer());
 
             return FALSE;
@@ -3851,10 +3851,10 @@ case_2:
     }
 
     BOOL JavascriptString::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags propertyOperationFlags)
-    {
+    {TRACE_IT(62021);
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::length.Equals(propertyName))
-        {
+        {TRACE_IT(62022);
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), propertyNameString->GetString());
 
             return FALSE;
@@ -3863,7 +3863,7 @@ case_2:
     }
 
     BOOL JavascriptString::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62023);
         stringBuilder->Append(_u('"'));
         stringBuilder->Append(this->GetString(), this->GetLength());
         stringBuilder->Append(_u('"'));
@@ -3871,25 +3871,25 @@ case_2:
     }
 
     BOOL JavascriptString::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62024);
         stringBuilder->AppendCppLiteral(_u("String"));
         return TRUE;
     }
 
     RecyclableObject* JavascriptString::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62025);
         return requestContext->GetLibrary()->CreateStringObject(this);
     }
 
     Var JavascriptString::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62026);
         return requestContext->GetLibrary()->GetStringTypeDisplayString();
     }
 
     /* static */
     template <typename T>
     bool JavascriptStringHelpers<T>::Equals(Var aLeft, Var aRight)
-    {
+    {TRACE_IT(62027);
         AssertMsg(T::Is(aLeft) && T::Is(aRight), "string comparison");
 
         if (aLeft == aRight) return true;
@@ -3898,12 +3898,12 @@ case_2:
         T *rightString = T::FromVar(aRight);
 
         if (leftString->GetLength() != rightString->GetLength())
-        {
+        {TRACE_IT(62028);
             return false;
         }
 
         if (wmemcmp(leftString->GetString(), rightString->GetString(), leftString->GetLength()) == 0)
-        {
+        {TRACE_IT(62029);
             return true;
         }
         return false;

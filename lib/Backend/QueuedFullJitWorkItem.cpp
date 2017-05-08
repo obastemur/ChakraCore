@@ -5,11 +5,11 @@
 #include "Backend.h"
 
 QueuedFullJitWorkItem::QueuedFullJitWorkItem(CodeGenWorkItem *const workItem) : workItem(workItem)
-{
+{TRACE_IT(15120);
     Assert(workItem->GetJitMode() == ExecutionMode::FullJit);
 }
 
 CodeGenWorkItem *QueuedFullJitWorkItem::WorkItem() const
-{
+{TRACE_IT(15121);
     return workItem;
 }

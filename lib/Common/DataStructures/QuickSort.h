@@ -12,7 +12,7 @@ namespace JsUtil
     if (comparer(context,               \
         base + (b * size),              \
         base + (a * size)) < 0)         \
-    {                                   \
+    {TRACE_IT(21975);                                   \
         CCQ_SWAP(base + (a * size),     \
           base + (b * size), size);     \
     }
@@ -137,9 +137,9 @@ namespace JsUtil
     };
 
     #define CC_QSORT_SWAP_LOOP(T, a, b, nsize)        \
-    {                                       \
+    {TRACE_IT(21976);                                       \
         for (size_t i = 0; i < nsize; i++)  \
-        {                                   \
+        {TRACE_IT(21977);                                   \
             T c = (a)[i];                   \
             (a)[i] = (b)[i];                \
             (b)[i] = c;                     \
@@ -151,24 +151,24 @@ namespace JsUtil
     {
     public:
         static inline void swap(T* a, T* b, size_t size)
-        {
+        {TRACE_IT(21978);
             if (a == b) return;
 
             size_t tsize;
             if (size >= 8)
-            {
+            {TRACE_IT(21979);
                 tsize = 8;
                 size_t nsize = size / tsize;
                 CC_QSORT_SWAP_LOOP(CC_QSORT_SWAP8, (CC_QSORT_SWAP8*) a, (CC_QSORT_SWAP8*) b, nsize)
             }
             else if (size >= 4)
-            {
+            {TRACE_IT(21980);
                 tsize = 4;
                 size_t nsize = size / tsize;
                 CC_QSORT_SWAP_LOOP(CC_QSORT_SWAP4, (CC_QSORT_SWAP4*) a, (CC_QSORT_SWAP4*) b, nsize)
             }
             else
-            {
+            {TRACE_IT(21981);
                 tsize = 2;
                 size_t nsize = size / tsize;
                 CC_QSORT_SWAP_LOOP(CC_QSORT_SWAP2, (CC_QSORT_SWAP2*) a, (CC_QSORT_SWAP2*) b, nsize)
@@ -184,7 +184,7 @@ namespace JsUtil
     {
     public:
         static inline void swap(T* a, T* b, size_t _)
-        {
+        {TRACE_IT(21982);
             AssertMsg(_ == 1, "No byte to byte copies when a type has SWB is enabled. size should be 1!");
             T temp = *a;
             *a = *b;
@@ -199,14 +199,14 @@ namespace JsUtil
     public:
         #define CCQ_SWAP QuickSortSwap<Policy, T>::swap
         static void Sort(T* base, size_t nmemb, size_t size, Comparer comparer, void* context)
-        {
+        {TRACE_IT(21983);
             if (!base)
-            {
+            {TRACE_IT(21984);
                 return;
             }
 
             if (nmemb <= 9) // use sorting networks for members <= 2^3
-            {
+            {TRACE_IT(21985);
                 switch(nmemb)
                 {
                     case 9:
@@ -250,7 +250,7 @@ namespace JsUtil
             for (size_t i = 0; i < pivot; i+= size)
             {
                 if (comparer(context, base + i, base + pivot) <= 0)
-                {
+                {TRACE_IT(21986);
                     CCQ_SWAP(base + i, base + (pos * size), size);
                     pos++;
                 }
@@ -260,7 +260,7 @@ namespace JsUtil
             CCQ_SWAP(base + (pos * size), base + pivot, size);
 
             if (pos >= nmemb - 1)
-            {
+            {TRACE_IT(21987);
                 return; // looks like it was either all sorted OR nothing to sort
             }
 

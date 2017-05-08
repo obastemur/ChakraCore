@@ -7,18 +7,18 @@
 #include "errstr.h"
 
 void CopyException (EXCEPINFO *peiDest, const EXCEPINFO *peiSource)
-{
+{TRACE_IT(33421);
     FreeExcepInfo(peiDest);
     *peiDest = *peiSource;
-    if (peiSource->bstrSource) {
+    if (peiSource->bstrSource) {TRACE_IT(33422);
         peiDest->bstrSource =
             SysAllocStringLen(peiSource->bstrSource, SysStringLen(peiSource->bstrSource));
     }
-    if (peiSource->bstrDescription) {
+    if (peiSource->bstrDescription) {TRACE_IT(33423);
         peiDest->bstrDescription =
             SysAllocStringLen(peiSource->bstrDescription, SysStringLen(peiSource->bstrDescription));
     }
-    if (peiSource->bstrHelpFile) {
+    if (peiSource->bstrHelpFile) {TRACE_IT(33424);
         peiDest->bstrHelpFile =
             SysAllocStringLen(peiSource->bstrHelpFile, SysStringLen(peiSource->bstrHelpFile));
     }
@@ -126,7 +126,7 @@ const int32 kcmhr = sizeof(g_rgmhr) / sizeof(g_rgmhr[0]);
 
 
 HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
-{
+{TRACE_IT(33425);
     int imhrMin, imhrLim, imhr;
 
 #if DEBUG
@@ -136,7 +136,7 @@ HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
     static BOOL fCheckSort = TRUE;
 
     if (fCheckSort)
-    {
+    {TRACE_IT(33426);
         fCheckSort = FALSE;
         for (imhr = 1; imhr < kcmhr; imhr++)
             Assert((uint32)g_rgmhr[imhr - 1].hrIn < (uint32)g_rgmhr[imhr].hrIn);
@@ -144,7 +144,7 @@ HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
 #endif // DEBUG
 
     if (errorTypeOut != nullptr)
-    {
+    {TRACE_IT(33427);
         *errorTypeOut = kjstError;
     }
 
@@ -155,7 +155,7 @@ HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
         return hr;
 
     for (imhrMin = 0, imhrLim = kcmhr; imhrMin < imhrLim; )
-    {
+    {TRACE_IT(33428);
         imhr = (imhrMin + imhrLim) / 2;
         if ((uint32)g_rgmhr[imhr].hrIn < (uint32)hr)
             imhrMin = imhr + 1;
@@ -163,9 +163,9 @@ HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
             imhrLim = imhr;
     }
     if (imhrMin < kcmhr && hr == g_rgmhr[imhrMin].hrIn)
-    {
+    {TRACE_IT(33429);
         if (errorTypeOut != nullptr)
-        {
+        {TRACE_IT(33430);
             *errorTypeOut = g_rgmhr[imhrMin].errorType;
         }
 
@@ -178,41 +178,41 @@ HRESULT MapHr(HRESULT hr, ErrorTypeEnum * errorTypeOut)
 
 // === ScriptException ===
 ScriptException::~ScriptException(void)
-{
+{TRACE_IT(33431);
     FreeExcepInfo(&ei);
 }
 
 
 void ScriptException::CopyInto(ScriptException *pse)
-{
+{TRACE_IT(33432);
     pse->ichMin = ichMin;
     pse->ichLim = ichLim;
     CopyException(&(pse->ei), &ei);
 }
 
 void ScriptException::Free(void)
-{
+{TRACE_IT(33433);
     ichMin = ichLim = 0;
     FreeExcepInfo(&ei);
 }
 
 void ScriptException::GetError(HRESULT *phr, EXCEPINFO *pei)
-{
+{TRACE_IT(33434);
     AssertMem(phr);
     AssertMemN(pei);
 
     if (HR(SCRIPT_E_RECORDED) == *phr)
-    {
+    {TRACE_IT(33435);
         Assert(FAILED(HR(ei.scode)));
         if (nullptr == pei)
             *phr = HR(ei.scode);
         else
-        {
+        {TRACE_IT(33436);
             *phr = HR(DISP_E_EXCEPTION);
             js_memcpy_s(pei, sizeof(*pei), &ei, sizeof(*pei));
             memset(&ei, 0, sizeof(ei));
             if (nullptr != pei->pfnDeferredFillIn)
-            {
+            {TRACE_IT(33437);
                 pei->pfnDeferredFillIn(pei);
                 pei->pfnDeferredFillIn = nullptr;
             }
@@ -223,7 +223,7 @@ void ScriptException::GetError(HRESULT *phr, EXCEPINFO *pei)
 
 // === CompileScriptException ===
 CompileScriptException::~CompileScriptException()
-{
+{TRACE_IT(33438);
     SysFreeString(bstrLine);
 }
 
@@ -233,18 +233,18 @@ void CompileScriptException::Clear()
 }
 
 void CompileScriptException::Free()
-{
+{TRACE_IT(33439);
     ScriptException::Free();
     line = ichMinLine = 0;
     if (nullptr != bstrLine)
-    {
+    {TRACE_IT(33440);
         SysFreeString(bstrLine);
         bstrLine = nullptr;
     }
 }
 
 HRESULT  CompileScriptException::ProcessError(IScanner * pScan, HRESULT hr, ParseNode * pnodeBase)
-{
+{TRACE_IT(33441);
     if (nullptr == this)
         return hr;
 
@@ -256,7 +256,7 @@ HRESULT  CompileScriptException::ProcessError(IScanner * pScan, HRESULT hr, Pars
     if (FACILITY_CONTROL != HRESULT_FACILITY(ei.scode) ||
         nullptr == (ei.bstrDescription =
         BstrGetResourceString(HRESULT_CODE(ei.scode))))
-    {
+    {TRACE_IT(33442);
         OLECHAR szT[50];
         _snwprintf_s(szT, ARRAYSIZE(szT), ARRAYSIZE(szT)-1, _u("error %d"), ei.scode);
         if (nullptr == (ei.bstrDescription = SysAllocString(szT)))
@@ -265,7 +265,7 @@ HRESULT  CompileScriptException::ProcessError(IScanner * pScan, HRESULT hr, Pars
 
     ei.bstrSource = BstrGetResourceString(IDS_COMPILATION_ERROR_SOURCE);
     if (nullptr == pnodeBase && nullptr != pScan)
-    {
+    {TRACE_IT(33443);
         // parsing phase - get the line number from the scanner
         AssertMem(pScan);
         this->hasLineNumberInfo = true;
@@ -273,7 +273,7 @@ HRESULT  CompileScriptException::ProcessError(IScanner * pScan, HRESULT hr, Pars
 
         HRESULT hrSysAlloc = pScan->SysAllocErrorLine(this->ichMinLine, &this->bstrLine);
         if( FAILED(hrSysAlloc) )
-        {
+        {TRACE_IT(33444);
             return hrSysAlloc;
         }
 
@@ -281,7 +281,7 @@ HRESULT  CompileScriptException::ProcessError(IScanner * pScan, HRESULT hr, Pars
             ichMin = ichMinLine;
     }
     else
-    {
+    {TRACE_IT(33445);
         // TODO: Variable length registers.
         // Remove E_FAIL once we have this feature.
         // error during code gen - no line number info available

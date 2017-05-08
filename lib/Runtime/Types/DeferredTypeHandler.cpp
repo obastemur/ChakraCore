@@ -9,7 +9,7 @@
 namespace Js
 {
     void DeferredTypeHandlerBase::Convert(DynamicObject * instance, DynamicTypeHandler * typeHandler)
-    {
+    {TRACE_IT(65316);
         Assert(instance->GetDynamicType()->GetTypeHandler() == this);
         Assert(this->inlineSlotCapacity == typeHandler->inlineSlotCapacity);
         Assert(this->offsetOfInlineSlots == typeHandler->offsetOfInlineSlots);
@@ -31,18 +31,18 @@ namespace Js
         const BigPropertyIndex propertyCount = typeHandler->GetPropertyCount();
         Assert(propertyCount <= typeHandler->GetSlotCapacity());
         for(BigPropertyIndex i = 0; i < propertyCount; ++i)
-        {
+        {TRACE_IT(65317);
             typeHandler->SetSlotUnchecked(instance, i, undefined);
         }
 
         if (isProto)
-        {
+        {TRACE_IT(65318);
             instance->GetDynamicType()->GetTypeHandler()->SetIsPrototype(instance);
         }
     }
 
     void DeferredTypeHandlerBase::Convert(DynamicObject * instance, DeferredInitializeMode mode, int initSlotCapacity, BOOL hasAccessor)
-    {
+    {TRACE_IT(65319);
         Assert(instance->GetDynamicType()->GetTypeHandler() == this);
 
         BOOL isProto = (GetFlags() & IsPrototypeFlag);
@@ -64,11 +64,11 @@ namespace Js
         DynamicTypeHandler* newTypeHandler;
 
         if (isSimple)
-        {
+        {TRACE_IT(65320);
             newTypeHandler = ConvertToSimpleDictionaryType(instance, initSlotCapacity, isProto);
         }
         else
-        {
+        {TRACE_IT(65321);
             newTypeHandler = ConvertToDictionaryType(instance, initSlotCapacity, isProto);
         }
 
@@ -77,7 +77,7 @@ namespace Js
 
     template <typename T>
     T* DeferredTypeHandlerBase::ConvertToTypeHandler(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {TRACE_IT(65322);
         ScriptContext* scriptContext = instance->GetScriptContext();
         Recycler* recycler = scriptContext->GetRecycler();
 
@@ -90,12 +90,12 @@ namespace Js
         newTypeHandler->SetFlags(IsPrototypeFlag, this->GetFlags());
         newTypeHandler->SetPropertyTypes(PropertyTypesWritableDataOnly | PropertyTypesWritableDataOnlyDetection | PropertyTypesInlineSlotCapacityLocked , this->GetPropertyTypes());
         if (instance->HasReadOnlyPropertiesInvisibleToTypeHandler())
-        {
+        {TRACE_IT(65323);
             newTypeHandler->ClearHasOnlyWritableDataProperties();
         }
 
         if (isProto)
-        {
+        {TRACE_IT(65324);
             newTypeHandler->SetIsPrototype(instance);
         }
 
@@ -106,7 +106,7 @@ namespace Js
     }
 
     SimpleDictionaryTypeHandler* DeferredTypeHandlerBase::ConvertToSimpleDictionaryType(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {TRACE_IT(65325);
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= SimpleDictionaryTypeHandler::MaxPropertyIndexSize);
 
@@ -119,7 +119,7 @@ namespace Js
     }
 
     DictionaryTypeHandler* DeferredTypeHandlerBase::ConvertToDictionaryType(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {TRACE_IT(65326);
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= DictionaryTypeHandler::MaxPropertyIndexSize);
 
@@ -132,7 +132,7 @@ namespace Js
     }
 
     ES5ArrayTypeHandler* DeferredTypeHandlerBase::ConvertToES5ArrayType(DynamicObject* instance, int initSlotCapacity)
-    {
+    {TRACE_IT(65327);
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= ES5ArrayTypeHandler::MaxPropertyIndexSize);
 

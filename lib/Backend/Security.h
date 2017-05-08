@@ -10,7 +10,7 @@ private:
     Func *func;
 
 public:
-    Security(Func * func) : func(func) {}
+    Security(Func * func) : func(func) {TRACE_IT(15314);}
 
     void            EncodeLargeConstants();
     void            InsertNOPs();
@@ -26,7 +26,7 @@ private:
 
     // Large constants have more than 16 significant bits.
     // Constants except these are considered large: 0x0000????, 0xffff????, 0x????0000, 0x????ffff
-    static bool     IsLargeConstant(IntConstType value) { return static_cast<int16>(value) != 0 && static_cast<int16>(value) != -1 && (value >> 16) != 0 && (value >> 16) != -1; }
+    static bool     IsLargeConstant(IntConstType value) {TRACE_IT(15315); return static_cast<int16>(value) != 0 && static_cast<int16>(value) != -1 && (value >> 16) != 0 && (value >> 16) != -1; }
 
     void            InsertNOPBefore(IR::Instr *instr);
     int             GetNextNOPInsertPoint();

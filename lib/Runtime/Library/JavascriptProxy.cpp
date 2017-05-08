@@ -8,23 +8,23 @@
 namespace Js
 {
     BOOL JavascriptProxy::Is(Var obj)
-    {
+    {TRACE_IT(60773);
         return JavascriptOperators::GetTypeId(obj) == TypeIds_Proxy;
     }
 
     RecyclableObject* JavascriptProxy::GetTarget()
-    {
+    {TRACE_IT(60774);
         if (target == nullptr)
-        {
+        {TRACE_IT(60775);
             JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_ErrorOnRevokedProxy, _u(""));
         }
         return target;
     }
 
     RecyclableObject* JavascriptProxy::GetHandler()
-    {
+    {TRACE_IT(60776);
         if (handler == nullptr)
-        {
+        {TRACE_IT(60777);
             JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_ErrorOnRevokedProxy, _u(""));
         }
         return handler;
@@ -42,7 +42,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_DATACOUNT(ES6_Proxy);
 
         if (!(args.Info.Flags & CallFlags_New))
-        {
+        {TRACE_IT(60778);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Proxy"));
         }
 
@@ -51,7 +51,7 @@ namespace Js
     }
 
     JavascriptProxy* JavascriptProxy::Create(ScriptContext* scriptContext, Arguments args)
-    {
+    {TRACE_IT(60779);
         // SkipDefaultNewObject function flag should have prevented the default object from
         // being created, except when call true a host dispatch.
 
@@ -64,12 +64,12 @@ namespace Js
         RecyclableObject* target, *handler;
 
         if (args.Info.Count < 3)
-        {
+        {TRACE_IT(60780);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedProxyArgument);
         }
 
         if (!JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(args[1])))
-        {
+        {TRACE_IT(60781);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u("target"));
         }
         target = DynamicObject::FromVar(args[1]);
@@ -77,29 +77,29 @@ namespace Js
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(target);
 #endif
         if (JavascriptProxy::Is(target))
-        {
+        {TRACE_IT(60782);
             if (JavascriptProxy::FromVar(target)->target == nullptr)
-            {
+            {TRACE_IT(60783);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u("target"));
             }
         }
 
         if (!JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(args[2])))
-        {
+        {TRACE_IT(60784);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u("handler"));
         }
         handler = DynamicObject::FromVar(args[2]);
         if (JavascriptProxy::Is(handler))
-        {
+        {TRACE_IT(60785);
             if (JavascriptProxy::FromVar(handler)->handler == nullptr)
-            {
+            {TRACE_IT(60786);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u("handler"));
             }
         }
 
         JavascriptProxy* newProxy = RecyclerNew(scriptContext->GetRecycler(), JavascriptProxy, scriptContext->GetLibrary()->GetProxyType(), scriptContext, target, handler);
         if (JavascriptConversion::IsCallable(target))
-        {
+        {TRACE_IT(60787);
             newProxy->ChangeType();
             newProxy->GetDynamicType()->SetEntryPoint(JavascriptProxy::FunctionCallTrap);
         }
@@ -118,7 +118,7 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Flags & CallFlags_New)
-        {
+        {TRACE_IT(60788);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Proxy.revocable"));
         }
 
@@ -149,16 +149,16 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         Var revokableProxy;
         if (!function->GetInternalProperty(function, Js::InternalPropertyIds::RevocableProxy, &revokableProxy, nullptr, scriptContext))
-        {
+        {TRACE_IT(60789);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u(""));
         }
         TypeId typeId = JavascriptOperators::GetTypeId(revokableProxy);
         if (typeId == TypeIds_Null)
-        {
+        {TRACE_IT(60790);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         if (typeId != TypeIds_Proxy)
-        {
+        {TRACE_IT(60791);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidProxyArgument, _u(""));
         }
         function->SetInternalProperty(Js::InternalPropertyIds::RevocableProxy, scriptContext->GetLibrary()->GetNull(), PropertyOperationFlags::PropertyOperation_Force, nullptr);
@@ -171,7 +171,7 @@ namespace Js
         DynamicObject(type),
         handler(nullptr),
         target(nullptr)
-    {
+    {TRACE_IT(60792);
         type->SetHasSpecialPrototype(true);
     }
 
@@ -179,19 +179,19 @@ namespace Js
         DynamicObject(type),
         handler(handler),
         target(target)
-    {
+    {TRACE_IT(60793);
         type->SetHasSpecialPrototype(true);
     }
 
     void JavascriptProxy::RevokeObject()
-    {
+    {TRACE_IT(60794);
         handler = nullptr;
         target = nullptr;
     }
 
     template <class Fn, class GetPropertyIdFunc>
     BOOL JavascriptProxy::GetPropertyDescriptorTrap(Var originalInstance, Fn fn, GetPropertyIdFunc getPropertyId, PropertyDescriptor* resultDescriptor, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60795);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         //1. Let handler be the value of the[[ProxyHandler]] internal slot of O.
@@ -199,7 +199,7 @@ namespace Js
 
         //2. If handler is null, then throw a TypeError exception.
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60796);
             JavascriptError::ThrowTypeError(requestContext, JSERR_ErrorOnRevokedProxy, _u("preventExtensions"));
         }
         //3. Let target be the value of the[[ProxyTarget]] internal slot of O.
@@ -213,13 +213,13 @@ namespace Js
         //7. If trap is undefined, then
         //    a.Return the result of calling the[[GetOwnProperty]] internal method of target with argument P.
         if (nullptr == gOPDMethod || GetScriptContext()->IsHeapEnumInProgress())
-        {
+        {TRACE_IT(60797);
             resultDescriptor->SetFromProxy(false);
             return fn();
         }
         // Reject implicit call
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60798);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -243,7 +243,7 @@ namespace Js
 
         TypeId getResultTypeId = JavascriptOperators::GetTypeId(getResult);
         if (StaticType::Is(getResultTypeId) && getResultTypeId != TypeIds_Undefined)
-        {
+        {TRACE_IT(60799);
             JavascriptError::ThrowTypeError(requestContext, JSERR_NeedObject, _u("getOwnPropertyDescriptor"));
         }
         //11. Let targetDesc be the result of calling the[[GetOwnProperty]] internal method of target with argument P.
@@ -260,17 +260,17 @@ namespace Js
         //e.If ToBoolean(extensibleTarget) is false, then throw a TypeError exception.
         //f.Return undefined.
         if (getResultTypeId == TypeIds_Undefined)
-        {
+        {TRACE_IT(60800);
             if (!hasProperty)
-            {
+            {TRACE_IT(60801);
                 return FALSE;
             }
             if (!targetDescriptor.IsConfigurable())
-            {
+            {TRACE_IT(60802);
                 JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("getOwnPropertyDescriptor"));
             }
             if (!target->IsExtensible())
-            {
+            {TRACE_IT(60803);
                 JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("getOwnPropertyDescriptor"));
             }
             return FALSE;
@@ -291,19 +291,19 @@ namespace Js
         BOOL isTargetExtensible = target->IsExtensible();
         BOOL toProperty = JavascriptOperators::ToPropertyDescriptor(getResult, resultDescriptor, requestContext);
         if (!toProperty && isTargetExtensible)
-        {
+        {TRACE_IT(60804);
             JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("getOwnPropertyDescriptor"));
         }
 
         JavascriptOperators::CompletePropertyDescriptor(resultDescriptor, nullptr, requestContext);
         if (!JavascriptOperators::IsCompatiblePropertyDescriptor(*resultDescriptor, hasProperty ? &targetDescriptor : nullptr, !!isTargetExtensible, true, requestContext))
-        {
+        {TRACE_IT(60805);
             JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("getOwnPropertyDescriptor"));
         }
         if (!resultDescriptor->IsConfigurable())
-        {
+        {TRACE_IT(60806);
             if (!hasProperty || targetDescriptor.IsConfigurable())
-            {
+            {TRACE_IT(60807);
                 JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("getOwnPropertyDescriptor"));
             }
         }
@@ -313,7 +313,7 @@ namespace Js
 
     template <class Fn, class GetPropertyIdFunc>
     BOOL JavascriptProxy::GetPropertyTrap(Var instance, PropertyDescriptor* propertyDescriptor, Fn fn, GetPropertyIdFunc getPropertyId, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60808);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         ScriptContext* scriptContext = GetScriptContext();
@@ -321,7 +321,7 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60809);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -329,7 +329,7 @@ namespace Js
         Js::RecyclableObject *handlerObj = this->handler;
 
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60810);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return FALSE;
@@ -341,7 +341,7 @@ namespace Js
         JavascriptFunction* getGetMethod = GetMethodHelper(PropertyIds::get, requestContext);
         Var getGetResult;
         if (nullptr == getGetMethod || scriptContext->IsHeapEnumInProgress())
-        {
+        {TRACE_IT(60811);
             propertyDescriptor->SetFromProxy(false);
             return fn(targetObj);
         }
@@ -371,21 +371,21 @@ namespace Js
         PropertyDescriptor targetDescriptor;
         Var defaultAccessor = requestContext->GetLibrary()->GetDefaultAccessorFunction();
         if (JavascriptOperators::GetOwnPropertyDescriptor(targetObj, propertyId, requestContext, &targetDescriptor))
-        {
+        {TRACE_IT(60812);
             JavascriptOperators::CompletePropertyDescriptor(&targetDescriptor, nullptr, requestContext);
             if (targetDescriptor.ValueSpecified() && !targetDescriptor.IsConfigurable() && !targetDescriptor.IsWritable())
-            {
+            {TRACE_IT(60813);
                 if (!JavascriptConversion::SameValue(getGetResult, targetDescriptor.GetValue()))
-                {
+                {TRACE_IT(60814);
                     JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("get"));
                 }
             }
             else if (targetDescriptor.GetterSpecified() || targetDescriptor.SetterSpecified())
-            {
+            {TRACE_IT(60815);
                 if (!targetDescriptor.IsConfigurable() &&
                     targetDescriptor.GetGetter() == defaultAccessor &&
                     JavascriptOperators::GetTypeId(getGetResult) != TypeIds_Undefined)
-                {
+                {TRACE_IT(60816);
                     JavascriptError::ThrowTypeError(requestContext, JSERR_InconsistentTrapResult, _u("get"));
                 }
             }
@@ -397,7 +397,7 @@ namespace Js
 
     template <class Fn, class GetPropertyIdFunc>
     BOOL JavascriptProxy::HasPropertyTrap(Fn fn, GetPropertyIdFunc getPropertyId)
-    {
+    {TRACE_IT(60817);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         ScriptContext* scriptContext = GetScriptContext();
@@ -405,7 +405,7 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60818);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -413,7 +413,7 @@ namespace Js
         Js::RecyclableObject *handlerObj = this->handler;
 
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60819);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return FALSE;
@@ -425,7 +425,7 @@ namespace Js
         JavascriptFunction* hasMethod = GetMethodHelper(PropertyIds::has, scriptContext);
         Var getHasResult;
         if (nullptr == hasMethod || GetScriptContext()->IsHeapEnumInProgress())
-        {
+        {TRACE_IT(60820);
             return fn(targetObj);
         }
 
@@ -453,13 +453,13 @@ namespace Js
         //        iv.If ToBoolean(extensibleTarget) is false, then throw a TypeError exception
         BOOL hasProperty = JavascriptConversion::ToBoolean(getHasResult, scriptContext);
         if (!hasProperty)
-        {
+        {TRACE_IT(60821);
             PropertyDescriptor targetDescriptor;
             BOOL hasTargetProperty = JavascriptOperators::GetOwnPropertyDescriptor(targetObj, propertyId, scriptContext, &targetDescriptor);
             if (hasTargetProperty)
-            {
+            {TRACE_IT(60822);
                 if (!targetDescriptor.IsConfigurable() || !targetObj->IsExtensible())
-                {
+                {TRACE_IT(60823);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("has"));
                 }
             }
@@ -468,7 +468,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::HasProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(60824);
         auto fn = [&](RecyclableObject* object)->BOOL {
             return JavascriptOperators::HasProperty(object, propertyId);
         };
@@ -479,7 +479,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::HasOwnProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(60825);
         // should never come here and it will be redirected to GetOwnPropertyDescriptor
         Assert(FALSE);
         PropertyDescriptor propertyDesc;
@@ -487,7 +487,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::HasOwnPropertyNoHostObject(PropertyId propertyId)
-    {
+    {TRACE_IT(60826);
         // the virtual method is for checking if globalobject has local property before we start initializing
         // we shouldn't trap??
         Assert(FALSE);
@@ -495,21 +495,21 @@ namespace Js
     }
 
     BOOL JavascriptProxy::HasOwnPropertyCheckNoRedecl(PropertyId propertyId)
-    {
+    {TRACE_IT(60827);
         // root object and activation object verification only; not needed.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::UseDynamicObjectForNoHostObjectAccess()
-    {
+    {TRACE_IT(60828);
         // heapenum check for CEO etc., and we don't want to access external method during enumeration. not applicable here.
         Assert(FALSE);
         return false;
     }
 
     DescriptorFlags JavascriptProxy::GetSetter(PropertyId propertyId, Var* setterValueOrProxy, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60829);
         // This is called when we walk prototype chain looking for setter. It is part of the [[set]] operation, but we don't need to restrict the
         // code to mimic the 'one step prototype chain lookup' spec letter. Current code structure is enough.
         *setterValueOrProxy = this;
@@ -520,7 +520,7 @@ namespace Js
 
     // GetSetter is called for
     DescriptorFlags JavascriptProxy::GetSetter(JavascriptString* propertyNameString, Var* setterValueOrProxy, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60830);
         *setterValueOrProxy = this;
         PropertyValueInfo::SetNoCache(info, this);
         PropertyValueInfo::DisablePrototypeCache(info, this); // We can't cache prototype property either
@@ -528,7 +528,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60831);
         // We can't cache the property at this time. both target and handler can be changed outside of the proxy, so the inline cache needs to be
         // invalidate when target, handler, or handler prototype has changed. We don't have a way to achieve this yet.
         PropertyValueInfo::SetNoCache(info, this);
@@ -540,18 +540,18 @@ namespace Js
         PropertyDescriptor result;
         BOOL foundProperty = GetPropertyTrap(originalInstance, &result, fn, getPropertyId, requestContext);
         if (!foundProperty)
-        {
+        {TRACE_IT(60832);
             *value = requestContext->GetMissingPropertyResult();
         }
         else if (result.IsFromProxy())
-        {
+        {TRACE_IT(60833);
             *value = GetValueFromDescriptor(RecyclableObject::FromVar(originalInstance), result, requestContext);
         }
         return foundProperty;
     }
 
     BOOL JavascriptProxy::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60834);
         // We can't cache the property at this time. both target and handler can be changed outside of the proxy, so the inline cache needs to be
         // invalidate when target, handler, or handler prototype has changed. We don't have a way to achieve this yet.
         PropertyValueInfo::SetNoCache(info, this);
@@ -567,37 +567,37 @@ namespace Js
         PropertyDescriptor result;
         BOOL foundProperty = GetPropertyTrap(originalInstance, &result, fn, getPropertyId, requestContext);
         if (!foundProperty)
-        {
+        {TRACE_IT(60835);
             *value = requestContext->GetMissingPropertyResult();
         }
         else if (result.IsFromProxy())
-        {
+        {TRACE_IT(60836);
             *value = GetValueFromDescriptor(RecyclableObject::FromVar(originalInstance), result, requestContext);
         }
         return foundProperty;
     }
 
     BOOL JavascriptProxy::GetInternalProperty(Var instance, PropertyId internalPropertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60837);
         if (internalPropertyId == InternalPropertyIds::WeakMapKeyMap)
-        {
+        {TRACE_IT(60838);
             return __super::GetInternalProperty(instance, internalPropertyId, value, info, requestContext);
         }
         return FALSE;
     }
   
     BOOL JavascriptProxy::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {TRACE_IT(60839);
         PropertyDescriptor result;
         BOOL foundProperty = GetOwnPropertyDescriptor(this, propertyId, requestContext, &result);
         if (foundProperty && result.IsFromProxy())
-        {
+        {TRACE_IT(60840);
             if (result.GetterSpecified())
-            {
+            {TRACE_IT(60841);
                 *getter = result.GetGetter();
             }
             if (result.SetterSpecified())
-            {
+            {TRACE_IT(60842);
                 *setter = result.GetSetter();
             }
             foundProperty = result.GetterSpecified() || result.SetterSpecified();
@@ -606,7 +606,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60843);
         // We can't cache the property at this time. both target and handler can be changed outside of the proxy, so the inline cache needs to be
         // invalidate when target, handler, or handler prototype has changed. We don't have a way to achieve this yet.
         PropertyValueInfo::SetNoCache(info, this);
@@ -618,18 +618,18 @@ namespace Js
         PropertyDescriptor result;
         BOOL foundProperty = GetPropertyTrap(originalInstance, &result, fn, getPropertyId, requestContext);
         if (!foundProperty)
-        {
+        {TRACE_IT(60844);
             *value = requestContext->GetMissingPropertyResult();
         }
         else if (result.IsFromProxy())
-        {
+        {TRACE_IT(60845);
             *value = GetValueFromDescriptor(RecyclableObject::FromVar(originalInstance), result, requestContext);
         }
         return foundProperty;
     }
 
     BOOL JavascriptProxy::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(60846);
         // This is the second half of [[set]] where when the handler does not specified [[set]] so we forward to [[set]] on target
         // with receiver as the proxy.
         //c.Let existingDescriptor be the result of calling the[[GetOwnProperty]] internal method of Receiver with argument P.
@@ -653,7 +653,7 @@ namespace Js
         threadContext->SetImplicitCallFlags((Js::ImplicitCallFlags)(saveImplicitCallFlags | ImplicitCall_Accessor));
 
         if (!JavascriptOperators::GetOwnPropertyDescriptor(this, propertyId, scriptContext, &proxyPropertyDescriptor))
-        {
+        {TRACE_IT(60847);
             PropertyDescriptor resultDescriptor;
             resultDescriptor.SetConfigurable(true);
             resultDescriptor.SetWritable(true);
@@ -662,19 +662,19 @@ namespace Js
             return Js::JavascriptOperators::DefineOwnPropertyDescriptor(this, propertyId, resultDescriptor, true, scriptContext);
         }
         else
-        {
+        {TRACE_IT(60848);
             // ES2017 Spec'ed (9.1.9.1): 
             // If existingDescriptor is not undefined, then
             //    If IsAccessorDescriptor(existingDescriptor) is true, return false.
             //    If existingDescriptor.[[Writable]] is false, return false.
 
             if (proxyPropertyDescriptor.IsAccessorDescriptor())
-            {
+            {TRACE_IT(60849);
                 return FALSE;
             }
 
             if (proxyPropertyDescriptor.WritableSpecified() && !proxyPropertyDescriptor.IsWritable())
-            {
+            {TRACE_IT(60850);
                 return FALSE;
             }
 
@@ -685,63 +685,63 @@ namespace Js
     }
 
     BOOL JavascriptProxy::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(60851);
         const PropertyRecord* propertyRecord;
         GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
     }
 
     BOOL JavascriptProxy::SetInternalProperty(PropertyId internalPropertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(60852);
         if (internalPropertyId == InternalPropertyIds::WeakMapKeyMap)
-        {
+        {TRACE_IT(60853);
             return __super::SetInternalProperty(internalPropertyId, value, flags, info);
         }
         return FALSE;
     }
 
     BOOL JavascriptProxy::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(60854);
         return SetProperty(propertyId, value, flags, info);
     }
 
     BOOL JavascriptProxy::EnsureProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(60855);
         // proxy needs to be explicitly constructed. we don't have Ensure code path.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::EnsureNoRedeclProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(60856);
         // proxy needs to be explicitly constructed. we don't have Ensure code path.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::SetPropertyWithAttributes(PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags, SideEffects possibleSideEffects)
-    {
+    {TRACE_IT(60857);
         // called from untrapped DefineProperty and from DOM side. I don't see this being used when the object is a proxy.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::InitPropertyScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(60858);
         // proxy needs to be explicitly constructed. we don't have Ensure code path.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::InitFuncScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(60859);
         // proxy needs to be explicitly constructed. we don't have Ensure code path.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(60860);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         //1. Assert: IsPropertyKey(P) is true.
@@ -754,13 +754,13 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60861);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
 
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60862);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnRevokedProxy, _u("deleteProperty"));
         }
@@ -775,14 +775,14 @@ namespace Js
         //a.Return the result of calling the[[Delete]] internal method of target with argument P.
         Assert(!GetScriptContext()->IsHeapEnumInProgress());
         if (nullptr == deleteMethod)
-        {
+        {TRACE_IT(60863);
             uint32 indexVal;
             if (scriptContext->IsNumericPropertyId(propertyId, &indexVal))
-            {
+            {TRACE_IT(60864);
                 return targetObj->DeleteItem(indexVal, flags);
             }
             else
-            {
+            {TRACE_IT(60865);
                 return targetObj->DeleteProperty(propertyId, flags);
             }
         }
@@ -803,7 +803,7 @@ namespace Js
 
         BOOL trapResult = JavascriptConversion::ToBoolean(deletePropertyResult, scriptContext);
         if (!trapResult)
-        {
+        {TRACE_IT(60866);
             return trapResult;
         }
 
@@ -814,21 +814,21 @@ namespace Js
         //16. Return true.
         PropertyDescriptor targetPropertyDescriptor;
         if (!Js::JavascriptOperators::GetOwnPropertyDescriptor(targetObj, propertyId, scriptContext, &targetPropertyDescriptor))
-        {
+        {TRACE_IT(60867);
             return TRUE;
         }
         if (!targetPropertyDescriptor.IsConfigurable())
-        {
+        {TRACE_IT(60868);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("deleteProperty"));
         }
         return TRUE;
     }
 
     BOOL JavascriptProxy::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(60869);
         PropertyRecord const *propertyRecord = nullptr;
         if (JavascriptOperators::ShouldTryDeleteProperty(this, propertyNameString, &propertyRecord))
-        {
+        {TRACE_IT(60870);
             Assert(propertyRecord);
             return DeleteProperty(propertyRecord->GetPropertyId(), flags);
         }
@@ -837,13 +837,13 @@ namespace Js
     }
 
     BOOL JavascriptProxy::IsFixedProperty(PropertyId propertyId)
-    {
+    {TRACE_IT(60871);
         // TODO: can we add support for fixed property? don't see a clear way to invalidate...
         return false;
     }
 
     BOOL JavascriptProxy::HasItem(uint32 index)
-    {
+    {TRACE_IT(60872);
         const PropertyRecord* propertyRecord;
         auto fn = [&](RecyclableObject* object)-> BOOL {
             return JavascriptOperators::HasItem(object, index);
@@ -856,7 +856,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::HasOwnItem(uint32 index)
-    {
+    {TRACE_IT(60873);
         const PropertyRecord* propertyRecord;
         auto fn = [&](RecyclableObject* object)-> BOOL {
             return JavascriptOperators::HasOwnItem(object, index);
@@ -869,7 +869,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(60874);
         const PropertyRecord* propertyRecord;
         auto fn = [&](RecyclableObject* object)-> BOOL {
             return JavascriptOperators::GetItem(originalInstance, object, index, value, requestContext);
@@ -881,18 +881,18 @@ namespace Js
         PropertyDescriptor result;
         BOOL foundProperty = GetPropertyTrap(originalInstance, &result, fn, getPropertyId, requestContext);
         if (!foundProperty)
-        {
+        {TRACE_IT(60875);
             *value = requestContext->GetMissingItemResult();
         }
         else if (result.IsFromProxy())
-        {
+        {TRACE_IT(60876);
             *value = GetValueFromDescriptor(RecyclableObject::FromVar(originalInstance), result, requestContext);
         }
         return foundProperty;
     }
 
     BOOL JavascriptProxy::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(60877);
         const PropertyRecord* propertyRecord;
         auto fn = [&](RecyclableObject* object)-> BOOL {
             return JavascriptOperators::GetItemReference(originalInstance, object, index, value, requestContext);
@@ -904,31 +904,31 @@ namespace Js
         PropertyDescriptor result;
         BOOL foundProperty = GetPropertyTrap(originalInstance, &result, fn, getPropertyId, requestContext);
         if (!foundProperty)
-        {
+        {TRACE_IT(60878);
             *value = requestContext->GetMissingItemResult();
         }
         else if (result.IsFromProxy())
-        {
+        {TRACE_IT(60879);
             *value = GetValueFromDescriptor(RecyclableObject::FromVar(originalInstance), result, requestContext);
         }
         return foundProperty;
     }
 
     DescriptorFlags JavascriptProxy::GetItemSetter(uint32 index, Var* setterValueOrProxy, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60880);
         *setterValueOrProxy = this;
         return DescriptorFlags::Proxy;
     }
 
     BOOL JavascriptProxy::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(60881);
         const PropertyRecord* propertyRecord;
         PropertyIdFromInt(index, &propertyRecord);
         return SetProperty(propertyRecord->GetPropertyId(), value, flags, nullptr);
     }
 
     BOOL JavascriptProxy::DeleteItem(uint32 index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(60882);
         const PropertyRecord* propertyRecord;
         PropertyIdFromInt(index, &propertyRecord);
         return DeleteProperty(propertyRecord->GetPropertyId(), flags);
@@ -936,11 +936,11 @@ namespace Js
 
     // No change to foreign enumerator, just forward
     BOOL JavascriptProxy::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache)
-    {
+    {TRACE_IT(60883);
         // Reject implicit call
         ThreadContext* threadContext = requestContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60884);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -949,7 +949,7 @@ namespace Js
         // 2. Let handler be the value of the[[ProxyHandler]] internal slot of O.
         // 3. If handler is null, then throw a TypeError exception.
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60885);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return FALSE;
@@ -966,30 +966,30 @@ namespace Js
         // for (let key of Reflect.ownKeys(obj)) {
         Var trapResult = JavascriptOperators::GetOwnPropertyNames(this, requestContext);
         if (JavascriptArray::Is(trapResult))
-        {
+        {TRACE_IT(60886);
             JavascriptStaticEnumerator trapEnumerator;
             if (!((JavascriptArray*)trapResult)->GetEnumerator(&trapEnumerator, EnumeratorFlags::SnapShotSemantics, requestContext))
-            {
+            {TRACE_IT(60887);
                 return FALSE;
             }
             while ((propertyName = trapEnumerator.MoveAndGetNext(propertyId)) != NULL)
-            {
+            {TRACE_IT(60888);
                 PropertyId  propId = JavascriptOperators::GetPropertyId(propertyName, requestContext);
                 Var prop = JavascriptOperators::GetProperty(RecyclableObject::FromVar(trapResult), propId, requestContext);
                 // if (typeof key === "string") {
                 if (JavascriptString::Is(prop))
-                {
+                {TRACE_IT(60889);
                     Js::PropertyDescriptor desc;
                     JavascriptString* str = JavascriptString::FromVar(prop);
                     // let desc = Reflect.getOwnPropertyDescriptor(obj, key);
                     BOOL ret = JavascriptOperators::GetOwnPropertyDescriptor(this, str, requestContext, &desc);
                     // if (desc && !visited.has(key)) {
                     if (ret && !dict.ContainsKey(str->GetSz()))
-                    {
+                    {TRACE_IT(60890);
                         dict.Add(str->GetSz(), prop);
                         // if (desc.enumerable) yield key;
                         if (desc.IsEnumerable())
-                        {
+                        {TRACE_IT(60891);
                             ret = arrResult->SetItem(index++, CrossSite::MarshalVar(requestContext, prop), PropertyOperation_None);
                             Assert(ret);
                         }
@@ -1008,24 +1008,24 @@ namespace Js
     }
 
     BOOL JavascriptProxy::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(60892);
         // should be for __definegetter style usage. need to wait for clear spec what it means.
         Assert(FALSE);
         return false;
     }
 
     BOOL JavascriptProxy::Equals(__in Var other, __out BOOL* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60893);
         //RecyclableObject* targetObj;
         if (this->target == nullptr)
-        {
+        {TRACE_IT(60894);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(requestContext, JSERR_ErrorOnRevokedProxy, _u("equal"));
         }
         // Reject implicit call
         ThreadContext* threadContext = requestContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60895);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             *value = FALSE;
             return FALSE;
@@ -1035,18 +1035,18 @@ namespace Js
     }
 
     BOOL JavascriptProxy::StrictEquals(__in Var other, __out BOOL* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60896);
         *value = FALSE;
         //RecyclableObject* targetObj;
         if (this->target == nullptr)
-        {
+        {TRACE_IT(60897);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(requestContext, JSERR_ErrorOnRevokedProxy, _u("strict equal"));
         }
         // Reject implicit call
         ThreadContext* threadContext = requestContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60898);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -1055,10 +1055,10 @@ namespace Js
     }
 
     BOOL JavascriptProxy::IsWritable(PropertyId propertyId)
-    {
+    {TRACE_IT(60899);
         PropertyDescriptor propertyDescriptor;
         if (!GetOwnPropertyDescriptor(this, propertyId, GetScriptContext(), &propertyDescriptor))
-        {
+        {TRACE_IT(60900);
             return FALSE;
         }
 
@@ -1067,26 +1067,26 @@ namespace Js
     }
 
     BOOL JavascriptProxy::IsConfigurable(PropertyId propertyId)
-    {
+    {TRACE_IT(60901);
         Assert(FALSE);
         return target->IsConfigurable(propertyId);
     }
 
     BOOL JavascriptProxy::IsEnumerable(PropertyId propertyId)
-    {
+    {TRACE_IT(60902);
         Assert(FALSE);
         return target->IsEnumerable(propertyId);
     }
 
     BOOL JavascriptProxy::IsExtensible()
-    {
+    {TRACE_IT(60903);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         ScriptContext* scriptContext = GetScriptContext();
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60904);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -1095,7 +1095,7 @@ namespace Js
 
         //2. If handler is null, then throw a TypeError exception.
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60905);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return FALSE;
@@ -1119,7 +1119,7 @@ namespace Js
         JavascriptFunction* isExtensibleMethod = GetMethodHelper(PropertyIds::isExtensible, scriptContext);
         Assert(!GetScriptContext()->IsHeapEnumInProgress());
         if (nullptr == isExtensibleMethod)
-        {
+        {TRACE_IT(60906);
             return targetObj->IsExtensible();
         }
         CallInfo callInfo(CallFlags_Value, 2);
@@ -1135,21 +1135,21 @@ namespace Js
         BOOL trapResult = JavascriptConversion::ToBoolean(isExtensibleResult, scriptContext);
         BOOL targetIsExtensible = targetObj->IsExtensible();
         if (trapResult != targetIsExtensible)
-        {
+        {TRACE_IT(60907);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("isExtensible"));
         }
         return trapResult;
     }
 
     BOOL JavascriptProxy::PreventExtensions()
-    {
+    {TRACE_IT(60908);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         ScriptContext* scriptContext = GetScriptContext();
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60909);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return  FALSE;
         }
@@ -1159,7 +1159,7 @@ namespace Js
 
         //2. If handler is null, then throw a TypeError exception.
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60910);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return FALSE;
@@ -1176,7 +1176,7 @@ namespace Js
         JavascriptFunction* preventExtensionsMethod = GetMethodHelper(PropertyIds::preventExtensions, scriptContext);
         Assert(!GetScriptContext()->IsHeapEnumInProgress());
         if (nullptr == preventExtensionsMethod)
-        {
+        {TRACE_IT(60911);
             return targetObj->PreventExtensions();
         }
         CallInfo callInfo(CallFlags_Value, 2);
@@ -1197,10 +1197,10 @@ namespace Js
 
         BOOL trapResult = JavascriptConversion::ToBoolean(preventExtensionsResult, scriptContext);
         if (trapResult)
-        {
+        {TRACE_IT(60912);
             BOOL targetIsExtensible = targetObj->IsExtensible();
             if (targetIsExtensible)
-            {
+            {TRACE_IT(60913);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("preventExtensions"));
             }
         }
@@ -1208,9 +1208,9 @@ namespace Js
     }
 
     BOOL JavascriptProxy::GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor)
-    {
+    {TRACE_IT(60914);
         if (target == nullptr)
-        {
+        {TRACE_IT(60915);
             JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_ErrorOnRevokedProxy, _u(""));
         }
 
@@ -1220,7 +1220,7 @@ namespace Js
     // 7.3.12 in ES 2015. While this should have been no observable behavior change. Till there is obvious change warrant this
     // to be moved to JavascriptOperators, let's keep it in proxy only first.
     BOOL JavascriptProxy::TestIntegrityLevel(IntegrityLevel integrityLevel, RecyclableObject* obj, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60916);
         //1. Assert: Type(O) is Object.
         //2. Assert: level is either "sealed" or "frozen".
 
@@ -1230,7 +1230,7 @@ namespace Js
         //6. NOTE If the object is extensible, none of its properties are examined.
         BOOL isExtensible = obj->IsExtensible();
         if (isExtensible)
-        {
+        {TRACE_IT(60917);
             return FALSE;
         }
 
@@ -1253,33 +1253,33 @@ namespace Js
         const PropertyRecord* propertyRecord;
         PropertyDescriptor propertyDescriptor;
         for (uint i = 0; i < resultArray->GetLength(); i++)
-        {
+        {TRACE_IT(60918);
             itemVar = resultArray->DirectGetItem(i);
             AssertMsg(JavascriptSymbol::Is(itemVar) || JavascriptString::Is(itemVar), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
             JavascriptConversion::ToPropertyKey(itemVar, scriptContext, &propertyRecord);
             PropertyId propertyId = propertyRecord->GetPropertyId();
             if (JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propertyId, scriptContext, propertyDescriptor))
-            {
+            {TRACE_IT(60919);
                 configurable |= propertyDescriptor.IsConfigurable();
                 if (propertyDescriptor.IsDataDescriptor())
-                {
+                {TRACE_IT(60920);
                     writable |= propertyDescriptor.IsWritable();
                 }
             }
         }
         if (integrityLevel == IntegrityLevel::IntegrityLevel_frozen && writable)
-        {
+        {TRACE_IT(60921);
             return FALSE;
         }
         if (configurable)
-        {
+        {TRACE_IT(60922);
             return FALSE;
         }
         return TRUE;
     }
 
     BOOL JavascriptProxy::SetIntegrityLevel(IntegrityLevel integrityLevel, RecyclableObject* obj, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60923);
         //1. Assert: Type(O) is Object.
         //2. Assert : level is either "sealed" or "frozen".
         //3. Let status be O.[[PreventExtensions]]().
@@ -1297,7 +1297,7 @@ namespace Js
 
         const PropertyRecord* propertyRecord;
         if (integrityLevel == IntegrityLevel::IntegrityLevel_sealed)
-        {
+        {TRACE_IT(60924);
             //8. If level is "sealed", then
                 //a. Repeat for each element k of keys,
                     //i. Let status be DefinePropertyOrThrow(O, k, PropertyDescriptor{ [[Configurable]]: false }).
@@ -1306,7 +1306,7 @@ namespace Js
             propertyDescriptor.SetConfigurable(false);
             Var itemVar;
             for (uint i = 0; i < resultArray->GetLength(); i++)
-            {
+            {TRACE_IT(60925);
                 itemVar = resultArray->DirectGetItem(i);
                 AssertMsg(JavascriptSymbol::Is(itemVar) || JavascriptString::Is(itemVar), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
                 JavascriptConversion::ToPropertyKey(itemVar, scriptContext, &propertyRecord);
@@ -1315,7 +1315,7 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(60926);
             //9.Else level is "frozen",
             //  a.Repeat for each element k of keys,
             //      i. Let currentDesc be O.[[GetOwnProperty]](k).
@@ -1334,20 +1334,20 @@ namespace Js
             accessorDescriptor.SetConfigurable(false);
             Var itemVar;
             for (uint i = 0; i < resultArray->GetLength(); i++)
-            {
+            {TRACE_IT(60927);
                 itemVar = resultArray->DirectGetItem(i);
                 AssertMsg(JavascriptSymbol::Is(itemVar) || JavascriptString::Is(itemVar), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
                 JavascriptConversion::ToPropertyKey(itemVar, scriptContext, &propertyRecord);
                 PropertyId propertyId = propertyRecord->GetPropertyId();
                 PropertyDescriptor propertyDescriptor;
                 if (JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propertyId, scriptContext, propertyDescriptor))
-                {
+                {TRACE_IT(60928);
                     if (propertyDescriptor.IsDataDescriptor())
-                    {
+                    {TRACE_IT(60929);
                         JavascriptObject::DefineOwnPropertyHelper(obj, propertyRecord->GetPropertyId(), dataDescriptor, scriptContext);
                     }
                     else if (propertyDescriptor.IsAccessorDescriptor())
-                    {
+                    {TRACE_IT(60930);
                         JavascriptObject::DefineOwnPropertyHelper(obj, propertyRecord->GetPropertyId(), accessorDescriptor, scriptContext);
                     }
                 }
@@ -1359,75 +1359,75 @@ namespace Js
     }
 
     BOOL JavascriptProxy::Seal()
-    {
+    {TRACE_IT(60931);
         return SetIntegrityLevel(IntegrityLevel::IntegrityLevel_sealed, this, this->GetScriptContext());
     }
 
     BOOL JavascriptProxy::Freeze()
-    {
+    {TRACE_IT(60932);
         return SetIntegrityLevel(IntegrityLevel::IntegrityLevel_frozen, this, this->GetScriptContext());
     }
 
     BOOL JavascriptProxy::IsSealed()
-    {
+    {TRACE_IT(60933);
         return TestIntegrityLevel(IntegrityLevel::IntegrityLevel_sealed, this, this->GetScriptContext());
     }
 
     BOOL JavascriptProxy::IsFrozen()
-    {
+    {TRACE_IT(60934);
         return TestIntegrityLevel(IntegrityLevel::IntegrityLevel_frozen, this, this->GetScriptContext());
     }
 
     BOOL JavascriptProxy::SetWritable(PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(60935);
         Assert(FALSE);
         return FALSE;
     }
 
     BOOL JavascriptProxy::SetConfigurable(PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(60936);
         Assert(FALSE);
         return FALSE;
     }
 
     BOOL JavascriptProxy::SetEnumerable(PropertyId propertyId, BOOL value)
-    {
+    {TRACE_IT(60937);
         Assert(FALSE);
         return FALSE;
     }
 
     BOOL JavascriptProxy::SetAttributes(PropertyId propertyId, PropertyAttributes attributes)
-    {
+    {TRACE_IT(60938);
         Assert(FALSE);
         return FALSE;
     }
 
     BOOL JavascriptProxy::HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache)
-    {
+    {TRACE_IT(60939);
         Var funcPrototype = JavascriptOperators::GetProperty(this, PropertyIds::prototype, scriptContext);
         return JavascriptFunction::HasInstance(funcPrototype, instance, scriptContext, NULL, NULL);
     }
 
     JavascriptString* JavascriptProxy::GetClassName(ScriptContext * requestContext)
-    {
+    {TRACE_IT(60940);
         Assert(FALSE);
         return nullptr;
     }
 
     RecyclableObject* JavascriptProxy::GetPrototypeSpecial()
-    {
+    {TRACE_IT(60941);
         ScriptContext* scriptContext = GetScriptContext();
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60942);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         Js::RecyclableObject *handlerObj = this->handler;
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60943);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return nullptr;
@@ -1439,7 +1439,7 @@ namespace Js
         JavascriptFunction* getPrototypeOfMethod = GetMethodHelper(PropertyIds::getPrototypeOf, scriptContext);
         Var getPrototypeOfResult;
         if (nullptr == getPrototypeOfMethod || GetScriptContext()->IsHeapEnumInProgress())
-        {
+        {TRACE_IT(60944);
             return RecyclableObject::FromVar(JavascriptObject::GetPrototypeOf(targetObj, scriptContext));
         }
         CallInfo callInfo(CallFlags_Value, 2);
@@ -1454,40 +1454,40 @@ namespace Js
 
         TypeId prototypeTypeId = JavascriptOperators::GetTypeId(getPrototypeOfResult);
         if (!JavascriptOperators::IsObjectType(prototypeTypeId) && prototypeTypeId != TypeIds_Null)
-        {
+        {TRACE_IT(60945);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("getPrototypeOf"));
         }
         if (!targetObj->IsExtensible() && !JavascriptConversion::SameValue(getPrototypeOfResult, targetObj->GetPrototype()))
-        {
+        {TRACE_IT(60946);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("getPrototypeOf"));
         }
         return RecyclableObject::FromVar(getPrototypeOfResult);
     }
 
     RecyclableObject* JavascriptProxy::GetConfigurablePrototype(ScriptContext * requestContext)
-    {
+    {TRACE_IT(60947);
         // We should be using GetPrototypeSpecial for proxy object; never should come over here.
         Assert(FALSE);
         return nullptr;
     }
 
     void JavascriptProxy::RemoveFromPrototype(ScriptContext * requestContext)
-    {
+    {TRACE_IT(60948);
         Assert(FALSE);
     }
 
     void JavascriptProxy::AddToPrototype(ScriptContext * requestContext)
-    {
+    {TRACE_IT(60949);
         Assert(FALSE);
     }
 
     void JavascriptProxy::SetPrototype(RecyclableObject* newPrototype)
-    {
+    {TRACE_IT(60950);
         Assert(FALSE);
     }
 
     BOOL JavascriptProxy::SetPrototypeTrap(RecyclableObject* newPrototype, bool shouldThrow)
-    {
+    {TRACE_IT(60951);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         Assert(JavascriptOperators::IsObjectOrNull(newPrototype));
@@ -1495,7 +1495,7 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60952);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -1505,10 +1505,10 @@ namespace Js
 
         //3. If handler is null, then throw a TypeError exception.
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60953);
             // the proxy has been revoked; TypeError.
             if (shouldThrow)
-            {
+            {TRACE_IT(60954);
                 if (!threadContext->RecordImplicitException())
                     return FALSE;
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_ErrorOnRevokedProxy, _u("setPrototypeOf"));
@@ -1525,7 +1525,7 @@ namespace Js
         JavascriptFunction* setPrototypeOfMethod = GetMethodHelper(PropertyIds::setPrototypeOf, scriptContext);
         Assert(!GetScriptContext()->IsHeapEnumInProgress());
         if (nullptr == setPrototypeOfMethod)
-        {
+        {TRACE_IT(60955);
             JavascriptObject::ChangePrototype(targetObj, newPrototype, shouldThrow, scriptContext);
             return TRUE;
         }
@@ -1553,18 +1553,18 @@ namespace Js
         BOOL prototypeSetted = JavascriptConversion::ToBoolean(setPrototypeResult, scriptContext);
         BOOL isExtensible = targetObj->IsExtensible();
         if (isExtensible)
-        {
+        {TRACE_IT(60956);
             if (!prototypeSetted && shouldThrow)
-            {
+            {TRACE_IT(60957);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_ProxyTrapReturnedFalse, _u("setPrototypeOf"));
             }
             return prototypeSetted;
         }
         Var targetProto = targetObj->GetPrototype();
         if (!JavascriptConversion::SameValue(targetProto, newPrototype))
-        {
+        {TRACE_IT(60958);
             if (shouldThrow)
-            {
+            {TRACE_IT(60959);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("setPrototypeOf"));
             }
             return FALSE;
@@ -1574,10 +1574,10 @@ namespace Js
 
 
     Var JavascriptProxy::ToString(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(60960);
         //RecyclableObject* targetObj;
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60961);
             ThreadContext* threadContext = GetScriptContext()->GetThreadContext();
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
@@ -1588,10 +1588,10 @@ namespace Js
     }
 
     BOOL JavascriptProxy::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60962);
         //RecyclableObject* targetObj;
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60963);
             ThreadContext* threadContext = GetScriptContext()->GetThreadContext();
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
@@ -1602,10 +1602,10 @@ namespace Js
     }
 
     RecyclableObject* JavascriptProxy::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(60964);
         //RecyclableObject* targetObj;
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60965);
             ThreadContext* threadContext = GetScriptContext()->GetThreadContext();
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
@@ -1616,25 +1616,25 @@ namespace Js
     }
 
     Var JavascriptProxy::GetTypeOfString(ScriptContext* requestContext)
-    {
+    {TRACE_IT(60966);
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60967);
             // even if handler is nullptr, return typeof as "object"
             return requestContext->GetLibrary()->GetObjectTypeDisplayString();
         }
         // if exotic object has [[Call]] we should return "function", otherwise return "object"
         if (JavascriptFunction::Is(this->target))
-        {
+        {TRACE_IT(60968);
             return requestContext->GetLibrary()->GetFunctionTypeDisplayString();
         }
         else
-        {
+        {TRACE_IT(60969);
             return requestContext->GetLibrary()->GetObjectTypeDisplayString();
         }
     }
 
     BOOL JavascriptProxy::GetOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor* propertyDescriptor)
-    {
+    {TRACE_IT(60970);
         JavascriptProxy* proxy = JavascriptProxy::FromVar(obj);
         auto fn = [&]()-> BOOL {
             return JavascriptOperators::GetOwnPropertyDescriptor(proxy->target, propertyId, scriptContext, propertyDescriptor);
@@ -1658,7 +1658,7 @@ namespace Js
         //3. If handler is null, then throw a TypeError exception.
 
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60971);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnRevokedProxy, _u("definePropertyDescriptor"));
         }
@@ -1669,7 +1669,7 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60972);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -1682,7 +1682,7 @@ namespace Js
         Var definePropertyResult;
         Assert(!scriptContext->IsHeapEnumInProgress());
         if (nullptr == defineOwnPropertyMethod)
-        {
+        {TRACE_IT(60973);
             return JavascriptOperators::DefineOwnPropertyDescriptor(targetObj, propId, descriptor, throwOnError, scriptContext);
         }
 
@@ -1696,7 +1696,7 @@ namespace Js
         //15. ReturnIfAbrupt(targetDesc).
         Var descVar = descriptor.GetOriginal();
         if (descVar == nullptr)
-        {
+        {TRACE_IT(60974);
             descVar = JavascriptOperators::FromPropertyDescriptor(descriptor, scriptContext);
         }
 
@@ -1714,7 +1714,7 @@ namespace Js
 
         BOOL defineResult = JavascriptConversion::ToBoolean(definePropertyResult, scriptContext);
         if (!defineResult)
-        {
+        {TRACE_IT(60975);
             return defineResult;
         }
 
@@ -1735,20 +1735,20 @@ namespace Js
         BOOL isExtensible = targetObj->IsExtensible();
         BOOL settingConfigFalse = (descriptor.ConfigurableSpecified() && !descriptor.IsConfigurable());
         if (!hasProperty)
-        {
+        {TRACE_IT(60976);
             if (!isExtensible || settingConfigFalse)
-            {
+            {TRACE_IT(60977);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("defineProperty"));
             }
         }
         else
-        {
+        {TRACE_IT(60978);
             if (!JavascriptOperators::IsCompatiblePropertyDescriptor(descriptor, hasProperty? &targetDescriptor : nullptr, !!isExtensible, true, scriptContext))
-            {
+            {TRACE_IT(60979);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("defineProperty"));
             }
             if (settingConfigFalse && targetDescriptor.IsConfigurable())
-            {
+            {TRACE_IT(60980);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("defineProperty"));
             }
         }
@@ -1757,7 +1757,7 @@ namespace Js
 
 
     BOOL JavascriptProxy::SetPropertyTrap(Var receiver, SetPropertyTrapKind setPropertyTrapKind, Js::JavascriptString * propertyNameString, Var newValue, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60981);
         const PropertyRecord* propertyRecord;
         requestContext->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return SetPropertyTrap(receiver, setPropertyTrapKind, propertyRecord->GetPropertyId(), newValue, requestContext);
@@ -1765,7 +1765,7 @@ namespace Js
     }
 
     BOOL JavascriptProxy::SetPropertyTrap(Var receiver, SetPropertyTrapKind setPropertyTrapKind, PropertyId propertyId, Var newValue, ScriptContext* requestContext, BOOL skipPrototypeCheck)
-    {
+    {TRACE_IT(60982);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         //1. Assert: IsPropertyKey(P) is true.
@@ -1775,7 +1775,7 @@ namespace Js
         //3. If handler is null, then throw a TypeError exception.
         ScriptContext* scriptContext = GetScriptContext();
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(60983);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnRevokedProxy, _u("set"));
         }
@@ -1786,7 +1786,7 @@ namespace Js
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(60984);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return FALSE;
         }
@@ -1798,12 +1798,12 @@ namespace Js
         Var setPropertyResult;
         Assert(!GetScriptContext()->IsHeapEnumInProgress());
         if (nullptr == setMethod)
-        {
+        {TRACE_IT(60985);
             PropertyValueInfo info;
             switch (setPropertyTrapKind)
             {
             case SetPropertyTrapKind::SetItemOnTaggedNumberKind:
-            {
+            {TRACE_IT(60986);
                 uint32 indexVal;
                 BOOL isNumericPropertyId = scriptContext->IsNumericPropertyId(propertyId, &indexVal);
                 Assert(isNumericPropertyId);
@@ -1814,17 +1814,17 @@ namespace Js
             case SetPropertyTrapKind::SetPropertyKind:
                 return JavascriptOperators::SetProperty(receiver, targetObj, propertyId, newValue, requestContext);
             case SetPropertyTrapKind::SetItemKind:
-            {
+            {TRACE_IT(60987);
                 uint32 indexVal;
                 BOOL isNumericPropertyId = scriptContext->IsNumericPropertyId(propertyId, &indexVal);
                 Assert(isNumericPropertyId);
                 return  JavascriptOperators::SetItem(receiver, targetObj, indexVal, newValue, scriptContext, PropertyOperationFlags::PropertyOperation_None, skipPrototypeCheck);
             }
             case SetPropertyTrapKind::SetPropertyWPCacheKind:
-            {
+            {TRACE_IT(60988);
                 Var name = GetName(requestContext, propertyId);
                 if (!JavascriptString::Is(name) || !VirtualTableInfo<Js::PropertyString>::HasVirtualTable(JavascriptString::FromVar(name)))
-                {
+                {TRACE_IT(60989);
                     name = nullptr;
                 }
                 return JavascriptOperators::SetPropertyWPCache(receiver, targetObj, propertyId, newValue, requestContext,
@@ -1854,7 +1854,7 @@ namespace Js
 
         BOOL setResult = JavascriptConversion::ToBoolean(setPropertyResult, requestContext);
         if (!setResult)
-        {
+        {TRACE_IT(60990);
             return setResult;
         }
 
@@ -1871,19 +1871,19 @@ namespace Js
 
         hasProperty = JavascriptOperators::GetOwnPropertyDescriptor(targetObj, propertyId, requestContext, &targetDescriptor);
         if (hasProperty)
-        {
+        {TRACE_IT(60991);
             if (targetDescriptor.ValueSpecified())
-            {
+            {TRACE_IT(60992);
                 if (!targetDescriptor.IsConfigurable() && !targetDescriptor.IsWritable() &&
                     !JavascriptConversion::SameValue(newValue, targetDescriptor.GetValue()))
-                {
+                {TRACE_IT(60993);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("set"));
                 }
             }
             else
-            {
+            {TRACE_IT(60994);
                 if (!targetDescriptor.IsConfigurable() && targetDescriptor.GetSetter() == requestContext->GetLibrary()->GetDefaultAccessorFunction())
-                {
+                {TRACE_IT(60995);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("set"));
                 }
             }
@@ -1893,11 +1893,11 @@ namespace Js
     }
 
     JavascriptFunction* JavascriptProxy::GetMethodHelper(PropertyId methodId, ScriptContext* requestContext)
-    {
+    {TRACE_IT(60996);
         //2. Let handler be the value of the[[ProxyHandler]] internal slot of O.
         //3. If handler is null, then throw a TypeError exception.
         if (this->handler == nullptr)
-        {
+        {TRACE_IT(60997);
             // the proxy has been revoked; TypeError.
             JavascriptError::ThrowTypeError(requestContext, JSERR_ErrorOnRevokedProxy, requestContext->GetPropertyName(methodId)->GetBuffer());
         }
@@ -1916,11 +1916,11 @@ namespace Js
         //  5. Return func.
         BOOL result = JavascriptOperators::GetPropertyReference(handler, methodId, &varMethod, requestContext);
         if (!result || JavascriptOperators::IsUndefinedOrNull(varMethod))
-        {
+        {TRACE_IT(60998);
             return nullptr;
         }
         if (!JavascriptFunction::Is(varMethod))
-        {
+        {TRACE_IT(60999);
             JavascriptError::ThrowTypeError(requestContext, JSERR_NeedFunction, requestContext->GetPropertyName(methodId)->GetBuffer());
         }
 
@@ -1930,13 +1930,13 @@ namespace Js
     }
 
     Var JavascriptProxy::GetValueFromDescriptor(RecyclableObject* instance, PropertyDescriptor propertyDescriptor, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61000);
         if (propertyDescriptor.ValueSpecified())
-        {
+        {TRACE_IT(61001);
             return CrossSite::MarshalVar(requestContext, propertyDescriptor.GetValue());
         }
         if (propertyDescriptor.GetterSpecified())
-        {
+        {TRACE_IT(61002);
             return JavascriptOperators::CallGetter(RecyclableObject::FromVar(propertyDescriptor.GetGetter()), instance, requestContext);
         }
         Assert(FALSE);
@@ -1944,7 +1944,7 @@ namespace Js
     }
 
     void JavascriptProxy::PropertyIdFromInt(uint32 index, PropertyRecord const** propertyRecord)
-    {
+    {TRACE_IT(61003);
         char16 buffer[20];
 
         ::_i64tow_s(index, buffer, sizeof(buffer) / sizeof(char16), 10);
@@ -1953,15 +1953,15 @@ namespace Js
     }
 
     Var JavascriptProxy::GetName(ScriptContext* requestContext, PropertyId propertyId)
-    {
+    {TRACE_IT(61004);
         const PropertyRecord* propertyRecord = requestContext->GetThreadContext()->GetPropertyName(propertyId);
         Var name;
         if (propertyRecord->IsSymbol())
-        {
+        {TRACE_IT(61005);
             name = requestContext->GetLibrary()->CreateSymbol(propertyRecord);
         }
         else
-        {
+        {TRACE_IT(61006);
             name = requestContext->GetLibrary()->CreatePropertyString(propertyRecord);
         }
         return name;
@@ -1969,18 +1969,18 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     PropertyId JavascriptProxy::EnsureHandlerPropertyId(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(61007);
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->handlerPropertyId == Js::Constants::NoProperty)
-        {
+        {TRACE_IT(61008);
             LPCWSTR autoProxyName;
 
             if (threadContext->GetAutoProxyName() != nullptr)
-            {
+            {TRACE_IT(61009);
                 autoProxyName = threadContext->GetAutoProxyName();
             }
             else
-            {
+            {TRACE_IT(61010);
                 autoProxyName = Js::Configuration::Global.flags.autoProxy;
             }
 
@@ -1991,19 +1991,19 @@ namespace Js
     }
 
     RecyclableObject* JavascriptProxy::AutoProxyWrapper(Var obj)
-    {
+    {TRACE_IT(61011);
         RecyclableObject* object = RecyclableObject::FromVar(obj);
         if (!JavascriptOperators::IsObject(object) || JavascriptProxy::Is(object))
-        {
+        {TRACE_IT(61012);
             return object;
         }
         ScriptContext* scriptContext = object->GetScriptContext();
         if (!scriptContext->GetThreadContext()->IsScriptActive())
-        {
+        {TRACE_IT(61013);
             return object;
         }
         if (!scriptContext->GetConfig()->IsES6ProxyEnabled())
-        {
+        {TRACE_IT(61014);
             return object;
         }
         Assert(Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag));
@@ -2011,7 +2011,7 @@ namespace Js
         GlobalObject* globalObject = scriptContext->GetLibrary()->GetGlobalObject();
         Var handler = nullptr;
         if (!JavascriptOperators::GetProperty(globalObject, handlerId, &handler, scriptContext))
-        {
+        {TRACE_IT(61015);
             handler = scriptContext->GetLibrary()->CreateObject();
             JavascriptOperators::SetProperty(globalObject, globalObject, handlerId, handler, scriptContext);
         }
@@ -2026,16 +2026,16 @@ namespace Js
 #endif
 
     Var JavascriptProxy::ConstructorTrap(Arguments args, ScriptContext* scriptContext, const Js::AuxArray<uint32> *spreadIndices)
-    {
+    {TRACE_IT(61016);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         Var functionResult;
         if (spreadIndices != nullptr)
-        {
+        {TRACE_IT(61017);
             functionResult = JavascriptFunction::CallSpreadFunction(this, args, spreadIndices);
         }
         else
-        {
+        {TRACE_IT(61018);
             functionResult = JavascriptFunction::CallFunction<true>(this, this->GetEntryPoint(), args);
         }
         return CrossSite::MarshalVar(scriptContext, functionResult);
@@ -2053,13 +2053,13 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (!JavascriptProxy::Is(function))
-        {
+        {TRACE_IT(61019);
             if (args.Info.Flags & CallFlags_New)
-            {
+            {TRACE_IT(61020);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction, _u("construct"));
             }
             else
-            {
+            {TRACE_IT(61021);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction, _u("call"));
             }
         }
@@ -2074,42 +2074,42 @@ namespace Js
 
         // To conform with ES6 spec 7.3.13
         if (hasOverridingNewTarget)
-        {
+        {TRACE_IT(61022);
             newTarget = args.Values[callInfo.Count];
         }
         else
-        {
+        {TRACE_IT(61023);
             newTarget = proxy;
         }
 
         if (args.Info.Flags & CallFlags_New)
-        {
+        {TRACE_IT(61024);
             callMethod = proxy->GetMethodHelper(PropertyIds::construct, scriptContext);
         }
         else
-        {
+        {TRACE_IT(61025);
             callMethod = proxy->GetMethodHelper(PropertyIds::apply, scriptContext);
         }
         if (!JavascriptConversion::IsCallable(targetObj))
-        {
+        {TRACE_IT(61026);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction, _u("call"));
         }
 
         if (nullptr == callMethod)
-        {
+        {TRACE_IT(61027);
             // newCount is ushort. If args count is greater than or equal to 65535, an integer
             // too many arguments
             if (args.Info.Count >= USHORT_MAX) //check against CallInfo::kMaxCountArgs if newCount is ever made int
-            {
+            {TRACE_IT(61028);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgListTooLarge);
             }
 
             // in [[construct]] case, we don't need to check if the function is a constructor: the function should throw there.
             Var newThisObject = nullptr;
             if (args.Info.Flags & CallFlags_New)
-            {
+            {TRACE_IT(61029);
                 if (!JavascriptOperators::IsConstructor(targetObj))
-                {
+                {TRACE_IT(61030);
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedFunction, _u("construct"));
                 }
                 newThisObject = JavascriptOperators::NewScObjectNoCtor(targetObj, scriptContext);
@@ -2126,13 +2126,13 @@ namespace Js
                 newValues = (Var*)_alloca(newCount * sizeof(Var));
             }
             else
-            {
+            {TRACE_IT(61031);
                 newValues = stackArgs;
             }
             CallInfo calleeInfo((CallFlags)(args.Info.Flags | CallFlags_ExtraArg | CallFlags_NewTarget), newCount);
 
             for (uint argCount = 0; argCount < args.Info.Count; argCount++)
-            {
+            {TRACE_IT(61032);
                 newValues[argCount] = args.Values[argCount];
             }
 #pragma prefast(suppress:6386)
@@ -2142,7 +2142,7 @@ namespace Js
             Var aReturnValue = JavascriptFunction::CallFunction<true>(targetObj, targetObj->GetEntryPoint(), arguments);
             // If this is constructor call, return the actual object instead of function result
             if ((callInfo.Flags & CallFlags_New) && !JavascriptOperators::IsObject(aReturnValue))
-            {
+            {TRACE_IT(61033);
                 aReturnValue = newThisObject;
             }
             return aReturnValue;
@@ -2150,7 +2150,7 @@ namespace Js
 
         JavascriptArray* argList = scriptContext->GetLibrary()->CreateArray(callInfo.Count - 1);
         for (uint i = 1; i < callInfo.Count; i++)
-        {
+        {TRACE_IT(61034);
             argList->DirectSetItemAt(i - 1, args[i]);
         }
 
@@ -2161,7 +2161,7 @@ namespace Js
         varArgs[0] = handlerObj;
         varArgs[1] = targetObj;
         if (args.Info.Flags & CallFlags_New)
-        {
+        {TRACE_IT(61035);
             varArgs[2] = argList;
             // 1st preference - overridden newTarget
             // 2nd preference - 'this' in case of super() call
@@ -2170,16 +2170,16 @@ namespace Js
                 isCtorSuperCall ? args[0] : newTarget;
          }
         else
-        {
+        {TRACE_IT(61036);
             varArgs[2] = args[0];
             varArgs[3] = argList;
         }
 
         Var trapResult = callMethod->CallFunction(arguments);
         if (args.Info.Flags & CallFlags_New)
-        {
+        {TRACE_IT(61037);
             if (!Js::JavascriptOperators::IsObject(trapResult))
-            {
+            {TRACE_IT(61038);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("construct"));
             }
         }
@@ -2187,14 +2187,14 @@ namespace Js
     }
 
     JavascriptArray* JavascriptProxy::PropertyKeysTrap(KeysTrapKind keysTrapKind, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61039);
         PROBE_STACK(GetScriptContext(), Js::Constants::MinStackDefault);
 
         ScriptContext* scriptContext = GetScriptContext();
         // Reject implicit call
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->IsDisableImplicitCall())
-        {
+        {TRACE_IT(61040);
             threadContext->AddImplicitCallFlags(Js::ImplicitCall_External);
             return nullptr;
         }
@@ -2204,7 +2204,7 @@ namespace Js
         //2. If handler is null, throw a TypeError exception.
         //3. Assert: Type(handler) is Object.
         if (handlerObj == nullptr)
-        {
+        {TRACE_IT(61041);
             // the proxy has been revoked; TypeError.
             if (!threadContext->RecordImplicitException())
                 return nullptr;
@@ -2225,7 +2225,7 @@ namespace Js
         JavascriptArray *targetKeys;
 
         if (nullptr == ownKeysMethod)
-        {
+        {TRACE_IT(61042);
             switch (keysTrapKind)
             {
                 case GetOwnPropertyNamesKind:
@@ -2262,7 +2262,7 @@ namespace Js
         threadContext->SetImplicitCallFlags((Js::ImplicitCallFlags)(saveImplicitCallFlags | ImplicitCall_Accessor));
 
         if (!JavascriptOperators::IsObject(ownKeysResult))
-        {
+        {TRACE_IT(61043);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
         }
         RecyclableObject* trapResultArray = RecyclableObject::FromVar(ownKeysResult);
@@ -2354,7 +2354,7 @@ namespace Js
         const PropertyRecord* propertyRecord = nullptr;
 
         BEGIN_TEMP_ALLOCATOR(tempAllocator, scriptContext, _u("Runtime"))
-        {
+        {TRACE_IT(61044);
             // Dictionary containing intersection of keys present in targetKeys and trapResult
             Var lenValue = JavascriptOperators::OP_GetLength(trapResultArray, scriptContext);
             uint32 len = (uint32)JavascriptConversion::ToLength(lenValue, scriptContext);
@@ -2391,7 +2391,7 @@ namespace Js
             }
 
             for (uint32 i = 0; i < targetKeys->GetLength(); i++)
-            {
+            {TRACE_IT(61045);
                 element = targetKeys->DirectGetItem(i);
                 AssertMsg(JavascriptSymbol::Is(element) || JavascriptString::Is(element), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
                 JavascriptConversion::ToPropertyKey(element, scriptContext, &propertyRecord);
@@ -2403,28 +2403,28 @@ namespace Js
                 // If not present in intersection means either the property is not present in targetKeys or
                 // we have already visited the property in targetKeys
                 if (targetToTrapResultMap.ContainsKey(propertyId))
-                {
+                {TRACE_IT(61046);
                     isKeyMissingFromTrapResult = false;
                     targetToTrapResultMap.Remove(propertyId);
                 }
                 else
-                {
+                {TRACE_IT(61047);
                     isKeyMissingFromTrapResult = true;
                 }
 
                 PropertyDescriptor targetKeyPropertyDescriptor;
                 if (Js::JavascriptOperators::GetOwnPropertyDescriptor(targetObj, propertyId, scriptContext, &targetKeyPropertyDescriptor) && !targetKeyPropertyDescriptor.IsConfigurable())
-                {
+                {TRACE_IT(61048);
                     isAnyNonconfigurableKeyPresent = true;
                     if (isKeyMissingFromTrapResult)
-                    {
+                    {TRACE_IT(61049);
                         isNonconfigurableKeyMissingFromTrapResult = true;
                     }
                 }
                 else
-                {
+                {TRACE_IT(61050);
                     if (isKeyMissingFromTrapResult)
-                    {
+                    {TRACE_IT(61051);
                         isConfigurableKeyMissingFromTrapResult = true;
                     }
                 }
@@ -2437,31 +2437,31 @@ namespace Js
 
         // 19.
         if (isTargetExtensible && !isAnyNonconfigurableKeyPresent)
-        {
+        {TRACE_IT(61052);
             return trapResult;
         }
 
         // 21.
         if (isNonconfigurableKeyMissingFromTrapResult)
-        {
+        {TRACE_IT(61053);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
         }
 
         // 22.
         if (isTargetExtensible)
-        {
+        {TRACE_IT(61054);
             return trapResult;
         }
 
         // 23.
         if (isConfigurableKeyMissingFromTrapResult)
-        {
+        {TRACE_IT(61055);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
         }
 
         // 24.
         if (isKeyMissingFromTargetResult)
-        {
+        {TRACE_IT(61056);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
         }
 
@@ -2470,25 +2470,25 @@ namespace Js
 
 #if ENABLE_TTD
     void JavascriptProxy::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {TRACE_IT(61057);
         if(this->handler != nullptr)
-        {
+        {TRACE_IT(61058);
             extractor->MarkVisitVar(this->handler);
         }
 
         if(this->target != nullptr)
-        {
+        {TRACE_IT(61059);
             extractor->MarkVisitVar(this->target);
         }
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptProxy::GetSnapTag_TTD() const
-    {
+    {TRACE_IT(61060);
         return TTD::NSSnapObjects::SnapObjectType::SnapProxyObject;
     }
 
     void JavascriptProxy::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {TRACE_IT(61061);
         TTD::NSSnapObjects::SnapProxyInfo* spi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapProxyInfo>();
 
         const uint32 reserveSize = 2;
@@ -2497,11 +2497,11 @@ namespace Js
 
         spi->HandlerId = TTD_INVALID_PTR_ID;
         if(this->handler != nullptr)
-        {
+        {TRACE_IT(61062);
             spi->HandlerId = TTD_CONVERT_VAR_TO_PTR_ID(this->handler);
 
             if(TTD::JsSupport::IsVarComplexKind(this->handler))
-            {
+            {TRACE_IT(61063);
                 depOnArray[depOnCount] = TTD_CONVERT_VAR_TO_PTR_ID(this->handler);
                 depOnCount++;
             }
@@ -2509,24 +2509,24 @@ namespace Js
 
         spi->TargetId = TTD_INVALID_PTR_ID;
         if(this->target != nullptr)
-        {
+        {TRACE_IT(61064);
             spi->TargetId = TTD_CONVERT_VAR_TO_PTR_ID(this->target);
 
             if(TTD::JsSupport::IsVarComplexKind(this->handler))
-            {
+            {TRACE_IT(61065);
                 depOnArray[depOnCount] = TTD_CONVERT_VAR_TO_PTR_ID(this->target);
                 depOnCount++;
             }
         }
 
         if(depOnCount == 0)
-        {
+        {TRACE_IT(61066);
             alloc.SlabAbortArraySpace<TTD_PTR_ID>(reserveSize);
 
             TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::NSSnapObjects::SnapProxyInfo*, TTD::NSSnapObjects::SnapObjectType::SnapProxyObject>(objData, spi);
         }
         else
-        {
+        {TRACE_IT(61067);
             alloc.SlabCommitArraySpace<TTD_PTR_ID>(depOnCount, reserveSize);
 
             TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::NSSnapObjects::SnapProxyInfo*, TTD::NSSnapObjects::SnapObjectType::SnapProxyObject>(objData, spi, alloc, depOnCount, depOnArray);

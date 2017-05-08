@@ -12,7 +12,7 @@ namespace Js
 
 WebAssemblyEnvironment::WebAssemblyEnvironment(WebAssemblyModule* module):
     m_alloc(_u("WebAssemblyEnvironment"), module->GetScriptContext()->GetThreadContext()->GetPageAllocator(), Js::Throw::OutOfMemory)
-{
+{TRACE_IT(64341);
     this->module = module;
     ScriptContext* scriptContext = module->GetScriptContext();
     uint32 size = module->GetModuleEnvironmentSize();
@@ -30,7 +30,7 @@ WebAssemblyEnvironment::WebAssemblyEnvironment(WebAssemblyModule* module):
     Assert(globals > table && globals > functions && globals > imports && globals > memory);
     if (globals < start ||
         (globals + globalsSize) > end)
-    {
+    {TRACE_IT(64342);
         // Something went wrong in the allocation and/or offset calculation failfast
         JavascriptError::ThrowOutOfMemoryError(scriptContext);
     }
@@ -42,18 +42,18 @@ WebAssemblyEnvironment::WebAssemblyEnvironment(WebAssemblyModule* module):
 
 template<typename T>
 void Js::WebAssemblyEnvironment::CheckPtrIsValid(intptr_t ptr) const
-{
+{TRACE_IT(64343);
     if (ptr < (intptr_t)PointerValue(start) || (intptr_t)(ptr + sizeof(T)) > (intptr_t)PointerValue(end))
-    {
+    {TRACE_IT(64344);
         Js::Throw::InternalError();
     }
 }
 
 template<typename T>
 T* Js::WebAssemblyEnvironment::GetVarElement(Field(Var)* ptr, uint32 index, uint32 maxCount) const
-{
+{TRACE_IT(64345);
     if (index >= maxCount)
-    {
+    {TRACE_IT(64346);
         Js::Throw::InternalError();
     }
 
@@ -61,9 +61,9 @@ T* Js::WebAssemblyEnvironment::GetVarElement(Field(Var)* ptr, uint32 index, uint
     CheckPtrIsValid<T*>((intptr_t)functionPtr);
     Var varFunc = *functionPtr;
     if (varFunc)
-    {
+    {TRACE_IT(64347);
         if (!T::Is(varFunc))
-        {
+        {TRACE_IT(64348);
             Js::Throw::InternalError();
         }
         return T::FromVar(varFunc);
@@ -73,10 +73,10 @@ T* Js::WebAssemblyEnvironment::GetVarElement(Field(Var)* ptr, uint32 index, uint
 
 template<typename T>
 void Js::WebAssemblyEnvironment::SetVarElement(Field(Var)* ptr, T* val, uint32 index, uint32 maxCount)
-{
+{TRACE_IT(64349);
     if (index >= maxCount ||
         !T::Is(val))
-    {
+    {TRACE_IT(64350);
         Js::Throw::InternalError();
     }
 
@@ -87,21 +87,21 @@ void Js::WebAssemblyEnvironment::SetVarElement(Field(Var)* ptr, T* val, uint32 i
 }
 
 AsmJsScriptFunction* WebAssemblyEnvironment::GetWasmFunction(uint32 index) const
-{
+{TRACE_IT(64351);
     if (!(module->GetFunctionIndexType(index) == Wasm::FunctionIndexTypes::Function ||
           module->GetFunctionIndexType(index) == Wasm::FunctionIndexTypes::ImportThunk))
-    {
+    {TRACE_IT(64352);
         Js::Throw::InternalError();
     }
     return GetVarElement<AsmJsScriptFunction>(functions, index, module->GetWasmFunctionCount());
 }
 
 void WebAssemblyEnvironment::SetWasmFunction(uint32 index, AsmJsScriptFunction* func)
-{
+{TRACE_IT(64353);
     if (!(module->GetFunctionIndexType(index) == Wasm::FunctionIndexTypes::Function ||
           module->GetFunctionIndexType(index) == Wasm::FunctionIndexTypes::ImportThunk) ||
         !AsmJsScriptFunction::IsWasmScriptFunction(func))
-    {
+    {TRACE_IT(64354);
         Js::Throw::InternalError();
     }
     SetVarElement<AsmJsScriptFunction>(functions, func, index, module->GetWasmFunctionCount());
@@ -113,28 +113,28 @@ void WebAssemblyEnvironment::SetImportedFunction(uint32 index, Var importedFunc)
 }
 
 Js::WebAssemblyTable* WebAssemblyEnvironment::GetTable(uint32 index) const
-{
+{TRACE_IT(64355);
     return GetVarElement<WebAssemblyTable>(table, index, 1);
 }
 
 void WebAssemblyEnvironment::SetTable(uint32 index, WebAssemblyTable* table)
-{
+{TRACE_IT(64356);
     SetVarElement<WebAssemblyTable>(this->table, table, index, 1);
 }
 
 WebAssemblyMemory* WebAssemblyEnvironment::GetMemory(uint32 index) const
-{
+{TRACE_IT(64357);
     return GetVarElement<WebAssemblyMemory>(memory, index, 1);
 }
 
 void WebAssemblyEnvironment::SetMemory(uint32 index, WebAssemblyMemory* mem)
-{
+{TRACE_IT(64358);
     SetVarElement<WebAssemblyMemory>(this->memory, mem, index, 1);
 }
 
 template<typename T>
 T WebAssemblyEnvironment::GetGlobalInternal(uint32 offset) const
-{
+{TRACE_IT(64359);
     Field(T)* ptr = (Field(T)*)PointerValue(start) + offset;
     CheckPtrIsValid<T>((intptr_t)ptr);
     return *ptr;
@@ -142,7 +142,7 @@ T WebAssemblyEnvironment::GetGlobalInternal(uint32 offset) const
 
 template<typename T>
 void WebAssemblyEnvironment::SetGlobalInternal(uint32 offset, T val)
-{
+{TRACE_IT(64360);
     Field(T)* ptr = (Field(T)*)PointerValue(start) + offset;
     CheckPtrIsValid<T>((intptr_t)PointerValue(ptr));
     AssertMsg(*ptr == 0, "We shouln't overwrite anything on the environment once it is set");
@@ -150,9 +150,9 @@ void WebAssemblyEnvironment::SetGlobalInternal(uint32 offset, T val)
 }
 
 Wasm::WasmConstLitNode WebAssemblyEnvironment::GetGlobalValue(Wasm::WasmGlobal* global) const
-{
+{TRACE_IT(64361);
     if (!global)
-    {
+    {TRACE_IT(64362);
         Js::Throw::InternalError();
     }
     Wasm::WasmConstLitNode cnst;
@@ -171,9 +171,9 @@ Wasm::WasmConstLitNode WebAssemblyEnvironment::GetGlobalValue(Wasm::WasmGlobal* 
 }
 
 void WebAssemblyEnvironment::SetGlobalValue(Wasm::WasmGlobal* global, Wasm::WasmConstLitNode cnst)
-{
+{TRACE_IT(64363);
     if (!global)
-    {
+    {TRACE_IT(64364);
         Js::Throw::InternalError();
     }
     uint32 offset = module->GetOffsetForGlobal(global);
@@ -190,11 +190,11 @@ void WebAssemblyEnvironment::SetGlobalValue(Wasm::WasmGlobal* global, Wasm::Wasm
 }
 
 void WebAssemblyEnvironment::CalculateOffsets(WebAssemblyTable* table, WebAssemblyMemory* memory)
-{
+{TRACE_IT(64365);
     DebugOnly(offsetInitialized = true);
     ScriptContext* scriptContext = module->GetScriptContext();
     if (!table || !memory)
-    {
+    {TRACE_IT(64366);
         JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
     }
 
@@ -202,11 +202,11 @@ void WebAssemblyEnvironment::CalculateOffsets(WebAssemblyTable* table, WebAssemb
     auto outOfRangeError = [scriptContext, &hCode] { JavascriptError::ThrowWebAssemblyLinkError(scriptContext, hCode); };
 
     for (uint elementsIndex = 0; elementsIndex < module->GetElementSegCount(); ++elementsIndex)
-    {
+    {TRACE_IT(64367);
         Wasm::WasmElementSegment* eSeg = module->GetElementSeg(elementsIndex);
         uint offset = module->GetOffsetFromInit(eSeg->GetOffsetExpr(), this);
         if (UInt32Math::Add(offset, eSeg->GetNumElements(), outOfRangeError) > table->GetCurrentLength())
-        {
+        {TRACE_IT(64368);
             outOfRangeError();
         }
         this->elementSegmentOffsets[elementsIndex] = offset;
@@ -216,14 +216,14 @@ void WebAssemblyEnvironment::CalculateOffsets(WebAssemblyTable* table, WebAssemb
     Assert(!buffer->IsDetached());
     hCode = WASMERR_DataSegOutOfRange;
     for (uint32 iSeg = 0; iSeg < module->GetDataSegCount(); ++iSeg)
-    {
+    {TRACE_IT(64369);
         Wasm::WasmDataSegment* segment = module->GetDataSeg(iSeg);
         Assert(segment != nullptr);
         const uint32 offset = module->GetOffsetFromInit(segment->GetOffsetExpr(), this);
         const uint32 size = segment->GetSourceSize();
 
         if (UInt32Math::Add(offset, size, outOfRangeError) > buffer->GetByteLength())
-        {
+        {TRACE_IT(64370);
             outOfRangeError();
         }
         this->dataSegmentOffsets[iSeg] = offset;
@@ -231,7 +231,7 @@ void WebAssemblyEnvironment::CalculateOffsets(WebAssemblyTable* table, WebAssemb
 }
 
 uint32 WebAssemblyEnvironment::GetElementSegmentOffset(uint32 index) const
-{
+{TRACE_IT(64371);
     Assert(offsetInitialized);
     if (index >= module->GetElementSegCount())
     {
@@ -242,7 +242,7 @@ uint32 WebAssemblyEnvironment::GetElementSegmentOffset(uint32 index) const
 }
 
 uint32 WebAssemblyEnvironment::GetDataSegmentOffset(uint32 index) const
-{
+{TRACE_IT(64372);
     Assert(offsetInitialized);
     if (index >= module->GetDataSegCount())
     {

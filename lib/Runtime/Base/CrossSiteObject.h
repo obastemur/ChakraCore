@@ -53,11 +53,11 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33608);
         originalInstance = CrossSite::MarshalVar(this->GetScriptContext(), originalInstance);
         BOOL result = __super::GetProperty(originalInstance, propertyId, value, info, requestContext);
         if (result)
-        {
+        {TRACE_IT(33609);
             *value = CrossSite::MarshalVar(requestContext, *value);
         }
         return result;
@@ -65,10 +65,10 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33610);
         BOOL result = __super::GetProperty(originalInstance, propertyNameString, value, info, requestContext);
         if (result)
-        {
+        {TRACE_IT(33611);
             *value = CrossSite::MarshalVar(requestContext, *value);
         }
         return result;
@@ -76,16 +76,16 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {TRACE_IT(33612);
         BOOL result = __super::GetAccessors(propertyId, getter, setter, requestContext);
         if (result)
-        {
+        {TRACE_IT(33613);
             if (*getter != nullptr)
-            {
+            {TRACE_IT(33614);
                 *getter = CrossSite::MarshalVar(requestContext, *getter);
             }
             if (*setter != nullptr)
-            {
+            {TRACE_IT(33615);
                 *setter = CrossSite::MarshalVar(requestContext, *setter);
             }
         }
@@ -94,11 +94,11 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33616);
         originalInstance = CrossSite::MarshalVar(this->GetScriptContext(), originalInstance);
         BOOL result = __super::GetPropertyReference(originalInstance, propertyId, value, info, requestContext);
         if (result)
-        {
+        {TRACE_IT(33617);
             *value = CrossSite::MarshalVar(requestContext, *value);
         }
         return result;
@@ -106,53 +106,53 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(33618);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::SetProperty(propertyId, value, flags, info);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(33619);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::SetProperty(propertyNameString, value, flags, info);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(33620);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::InitProperty(propertyId, value, flags, info);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::SetPropertyWithAttributes(PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags, SideEffects possibleSideEffects /* = SideEffects_Any */)
-    {
+    {TRACE_IT(33621);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::SetPropertyWithAttributes(propertyId, value, attributes, info, flags, possibleSideEffects);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::InitPropertyScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(33622);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::InitPropertyScoped(propertyId, value);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::InitFuncScoped(PropertyId propertyId, Var value)
-    {
+    {TRACE_IT(33623);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::InitFuncScoped(propertyId, value);
     }
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(33624);
         originalInstance = CrossSite::MarshalVar(this->GetScriptContext(), originalInstance);
         BOOL result = __super::GetItem(originalInstance, index, value, requestContext);
         if (result)
-        {
+        {TRACE_IT(33625);
             *value = CrossSite::MarshalVar(requestContext, *value);
         }
         return result;
@@ -160,11 +160,11 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(33626);
         originalInstance = CrossSite::MarshalVar(this->GetScriptContext(), originalInstance);
         BOOL result = __super::GetItemReference(originalInstance, index, value, requestContext);
         if (result)
-        {
+        {TRACE_IT(33627);
             *value = CrossSite::MarshalVar(requestContext, *value);
         }
         return result;
@@ -172,10 +172,10 @@ namespace Js
 
     template <typename T>
     DescriptorFlags CrossSiteObject<T>::GetItemSetter(uint32 index, Var *setterValue, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33628);
         DescriptorFlags flags = __super::GetItemSetter(index, setterValue, requestContext);
         if ((flags & Accessor) == Accessor && *setterValue)
-        {
+        {TRACE_IT(33629);
             *setterValue = CrossSite::MarshalVar(requestContext, *setterValue);
         }
         return flags;
@@ -183,17 +183,17 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(33630);
         value = CrossSite::MarshalVar(this->GetScriptContext(), value);
         return __super::SetItem(index, value, flags);
     }
 
     template <typename T>
     DescriptorFlags CrossSiteObject<T>::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33631);
         DescriptorFlags flags = __super::GetSetter(propertyId, setterValue, info, requestContext);
         if ((flags & Accessor) == Accessor && *setterValue)
-        {
+        {TRACE_IT(33632);
             PropertyValueInfo::SetNoCache(info, this);
             *setterValue = CrossSite::MarshalVar(requestContext, *setterValue);
         }
@@ -202,10 +202,10 @@ namespace Js
 
     template <typename T>
     DescriptorFlags CrossSiteObject<T>::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(33633);
         DescriptorFlags flags = __super::GetSetter(propertyNameString, setterValue, info, requestContext);
         if ((flags & Accessor) == Accessor && *setterValue)
-        {
+        {TRACE_IT(33634);
             PropertyValueInfo::SetNoCache(info, this);
             *setterValue = CrossSite::MarshalVar(requestContext, *setterValue);
         }
@@ -214,13 +214,13 @@ namespace Js
 
     template <typename T>
     BOOL CrossSiteObject<T>::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(33635);
         if (getter != nullptr)
-        {
+        {TRACE_IT(33636);
             getter = CrossSite::MarshalVar(this->GetScriptContext(), getter);
         }
         if (setter != nullptr)
-        {
+        {TRACE_IT(33637);
             setter = CrossSite::MarshalVar(this->GetScriptContext(), setter);
         }
         return __super::SetAccessors(propertyId, getter, setter, flags);
@@ -228,26 +228,26 @@ namespace Js
 
     template <typename T>
     void CrossSiteObject<T>::RemoveFromPrototype(ScriptContext * requestContext)
-    {
+    {TRACE_IT(33638);
         __super::RemoveFromPrototype(this->GetScriptContext());
     }
 
     template <typename T>
     void CrossSiteObject<T>::AddToPrototype(ScriptContext * requestContext)
-    {
+    {TRACE_IT(33639);
         __super::AddToPrototype(this->GetScriptContext());
     }
 
     template <typename T>
     void CrossSiteObject<T>::SetPrototype(RecyclableObject* newPrototype)
-    {
+    {TRACE_IT(33640);
         newPrototype = (RecyclableObject*)CrossSite::MarshalVar(this->GetScriptContext(), newPrototype);
         __super::SetPrototype(newPrototype);
     }
 
     template <typename T>
     Var CrossSiteObject<T>::GetHostDispatchVar()
-    {
+    {TRACE_IT(33641);
         Var hostDispatch = __super::GetHostDispatchVar();
         AssertMsg(hostDispatch, "hostDispatch");
         hostDispatch = CrossSite::MarshalVar(this->GetScriptContext(), hostDispatch);

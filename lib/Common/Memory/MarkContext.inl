@@ -5,7 +5,7 @@
 
 inline
 bool MarkContext::AddMarkedObject(void * objectAddress, size_t objectSize)
-{
+{TRACE_IT(24694);
     Assert(objectAddress != nullptr);
     Assert(objectSize > 0);
     Assert(objectSize % sizeof(void *) == 0);
@@ -14,7 +14,7 @@ bool MarkContext::AddMarkedObject(void * objectAddress, size_t objectSize)
 
 #if DBG_DUMP
     if (recycler->forceTraceMark || recycler->GetRecyclerFlagsTable().Trace.IsEnabled(Js::MarkPhase))
-    {
+    {TRACE_IT(24695);
         Output::Print(_u(" %p"), objectAddress);
     }
 #endif
@@ -30,7 +30,7 @@ bool MarkContext::AddMarkedObject(void * objectAddress, size_t objectSize)
 #if ENABLE_CONCURRENT_GC
 inline
 bool MarkContext::AddTrackedObject(FinalizableObject * obj)
-{
+{TRACE_IT(24696);
     Assert(obj != nullptr);
 #if ENABLE_CONCURRENT_GC
     Assert(recycler->DoQueueTrackedObject());
@@ -48,7 +48,7 @@ bool MarkContext::AddTrackedObject(FinalizableObject * obj)
 template <bool parallel, bool interior, bool doSpecialMark>
 inline
 void MarkContext::ScanMemory(void ** obj, size_t byteCount)
-{
+{TRACE_IT(24697);
     Assert(byteCount != 0);
     Assert(byteCount % sizeof(void *) == 0);
 
@@ -57,13 +57,13 @@ void MarkContext::ScanMemory(void ** obj, size_t byteCount)
 
 #if DBG_DUMP
     if (recycler->forceTraceMark || recycler->GetRecyclerFlagsTable().Trace.IsEnabled(Js::MarkPhase))
-    {
+    {TRACE_IT(24698);
         Output::Print(_u("Scanning %p(%8d): "), obj, byteCount);
     }
 #endif
 
     do
-    {
+    {TRACE_IT(24699);
         // We need to ensure that the compiler does not reintroduce reads to the object after inlining.
         // This could cause the value to change after the marking checks (e.g., the null/low address check).
         // Intrinsics avoid the expensive memory barrier on ARM (due to /volatile:ms).
@@ -77,7 +77,7 @@ void MarkContext::ScanMemory(void ** obj, size_t byteCount)
 
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
         if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-        {
+        {TRACE_IT(24700);
             this->parentRef = obj;
         }
 #endif
@@ -87,14 +87,14 @@ void MarkContext::ScanMemory(void ** obj, size_t byteCount)
 
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-    {
+    {TRACE_IT(24701);
         this->parentRef = nullptr;
     }
 #endif
 
 #if DBG_DUMP
     if (recycler->forceTraceMark || recycler->GetRecyclerFlagsTable().Trace.IsEnabled(Js::MarkPhase))
-    {
+    {TRACE_IT(24702);
         Output::Print(_u("\n"));
         Output::Flush();
     }
@@ -117,7 +117,7 @@ void MarkContext::ScanObject(void ** obj, size_t byteCount)
 template <bool parallel, bool interior, bool doSpecialMark>
 inline
 void MarkContext::Mark(void * candidate, void * parentReference)
-{
+{TRACE_IT(24703);
     // We should never reach here while we are processing Rescan.
     // Otherwise our rescanState could be out of sync with mark state.
     Assert(!recycler->isProcessingRescan);
@@ -129,7 +129,7 @@ void MarkContext::Mark(void * candidate, void * parentReference)
     }
 
     if (interior)
-    {
+    {TRACE_IT(24704);
 #if ENABLE_CONCURRENT_GC
         Assert(recycler->enableScanInteriorPointers
             || (!recycler->IsConcurrentState() && recycler->collectionState != CollectionStateParallelMark));
@@ -155,7 +155,7 @@ void MarkContext::Mark(void * candidate, void * parentReference)
 
 inline
 void MarkContext::MarkTrackedObject(FinalizableObject * trackedObject)
-{
+{TRACE_IT(24705);
 #if ENABLE_CONCURRENT_GC
     Assert(!recycler->queueTrackedObject);
     Assert(!recycler->IsConcurrentExecutingState());
@@ -176,13 +176,13 @@ void MarkContext::MarkTrackedObject(FinalizableObject * trackedObject)
 template <bool parallel, bool interior>
 inline
 void MarkContext::ProcessMark()
-{
+{TRACE_IT(24706);
 #ifdef RECYCLER_STRESS
     if (recycler->GetRecyclerFlagsTable().RecyclerInduceFalsePositives)
-    {
+    {TRACE_IT(24707);
         // InduceFalsePositives logic doesn't support parallel marking
         if (!parallel)
-        {
+        {TRACE_IT(24708);
             recycler->heapBlockMap.InduceFalsePositives(recycler);
         }
     }
@@ -192,10 +192,10 @@ void MarkContext::ProcessMark()
     MarkCandidate current, next;
 
     while (markStack.Pop(&current))
-    {
+    {TRACE_IT(24709);
         // Process entries and prefetch as we go.
         while (markStack.Pop(&next))
-        {
+        {TRACE_IT(24710);
             // Prefetch the next entry so it's ready when we need it.
             _mm_prefetch((char *)next.obj, _MM_HINT_T0);
 

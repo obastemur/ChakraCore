@@ -11,16 +11,16 @@ namespace Js
         m_iterableObject(iterable),
         m_nextIndex(0),
         m_kind(kind)
-    {
+    {TRACE_IT(58170);
         Assert(type->GetTypeId() == TypeIds_ArrayIterator);
         if (m_iterableObject == this->GetLibrary()->GetUndefined())
-        {
+        {TRACE_IT(58171);
             m_iterableObject = nullptr;
         }
     }
 
     bool JavascriptArrayIterator::Is(Var aValue)
-    {
+    {TRACE_IT(58172);
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_ArrayIterator;
     }
@@ -45,7 +45,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptArrayIterator::Is(thisObj))
-        {
+        {TRACE_IT(58173);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedArrayIterator, _u("Array Iterator.prototype.next"));
         }
 
@@ -53,7 +53,7 @@ namespace Js
         Var iterable = iterator->m_iterableObject;
 
         if (iterable == nullptr)
-        {
+        {TRACE_IT(58174);
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
 
@@ -61,7 +61,7 @@ namespace Js
         JavascriptArray* pArr = nullptr;
         TypedArrayBase *typedArrayBase = nullptr;
         if (JavascriptArray::Is(iterable) && !JavascriptArray::FromVar(iterable)->IsCrossSiteObject())
-        {
+        {TRACE_IT(58175);
 #if ENABLE_COPYONACCESS_ARRAY
             Assert(!JavascriptCopyOnAccessNativeIntArray::Is(iterable));
 #endif
@@ -69,24 +69,24 @@ namespace Js
             length = pArr->GetLength();
         }
         else if (TypedArrayBase::Is(iterable))
-        {
+        {TRACE_IT(58176);
             typedArrayBase = TypedArrayBase::FromVar(iterable);
             if (typedArrayBase->IsDetachedBuffer())
-            {
+            {TRACE_IT(58177);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray);
             }
 
             length = typedArrayBase->GetLength();
         }
         else
-        {
+        {TRACE_IT(58178);
             length = JavascriptConversion::ToLength(JavascriptOperators::OP_GetLength(iterable, scriptContext), scriptContext);
         }
 
         int64 index = iterator->m_nextIndex;
 
         if (index >= length)
-        {
+        {TRACE_IT(58179);
             // Nulling out the m_iterableObject field is important so that the iterator
             // does not keep the iterable object alive after iteration is completed.
             iterator->m_iterableObject = nullptr;
@@ -96,28 +96,28 @@ namespace Js
         iterator->m_nextIndex += 1;
 
         if (iterator->m_kind == JavascriptArrayIteratorKind::Key)
-        {
+        {TRACE_IT(58180);
             return library->CreateIteratorResultObjectValueFalse(JavascriptNumber::ToVar(index, scriptContext));
         }
 
         Var value;
         if (pArr != nullptr)
-        {
+        {TRACE_IT(58181);
             Assert(index <= UINT_MAX);
             value = pArr->DirectGetItem((uint32)index);
         }
         else if (typedArrayBase != nullptr)
-        {
+        {TRACE_IT(58182);
             Assert(index <= UINT_MAX);
             value = typedArrayBase->DirectGetItem((uint32)index);
         }
         else
-        {
+        {TRACE_IT(58183);
             value = JavascriptOperators::OP_GetElementI(iterable, JavascriptNumber::ToVar(index, scriptContext), scriptContext);
         }
 
         if (iterator->m_kind == JavascriptArrayIteratorKind::Value)
-        {
+        {TRACE_IT(58184);
             return library->CreateIteratorResultObjectValueFalse(value);
         }
 

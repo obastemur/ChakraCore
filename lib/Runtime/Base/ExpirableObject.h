@@ -23,7 +23,7 @@ public:
     bool IsObjectUsed();
     void SetIsObjectUsed();
     bool SupportsExpiration()
-    {
+    {TRACE_IT(33837);
         return (registrationHandle != nullptr);
     }
 

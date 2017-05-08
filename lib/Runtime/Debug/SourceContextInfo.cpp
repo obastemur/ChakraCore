@@ -12,11 +12,11 @@ using namespace Js;
 //  - It ensures that the startup function bit vector on the profile manager has sufficient capacity
 // The startup function bitvector might have to be resized when we call this function
 void SourceContextInfo::EnsureInitialized()
-{
+{TRACE_IT(43385);
 #if ENABLE_PROFILE_INFO
     uint oldFunctionBodyArraySize = (this->sourceDynamicProfileManager ? this->sourceDynamicProfileManager->GetStartupFunctionsLength() : 0);
     if (oldFunctionBodyArraySize >= this->nextLocalFunctionId)
-    {
+    {TRACE_IT(43386);
         return;
     }
 
@@ -24,14 +24,14 @@ void SourceContextInfo::EnsureInitialized()
     uint newFunctionBodyCount = max(this->nextLocalFunctionId, UInt32Math::Add(oldFunctionBodyArraySize, oldFunctionBodyArraySize / 3));
 
     if(sourceDynamicProfileManager)
-    {
+    {TRACE_IT(43387);
         sourceDynamicProfileManager->EnsureStartupFunctions(newFunctionBodyCount);
     }
 #endif
 }
 
 bool SourceContextInfo::IsSourceProfileLoaded() const
-{
+{TRACE_IT(43388);
 #if ENABLE_PROFILE_INFO
     return sourceDynamicProfileManager != nullptr && sourceDynamicProfileManager->IsProfileLoaded();
 #else
@@ -40,19 +40,19 @@ bool SourceContextInfo::IsSourceProfileLoaded() const
 }
 
 SourceContextInfo* SourceContextInfo::Clone(Js::ScriptContext* scriptContext) const
-{
+{TRACE_IT(43389);
     IActiveScriptDataCache* profileCache = NULL;
     
 #if ENABLE_PROFILE_INFO
     if (this->sourceDynamicProfileManager != NULL)
-    {
+    {TRACE_IT(43390);
         profileCache = this->sourceDynamicProfileManager->GetProfileCache();
     }
 #endif
 
     SourceContextInfo * newSourceContextInfo = scriptContext->GetSourceContextInfo(dwHostSourceContext, profileCache);
     if (newSourceContextInfo == nullptr)
-    {
+    {TRACE_IT(43391);
         char16 const * oldUrl = this->url;
         char16 const * oldSourceMapUrl = this->sourceMapUrl;
         newSourceContextInfo = scriptContext->CreateSourceContextInfo(

@@ -69,7 +69,7 @@ namespace Js
     END_ENUM_UINT()
 
     inline BOOL IsInternalPropertyId(PropertyId propertyId)
-    {
+    {TRACE_IT(65229);
         return propertyId < InternalPropertyIds::Count;
     }
 
@@ -84,7 +84,7 @@ namespace Js
     END_ENUM_UINT()
 
     inline BOOL IsBuiltInPropertyId(PropertyId propertyId)
-    {
+    {TRACE_IT(65230);
         return propertyId < TotalNumberOfBuiltInProperties;
     }
 

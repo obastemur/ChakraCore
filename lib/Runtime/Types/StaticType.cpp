@@ -8,13 +8,13 @@ namespace Js
 {
     StaticType *
     StaticType::New(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint)
-    {
+    {TRACE_IT(67658);
         return RecyclerNew(scriptContext->GetRecycler(), StaticType, scriptContext, typeId, prototype, entryPoint);
     }
 
     bool
     StaticType::Is(TypeId typeId)
-    {
+    {TRACE_IT(67659);
         return typeId <= TypeIds_LastStaticType;
     }
 
@@ -57,7 +57,7 @@ namespace Js
     }
 
     BOOL RecyclableObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(67660);
         switch(GetTypeId())
         {
         case TypeIds_Undefined:

@@ -54,7 +54,7 @@ public:
 #endif
 #if DBG_DUMP
     // Having a VTable helps the VS debugger determine which derived class we have
-    void virtual DummyVirtualFunc() {};
+    void virtual DummyVirtualFunc() {TRACE_IT(15690);};
 #endif
 
 public:
@@ -69,7 +69,7 @@ public:
     static ObjectSymInfo * New(Func * func);
     static ObjectSymInfo * New(StackSym * typeSym, Func * func);
 
-    ObjectSymInfo(): m_typeSym(nullptr), m_propertySymList(nullptr) {};
+    ObjectSymInfo(): m_typeSym(nullptr), m_propertySymList(nullptr) {TRACE_IT(15691);};
 
 public:
     StackSym *      m_typeSym;
@@ -98,10 +98,10 @@ public:
     static StackSym * New(Func *func);
     static StackSym * FindOrCreate(SymID id, Js::RegSlot byteCodeRegSlot, Func *func, IRType type = TyVar);
 
-    IRType          GetType() const { return this->m_type; }
+    IRType          GetType() const {TRACE_IT(15692); return this->m_type; }
     bool            IsArgSlotSym() const;
     bool            IsParamSlotSym() const;
-    bool            IsImplicitParamSym() const { return this->m_isImplicitParamSym; }
+    bool            IsImplicitParamSym() const {TRACE_IT(15693); return this->m_isImplicitParamSym; }
     bool            IsAllocated() const;
     int32           GetIntConstValue() const;
     Js::Var         GetFloatConstValueAsVar_PostGlobOpt() const;
@@ -110,7 +110,7 @@ public:
     StackSym *      CloneUse(Func *func);
     void            CopySymAttrs(StackSym *symSrc);
 
-    bool            IsSingleDef() const { return this->m_isSingleDef && this->m_instrDef; }
+    bool            IsSingleDef() const {TRACE_IT(15694); return this->m_isSingleDef && this->m_instrDef; }
     bool            IsConst() const;
     bool            IsIntConst() const;
     bool            IsInt64Const() const;
@@ -136,56 +136,56 @@ public:
     StackSym *      GetSimd128I4EquivSym(Func *func);
     StackSym *      GetSimd128I16EquivSym(Func *func);
     StackSym *      GetSimd128D2EquivSym(Func *func);
-    bool            IsSimd128() const { return IRType_IsSimd128(this->GetType()); }
+    bool            IsSimd128() const {TRACE_IT(15695); return IRType_IsSimd128(this->GetType()); }
 
-    bool            IsSimd128F4()  const { return this->GetType() == TySimd128F4;  }
-    bool            IsSimd128I4()  const { return this->GetType() == TySimd128I4;  }
-    bool            IsSimd128I8()  const { return this->GetType() == TySimd128I8;  }
-    bool            IsSimd128I16() const { return this->GetType() == TySimd128I16; }
-    bool            IsSimd128U4()  const { return this->GetType() == TySimd128U4;  }
-    bool            IsSimd128U8()  const { return this->GetType() == TySimd128U8;  }
-    bool            IsSimd128U16() const { return this->GetType() == TySimd128U16; }
-    bool            IsSimd128B4()  const { return this->GetType() == TySimd128B4;  }
-    bool            IsSimd128B8()  const { return this->GetType() == TySimd128B8;  }
-    bool            IsSimd128B16() const { return this->GetType() == TySimd128B16; }
-    bool            IsSimd128D2()  const { return this->GetType() == TySimd128D2;  }
+    bool            IsSimd128F4()  const {TRACE_IT(15696); return this->GetType() == TySimd128F4;  }
+    bool            IsSimd128I4()  const {TRACE_IT(15697); return this->GetType() == TySimd128I4;  }
+    bool            IsSimd128I8()  const {TRACE_IT(15698); return this->GetType() == TySimd128I8;  }
+    bool            IsSimd128I16() const {TRACE_IT(15699); return this->GetType() == TySimd128I16; }
+    bool            IsSimd128U4()  const {TRACE_IT(15700); return this->GetType() == TySimd128U4;  }
+    bool            IsSimd128U8()  const {TRACE_IT(15701); return this->GetType() == TySimd128U8;  }
+    bool            IsSimd128U16() const {TRACE_IT(15702); return this->GetType() == TySimd128U16; }
+    bool            IsSimd128B4()  const {TRACE_IT(15703); return this->GetType() == TySimd128B4;  }
+    bool            IsSimd128B8()  const {TRACE_IT(15704); return this->GetType() == TySimd128B8;  }
+    bool            IsSimd128B16() const {TRACE_IT(15705); return this->GetType() == TySimd128B16; }
+    bool            IsSimd128D2()  const {TRACE_IT(15706); return this->GetType() == TySimd128D2;  }
 
     StackSym *      GetFloat64EquivSym(Func *func);
-    bool            IsFloat64() const { return this->GetType() == TyFloat64; }
-    bool            IsFloat32() const { return this->GetType() == TyFloat32; }
+    bool            IsFloat64() const {TRACE_IT(15707); return this->GetType() == TyFloat64; }
+    bool            IsFloat32() const {TRACE_IT(15708); return this->GetType() == TyFloat32; }
     StackSym *      GetInt32EquivSym(Func *func);
-    bool            IsInt32() const { return this->GetType() == TyInt32; }
-    bool            IsUInt32() const { return this->GetType() == TyUint32; }
-    bool            IsInt64() const { return this->GetType() == TyInt64; }
-    bool            IsUint64() const { return this->GetType() == TyUint64; }
+    bool            IsInt32() const {TRACE_IT(15709); return this->GetType() == TyInt32; }
+    bool            IsUInt32() const {TRACE_IT(15710); return this->GetType() == TyUint32; }
+    bool            IsInt64() const {TRACE_IT(15711); return this->GetType() == TyInt64; }
+    bool            IsUint64() const {TRACE_IT(15712); return this->GetType() == TyUint64; }
 
     StackSym *      GetVarEquivSym(Func *func);
-    bool            IsVar() const { return this->GetType() == TyVar; }
-    bool            IsTypeSpec() const { return this->m_isTypeSpec; }
+    bool            IsVar() const {TRACE_IT(15713); return this->GetType() == TyVar; }
+    bool            IsTypeSpec() const {TRACE_IT(15714); return this->m_isTypeSpec; }
     static StackSym *GetVarEquivStackSym_NoCreate(Sym *const sym);
 
-    bool            HasByteCodeRegSlot() const { return m_hasByteCodeRegSlot; }
+    bool            HasByteCodeRegSlot() const {TRACE_IT(15715); return m_hasByteCodeRegSlot; }
     Func *          GetByteCodeFunc() const;
     Js::RegSlot     GetByteCodeRegSlot() const;
     bool            IsTempReg(Func *const func) const;
-    bool            IsFromByteCodeConstantTable() const { return m_isFromByteCodeConstantTable; }
-    void            SetIsFromByteCodeConstantTable() { this->m_isFromByteCodeConstantTable = true; }
-    Js::ArgSlot     GetArgSlotNum() const { Assert(HasArgSlotNum()); return m_slotNum; }
-    bool            HasArgSlotNum() const { return !!(m_isArgSlotSym | m_isArgSlotRegSym); }
+    bool            IsFromByteCodeConstantTable() const {TRACE_IT(15716); return m_isFromByteCodeConstantTable; }
+    void            SetIsFromByteCodeConstantTable() {TRACE_IT(15717); this->m_isFromByteCodeConstantTable = true; }
+    Js::ArgSlot     GetArgSlotNum() const {TRACE_IT(15718); Assert(HasArgSlotNum()); return m_slotNum; }
+    bool            HasArgSlotNum() const {TRACE_IT(15719); return !!(m_isArgSlotSym | m_isArgSlotRegSym); }
     void            IncrementArgSlotNum();
     void            DecrementArgSlotNum();
-    Js::ArgSlot     GetParamSlotNum() const { Assert(IsParamSlotSym()); return m_slotNum; }
+    Js::ArgSlot     GetParamSlotNum() const {TRACE_IT(15720); Assert(IsParamSlotSym()); return m_slotNum; }
 
-    IR::Instr *     GetInstrDef() const { return this->IsSingleDef() ? this->m_instrDef : nullptr; }
+    IR::Instr *     GetInstrDef() const {TRACE_IT(15721); return this->IsSingleDef() ? this->m_instrDef : nullptr; }
 
-    bool            HasObjectInfo() const { Assert(!IsTypeSpec()); return this->m_objectInfo != nullptr; };
-    ObjectSymInfo * GetObjectInfo() const { Assert(this->m_objectInfo); return this->m_objectInfo; }
-    void            SetObjectInfo(ObjectSymInfo * value) { this->m_objectInfo = value; }
+    bool            HasObjectInfo() const {TRACE_IT(15722); Assert(!IsTypeSpec()); return this->m_objectInfo != nullptr; };
+    ObjectSymInfo * GetObjectInfo() const {TRACE_IT(15723); Assert(this->m_objectInfo); return this->m_objectInfo; }
+    void            SetObjectInfo(ObjectSymInfo * value) {TRACE_IT(15724); this->m_objectInfo = value; }
     ObjectSymInfo * EnsureObjectInfo(Func * func);
 
-    bool            HasObjectTypeSym() const { return HasObjectInfo() && GetObjectInfo()->m_typeSym; }
-    StackSym *      GetObjectTypeSym() const { Assert(HasObjectTypeSym()); return GetObjectInfo()->m_typeSym; }
-    int             GetSymSize(){ return TySize[m_type]; }
+    bool            HasObjectTypeSym() const {TRACE_IT(15725); return HasObjectInfo() && GetObjectInfo()->m_typeSym; }
+    StackSym *      GetObjectTypeSym() const {TRACE_IT(15726); Assert(HasObjectTypeSym()); return GetObjectInfo()->m_typeSym; }
+    int             GetSymSize(){TRACE_IT(15727); return TySize[m_type]; }
     void            FixupStackOffset(Func * currentFunc);
 
 private:
@@ -266,7 +266,7 @@ class ByteCodeStackSym : public StackSym
 {
 private:
     ByteCodeStackSym(Js::RegSlot byteCodeRegSlot, Func * byteCodeFunc)
-        : byteCodeRegSlot(byteCodeRegSlot), byteCodeFunc(byteCodeFunc) {}
+        : byteCodeRegSlot(byteCodeRegSlot), byteCodeFunc(byteCodeFunc) {TRACE_IT(15728);}
 
     Js::RegSlot     byteCodeRegSlot;
     Func *          byteCodeFunc;
@@ -301,14 +301,14 @@ public:
     static PropertySym * Find(SymID stackSymID, int32 propertyId, Func *func);
     static PropertySym * FindOrCreate(SymID stackSymID, int32 propertyId, uint32 propertyIdIndex, uint inlineCacheIndex, PropertyKind fieldKind, Func *func);
 
-    Func *GetFunc() { return m_func; }
-    bool HasPropertyIdIndex() { return m_propertyIdIndex != -1; }
-    int32 GetPropertyIdIndex() { return m_propertyIdIndex; }
-    bool HasInlineCacheIndex() { return m_inlineCacheIndex != -1; }
-    int32 GetInlineCacheIndex() { return m_inlineCacheIndex; }
-    bool HasObjectTypeSym() const { return this->m_stackSym->HasObjectTypeSym(); }
-    bool HasWriteGuardSym() const { return this->m_writeGuardSym != nullptr; }
-    StackSym * GetObjectTypeSym() const { return this->m_stackSym->GetObjectTypeSym(); }
+    Func *GetFunc() {TRACE_IT(15729); return m_func; }
+    bool HasPropertyIdIndex() {TRACE_IT(15730); return m_propertyIdIndex != -1; }
+    int32 GetPropertyIdIndex() {TRACE_IT(15731); return m_propertyIdIndex; }
+    bool HasInlineCacheIndex() {TRACE_IT(15732); return m_inlineCacheIndex != -1; }
+    int32 GetInlineCacheIndex() {TRACE_IT(15733); return m_inlineCacheIndex; }
+    bool HasObjectTypeSym() const {TRACE_IT(15734); return this->m_stackSym->HasObjectTypeSym(); }
+    bool HasWriteGuardSym() const {TRACE_IT(15735); return this->m_writeGuardSym != nullptr; }
+    StackSym * GetObjectTypeSym() const {TRACE_IT(15736); return this->m_stackSym->GetObjectTypeSym(); }
 
 public:
     PropertyKind    m_fieldKind;

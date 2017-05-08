@@ -26,7 +26,7 @@
 ///----------------------------------------------------------------------------
 void
 Lowerer::Lower()
-{
+{TRACE_IT(10809);
 
     this->m_func->StopMaintainByteCodeOffset();
 
@@ -44,23 +44,23 @@ Lowerer::Lower()
     bool loopFastPath = this->m_func->DoLoopFastPaths();
 
     if (m_func->HasAnyStackNestedFunc())
-    {
+    {TRACE_IT(10810);
         EnsureStackFunctionListStackSym();
     }
     if (m_func->DoStackFrameDisplay() && !m_func->IsLoopBody())
-    {
+    {TRACE_IT(10811);
         AllocStackClosure();
     }
 
     AllocStackForInObjectEnumeratorArray();
 
     if (m_func->IsJitInDebugMode())
-    {
+    {TRACE_IT(10812);
         // Initialize metadata of local var slots.
         // Too late to wait until Register Allocator, as we need the offset when lowerering bailout for debugger.
         int32 hasLocalVarChangedOffset = m_func->GetHasLocalVarChangedOffset();
         if (hasLocalVarChangedOffset != Js::Constants::InvalidOffset)
-        {
+        {TRACE_IT(10813);
             // MOV [EBP + m_func->GetHasLocalVarChangedOffset()], 0
             StackSym* sym = StackSym::New(TyInt8, m_func);
             sym->m_offset = hasLocalVarChangedOffset;
@@ -74,7 +74,7 @@ Lowerer::Lower()
             // Note that in the beginning of the function in bytecode we should initialize all locals to undefined.
             uint32 localSlotCount = m_func->GetJITFunctionBody()->GetEndNonTempLocalIndex() - m_func->GetJITFunctionBody()->GetFirstNonTempLocalIndex();
             for (uint i = 0; i < localSlotCount; ++i)
-            {
+            {TRACE_IT(10814);
                 int offset = m_func->GetLocalVarSlotOffset(i);
 
                 IRType opnd1Type;
@@ -110,10 +110,10 @@ Lowerer::Lower()
         // should do this in LowererMD::GenerateWriteBarrier, however, can't insert call instruction there
         FOREACH_INSTR_EDITING(instr, instrNext, m_func->m_headInstr)
             if (instr->m_src1 && instr->m_src1->IsAddrOpnd())
-            {
+            {TRACE_IT(10815);
                 IR::AddrOpnd* addrOpnd = instr->m_src1->AsAddrOpnd();
                 if (addrOpnd->GetAddrOpndKind() == IR::AddrOpndKindWriteBarrierCardTable)
-                {
+                {TRACE_IT(10816);
                     auto& leaInstr = instr->m_prev->m_prev->m_prev;
                     auto& movInstr = instr->m_prev->m_prev;
                     auto& shrInstr = instr->m_prev;
@@ -134,12 +134,12 @@ Lowerer::Lower()
     this->m_func->ClearCloneMap();
 
     if (m_func->HasAnyStackNestedFunc())
-    {
+    {TRACE_IT(10817);
         EnsureZeroLastStackFunctionNext();
     }
 
     if (!m_func->IsSimpleJit())
-    {
+    {TRACE_IT(10818);
 #if 0 // TODO michhol oop jit, reenable assert
         Js::EntryPointInfo* entryPointInfo = this->m_func->m_workItem->GetEntryPoint();
         Assert(entryPointInfo->GetJitTransferData() != nullptr && !entryPointInfo->GetJitTransferData()->GetIsReady());
@@ -154,7 +154,7 @@ Lowerer::Lower()
 
 void
 Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFastPath, bool defaultDoLoopFastPath)
-{
+{TRACE_IT(10819);
     bool noMathFastPath;
     bool noFieldFastPath;
     bool fNoLower = false;
@@ -167,7 +167,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
 
     FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, instrEnd, instrStart)
-    {
+    {TRACE_IT(10820);
         // Try to peep this`
         instr = this->PreLowerPeepInstr(instr, &instrPrev);
 
@@ -182,7 +182,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         if (m_func->IsJitInDebugMode() && instr->HasBailOutInfo() &&
             (((instr->GetBailOutKind() & IR::BailOutForDebuggerBits) && instr->m_opcode != Js::OpCode::BailForDebugger) ||
             instr->HasAuxBailOut()))
-        {
+        {TRACE_IT(10821);
             instr = this->SplitBailForDebugger(instr);  // Change instr, as returned is the one we need to lower next.
             instrPrev = instr->m_prev;                  // Change just in case if instr got changed.
         }
@@ -198,9 +198,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             PHASE_DUMP(Js::EmitterPhase, m_func) ||
             PHASE_DUMP(Js::EncoderPhase, m_func) ||
             PHASE_DUMP(Js::BackEndPhase, m_func)))
-        {
+        {TRACE_IT(10822);
             if(instr->m_next && instr->m_next->m_opcode != Js::OpCode::StatementBoundary && !instr->m_next->IsLabelInstr())
-            {
+            {TRACE_IT(10823);
                 instr->m_next->globOptInstrString = globOptInstrString;
             }
 
@@ -211,13 +211,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         IR::RegOpnd *srcReg2;
 
         if (instr->IsBranchInstr() && !instr->AsBranchInstr()->IsMultiBranch() && instr->AsBranchInstr()->GetTarget()->m_isLoopTop)
-        {
+        {TRACE_IT(10824);
             Loop * loop = instr->AsBranchInstr()->GetTarget()->GetLoop();
             if (this->outerMostLoopLabel == nullptr && !loop->isProcessed)
-            {
+            {TRACE_IT(10825);
                 while (loop && loop->GetLoopTopInstr()) // some loops are optimized away so that they are not loops anymore.
                                                         // They do, however, stay in the loop graph but don't have loop top labels assigned to them
-                {
+                {TRACE_IT(10826);
                     this->outerMostLoopLabel = loop->GetLoopTopInstr();
                     Assert(this->outerMostLoopLabel->m_isLoopTop);
                     // landing pad must fall through to the loop
@@ -233,7 +233,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
 #ifdef INLINE_CACHE_STATS
         if(PHASE_STATS1(Js::PolymorphicInlineCachePhase))
-        {
+        {TRACE_IT(10827);
             // Always use the slow path, so we can track property accesses
             noFieldFastPath = true;
         }
@@ -281,47 +281,47 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::InitCachedScope:
             if (instr->m_func->GetJITFunctionBody()->GetDoScopeObjectCreation() || !instr->m_func->IsStackArgsEnabled())
-            {
+            {TRACE_IT(10828);
                 instrPrev = this->LowerInitCachedScope(instr);
             }
             else
-            {
+            {TRACE_IT(10829);
                 instr->ReplaceSrc1(this->LoadLibraryValueOpnd(instr, LibraryValue::ValueNull));
                 instr->m_opcode = Js::OpCode::Ld_A;
                 instrPrev = instr;
 
                 if (PHASE_TRACE1(Js::StackArgFormalsOptPhase))
-                {
+                {TRACE_IT(10830);
                     Output::Print(_u("StackArgFormals : %s (%d) :Removing Scope object creation in Lowerer and replacing it with MOV NULL. \n"), instr->m_func->GetJITFunctionBody()->GetDisplayName(), instr->m_func->GetFunctionNumber());
                     Output::Flush();
                 }
             }
             break;
         case Js::OpCode::NewScopeObject:
-        {
+        {TRACE_IT(10831);
             Func * currFunc = instr->m_func;
             if (currFunc->GetJITFunctionBody()->GetDoScopeObjectCreation() || !currFunc->IsStackArgsEnabled())
-            {
+            {TRACE_IT(10832);
                 //Call Helper that creates scope object and does type transition for the formals
                 if (currFunc->IsStackArgsEnabled() && currFunc->GetJITFunctionBody()->GetInParamsCount() != 1)
-                {
+                {TRACE_IT(10833);
                     // s3 = formals are let decls
                     this->m_lowererMD.LoadHelperArgument(instr, IR::IntConstOpnd::New(currFunc->GetHasNonSimpleParams() ? TRUE : FALSE, TyUint8, currFunc));
 
                     if (currFunc->IsInlinee())
-                    {
+                    {TRACE_IT(10834);
                         // s2 = current function.
                         this->m_lowererMD.LoadHelperArgument(instr, currFunc->GetInlineeFunctionObjectSlotOpnd());
                     }
                     else
-                    {
+                    {TRACE_IT(10835);
                         // s2 = current function
                         StackSym * paramSym = StackSym::New(TyMachReg, currFunc);
                         currFunc->SetArgOffset(paramSym, 2 * MachPtr);
                         IR::Opnd * srcOpnd = IR::SymOpnd::New(paramSym, TyMachReg, currFunc);
 
                         if (currFunc->GetJITFunctionBody()->IsCoroutine())
-                        {
+                        {TRACE_IT(10836);
                             // the function object for generator calls is a GeneratorVirtualScriptFunction object
                             // and we need to pass the real JavascriptGeneratorFunction object so grab it instead
                             IR::RegOpnd *tmpOpnd = IR::RegOpnd::New(TyMachReg, currFunc);
@@ -335,18 +335,18 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     m_lowererMD.ChangeToHelperCallMem(instr, IR::HelperOP_NewScopeObjectWithFormals);
                 }
                 else
-                {
+                {TRACE_IT(10837);
                     m_lowererMD.ChangeToHelperCallMem(instr, IR::HelperOP_NewScopeObject);
                 }
             }
             else
-            {
+            {TRACE_IT(10838);
                 instr->SetSrc1(this->LoadLibraryValueOpnd(instr, LibraryValue::ValueNull));
                 instr->m_opcode = Js::OpCode::Ld_A;
                 instrPrev = instr;
 
                 if (PHASE_TRACE1(Js::StackArgFormalsOptPhase))
-                {
+                {TRACE_IT(10839);
                     Output::Print(_u("StackArgFormals : %s (%d) :Removing Scope object creation in Lowerer and replacing it with MOV NULL. \n"), currFunc->GetJITFunctionBody()->GetDisplayName(), currFunc->GetFunctionNumber());
                     Output::Flush();
                 }
@@ -449,7 +449,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdMethodFromFlags:
-        {
+        {TRACE_IT(10840);
             Assert(instr->HasBailOutInfo());
             bool success = m_lowererMD.GenerateFastLdMethodFromFlags(instr);
             AssertMsg(success, "Not expected to generate helper block here");
@@ -491,7 +491,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ScopedLdFldForTypeOf:
             if (!noFieldFastPath)
-            {
+            {TRACE_IT(10841);
                 m_lowererMD.GenerateFastScopedLdFld(instr);
             }
             instrPrev = this->LowerScopedLdFld(instr, IR::HelperOp_PatchGetPropertyForTypeOfScoped, true);
@@ -499,7 +499,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ScopedLdFld:
             if (!noFieldFastPath)
-            {
+            {TRACE_IT(10842);
                 m_lowererMD.GenerateFastScopedLdFld(instr);
             }
             instrPrev = this->LowerScopedLdFld(instr, IR::HelperOp_PatchGetPropertyScoped, true);
@@ -563,7 +563,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ScopedStFld:
         case Js::OpCode::ScopedStFldStrict:
             if (!noFieldFastPath)
-            {
+            {TRACE_IT(10843);
                 m_lowererMD.GenerateFastScopedStFld(instr);
             }
             instrPrev = this->LowerScopedStFld(instr, IR::HelperOp_PatchSetPropertyScoped, true, true,
@@ -571,9 +571,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ConsoleScopedStFld:
-        {
+        {TRACE_IT(10844);
             if (!noFieldFastPath)
-            {
+            {TRACE_IT(10845);
                 m_lowererMD.GenerateFastScopedStFld(instr);
             }
             Js::PropertyOperationFlags flags = static_cast<Js::PropertyOperationFlags>(Js::PropertyOperation_None | Js::PropertyOperation_AllowUndeclInConsoleScope);
@@ -586,7 +586,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CloneStr:
-        {
+        {TRACE_IT(10846);
             GenerateGetImmutableOrScriptUnreferencedString(instr->GetSrc1()->AsRegOpnd(), instr, IR::HelperOp_CompoundStringCloneForAppending, false);
             instr->Remove();
             break;
@@ -683,7 +683,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::InlineMathFloor:
 #if defined(ASMJS_PLAT) && (defined(_M_X64) || defined(_M_IX86))
             if (!AutoSystemInfo::Data.SSE4_1Available() && instr->m_func->GetJITFunctionBody()->IsAsmJsMode())
-            {
+            {TRACE_IT(10847);
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_FloorFlt, IR::HelperDirectMath_FloorDb);
                 break;
             }
@@ -694,7 +694,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::InlineMathCeil:
 #if defined(ASMJS_PLAT) && (defined(_M_X64) || defined(_M_IX86))
             if (!AutoSystemInfo::Data.SSE4_1Available() && instr->m_func->GetJITFunctionBody()->IsAsmJsMode())
-            {
+            {TRACE_IT(10848);
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_CeilFlt, IR::HelperDirectMath_CeilDb);
                 break;
             }
@@ -760,7 +760,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             //Now retrieve the function object from the ArgOut_A_InlineSpecialized instruction opcode to push it on the stack after all the other arguments have been pushed.
             //The lowering of the direct call to helper is handled by GenerateDirectCall (architecture specific).
         case Js::OpCode::CallDirect:
-        {
+        {TRACE_IT(10849);
             IR::Opnd * src1 = instr->GetSrc1();
             Assert(src1->IsHelperCallOpnd());
             switch (src1->AsHelperCallOpnd()->m_fnHelper)
@@ -796,13 +796,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIDynamic:
-        {
+        {TRACE_IT(10850);
             Js::CallFlags flags = instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed;
             instrPrev = this->LowerCallIDynamic(instr, (ushort)flags);
             break;
         }
         case Js::OpCode::CallIDynamicSpread:
-        {
+        {TRACE_IT(10851);
             Js::CallFlags flags = instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed;
             instrPrev = this->LowerCallIDynamicSpread(instr, (ushort)flags);
             break;
@@ -812,35 +812,35 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::CallINew:
         case Js::OpCode::CallIFixed:
         case Js::OpCode::CallINewTargetNew:
-        {
+        {TRACE_IT(10852);
             Js::CallFlags flags = Js::CallFlags_None;
 
             if (instr->isCtorCall)
-            {
+            {TRACE_IT(10853);
                 flags = Js::CallFlags_New;
             }
             else
-            {
+            {TRACE_IT(10854);
                 if (instr->m_opcode == Js::OpCode::CallINew)
-                {
+                {TRACE_IT(10855);
                     flags = Js::CallFlags_New;
                 }
                 else if (instr->m_opcode == Js::OpCode::CallINewTargetNew)
-                {
+                {TRACE_IT(10856);
                     flags = (Js::CallFlags) (Js::CallFlags_New | Js::CallFlags_ExtraArg | Js::CallFlags_NewTarget);
                 }
                 if (instr->GetDst())
-                {
+                {TRACE_IT(10857);
                     flags = (Js::CallFlags) (flags | Js::CallFlags_Value);
                 }
                 else
-                {
+                {TRACE_IT(10858);
                     flags = (Js::CallFlags) (flags | Js::CallFlags_NotUsed);
                 }
             }
 
             if (!PHASE_OFF(Js::CallFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(10859);
                 // We shouldn't have turned this instruction into a fixed method call if we're calling one of the
                 // built-ins we still inline in the lowerer.
                 Assert(instr->m_opcode != Js::OpCode::CallIFixed || !Func::IsBuiltInInlinedInLowerer(instr->GetSrc1()));
@@ -858,7 +858,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 //}
             }
             else
-            {
+            {TRACE_IT(10860);
                 m_lowererMD.LowerCallI(instr, (ushort)flags);
             }
             break;
@@ -873,20 +873,20 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CallIEval:
-        {
+        {TRACE_IT(10861);
             Js::CallFlags flags = (Js::CallFlags)(Js::CallFlags_ExtraArg | (instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed));
             if (IsSpreadCall(instr))
-            {
+            {TRACE_IT(10862);
                 instrPrev = LowerSpreadCall(instr, flags);
             }
             else
-            {
+            {TRACE_IT(10863);
                 m_lowererMD.LowerCallI(instr, (ushort)flags);
             }
 
 #ifdef PERF_HINT
             if (PHASE_TRACE1(Js::PerfHintPhase))
-            {
+            {TRACE_IT(10864);
                 WritePerfHint(PerfHints::CallsEval, this->m_func, instr->GetByteCodeOffset());
             }
 #endif
@@ -903,13 +903,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Ret:
             if (instr->m_next->m_opcode != Js::OpCode::FunctionExit)
-            {
+            {TRACE_IT(10865);
                 // If this RET isn't at the end of the function, insert a branch to
                 // the epilog.
 
                 IR::Instr *exitPrev = m_func->m_exitInstr->m_prev;
                 if (!exitPrev->IsLabelInstr())
-                {
+                {TRACE_IT(10866);
                     exitPrev = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                     m_func->m_exitInstr->InsertBefore(exitPrev);
                 }
@@ -927,7 +927,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdC_A_I4:
-        {
+        {TRACE_IT(10867);
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsIntConstOpnd(), "Source of LdC_A_I4 should be an IntConst...");
 
@@ -938,7 +938,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdC_A_R8:
-        {
+        {TRACE_IT(10868);
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsFloatConstOpnd(), "Source of LdC_A_R8 should be a FloatConst...");
             instrPrev = this->LowerLoadVar(instr, src1->AsFloatConstOpnd()->GetAddrOpnd(this->m_func));
@@ -947,7 +947,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdC_F8_R8:
-        {
+        {TRACE_IT(10869);
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsFloatConstOpnd(), "Source of LdC_F8_R8 should be a FloatConst...");
             instrPrev = m_lowererMD.LoadFloatValue(instr->UnlinkDst()->AsRegOpnd(), src1->AsFloatConstOpnd()->m_value, instr);
@@ -980,11 +980,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Incr_A:
             if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10870);
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Increment);
             }
             else
-            {
+            {TRACE_IT(10871);
                 instr->SetSrc2(IR::AddrOpnd::New(Js::TaggedInt::ToVarUnchecked(1), IR::AddrOpndKindConstantVar, this->m_func));
                 m_lowererMD.GenerateFastAdd(instr);
                 instr->FreeSrc2();
@@ -994,11 +994,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Decr_A:
             if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10872);
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Decrement);
             }
             else
-            {
+            {TRACE_IT(10873);
                 instr->SetSrc2(IR::AddrOpnd::New(Js::TaggedInt::ToVarUnchecked(1), IR::AddrOpndKindConstantVar, this->m_func));
                 m_lowererMD.GenerateFastSub(instr);
                 instr->FreeSrc2();
@@ -1008,27 +1008,27 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Neg_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10874);
                 Assert(instr->GetSrc1()->IsFloat());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10875);
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Negate);
             }
             else if (m_lowererMD.GenerateFastNeg(instr))
-            {
+            {TRACE_IT(10876);
                 this->LowerUnaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Negate));
             }
             break;
 
         case Js::OpCode::Not_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10877);
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Not);
             }
             else if (m_lowererMD.GenerateFastNot(instr))
-            {
+            {TRACE_IT(10878);
                 this->LowerUnaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Not));
             }
             break;
@@ -1043,18 +1043,18 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrUnGe_I4:
         case Js::OpCode::BrUnLt_I4:
         case Js::OpCode::BrUnLe_I4:
-        {
+        {TRACE_IT(10879);
             // See calls to MarkOneFltTmpSym under BrSrEq. This is to handle the case
             // where a branch is type-specialized and uses the result of a float pref op,
             // which must then be saved to var at the def.
             StackSym *sym = instr->GetSrc1()->GetStackSym();
             if (sym)
-            {
+            {TRACE_IT(10880);
                 sym = sym->GetVarEquivSym(nullptr);
             }
             sym = instr->GetSrc2()->GetStackSym();
             if (sym)
-            {
+            {TRACE_IT(10881);
                 sym = sym->GetVarEquivSym(nullptr);
             }
         }
@@ -1081,24 +1081,24 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instr->GetSrc1() && instr->GetSrc1()->IsInt64() ||
                 instr->GetSrc2() && instr->GetSrc2()->IsInt64()
                 )
-            {
+            {TRACE_IT(10882);
                 m_lowererMD.EmitInt64Instr(instr);
                 break;
             }
 #endif
             if(instr->HasBailOutInfo())
-            {
+            {TRACE_IT(10883);
                 const auto bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutOnResultConditions ||
                     bailOutKind == IR::BailOutOnFailedHoistedLoopCountBasedBoundCheck)
-                {
+                {TRACE_IT(10884);
                     const auto nonBailOutInstr = SplitBailOnResultCondition(instr);
                     IR::LabelInstr *bailOutLabel, *skipBailOutLabel;
                     LowerBailOnResultCondition(instr, &bailOutLabel, &skipBailOutLabel);
                     LowerInstrWithBailOnResultCondition(nonBailOutInstr, bailOutKind, bailOutLabel, skipBailOutLabel);
                 }
                 else if(bailOutKind == IR::BailOnModByPowerOf2)
-                {
+                {TRACE_IT(10885);
                     Assert(instr->m_opcode == Js::OpCode::Rem_I4);
                     bool fastPath = GenerateSimplifiedInt4Rem(instr);
                     Assert(fastPath);
@@ -1108,9 +1108,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else
-            {
+            {TRACE_IT(10886);
                 if (instr->m_opcode == Js::OpCode::Rem_I4)
-                {
+                {TRACE_IT(10887);
                     // fast path
                     this->GenerateSimplifiedInt4Rem(instr);
                     // slow path
@@ -1118,15 +1118,15 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
 #if defined(_M_IX86) || defined(_M_X64)
                 else if (instr->m_opcode == Js::OpCode::Mul_I4)
-                {
+                {TRACE_IT(10888);
                     if (!LowererMD::GenerateSimplifiedInt4Mul(instr))
-                    {
+                    {TRACE_IT(10889);
                         m_lowererMD.EmitInt4Instr(instr);
                     }
                 }
 #endif
                 else
-                {
+                {TRACE_IT(10890);
                     m_lowererMD.EmitInt4Instr(instr);
                 }
             }
@@ -1154,19 +1154,19 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdLen_A:
-        {
+        {TRACE_IT(10891);
             bool fastPath = !noMathFastPath;
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {TRACE_IT(10892);
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutKindBits)
-                {
+                {TRACE_IT(10893);
                     fastPath = true;
                 }
                 else
-                {
+                {TRACE_IT(10894);
                     const IR::BailOutKind bailOutKindMinusBits = bailOutKind & ~IR::BailOutKindBits;
                     fastPath =
                         bailOutKindMinusBits &&
@@ -1181,7 +1181,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 LowerLdLen(instr, false);
             }
             else if(GenerateFastLdLen(instr, &instrIsInHelperBlock))
-            {
+            {TRACE_IT(10895);
                 Assert(
                     !instr->HasBailOutInfo() ||
                     (instr->GetBailOutKind() & ~IR::BailOutKindBits) != IR::BailOutOnIrregularLength);
@@ -1191,25 +1191,25 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdThis:
-        {
+        {TRACE_IT(10896);
             if (noFieldFastPath || !m_lowererMD.GenerateLdThisCheck(instr))
-            {
+            {TRACE_IT(10897);
                 IR::JnHelperMethod meth;
                 if (instr->IsJitProfilingInstr())
-                {
+                {TRACE_IT(10898);
                     Assert(instr->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
                     m_lowererMD.LoadHelperArgument(instr, CreateFunctionBodyOpnd(instr->m_func));
                     meth = IR::HelperSimpleProfiledLdThis;
                     this->LowerBinaryHelper(instr, meth);
                 }
                 else
-                {
+                {TRACE_IT(10899);
                     meth = IR::HelperLdThisNoFastPath;
                     this->LowerBinaryHelperMem(instr, meth);
                 }
             }
             else
-            {
+            {TRACE_IT(10900);
                 this->LowerBinaryHelperMem(instr, IR::HelperLdThis);
             }
             break;
@@ -1221,23 +1221,23 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
         case Js::OpCode::StrictLdThis:
             if (noFieldFastPath)
-            {
+            {TRACE_IT(10901);
                 IR::JnHelperMethod meth;
                 if (instr->IsJitProfilingInstr())
-                {
+                {TRACE_IT(10902);
                     Assert(instr->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
                     m_lowererMD.LoadHelperArgument(instr, CreateFunctionBodyOpnd(instr->m_func));
                     meth = IR::HelperSimpleProfiledStrictLdThis;
                     this->LowerUnaryHelper(instr, meth);
                 }
                 else
-                {
+                {TRACE_IT(10903);
                     meth = IR::HelperStrictLdThis;
                     this->LowerUnaryHelperMem(instr, meth);
                 }
             }
             else
-            {
+            {TRACE_IT(10904);
                  m_lowererMD.GenerateLdThisStrict(instr);
                  instr->Remove();
             }
@@ -1277,7 +1277,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Add_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10905);
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 // we don't want to mix float32 and float64
@@ -1286,26 +1286,26 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10906);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Add);
             }
             else if (m_lowererMD.TryGenerateFastMulAdd(instr, &instrPrev))
-            {
+            {TRACE_IT(10907);
             }
             else
-            {
+            {TRACE_IT(10908);
                 m_lowererMD.GenerateFastAdd(instr);
                 this->LowerBinaryHelperMemWithTemp3(instr, IR_HELPER_OP_FULL_OR_INPLACE(Add), IR::HelperOp_AddLeftDead);
             }
             break;
 
         case Js::OpCode::Div_A:
-        {
-            if (instr->IsJitProfilingInstr()) {
+        {TRACE_IT(10909);
+            if (instr->IsJitProfilingInstr()) {TRACE_IT(10910);
                 LowerProfiledBinaryOp(instr->AsJitProfilingInstr(), IR::HelperSimpleProfiledDivide);
             }
             else if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10911);
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1314,15 +1314,15 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else
-            {
+            {TRACE_IT(10912);
                 if (!PHASE_OFF(Js::MathFastPathPhase, this->m_func) && !noMathFastPath)
-                {
+                {TRACE_IT(10913);
                     IR::AddrOpnd *src2 = instr->GetSrc2()->IsAddrOpnd() ? instr->GetSrc2()->AsAddrOpnd() : nullptr;
                     if (src2 && src2->IsVar() && Js::TaggedInt::Is(src2->m_address))
-                    {
+                    {TRACE_IT(10914);
                         int32 value = Js::TaggedInt::ToInt32(src2->m_address);
                         if (Math::IsPow2(value))
-                        {
+                        {TRACE_IT(10915);
                             m_lowererMD.GenerateFastDivByPow2(instr);
                         }
                     }
@@ -1333,9 +1333,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::Expo_A:
-        {
+        {TRACE_IT(10916);
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10917);
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1344,7 +1344,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.GenerateFastInlineBuiltInCall(instr, IR::HelperDirectMath_Pow);
             }
             else
-            {
+            {TRACE_IT(10918);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Exponentiation));
             }
             break;
@@ -1352,7 +1352,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Mul_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10919);
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1361,33 +1361,33 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10920);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Multiply);
             }
             else if (m_lowererMD.GenerateFastMul(instr))
-            {
+            {TRACE_IT(10921);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Multiply));
             }
             break;
 
         case Js::OpCode::Rem_A:
             if (instr->GetDst()->IsFloat64())
-            {
+            {TRACE_IT(10922);
                 this->LowerRemR8(instr);
             }
             else if (instr->IsJitProfilingInstr())
-            {
+            {TRACE_IT(10923);
                 this->LowerProfiledBinaryOp(instr->AsJitProfilingInstr(), IR::HelperSimpleProfiledRemainder);
             }
             else
-            {
+            {TRACE_IT(10924);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Modulus));
             }
             break;
 
         case Js::OpCode::Sub_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(10925);
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1396,14 +1396,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10926);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Subtract);
             }
             else if (m_lowererMD.TryGenerateFastMulAdd(instr, &instrPrev))
-            {
+            {TRACE_IT(10927);
             }
             else
-            {
+            {TRACE_IT(10928);
                 m_lowererMD.GenerateFastSub(instr);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Subtract));
             }
@@ -1411,219 +1411,219 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::And_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10929);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_And);
             }
             else if (m_lowererMD.GenerateFastAnd(instr))
-            {
+            {TRACE_IT(10930);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(And));
             }
             break;
 
         case Js::OpCode::Or_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(10931);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Or);
             }
             else if (m_lowererMD.GenerateFastOr(instr))
-            {
+            {TRACE_IT(10932);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Or));
             }
             break;
 
         case Js::OpCode::Xor_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastXor(instr))
-            {
+            {TRACE_IT(10933);
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Xor));
             }
             break;
 
         case Js::OpCode::Shl_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftLeft(instr))
-            {
+            {TRACE_IT(10934);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftLeft);
             }
             break;
 
         case Js::OpCode::Shr_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftRight(instr))
-            {
+            {TRACE_IT(10935);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftRight);
             }
             break;
 
         case Js::OpCode::ShrU_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftRight(instr))
-            {
+            {TRACE_IT(10936);
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftRightU);
             }
             break;
 
         case Js::OpCode::CmEq_A:
-        {
+        {TRACE_IT(10937);
             bool needHelper = true;
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10938);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {TRACE_IT(10939);
                 if (!fNoLower)
-                {
+                {TRACE_IT(10940);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {TRACE_IT(10941);
                 if (needHelper)
-                {
+                {TRACE_IT(10942);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
                 }
                 else
-                {
+                {TRACE_IT(10943);
                     instr->Remove();
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10944);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
             }
             break;
         }
         case Js::OpCode::CmNeq_A:
-        {
+        {TRACE_IT(10945);
             bool needHelper = true;
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10946);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-            {
+            {TRACE_IT(10947);
                 if (!fNoLower)
-                {
+                {TRACE_IT(10948);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr,&needHelper)))
-            {
+            {TRACE_IT(10949);
                 if (needHelper)
-                {
+                {TRACE_IT(10950);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
                 }
                 else
-                {
+                {TRACE_IT(10951);
                     instr->Remove();
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10952);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
             }
             break;
         }
         case Js::OpCode::CmSrEq_A:
-        {
+        {TRACE_IT(10953);
             bool needHelper = true;
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {TRACE_IT(10954);
                 if (!fNoLower)
-                {
+                {TRACE_IT(10955);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastCmSrEq(instr))
-            {
+            {TRACE_IT(10956);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {TRACE_IT(10957);
                 if (needHelper)
-                {
+                {TRACE_IT(10958);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
                 }
                 else
-                {
+                {TRACE_IT(10959);
                     instr->Remove();
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10960);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
             }
             break;
         }
         case Js::OpCode::CmSrNeq_A:
-        {
+        {TRACE_IT(10961);
             bool needHelper = true;
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-            {
+            {TRACE_IT(10962);
                 if (!fNoLower)
-                {
+                {TRACE_IT(10963);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {TRACE_IT(10964);
                 if (needHelper)
-                {
+                {TRACE_IT(10965);
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
                 }
                 else
-                {
+                {TRACE_IT(10966);
                     instr->Remove();
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10967);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
             }
             break;
         }
         case Js::OpCode::CmGt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10968);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10969);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmGt_A);
             }
             break;
 
         case Js::OpCode::CmGe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10970);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10971);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmGe_A);
             }
             break;
 
         case Js::OpCode::CmLt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10972);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10973);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmLt_A);
             }
             break;
 
         case Js::OpCode::CmLe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(10974);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {TRACE_IT(10975);
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmLe_A);
             }
             break;
@@ -1668,7 +1668,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Memset:
         case Js::OpCode::Memcopy:
-        {
+        {TRACE_IT(10976);
             instrPrev = LowerMemOp(instr);
             break;
         }
@@ -1679,22 +1679,22 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::StElemI_A:
         case Js::OpCode::StElemI_A_Strict:
-        {
+        {TRACE_IT(10977);
             // Note: under debugger (Fast F12) don't let GenerateFastStElemI which calls into ToNumber_Helper
             //       which takes double, and currently our helper wrapper doesn't support double.
             bool fastPath = !noMathFastPath && !m_func->IsJitInDebugMode();
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {TRACE_IT(10978);
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 const IR::BailOutKind bailOutKindBits = bailOutKind & IR::BailOutKindBits;
                 if(bailOutKindBits & ~(IR::BailOutOnMissingValue | IR::BailOutConvertedNativeArray))
-                {
+                {TRACE_IT(10979);
                     fastPath = true;
                 }
                 else
-                {
+                {TRACE_IT(10980);
                     const IR::BailOutKind bailOutKindMinusBits = bailOutKind & ~IR::BailOutKindBits;
                     fastPath =
                         bailOutKindMinusBits &&
@@ -1707,23 +1707,23 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             IR::Opnd * baseOpnd = opnd->AsIndirOpnd()->GetBaseOpnd();
             ValueType profiledBaseValueType = baseOpnd->AsRegOpnd()->GetValueType();
             if (profiledBaseValueType.IsUninitialized() && baseOpnd->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {TRACE_IT(10981);
                 baseOpnd->SetValueType(baseOpnd->FindProfiledValueType());
             }
 
             bool instrIsInHelperBlock;
             if (!fastPath)
-            {
+            {TRACE_IT(10982);
                 this->LowerStElemI(
                     instr,
                     instr->m_opcode == Js::OpCode::StElemI_A ? Js::PropertyOperation_None : Js::PropertyOperation_StrictMode,
                     false);
             }
             else if (GenerateFastStElemI(instr, &instrIsInHelperBlock))
-            {
+            {TRACE_IT(10983);
 #if DBG
                 if(instr->HasBailOutInfo())
-                {
+                {TRACE_IT(10984);
                     const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                     Assert(
                         (bailOutKind & ~IR::BailOutKindBits) != IR::BailOutConventionalTypedArrayAccessOnly &&
@@ -1743,7 +1743,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::LdElemI_A:
         case Js::OpCode::LdMethodElem:
-        {
+        {TRACE_IT(10985);
             bool fastPath =
                 !noMathFastPath &&
                 (
@@ -1751,16 +1751,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     instr->GetSrc1()->AsIndirOpnd()->GetBaseOpnd()->GetValueType().IsLikelyObject()
                 );
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {TRACE_IT(10986);
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutKindBits)
-                {
+                {TRACE_IT(10987);
                     fastPath = true;
                 }
                 else
-                {
+                {TRACE_IT(10988);
                     const IR::BailOutKind bailOutKindMinusBits = bailOutKind & ~IR::BailOutKindBits;
                     fastPath =
                         bailOutKindMinusBits &&
@@ -1773,24 +1773,24 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             IR::Opnd * baseOpnd = opnd->AsIndirOpnd()->GetBaseOpnd();
             ValueType profiledBaseValueType = baseOpnd->AsRegOpnd()->GetValueType();
             if (profiledBaseValueType.IsUninitialized() && baseOpnd->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {TRACE_IT(10989);
                 baseOpnd->SetValueType(baseOpnd->FindProfiledValueType());
             }
 
             bool instrIsInHelperBlock;
 
             if (!fastPath)
-            {
+            {TRACE_IT(10990);
                 this->LowerLdElemI(
                     instr,
                     instr->m_opcode == Js::OpCode::LdElemI_A ? IR::HelperOp_GetElementI : IR::HelperOp_GetMethodElement,
                     false);
             }
             else if (GenerateFastLdElemI(instr, &instrIsInHelperBlock))
-            {
+            {TRACE_IT(10991);
 #if DBG
                 if(instr->HasBailOutInfo())
-                {
+                {TRACE_IT(10992);
                     const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                     Assert(
                         (bailOutKind & ~IR::BailOutKindBits) != IR::BailOutConventionalTypedArrayAccessOnly &&
@@ -1853,11 +1853,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
         case Js::OpCode::LdAsmJsFunc:
             if (instr->GetSrc1()->IsIndirOpnd())
-            {
+            {TRACE_IT(10993);
                 IR::IndirOpnd* indir = instr->GetSrc1()->AsIndirOpnd();
                 byte scale = m_lowererMD.GetDefaultIndirScale();
                 if (!indir->GetIndexOpnd())
-                {
+                {TRACE_IT(10994);
                     // If we have a constant offset, we need to apply the scale now
                     int32 offset;
                     if (Int32Math::Shl(1, scale, &offset) || Int32Math::Mul(offset, indir->GetOffset(), &offset))
@@ -1869,7 +1869,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     indir->SetOffset(offset);
                 }
                 else
-                {
+                {TRACE_IT(10995);
                     indir->SetScale(scale);
                 }
             }
@@ -1878,26 +1878,26 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::Ld_A:
         case Js::OpCode::InitConst:
             if (instr->GetDst() && instr->GetDst()->IsInt64())
-            {
+            {TRACE_IT(10996);
                 instrPrev = m_lowererMD.LowerInt64Assign(instr);
                 break;
             }
 
-            if (instr->IsJitProfilingInstr() && instr->AsJitProfilingInstr()->isBeginSwitch) {
+            if (instr->IsJitProfilingInstr() && instr->AsJitProfilingInstr()->isBeginSwitch) {TRACE_IT(10997);
                 LowerProfiledBeginSwitch(instr->AsJitProfilingInstr());
                 break;
             }
             m_lowererMD.ChangeToAssign(instr);
             if(instr->HasBailOutInfo())
-            {
+            {TRACE_IT(10998);
                 IR::BailOutKind bailOutKind = instr->GetBailOutKind();
 
                 if(bailOutKind == IR::BailOutExpectingString)
-                {
+                {TRACE_IT(10999);
                     this->LowerBailOnNotString(instr);
                 }
                 else
-                {
+                {TRACE_IT(11000);
                     // Should not reach here as there are only 1 BailOutKind (BailOutExpectingString) currently associated with the Load Instr
                     Assert(false);
                 }
@@ -1916,9 +1916,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::FromVar:
             Assert(instr->GetSrc1()->GetType() == TyVar);
             if (instr->GetDst()->GetType() == TyInt32)
-            {
+            {TRACE_IT(11001);
                 if(m_lowererMD.EmitLoadInt32(instr, !(instr->HasBailOutInfo() && (instr->GetBailOutKind() == IR::BailOutOnNotPrimitive))))
-                {
+                {TRACE_IT(11002);
                     // Bail out instead of calling a helper
                     Assert(instr->GetBailOutKind() == IR::BailOutIntOnly || instr->GetBailOutKind() == IR::BailOutExpectingInteger);
                     Assert(!instr->GetSrc1()->GetValueType().IsInt());  // when we know it's an int, it should not have bailout info, to avoid generating a bailout path that will never be taken
@@ -1928,14 +1928,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(11003);
                 if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-                {
+                {TRACE_IT(11004);
                     m_lowererMD.EmitLoadFloat(instr->GetDst(), instr->GetSrc1(), instr);
                     instr->Remove();
                 }
                 else
-                {
+                {TRACE_IT(11005);
                     m_lowererMD.EmitLoadFloatFromNumber(instr->GetDst(), instr->GetSrc1(), instr);
                 }
             }
@@ -1949,14 +1949,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             // Support on IA only
 #if defined(_M_IX86) || defined(_M_X64)
             else if (instr->GetDst()->IsSimd128())
-            {
+            {TRACE_IT(11006);
                 // SIMD_JS
                 m_lowererMD.GenerateCheckedSimdLoad(instr);
             }
 #endif
 #endif // ENABLE_SIMDJS
             else
-            {
+            {TRACE_IT(11007);
                 Assert(UNREACHED);
             }
             break;
@@ -1968,7 +1968,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ArgOut_A_Inline:
         case Js::OpCode::ArgOut_A_Dynamic:
-            {
+            {TRACE_IT(11008);
                 // ArgOut/StartCall are normally lowered by the lowering of the associated call instr.
                 // If the call becomes unreachable, we could end up with an orphan ArgOut or StartCall.
                 // Change the ArgOut into a store to the stack for bailouts
@@ -1990,15 +1990,15 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ToVar:
             Assert(instr->GetDst()->GetType() == TyVar);
             if (instr->GetSrc1()->GetType() == TyInt32)
-            {
+            {TRACE_IT(11009);
                 m_lowererMD.EmitLoadVar(instr);
             }
             else if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11010);
                 Assert(instr->GetSrc1()->IsRegOpnd());
                 IR::RegOpnd* float64Opnd = instr->GetSrc1()->AsRegOpnd();
                 if (float64Opnd->IsFloat32())
-                {
+                {TRACE_IT(11011);
                     IR::RegOpnd* float64ConvOpnd = IR::RegOpnd::New(TyFloat64, m_func);
                     m_lowererMD.EmitFloat32ToFloat64(float64ConvOpnd, float64Opnd, instr);
                     float64Opnd = float64ConvOpnd;
@@ -2017,73 +2017,73 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #ifdef ENABLE_SIMDJS
 #if defined(_M_IX86) || defined(_M_X64)
             else if (IRType_IsSimd128(instr->GetSrc1()->GetType()))
-            {
+            {TRACE_IT(11012);
                 m_lowererMD.GenerateSimdStore(instr);
             }
 #endif
 #endif
             else
-            {
+            {TRACE_IT(11013);
                 Assert(UNREACHED);
             }
             break;
         case Js::OpCode::Conv_Prim:
-        {
+        {TRACE_IT(11014);
             if (IR::Instr::FindSingleDefInstr(Js::OpCode::TrapIfTruncOverflow, instr->GetSrc1()))
-            {
+            {TRACE_IT(11015);
                 GenerateTruncWithCheck(instr);
                 break;
             }
 
             if (instr->GetDst()->IsFloat())
-            {
+            {TRACE_IT(11016);
                 if (instr->GetSrc1()->IsIntConstOpnd())
-                {
+                {TRACE_IT(11017);
                     LoadFloatFromNonReg(instr->UnlinkSrc1(), instr->UnlinkDst(), instr);
                 }
                 else if (instr->GetSrc1()->IsInt32())
-                {
+                {TRACE_IT(11018);
                     m_lowererMD.EmitIntToFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsUInt32())
-                {
+                {TRACE_IT(11019);
                     m_lowererMD.EmitUIntToFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsInt64())
-                {
+                {TRACE_IT(11020);
                     m_lowererMD.EmitInt64toFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
-                {
+                {TRACE_IT(11021);
                     Assert(instr->GetDst()->IsFloat64());
                     Assert(instr->GetSrc1()->IsFloat32());
                     m_lowererMD.EmitFloat32ToFloat64(instr->GetDst(), instr->GetSrc1(), instr);
                 }
             }
             else if (instr->GetDst()->IsInt64())
-            {
+            {TRACE_IT(11022);
                 if (instr->GetSrc1()->IsInt32())
-                {
+                {TRACE_IT(11023);
                     m_lowererMD.EmitIntToLong(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsUInt32())
-                {
+                {TRACE_IT(11024);
                     m_lowererMD.EmitUIntToLong(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
-                {
+                {TRACE_IT(11025);
                     Assert(0);
                 }
             }
             else
-            {
+            {TRACE_IT(11026);
                 Assert(instr->GetDst()->IsInt32());
                 if (instr->GetSrc1()->IsInt64())
-                {
+                {TRACE_IT(11027);
                     m_lowererMD.EmitLongToInt(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
-                {
+                {TRACE_IT(11028);
                     Assert(instr->GetSrc1()->IsFloat());
                     m_lowererMD.EmitFloatToInt(instr->GetDst(), instr->GetSrc1(), instr);
                 }
@@ -2104,20 +2104,20 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ArgIn_Rest:
         case Js::OpCode::ArgIn_A:
             if (m_func->GetJITFunctionBody()->IsAsmJsMode() && !m_func->IsLoopBody())
-            {
+            {TRACE_IT(11029);
                 instrPrev = LowerArgInAsmJs(instr);
             }
             else
-            {
+            {TRACE_IT(11030);
                 instrPrev = LowerArgIn(instr);
             }
             break;
 
         case Js::OpCode::Label:
             if (instr->AsLabelInstr()->m_isLoopTop)
-            {
+            {TRACE_IT(11031);
                 if (this->outerMostLoopLabel == instr)
-                {
+                {TRACE_IT(11032);
                     noFieldFastPath = !defaultDoFastPath;
                     noMathFastPath = !defaultDoFastPath;
                     this->outerMostLoopLabel = nullptr;
@@ -2127,13 +2127,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instr->AsLabelInstr()->GetLoop()->regAlloc.liveOnBackEdgeSyms->Or(this->addToLiveOnBackEdgeSyms);
 #ifndef _M_X64
                 if (m_int64RegPairMap)
-                {
+                {TRACE_IT(11033);
                     // If we have replaced any sym that was live on the back edge for 2 other syms, these 2 syms needs to be live on back edge as well.
                     BVSparse<JitArenaAllocator> *liveOnBackEdgeSyms = instr->AsLabelInstr()->GetLoop()->regAlloc.liveOnBackEdgeSyms;
                     m_int64RegPairMap->Map([&](SymID key, Int64SymPair value)
                     {
                         if (liveOnBackEdgeSyms->Test(key))
-                        {
+                        {TRACE_IT(11034);
                             liveOnBackEdgeSyms->Set(value.low->m_id);
                             liveOnBackEdgeSyms->Set(value.high->m_id);
                         }
@@ -2163,24 +2163,24 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrFalse_A:
         case Js::OpCode::BrTrue_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11035);
                 GenerateFastBrBool(instr->AsBranchInstr());
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) ||
                 noMathFastPath ||
                 GenerateFastBrBool(instr->AsBranchInstr()))
-            {
+            {TRACE_IT(11036);
                 this->LowerBrBMem(instr, IR::HelperConv_ToBoolean);
             }
             break;
 
         case Js::OpCode::BrOnObject_A:
             if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {TRACE_IT(11037);
                 this->LowerBrOnObject(instr, IR::HelperOp_IsObject);
             }
             else
-            {
+            {TRACE_IT(11038);
                 GenerateFastBrOnObject(instr);
             }
             break;
@@ -2202,44 +2202,44 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrEq_A:
         case Js::OpCode::BrNotNeq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11039);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11040);
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-                {
+                {TRACE_IT(11041);
                     if (!fNoLower)
-                    {
+                    {TRACE_IT(11042);
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false, false /*isHelper*/);
                     }
                 }
                 else if (this->TryGenerateFastBrEq(instr))
-                {
+                {TRACE_IT(11043);
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {TRACE_IT(11044);
                     if (needHelper)
-                    {
+                    {TRACE_IT(11045);
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false);
                     }
                 }
                 else
-                {
+                {TRACE_IT(11046);
                     if (needHelper)
-                    {
+                    {TRACE_IT(11047);
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false, false /*isHelper*/);
                     }
                 }
                 if (!needHelper)
-                {
+                {TRACE_IT(11048);
                     instr->Remove();
                 }
             }
             else
-            {
+            {TRACE_IT(11049);
                 this->LowerBrCMem(instr, IR::HelperOp_Equal, true, false /*isHelper*/);
             }
             break;
@@ -2247,16 +2247,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrGe_A:
         case Js::OpCode::BrNotGe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11050);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11051);
                 this->LowerBrCMem(instr, IR::HelperOp_GreaterEqual, false, false /*isHelper*/);
             }
             else
-            {
+            {TRACE_IT(11052);
                 this->LowerBrCMem(instr, IR::HelperOp_GreaterEqual, true, false /*isHelper*/);
             }
             break;
@@ -2264,16 +2264,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrGt_A:
         case Js::OpCode::BrNotGt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11053);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11054);
                 this->LowerBrCMem(instr, IR::HelperOp_Greater, false, false /*isHelper*/);
             }
             else
-            {
+            {TRACE_IT(11055);
                 this->LowerBrCMem(instr, IR::HelperOp_Greater, true, false /*isHelper*/);
             }
             break;
@@ -2281,16 +2281,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrLt_A:
         case Js::OpCode::BrNotLt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11056);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11057);
                 this->LowerBrCMem(instr, IR::HelperOp_Less, false, false /*isHelper*/);
             }
             else
-            {
+            {TRACE_IT(11058);
                 this->LowerBrCMem(instr, IR::HelperOp_Less, true, false /*isHelper*/);
             }
             break;
@@ -2298,16 +2298,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrLe_A:
         case Js::OpCode::BrNotLe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11059);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11060);
                 this->LowerBrCMem(instr, IR::HelperOp_LessEqual, false, false /*isHelper*/);
             }
             else
-            {
+            {TRACE_IT(11061);
                 this->LowerBrCMem(instr, IR::HelperOp_LessEqual, true, false /*isHelper*/);
             }
             break;
@@ -2315,51 +2315,51 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrNeq_A:
         case Js::OpCode::BrNotEq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11062);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11063);
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-                {
+                {TRACE_IT(11064);
                     if (!fNoLower)
-                    {
+                    {TRACE_IT(11065);
                         this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false, false /*isHelper*/);
                     }
                 }
                 else if (this->TryGenerateFastBrNeq(instr))
-                {
+                {TRACE_IT(11066);
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper))
-                {
+                {TRACE_IT(11067);
                     this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false);
                 }
                 else if (this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {TRACE_IT(11068);
                     if (needHelper)
-                    {
+                    {TRACE_IT(11069);
                         this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false);
                     }
                     else
-                    {
+                    {TRACE_IT(11070);
                         instr->Remove();
                     }
                 }
                 else
-                {
+                {TRACE_IT(11071);
                     this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false, false /*isHelper*/);
                 }
             }
             else
-            {
+            {TRACE_IT(11072);
                 this->LowerBrCMem(instr, IR::HelperOp_NotEqual, true, false /*isHelper*/);
             }
             break;
 
         case Js::OpCode::MultiBr:
-        {
+        {TRACE_IT(11073);
             IR::MultiBranchInstr * multiBranchInstr = instr->AsBranchInstr()->AsMultiBrInstr();
             switch (multiBranchInstr->m_kind)
             {
@@ -2382,51 +2382,51 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::BrSrEq_A:
         case Js::OpCode::BrSrNotNeq_A:
-        {
+        {TRACE_IT(11074);
             srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
             srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11075);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {TRACE_IT(11076);
                 if (!fNoLower)
-                {
+                {TRACE_IT(11077);
                     this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false, false /*isHelper*/);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->GenerateFastBrSrEq(instr, srcReg1, srcReg2, &instrPrev, noMathFastPath))
-            {
+            {TRACE_IT(11078);
             }
             else
-            {
+            {TRACE_IT(11079);
                 bool needHelper = true;
                 if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-                {
+                {TRACE_IT(11080);
                     if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                    {
+                    {TRACE_IT(11081);
                         if (needHelper)
-                        {
+                        {TRACE_IT(11082);
                             this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false);
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(11083);
                         if (needHelper)
-                        {
+                        {TRACE_IT(11084);
                             this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false, false /*isHelper*/);
                         }
                     }
                     if (!needHelper)
-                    {
+                    {TRACE_IT(11085);
                         instr->Remove();
                     }
                 }
                 else
-                {
+                {TRACE_IT(11086);
                     this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, true, false /*isHelper*/);
                 }
             }
@@ -2436,44 +2436,44 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrSrNeq_A:
         case Js::OpCode::BrSrNotEq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {TRACE_IT(11087);
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {TRACE_IT(11088);
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-                {
+                {TRACE_IT(11089);
                     if (!fNoLower)
-                    {
+                    {TRACE_IT(11090);
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false, false /*isHelper*/);
                     }
                 }
                 else if (this->GenerateFastBrSrNeq(instr, &instrPrev))
-                {
+                {TRACE_IT(11091);
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {TRACE_IT(11092);
                     if (needHelper)
-                    {
+                    {TRACE_IT(11093);
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false);
                     }
                 }
                 else
-                {
+                {TRACE_IT(11094);
                     if (needHelper)
-                    {
+                    {TRACE_IT(11095);
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false, false /*isHelper*/);
                     }
                 }
                 if (!needHelper)
-                {
+                {TRACE_IT(11096);
                     instr->Remove();
                 }
             }
             else
-            {
+            {TRACE_IT(11097);
                 this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, true, false /*isHelper*/);
             }
             break;
@@ -2481,12 +2481,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrOnEmpty:
         case Js::OpCode::BrOnNotEmpty:
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func))
-            {
+            {TRACE_IT(11098);
                 this->GenerateFastBrBReturn(instr);
                 this->LowerBrBReturn(instr, IR::HelperOp_OP_BrOnEmpty, true);
             }
             else
-            {
+            {TRACE_IT(11099);
                 this->LowerBrBReturn(instr, IR::HelperOp_OP_BrOnEmpty, false);
             }
             break;
@@ -2514,14 +2514,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ProfiledLoopStart:
-            {
+            {TRACE_IT(11100);
                 Assert(m_func->DoSimpleJitDynamicProfile());
                 Assert(instr->IsJitProfilingInstr());
 
                 // Check for the helper instr from IRBuilding (it won't be there if there are no LoopEnds due to an infinite loop)
                 auto prev = instr->m_prev;
                 if (prev->IsJitProfilingInstr() && prev->AsJitProfilingInstr()->isLoopHelper)
-                {
+                {TRACE_IT(11101);
                     auto saveOpnd = prev->UnlinkDst();
                     instrPrev = prev->m_prev;
                     prev->Remove();
@@ -2532,13 +2532,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     this->InsertMove(starFlag, CreateClearImplicitCallFlagsOpnd(), instr);
                 }
                 else
-                {
+                {TRACE_IT(11102);
 #if DBG
                     // Double check that we indeed do not have a LoopEnd that is part of the same loop for the rest of the function
                     auto cur = instr;
                     auto loopNumber = instr->AsJitProfilingInstr()->loopNumber;
                     while (cur)
-                    {
+                    {TRACE_IT(11103);
                         Assert(cur->m_opcode != Js::OpCode::ProfiledLoopEnd || cur->IsJitProfilingInstr() && cur->AsJitProfilingInstr()->loopNumber != loopNumber);
                         cur = cur->m_next;
                     }
@@ -2547,11 +2547,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
                 // If we turned off fulljit, there's no reason to do this.
                 if (PHASE_OFF(Js::FullJitPhase, m_func))
-                {
+                {TRACE_IT(11104);
                     instr->Remove();
                 }
                 else
-                {
+                {TRACE_IT(11105);
                     Assert(instr->GetDst());
                     instr->SetSrc1(IR::HelperCallOpnd::New(IR::HelperSimpleGetScheduledEntryPoint, m_func));
                     m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateUint32Opnd(instr->AsJitProfilingInstr()->loopNumber, m_func));
@@ -2561,7 +2561,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 break;
             }
         case Js::OpCode::ProfiledLoopBodyStart:
-            {
+            {TRACE_IT(11106);
                 Assert(m_func->DoSimpleJitDynamicProfile());
 
                 const auto loopNum = instr->AsJitProfilingInstr()->loopNumber;
@@ -2595,18 +2595,18 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 //   }
 
                 if (PHASE_OFF(Js::FullJitPhase, m_func) || !m_func->GetJITFunctionBody()->DoJITLoopBody())
-                {
+                {TRACE_IT(11107);
                     // If we're not doing fulljit, we've turned off JitLoopBodies, or if we don't have loop headers allocated (the function has a Try,  etc)
                     //      just move false to dobailout
                     this->InsertMove(dobailout, IR::IntConstOpnd::New(0, dobailoutType, m_func, true), instr->m_next);
                 }
                 else if (m_func->GetWorkItem()->GetJITTimeInfo()->ForceJITLoopBody())
-                {
+                {TRACE_IT(11108);
                     // If we're forcing jit loop bodies, move true to dobailout
                     this->InsertMove(dobailout, IR::IntConstOpnd::New(1, dobailoutType, m_func, true), instr->m_next);
                 }
                 else
-                {
+                {TRACE_IT(11109);
                     // Put in the labels
                     auto entryPointIsNull = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                     auto checkDoBailout = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -2641,7 +2641,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ProfiledLoopEnd:
-            {
+            {TRACE_IT(11110);
                 Assert(m_func->DoSimpleJitDynamicProfile());
 
                 // This is set up in IRBuilding
@@ -2668,7 +2668,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::IncrLoopBodyCount:
-        {
+        {TRACE_IT(11111);
             Assert(this->m_func->IsLoopBody());
             instr->m_opcode = Js::OpCode::Add_I4;
             instr->SetSrc2(IR::IntConstOpnd::New(1, TyUint32, this->m_func));
@@ -2688,17 +2688,17 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::LdSlot:
         case Js::OpCode::LdSlotArr:
-        {
+        {TRACE_IT(11112);
             Js::ProfileId profileId;
             IR::Instr *profileBeforeInstr;
             if(instr->IsJitProfilingInstr())
-            {
+            {TRACE_IT(11113);
                 profileId = instr->AsJitProfilingInstr()->profileId;
                 Assert(profileId != Js::Constants::NoProfileId);
                 profileBeforeInstr = instr->m_next;
             }
             else
-            {
+            {TRACE_IT(11114);
                 profileId = Js::Constants::NoProfileId;
                 profileBeforeInstr = nullptr;
             }
@@ -2706,7 +2706,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             this->LowerLdSlot(instr);
 
             if(profileId != Js::Constants::NoProfileId)
-            {
+            {TRACE_IT(11115);
                 LowerProfileLdSlot(instr->GetDst(), instr->m_func, profileId, profileBeforeInstr);
             }
             break;
@@ -2858,7 +2858,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Leave:
             if (this->m_func->HasTry() && this->m_func->DoOptimizeTryCatch())
-            {
+            {TRACE_IT(11116);
                 // Required in Register Allocator to mark region boundaries
                 break;
             }
@@ -2937,7 +2937,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::BailOnNotArray:
-        {
+        {TRACE_IT(11117);
             IR::Instr *bailOnNotArray, *bailOnMissingValue;
             SplitBailOnNotArray(instr, &bailOnNotArray, &bailOnMissingValue);
             IR::RegOpnd *const arrayOpnd = LowerBailOnNotArray(bailOnNotArray);
@@ -2976,7 +2976,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ExtendArg_A:
             if (instr->GetSrc1()->IsRegOpnd())
-            {
+            {TRACE_IT(11118);
                 IR::RegOpnd *src1 = instr->GetSrc1()->AsRegOpnd();
                 this->addToLiveOnBackEdgeSyms->Clear(src1->m_sym->m_id);
             }
@@ -3064,7 +3064,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CallIExtended:
-        {
+        {TRACE_IT(11119);
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, Js::CallFlags_None);
@@ -3072,7 +3072,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIExtendedNew:
-        {
+        {TRACE_IT(11120);
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, Js::CallFlags_New);
@@ -3080,7 +3080,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIExtendedNewTargetNew:
-        {
+        {TRACE_IT(11121);
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, (Js::CallFlags)(Js::CallFlags_New | Js::CallFlags_ExtraArg | Js::CallFlags_NewTarget));
@@ -3116,13 +3116,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::SetHomeObj:
-        {
+        {TRACE_IT(11122);
             this->GenerateSetHomeObj(instr);
             break;
         }
 
         case Js::OpCode::SetComputedNameVar:
-        {
+        {TRACE_IT(11123);
             IR::Opnd *src2Opnd = instr->UnlinkSrc2();
             IR::Opnd *src1Opnd = instr->UnlinkSrc1();
 
@@ -3135,13 +3135,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::InlineeMetaArg:
-        {
+        {TRACE_IT(11124);
             m_lowererMD.ChangeToAssign(instr);
             break;
         }
 
         case Js::OpCode::Yield:
-        {
+        {TRACE_IT(11125);
             instr->FreeSrc1(); // Source is not actually used by the backend other than to calculate lifetime
             IR::Opnd* dstOpnd = instr->UnlinkDst();
 
@@ -3163,7 +3163,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ResumeYield:
         case Js::OpCode::ResumeYieldStar:
-        {
+        {TRACE_IT(11126);
             IR::Opnd *srcOpnd1 = instr->UnlinkSrc1();
             IR::Opnd *srcOpnd2 = instr->m_opcode == Js::OpCode::ResumeYieldStar ? instr->UnlinkSrc2() : IR::AddrOpnd::NewNull(m_func);
             m_lowererMD.LoadHelperArgument(instr, srcOpnd2);
@@ -3173,7 +3173,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::GeneratorResumeJumpTable:
-        {
+        {TRACE_IT(11127);
             // Lowered in LowerPrologEpilog so that the jumps introduced are not considered to be part of the flow for the RegAlloc phase.
 
             // Introduce a BailOutNoSave label if there were yield points that were elided due to optimizations.  They could still be hit
@@ -3185,9 +3185,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             m_func->MapUntilYieldOffsetResumeLabels([this, &bailOutNoSaveLabel](int, const YieldOffsetResumeLabel& yorl)
             {
                 if (yorl.Second() == nullptr)
-                {
+                {TRACE_IT(11128);
                     if (bailOutNoSaveLabel == nullptr)
-                    {
+                    {TRACE_IT(11129);
                         bailOutNoSaveLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                     }
 
@@ -3199,16 +3199,16 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
             // Insert the bailoutnosave label somewhere along with a call to BailOutNoSave helper
             if (bailOutNoSaveLabel != nullptr)
-            {
+            {TRACE_IT(11130);
                 IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->m_prev;
                 IR::LabelInstr * exitTargetInstr;
                 if (exitPrevInstr->IsLabelInstr())
-                {
+                {TRACE_IT(11131);
                     exitTargetInstr = exitPrevInstr->AsLabelInstr();
                     exitPrevInstr = exitPrevInstr->m_prev;
                 }
                 else
-                {
+                {TRACE_IT(11132);
                     exitTargetInstr = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, false);
                     exitPrevInstr->InsertAfter(exitTargetInstr);
                 }
@@ -3248,7 +3248,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Trunc_A:
             if (!AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {TRACE_IT(11133);
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_TruncFlt, IR::HelperDirectMath_TruncDb);
                 break;
             }
@@ -3258,7 +3258,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Nearest_A:
             if (!AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {TRACE_IT(11134);
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_NearestFlt, IR::HelperDirectMath_NearestDb);
                 break;
             }
@@ -3276,7 +3276,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #ifdef ENABLE_SIMDJS
 #if defined(_M_IX86) || defined(_M_X64)
             if (IsSimd128Opcode(instr->m_opcode))
-            {
+            {TRACE_IT(11135);
                 instrPrev = m_lowererMD.Simd128Instruction(instr);
                 break;
             }
@@ -3284,7 +3284,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
             AssertMsg(instr->IsLowered(), "Unknown opcode");
             if(!instr->IsLowered())
-            {
+            {TRACE_IT(11136);
                 Fatal();
             }
             break;
@@ -3301,37 +3301,37 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
 IR::Opnd *
 Lowerer::LoadFunctionInfoOpnd(IR::Instr * instr)
-{
+{TRACE_IT(11137);
     return IR::AddrOpnd::New(instr->m_func->GetWorkItem()->GetJITTimeInfo()->GetFunctionInfoAddr(), IR::AddrOpndKindDynamicFunctionInfo, instr->m_func);
 }
 
 IR::Instr *
 Lowerer::LoadFunctionBody(IR::Instr * instr)
-{
+{TRACE_IT(11138);
     return m_lowererMD.LoadHelperArgument(instr, LoadFunctionBodyOpnd(instr));
 }
 
 IR::Instr *
 Lowerer::LoadScriptContext(IR::Instr * instr)
-{
+{TRACE_IT(11139);
     return m_lowererMD.LoadHelperArgument(instr, LoadScriptContextOpnd(instr));
 }
 
 IR::Opnd *
 Lowerer::LoadFunctionBodyOpnd(IR::Instr * instr)
-{
+{TRACE_IT(11140);
     return IR::AddrOpnd::New(instr->m_func->GetJITFunctionBody()->GetAddr(), IR::AddrOpndKindDynamicFunctionBody, instr->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadScriptContextOpnd(IR::Instr * instr)
-{
+{TRACE_IT(11141);
     return IR::AddrOpnd::New(m_func->GetScriptContextInfo()->GetAddr(), IR::AddrOpndKindDynamicScriptContext, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadScriptContextValueOpnd(IR::Instr * instr, ScriptContextValue valueType)
-{
+{TRACE_IT(11142);
     ScriptContextInfo *scriptContextInfo = instr->m_func->GetScriptContextInfo();
     switch (valueType)
     {
@@ -3348,7 +3348,7 @@ Lowerer::LoadScriptContextValueOpnd(IR::Instr * instr, ScriptContextValue valueT
 
 IR::Opnd *
 Lowerer::LoadLibraryValueOpnd(IR::Instr * instr, LibraryValue valueType)
-{
+{TRACE_IT(11143);
     ScriptContextInfo *scriptContextInfo = instr->m_func->GetScriptContextInfo();
     switch (valueType)
     {
@@ -3398,13 +3398,13 @@ Lowerer::LoadLibraryValueOpnd(IR::Instr * instr, LibraryValue valueType)
 
 IR::Opnd *
 Lowerer::LoadVTableValueOpnd(IR::Instr * instr, VTableValue vtableType)
-{
+{TRACE_IT(11144);
     return IR::AddrOpnd::New((Js::Var)instr->m_func->GetScriptContextInfo()->GetVTableAddress(vtableType), IR::AddrOpndKindDynamicVtable, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadOptimizationOverridesValueOpnd(IR::Instr *instr, OptimizationOverridesValue valueType)
-{
+{TRACE_IT(11145);
     switch (valueType)
     {
     case OptimizationOverridesValue::OptimizationOverridesSideEffects:
@@ -3423,7 +3423,7 @@ Lowerer::LoadOptimizationOverridesValueOpnd(IR::Instr *instr, OptimizationOverri
 
 IR::Opnd *
 Lowerer::LoadNumberAllocatorValueOpnd(IR::Instr *instr, NumberAllocatorValue valueType)
-{
+{TRACE_IT(11146);
     ScriptContextInfo *scriptContext = instr->m_func->GetScriptContextInfo();
     bool allowNativeCodeBumpAllocation = scriptContext->GetRecyclerAllowNativeCodeBumpAllocation();
 
@@ -3444,22 +3444,22 @@ Lowerer::LoadNumberAllocatorValueOpnd(IR::Instr *instr, NumberAllocatorValue val
 
 IR::Opnd *
 Lowerer::LoadIsInstInlineCacheOpnd(IR::Instr * instr, uint inlineCacheIndex)
-{
+{TRACE_IT(11147);
     intptr_t inlineCache = instr->m_func->GetJITFunctionBody()->GetIsInstInlineCache(inlineCacheIndex);
     return IR::AddrOpnd::New(inlineCache,  IR::AddrOpndKindDynamicInlineCache, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadRuntimeInlineCacheOpnd(IR::Instr * instr, IR::PropertySymOpnd * propertySymOpnd, bool isHelper)
-{
+{TRACE_IT(11148);
     Assert(propertySymOpnd->m_runtimeInlineCache != 0);
     IR::Opnd * inlineCacheOpnd = nullptr;
     if (instr->m_func->GetJITFunctionBody()->HasInlineCachesOnFunctionObject() && !instr->m_func->IsInlinee())
-    {
+    {TRACE_IT(11149);
         inlineCacheOpnd = this->GetInlineCacheFromFuncObjectForRuntimeUse(instr, propertySymOpnd, isHelper);
     }
     else
-    {
+    {TRACE_IT(11150);
         intptr_t inlineCache = propertySymOpnd->m_runtimeInlineCache;
         inlineCacheOpnd = IR::AddrOpnd::New(inlineCache, IR::AddrOpndKindDynamicInlineCache, this->m_func, /* dontEncode */ true);
     }
@@ -3468,37 +3468,37 @@ Lowerer::LoadRuntimeInlineCacheOpnd(IR::Instr * instr, IR::PropertySymOpnd * pro
 
 bool
 Lowerer::TryGenerateFastCmSrEq(IR::Instr * instr)
-{
+{TRACE_IT(11151);
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {TRACE_IT(11152);
         return m_lowererMD.GenerateFastCmSrEqConst(instr);
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {TRACE_IT(11153);
         instr->SwapOpnds();
         return m_lowererMD.GenerateFastCmSrEqConst(instr);
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrConst))
-    {
+    {TRACE_IT(11154);
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_String);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrConst))
-    {
+    {TRACE_IT(11155);
         instr->SwapOpnds();
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_String);
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrEmpty))
-    {
+    {TRACE_IT(11156);
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_EmptyString);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrEmpty))
-    {
+    {TRACE_IT(11157);
         instr->SwapOpnds();
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_EmptyString);
         return true;
@@ -3509,38 +3509,38 @@ Lowerer::TryGenerateFastCmSrEq(IR::Instr * instr)
 
 bool
 Lowerer::GenerateFastBrSrEq(IR::Instr * instr, IR::RegOpnd * srcReg1, IR::RegOpnd * srcReg2, IR::Instr ** pInstrPrev, bool noMathFastPath)
-{
+{TRACE_IT(11158);
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {TRACE_IT(11159);
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg2->m_sym->GetConstOpnd(), true);
         instr->Remove();
         return true;
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {TRACE_IT(11160);
         instr->SwapOpnds();
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg1->m_sym->GetConstOpnd(), true);
         instr->Remove();
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrConst))
-    {
+    {TRACE_IT(11161);
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualString, noMathFastPath, false);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrConst))
-    {
+    {TRACE_IT(11162);
         instr->SwapOpnds();
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualString, noMathFastPath, false);
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrEmpty))
-    {
+    {TRACE_IT(11163);
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualEmptyString, noMathFastPath, false);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrEmpty))
-    {
+    {TRACE_IT(11164);
         instr->SwapOpnds();
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualEmptyString, noMathFastPath, false);
         return true;
@@ -3556,7 +3556,7 @@ Lowerer::GenerateFastBrSrEq(IR::Instr * instr, IR::RegOpnd * srcReg1, IR::RegOpn
 ///----------------------------------------------------------------------------
 IR::BranchInstr *
 Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd, bool isEqual)
-{
+{TRACE_IT(11165);
     Assert(constOpnd->IsAddrOpnd() || constOpnd->IsIntConstOpnd());
 
     //
@@ -3576,7 +3576,7 @@ Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd,
     IR::Opnd    *opnd    = branchInstr->GetSrc1();
 
     if (!opnd->IsRegOpnd())
-    {
+    {TRACE_IT(11166);
         IR::RegOpnd *lhsReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(lhsReg, opnd, branchInstr);
 
@@ -3593,13 +3593,13 @@ Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd,
 
 bool
 Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
-{
+{TRACE_IT(11167);
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     bool isConst = false;
     if (srcReg1 && this->IsNullOrUndefRegOpnd(srcReg1))
-    {
+    {TRACE_IT(11168);
         instr->SwapOpnds();
         isConst = true;
     }
@@ -3607,7 +3607,7 @@ Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
     // Fast path for == null or == undefined
     // if (src == null || src == undefined)
     if (isConst || (srcReg2 && this->IsNullOrUndefRegOpnd(srcReg2)))
-    {
+    {TRACE_IT(11169);
         IR::BranchInstr *newBranch;
         newBranch = this->GenerateFastBrConst(instr->AsBranchInstr(),
             this->LoadLibraryValueOpnd(instr, LibraryValue::ValueNull),
@@ -3626,13 +3626,13 @@ Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
 
 bool
 Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
-{
+{TRACE_IT(11170);
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     bool isConst = false;
     if (srcReg1 && this->IsNullOrUndefRegOpnd(srcReg1))
-    {
+    {TRACE_IT(11171);
         instr->SwapOpnds();
         isConst = true;
     }
@@ -3646,7 +3646,7 @@ Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
     //    labelEq:
 
     if (isConst || (srcReg2 && this->IsNullOrUndefRegOpnd(srcReg2)))
-    {
+    {TRACE_IT(11172);
         IR::LabelInstr *labelEq = instr->GetOrCreateContinueLabel();
 
         IR::BranchInstr *newBranch;
@@ -3668,18 +3668,18 @@ Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
 
 bool
 Lowerer::GenerateFastBrSrNeq(IR::Instr * instr, IR::Instr ** pInstrPrev)
-{
+{TRACE_IT(11173);
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {TRACE_IT(11174);
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg2->m_sym->GetConstOpnd(), false);
         instr->Remove();
         return true;
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {TRACE_IT(11175);
         instr->SwapOpnds();
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg1->m_sym->GetConstOpnd(), false);
         instr->Remove();
@@ -3691,7 +3691,7 @@ Lowerer::GenerateFastBrSrNeq(IR::Instr * instr, IR::Instr ** pInstrPrev)
 
 void
 Lowerer::GenerateDynamicObjectAlloc(IR::Instr * newObjInstr, uint inlineSlotCount, uint slotCount, IR::RegOpnd * newObjDst, IR::Opnd * typeSrc)
-{
+{TRACE_IT(11176);
     size_t headerAllocSize = sizeof(Js::DynamicObject) + inlineSlotCount * sizeof(Js::Var);
     IR::SymOpnd * tempObjectSymOpnd;
     bool isZeroed = GenerateRecyclerOrMarkTempAlloc(newObjInstr, newObjDst, IR::HelperAllocMemForScObject, headerAllocSize, &tempObjectSymOpnd);
@@ -3712,7 +3712,7 @@ Lowerer::GenerateDynamicObjectAlloc(IR::Instr * newObjInstr, uint inlineSlotCoun
 
     // CALL JavascriptOperators::AllocMemForVarArray((slotCount - inlineSlotCount) * sizeof(Js::Var))
     if (slotCount > inlineSlotCount)
-    {
+    {TRACE_IT(11177);
         size_t auxSlotsAllocSize = (slotCount - inlineSlotCount) * sizeof(Js::Var);
         IR::RegOpnd* auxSlots = IR::RegOpnd::New(TyMachPtr, m_func);
 
@@ -3748,7 +3748,7 @@ Lowerer::LowerNewScObjectSimple(IR::Instr * instr)
 
 void
 Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
-{
+{TRACE_IT(11178);
     Func * func = m_func;
     IR::IntConstOpnd * literalObjectIdOpnd = newObjInstr->UnlinkSrc2()->AsIntConstOpnd();
     intptr_t literalTypeRef = newObjInstr->m_func->GetJITFunctionBody()->GetObjectLiteralTypeRef(literalObjectIdOpnd->AsUint32());
@@ -3774,7 +3774,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     Js::DynamicType * literalType = func->IsOOPJIT() || !CONFIG_FLAG(OOPJITMissingOpts) ? nullptr : *(Js::DynamicType **)literalTypeRef;
 
     if (literalType == nullptr || !literalType->GetIsShared())
-    {
+    {TRACE_IT(11179);
         helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         allocLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
 
@@ -3788,7 +3788,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
         dstOpnd = newObjInstr->GetDst()->AsRegOpnd();
     }
     else
-    {
+    {TRACE_IT(11180);
         literalTypeOpnd = IR::AddrOpnd::New(literalType, IR::AddrOpndKindDynamicType, func);
         dstOpnd = newObjInstr->UnlinkDst()->AsRegOpnd();
         Assert(inlineSlotCapacity == literalType->GetTypeHandler()->GetInlineSlotCapacity());
@@ -3796,7 +3796,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     }
 
     if (helperLabel)
-    {
+    {TRACE_IT(11181);
         InsertBranch(Js::OpCode::Br, allocLabel, newObjInstr);
 
         // Slow path to ensure the type is there
@@ -3814,7 +3814,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
         newObjInstr->InsertBefore(allocLabel);
     }
     else
-    {
+    {TRACE_IT(11182);
         Assert(allocLabel == nullptr);
     }
 
@@ -3822,7 +3822,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     //     inlineSlotCapacity == Number of slots to allocate beyond the DynamicObject header
     //     slotCapacity - inlineSlotCapacity == Number of aux slots to allocate
     if(Js::FunctionBody::DoObjectHeaderInliningForObjectLiteral(propIds))
-    {
+    {TRACE_IT(11183);
         Assert(inlineSlotCapacity >= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity());
         Assert(inlineSlotCapacity == slotCapacity);
         slotCapacity = inlineSlotCapacity -= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity();
@@ -3839,7 +3839,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
 
 IR::Instr*
 Lowerer::LowerProfiledNewScArray(IR::JitProfilingInstr* arrInstr)
-{
+{TRACE_IT(11184);
     IR::Instr *instrPrev = arrInstr->m_prev;
 
     /*
@@ -3860,9 +3860,9 @@ Lowerer::LowerProfiledNewScArray(IR::JitProfilingInstr* arrInstr)
 
 IR::Instr *
 Lowerer::LowerNewScArray(IR::Instr *arrInstr)
-{
+{TRACE_IT(11185);
     if (arrInstr->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11186);
         return LowerProfiledNewScArray(arrInstr->AsJitProfilingInstr());
     }
 
@@ -3870,7 +3870,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScArray;
 
     if (arrInstr->IsProfiledInstr() && arrInstr->m_func->HasProfileInfo())
-    {
+    {TRACE_IT(11187);
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         Assert(weakFuncRef);
 
@@ -3882,7 +3882,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
         GenerateProfiledNewScArrayFastPath(arrInstr, arrayInfo, arrayInfoAddr, weakFuncRef, arrInstr->GetSrc1()->AsIntConstOpnd()->AsUint32());
 
         if (arrInstr->GetDst() && arrInstr->GetDst()->GetValueType().IsLikelyNativeArray())
-        {
+        {TRACE_IT(11188);
             m_lowererMD.LoadHelperArgument(arrInstr, IR::AddrOpnd::New(weakFuncRef, IR::AddrOpndKindDynamicFunctionBodyWeakRef, m_func));
             m_lowererMD.LoadHelperArgument(arrInstr, IR::AddrOpnd::New(arrayInfoAddr, IR::AddrOpndKindDynamicArrayCallSiteInfo, m_func));
             helperMethod = IR::HelperScrArr_ProfiledNewScArray;
@@ -3900,7 +3900,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
 
 template <typename ArrayType>
 BOOL Lowerer::IsSmallObject(uint32 length)
-{
+{TRACE_IT(11189);
     if (ArrayType::HasInlineHeadSegment(length))
         return true;
     uint32 alignedHeadSegmentSize = Js::SparseArraySegment<typename ArrayType::TElement>::GetAlignedSize(length);
@@ -3910,9 +3910,9 @@ BOOL Lowerer::IsSmallObject(uint32 length)
 
 void
 Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, uint32 length)
-{
+{TRACE_IT(11190);
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {TRACE_IT(11191);
         return;
     }
 
@@ -3925,9 +3925,9 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
     uint32 i = length;
 
     if (instr->GetDst() && instr->GetDst()->GetValueType().IsLikelyNativeIntArray())
-    {
+    {TRACE_IT(11192);
         if (!IsSmallObject<Js::JavascriptNativeIntArray>(length))
-        {
+        {TRACE_IT(11193);
             return;
         }
         GenerateArrayInfoIsNativeIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
@@ -3943,9 +3943,9 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
         }
     }
     else if (instr->GetDst() && instr->GetDst()->GetValueType().IsLikelyNativeFloatArray())
-    {
+    {TRACE_IT(11194);
         if (!IsSmallObject<Js::JavascriptNativeFloatArray>(length))
-        {
+        {TRACE_IT(11195);
             return;
         }
         GenerateArrayInfoIsNativeFloatAndNotIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
@@ -3967,9 +3967,9 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
         }
     }
     else
-    {
+    {TRACE_IT(11196);
         if (!IsSmallObject<Js::JavascriptArray>(length))
-        {
+        {TRACE_IT(11197);
             return;
         }
         uint const offsetStart = sizeof(Js::SparseArraySegmentBase);
@@ -3994,7 +3994,7 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
 
 void
 Lowerer::GenerateArrayInfoIsNativeIntArrayTest(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, IR::LabelInstr * helperLabel)
-{
+{TRACE_IT(11198);
     Func * func = this->m_func;
     InsertTestBranch(IR::MemRefOpnd::New(((char *)arrayInfoAddr) + Js::ArrayCallSiteInfo::GetOffsetOfBits(), TyUint8, func),
         IR::IntConstOpnd::New(Js::ArrayCallSiteInfo::NotNativeIntBit, TyUint8, func), Js::OpCode::BrNeq_A, helperLabel, instr);
@@ -4002,7 +4002,7 @@ Lowerer::GenerateArrayInfoIsNativeIntArrayTest(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateArrayInfoIsNativeFloatAndNotIntArrayTest(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, IR::LabelInstr * helperLabel)
-{
+{TRACE_IT(11199);
     Func * func = this->m_func;
     InsertCompareBranch(IR::MemRefOpnd::New(((char *)arrayInfoAddr) + Js::ArrayCallSiteInfo::GetOffsetOfBits(), TyUint8, func),
         IR::IntConstOpnd::New(Js::ArrayCallSiteInfo::NotNativeIntBit, TyUint8, func), Js::OpCode::BrNeq_A, helperLabel, instr);
@@ -4012,31 +4012,31 @@ template <typename ArrayType>
 static IR::JnHelperMethod GetArrayAllocMemHelper();
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptArray>()
-{
+{TRACE_IT(11200);
     return IR::HelperAllocMemForJavascriptArray;
 }
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptNativeIntArray>()
-{
+{TRACE_IT(11201);
     return IR::HelperAllocMemForJavascriptNativeIntArray;
 }
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptNativeFloatArray>()
-{
+{TRACE_IT(11202);
     return IR::HelperAllocMemForJavascriptNativeFloatArray;
 }
 
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayLiteralsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed)
-{
+{TRACE_IT(11203);
     return GenerateArrayAllocHelper<ArrayType>(instr, psize, arrayInfo, pIsHeadSegmentZeroed, false /* isArrayObjCtor */, false /* isNoArgs */);
 }
 
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayObjectsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed, bool isNoArgs)
-{
+{TRACE_IT(11204);
     return GenerateArrayAllocHelper<ArrayType>(instr, psize, arrayInfo, pIsHeadSegmentZeroed, true /* isArrayObjCtor */, isNoArgs);
 }
 
@@ -4044,7 +4044,7 @@ Lowerer::GenerateArrayObjectsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCa
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed, bool isArrayObjCtor, bool isNoArgs)
-{
+{TRACE_IT(11205);
     Func * func = this->m_func;
     IR::RegOpnd * dstOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -4059,14 +4059,14 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     bool isHeadSegmentZeroed = false;
 
     if (ArrayType::HasInlineHeadSegment(count))
-    {
+    {TRACE_IT(11206);
         if (isArrayObjCtor)
-        {
+        {TRACE_IT(11207);
             uint32 allocCount = isNoArgs ? Js::SparseArraySegmentBase::SMALL_CHUNK_SIZE : count;
             arrayAllocSize = Js::JavascriptArray::DetermineAllocationSizeForArrayObjects<ArrayType, 0>(allocCount, nullptr, &alignedHeadSegmentSize);
         }
         else
-        {
+        {TRACE_IT(11208);
             uint32 allocCount = count == 0 ? Js::SparseArraySegmentBase::SMALL_CHUNK_SIZE : count;
             arrayAllocSize = Js::JavascriptArray::DetermineAllocationSize<ArrayType, 0>(allocCount, nullptr, &alignedHeadSegmentSize);
         }
@@ -4075,7 +4075,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
         isHeadSegmentZeroed = true;
     }
     else
-    {
+    {TRACE_IT(11209);
         // Need to allocate the head segment first so that if it throws,
         // we doesn't have the memory assigned to dstOpnd yet
 
@@ -4117,11 +4117,11 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     Js::ProfileId arrayCallSiteIndex = (Js::ProfileId)instr->AsProfiledInstr()->u.profileId;
 #if DBG
     if (instr->AsProfiledInstr()->u.profileId < Js::Constants::NoProfileId)
-    {
+    {TRACE_IT(11210);
         Assert((uint32)(arrayInfo - instr->m_func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(0)) == arrayCallSiteIndex);
     }
     else
-    {
+    {TRACE_IT(11211);
         Assert(arrayInfo == nullptr);
     }
 #endif
@@ -4133,7 +4133,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     GenerateMemInit(dstOpnd, ArrayType::GetOffsetOfLength(), count, instr, isZeroed);
 
     if (leaHeadInstr != nullptr)
-    {
+    {TRACE_IT(11212);
         instr->InsertBefore(leaHeadInstr);
         LowererMD::ChangeToLea(leaHeadInstr);
     }
@@ -4154,7 +4154,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::ArrayCallSiteInfo * arrayInfo)
-{
+{TRACE_IT(11213);
     Func * func = this->m_func;
     IR::RegOpnd * dstOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -4172,7 +4172,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     Js::JavascriptArray::EnsureCalculationOfAllocationBuckets<ArrayType>();
 
     for (uint8 i = 0;i < bucketsCount;i++)
-    {
+    {TRACE_IT(11214);
         uint elementsCountToInitialize = ArrayType::allocationBuckets[i][Js::JavascriptArray::MissingElementsCountIndex];
         uint allocationSize = ArrayType::allocationBuckets[i][Js::JavascriptArray::AllocationSizeIndex];
 
@@ -4183,7 +4183,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
         //  CMP  arrayLen, currentBucket
         //  JG   $checkNextBucket
         if (i != (bucketsCount - 1))
-        {
+        {TRACE_IT(11215);
             Lowerer::InsertCompare(arrayLenOpnd, IR::IntConstOpnd::New((uint16)ArrayType::allocationBuckets[i][Js::JavascriptArray::AllocationBucketIndex], TyUint32, func), instr);
 
             skipToNextBucket = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -4197,7 +4197,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
 
         //  JMP  $doneCalculatingAllocSize
         if (i != (bucketsCount - 1))
-        {
+        {TRACE_IT(11216);
             Lowerer::InsertBranch(Js::OpCode::Br, doneCalculatingAllocSize, instr);
             instr->InsertBefore(skipToNextBucket);
         }
@@ -4221,11 +4221,11 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     Js::ProfileId arrayCallSiteIndex = (Js::ProfileId)instr->AsProfiledInstr()->u.profileId;
 #if DBG
     if (instr->AsProfiledInstr()->u.profileId < Js::Constants::NoProfileId)
-    {
+    {TRACE_IT(11217);
         Assert((uint32)(arrayInfo - instr->m_func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(0)) == arrayCallSiteIndex);
     }
     else
-    {
+    {TRACE_IT(11218);
         Assert(arrayInfo == nullptr);
     }
 #endif
@@ -4235,7 +4235,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     GenerateMemInit(dstOpnd, ArrayType::GetOffsetOfLength(), arrayLenOpnd, instr, true);
 
     if (leaHeadInstr != nullptr)
-    {
+    {TRACE_IT(11219);
         instr->InsertBefore(leaHeadInstr);
         LowererMD::ChangeToLea(leaHeadInstr);
     }
@@ -4253,9 +4253,9 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
 
 void
 Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, uint32 length, IR::LabelInstr* labelDone, bool isNoArgs)
-{
+{TRACE_IT(11220);
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func))
-    {
+    {TRACE_IT(11221);
         return;
     }
 
@@ -4301,7 +4301,7 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
         }
     }
     else
-    {
+    {TRACE_IT(11222);
         uint const offsetStart = sizeof(Js::SparseArraySegmentBase);
         headOpnd = GenerateArrayObjectsAlloc<Js::JavascriptArray>(instr, &size, arrayInfo, &isZeroed, isNoArgs);
         for (uint i = 0; i < size; i++)
@@ -4323,9 +4323,9 @@ template <typename ArrayType>
 void
 Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, IR::LabelInstr* helperLabel,
                    IR::LabelInstr* labelDone, IR::Opnd* lengthOpnd, uint32 offsetOfCallSiteIndex, uint32 offsetOfWeakFuncRef)
-{
+{TRACE_IT(11223);
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func))
-    {
+    {TRACE_IT(11224);
         return;
     }
 
@@ -4345,19 +4345,19 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     bool isNativeArray = arrayInfo && (arrayInfo->IsNativeIntArray() || arrayInfo->IsNativeFloatArray());
 
     if (arrayInfo && arrayInfo->IsNativeIntArray())
-    {
+    {TRACE_IT(11225);
         sizeOfElement = sizeof(int32);
         GenerateArrayInfoIsNativeIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
     }
     else if (arrayInfo && arrayInfo->IsNativeFloatArray())
-    {
+    {TRACE_IT(11226);
         // Js::JavascriptArray::MissingItem is a Var, so it may be 32-bit or 64 bit.
         sizeFactor = sizeof(double) / sizeof(Js::JavascriptArray::MissingItem);
         sizeOfElement = sizeof(Js::JavascriptArray::MissingItem);
         GenerateArrayInfoIsNativeFloatAndNotIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
     }
     else
-    {
+    {TRACE_IT(11227);
         sizeOfElement = sizeof(Js::Var);
     }
 
@@ -4368,7 +4368,7 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     headOpnd = GenerateArrayAlloc<ArrayType>(instr, lengthOpnd, arrayInfo);
 
     if (isNativeArray)
-    {
+    {TRACE_IT(11228);
         Assert(ArrayType::GetOffsetOfArrayFlags() + sizeof(uint16) == offsetOfCallSiteIndex);
         Assert(offsetOfWeakFuncRef > 0);
         GenerateMemInit(dstOpnd, offsetOfCallSiteIndex, IR::IntConstOpnd::New(profileId, TyUint16, func, true), instr, true /* isZeroed */);
@@ -4382,18 +4382,18 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     uint maxAllocationSize = allocationBuckets[allocationBucketsCount - 1][Js::JavascriptArray::AllocationSizeIndex];
 
     for (uint8 i = 0;i < allocationBucketsCount;i++)
-    {
+    {TRACE_IT(11229);
         missingItemCount = allocationBuckets[i][Js::JavascriptArray::MissingElementsCountIndex] * sizeFactor;
 
         if (i > 0)
-        {
+        {TRACE_IT(11230);
             // Reduce missingItemCount we have already set so far
             missingItemCount -= missingItemInitializedSoFar;
         }
 
         // Generate array initialization with MissingItem
         for (uint j = 0;j < missingItemCount;j++)
-        {
+        {TRACE_IT(11231);
             // Ensure we don't write missingItems past allocation size
             Assert(offsetStart + missingItemIndex * sizeOfElement <= maxAllocationSize);
             GenerateMemInit(headOpnd, offsetStart + missingItemIndex * sizeOfElement, GetMissingItemOpnd(missingItemType, func), instr, true /*isZeroed*/);
@@ -4403,7 +4403,7 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
         //  CMP  arrayLen, currentBucket
         //  JG   $checkNextBucket
         if (i != (allocationBucketsCount - 1))
-        {
+        {TRACE_IT(11232);
             Lowerer::InsertCompare(lengthOpnd, IR::IntConstOpnd::New(allocationBuckets[i][Js::JavascriptArray::AllocationBucketIndex], TyUint32, func), instr);
 
             Lowerer::InsertBranch(Js::OpCode::BrLe_A, arrayInitDone, instr);
@@ -4424,20 +4424,20 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef)
-{
+{TRACE_IT(11233);
     // Helper will deal with ForceES5ARray
     if (PHASE_OFF(Js::ArrayLiteralFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {TRACE_IT(11234);
         return;
     }
 
     if (!arrayInfo->IsNativeIntArray())
-    {
+    {TRACE_IT(11235);
         return;
     }
 
     if (instr->GetSrc1()->AsAddrOpnd()->GetAddrOpndKind() != IR::AddrOpndKindDynamicAuxBufferRef)
-    {
+    {TRACE_IT(11236);
         return;
     }
 
@@ -4462,7 +4462,7 @@ Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     // Initialize the elements
     uint i = 0;
     if (ints->count > 16)
-    {
+    {TRACE_IT(11237);
         // Do memcpy if > 16
         IR::RegOpnd * dstElementsOpnd = IR::RegOpnd::New(TyMachPtr, func);
         const IR::AutoReuseOpnd autoReuseDstElementsOpnd(dstElementsOpnd, func);
@@ -4472,7 +4472,7 @@ Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
         i = ints->count;
     }
     else
-    {
+    {TRACE_IT(11238);
         for (; i < ints->count; i++)
         {
             GenerateMemInit(headOpnd, sizeof(Js::SparseArraySegmentBase) + i * sizeof(int32),
@@ -4495,19 +4495,19 @@ Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateProfiledNewScFloatArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef)
-{
+{TRACE_IT(11239);
     if (PHASE_OFF(Js::ArrayLiteralFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {TRACE_IT(11240);
         return;
     }
 
     if (!arrayInfo->IsNativeFloatArray())
-    {
+    {TRACE_IT(11241);
         return;
     }
 
     if (instr->GetSrc1()->AsAddrOpnd()->GetAddrOpndKind() != IR::AddrOpndKindDynamicAuxBufferRef)
-    {
+    {TRACE_IT(11242);
         return;
     }
 
@@ -4557,15 +4557,15 @@ Lowerer::GenerateProfiledNewScFloatArrayFastPath(IR::Instr *instr, Js::ArrayCall
 
 IR::Instr *
 Lowerer::LowerNewScIntArray(IR::Instr *arrInstr)
-{
+{TRACE_IT(11243);
     IR::Instr *instrPrev = arrInstr->m_prev;
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScIntArray;
 
     if ((arrInstr->IsJitProfilingInstr() || arrInstr->IsProfiledInstr()) && arrInstr->m_func->HasProfileInfo())
-    {
+    {TRACE_IT(11244);
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         if (weakFuncRef)
-        {
+        {TRACE_IT(11245);
             // Technically a load of the same memory address either way.
             Js::ProfileId profileId =
                 arrInstr->IsJitProfilingInstr()
@@ -4601,15 +4601,15 @@ Lowerer::LowerNewScIntArray(IR::Instr *arrInstr)
 
 IR::Instr *
 Lowerer::LowerNewScFltArray(IR::Instr *arrInstr)
-{
+{TRACE_IT(11246);
     IR::Instr *instrPrev = arrInstr->m_prev;
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScFltArray;
 
     if ((arrInstr->IsJitProfilingInstr() || arrInstr->IsProfiledInstr()) && arrInstr->m_func->HasProfileInfo())
-    {
+    {TRACE_IT(11247);
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         if (weakFuncRef)
-        {
+        {TRACE_IT(11248);
             Js::ProfileId profileId =
                 arrInstr->IsJitProfilingInstr()
                     ? arrInstr->AsJitProfilingInstr()->profileId
@@ -4640,7 +4640,7 @@ Lowerer::LowerNewScFltArray(IR::Instr *arrInstr)
 
 IR::Instr *
 Lowerer::LowerArraySegmentVars(IR::Instr *arrayInstr)
-{
+{TRACE_IT(11249);
     IR::Instr * instrPrev;
     IR::HelperCallOpnd * opndHelper = IR::HelperCallOpnd::New(IR::HelperArraySegmentVars, m_func);
 
@@ -4656,7 +4656,7 @@ Lowerer::LowerArraySegmentVars(IR::Instr *arrayInstr)
 }
 
 IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool hasArgs)
-{
+{TRACE_IT(11250);
     // Use the special helper which checks whether Array has been overwritten by the user and if
     //   it hasn't, possibly allocates a native array
 
@@ -4674,11 +4674,11 @@ IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool has
     m_lowererMD.LoadNewScObjFirstArg(instr, IR::AddrOpnd::New(nullptr, IR::AddrOpndKindConstantVar, m_func, true), isSpreadCall ? 1 : 0);
 
     if (isSpreadCall)
-    {
+    {TRACE_IT(11251);
         this->LowerSpreadCall(instr, Js::CallFlags_New, true);
     }
     else
-    {
+    {TRACE_IT(11252);
         const int32 argCount = m_lowererMD.LowerCallArgs(instr, Js::CallFlags_New, 4);
 
         m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(instr->arrayProfileId, m_func));
@@ -4702,9 +4702,9 @@ IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool has
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, bool isBaseClassConstructorNewScObject)
-{
+{TRACE_IT(11253);
     if (newObjInstr->IsJitProfilingInstr() && newObjInstr->AsJitProfilingInstr()->isNewArray)
-    {
+    {TRACE_IT(11254);
         Assert(callCtor);
         return LowerProfiledNewArray(newObjInstr->AsJitProfilingInstr(), hasArgs);
     }
@@ -4744,7 +4744,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
 #if DBG && 0 // TODO: OOP JIT, enable assert
     if (usedFixedCtorCache)
-    {
+    {TRACE_IT(11255);
         Js::JavascriptFunction* ctor = newObjInstr->GetFixedFunction();
         Js::FunctionInfo* ctorInfo = ctor->GetFunctionInfo();
         Assert((ctorInfo->GetAttributes() & Js::FunctionInfo::Attributes::ErrorOnNew) == 0);
@@ -4754,7 +4754,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
     IR::Instr* startCallInstr = nullptr;
     if (callCtor && hasArgs)
-    {
+    {TRACE_IT(11256);
         hasArgs = !newObjInstr->HasEmptyArgOutChain(&startCallInstr);
     }
 
@@ -4762,15 +4762,15 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
     IR::JnHelperMethod newScHelper = IR::HelperInvalid;
     IR::Instr *newScObjCall = nullptr;
     if (!skipNewScObj)
-    {
+    {TRACE_IT(11257);
         // If we emitted the fast path, this block is a helper block.
         if (usedFixedCtorCache)
-        {
+        {TRACE_IT(11258);
             newObjInstr->InsertBefore(helperOrBailoutLabel);
         }
 
         if (emitBailOut)
-        {
+        {TRACE_IT(11259);
             IR::Instr* bailOutInstr = newObjInstr;
 
             newObjInstr = IR::Instr::New(newObjInstr->m_opcode, func);
@@ -4781,7 +4781,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
             GenerateBailOut(bailOutInstr);
         }
         else
-        {
+        {TRACE_IT(11260);
             Assert(!newObjDst->CanStoreTemp());
             // createObjDst = NewScObject...(ctorOpnd)
             newScHelper = !callCtor ?
@@ -4808,7 +4808,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
     newObjInstr->InsertBefore(callCtorLabel);
 
     if (callCtor && usedFixedCtorCache)
-    {
+    {TRACE_IT(11261);
         IR::JnHelperMethod ctorHelper = IR::JnHelperMethodCount;
 
         // If we have no arguments (i.e. the argument chain is empty), we can recognize a couple of common special cases, such
@@ -4816,22 +4816,22 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
         JITTimeFixedField* ctor = newObjInstr->GetFixedFunction();
         intptr_t ctorInfo = ctor->GetFuncInfoAddr();
         if (!hasArgs && (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptObjectNewInstanceAddr() || ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptArrayNewInstanceAddr()))
-        {
+        {TRACE_IT(11262);
             if (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptObjectNewInstanceAddr())
-            {
+            {TRACE_IT(11263);
                 Assert(skipNewScObj);
                 ctorHelper = IR::HelperNewJavascriptObjectNoArg;
                 callCtor = false;
             }
             else if (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptArrayNewInstanceAddr())
-            {
+            {TRACE_IT(11264);
                 Assert(skipNewScObj);
                 ctorHelper = IR::HelperNewJavascriptArrayNoArg;
                 callCtor = false;
             }
 
             if (!callCtor)
-            {
+            {TRACE_IT(11265);
                 LoadScriptContext(newObjInstr);
 
                 IR::Instr *ctorCall = IR::Instr::New(Js::OpCode::Call, newObjDst,  IR::HelperCallOpnd::New(ctorHelper, func), func);
@@ -4843,29 +4843,29 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
     IR::AutoReuseOpnd autoReuseSavedCtorOpnd;
     if (callCtor)
-    {
+    {TRACE_IT(11266);
         // Load the first argument, which is either the object just created or null. Spread has an extra argument.
         IR::Instr * argInstr = this->m_lowererMD.LoadNewScObjFirstArg(newObjInstr, createObjDst, isSpreadCall ? 1 : 0);
 
         IR::Instr * insertAfterCtorInstr = newObjInstr->m_next;
 
         if (skipNewScObj)
-        {
+        {TRACE_IT(11267);
             // Since we skipped the default new object, we must be returning whatever the constructor returns
             // (which better be an Object), so let's just use newObjDst directly.
             // newObjDst = newObjInstr->m_src1(createObjDst, ...)
             Assert(newObjInstr->GetDst() == newObjDst);
             if (isSpreadCall)
-            {
+            {TRACE_IT(11268);
                 newObjInstr = this->LowerSpreadCall(newObjInstr, Js::CallFlags_New);
             }
             else
-            {
+            {TRACE_IT(11269);
                 newObjInstr = this->m_lowererMD.LowerCallI(newObjInstr, Js::CallFlags_New, false, argInstr);
             }
         }
         else
-        {
+        {TRACE_IT(11270);
             // We may need to return the default new object or whatever the constructor returns. Let's stash
             // away the constructor's return in a temporary operand, and do the right check, if necessary.
             // ctorResultObjOpnd = newObjInstr->m_src1(createObjDst, ...)
@@ -4874,16 +4874,16 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
             newObjInstr->SetDst(ctorResultObjOpnd);
 
             if (isSpreadCall)
-            {
+            {TRACE_IT(11271);
                 newObjInstr = this->LowerSpreadCall(newObjInstr, Js::CallFlags_New);
             }
             else
-            {
+            {TRACE_IT(11272);
                 newObjInstr = this->m_lowererMD.LowerCallI(newObjInstr, Js::CallFlags_New, false, argInstr);
             }
 
             if (returnNewScObj)
-            {
+            {TRACE_IT(11273);
                 // MOV newObjDst, createObjDst
                 this->m_lowererMD.CreateAssign(newObjDst, createObjDst, insertAfterCtorInstr);
             }
@@ -4902,9 +4902,9 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
         }
     }
     else
-    {
+    {TRACE_IT(11274);
         if (newObjInstr->IsJitProfilingInstr())
-        {
+        {TRACE_IT(11275);
             Assert(m_func->IsSimpleJit());
             Assert(!CONFIG_FLAG(NewSimpleJit));
 
@@ -4915,7 +4915,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
                 newObjDst &&
                 ctorOpnd->IsRegOpnd() &&
                 newObjDst->AsRegOpnd()->m_sym == ctorOpnd->AsRegOpnd()->m_sym)
-            {
+            {TRACE_IT(11276);
                 Assert(newObjInstr->m_func->IsSimpleJit());
                 Assert(createObjDst != newObjDst);
 
@@ -4944,7 +4944,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
         // MOV newObjDst, createObjDst
         if (!skipNewScObj && createObjDst != newObjDst)
-        {
+        {TRACE_IT(11277);
             this->m_lowererMD.CreateAssign(newObjDst, createObjDst, newObjInstr);
         }
         newObjInstr->Remove();
@@ -4956,7 +4956,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
 IR::Instr*
 Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inlineCacheIndex, IR::Opnd* retval, IR::Opnd*calleeFunctionObjOpnd, IR::Opnd* callInfo, bool returnTypeOnly, IR::Instr*callInstr,IR::Instr*insertAfter)
-{
+{TRACE_IT(11278);
     // This should only ever happen in profiling simplejit
     Assert(m_func->DoSimpleJitDynamicProfile());
 
@@ -4984,9 +4984,9 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     // Profile a call that just happened: push some extra info on the stack and call the helper
 
     if (!retval)
-    {
+    {TRACE_IT(11279);
         if (returnTypeOnly)
-        {
+        {TRACE_IT(11280);
             // If we are only supposed to profile the return type but don't use the return value, we might
             // as well do nothing!
             return insertAfter;
@@ -4999,17 +4999,17 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     bool needInlineCacheIndex;
     IR::JnHelperMethod helperMethod;
     if (returnTypeOnly)
-    {
+    {TRACE_IT(11281);
         needInlineCacheIndex = false;
         helperMethod = IR::HelperSimpleProfileReturnTypeCall;
     }
     else if(inlineCacheIndex == Js::Constants::NoInlineCacheIndex)
-    {
+    {TRACE_IT(11282);
         needInlineCacheIndex = false;
         helperMethod = IR::HelperSimpleProfileCall_DefaultInlineCacheIndex;
     }
     else
-    {
+    {TRACE_IT(11283);
         needInlineCacheIndex = true;
         helperMethod = IR::HelperSimpleProfileCall;
     }
@@ -5021,7 +5021,7 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     m_lowererMD.LoadHelperArgument(profileCall, calleeFunctionObjOpnd);
     m_lowererMD.LoadHelperArgument(profileCall, retval);
     if(needInlineCacheIndex)
-    {
+    {TRACE_IT(11284);
         m_lowererMD.LoadHelperArgument(profileCall, IR::Opnd::CreateInlineCacheIndexOpnd(inlineCacheIndex, func));
     }
     m_lowererMD.LoadHelperArgument(profileCall, IR::Opnd::CreateProfileIdOpnd(profileId, func));
@@ -5034,7 +5034,7 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
 
 bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::RegOpnd* newObjDst,
     IR::LabelInstr* helperOrBailoutLabel, IR::LabelInstr* callCtorLabel, bool& skipNewScObj, bool& returnNewScObj, bool& emitBailOut)
-{
+{TRACE_IT(11285);
     skipNewScObj = false;
     returnNewScObj = false;
 
@@ -5042,14 +5042,14 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         "Why do we have bailout on NewScObject when ObjTypeSpecNewObj is off?");
 
     if (PHASE_OFF(Js::FixedNewObjPhase, newObjInstr->m_func) && PHASE_OFF(Js::ObjTypeSpecNewObjPhase, this->m_func))
-    {
+    {TRACE_IT(11286);
         return false;
     }
 
     JITTimeConstructorCache * ctorCache;
 
     if (newObjInstr->HasBailOutInfo())
-    {
+    {TRACE_IT(11287);
         Assert(newObjInstr->IsNewScObjectInstr());
         Assert(newObjInstr->IsProfiledInstr());
         Assert(newObjInstr->GetBailOutKind() == IR::BailOutFailedCtorGuardCheck);
@@ -5064,9 +5064,9 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         LinkCtorCacheToGuardedProperties(ctorCache);
     }
     else
-    {
+    {TRACE_IT(11288);
         if (newObjInstr->m_opcode == Js::OpCode::NewScObjArray || newObjInstr->m_opcode == Js::OpCode::NewScObjArraySpread)
-        {
+        {TRACE_IT(11289);
             // These instr's carry a profile that indexes the array call site info, not the ctor cache.
             return false;
         }
@@ -5074,9 +5074,9 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         ctorCache = newObjInstr->IsProfiledInstr() ? newObjInstr->m_func->GetConstructorCache(static_cast<Js::ProfileId>(newObjInstr->AsProfiledInstr()->u.profileId)) : nullptr;
 
         if (ctorCache == nullptr)
-        {
+        {TRACE_IT(11290);
             if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-            {
+            {TRACE_IT(11291);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("FixedNewObj: function %s (%s): lowering non-fixed new script object for %s, because %s.\n"),
                     newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
@@ -5097,10 +5097,10 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     // Built-in constructors don't need a default new object.  Since we know which constructor we're calling, we can skip creating a default
     // object and call a specialized helper (or even constructor, directly) avoiding the checks in generic NewScObjectCommon.
     if (ctorCache->SkipNewScObject())
-    {
+    {TRACE_IT(11292);
 #if 0 // TODO: oop jit, add constructor info for tracing
         if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-        {
+        {TRACE_IT(11293);
             const Js::JavascriptFunction* ctor = ctorCache->constructor;
             Js::FunctionBody* ctorBody = ctor->GetFunctionInfo()->HasBody() ? ctor->GetFunctionInfo()->GetFunctionBody() : nullptr;
             const char16* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
@@ -5131,7 +5131,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
 
 #if 0 // TODO: oop jit, add constructor info for tracing
     if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-    {
+    {TRACE_IT(11294);
         const Js::JavascriptFunction* constructor = ctorCache->constructor;
         Js::FunctionBody* constructorBody = constructor->GetFunctionInfo()->HasBody() ? constructor->GetFunctionInfo()->GetFunctionBody() : nullptr;
         const char16* constructorName = constructorBody != nullptr ? constructorBody->GetDisplayName() : _u("<unknown>");
@@ -5140,7 +5140,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
         if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-        {
+        {TRACE_IT(11295);
             Output::Print(_u("FixedNewObj: function %s (%s): lowering fixed new script object for %s with %s ctor <unknown> (%s %s): type = %p, slots = %d, inlined slots = %d.\n"),
                 newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer2), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
                 newObjInstr->m_opcode == Js::OpCode::NewScObjectNoCtor ? _u("inlined") : _u("called"),
@@ -5148,7 +5148,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
                 ctorCache->type, ctorCache->slotCount, ctorCache->inlineSlotCount);
         }
         else
-        {
+        {TRACE_IT(11296);
             Output::Print(_u("FixedNewObj: function %s (%s): lowering fixed new script object for %s with %s ctor <unknown> (%s %s): slots = %d, inlined slots = %d.\n"),
                 newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer2), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
                 newObjInstr->m_opcode == Js::OpCode::NewScObjectNoCtor ? _u("inlined") : _u("called"),
@@ -5173,12 +5173,12 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     JITTimeFixedField* ctor = newObjInstr->GetFixedFunction();
 
     if (ctor->IsClassCtor())
-    {
+    {TRACE_IT(11297);
         // MOV newObjDst, function
         this->m_lowererMD.CreateAssign(newObjDst, newObjInstr->GetSrc1(), newObjInstr);
     }
     else
-    {
+    {TRACE_IT(11298);
         JITTypeHolder newObjectType(ctorCache->GetType());
         Assert(newObjectType->IsShared());
 
@@ -5190,7 +5190,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         int inlineSlotSize = ctorCache->GetInlineSlotCount();
         int slotSize = ctorCache->GetSlotCount();
         if (newObjectType->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler())
-        {
+        {TRACE_IT(11299);
             Assert(inlineSlotSize >= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity());
             Assert(inlineSlotSize == slotSize);
             slotSize = inlineSlotSize -= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity();
@@ -5208,11 +5208,11 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
 
 void
 Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t allocSize, IR::RegOpnd* newObjDst, IR::Instr* insertionPointInstr, bool inOpHelper)
-{
+{TRACE_IT(11300);
     IR::LabelInstr * allocDoneLabel = nullptr;
 
     if (!PHASE_OFF(Js::JitAllocNewObjPhase, insertionPointInstr->m_func) && HeapInfo::IsSmallObject(allocSize))
-    {
+    {TRACE_IT(11301);
         IR::LabelInstr * allocHelperLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         allocDoneLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, inOpHelper);
 
@@ -5230,7 +5230,7 @@ Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t all
     this->m_lowererMD.LowerCall(newObjCall, 0);
 
     if (allocDoneLabel != nullptr)
-    {
+    {TRACE_IT(11302);
         // $allocDone:
         insertionPointInstr->InsertBefore(allocDoneLabel);
     }
@@ -5238,7 +5238,7 @@ Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t all
 
 IR::Instr *
 Lowerer::LowerGetNewScObject(IR::Instr *instr)
-{
+{TRACE_IT(11303);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::GetNewScObject);
     Assert(instr->GetDst());
@@ -5264,7 +5264,7 @@ Lowerer::LowerGetNewScObjectCommon(
     IR::RegOpnd *const constructorReturnOpnd,
     IR::RegOpnd *const newObjOpnd,
     IR::Instr *insertBeforeInstr)
-{
+{TRACE_IT(11304);
     Assert(resultObjOpnd);
     Assert(constructorReturnOpnd);
     Assert(newObjOpnd);
@@ -5279,7 +5279,7 @@ Lowerer::LowerGetNewScObjectCommon(
     // resultObjOpnd = newObjOpnd
 
     if(!constructorReturnOpnd->IsEqual(newObjOpnd))
-    {
+    {TRACE_IT(11305);
         // Need to check whether the constructor returned an object
 
         IR::LabelInstr *notObjectLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -5303,7 +5303,7 @@ Lowerer::LowerGetNewScObjectCommon(
 
         // Value returned by constructor is an object (use constructorReturnOpnd)
         if(!resultObjOpnd->IsEqual(constructorReturnOpnd))
-        {
+        {TRACE_IT(11306);
             this->m_lowererMD.CreateAssign(resultObjOpnd, constructorReturnOpnd, insertBeforeInstr);
         }
         insertBeforeInstr->InsertBefore(
@@ -5314,7 +5314,7 @@ Lowerer::LowerGetNewScObjectCommon(
     }
 
     if(!resultObjOpnd->IsEqual(newObjOpnd))
-    {
+    {TRACE_IT(11307);
         this->m_lowererMD.CreateAssign(resultObjOpnd, newObjOpnd, insertBeforeInstr);
     }
 
@@ -5328,7 +5328,7 @@ Lowerer::LowerGetNewScObjectCommon(
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR::Opnd *src1, const bool isCtorFunction)
-{
+{TRACE_IT(11308);
     // if (!isCtorFunction)
     // {
     //     MOV r1, [src1 + offset(type)]       -- check base TypeIds_Function
@@ -5344,7 +5344,7 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
     IR::LabelInstr *labelFallThru = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     if (!src1->IsRegOpnd())
-    {
+    {TRACE_IT(11309);
         IR::RegOpnd *srcRegOpnd = IR::RegOpnd::New(TyMachReg, this->m_func);
         LowererMD::CreateAssign(srcRegOpnd, src1, insertInstr);
         src1 = srcRegOpnd;
@@ -5352,7 +5352,7 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
 
     // Check if constructor is a function if we don't already know it.
     if (!isCtorFunction)
-    {
+    {TRACE_IT(11310);
         //  MOV r1, [src1 + offset(type)]       -- check base TypeIds_Function
         IR::RegOpnd *r1 = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(src1->AsRegOpnd(), Js::RecyclableObject::GetOffsetOfType(), TyMachReg, this->m_func);
@@ -5401,10 +5401,10 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
 
 IR::Instr *
 Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
-{
+{TRACE_IT(11311);
     IR::Instr* startCallInstr;
     if (newObjInstr->HasEmptyArgOutChain(&startCallInstr))
-    {
+    {TRACE_IT(11312);
         newObjInstr->FreeSrc2();
         return LowerNewScObjArrayNoArg(newObjInstr);
     }
@@ -5415,9 +5415,9 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
     Func *func = newObjInstr->m_func;
 
     if (!targetOpnd->IsAddrOpnd())
-    {
+    {TRACE_IT(11313);
         if (!newObjInstr->HasBailOutInfo())
-        {
+        {TRACE_IT(11314);
             return this->LowerNewScObject(newObjInstr, true, true);
         }
 
@@ -5448,7 +5448,7 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
         newObjInstr = instrNew;
     }
     else
-    {
+    {TRACE_IT(11315);
         // Insert a temporary label before the instruction we're about to lower, so that we can return
         // the first instruction above that needs to be lowered after we're done - regardless of argument
         // list, StartCall, etc.
@@ -5467,7 +5467,7 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
 
     // We may not have profileId if we converted a NewScObject to NewScObjArray
     if (profileId != Js::Constants::NoProfileId)
-    {
+    {TRACE_IT(11316);
         arrayInfo = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(profileId);
         arrayInfoAddr = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfoAddr(profileId);
         Assert(arrayInfo);
@@ -5491,50 +5491,50 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
     // 2b. If 1st paramter is a constant, it is in range 0 and upperBoundValue (inclusive)
     if (opndOfArrayCtor->IsAddrOpnd() || opndOfArrayCtor->IsRegOpnd()) // #1
 
-    {
+    {TRACE_IT(11317);
         if ((linkSym->GetArgSlotNum() == 2)) // 1. It is the only parameter
-        {
+        {TRACE_IT(11318);
             AssertMsg(linkSym->IsArgSlotSym(), "Not an argSlot symbol...");
             linkOpnd = argInstr->GetSrc2();
 
             bool emittedFastPath = true;
             // 2a. If 1st paramter is a variable, emit fast path with checks
             if (opndOfArrayCtor->IsRegOpnd())
-            {
+            {TRACE_IT(11319);
                 // 3. GenerateFastPath
                 if (arrayInfo && arrayInfo->IsNativeIntArray())
-                {
+                {TRACE_IT(11320);
                     GenerateProfiledNewScObjArrayFastPath<Js::JavascriptNativeIntArray>(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, helperLabel, labelDone, opndOfArrayCtor,
                                                             Js::JavascriptNativeIntArray::GetOffsetOfArrayCallSiteIndex(),
                                                             Js::JavascriptNativeIntArray::GetOffsetOfWeakFuncRef());
                 }
                 else if (arrayInfo && arrayInfo->IsNativeFloatArray())
-                {
+                {TRACE_IT(11321);
                     GenerateProfiledNewScObjArrayFastPath<Js::JavascriptNativeFloatArray>(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, helperLabel, labelDone, opndOfArrayCtor,
                                                               Js::JavascriptNativeFloatArray::GetOffsetOfArrayCallSiteIndex(),
                                                               Js::JavascriptNativeFloatArray::GetOffsetOfWeakFuncRef());
                 }
                 else
-                {
+                {TRACE_IT(11322);
                     GenerateProfiledNewScObjArrayFastPath<Js::JavascriptArray>(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, helperLabel, labelDone, opndOfArrayCtor, 0, 0);
                 }
             }
             // 2b. If 1st paramter is a constant, it is in range 0 and upperBoundValue (inclusive)
             else
-            {
+            {TRACE_IT(11323);
                 int32 length = linkSym->GetIntConstValue();
                 if (length >= 0 && length <= upperBoundValue)
                 {
                     GenerateProfiledNewScObjArrayFastPath(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, (uint32)length, labelDone, false);
                 }
                 else
-                {
+                {TRACE_IT(11324);
                     emittedFastPath = false;
                 }
             }
             // Since we emitted fast path above, move the startCall/argOut instruction right before helper
             if (emittedFastPath)
-            {
+            {TRACE_IT(11325);
                 linkSym = linkOpnd->AsRegOpnd()->m_sym->AsStackSym();
                 AssertMsg(!linkSym->IsArgSlotSym() && linkSym->m_isSingleDef, "Arg tree not single def...");
 
@@ -5580,16 +5580,16 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
 
 IR::Instr *
 Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
-{
+{TRACE_IT(11326);
     IR::Opnd *targetOpnd = newObjInstr->GetSrc1();
     Func *func = newObjInstr->m_func;
 
     IR::Instr* startMarkerInstr = nullptr;
 
     if (!targetOpnd->IsAddrOpnd())
-    {
+    {TRACE_IT(11327);
         if (!newObjInstr->HasBailOutInfo())
-        {
+        {TRACE_IT(11328);
             return this->LowerNewScObject(newObjInstr, true, false);
         }
 
@@ -5620,7 +5620,7 @@ Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
         newObjInstr = instrNew;
     }
     else
-    {
+    {TRACE_IT(11329);
         // Insert a temporary label before the instruction we're about to lower, so that we can return
         // the first instruction above that needs to be lowered after we're done - regardless of argument
         // list, StartCall, etc.
@@ -5634,7 +5634,7 @@ Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
     Js::ArrayCallSiteInfo *arrayInfo = nullptr;
     Js::ProfileId profileId = static_cast<Js::ProfileId>(newObjInstr->AsProfiledInstr()->u.profileId);
     if (profileId != Js::Constants::NoProfileId)
-    {
+    {TRACE_IT(11330);
         arrayInfo = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(profileId);
         arrayInfoAddr = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfoAddr(profileId);
         Assert(arrayInfo);
@@ -5666,9 +5666,9 @@ Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerPrologEpilog()
-{
+{TRACE_IT(11331);
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(11332);
         LowerGeneratorResumeJumpTable();
     }
 
@@ -5687,7 +5687,7 @@ Lowerer::LowerPrologEpilog()
 
 void
 Lowerer::LowerPrologEpilogAsmJs()
-{
+{TRACE_IT(11333);
     IR::Instr * instr;
 
     instr = m_func->m_headInstr;
@@ -5703,7 +5703,7 @@ Lowerer::LowerPrologEpilogAsmJs()
 
 void
 Lowerer::LowerGeneratorResumeJumpTable()
-{
+{TRACE_IT(11334);
     Assert(m_func->GetJITFunctionBody()->IsCoroutine());
 
     IR::Instr * jumpTableInstr = m_func->m_headInstr;
@@ -5711,7 +5711,7 @@ Lowerer::LowerGeneratorResumeJumpTable()
 
     // Hope to do away with this linked list scan by moving this lowering to a post-prolog-epilog/pre-encoder phase that is common to all architectures (currently such phase is only available on amd64/arm)
     while (jumpTableInstr->m_opcode != Js::OpCode::GeneratorResumeJumpTable)
-    {
+    {TRACE_IT(11335);
         jumpTableInstr = jumpTableInstr->m_next;
     }
 
@@ -5723,13 +5723,13 @@ Lowerer::LowerGeneratorResumeJumpTable()
         IR::LabelInstr * label = yorl.Second();
 
         if (label != nullptr && label->m_hasNonBranchRef)
-        {
+        {TRACE_IT(11336);
             // Also fix up the bailout at the label with the jump to epilog that was not emitted in GenerateBailOut()
             Assert(label->m_prev->HasBailOutInfo());
             GenerateJumpToEpilogForBailOut(label->m_prev->GetBailOutInfo(), label->m_prev);
         }
         else if (label == nullptr)
-        {
+        {TRACE_IT(11337);
             label = m_func->m_bailOutNoSaveLabel;
         }
 
@@ -5742,17 +5742,17 @@ Lowerer::LowerGeneratorResumeJumpTable()
 
 void
 Lowerer::DoInterruptProbes()
-{
+{TRACE_IT(11338);
     this->m_func->SetHasInstrNumber(true);
     uint instrCount = 1;
     FOREACH_INSTR_IN_FUNC(instr, this->m_func)
-    {
+    {TRACE_IT(11339);
         instr->SetNumber(instrCount++);
         if (instr->IsLabelInstr())
-        {
+        {TRACE_IT(11340);
             IR::LabelInstr *labelInstr = instr->AsLabelInstr();
             if (labelInstr->m_isLoopTop)
-            {
+            {TRACE_IT(11341);
                 // For every loop top label, insert the following:
 
                 //   cmp sp, ThreadContext::stackLimitForCurrentThread
@@ -5775,10 +5775,10 @@ Lowerer::DoInterruptProbes()
 // probes at loop tops instead of back edges, but kept around because it may prove useful.)
 uint
 Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
-{
+{TRACE_IT(11342);
     IR::LabelInstr *labelInstr = branchInstr->GetTarget();
     if (labelInstr == nullptr || labelInstr->GetNumber() == 0)
-    {
+    {TRACE_IT(11343);
         // Forward branch (possibly an indirect jump after try-catch-finally); nothing to do.
         return branchInstr->GetNumber() + 1;
     }
@@ -5792,7 +5792,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
     IR::Instr *instrPrev = branchInstr->m_prev;
     IR::Instr *instrNext = branchInstr->m_next;
     if (branchInstr->IsUnconditional())
-    {
+    {TRACE_IT(11344);
         // B $loop ==>
 
         // cmp [], 0
@@ -5805,7 +5805,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
         branchInstr->Remove();
     }
     else
-    {
+    {TRACE_IT(11345);
         // Bcc $loop ==>
 
         // Binv $notloop
@@ -5825,7 +5825,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
     }
 
     FOREACH_INSTR_IN_RANGE(instr, instrPrev->m_next, instrNext->m_prev)
-    {
+    {TRACE_IT(11346);
         instr->SetNumber(number++);
     }
     NEXT_INSTR_IN_RANGE;
@@ -5835,7 +5835,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
 
 void
 Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
-{
+{TRACE_IT(11347);
     // Insert one interrupt probe at the given instruction. Probe the stack and call the abort helper
     // directly if the probe fails.
 
@@ -5862,11 +5862,11 @@ Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
     // be executed).
     instr = this->m_func->m_exitInstr->GetPrevRealInstrOrLabel();
     if (instr->IsLabelInstr())
-    {
+    {TRACE_IT(11348);
         helperLabel = instr->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(11349);
         helperLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         this->m_func->m_exitInstr->InsertBefore(helperLabel);
     }
@@ -5883,7 +5883,7 @@ Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LoadPropertySymAsArgument(IR::Instr *instr, IR::Opnd *fieldSrc)
-{
+{TRACE_IT(11350);
     IR::Instr * instrPrev;
     AssertMsg(fieldSrc->IsSymOpnd() && fieldSrc->AsSymOpnd()->m_sym->IsPropertySym(), "Expected fieldSym as src of LdFld");
 
@@ -5907,7 +5907,7 @@ Lowerer::LoadPropertySymAsArgument(IR::Instr *instr, IR::Opnd *fieldSrc)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LoadFunctionBodyAsArgument(IR::Instr *instr, IR::IntConstOpnd * functionBodySlotOpnd, IR::RegOpnd * envOpnd)
-{
+{TRACE_IT(11351);
     IR::Instr * instrPrev;
 
     // We need to pass in the function reference, we can't embed the pointer to the function proxy here.
@@ -5928,7 +5928,7 @@ Lowerer::LoadFunctionBodyAsArgument(IR::Instr *instr, IR::IntConstOpnd * functio
 
 IR::Instr *
 Lowerer::LowerProfiledLdFld(IR::JitProfilingInstr *ldFldInstr)
-{
+{TRACE_IT(11352);
     const auto instrPrev = ldFldInstr->m_prev;
 
     auto src = ldFldInstr->UnlinkSrc1();
@@ -5960,7 +5960,7 @@ Lowerer::LowerProfiledLdFld(IR::JitProfilingInstr *ldFldInstr)
             goto ldFldCommon;
 
 ldFldCommon:
-        {
+        {TRACE_IT(11353);
             Assert(ldFldInstr->profileId == Js::Constants::NoProfileId);
 
             /*
@@ -5980,7 +5980,7 @@ ldFldCommon:
         }
 
         case Js::OpCode::LdSuperFld:
-        {
+        {TRACE_IT(11354);
             Assert(ldFldInstr->profileId == Js::Constants::NoProfileId);
 
             IR::Opnd * src2 = nullptr;
@@ -6041,9 +6041,9 @@ Lowerer::LowerLdFld(
     bool useInlineCache,
     IR::LabelInstr *labelBailOut,
     bool isHelper)
-{
+{TRACE_IT(11355);
     if (ldFldInstr->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11356);
         // If we want to profile then do something completely different
         return this->LowerProfiledLdFld(ldFldInstr->AsJitProfilingInstr());
     }
@@ -6053,7 +6053,7 @@ Lowerer::LowerLdFld(
 
     src = ldFldInstr->UnlinkSrc1();
     if (ldFldInstr->m_opcode == Js::OpCode::LdSuperFld)
-    {
+    {TRACE_IT(11357);
         IR::Opnd * src2 = nullptr;
         src2 = ldFldInstr->UnlinkSrc2();
         m_lowererMD.LoadHelperArgument(ldFldInstr, src2);
@@ -6062,17 +6062,17 @@ Lowerer::LowerLdFld(
     AssertMsg(src->IsSymOpnd() && src->AsSymOpnd()->m_sym->IsPropertySym(), "Expected property sym as src");
 
     if (useInlineCache)
-    {
+    {TRACE_IT(11358);
         IR::Opnd * inlineCacheOpnd;
         AssertMsg(src->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
         if (src->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache && polymorphicHelperMethod != helperMethod)
-        {
+        {TRACE_IT(11359);
             JITTimePolymorphicInlineCache * polymorphicInlineCache = src->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache;
             helperMethod = polymorphicHelperMethod;
             inlineCacheOpnd = IR::AddrOpnd::New(polymorphicInlineCache->GetAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func);
         }
         else
-        {
+        {TRACE_IT(11360);
             // Need to load runtime inline cache opnd first before loading any helper argument
             // because LoadRuntimeInlineCacheOpnd may create labels marked as helper,
             // and cause op helper register push/pop save in x86, messing up with any helper arguments that is already pushed
@@ -6087,7 +6087,7 @@ Lowerer::LowerLdFld(
         this->m_lowererMD.LoadHelperArgument(ldFldInstr, LoadFunctionBodyOpnd(ldFldInstr));
     }
     else
-    {
+    {TRACE_IT(11361);
         LoadScriptContext(ldFldInstr);
         this->LoadPropertySymAsArgument(ldFldInstr, src);
     }
@@ -6102,7 +6102,7 @@ Lowerer::LowerLdFld(
 
 bool
 Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHelperOut, IR::LabelInstr** labelHelperOut, IR::RegOpnd** typeOpndOut)
-{
+{TRACE_IT(11362);
     IR::Instr *instr;
     IR::Opnd *opnd;
     IR::LabelInstr *labelObjCheckFailed = nullptr;
@@ -6120,20 +6120,20 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 
     Assert(instrLdFld->GetSrc1()->IsSymOpnd());
     if (!instrLdFld->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {TRACE_IT(11363);
         return false;
     }
 
     IR::PropertySymOpnd *propertySymOpnd = instrLdFld->GetSrc1()->AsPropertySymOpnd();
     if (!propertySymOpnd->IsTypeCheckSeqCandidate())
-    {
+    {TRACE_IT(11364);
         return false;
     }
 
     AssertMsg(propertySymOpnd->TypeCheckSeqBitsSetOnlyIfCandidate(), "Property sym operand optimized despite not being a candidate?");
 
     if (!propertySymOpnd->IsTypeCheckSeqParticipant() && !propertySymOpnd->NeedsLocalTypeCheck())
-    {
+    {TRACE_IT(11365);
         return false;
     }
 
@@ -6155,7 +6155,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
         propertySymOpnd->IsTypeChecked() ? _u("true") : _u("false"));
 
     if (propertySymOpnd->HasFinalType() && !propertySymOpnd->IsLoadedFromProto())
-    {
+    {TRACE_IT(11366);
         propertySymOpnd->UpdateSlotForFinalType();
     }
 
@@ -6173,9 +6173,9 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     bool emitLoadFromProtoTypeCheck = propertySymOpnd->NeedsLoadFromProtoTypeCheck();
 
     if (emitPrimaryTypeCheck || emitLocalTypeCheck || emitLoadFromProtoTypeCheck)
-    {
+    {TRACE_IT(11367);
         if (emitLoadFromProtoTypeCheck)
-        {
+        {TRACE_IT(11368);
             propertySymOpnd->EnsureGuardedPropOps(this->m_func->m_alloc);
             propertySymOpnd->SetGuardedPropOp(propertySymOpnd->GetObjTypeSpecFldId());
         }
@@ -6186,11 +6186,11 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 
     IR::Opnd *opndSlotArray;
     if (propertySymOpnd->IsLoadedFromProto())
-    {
+    {TRACE_IT(11369);
         opndSlotArray = this->LoadSlotArrayWithCachedProtoType(instrLdFld, propertySymOpnd);
     }
     else
-    {
+    {TRACE_IT(11370);
         opndSlotArray = this->LoadSlotArrayWithCachedLocalType(instrLdFld, propertySymOpnd);
     }
 
@@ -6199,11 +6199,11 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     Assert(index != -1);
 
     if (opndSlotArray->IsRegOpnd())
-    {
+    {TRACE_IT(11371);
         opnd = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, this->m_func);
     }
     else
-    {
+    {TRACE_IT(11372);
         Assert(opndSlotArray->IsMemRefOpnd());
         opnd = IR::MemRefOpnd::New((char*)opndSlotArray->AsMemRefOpnd()->GetMemLoc() + (index * sizeof(Js::Var)), TyMachReg, this->m_func, IR::AddrOpndKindDynamicPropertySlotRef);
     }
@@ -6212,7 +6212,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     // We eliminate the helper, or the type check succeeds, or we bail out before the operation.
     // Either delete the original instruction or replace it with a bailout.
     if (!emitPrimaryTypeCheck && !emitLocalTypeCheck && !emitLoadFromProtoTypeCheck)
-    {
+    {TRACE_IT(11373);
         Assert(labelTypeCheckFailed == nullptr);
         AssertMsg(!instrLdFld->HasBailOutInfo(), "Why does a direct field load have bailout?");
         instrLdFld->Remove();
@@ -6229,13 +6229,13 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     instrLdFld->InsertAfter(labelDone);
 
     if (hasTypeCheckBailout)
-    {
+    {TRACE_IT(11374);
         AssertMsg(PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) || !propertySymOpnd->IsTypeDead(),
             "Why does a field load have a type check bailout, if its type is dead?");
 
         // Convert the original instruction to a bailout.
         if (instrLdFld->GetBailOutInfo()->bailOutInstr != instrLdFld)
-        {
+        {TRACE_IT(11375);
             // Set the cache index in the bailout info so that the bailout code will write it into the
             // bailout record at runtime.
             instrLdFld->GetBailOutInfo()->polymorphicCacheIndex = propertySymOpnd->m_inlineCacheIndex;
@@ -6248,7 +6248,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
         return true;
     }
     else
-    {
+    {TRACE_IT(11376);
         *continueAsHelperOut = true;
         Assert(labelObjCheckFailed != nullptr && labelObjCheckFailed != labelTypeCheckFailed);
         *labelHelperOut = labelObjCheckFailed;
@@ -6259,9 +6259,9 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 template<bool isRoot>
 IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, IR::JnHelperMethod monoHelperAfterFastPath, IR::JnHelperMethod polyHelperAfterFastPath,
     IR::JnHelperMethod monoHelperWithoutFastPath, IR::JnHelperMethod polyHelperWithoutFastPath)
-{
+{TRACE_IT(11377);
     if(instr->CallsAccessor() && instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11378);
         IR::BailOutKind kindMinusBits = instr->GetBailOutKind() & ~IR::BailOutKindBits;
         Assert(kindMinusBits != IR::BailOutOnImplicitCalls && kindMinusBits != IR::BailOutOnImplicitCallsPreOp);
     }
@@ -6274,18 +6274,18 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     IR::RegOpnd* typeOpnd = nullptr;
 
     if (isRoot)
-    {
+    {TRACE_IT(11379);
         // Don't do the fast path here if emitFastPath is false, even if we can.
         if (emitFastPath && (this->GenerateLdFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd) || this->GenerateNonConfigurableLdRootFld(instr)))
-        {
+        {TRACE_IT(11380);
             Assert(labelHelper == nullptr);
             return prevInstr;
         }
     }
     else
-    {
+    {TRACE_IT(11381);
         if (this->GenerateLdFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd))
-        {
+        {TRACE_IT(11382);
             Assert(labelHelper == nullptr);
             return prevInstr;
         }
@@ -6294,9 +6294,9 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     if (emitFastPath)
     {
         if (!GenerateFastLdFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, &labelBailOut, typeOpnd, &isHelper, &labelHelper))
-        {
+        {TRACE_IT(11383);
             if (labelHelper != nullptr)
-            {
+            {TRACE_IT(11384);
                 labelHelper->isOpHelper = isHelper;
                 instr->InsertBefore(labelHelper);
             }
@@ -6304,9 +6304,9 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
         }
     }
     else
-    {
+    {TRACE_IT(11385);
         if (labelHelper != nullptr)
-        {
+        {TRACE_IT(11386);
             labelHelper->isOpHelper = isHelper;
             instr->InsertBefore(labelHelper);
         }
@@ -6318,7 +6318,7 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
 
 bool
 Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
-{
+{TRACE_IT(11387);
     IR::Instr *instr;
     IR::LabelInstr *labelBailOut = nullptr;
     IR::LabelInstr *labelDone = nullptr;
@@ -6360,19 +6360,19 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
         propertySymOpnd->GetGuardedPropOps() ? propertySymOpnd->GetGuardedPropOps()->Count() : 0);
 
     if (emitPrimaryTypeCheck || emitFixedFieldTypeCheck)
-    {
+    {TRACE_IT(11388);
         labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if(emitFixedFieldTypeCheck && propertySymOpnd->IsRootObjectNonConfigurableFieldLoad())
-        {
+        {TRACE_IT(11389);
             AssertMsg(!propertySymOpnd->GetGuardedPropOps() || propertySymOpnd->GetGuardedPropOps()->IsEmpty(), "This property Guard is used only for one property");
             //We need only cheaper Guard check, if the property belongs to the GlobalObject.
             GenerateFixedFieldGuardCheck(instrChkFld, propertySymOpnd, labelBailOut);
         }
         else
-        {
+        {TRACE_IT(11390);
             if (emitFixedFieldTypeCheck)
-            {
+            {TRACE_IT(11391);
                 propertySymOpnd->EnsureGuardedPropOps(this->m_func->m_alloc);
                 propertySymOpnd->SetGuardedPropOp(propertySymOpnd->GetObjTypeSpecFldId());
             }
@@ -6385,9 +6385,9 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     // primary type check and here. Note that we don't need a type check, because we know the fixed field exists on the
     // object even if it has been written since primary type check, but we need to verify the fixed value didn't get overwritten.
     if (!emitPrimaryTypeCheck && !emitFixedFieldTypeCheck && !propertySymOpnd->IsWriteGuardChecked())
-    {
+    {TRACE_IT(11392);
         if (!PHASE_OFF(Js::FixedFieldGuardCheckPhase, this->m_func))
-        {
+        {TRACE_IT(11393);
             Assert(labelBailOut == nullptr);
             labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
             GenerateFixedFieldGuardCheck(instrChkFld, propertySymOpnd, labelBailOut);
@@ -6403,7 +6403,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     // to access a fixed field from an instance that has been collected.
 
     if (!emitPrimaryTypeCheck && !emitFixedFieldTypeCheck && propertySymOpnd->IsWriteGuardChecked())
-    {
+    {TRACE_IT(11394);
         Assert(labelBailOut == nullptr);
         AssertMsg(!instrChkFld->HasBailOutInfo(), "Why does a direct fixed field check have bailout?");
         instrChkFld->Remove();
@@ -6422,7 +6422,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     Assert(instrChkFld->HasBailOutInfo());
 
     if (instrChkFld->GetBailOutInfo()->bailOutInstr != instrChkFld)
-    {
+    {TRACE_IT(11395);
         // Set the cache index in the bailout info so that the bailout code will write it into the
         // bailout record at runtime.
         instrChkFld->GetBailOutInfo()->polymorphicCacheIndex = inlineCacheIndex;
@@ -6437,7 +6437,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
 
 void
 Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
-{
+{TRACE_IT(11396);
     Assert(instrChkObjType->GetSrc1()->IsSymOpnd() && instrChkObjType->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd());
     IR::PropertySymOpnd *propertySymOpnd = instrChkObjType->GetSrc1()->AsPropertySymOpnd();
 
@@ -6475,7 +6475,7 @@ Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
     Assert(instrChkObjType->HasBailOutInfo());
 
     if (instrChkObjType->GetBailOutInfo()->bailOutInstr != instrChkObjType)
-    {
+    {TRACE_IT(11397);
         // Set the cache index in the bailout info so that the bailout code will write it into the
         // bailout record at runtime.
         instrChkObjType->GetBailOutInfo()->polymorphicCacheIndex = inlineCacheIndex;
@@ -6488,7 +6488,7 @@ Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
 
 void
 Lowerer::LowerAdjustObjType(IR::Instr * instrAdjustObjType)
-{
+{TRACE_IT(11398);
     IR::AddrOpnd *finalTypeOpnd = instrAdjustObjType->UnlinkDst()->AsAddrOpnd();
     IR::AddrOpnd *initialTypeOpnd = instrAdjustObjType->UnlinkSrc2()->AsAddrOpnd();
     IR::RegOpnd  *baseOpnd = instrAdjustObjType->UnlinkSrc1()->AsRegOpnd();
@@ -6507,14 +6507,14 @@ Lowerer::LowerAdjustObjType(IR::Instr * instrAdjustObjType)
 
 bool
 Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
-{
+{TRACE_IT(11399);
     if (!instrLdFld->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {TRACE_IT(11400);
         return false;
     }
     IR::PropertySymOpnd *propertySymOpnd = instrLdFld->GetSrc1()->AsPropertySymOpnd();
     if (!propertySymOpnd->IsRootObjectNonConfigurableFieldLoad())
-    {
+    {TRACE_IT(11401);
         return false;
     }
 
@@ -6523,7 +6523,7 @@ Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
     IR::Opnd * srcOpnd;
     intptr_t rootObject = this->m_func->GetJITFunctionBody()->GetRootObject();
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {TRACE_IT(11402);
         IR::RegOpnd * auxSlotOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         this->InsertMove(auxSlotOpnd, IR::MemRefOpnd::New((byte *)rootObject + Js::DynamicObject::GetOffsetOfAuxSlots(),
                 TyMachPtr, this->m_func), instrLdFld);
@@ -6532,7 +6532,7 @@ Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
             TyVar, this->m_func);
     }
     else
-    {
+    {TRACE_IT(11403);
         srcOpnd = IR::MemRefOpnd::New((Js::Var *)rootObject + propertySymOpnd->GetSlotIndex(),
             TyVar, this->m_func);
     }
@@ -6544,13 +6544,13 @@ Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
 
 IR::Instr *
 Lowerer::LowerDelFld(IR::Instr *delFldInstr, IR::JnHelperMethod helperMethod, bool useInlineCache, bool strictMode)
-{
+{TRACE_IT(11404);
     IR::Instr *instrPrev;
 
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {TRACE_IT(11405);
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -6563,7 +6563,7 @@ Lowerer::LowerDelFld(IR::Instr *delFldInstr, IR::JnHelperMethod helperMethod, bo
 
 IR::Instr *
 Lowerer::LowerIsInst(IR::Instr * isInstInstr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11406);
     IR::Instr * instrPrev;
     IR::Instr * instrArg;
     IR::RegOpnd * argOpnd;
@@ -6604,7 +6604,7 @@ Lowerer::LowerIsInst(IR::Instr * isInstInstr, IR::JnHelperMethod helperMethod)
 
 void
 Lowerer::GenerateStackScriptFunctionInit(StackSym * stackSym, Js::FunctionInfoPtrPtr nestedInfo)
-{
+{TRACE_IT(11407);
     Func * func = this->m_func;
     Assert(func->HasAnyStackNestedFunc());
     Assert(nextStackFunctionOpnd);
@@ -6628,7 +6628,7 @@ Lowerer::GenerateStackScriptFunctionInit(StackSym * stackSym, Js::FunctionInfoPt
 void
 Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddressOpnd,
     Js::FunctionInfoPtrPtr nestedInfo, IR::Opnd * envOpnd, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(11408);
     Func * func = this->m_func;
 
     IR::Opnd * functionInfoOpnd = IR::RegOpnd::New(TyMachPtr, func);
@@ -6668,7 +6668,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
 
 void
 Lowerer::GenerateStackScriptFunctionInit(IR::RegOpnd * regOpnd, Js::FunctionInfoPtrPtr nestedInfo, IR::Opnd * envOpnd, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(11409);
     Func * func = this->m_func;
     GenerateScriptFunctionInit(regOpnd,
         LoadVTableValueOpnd(insertBeforeInstr, VTableValue::VtableStackScriptFunction),
@@ -6679,7 +6679,7 @@ Lowerer::GenerateStackScriptFunctionInit(IR::RegOpnd * regOpnd, Js::FunctionInfo
 
 void
 Lowerer::EnsureStackFunctionListStackSym()
-{
+{TRACE_IT(11410);
     Func * func = this->m_func;
     Assert(func->HasAnyStackNestedFunc());
 #if defined(_M_IX86) || defined(_M_X64)
@@ -6696,14 +6696,14 @@ Lowerer::EnsureStackFunctionListStackSym()
 
 void
 Lowerer::AllocStackClosure()
-{
+{TRACE_IT(11411);
     m_func->StackAllocate(m_func->GetLocalFrameDisplaySym(), sizeof(Js::Var));
     m_func->StackAllocate(m_func->GetLocalClosureSym(), sizeof(Js::Var));
 }
 
 void
 Lowerer::EnsureZeroLastStackFunctionNext()
-{
+{TRACE_IT(11412);
     Assert(nextStackFunctionOpnd != nullptr);
     Func * func = this->m_func;
     IR::Instr * insertBeforeInstr = func->GetFunctionEntryInsertionPoint();
@@ -6712,7 +6712,7 @@ Lowerer::EnsureZeroLastStackFunctionNext()
 
 IR::Instr *
 Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnvOpnd)
-{
+{TRACE_IT(11413);
     Assert(newScFuncInstr->m_func->DoStackNestedFunc());
     Func * func = newScFuncInstr->m_func;
     uint index = newScFuncInstr->GetSrc1()->AsIntConstOpnd()->AsUint32();
@@ -6729,7 +6729,7 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
     IR::Instr * instrAssignDst;
     IR::RegOpnd * envOpnd = *ppEnvOpnd;
     if (!func->IsLoopBody())
-    {
+    {TRACE_IT(11414);
         // the stackAllocate Call below for this sym is passing a size that is not represented by any IRType and hence passing TyMisc for the constructor
         StackSym * stackSym = StackSym::New(TyMisc, func);
         // ScriptFunction and it's next pointer
@@ -6744,7 +6744,7 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
             InsertLea(newScFuncInstr->GetDst()->AsRegOpnd(), IR::SymOpnd::New(stackSym, TyMachPtr, func), newScFuncInstr);
     }
     else
-    {
+    {TRACE_IT(11415);
         Assert(func->IsTopFunc());
         Assert(func->m_loopParamSym);
 
@@ -6758,7 +6758,7 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
         envDefInstr->Remove();
 
         if (index != 0)
-        {
+        {TRACE_IT(11416);
             IR::RegOpnd * opnd = IR::RegOpnd::New(TyVar, func);
             InsertAdd(false, opnd, opndFuncPtr, IR::IntConstOpnd::New(index * sizeof(Js::StackScriptFunction), TyMachPtr, func), newScFuncInstr);
             opndFuncPtr = opnd;
@@ -6780,12 +6780,12 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
 
 IR::Instr *
 Lowerer::LowerNewScFunc(IR::Instr * newScFuncInstr)
-{
+{TRACE_IT(11417);
     IR::Instr *stackNewScFuncInstr = nullptr;
     IR::RegOpnd * envOpnd = newScFuncInstr->UnlinkSrc2()->AsRegOpnd();
 
     if (newScFuncInstr->m_func->DoStackNestedFunc())
-    {
+    {TRACE_IT(11418);
         stackNewScFuncInstr = GenerateNewStackScFunc(newScFuncInstr, &envOpnd);
     }
 
@@ -6799,7 +6799,7 @@ Lowerer::LowerNewScFunc(IR::Instr * newScFuncInstr)
 
 IR::Instr *
 Lowerer::LowerNewScGenFunc(IR::Instr * newScFuncInstr)
-{
+{TRACE_IT(11419);
     IR::IntConstOpnd * functionBodySlotOpnd = newScFuncInstr->UnlinkSrc1()->AsIntConstOpnd();
     IR::RegOpnd * envOpnd = newScFuncInstr->UnlinkSrc2()->AsRegOpnd();
 
@@ -6819,12 +6819,12 @@ Lowerer::LowerNewScGenFunc(IR::Instr * newScFuncInstr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache)
-{
+{TRACE_IT(11420);
     IR::Opnd *src;
     IR::Instr *instrPrev = ldFldInstr->m_prev;
 
     if(!withInlineCache)
-    {
+    {TRACE_IT(11421);
         LoadScriptContext(ldFldInstr);
     }
 
@@ -6837,7 +6837,7 @@ Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMetho
     this->LoadPropertySymAsArgument(ldFldInstr, src);
 
     if (withInlineCache)
-    {
+    {TRACE_IT(11422);
         AssertMsg(src->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
 
         m_lowererMD.LoadHelperArgument(
@@ -6864,7 +6864,7 @@ Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMetho
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerScopedLdInst(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11423);
     IR::Opnd *src;
     IR::Instr *instrPrev;
 
@@ -6903,13 +6903,13 @@ Lowerer::LowerScopedLdInst(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 
 IR::Instr *
 Lowerer::LowerScopedDelFld(IR::Instr * delFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache, bool strictMode)
-{
+{TRACE_IT(11424);
     IR::Instr *instrPrev;
 
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {TRACE_IT(11425);
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -6922,7 +6922,7 @@ Lowerer::LowerScopedDelFld(IR::Instr * delFldInstr, IR::JnHelperMethod helperMet
 
 IR::Instr *
 Lowerer::LowerProfiledStFld(IR::JitProfilingInstr *stFldInstr, Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(11426);
     Assert(stFldInstr->profileId == Js::Constants::NoProfileId);
 
     IR::Instr *const instrPrev = stFldInstr->m_prev;
@@ -6955,7 +6955,7 @@ Lowerer::LowerProfiledStFld(IR::JitProfilingInstr *stFldInstr, Js::PropertyOpera
     m_lowererMD.LoadHelperArgument(stFldInstr, IR::Opnd::CreateFramePointerOpnd(m_func));
 
     if (stFldInstr->m_opcode == Js::OpCode::StSuperFld)
-    {
+    {TRACE_IT(11427);
         m_lowererMD.LoadHelperArgument(stFldInstr, stFldInstr->UnlinkSrc2());
     }
 
@@ -7009,9 +7009,9 @@ Lowerer::LowerStFld(
     bool isHelper,
     bool withPutFlags,
     Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(11428);
     if (stFldInstr->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11429);
         // If we want to profile then do something completely different
         return this->LowerProfiledStFld(stFldInstr->AsJitProfilingInstr(), flags);
     }
@@ -7023,16 +7023,16 @@ Lowerer::LowerStFld(
 
     IR::Opnd * inlineCacheOpnd = nullptr;
     if (withInlineCache)
-    {
+    {TRACE_IT(11430);
         AssertMsg(dst->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
         if (dst->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache && polymorphicHelperMethod != helperMethod)
-        {
+        {TRACE_IT(11431);
             JITTimePolymorphicInlineCache * polymorphicInlineCache = dst->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache;
             helperMethod = polymorphicHelperMethod;
             inlineCacheOpnd = IR::AddrOpnd::New(polymorphicInlineCache->GetAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func);
         }
         else
-        {
+        {TRACE_IT(11432);
             // Need to load runtime inline cache opnd first before loading any helper argument
             // because LoadRuntimeInlineCacheOpnd may create labels marked as helper
             // and cause op helper register push/pop save in x86, messing up with any helper arguments that is already pushed
@@ -7040,14 +7040,14 @@ Lowerer::LowerStFld(
         }
     }
     if (withPutFlags)
-    {
+    {TRACE_IT(11433);
         m_lowererMD.LoadHelperArgument(stFldInstr,
             IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     }
 
     IR::Opnd *src = stFldInstr->UnlinkSrc1();
     if (stFldInstr->m_opcode == Js::OpCode::StSuperFld)
-    {
+    {TRACE_IT(11434);
         m_lowererMD.LoadHelperArgument(stFldInstr, stFldInstr->UnlinkSrc2());
     }
 
@@ -7056,7 +7056,7 @@ Lowerer::LowerStFld(
     this->LoadPropertySymAsArgument(stFldInstr, dst);
 
     if (withInlineCache)
-    {
+    {TRACE_IT(11435);
         Assert(inlineCacheOpnd != nullptr);
         this->m_lowererMD.LoadHelperArgument(
             stFldInstr,
@@ -7074,9 +7074,9 @@ Lowerer::LowerStFld(
 
 IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, IR::JnHelperMethod monoHelperAfterFastPath, IR::JnHelperMethod polyHelperAfterFastPath,
     IR::JnHelperMethod monoHelperWithoutFastPath, IR::JnHelperMethod polyHelperWithoutFastPath, bool withPutFlags, Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(11436);
     if(instr->CallsAccessor() && instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11437);
         IR::BailOutKind kindMinusBits = instr->GetBailOutKind() & ~IR::BailOutKindBits;
         Assert(kindMinusBits != IR::BailOutOnImplicitCalls && kindMinusBits != IR::BailOutOnImplicitCallsPreOp);
     }
@@ -7088,30 +7088,30 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
     bool isHelper = false;
     IR::RegOpnd* typeOpnd = nullptr;
     if(emitFastPath && GenerateFastStFldForCustomProperty(instr, &labelHelper))
-    {
+    {TRACE_IT(11438);
         if(labelHelper)
-        {
+        {TRACE_IT(11439);
             Assert(labelHelper->isOpHelper);
             instr->InsertBefore(labelHelper);
             prevInstr = this->LowerStFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, true, labelBailOut, isHelper, withPutFlags, flags);
         }
         else
-        {
+        {TRACE_IT(11440);
             instr->Remove();
             return prevInstr;
         }
     }
     else if (this->GenerateStFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd))
-    {
+    {TRACE_IT(11441);
         Assert(labelHelper == nullptr);
         return prevInstr;
     }
     else if (emitFastPath)
     {
         if (!GenerateFastStFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, &labelBailOut, typeOpnd, &isHelper, &labelHelper, withPutFlags, flags))
-        {
+        {TRACE_IT(11442);
             if (labelHelper != nullptr)
-            {
+            {TRACE_IT(11443);
                 labelHelper->isOpHelper = isHelper;
                 instr->InsertBefore(labelHelper);
             }
@@ -7119,9 +7119,9 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
         }
     }
     else
-    {
+    {TRACE_IT(11444);
         if (labelHelper != nullptr)
-        {
+        {TRACE_IT(11445);
             labelHelper->isOpHelper = isHelper;
             instr->InsertBefore(labelHelper);
         }
@@ -7133,7 +7133,7 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
 
 void
 Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* propertySymOpnd)
-{
+{TRACE_IT(11446);
     Func* func = instrStFld->m_func;
 
     IR::Opnd *opndSlotArray = this->LoadSlotArrayWithCachedLocalType(instrStFld, propertySymOpnd);
@@ -7144,12 +7144,12 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
 
 #if defined(RECYCLER_WRITE_BARRIER_JIT) && (defined(_M_IX86) || defined(_M_AMD64))
     if (opndSlotArray->IsRegOpnd())
-    {
+    {TRACE_IT(11447);
         IR::IndirOpnd * opndDst = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, func);
         this->GetLowererMD()->GenerateWriteBarrierAssign(opndDst, instrStFld->GetSrc1(), instrStFld);
     }
     else
-    {
+    {TRACE_IT(11448);
         Assert(opndSlotArray->IsMemRefOpnd());
         IR::MemRefOpnd * opndDst = IR::MemRefOpnd::New((char*)opndSlotArray->AsMemRefOpnd()->GetMemLoc() + (index * sizeof(Js::Var)), TyMachReg, func);
         this->GetLowererMD()->GenerateWriteBarrierAssign(opndDst, instrStFld->GetSrc1(), instrStFld);
@@ -7158,11 +7158,11 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
     IR::Opnd *opnd;
 
     if (opndSlotArray->IsRegOpnd())
-    {
+    {TRACE_IT(11449);
         opnd = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, func);
     }
     else
-    {
+    {TRACE_IT(11450);
         opnd = IR::MemRefOpnd::New((char*)opndSlotArray->AsMemRefOpnd()->GetMemLoc() + (index * sizeof(Js::Var)), TyMachReg, func);
     }
 
@@ -7172,7 +7172,7 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
 
 bool
 Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelperOut, IR::LabelInstr** labelHelperOut, IR::RegOpnd** typeOpndOut)
-{
+{TRACE_IT(11451);
     IR::Instr *instr;
     IR::RegOpnd *typeOpnd = nullptr;
     IR::LabelInstr* labelObjCheckFailed  = nullptr;
@@ -7191,7 +7191,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
 
     Assert(instrStFld->GetDst()->IsSymOpnd());
     if (!instrStFld->GetDst()->AsSymOpnd()->IsPropertySymOpnd() || !instrStFld->GetDst()->AsPropertySymOpnd()->IsTypeCheckSeqCandidate())
-    {
+    {TRACE_IT(11452);
         return false;
     }
 
@@ -7204,12 +7204,12 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     AssertMsg(propertySymOpnd->TypeCheckSeqBitsSetOnlyIfCandidate(), "Property sym operand optimized despite not being a candidate?");
 
     if (!propertySymOpnd->IsTypeCheckSeqCandidate())
-    {
+    {TRACE_IT(11453);
         return false;
     }
 
     if (!propertySymOpnd->IsTypeCheckSeqParticipant() && !propertySymOpnd->NeedsLocalTypeCheck())
-    {
+    {TRACE_IT(11454);
         return false;
     }
 
@@ -7230,7 +7230,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
         propertySymOpnd->IsTypeChecked() ? _u("true") : _u("false"));
 
     if (propertySymOpnd->HasFinalType() && !propertySymOpnd->IsLoadedFromProto())
-    {
+    {TRACE_IT(11455);
         propertySymOpnd->UpdateSlotForFinalType();
     }
 
@@ -7244,18 +7244,18 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     // If the type hasn't been checked upstream, see if it makes sense to check it here.
     bool isTypeChecked = propertySymOpnd->IsTypeChecked();
     if (!isTypeChecked)
-    {
+    {TRACE_IT(11456);
         // If the initial type has been checked, we can do a hard coded type transition without any type checks
         // (see GenerateStFldWithCachedFinalType), which is always worth doing, even if the type is not needed
         // downstream.  We're not introducing any additional bailouts.
         if (propertySymOpnd->HasFinalType() && propertySymOpnd->HasInitialType() && !propertySymOpnd->IsTypeDead())
-        {
+        {TRACE_IT(11457);
             // We have a final type in hand, so we can JIT (most of) the type transition work.
             return this->GenerateStFldWithCachedFinalType(instrStFld, propertySymOpnd);
         }
 
         if (propertySymOpnd->HasTypeMismatch())
-        {
+        {TRACE_IT(11458);
             // So we have a type mismatch, which happens when the type (and the type without property if ObjTypeSpecStore
             // is on) on this instruction didn't match the live type value according to the flow. We must have hit some
             // stale inline cache (perhaps inlined from a different function, or on a code path not taken for a while).
@@ -7286,7 +7286,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     // If we are protected by a type check upstream, we don't need a bailout or helper here, delete the instruction
     // and return "true" to indicate that we succeeded in eliminating it.
     if (isTypeChecked)
-    {
+    {TRACE_IT(11459);
         Assert(labelTypeCheckFailed == nullptr && labelBothTypeChecksFailed == nullptr);
         AssertMsg(!instrStFld->HasBailOutInfo(), "Why does a direct field store have bailout?");
         instrStFld->Remove();
@@ -7320,18 +7320,18 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     instrStFld->InsertAfter(labelDone);
 
     if (hasTypeCheckBailout)
-    {
+    {TRACE_IT(11460);
         AssertMsg(PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) || !propertySymOpnd->IsTypeDead(),
             "Why does a field store have a type check bailout, if its type is dead?");
 
         if (instrStFld->GetBailOutInfo()->bailOutInstr != instrStFld)
-        {
+        {TRACE_IT(11461);
             // Set the cache index in the bailout info so that the generated code will write it into the
             // bailout record at runtime.
             instrStFld->GetBailOutInfo()->polymorphicCacheIndex = propertySymOpnd->m_inlineCacheIndex;
         }
         else
-        {
+        {TRACE_IT(11462);
             Assert(instrStFld->GetBailOutInfo()->polymorphicCacheIndex == propertySymOpnd->m_inlineCacheIndex);
         }
 
@@ -7343,7 +7343,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
         return true;
     }
     else
-    {
+    {TRACE_IT(11463);
         *continueAsHelperOut = true;
         Assert(labelObjCheckFailed != nullptr && labelObjCheckFailed != labelBothTypeChecksFailed);
         *labelHelperOut = labelObjCheckFailed;
@@ -7353,7 +7353,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
 
 IR::RegOpnd *
 Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr* labelObjCheckFailed, IR::LabelInstr *labelTypeCheckFailed, IR::LabelInstr *labelSecondChance)
-{
+{TRACE_IT(11464);
     Assert(propertySymOpnd->MayNeedTypeCheckProtection());
 
     Func* func = instrChk->m_func;
@@ -7361,7 +7361,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     regOpnd->SetValueType(propertySymOpnd->GetPropertyOwnerValueType());
 
     if (!regOpnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(11465);
         m_lowererMD.GenerateObjectTest(regOpnd, instrChk, labelObjCheckFailed);
     }
 
@@ -7385,16 +7385,16 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
         (Js::PropertyGuard*)CreateTypePropertyGuardForGuardedProperties(type, propertySymOpnd);
 
     if (typeCheckGuard == nullptr)
-    {
+    {TRACE_IT(11466);
         Assert(type != nullptr);
         expectedTypeOpnd = IR::AddrOpnd::New(type->GetAddr(), IR::AddrOpndKindDynamicType, func, true);
     }
     else
-    {
+    {TRACE_IT(11467);
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
 
         if (this->m_func->IsOOPJIT())
-        {
+        {TRACE_IT(11468);
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typeCheckGuard);
             expectedTypeOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), typeCheckGuardOffset, TyMachPtr,
 #if DBG
@@ -7404,24 +7404,24 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
             this->addToLiveOnBackEdgeSyms->Set(func->GetTopFunc()->GetNativeCodeDataSym()->m_id);
         }
         else
-        {
+        {TRACE_IT(11469);
             expectedTypeOpnd = IR::MemRefOpnd::New((void*)(typeCheckGuard->GetAddressOfValue()), TyMachPtr, func, IR::AddrOpndKindDynamicGuardValueRef);
         }
         emitDirectCheck = false;
     }
 
     if (PHASE_VERBOSE_TRACE(Js::ObjTypeSpecPhase, this->m_func))
-    {
+    {TRACE_IT(11470);
         OUTPUT_VERBOSE_TRACE_FUNC(Js::ObjTypeSpecPhase, this->m_func, _u("Emitted %s type check for type 0x%p"),
             emitDirectCheck ? _u("direct") : propertySymOpnd->IsPoly() ? _u("equivalent") : _u("indirect"), type);
 #if DBG
         if (propertySymOpnd->GetGuardedPropOps() != nullptr)
-        {
+        {TRACE_IT(11471);
             Output::Print(_u(" guarding operations:\n    "));
             propertySymOpnd->GetGuardedPropOps()->Dump();
         }
         else
-        {
+        {TRACE_IT(11472);
             Output::Print(_u("\n"));
         }
 #else
@@ -7433,18 +7433,18 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     IR::RegOpnd* typeOpnd = IR::RegOpnd::New(TyMachReg, func);
     IR::Opnd *sourceType;
     if (regOpnd->m_sym->IsConst() && !regOpnd->m_sym->IsIntConst() && !regOpnd->m_sym->IsFloatConst())
-    {
+    {TRACE_IT(11473);
         sourceType = IR::MemRefOpnd::New((BYTE*)regOpnd->m_sym->GetConstAddress() +
             Js::RecyclableObject::GetOffsetOfType(), TyMachReg, func, IR::AddrOpndKindDynamicObjectTypeRef);
     }
     else
-    {
+    {TRACE_IT(11474);
         sourceType = IR::IndirOpnd::New(regOpnd, Js::RecyclableObject::GetOffsetOfType(), TyMachReg, func);
     }
     m_lowererMD.CreateAssign(typeOpnd, sourceType, instrChk);
 
     if (doEquivTypeCheck)
-    {
+    {TRACE_IT(11475);
         // TODO (ObjTypeSpec): For isolated equivalent type checks it would be good to emit a check if the cache is still valid, and
         // if not go straight to live polymorphic cache.  This way we wouldn't have to bail out and re-JIT, and also wouldn't continue
         // to try the equivalent type cache, miss it and do the slow comparison. This may be as easy as sticking a null on the main
@@ -7459,7 +7459,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
 
         IR::Opnd* typeCheckGuardOpnd = nullptr;
         if (this->m_func->IsOOPJIT())
-        {
+        {TRACE_IT(11476);
             typeCheckGuardOpnd = IR::RegOpnd::New(TyMachPtr, func);
 
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typeCheckGuard);
@@ -7475,7 +7475,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
             this->addToLiveOnBackEdgeSyms->Set(func->GetTopFunc()->GetNativeCodeDataSym()->m_id);
         }
         else
-        {
+        {TRACE_IT(11477);
             typeCheckGuardOpnd = IR::AddrOpnd::New((Js::Var)typeCheckGuard, IR::AddrOpndKindDynamicTypeCheckGuard, func, true);
         }
 
@@ -7517,11 +7517,11 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
 
 void
 Lowerer::PinTypeRef(JITTypeHolder type, void* typeRef, IR::Instr* instr, Js::PropertyId propertyId)
-{
+{TRACE_IT(11478);
     this->m_func->PinTypeRef(typeRef);
 
     if (PHASE_TRACE(Js::TracePinnedTypesPhase, this->m_func))
-    {
+    {TRACE_IT(11479);
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("PinnedTypes: function %s(%s) instr %s property ID %u pinned %s reference 0x%p to type 0x%p.\n"),
             this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7533,7 +7533,7 @@ Lowerer::PinTypeRef(JITTypeHolder type, void* typeRef, IR::Instr* instr, Js::Pro
 
 void
 Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, IR::Opnd *typeOpnd, IR::LabelInstr *labelTypeCheckFailed)
-{
+{TRACE_IT(11480);
     Assert(propertySymOpnd->IsMonoObjTypeSpecCandidate());
     Assert(propertySymOpnd->HasInitialType());
 
@@ -7543,11 +7543,11 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
     Assert(Js::DynamicType::Is(typeWithoutProperty->GetTypeId()));
 
     if (typeOpnd == nullptr)
-    {
+    {TRACE_IT(11481);
         // No opnd holding the type was passed in, so we have to load the type here.
         IR::RegOpnd *baseOpnd = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
         if (!baseOpnd->IsNotTaggedValue())
-        {
+        {TRACE_IT(11482);
             m_lowererMD.GenerateObjectTest(baseOpnd, instrInsert, labelTypeCheckFailed);
         }
         IR::Opnd *opnd = IR::IndirOpnd::New(baseOpnd, Js::RecyclableObject::GetOffsetOfType(), TyMachReg, this->m_func);
@@ -7560,14 +7560,14 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
     IR::Opnd *expectedTypeOpnd;
 
     if (typePropertyGuard)
-    {
+    {TRACE_IT(11483);
         bool emitDirectCheck = true;
 
         Assert(typePropertyGuard != nullptr);
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
 
         if (this->m_func->IsOOPJIT())
-        {
+        {TRACE_IT(11484);
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typePropertyGuard);
             expectedTypeOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), typeCheckGuardOffset, TyMachPtr,
 #if DBG
@@ -7578,7 +7578,7 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
             this->addToLiveOnBackEdgeSyms->Set(m_func->GetTopFunc()->GetNativeCodeDataSym()->m_id);
         }
         else
-        {
+        {TRACE_IT(11485);
             expectedTypeOpnd = IR::MemRefOpnd::New((void*)(typePropertyGuard->GetAddressOfValue()), TyMachPtr, this->m_func, IR::AddrOpndKindDynamicGuardValueRef);
         }
 
@@ -7588,7 +7588,7 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
             emitDirectCheck ? _u("direct") : _u("indirect"), typeWithoutProperty->GetAddr());
     }
     else
-    {
+    {TRACE_IT(11486);
         expectedTypeOpnd = IR::AddrOpnd::New(typeWithoutProperty->GetAddr(), IR::AddrOpndKindDynamicType, m_func, true);
     }
 
@@ -7607,14 +7607,14 @@ Lowerer::GenerateFixedFieldGuardCheck(IR::Instr *insertPointInstr, IR::PropertyS
 
 Js::JitTypePropertyGuard*
 Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::PropertySymOpnd* propertySymOpnd)
-{
+{TRACE_IT(11487);
     // We should always have a list of guarded properties.
     Assert(propertySymOpnd->GetGuardedPropOps() != nullptr);
 
     Js::JitTypePropertyGuard* guard = nullptr;
 
     if (m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {TRACE_IT(11488);
         // Consider (ObjTypeSpec): Because we allocate these guards from the JIT thread we can't share guards for the same type across multiple functions.
         // This leads to proliferation of property guards on the thread context.  The alternative would be to pre-allocate shared (by value) guards
         // from the thread context during work item creation.  We would create too many of them (because some types aren't actually used as guards),
@@ -7623,18 +7623,18 @@ Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::Pro
         LinkGuardToGuardedProperties(propertySymOpnd->GetGuardedPropOps(), [this, type, &guard](Js::PropertyId propertyId)
         {
             if (DoLazyFixedTypeBailout(this->m_func))
-            {
+            {TRACE_IT(11489);
                 this->m_func->lazyBailoutProperties.Item(propertyId);
             }
             else
-            {
+            {TRACE_IT(11490);
                 if (guard == nullptr)
-                {
+                {TRACE_IT(11491);
                     guard = this->m_func->GetOrCreateSingleTypeGuard(type->GetAddr());
                 }
 
                 if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-                {
+                {TRACE_IT(11492);
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("ObjTypeSpec: function %s(%s) registered guard 0x%p with value 0x%p for property ID %u.\n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7653,18 +7653,18 @@ Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::Pro
 
 Js::JitEquivalentTypeGuard*
 Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type, IR::PropertySymOpnd* propertySymOpnd)
-{
+{TRACE_IT(11493);
     // We should always have a list of guarded properties.
     Assert(propertySymOpnd->HasObjTypeSpecFldInfo() && propertySymOpnd->HasEquivalentTypeSet() && propertySymOpnd->GetGuardedPropOps());
 
     Js::JitEquivalentTypeGuard* guard = this->m_func->CreateEquivalentTypeGuard(type, propertySymOpnd->GetObjTypeSpecFldId());
 
     if (m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {TRACE_IT(11494);
         LinkGuardToGuardedProperties(propertySymOpnd->GetGuardedPropOps(), [=](Js::PropertyId propertyId)
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-            {
+            {TRACE_IT(11495);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered equivalent type spec guard 0x%p with value 0x%p for property ID %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7689,7 +7689,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
     Js::EquivalentTypeSet* typeSet = propertySymOpnd->GetEquivalentTypeSet();
     uint16 cachedTypeCount = typeSet->GetCount() < EQUIVALENT_TYPE_CACHE_SIZE ? typeSet->GetCount() : EQUIVALENT_TYPE_CACHE_SIZE;
     for (uint16 ti = 0; ti < cachedTypeCount; ti++)
-    {
+    {TRACE_IT(11496);
         cache->types[ti] = (Js::Type*)typeSet->GetType(ti)->GetAddr();
     }
 
@@ -7707,22 +7707,22 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
     uint propIdCount = 0;
 
     FOREACH_BITSET_IN_SPARSEBV(propOpId, propOps)
-    {
+    {TRACE_IT(11497);
         JITObjTypeSpecFldInfo* propOpInfo = this->m_func->GetGlobalObjTypeSpecFldInfo(propOpId);
         Js::PropertyId propertyId = propOpInfo->GetPropertyId();
         Js::PropertyIndex propOpIndex = Js::Constants::NoSlot;
         bool hasFixedValue = propOpInfo->HasFixedValue();
         if (hasFixedValue)
-        {
+        {TRACE_IT(11498);
             cache->SetHasFixedValue();
         }
         bool isLoadedFromProto = propOpInfo->IsLoadedFromProto();
         if (isLoadedFromProto)
-        {
+        {TRACE_IT(11499);
             cache->SetIsLoadedFromProto();
         }
         else
-        {
+        {TRACE_IT(11500);
             propOpIndex = propOpInfo->GetSlotIndex();
         }
         bool propOpUsesAuxSlot = propOpInfo->UsesAuxSlot();
@@ -7731,19 +7731,19 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
 
         Js::EquivalentPropertyEntry* entry;
         if (propIds.TryGetValue(propertyId, &entry))
-        {
+        {TRACE_IT(11501);
             if (propOpIndex == entry->slotIndex && propOpUsesAuxSlot == entry->isAuxSlot)
-            {
+            {TRACE_IT(11502);
                 entry->mustBeWritable |= propOpInfo->IsBeingStored();
             }
             else
-            {
+            {TRACE_IT(11503);
                 // Due to inline cache sharing we have the same property accessed using different caches
                 // with inconsistent info. This means a guaranteed bailout on the equivalent type check.
                 // We'll just let it happen and turn off the optimization for this function. We could avoid
                 // this problem by tracking property information on the value type in glob opt.
                 if (PHASE_TRACE(Js::EquivObjTypeSpecPhase, this->m_func))
-                {
+                {TRACE_IT(11504);
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("EquivObjTypeSpec: top function %s (%s): duplicate property clash on %d \n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), m_func->GetDebugNumberSet(debugStringBuffer), propertyId);
@@ -7759,7 +7759,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
             }
         }
         else
-        {
+        {TRACE_IT(11505);
             Assert(propIdCount < propOpCount);
             __analysis_assume(propIdCount < propOpCount);
             entry = &properties[propIdCount++];
@@ -7783,22 +7783,22 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
 
 bool
 Lowerer::LinkCtorCacheToGuardedProperties(JITTimeConstructorCache* ctorCache)
-{
+{TRACE_IT(11506);
     // We do not always have guarded properties. If the constructor is empty and the subsequent code doesn't load or store any of
     // the constructed object's properties, or if all inline caches are empty then this ctor cache doesn't guard any properties.
     if (ctorCache->GetGuardedPropOps() == nullptr)
-    {
+    {TRACE_IT(11507);
         return false;
     }
 
     bool linked = false;
 
     if (this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {TRACE_IT(11508);
         linked = LinkGuardToGuardedProperties(ctorCache->GetGuardedPropOps(), [=](Js::PropertyId propertyId)
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-            {
+            {TRACE_IT(11509);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered ctor cache 0x%p with value 0x%p for property %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7816,14 +7816,14 @@ Lowerer::LinkCtorCacheToGuardedProperties(JITTimeConstructorCache* ctorCache)
 template<typename LinkFunc>
 bool
 Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guardedPropOps, LinkFunc link)
-{
+{TRACE_IT(11510);
     Assert(this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards());
     Assert(guardedPropOps != nullptr);
     bool linked = false;
 
     // For every entry in the bit vector, register the guard for the corresponding property ID.
     FOREACH_BITSET_IN_SPARSEBV(propertyOpId, guardedPropOps)
-    {
+    {TRACE_IT(11511);
         JITObjTypeSpecFldInfo* propertyOpInfo = this->m_func->GetGlobalObjTypeSpecFldInfo(propertyOpId);
         Js::PropertyId propertyId = propertyOpInfo->GetPropertyId();
 
@@ -7836,13 +7836,13 @@ Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guarded
         // AssertMsg(!propertyOpInfo->IsBeingAdded() || !isEquivalentTypeGuard, "Why do we have an equivalent type check protecting a property add?");
 
         if (propertyOpInfo->IsBeingAdded() || propertyOpInfo->IsLoadedFromProto() || propertyOpInfo->HasFixedValue())
-        {
+        {TRACE_IT(11512);
             // Equivalent object type spec only supports fixed fields on prototypes.  This is to simplify the slow type equivalence check.
             // See JavascriptOperators::CheckIfTypeIsEquivalent.
             Assert(!propertyOpInfo->IsPoly() || (!propertyOpInfo->HasFixedValue() || propertyOpInfo->IsLoadedFromProto() || propertyOpInfo->UsesAccessor()));
 
             if (this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuard(propertyId))
-            {
+            {TRACE_IT(11513);
                 link(propertyId);
                 linked = true;
             }
@@ -7859,26 +7859,26 @@ Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guarded
 
 void
 Lowerer::GeneratePropertyGuardCheck(IR::Instr *insertPointInstr, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr *labelBailOut)
-{
+{TRACE_IT(11514);
     intptr_t guard = propertySymOpnd->GetPropertyGuardValueAddr();
     Assert(guard != 0);
 
     if (!DoLazyFixedDataBailout(this->m_func))
-    {
+    {TRACE_IT(11515);
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
         IR::AddrOpnd* zeroOpnd = IR::AddrOpnd::NewNull(this->m_func);
         IR::MemRefOpnd* guardOpnd = IR::MemRefOpnd::New(guard, TyMachPtr, this->m_func, IR::AddrOpndKindDynamicGuardValueRef);
         InsertCompareBranch(guardOpnd, zeroOpnd, Js::OpCode::BrEq_A, labelBailOut, insertPointInstr);
     }
     else
-    {
+    {TRACE_IT(11516);
         this->m_func->lazyBailoutProperties.Item(propertySymOpnd->GetPropertyId());
     }
 }
 
 IR::Instr*
 Lowerer::GeneratePropertyGuardCheckBailoutAndLoadType(IR::Instr *insertInstr)
-{
+{TRACE_IT(11517);
     IR::Instr* instrPrev = insertInstr->m_prev;
 
     IR::Opnd* numberTypeOpnd = IR::AddrOpnd::New(insertInstr->m_func->GetScriptContextInfo()->GetNumberTypeStaticAddr(), IR::AddrOpndKindDynamicType, insertInstr->m_func);
@@ -7912,7 +7912,7 @@ Lowerer::GeneratePropertyGuardCheckBailoutAndLoadType(IR::Instr *insertInstr)
 
 void
 Lowerer::GenerateNonWritablePropertyCheck(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr *labelBailOut)
-{
+{TRACE_IT(11518);
     IR::Opnd *opnd;
     IR::Instr *instr;
 
@@ -7959,18 +7959,18 @@ Lowerer::GenerateNonWritablePropertyCheck(IR::Instr *instrInsert, IR::PropertySy
 
 void
 Lowerer::GenerateAdjustSlots(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{TRACE_IT(11519);
     IR::RegOpnd *baseOpnd = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
     bool adjusted = this->GenerateAdjustBaseSlots(instrInsert, baseOpnd, initialType, finalType);
     if (!adjusted)
-    {
+    {TRACE_IT(11520);
         baseOpnd->Free(m_func);
     }
 }
 
 bool
 Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{TRACE_IT(11521);
     // Possibly allocate new slot capacity to accommodate a type transition.
     AssertMsg(JITTypeHandler::IsTypeHandlerCompatibleForObjectHeaderInlining(initialType->GetTypeHandler(), finalType->GetTypeHandler()),
         "Incompatible typeHandler transition?");
@@ -7980,7 +7980,7 @@ Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, 
     Js::PropertyIndex newInlineSlotCapacity = finalType->GetTypeHandler()->GetInlineSlotCapacity();
 
     if (oldCount >= newCount || newCount <= inlineSlotCapacity)
-    {
+    {TRACE_IT(11522);
         // Already have enough slot capacity. Do nothing.
         return false;
     }
@@ -8013,7 +8013,7 @@ Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, 
 
 void
 Lowerer::GenerateFieldStoreWithTypeChange(IR::Instr * instrStFld, IR::PropertySymOpnd *propertySymOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{TRACE_IT(11523);
     // Adjust instance slots, if necessary.
     this->GenerateAdjustSlots(instrStFld, propertySymOpnd, initialType, finalType);
 
@@ -8035,7 +8035,7 @@ Lowerer::GenerateFieldStoreWithTypeChange(IR::Instr * instrStFld, IR::PropertySy
 
 bool
 Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySymOpnd *propertySymOpnd)
-{
+{TRACE_IT(11524);
     // This function tries to treat a sequence of add-property stores as a single type transition.
     Assert(propertySymOpnd == instrStFld->GetDst()->AsPropertySymOpnd());
     Assert(propertySymOpnd->IsMonoObjTypeSpecCandidate());
@@ -8064,7 +8064,7 @@ Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySy
     instrStFld->InsertBefore(instr);
 
     if (instrStFld->HasBailOutInfo())
-    {
+    {TRACE_IT(11525);
         Assert(labelBailOut != nullptr);
         instrStFld->InsertBefore(labelBailOut);
         instrStFld->InsertAfter(labelDone);
@@ -8073,7 +8073,7 @@ Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySy
         this->GenerateBailOut(instrStFld);
     }
     else
-    {
+    {TRACE_IT(11526);
         instrStFld->InsertAfter(labelDone);
         instrStFld->Remove();
     }
@@ -8089,17 +8089,17 @@ Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySy
 IR::Instr *
 Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache,
     bool withPropertyOperationFlags, Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(11527);
     IR::Instr *instrPrev = stFldInstr->m_prev;
 
     if (withPropertyOperationFlags)
-    {
+    {TRACE_IT(11528);
         m_lowererMD.LoadHelperArgument(stFldInstr,
             IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     }
 
     if(!withInlineCache)
-    {
+    {TRACE_IT(11529);
         LoadScriptContext(stFldInstr);
     }
 
@@ -8118,7 +8118,7 @@ Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMetho
     this->LoadPropertySymAsArgument(stFldInstr, dst);
 
     if (withInlineCache)
-    {
+    {TRACE_IT(11530);
         AssertMsg(dst->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
 
         m_lowererMD.LoadHelperArgument(
@@ -8143,14 +8143,14 @@ Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMetho
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerLoadVar(IR::Instr *instr, IR::Opnd *opnd)
-{
+{TRACE_IT(11531);
     instr->SetSrc1(opnd);
     return m_lowererMD.ChangeToAssign(instr);
 }
 
 IR::Instr *
 Lowerer::LoadHelperTemp(IR::Instr * instr, IR::Instr * instrInsert)
-{
+{TRACE_IT(11532);
     IR::Opnd *tempOpnd;
     IR::Opnd *dst = instr->GetDst();
     AssertMsg(dst != nullptr, "Always expect a dst for these.");
@@ -8168,40 +8168,40 @@ Lowerer::LoadHelperTemp(IR::Instr * instr, IR::Instr * instrInsert)
 
 void
 Lowerer::LoadArgumentCount(IR::Instr *const instr)
-{
+{TRACE_IT(11533);
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {TRACE_IT(11534);
         // Argument count including 'this'
         instr->SetSrc1(IR::IntConstOpnd::New(instr->m_func->actualCount, TyUint32, instr->m_func, true));
         LowererMD::ChangeToAssign(instr);
     }
     else if (instr->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(11535);
         IR::SymOpnd* symOpnd = LoadCallInfo(instr);
         instr->SetSrc1(symOpnd);
         LowererMD::ChangeToAssign(instr);
     }
     else
-    {
+    {TRACE_IT(11536);
         m_lowererMD.LoadArgumentCount(instr);
     }
 }
 
 void
 Lowerer::LoadStackArgPtr(IR::Instr *const instr)
-{
+{TRACE_IT(11537);
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {TRACE_IT(11538);
         // Address of argument after 'this'
         const auto firstRealArgStackSym = instr->m_func->GetInlineeArgvSlotOpnd()->m_sym->AsStackSym();
         this->m_func->SetArgOffset(firstRealArgStackSym, firstRealArgStackSym->m_offset + MachPtr);
@@ -8209,27 +8209,27 @@ Lowerer::LoadStackArgPtr(IR::Instr *const instr)
         LowererMD::ChangeToLea(instr);
     }
     else
-    {
+    {TRACE_IT(11539);
         m_lowererMD.LoadStackArgPtr(instr);
     }
 }
 
 void
 Lowerer::LoadArgumentsFromFrame(IR::Instr *const instr)
-{
+{TRACE_IT(11540);
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {TRACE_IT(11541);
         // Use the inline object meta arg slot for the arguments object
         instr->SetSrc1(instr->m_func->GetInlineeArgumentsObjectSlotOpnd());
         LowererMD::ChangeToAssign(instr);
     }
     else
-    {
+    {TRACE_IT(11542);
         m_lowererMD.LoadArgumentsFromFrame(instr);
     }
 }
@@ -8237,7 +8237,7 @@ Lowerer::LoadArgumentsFromFrame(IR::Instr *const instr)
 #ifdef ENABLE_WASM
 IR::Instr *
 Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
-{
+{TRACE_IT(11543);
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     Assert(instr->GetSrc1());
     Assert(instr->GetSrc2()->IsIntConstOpnd());
@@ -8250,7 +8250,7 @@ Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
 
     Wasm::WasmSignature * expectedSig = m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetWasmSignature(sigId);
     if (expectedSig->GetShortSig() == Js::Constants::InvalidSignature)
-    {
+    {TRACE_IT(11544);
         intptr_t sigAddr = m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetWasmSignatureAddr(sigId);
         IR::AddrOpnd * expectedOpnd = IR::AddrOpnd::New(sigAddr, IR::AddrOpndKindConstantAddress, m_func);
         m_lowererMD.LoadHelperArgument(instr, expectedOpnd);
@@ -8261,7 +8261,7 @@ Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
         m_lowererMD.ChangeToHelperCall(instr, IR::HelperOp_CheckWasmSignature);
     }
     else
-    {
+    {TRACE_IT(11545);
         IR::LabelInstr * trapLabel = InsertLabel(true, instr);
         IR::LabelInstr * labelFallThrough = InsertLabel(false, instr->m_next);
         IR::RegOpnd * actualRegOpnd = IR::RegOpnd::New(TyMachReg, m_func);
@@ -8284,7 +8284,7 @@ Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdWasmFunc(IR::Instr* instr)
-{
+{TRACE_IT(11546);
     IR::Instr * prev = instr->m_prev;
 
     IR::RegOpnd * tableReg = instr->UnlinkSrc1()->AsRegOpnd();
@@ -8299,11 +8299,11 @@ Lowerer::LowerLdWasmFunc(IR::Instr* instr)
     byte scale = m_lowererMD.GetDefaultIndirScale();
     IR::IndirOpnd * funcIndirOpnd;
     if (indexOpnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(11547);
         funcIndirOpnd = IR::IndirOpnd::New(valuesRegOpnd, indexOpnd->AsIntConstOpnd()->AsInt32() << scale, TyMachPtr, m_func);
     }
     else
-    {
+    {TRACE_IT(11548);
         Assert(indexOpnd->IsRegOpnd());
         funcIndirOpnd = IR::IndirOpnd::New(valuesRegOpnd, indexOpnd->AsRegOpnd(), TyMachPtr, m_func);
         funcIndirOpnd->SetScale(scale);
@@ -8330,7 +8330,7 @@ Lowerer::LowerLdWasmFunc(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerGrowWasmMemory(IR::Instr* instr)
-{
+{TRACE_IT(11549);
     IR::Instr * instrPrev = m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
 
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
@@ -8342,7 +8342,7 @@ Lowerer::LowerGrowWasmMemory(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerUnaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::Opnd* opndBailoutArg)
-{
+{TRACE_IT(11550);
     IR::Instr *instrPrev;
 
     IR::Opnd *src1 = instr->UnlinkSrc1();
@@ -8356,7 +8356,7 @@ Lowerer::LowerUnaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR:
 // helper takes memory context as second argument
 IR::Instr *
 Lowerer::LowerUnaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::Opnd* opndBailoutArg)
-{
+{TRACE_IT(11551);
     IR::Instr *instrPrev;
 
     instrPrev = LoadScriptContext(instr);
@@ -8366,21 +8366,21 @@ Lowerer::LowerUnaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod, 
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithFunctionInfo(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11552);
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionInfoOpnd(instr));
     return this->LowerUnaryHelperMem(instr, helperMethod);
 }
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11553);
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionBodyOpnd(instr));
     return this->LowerUnaryHelperMem(instr, helperMethod);
 }
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11554);
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg1Int2, "Expected a binary instruction...");
 
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionBodyOpnd(instr));
@@ -8389,17 +8389,17 @@ Lowerer::LowerBinaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod h
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11555);
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg2, "Expected a unary instruction...");
 
     IR::Instr * instrFirst;
     IR::Opnd * tempOpnd;
     if (instr->dstIsTempNumber)
-    {
+    {TRACE_IT(11556);
         instrFirst = this->LoadHelperTemp(instr, instr);
     }
     else
-    {
+    {TRACE_IT(11557);
         tempOpnd = IR::IntConstOpnd::New(0, TyInt32, this->m_func);
         instrFirst = m_lowererMD.LoadHelperArgument(instr, tempOpnd);
     }
@@ -8411,11 +8411,11 @@ Lowerer::LowerUnaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helper
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithTemp2(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::JnHelperMethod helperMethodWithTemp)
-{
+{TRACE_IT(11558);
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg2, "Expected a unary instruction...");
 
     if (instr->dstIsTempNumber)
-    {
+    {TRACE_IT(11559);
         IR::Instr * instrFirst = this->LoadHelperTemp(instr, instr);
         this->LowerUnaryHelperMem(instr, helperMethodWithTemp);
         return instrFirst;
@@ -8426,9 +8426,9 @@ Lowerer::LowerUnaryHelperMemWithTemp2(IR::Instr *instr, IR::JnHelperMethod helpe
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithBoolReference(IR::Instr *instr, IR::JnHelperMethod helperMethod, bool useBoolForBailout)
-{
+{TRACE_IT(11560);
     if (!this->m_func->tempSymBool)
-    {
+    {TRACE_IT(11561);
         this->m_func->tempSymBool = StackSym::New(TyUint8, this->m_func);
         this->m_func->StackAllocate(this->m_func->tempSymBool, TySize[TyUint8]);
     }
@@ -8443,7 +8443,7 @@ Lowerer::LowerUnaryHelperMemWithBoolReference(IR::Instr *instr, IR::JnHelperMeth
 
 IR::Instr *
 Lowerer::LowerInitCachedScope(IR::Instr* instr)
-{
+{TRACE_IT(11562);
     instr->m_opcode = Js::OpCode::CallHelper;
     IR::HelperCallOpnd *helperOpnd = IR::HelperCallOpnd::New(IR::HelperOP_InitCachedScope, this->m_func);
     IR::Opnd * src1 = instr->UnlinkSrc1();
@@ -8459,7 +8459,7 @@ Lowerer::LowerInitCachedScope(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBinaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11563);
     // The only case where this would still be null when we return is when
     // helperMethod == HelperOP_CmSrEq_EmptyString; in which case we ignore
     // instrPrev.
@@ -8487,7 +8487,7 @@ Lowerer::LowerBinaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 // helper takes memory context as third argument
 IR::Instr *
 Lowerer::LowerBinaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11564);
     IR::Instr *instrPrev;
 
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3 ||
@@ -8502,18 +8502,18 @@ Lowerer::LowerBinaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11565);
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3, "Expected a binary instruction...");
 
     IR::Instr * instrFirst;
     IR::Opnd * tempOpnd;
 
     if (instr->dstIsTempNumber)
-    {
+    {TRACE_IT(11566);
         instrFirst = this->LoadHelperTemp(instr, instr);
     }
     else
-    {
+    {TRACE_IT(11567);
         tempOpnd = IR::IntConstOpnd::New(0, TyInt32, this->m_func);
         instrFirst = m_lowererMD.LoadHelperArgument(instr, tempOpnd);
     }
@@ -8529,11 +8529,11 @@ Lowerer::LowerBinaryHelperMemWithTemp2(
     IR::JnHelperMethod helperMethod,
     IR::JnHelperMethod helperMethodWithTemp
     )
-{
+{TRACE_IT(11568);
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3, "Expected a binary instruction...");
 
     if (instr->dstIsTempNumber && instr->GetDst() && instr->GetDst()->GetValueType().HasBeenNumber())
-    {
+    {TRACE_IT(11569);
         IR::Instr * instrFirst = this->LoadHelperTemp(instr, instr);
         this->LowerBinaryHelperMem(instr, helperMethodWithTemp);
         return instrFirst;
@@ -8544,7 +8544,7 @@ Lowerer::LowerBinaryHelperMemWithTemp2(
 
 IR::Instr *
 Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
-{
+{TRACE_IT(11570);
     IR::Opnd *       opndLeft;
     IR::Opnd *       opndRight;
 
@@ -8562,7 +8562,7 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
         || !opndRight->GetValueType().IsLikelyString()
         || !opndLeft->IsEqual(instr->GetDst()->AsRegOpnd())
         || opndLeft->IsEqual(opndRight))
-    {
+    {TRACE_IT(11571);
         return this->LowerBinaryHelperMemWithTemp(instr, IR::HelperOp_AddLeftDead);
     }
 
@@ -8573,7 +8573,7 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
     instr->InsertBefore(labelHelper);
 
     if (!opndLeft->IsNotTaggedValue())
-    {
+    {TRACE_IT(11572);
         this->m_lowererMD.GenerateObjectTest(opndLeft->AsRegOpnd(), insertBeforeInstr, labelHelper);
     }
 
@@ -8663,27 +8663,27 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithTemp3(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::JnHelperMethod helperMethodWithTemp, IR::JnHelperMethod helperMethodLeftDead)
-{
+{TRACE_IT(11573);
     IR::Opnd *src1 = instr->GetSrc1();
 
     if (src1->IsRegOpnd() && src1->AsRegOpnd()->m_isTempLastUse && !src1->GetValueType().IsNotString())
-    {
+    {TRACE_IT(11574);
         Assert(helperMethodLeftDead == IR::HelperOp_AddLeftDead);
         return LowerAddLeftDeadForString(instr);
     }
     else
-    {
+    {TRACE_IT(11575);
         return this->LowerBinaryHelperMemWithTemp2(instr, helperMethod, helperMethodWithTemp);
     }
 }
 
 StackSym *
 Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
-{
+{TRACE_IT(11576);
     AssertMsg(opnd->IsRegOpnd(), "Expected regOpnd");
 
     if (isTempTransferred)
-    {
+    {TRACE_IT(11577);
         StackSym * tempNumberSym = StackSym::New(TyMisc, m_func);
         this->m_func->StackAllocate(tempNumberSym, sizeof(Js::JavascriptNumber));
         return tempNumberSym;
@@ -8692,7 +8692,7 @@ Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
     StackSym * tempNumberSym = stackSym->m_tempNumberSym;
 
     if (tempNumberSym == nullptr)
-    {
+    {TRACE_IT(11578);
         tempNumberSym = StackSym::New(TyMisc, m_func);
         this->m_func->StackAllocate(tempNumberSym, sizeof(Js::JavascriptNumber));
         stackSym->m_tempNumberSym = tempNumberSym;
@@ -8701,7 +8701,7 @@ Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
 }
 
 void Lowerer::LowerProfiledLdElemI(IR::JitProfilingInstr *const instr)
-{
+{TRACE_IT(11579);
     Assert(instr);
 
     /*
@@ -8732,7 +8732,7 @@ void Lowerer::LowerProfiledLdElemI(IR::JitProfilingInstr *const instr)
 }
 
 void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(11580);
     Assert(instr);
 
     /*
@@ -8749,11 +8749,11 @@ void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js:
 
     IR::JnHelperMethod helper;
     if(flags == Js::PropertyOperation_None)
-    {
+    {TRACE_IT(11581);
         helper = IR::HelperProfiledStElem_DefaultFlags;
     }
     else
-    {
+    {TRACE_IT(11582);
         helper = IR::HelperProfiledStElem;
         m_lowererMD.LoadHelperArgument(instr, IR::IntConstOpnd::New(flags, TyInt32, func, true));
     }
@@ -8782,11 +8782,11 @@ void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js:
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool isHelper, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11583);
     IR::Instr *instrPrev = instr->m_prev;
 
     if (instr->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11584);
         Assert(!isHelper);
         LowerProfiledStElemI(instr->AsJitProfilingInstr(), flags);
         return instrPrev;
@@ -8801,7 +8801,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 
 #if !FLOATVAR
     if (dst->AsIndirOpnd()->GetBaseOpnd()->GetValueType().IsLikelyOptimizedTypedArray() && src1->IsRegOpnd())
-    {
+    {TRACE_IT(11585);
         // We allow the source of typedArray StElem to be marked as temp, since we just need the value,
         // however if the array turns out to be a non-typed array, or the index isn't valid (the value is then stored as a property)
         // the temp needs to be boxed if it is a float.  The BoxStackNumber helper will box JavascriptNumbers
@@ -8822,10 +8822,10 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 #endif
 
     if(instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11586);
         IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if(bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment)
-        {
+        {TRACE_IT(11587);
             Assert(!(bailOutKind & IR::BailOutOnMissingValue));
             LowerBailOnInvalidatedArrayHeadSegment(instr, isHelper);
             bailOutKind ^= IR::BailOutOnInvalidatedArrayHeadSegment;
@@ -8844,7 +8844,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
             Assert(!bailOutKind || instr->GetBailOutKind() == bailOutKind);
         }
         if(bailOutKind & IR::BailOutConvertedNativeArray)
-        {
+        {TRACE_IT(11588);
             IR::LabelInstr *labelSkipBailOut = IR::LabelInstr::New(Js::OpCode::Label, m_func, isHelper);
             instr->InsertAfter(labelSkipBailOut);
             LowerOneBailOutKind(instr, IR::BailOutConvertedNativeArray, isHelper);
@@ -8869,51 +8869,51 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
         );
 
     if (indexOpnd && indexOpnd->GetType() != TyVar)
-    {
+    {TRACE_IT(11589);
         if (indexOpnd->GetType() == TyInt32)
-        {
+        {TRACE_IT(11590);
             helperMethod =
                 srcType == TyVar ? IR::HelperOp_SetElementI_Int32 :
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI_Int32 :
                 IR::HelperOp_SetNativeFloatElementI_Int32;
         }
         else if (indexOpnd->GetType() == TyUint32)
-        {
+        {TRACE_IT(11591);
             helperMethod =
                 srcType == TyVar ? IR::HelperOp_SetElementI_UInt32 :
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI_UInt32 :
                 IR::HelperOp_SetNativeFloatElementI_UInt32;
         }
         else
-        {
+        {TRACE_IT(11592);
             Assert(FALSE);
         }
     }
     else
-    {
+    {TRACE_IT(11593);
         if (indexOpnd == nullptr)
-        {
+        {TRACE_IT(11594);
             // No index; the offset identifies the element.
             IntConstType offset = (IntConstType)dst->AsIndirOpnd()->GetOffset();
             indexOpnd = IR::AddrOpnd::NewFromNumber(offset, m_func);
         }
 
         if (srcType != TyVar)
-        {
+        {TRACE_IT(11595);
             helperMethod =
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI : IR::HelperOp_SetNativeFloatElementI;
         }
     }
 
     if (srcType == TyFloat64)
-    {
+    {TRACE_IT(11596);
         m_lowererMD.LoadDoubleHelperArgument(instr, src1);
     }
     m_lowererMD.LoadHelperArgument(instr,
         IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     LoadScriptContext(instr);
     if (srcType != TyFloat64)
-    {
+    {TRACE_IT(11597);
         m_lowererMD.LoadHelperArgument(instr, src1);
     }
     m_lowererMD.LoadHelperArgument(instr, indexOpnd);
@@ -8923,7 +8923,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 
     dst->Free(this->m_func);
     if (newDst)
-    {
+    {TRACE_IT(11598);
         instr->SetDst(newDst);
     }
 
@@ -8939,11 +8939,11 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool isHelper)
-{
+{TRACE_IT(11599);
     IR::Instr *instrPrev = instr->m_prev;
 
     if(instr->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11600);
         Assert(helperMethod == IR::HelperOp_GetElementI);
         Assert(!isHelper);
         LowerProfiledLdElemI(instr->AsJitProfilingInstr());
@@ -8951,7 +8951,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     }
 
     if (!isHelper && instr->DoStackArgsOpt(this->m_func))
-    {
+    {TRACE_IT(11601);
         IR::LabelInstr * labelLdElem = IR::LabelInstr::New(Js::OpCode::Label, instr->m_func);
         // Pass in null for labelFallThru to only generate the LdHeapArgument call
         GenerateFastArgumentsLdElemI(instr, nullptr);
@@ -8971,21 +8971,21 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
 
     IR::Opnd *indexOpnd = indirOpnd->UnlinkIndexOpnd();
     if (indexOpnd && indexOpnd->GetType() != TyVar)
-    {
+    {TRACE_IT(11602);
         Assert(indexOpnd->GetType() == TyUint32 || indexOpnd->GetType() == TyInt32);
         switch (helperMethod)
         {
         case IR::HelperOp_GetElementI:
 
             if (indexOpnd->GetType() == TyUint32)
-            {
+            {TRACE_IT(11603);
                 helperMethod =
                     dstType == TyVar ? IR::HelperOp_GetElementI_UInt32 :
                     dstType == TyInt32 ? IR::HelperOp_GetNativeIntElementI_UInt32 :
                     IR::HelperOp_GetNativeFloatElementI_UInt32;
             }
             else
-            {
+            {TRACE_IT(11604);
                 helperMethod =
                     dstType == TyVar ? IR::HelperOp_GetElementI_Int32 :
                     dstType == TyInt32 ? IR::HelperOp_GetNativeIntElementI_Int32 :
@@ -9012,16 +9012,16 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
         }
     }
     else
-    {
+    {TRACE_IT(11605);
         if (indexOpnd == nullptr)
-        {
+        {TRACE_IT(11606);
             // No index; the offset identifies the element.
             IntConstType offset = (IntConstType)src1->AsIndirOpnd()->GetOffset();
             indexOpnd = IR::AddrOpnd::NewFromNumber(offset, m_func);
         }
 
         if (dstType != TyVar)
-        {
+        {TRACE_IT(11607);
             loadScriptContext = false;
             helperMethod =
                 dstType == TyInt32 ? IR::HelperOp_GetNativeIntElementI : IR::HelperOp_GetNativeFloatElementI;
@@ -9031,12 +9031,12 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     // Jitted loop bodies have volatile information about values created outside the loop, so don't update array creation site
     // profile data from jitted loop bodies
     if(!m_func->IsLoopBody())
-    {
+    {TRACE_IT(11608);
         const ValueType baseValueType(indirOpnd->GetBaseOpnd()->GetValueType());
         if( baseValueType.IsLikelyObject() &&
             baseValueType.GetObjectType() == ObjectType::Array &&
             !baseValueType.HasIntElements())
-        {
+        {TRACE_IT(11609);
             switch(helperMethod)
             {
                 case IR::HelperOp_GetElementI:
@@ -9064,7 +9064,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     }
 
     if (loadScriptContext)
-    {
+    {TRACE_IT(11610);
         LoadScriptContext(instr);
     }
 
@@ -9081,7 +9081,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
 }
 
 void Lowerer::LowerLdLen(IR::Instr *const instr, const bool isHelper)
-{
+{TRACE_IT(11611);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::LdLen_A);
 
@@ -9102,7 +9102,7 @@ void Lowerer::LowerLdLen(IR::Instr *const instr, const bool isHelper)
 
 IR::Instr *
 Lowerer::LowerLdArrViewElem(IR::Instr * instr)
-{
+{TRACE_IT(11612);
 #ifdef ASMJS_PLAT
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     Assert(instr);
@@ -9119,7 +9119,7 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
     IR::Instr * done;
 
     if (indexOpnd || m_func->GetJITFunctionBody()->GetAsmJsInfo()->AccessNeedsBoundCheck((uint32)src1->AsIndirOpnd()->GetOffset()))
-    {
+    {TRACE_IT(11613);
         // CMP indexOpnd, src2(arrSize)
         // JA $helper
         // JMP $load
@@ -9135,18 +9135,18 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
         done = m_lowererMD.LowerAsmJsLdElemHelper(instr);
     }
     else
-    {
+    {TRACE_IT(11614);
         // any access below 0x10000 is safe
         instr->UnlinkDst();
         instr->UnlinkSrc1();
         if (src2)
-        {
+        {TRACE_IT(11615);
             instr->FreeSrc2();
         }
         done = instr;
     }
     if (dst->IsInt64())
-    {
+    {TRACE_IT(11616);
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         m_lowererMD.LowerInt64Assign(movInt64);
@@ -9166,7 +9166,7 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
-{
+{TRACE_IT(11617);
 #ifdef ENABLE_WASM
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     Assert(instr);
@@ -9185,13 +9185,13 @@ Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
 
     IR::Instr* newMove = nullptr;
     if (dst->IsInt64())
-    {
+    {TRACE_IT(11618);
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         newMove = m_lowererMD.LowerInt64Assign(movInt64);
     }
     else
-    {
+    {TRACE_IT(11619);
         newMove = InsertMove(dst, src1, done);
     }
 
@@ -9211,7 +9211,7 @@ Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
-{
+{TRACE_IT(11620);
     IR::Opnd * dst = instr->UnlinkDst();
     IR::Opnd * src1 = instr->UnlinkSrc1();
 
@@ -9228,7 +9228,7 @@ Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
     IR::JnHelperMethod helperMethod = IR::HelperOp_Memset;
     IR::Instr *instrPrev = nullptr;
     if (src1->IsRegOpnd() && !src1->IsVar())
-    {
+    {TRACE_IT(11621);
         IR::RegOpnd* varOpnd = IR::RegOpnd::New(TyVar, instr->m_func);
         instrPrev = IR::Instr::New(Js::OpCode::ToVar, varOpnd, src1, instr->m_func);
         instr->InsertBefore(instrPrev);
@@ -9248,7 +9248,7 @@ Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
 
 IR::Instr *
 Lowerer::LowerMemcopy(IR::Instr * instr, IR::RegOpnd * helperRet)
-{
+{TRACE_IT(11622);
     IR::Opnd * dst = instr->UnlinkDst();
     IR::Opnd * src = instr->UnlinkSrc1();
 
@@ -9287,7 +9287,7 @@ Lowerer::LowerMemcopy(IR::Instr * instr, IR::RegOpnd * helperRet)
 
 IR::Instr *
 Lowerer::LowerMemOp(IR::Instr * instr)
-{
+{TRACE_IT(11623);
     Assert(instr->m_opcode == Js::OpCode::Memset || instr->m_opcode == Js::OpCode::Memcopy);
     IR::Instr *instrPrev = instr->m_prev;
 
@@ -9295,10 +9295,10 @@ Lowerer::LowerMemOp(IR::Instr * instr)
     const bool isHelper = false;
     AssertMsg(instr->HasBailOutInfo(), "Expected bailOut on MemOp instruction");
     if (instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11624);
         IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if (bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment)
-        {
+        {TRACE_IT(11625);
             Assert(!(bailOutKind & IR::BailOutOnMissingValue));
             LowerBailOnInvalidatedArrayHeadSegment(instr, isHelper);
             bailOutKind ^= IR::BailOutOnInvalidatedArrayHeadSegment;
@@ -9319,7 +9319,7 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
         AssertMsg(bailOutKind & IR::BailOutOnMemOpError, "Expected BailOutOnMemOpError on MemOp instruction");
         if (bailOutKind & IR::BailOutOnMemOpError)
-        {
+        {TRACE_IT(11626);
             // Insert or get continue label
             IR::LabelInstr *const skipBailOutLabel = instr->GetOrCreateContinueLabel(isHelper);
             Func *const func = instr->m_func;
@@ -9347,16 +9347,16 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
     IR::Instr* newInstrPrev = nullptr;
     if (instr->m_opcode == Js::OpCode::Memset)
-    {
+    {TRACE_IT(11627);
         newInstrPrev = LowerMemset(instr, helperRet);
     }
     else if (instr->m_opcode == Js::OpCode::Memcopy)
-    {
+    {TRACE_IT(11628);
         newInstrPrev = LowerMemcopy(instr, helperRet);
     }
 
     if (newInstrPrev != nullptr)
-    {
+    {TRACE_IT(11629);
         instrPrev = newInstrPrev;
     }
     return instrPrev;
@@ -9364,7 +9364,7 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerStArrViewElem(IR::Instr * instr)
-{
+{TRACE_IT(11630);
 #ifdef ASMJS_PLAT
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     Assert(instr);
@@ -9386,11 +9386,11 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
     IR::Instr * done;
 
     if (m_func->GetJITFunctionBody()->IsWasmFunction())
-    {
+    {TRACE_IT(11631);
         done = m_lowererMD.LowerWasmMemOp(instr, dst);
     }
     else if (indexOpnd || m_func->GetJITFunctionBody()->GetAsmJsInfo()->AccessNeedsBoundCheck((uint32)dst->AsIndirOpnd()->GetOffset()))
-    {
+    {TRACE_IT(11632);
         // CMP indexOpnd, src2(arrSize)
         // JA $helper
         // JMP $store
@@ -9402,18 +9402,18 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
         done = m_lowererMD.LowerAsmJsStElemHelper(instr);
     }
     else
-    {
+    {TRACE_IT(11633);
         // any constant access below 0x10000 is safe, as that is the min heap size
         instr->UnlinkDst();
         instr->UnlinkSrc1();
         done = instr;
         if (src2)
-        {
+        {TRACE_IT(11634);
             instr->FreeSrc2();
         }
     }
     if (src1->IsInt64())
-    {
+    {TRACE_IT(11635);
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         m_lowererMD.LowerInt64Assign(movInt64);
@@ -9432,7 +9432,7 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerArrayDetachedCheck(IR::Instr * instr)
-{
+{TRACE_IT(11636);
     // TEST isDetached, isDetached
     // JE Done
     // Helper:
@@ -9462,7 +9462,7 @@ Lowerer::LowerArrayDetachedCheck(IR::Instr * instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
-{
+{TRACE_IT(11637);
     IR::Instr *instrPrev;
 
     IR::Opnd *src1 = instr->UnlinkSrc1();
@@ -9472,7 +9472,7 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {TRACE_IT(11638);
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -9480,22 +9480,22 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
     IR::JnHelperMethod helperMethod = IR::HelperOp_DeleteElementI;
     IR::Opnd *indexOpnd = src1->AsIndirOpnd()->UnlinkIndexOpnd();
     if (indexOpnd)
-    {
+    {TRACE_IT(11639);
         if (indexOpnd->GetType() == TyInt32)
-        {
+        {TRACE_IT(11640);
             helperMethod = IR::HelperOp_DeleteElementI_Int32;
         }
         else if (indexOpnd->GetType() == TyUint32)
-        {
+        {TRACE_IT(11641);
             helperMethod = IR::HelperOp_DeleteElementI_UInt32;
         }
         else
-        {
+        {TRACE_IT(11642);
             Assert(indexOpnd->GetType() == TyVar);
         }
     }
     else
-    {
+    {TRACE_IT(11643);
         // No index; the offset identifies the element.
         IntConstType offset = (IntConstType)src1->AsIndirOpnd()->GetOffset();
         indexOpnd = IR::AddrOpnd::NewFromNumber(offset, m_func);
@@ -9517,9 +9517,9 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
 
 IR::Opnd *
 Lowerer::GetForInEnumeratorFieldOpnd(IR::Opnd * forInEnumeratorOpnd, uint fieldOffset, IRType type)
-{
+{TRACE_IT(11644);
     if (forInEnumeratorOpnd->IsSymOpnd())
-    {
+    {TRACE_IT(11645);
         IR::SymOpnd * symOpnd = forInEnumeratorOpnd->AsSymOpnd();
         return IR::SymOpnd::New(symOpnd->GetStackSym(), symOpnd->m_offset + fieldOffset, type, this->m_func);
     }
@@ -9530,7 +9530,7 @@ Lowerer::GetForInEnumeratorFieldOpnd(IR::Opnd * forInEnumeratorOpnd, uint fieldO
 
 void
 Lowerer::GenerateFastBrBReturn(IR::Instr * instr)
-{
+{TRACE_IT(11646);
     Assert(instr->m_opcode == Js::OpCode::BrOnEmpty || instr->m_opcode == Js::OpCode::BrOnNotEmpty);
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() == nullptr, "Expected 1 src opnds on BrB");
 
@@ -9622,23 +9622,23 @@ Lowerer::GenerateFastBrBReturn(IR::Instr * instr)
 
 #ifndef _M_X64
 void Lowerer::EnsureInt64RegPairMap()
-{
+{TRACE_IT(11647);
     if (!m_int64RegPairMap)
-    {
+    {TRACE_IT(11648);
         m_int64RegPairMap = Anew(m_alloc, Int64RegPairMap, m_alloc);
     }
 }
 
 Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
-{
+{TRACE_IT(11649);
     Int64RegPair pair;
     IRType type = reg->GetType();
     if (IRType_IsInt64(type))
-    {
+    {TRACE_IT(11650);
         type = IRType_IsSignedInt(type) ? TyInt32 : TyUint32;
     }
     if (reg->IsIndirOpnd())
-    {
+    {TRACE_IT(11651);
         IR::IndirOpnd* indir = reg->AsIndirOpnd();
         indir->SetType(type);
         pair.low = indir;
@@ -9651,7 +9651,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     Assert(IRType_IsInt64(reg->GetType()));
 
     if (reg->IsImmediateOpnd())
-    {
+    {TRACE_IT(11652);
         int64 value = reg->GetImmediateValue(m_func);
         pair.low = IR::IntConstOpnd::New((int32)value, type, m_func);
         pair.high = IR::IntConstOpnd::New((int32)(value >> 32), type, m_func);
@@ -9669,9 +9669,9 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     SymID symId = stackSym->m_id;
     Int64SymPair symPair;
     if (!m_int64RegPairMap->TryGetValue(symId, &symPair))
-    {
+    {TRACE_IT(11653);
         if (stackSym->IsArgSlotSym() || stackSym->IsParamSlotSym())
-        {
+        {TRACE_IT(11654);
             const bool isArg = stackSym->IsArgSlotSym();
             typedef StackSym* (*SymConstr)(Js::ArgSlot, Func *, IRType);
             SymConstr Constr = isArg ? &StackSym::NewArgSlotSym : (SymConstr)&StackSym::NewParamSlotSym;
@@ -9684,7 +9684,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
             symPair.high->m_offset = stackSym->m_offset + 4;
         }
         else
-        {
+        {TRACE_IT(11655);
             symPair.low = StackSym::New(type, this->m_func);
             symPair.high = StackSym::New(type, this->m_func);
         }
@@ -9692,12 +9692,12 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     }
 
     if (reg->IsSymOpnd())
-    {
+    {TRACE_IT(11656);
         pair.low = IR::SymOpnd::New(symPair.low, reg->AsSymOpnd()->m_offset, type, this->m_func);
         pair.high = IR::SymOpnd::New(symPair.high, reg->AsSymOpnd()->m_offset, type, this->m_func);
     }
     else
-    {
+    {TRACE_IT(11657);
         pair.low = IR::RegOpnd::New(symPair.low, type, this->m_func);
         pair.high = IR::RegOpnd::New(symPair.high, type, this->m_func);
     }
@@ -9712,7 +9712,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool isHelper)
-{
+{TRACE_IT(11658);
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9741,13 +9741,13 @@ Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool
 
 #if DBG
     if (isHelper)
-    {
+    {TRACE_IT(11659);
         if (!loweredInstr->IsBranchInstr())
-        {
+        {TRACE_IT(11660);
             loweredInstr = loweredInstr->GetNextBranchOrLabel();
         }
         if (loweredInstr->IsBranchInstr())
-        {
+        {TRACE_IT(11661);
             loweredInstr->AsBranchInstr()->m_isHelperToNonHelperBranch = true;
         }
     }
@@ -9762,7 +9762,7 @@ Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool
 ///
 ///----------------------------------------------------------------------------
 IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11662);
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9787,7 +9787,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMet
     auto dictionary = instr->AsBranchInstr()->AsMultiBrInstr()->GetBranchDictionary();
 
     if (this->m_func->IsOOPJIT())
-    {
+    {TRACE_IT(11663);
         auto dictionaryOffset = NativeCodeData::GetDataTotalOffset(dictionary);
         auto addressRegOpnd = IR::RegOpnd::New(TyMachPtr, m_func);
 
@@ -9803,7 +9803,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMet
         m_lowererMD.LoadHelperArgument(instr, addressRegOpnd);
     }
     else
-    {
+    {TRACE_IT(11664);
         IR::AddrOpnd* nativestringDictionaryOpnd = IR::AddrOpnd::New(dictionary, IR::AddrOpndKindDynamicMisc, this->m_func);
         m_lowererMD.LoadHelperArgument(instr, nativestringDictionaryOpnd);
     }
@@ -9832,7 +9832,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMet
 
 void
 Lowerer::LowerJumpTableMultiBranch(IR::MultiBranchInstr * multiBrInstr, IR::RegOpnd * indexOpnd)
-{
+{TRACE_IT(11665);
     Func * func = this->m_func;
     IR::Opnd * opndDst = IR::RegOpnd::New(TyMachPtr, func);
     //Move the native address of the jump table to a register
@@ -9867,7 +9867,7 @@ Lowerer::LowerJumpTableMultiBranch(IR::MultiBranchInstr * multiBrInstr, IR::RegO
 ///
 ///----------------------------------------------------------------------------
 IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr)
-{
+{TRACE_IT(11666);
     IR::Instr * instrPrev = instr->m_prev;
 
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() == nullptr, "Expected 1 src opnd on BrB");
@@ -9881,7 +9881,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr)
 }
 
 IR::Instr* Lowerer::LowerBrBMem(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11667);
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9913,7 +9913,7 @@ IR::Instr* Lowerer::LowerBrBMem(IR::Instr * instr, IR::JnHelperMethod helperMeth
 }
 
 IR::Instr* Lowerer::LowerBrOnObject(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11668);
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9944,7 +9944,7 @@ IR::Instr* Lowerer::LowerBrOnObject(IR::Instr * instr, IR::JnHelperMethod helper
 }
 
 IR::Instr * Lowerer::LowerBrOnClassConstructor(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{TRACE_IT(11669);
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd * opndHelper;
@@ -9976,7 +9976,7 @@ IR::Instr * Lowerer::LowerBrOnClassConstructor(IR::Instr * instr, IR::JnHelperMe
 
 IR::Instr *
 Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool noMathFastPath, bool isHelper)
-{
+{TRACE_IT(11670);
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9988,7 +9988,7 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() != nullptr, "Expected 2 src opnds on BrC");
 
     if (!noMathFastPath && !this->GenerateFastCondBranch(instr->AsBranchInstr(), &isHelper))
-    {
+    {TRACE_IT(11671);
         return instrPrev;
     }
 
@@ -9997,14 +9997,14 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     const bool loadArg2 = !(helperMethod == IR::HelperOp_StrictEqualEmptyString);
 
     if (helperMethod == IR::HelperOp_NotEqual)
-    {
+    {TRACE_IT(11672);
         // Op_NotEqual() returns !Op_Equal().  It is faster to call Op_Equal() directly.
         helperMethod = IR::HelperOp_Equal;
         instr->AsBranchInstr()->Invert();
         inverted = true;
     }
     else if(helperMethod == IR::HelperOp_NotStrictEqual)
-    {
+    {TRACE_IT(11673);
         // Op_NotStrictEqual() returns !Op_StrictEqual().  It is faster to call Op_StrictEqual() directly.
         helperMethod = IR::HelperOp_StrictEqual;
         instr->AsBranchInstr()->Invert();
@@ -10038,7 +10038,7 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     case Js::OpCode::BrSrNotEq_A:
     case Js::OpCode::BrSrNotNeq_A:
         if (instr->HasBailOutInfo())
-        {
+        {TRACE_IT(11674);
             instr->GetBailOutInfo()->isInvertedBranch = true;
         }
         break;
@@ -10061,7 +10061,7 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
 }
 
 IR::Instr *
-Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {
+Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {TRACE_IT(11675);
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -10102,7 +10102,7 @@ Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBrProperty(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{TRACE_IT(11676);
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd * opndHelper;
@@ -10150,7 +10150,7 @@ Lowerer::LowerBrProperty(IR::Instr * instr, IR::JnHelperMethod helper)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerElementUndefined(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{TRACE_IT(11677);
     IR::Opnd *dst = instr->UnlinkDst();
     AssertMsg(dst->IsSymOpnd() && dst->AsSymOpnd()->m_sym->IsPropertySym(), "Expected fieldSym as dst of Ld Undefined");
 
@@ -10163,7 +10163,7 @@ Lowerer::LowerElementUndefined(IR::Instr * instr, IR::JnHelperMethod helper)
 
 IR::Instr *
 Lowerer::LowerElementUndefinedMem(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{TRACE_IT(11678);
     // Pass script context
     IR::Instr * instrPrev = LoadScriptContext(instr);
 
@@ -10174,13 +10174,13 @@ Lowerer::LowerElementUndefinedMem(IR::Instr * instr, IR::JnHelperMethod helper)
 
 IR::Instr *
 Lowerer::LowerLdElemUndef(IR::Instr * instr)
-{
+{TRACE_IT(11679);
     if (this->m_func->GetJITFunctionBody()->IsEval())
-    {
+    {TRACE_IT(11680);
         return LowerElementUndefinedMem(instr, IR::HelperOp_LdElemUndefDynamic);
     }
     else
-    {
+    {TRACE_IT(11681);
         return LowerElementUndefined(instr, IR::HelperOp_LdElemUndef);
     }
 }
@@ -10192,7 +10192,7 @@ Lowerer::LowerLdElemUndef(IR::Instr * instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerElementUndefinedScoped(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{TRACE_IT(11682);
     IR::Instr * instrPrev = instr->m_prev;
 
     // Pass the default instance
@@ -10212,7 +10212,7 @@ Lowerer::LowerElementUndefinedScoped(IR::Instr * instr, IR::JnHelperMethod helpe
 
 IR::Instr *
 Lowerer::LowerElementUndefinedScopedMem(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{TRACE_IT(11683);
     // Pass script context
     IR::Instr * instrPrev = LoadScriptContext(instr);
 
@@ -10223,7 +10223,7 @@ Lowerer::LowerElementUndefinedScopedMem(IR::Instr * instr, IR::JnHelperMethod he
 
 void
 Lowerer::LowerStLoopBodyCount(IR::Instr* instr)
-{
+{TRACE_IT(11684);
     intptr_t header = m_func->m_workItem->GetLoopHeaderAddr();
 
     IR::MemRefOpnd *loopBodyCounterOpnd = IR::MemRefOpnd::New((BYTE*)(header) + Js::LoopHeader::GetOffsetOfProfiledLoopCounter(), TyUint32, this->m_func);
@@ -10237,7 +10237,7 @@ Lowerer::LowerStLoopBodyCount(IR::Instr* instr)
 #if !FLOATVAR
 IR::Instr *
 Lowerer::LowerStSlotBoxTemp(IR::Instr *stSlot)
-{
+{TRACE_IT(11685);
     // regVar = BoxStackNumber(src, scriptContext)
     IR::RegOpnd * regSrc = stSlot->UnlinkSrc1()->AsRegOpnd();
     IR::Instr * instr = IR::Instr::New(Js::OpCode::Call, this->m_func);
@@ -10253,14 +10253,14 @@ Lowerer::LowerStSlotBoxTemp(IR::Instr *stSlot)
 
 IR::Opnd *
 Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
-{
+{TRACE_IT(11686);
     IR::SymOpnd * symOpnd = opnd->AsSymOpnd();
     PropertySym * dstSym = symOpnd->m_sym->AsPropertySym();
 
     if (!m_func->IsLoopBody() &&
         m_func->DoStackFrameDisplay() &&
         (dstSym->m_stackSym == m_func->GetLocalClosureSym() || dstSym->m_stackSym == m_func->GetLocalFrameDisplaySym()))
-    {
+    {TRACE_IT(11687);
         // Stack closure syms are made to look like slot accesses for the benefit of GlobOpt, so that it can do proper
         // copy prop and implicit call bailout. But what we really want is local stack load/store.
         // Don't do this for loop body, though, since we don't have the value saved on the stack.
@@ -10269,12 +10269,12 @@ Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
 
     int32 offset = dstSym->m_propertyId;
     if (!m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {TRACE_IT(11688);
         offset = offset * TySize[opnd->GetType()];
     }
 #ifdef ASMJS_PLAT
     if (m_func->IsTJLoopBody())
-    {
+    {TRACE_IT(11689);
         offset = offset - m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetTotalSizeInBytes();
     }
 #endif
@@ -10286,7 +10286,7 @@ Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
 
 IR::Instr *
 Lowerer::LowerStSlot(IR::Instr *instr)
-{
+{TRACE_IT(11690);
     // StSlot stores the nth Var in the buffer pointed to by the property sym's stack sym.
 
     IR::Opnd * dstOpnd = instr->UnlinkDst();
@@ -10296,11 +10296,11 @@ Lowerer::LowerStSlot(IR::Instr *instr)
 
     instr->SetDst(dstNew);
     if (instr->GetDst() && instr->GetDst()->IsInt64())
-    {
+    {TRACE_IT(11691);
         m_lowererMD.LowerInt64Assign(instr);
     }
     else
-    {
+    {TRACE_IT(11692);
         instr = m_lowererMD.ChangeToWriteBarrierAssign(instr, this->m_func);
     }
 
@@ -10309,7 +10309,7 @@ Lowerer::LowerStSlot(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerStSlotChkUndecl(IR::Instr *instrStSlot)
-{
+{TRACE_IT(11693);
     Assert(instrStSlot->GetSrc2() != nullptr);
 
     // Src2 is required only to avoid dead store false positives during GlobOpt.
@@ -10324,7 +10324,7 @@ Lowerer::LowerStSlotChkUndecl(IR::Instr *instrStSlot)
 }
 
 void Lowerer::LowerProfileLdSlot(IR::Opnd *const valueOpnd, Func *const ldSlotFunc, const Js::ProfileId profileId, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(11694);
     Assert(valueOpnd);
     Assert(profileId != Js::Constants::NoProfileId);
     Assert(insertBeforeInstr);
@@ -10343,7 +10343,7 @@ void Lowerer::LowerProfileLdSlot(IR::Opnd *const valueOpnd, Func *const ldSlotFu
 
 void
 Lowerer::LowerLdSlot(IR::Instr *instr)
-{
+{TRACE_IT(11695);
     IR::Opnd * srcOpnd = instr->UnlinkSrc1();
     AssertMsg(srcOpnd, "Expected src opnd on LdSlot");
     IR::Opnd * srcNew = this->CreateOpndForSlotAccess(srcOpnd);
@@ -10351,18 +10351,18 @@ Lowerer::LowerLdSlot(IR::Instr *instr)
 
     instr->SetSrc1(srcNew);
     if (instr->GetDst() && instr->GetDst()->IsInt64())
-    {
+    {TRACE_IT(11696);
         m_lowererMD.LowerInt64Assign(instr);
     }
     else
-    {
+    {TRACE_IT(11697);
         m_lowererMD.ChangeToAssign(instr);
     }
 }
 
 IR::Instr *
 Lowerer::LowerChkUndecl(IR::Instr *instr)
-{
+{TRACE_IT(11698);
     IR::Instr *instrPrev = instr->m_prev;
     this->GenUndeclChk(instr, instr->GetSrc1());
     instr->Remove();
@@ -10371,7 +10371,7 @@ Lowerer::LowerChkUndecl(IR::Instr *instr)
 
 void
 Lowerer::GenUndeclChk(IR::Instr *instrInsert, IR::Opnd *opnd)
-{
+{TRACE_IT(11699);
     IR::LabelInstr *labelContinue = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     InsertCompareBranch(
@@ -10400,7 +10400,7 @@ Lowerer::GenUndeclChk(IR::Instr *instrInsert, IR::Opnd *opnd)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerStElemC(IR::Instr * stElem)
-{
+{TRACE_IT(11700);
     IR::Instr *instrPrev = stElem->m_prev;
     IR::IndirOpnd * indirOpnd = stElem->GetDst()->AsIndirOpnd();
     IR::RegOpnd *indexOpnd = indirOpnd->UnlinkIndexOpnd();
@@ -10409,17 +10409,17 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 
     IntConstType value;
     if (indexOpnd)
-    {
+    {TRACE_IT(11701);
         value = indexOpnd->AsRegOpnd()->m_sym->GetIntConstValue();
         indexOpnd->Free(this->m_func);
     }
     else
-    {
+    {TRACE_IT(11702);
         value = (IntConstType)indirOpnd->GetOffset();
     }
 
     if (stElem->IsJitProfilingInstr())
-    {
+    {TRACE_IT(11703);
         Assert(stElem->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
         m_lowererMD.LoadHelperArgument(stElem, stElem->UnlinkSrc1());
 
@@ -10440,14 +10440,14 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     const ValueType baseValueType(baseOpnd->GetValueType());
     if(baseValueType.IsLikelyNativeArray())
-    {
+    {TRACE_IT(11704);
         Assert(stElem->m_opcode == Js::OpCode::StElemC);
 
         IR::LabelInstr *labelBailOut = nullptr;
         IR::Instr *instrBailOut = nullptr;
 
         if (stElem->HasBailOutInfo())
-        {
+        {TRACE_IT(11705);
             labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
             instrBailOut = stElem;
             stElem = IR::Instr::New(instrBailOut->m_opcode, m_func);
@@ -10465,14 +10465,14 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
         }
 
         if (!baseValueType.IsObject())
-        {
+        {TRACE_IT(11706);
             // Likely native array: do a vtable check and bail if it fails.
             Assert(labelBailOut);
             GenerateArrayTest(baseOpnd, labelBailOut, labelBailOut, stElem, true);
         }
 
         if (stElem->GetSrc1()->GetType() == TyVar)
-        {
+        {TRACE_IT(11707);
             // Storing a non-specialized value. This may cause array conversion, which invalidates all the code
             // that depends on the array check we've already done.
             // Call a helper that returns the type ID of the resulting array, check it here against the one we
@@ -10493,11 +10493,11 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 
             IR::JnHelperMethod helperMethod;
             if (baseValueType.HasIntElements())
-            {
+            {TRACE_IT(11708);
                 helperMethod = IR::HelperScrArr_SetNativeIntElementC;
             }
             else
-            {
+            {TRACE_IT(11709);
                 helperMethod = IR::HelperScrArr_SetNativeFloatElementC;
             }
 
@@ -10518,15 +10518,15 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
             return instrPrev;
         }
         else if (baseValueType.HasIntElements() && labelBailOut)
-        {
+        {TRACE_IT(11710);
             Assert(stElem->GetSrc1()->GetType() == GetArrayIndirType(baseValueType));
             IR::Opnd* missingElementOpnd = GetMissingItemOpnd(stElem->GetSrc1()->GetType(), m_func);
             if (!stElem->GetSrc1()->IsEqual(missingElementOpnd))
-            {
+            {TRACE_IT(11711);
                 InsertCompareBranch(stElem->GetSrc1(), missingElementOpnd , Js::OpCode::BrEq_A, labelBailOut, stElem, true);
             }
             else
-            {
+            {TRACE_IT(11712);
                 //Its a missing value store and data flow proves that src1 is always missing value. Array cannot be an int array at the first place
                 //if this code was ever hit. Just bailout, this code path would be updated with the profile information next time around.
                 InsertBranch(Js::OpCode::Br, labelBailOut, stElem);
@@ -10538,29 +10538,29 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
             }
         }
         else
-        {
+        {TRACE_IT(11713);
             Assert(stElem->GetSrc1()->GetType() == GetArrayIndirType(baseValueType));
         }
         stElem->GetDst()->SetType(stElem->GetSrc1()->GetType());
         Assert(value <= Js::SparseArraySegmentBase::INLINE_CHUNK_SIZE);
 
         if(baseValueType.HasIntElements())
-        {
+        {TRACE_IT(11714);
             base = sizeof(Js::JavascriptNativeIntArray) + offsetof(Js::SparseArraySegment<int32>, elements);
         }
         else
-        {
+        {TRACE_IT(11715);
             base = sizeof(Js::JavascriptNativeFloatArray) + offsetof(Js::SparseArraySegment<double>, elements);
         }
     }
     else if(baseValueType.IsLikelyObject() && baseValueType.GetObjectType() == ObjectType::Array)
-    {
+    {TRACE_IT(11716);
         Assert(stElem->m_opcode == Js::OpCode::StElemC);
         Assert(value <= Js::SparseArraySegmentBase::INLINE_CHUNK_SIZE);
         base = sizeof(Js::JavascriptArray) + offsetof(Js::SparseArraySegment<Js::Var>, elements);
     }
     else
-    {
+    {TRACE_IT(11717);
         Assert(stElem->m_opcode == Js::OpCode::StElemC || stElem->m_opcode == Js::OpCode::StArrSegElemC);
         Assert(indirOpnd->GetBaseOpnd()->GetType() == TyVar);
         base = offsetof(Js::SparseArraySegment<Js::Var>, elements);
@@ -10579,13 +10579,13 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 }
 
 void Lowerer::LowerLdArrHead(IR::Instr *const instr)
-{
+{TRACE_IT(11718);
     IR::RegOpnd *array = instr->UnlinkSrc1()->AsRegOpnd();
     const ValueType arrayValueType(array->GetValueType());
     Assert(arrayValueType.IsAnyOptimizedArray());
 
     if(arrayValueType.GetObjectType() == ObjectType::ObjectWithArray)
-    {
+    {TRACE_IT(11719);
         array = LoadObjectArray(array, instr);
     }
 
@@ -10606,7 +10606,7 @@ void Lowerer::LowerLdArrHead(IR::Instr *const instr)
 //        Var *elements,
 //        ScriptContext* scriptContext)
 IR::Instr *Lowerer::LowerRestParameter(IR::Opnd *formalsOpnd, IR::Opnd *dstOpnd, IR::Opnd *excessOpnd, IR::Instr *instr, IR::RegOpnd *generatorArgsPtrOpnd)
-{
+{TRACE_IT(11720);
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, dstOpnd, instr->m_func);
     instr->InsertAfter(helperCallInstr);
 
@@ -10644,7 +10644,7 @@ IR::Instr *Lowerer::LowerRestParameter(IR::Opnd *formalsOpnd, IR::Opnd *dstOpnd,
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerArgIn(IR::Instr *instrArgIn)
-{
+{TRACE_IT(11721);
     IR::LabelInstr *   labelDone;
     IR::LabelInstr *   labelUndef;
     IR::LabelInstr *   labelNormal;
@@ -10695,23 +10695,23 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     IR::Opnd *restDst = nullptr;
     bool hasRest = instrArgIn->m_opcode == Js::OpCode::ArgIn_Rest;
     if (hasRest)
-    {
+    {TRACE_IT(11722);
         IR::Instr *restInstr = instrArgIn;
         restDst = restInstr->UnlinkDst();
         if (m_func->GetJITFunctionBody()->HasImplicitArgIns() && m_func->argInsCount > 0)
-        {
+        {TRACE_IT(11723);
             while (instrArgIn->m_opcode != Js::OpCode::ArgIn_A)
-            {
+            {TRACE_IT(11724);
                 instrArgIn = instrArgIn->m_prev;
                 if (instrResume == nullptr)
-                {
+                {TRACE_IT(11725);
                     instrResume = instrArgIn;
                 }
             }
             restInstr->Remove();
         }
         else
-        {
+        {TRACE_IT(11726);
             Assert(instrArgIn->m_func == this->m_func);
             IR::Instr * instrCount = m_lowererMD.LoadInputParamCount(instrArgIn, -this->m_func->GetInParamsCount());
             IR::Opnd * excessOpnd = instrCount->GetDst();
@@ -10728,7 +10728,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
             instrArgIn->InsertBefore(createRestArrayLabel);
 
             if (m_func->GetJITFunctionBody()->IsCoroutine())
-            {
+            {TRACE_IT(11727);
                 generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrArgIn);
             }
 
@@ -10744,10 +10744,10 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     argIndex = symParam->GetParamSlotNum();
     if (argIndex == 1)
-    {
+    {TRACE_IT(11728);
         // The "this" argument is not source-dependent and doesn't need to be checked.
         if (m_func->GetJITFunctionBody()->IsCoroutine())
-        {
+        {TRACE_IT(11729);
             generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrArgIn);
             ConvertArgOpndIfGeneratorFunction(instrArgIn, generatorArgsPtrOpnd);
         }
@@ -10769,10 +10769,10 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     Assert(this->m_func->argInsCount > 0);
 
     while (currArgInCount < this->m_func->argInsCount - 1)
-    {
+    {TRACE_IT(11730);
         instrPrev = instrPrev->m_prev;
         if (instrPrev->m_opcode == Js::OpCode::ArgIn_A)
-        {
+        {TRACE_IT(11731);
             srcOpnd = instrPrev->GetSrc1();
             symParam = srcOpnd->AsSymOpnd()->m_sym->AsStackSym();
             AssertMsg(symParam->GetParamSlotNum() < argIndex, "ArgIn's not in numerical order");
@@ -10780,10 +10780,10 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
             currArgInCount++;
         }
         else
-        {
+        {TRACE_IT(11732);
             // Make sure that this instruction gets lowered.
             if (instrResume == nullptr)
-            {
+            {TRACE_IT(11733);
                 instrResume = instrPrev;
             }
         }
@@ -10793,7 +10793,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     AnalysisAssert(instrInsert);
     if (instrResume == nullptr)
-    {
+    {TRACE_IT(11734);
         // We found no intervening non-ArgIn's, so lowering can resume at the previous instruction.
         instrResume = instrInsert->m_prev;
     }
@@ -10801,7 +10801,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     // Now insert all the checks and undef-assigns.
 
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(11735);
         generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrInsert);
     }
 
@@ -10844,7 +10844,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     BVSparse<JitArenaAllocator> *formalsBv = JitAnew(this->m_alloc, BVSparse<JitArenaAllocator>, this->m_alloc);
 
     while (currArgInCount > 0)
-    {
+    {TRACE_IT(11736);
         dstOpnd = instrArgIn->GetDst();
 
         Assert(dstOpnd->IsRegOpnd());
@@ -10880,7 +10880,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
         // This should refer to the second 'x'.  Since we reverse the order here however, we need to skip
         // the initialization of the first 'x' to not override the one for the second.  WOOB:1105504
         if (isDuplicate)
-        {
+        {TRACE_IT(11737);
             instrArgIn->Free();
         }
         else
@@ -10892,7 +10892,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
         instrArgIn = instrArgInNext;
 
         while (instrArgIn->m_opcode != Js::OpCode::ArgIn_A)
-        {
+        {TRACE_IT(11738);
             instrArgIn = instrArgIn->m_prev;
             AssertMsg(instrArgIn, "???");
         }
@@ -10943,7 +10943,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     labelInit->InsertAfter(labelDone);
 
     if (hasRest)
-    {
+    {TRACE_IT(11739);
         // The formals count has been tainted, so restore it before lowering rest
         IR::IntConstOpnd * formalsOpnd = IR::IntConstOpnd::New(this->m_func->GetInParamsCount(), TyUint32, this->m_func);
         LowerRestParameter(formalsOpnd, restDst, excessOpnd, labelDone, generatorArgsPtrOpnd);
@@ -10951,7 +10951,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     instrArgIn->Unlink();
     if (isDuplicate)
-    {
+    {TRACE_IT(11740);
         instrArgIn->Free();
     }
     else
@@ -10968,9 +10968,9 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
 void
 Lowerer::ConvertArgOpndIfGeneratorFunction(IR::Instr *instrArgIn, IR::RegOpnd *generatorArgsPtrOpnd)
-{
+{TRACE_IT(11741);
     if (this->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(11742);
         // Replace stack param operand with offset into arguments array held by
         // the generator object.
         IR::Opnd * srcOpnd = instrArgIn->UnlinkSrc1();
@@ -10986,7 +10986,7 @@ Lowerer::ConvertArgOpndIfGeneratorFunction(IR::Instr *instrArgIn, IR::RegOpnd *g
 
 IR::RegOpnd *
 Lowerer::LoadGeneratorArgsPtr(IR::Instr *instrInsert)
-{
+{TRACE_IT(11743);
     IR::Instr * instr = LoadGeneratorObject(instrInsert);
     IR::RegOpnd * generatorRegOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -10998,7 +10998,7 @@ Lowerer::LoadGeneratorArgsPtr(IR::Instr *instrInsert)
 
 IR::Instr *
 Lowerer::LoadGeneratorObject(IR::Instr * instrInsert)
-{
+{TRACE_IT(11744);
     StackSym * generatorSym = StackSym::NewImplicitParamSym(3, instrInsert->m_func);
     instrInsert->m_func->SetArgOffset(generatorSym, LowererMD::GetFormalParamOffset() * MachPtr);
     IR::SymOpnd * generatorSymOpnd = IR::SymOpnd::New(generatorSym, TyMachPtr, instrInsert->m_func);
@@ -11009,22 +11009,22 @@ Lowerer::LoadGeneratorObject(IR::Instr * instrInsert)
 
 IR::Instr *
 Lowerer::LowerArgInAsmJs(IR::Instr * instrArgIn)
-{
+{TRACE_IT(11745);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
 
     int argCount = (int)(int16)m_func->argInsCount;
     IR::Instr * instr = instrArgIn;
 
     for (int argNum = argCount - 1; argNum >= 0; --argNum)
-    {
+    {TRACE_IT(11746);
 #ifdef _M_IX86
         if (instr->GetDst()->IsInt64())
-        {
+        {TRACE_IT(11747);
             instr = m_lowererMD.LowerInt64Assign(instr);
         }
         else
 #endif
-        {
+        {TRACE_IT(11748);
             IR::Instr * instrPrev = instr->m_prev;
             m_lowererMD.ChangeToAssign(instr);
             instr = instrPrev;
@@ -11036,14 +11036,14 @@ Lowerer::LowerArgInAsmJs(IR::Instr * instrArgIn)
 
 bool
 Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
-{
+{TRACE_IT(11749);
     IR::Opnd *src1 = callInstr->GetSrc1();
     IR::Opnd *src2 = callInstr->GetSrc2();
 
     // Get the arg count by looking at the slot number of the last arg symbol.
 
     if (!src2->IsSymOpnd())
-    {
+    {TRACE_IT(11750);
         // No args? Not sure this is possible, but handle it.
         return false;
     }
@@ -11064,11 +11064,11 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
         case Js::BuiltinFunction::JavascriptString_CharAt:
         case Js::BuiltinFunction::JavascriptString_CharCodeAt:
             if (argCount != 1)
-            {
+            {TRACE_IT(11751);
                 return false;
             }
             if (!callInstr->GetDst())
-            {
+            {TRACE_IT(11752);
                 // Optimization of Char[Code]At assumes result is used.
                 return false;
             }
@@ -11076,29 +11076,29 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
         case Js::BuiltinFunction::Math_Abs:
 #ifdef _M_IX86
             if (!AutoSystemInfo::Data.SSE2Available())
-            {
+            {TRACE_IT(11753);
                 return false;
             }
 #endif
             if (argCount != 1)
-            {
+            {TRACE_IT(11754);
                 return false;
             }
             if (!callInstr->GetDst())
-            {
+            {TRACE_IT(11755);
                 // Optimization of Abs assumes result is used.
                 return false;
             }
             break;
 
         case Js::BuiltinFunction::JavascriptArray_Push:
-        {
+        {TRACE_IT(11756);
             if (argCount != 1)
-            {
+            {TRACE_IT(11757);
                 return false;
             }
             if (callInstr->GetDst())
-            {
+            {TRACE_IT(11758);
                 // Optimization of push assumes result is unused.
                 return false;
             }
@@ -11110,7 +11110,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 
             IR::Opnd *const arrayOpnd = linkSym->m_instrDef->GetSrc1();
             if(!arrayOpnd->IsRegOpnd())
-            {
+            {TRACE_IT(11759);
                 // This should be rare, but needs to be handled.
                 // By now, we've already started some of the inlining.  Simply jmp to the helper.
                 // The branch will get peeped later.
@@ -11119,7 +11119,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 
             if(!ShouldGenerateArrayFastPath(arrayOpnd, false, false, false) ||
                arrayOpnd->GetValueType().IsLikelyNativeArray())
-            {
+            {TRACE_IT(11760);
                 // Rejecting native array for now, since we have to do a FromVar at the call site and bail out.
                 return false;
             }
@@ -11128,14 +11128,14 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
         }
 
         case Js::BuiltinFunction::JavascriptString_Replace:
-        {
+        {TRACE_IT(11761);
             if(argCount != 2)
-            {
+            {TRACE_IT(11762);
                 return false;
             }
 
             if(!ShouldGenerateStringReplaceFastPath(callInstr, argCount))
-            {
+            {TRACE_IT(11763);
                 return false;
             }
             break;
@@ -11163,7 +11163,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
     IR::Opnd *linkOpnd = callInstr->GetSrc2();
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {TRACE_IT(11764);
         IR::SymOpnd * symOpnd = linkOpnd->AsSymOpnd();
         StackSym *sym = symOpnd->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -11239,7 +11239,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 //   ...
 //   d1 = BIA s1, NULL
 void Lowerer::LowerInlineBuiltIn(IR::Instr* builtInEndInstr)
-{
+{TRACE_IT(11765);
     Assert(builtInEndInstr->m_opcode == Js::OpCode::InlineBuiltInEnd || builtInEndInstr->m_opcode == Js::OpCode::InlineNonTrackingBuiltInEnd);
     IR::Instr* startCallInstr;
     builtInEndInstr->IterateArgInstrs([&](IR::Instr* argInstr) {
@@ -11253,7 +11253,7 @@ void Lowerer::LowerInlineBuiltIn(IR::Instr* builtInEndInstr)
 
 intptr_t
 Lowerer::GetObjRefForBuiltInTarget(IR::RegOpnd * regOpnd)
-{
+{TRACE_IT(11766);
     intptr_t mathFns = m_func->GetScriptContextInfo()->GetBuiltinFunctionsBaseAddr();
     Js::BuiltinFunction index = regOpnd->m_sym->m_builtInIndex;
 
@@ -11264,14 +11264,14 @@ Lowerer::GetObjRefForBuiltInTarget(IR::RegOpnd * regOpnd)
 
 IR::Instr *
 Lowerer::LowerNewRegEx(IR::Instr * instr)
-{
+{TRACE_IT(11767);
     IR::Opnd *src1 = instr->UnlinkSrc1();
 
     Assert(src1->IsAddrOpnd());
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     if (REGEX_CONFIG_FLAG(RegexTracing))
-    {
+    {TRACE_IT(11768);
         Assert(!instr->GetDst()->CanStoreTemp());
         IR::Instr * instrPrev = LoadScriptContext(instr);
         instrPrev = m_lowererMD.LoadHelperArgument(instr, src1);
@@ -11299,7 +11299,7 @@ Lowerer::LowerNewRegEx(IR::Instr * instr)
     GenerateMemInitNull(dstOpnd, Js::JavascriptRegExp::GetOffsetOfAuxSlots(), instr, isZeroed);
     GenerateMemInitNull(dstOpnd, Js::JavascriptRegExp::GetOffsetOfObjectArray(), instr, isZeroed);
     if (tempObjectSymOpnd && !PHASE_OFF(Js::HoistMarkTempInitPhase, this->m_func) && this->outerMostLoopLabel)
-    {
+    {TRACE_IT(11769);
         InsertMove(IR::SymOpnd::New(tempObjectSymOpnd->m_sym,
             tempObjectSymOpnd->m_offset + Js::JavascriptRegExp::GetOffsetOfPattern(), TyMachPtr, this->m_func),
             src1, this->outerMostLoopLabel, false);
@@ -11318,7 +11318,7 @@ Lowerer::LowerNewRegEx(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::GenerateRuntimeError(IR::Instr * insertBeforeInstr, Js::MessageId errorCode, IR::JnHelperMethod helper /*= IR::JnHelperMethod::HelperOp_RuntimeTypeError*/)
-{
+{TRACE_IT(11770);
     IR::Instr * runtimeErrorInstr = IR::Instr::New(Js::OpCode::RuntimeTypeError, this->m_func);
     runtimeErrorInstr->SetSrc1(IR::IntConstOpnd::New(errorCode, TyInt32, this->m_func, true));
     insertBeforeInstr->InsertBefore(runtimeErrorInstr);
@@ -11326,11 +11326,11 @@ Lowerer::GenerateRuntimeError(IR::Instr * insertBeforeInstr, Js::MessageId error
 }
 
 bool Lowerer::IsNullOrUndefRegOpnd(IR::RegOpnd *opnd) const
-{
+{TRACE_IT(11771);
     StackSym *sym = opnd->m_sym;
 
     if (!sym->IsConst() || sym->IsIntConst() || sym->IsFloatConst())
-    {
+    {TRACE_IT(11772);
         return false;
     }
     Js::Var var = sym->GetConstAddress();
@@ -11338,11 +11338,11 @@ bool Lowerer::IsNullOrUndefRegOpnd(IR::RegOpnd *opnd) const
 }
 
 bool Lowerer::IsConstRegOpnd(IR::RegOpnd *opnd) const
-{
+{TRACE_IT(11773);
     StackSym *sym = opnd->m_sym;
 
     if (!sym->IsConst() || sym->IsIntConst() || sym->IsFloatConst())
-    {
+    {TRACE_IT(11774);
         return false;
     }
 
@@ -11352,13 +11352,13 @@ bool Lowerer::IsConstRegOpnd(IR::RegOpnd *opnd) const
 
 bool
 Lowerer::HasSideEffects(IR::Instr *instr)
-{
+{TRACE_IT(11775);
     if (LowererMD::IsCall(instr))
-    {
+    {TRACE_IT(11776);
 #ifdef _M_IX86
         IR::Opnd *src1 = instr->GetSrc1();
         if (src1->IsHelperCallOpnd())
-        {
+        {TRACE_IT(11777);
             IR::HelperCallOpnd * helper = src1->AsHelperCallOpnd();
 
             switch(helper->m_fnHelper)
@@ -11375,7 +11375,7 @@ Lowerer::HasSideEffects(IR::Instr *instr)
     return instr->HasAnySideEffects();
 }
 
-bool Lowerer::IsArgSaveRequired(Func *func) {
+bool Lowerer::IsArgSaveRequired(Func *func) {TRACE_IT(11778);
     return (!func->IsTrueLeaf() || func->IsJitInDebugMode() ||
         // GetHasImplicitParamLoad covers generators, asmjs,
         // and other javascript functions that implicitly read from the arg stack slots
@@ -11384,14 +11384,14 @@ bool Lowerer::IsArgSaveRequired(Func *func) {
 
 IR::Instr*
 Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
-{
+{TRACE_IT(11779);
     AssertMsg(instr->GetDst()->IsFloat(), "dst must be float.");
     IR::Instr* retInstr = instr->m_prev;
     IR::Opnd* dst = instr->GetDst();
 
 #if defined(_M_X64)
     if (m_func->GetScriptContextInfo()->IsPRNGSeeded())
-    {
+    {TRACE_IT(11780);
         const uint64 mExp = 0x3FF0000000000000;
         const uint64 mMant = 0x000FFFFFFFFFFFFF;
 
@@ -11462,10 +11462,10 @@ Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
     }
     else
 #endif
-    {
+    {TRACE_IT(11781);
         IR::Opnd* tmpdst = dst;
         if (!dst->IsRegOpnd())
-        {
+        {TRACE_IT(11782);
             tmpdst = IR::RegOpnd::New(dst->GetType(), instr->m_func);
         }
 
@@ -11486,7 +11486,7 @@ Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerCallDirect(IR::Instr * instr)
-{
+{TRACE_IT(11783);
     IR::Opnd* linkOpnd = instr->UnlinkSrc2();
     StackSym *linkSym = linkOpnd->AsSymOpnd()->m_sym->AsStackSym();
     IR::Instr* argInstr = linkSym->m_instrDef;
@@ -11496,7 +11496,7 @@ Lowerer::LowerCallDirect(IR::Instr * instr)
     argInstr->Remove();
 
     if(instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11784);
         IR::Instr * bailOutInstr = this->SplitBailOnImplicitCall(instr, instr->m_next, instr->m_next);
         this->LowerBailOnEqualOrNotEqual(bailOutInstr);
     }
@@ -11506,7 +11506,7 @@ Lowerer::LowerCallDirect(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::GenerateDirectCall(IR::Instr* inlineInstr, IR::Opnd* funcObj, ushort callflags)
-{
+{TRACE_IT(11785);
     int32 argCount = m_lowererMD.LowerCallArgs(inlineInstr, callflags);
     m_lowererMD.LoadHelperArgument(inlineInstr, funcObj);
     m_lowererMD.LowerCall(inlineInstr, (Js::ArgSlot)argCount); //to account for function object and callinfo
@@ -11520,27 +11520,27 @@ Lowerer::GenerateDirectCall(IR::Instr* inlineInstr, IR::Opnd* funcObj, ushort ca
 */
 IR::Instr *
 Lowerer::GenerateHelperToArrayPushFastPath(IR::Instr * instr, IR::LabelInstr * bailOutLabelHelper)
-{
+{TRACE_IT(11786);
     IR::Opnd * arrayHelperOpnd = instr->UnlinkSrc1();
     IR::Opnd * elementHelperOpnd = instr->UnlinkSrc2();
     IR::JnHelperMethod helperMethod;
 
     if(elementHelperOpnd->IsInt32())
-    {
+    {TRACE_IT(11787);
         Assert(arrayHelperOpnd->GetValueType().IsLikelyNativeIntArray());
         helperMethod = IR::HelperArray_NativeIntPush;
 
         m_lowererMD.LoadHelperArgument(instr, elementHelperOpnd);
     }
     else if(elementHelperOpnd->IsFloat())
-    {
+    {TRACE_IT(11788);
         Assert(arrayHelperOpnd->GetValueType().IsLikelyNativeFloatArray());
         helperMethod = IR::HelperArray_NativeFloatPush;
 
         m_lowererMD.LoadDoubleHelperArgument(instr, elementHelperOpnd);
     }
     else
-    {
+    {TRACE_IT(11789);
         helperMethod = IR::HelperArray_VarPush;
         m_lowererMD.LoadHelperArgument(instr, elementHelperOpnd);
     }
@@ -11556,7 +11556,7 @@ Lowerer::GenerateHelperToArrayPushFastPath(IR::Instr * instr, IR::LabelInstr * b
 */
 IR::Instr *
 Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * doneLabel, IR::LabelInstr * bailOutLabelHelper)
-{
+{TRACE_IT(11790);
     IR::Opnd * arrayHelperOpnd = instr->UnlinkSrc1();
     ValueType arrayValueType = arrayHelperOpnd->GetValueType();
 
@@ -11564,19 +11564,19 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //Decide the helperMethod based on dst availability and nativity of the array.
     if(arrayValueType.IsLikelyNativeArray() && !instr->GetDst())
-    {
+    {TRACE_IT(11791);
         helperMethod = IR::HelperArray_NativePopWithNoDst;
     }
     else if(arrayValueType.IsLikelyNativeIntArray())
-    {
+    {TRACE_IT(11792);
         helperMethod = IR::HelperArray_NativeIntPop;
     }
     else if(arrayValueType.IsLikelyNativeFloatArray())
-    {
+    {TRACE_IT(11793);
         helperMethod = IR::HelperArray_NativeFloatPop;
     }
     else
-    {
+    {TRACE_IT(11794);
         helperMethod = IR::HelperArray_VarPop;
     }
 
@@ -11584,7 +11584,7 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //We do not need scriptContext for HelperArray_NativePopWithNoDst call.
     if(helperMethod != IR::HelperArray_NativePopWithNoDst)
-    {
+    {TRACE_IT(11795);
         LoadScriptContext(instr);
     }
 
@@ -11592,14 +11592,14 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //We don't need missing item check for var arrays, as there it is taken care by the helper.
     if(arrayValueType.IsLikelyNativeArray())
-    {
+    {TRACE_IT(11796);
         if(retInstr->GetDst())
-        {
+        {TRACE_IT(11797);
             //Do this check only for native arrays with Dst. For Var arrays, this is taken care in the Runtime helper itself.
             InsertCompareBranch(GetMissingItemOpnd(retInstr->GetDst()->GetType(), m_func), retInstr->GetDst(), Js::OpCode::BrNeq_A, doneLabel, bailOutLabelHelper);
         }
         else
-        {
+        {TRACE_IT(11798);
             //We need unconditional jump to doneLabel, if there is no dst in Pop instr.
             InsertBranch(Js::OpCode::Br, true, doneLabel, bailOutLabelHelper);
         }
@@ -11610,13 +11610,13 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
 IR::Instr *
 Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * helperCall, bool isHelper)
-{
+{TRACE_IT(11799);
     Assert(branchInstr->m_opcode == Js::OpCode::BrTrue_A || branchInstr->m_opcode == Js::OpCode::BrFalse_A);
     if (branchInstr->HasBailOutInfo())
-    {
+    {TRACE_IT(11800);
         IR::BailOutKind debuggerBailOutKind = IR::BailOutInvalid;
         if (branchInstr->HasAuxBailOut())
-        {
+        {TRACE_IT(11801);
             // We have shared debugger bailout. For branches we lower it here, not in SplitBailForDebugger.
             // See SplitBailForDebugger for details.
             AssertMsg(!(branchInstr->GetBailOutKind() & IR::BailOutForDebuggerBits), "There should be no debugger bits in main bailout kind.");
@@ -11629,7 +11629,7 @@ Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * 
         IR::Instr* prevInstr = this->LowerBailOnEqualOrNotEqual(bailOutInstr, branchInstr, nullptr, nullptr, isHelper);
 
         if (debuggerBailOutKind != IR::BailOutInvalid)
-        {
+        {TRACE_IT(11802);
             // Note that by this time implicit calls bailout is already lowered.
             // What we do here is use same bailout info and lower debugger bailout which would be shared bailout.
             BailOutInfo* bailOutInfo = bailOutInstr->GetBailOutInfo();
@@ -11661,12 +11661,12 @@ Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * 
 
 IR::SymOpnd *
 Lowerer::LoadCallInfo(IR::Instr * instrInsert)
-{
+{TRACE_IT(11803);
     IR::SymOpnd * srcOpnd;
     Func * func = instrInsert->m_func;
 
     if (func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(11804);
         // Generator function arguments and ArgumentsInfo are not on the stack.  Instead they
         // are accessed off the generator object (which is prm1).
         IR::Instr *genLoadInstr = LoadGeneratorObject(instrInsert);
@@ -11682,7 +11682,7 @@ Lowerer::LoadCallInfo(IR::Instr * instrInsert)
         srcOpnd = IR::SymOpnd::New(callInfoSym, TyMachReg, func);
     }
     else
-    {
+    {TRACE_IT(11805);
         // Otherwise callInfo is always the "second" argument.
         // The stack looks like this:
         //
@@ -11703,9 +11703,9 @@ Lowerer::LoadCallInfo(IR::Instr * instrInsert)
 
 IR::Instr *
 Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
-{
+{TRACE_IT(11806);
     if (!this->m_func->GetHasStackArgs())
-    {
+    {TRACE_IT(11807);
         throw Js::RejitException(RejitReason::InlineApplyDisabled);
     }
 
@@ -11716,17 +11716,17 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
     IR::LabelInstr * continueLabelInstr;
     IR::Instr *instrNext = instr->m_next;
     if (instrNext->IsLabelInstr())
-    {
+    {TRACE_IT(11808);
         continueLabelInstr = instrNext->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(11809);
         continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func, false);
         instr->InsertAfter(continueLabelInstr);
     }
 
     if (!instr->m_func->IsInlinee())
-    {
+    {TRACE_IT(11810);
         //BailOut if the number of actuals (except "this" argument) is greater than or equal to 15.
         IR::RegOpnd* ldLenDstOpnd = IR::RegOpnd::New(TyUint32, instr->m_func);
         IR::Instr* ldLen = IR::Instr::New(Js::OpCode::LdLen_A, ldLenDstOpnd, instr->m_func);
@@ -11737,7 +11737,7 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
         this->GenerateBailOut(instr, nullptr, nullptr);
     }
     else
-    {
+    {TRACE_IT(11811);
         //For Inlined functions, we are sure actuals can't exceed Js::InlineeCallInfo::MaxInlineeArgoutCount (15).
         //No need to bail out.
         instr->Remove();
@@ -11748,7 +11748,7 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
-{
+{TRACE_IT(11812);
     // We only avoid bailing out / throwing a rejit exception when the array operand is a simple, non-optimized, non-object array.
     IR::Instr * prevInstr = instr->m_prev;
     Func *func = instr->m_func;
@@ -11756,12 +11756,12 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
     IR::RegOpnd *arrayOpnd = nullptr;
     IR::Opnd *arraySrcOpnd = instr->UnlinkSrc1();
     if (!arraySrcOpnd->IsRegOpnd())
-    {
+    {TRACE_IT(11813);
         arrayOpnd = IR::RegOpnd::New(TyMachPtr, func);
         LowererMD::CreateAssign(arrayOpnd, arraySrcOpnd, instr);
     }
     else
-    {
+    {TRACE_IT(11814);
         arrayOpnd = arraySrcOpnd->AsRegOpnd();
     }
 
@@ -11776,7 +11776,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
         || !(baseValueType.IsUninitialized() || baseValueType.HasBeenObject())
 
         || m_func->IsInlinee())
-    {
+    {TRACE_IT(11815);
         throw Js::RejitException(RejitReason::InlineSpreadDisabled);
     }
 
@@ -11789,7 +11789,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
         GenerateArrayTest(arrayOpnd, bailOutLabel, bailOutLabel, instr, false);
     }
     if (!(baseValueType.IsArray() && baseValueType.HasNoMissingValues()))
-    {
+    {TRACE_IT(11816);
         InsertTestBranch(
             IR::IndirOpnd::New(arrayOpnd, Js::JavascriptArray::GetOffsetOfArrayFlags(), TyUint8, func),
             IR::IntConstOpnd::New(static_cast<uint8>(Js::DynamicObjectFlags::HasNoMissingValues), TyUint8, func, true),
@@ -11814,7 +11814,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerBailOnNotPolymorphicInlinee(IR::Instr * instr)
-{
+{TRACE_IT(11817);
     Assert(instr->HasBailOutInfo() && (instr->GetBailOutKind() == IR::BailOutOnFailedPolymorphicInlineTypeCheck || instr->GetBailOutKind() == IR::BailOutOnPolymorphicInlineFunction));
     IR::Instr* instrPrev = instr->m_prev;
 
@@ -11825,22 +11825,22 @@ Lowerer::LowerBailOnNotPolymorphicInlinee(IR::Instr * instr)
 
 void
 Lowerer::LowerBailoutCheckAndLabel(IR::Instr *instr, bool onEqual, bool isHelper)
-{
+{TRACE_IT(11818);
     // Label to skip Bailout and continue
     IR::LabelInstr * continueLabelInstr;
     IR::Instr *instrNext = instr->m_next;
     if (instrNext->IsLabelInstr())
-    {
+    {TRACE_IT(11819);
         continueLabelInstr = instrNext->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(11820);
         continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func, isHelper);
         instr->InsertAfter(continueLabelInstr);
     }
 
     if(instr->GetBailOutKind() == IR::BailOutInjected)
-    {
+    {TRACE_IT(11821);
         // BailOnEqual 0, 0
         Assert(onEqual);
         Assert(instr->GetSrc1()->IsEqual(instr->GetSrc2()));
@@ -11862,7 +11862,7 @@ Lowerer::LowerBailoutCheckAndLabel(IR::Instr *instr, bool onEqual, bool isHelper
         onEqual ? Js::OpCode::BrNeq_A : Js::OpCode::BrEq_A, continueLabelInstr, instr);
 
     if (!isHelper)
-    {
+    {TRACE_IT(11822);
         IR::LabelInstr * helperLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         instr->InsertBefore(helperLabelInstr);
     }
@@ -11874,7 +11874,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
     IR::LabelInstr *labelBailOut, // = nullptr
     IR::PropertySymOpnd * propSymOpnd, // = nullptr
     bool isHelper)                // = false
-{
+{TRACE_IT(11823);
     IR::Instr * prevInstr = instr->m_prev;
 
     // Bail out test
@@ -11886,7 +11886,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
     // we need to update this profile information on the bailout path for BailOutOnImplicitCalls if the implicit call was an accessor call.
     if(propSymOpnd && ((instr->GetBailOutKind() & ~IR::BailOutKindBits) == IR::BailOutOnImplicitCalls) && (propSymOpnd->m_inlineCacheIndex != -1) &&
         instr->m_func->HasProfileInfo())
-    {
+    {TRACE_IT(11824);
         // result = AND implCallFlags, ~ImplicitCall_None
         //          TST result, ImplicitCall_Accessor
         //          JEQ $bail
@@ -11915,7 +11915,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
 }
 
 void Lowerer::LowerBailOnNegative(IR::Instr *const instr)
-{
+{TRACE_IT(11825);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BailOnNegative);
     Assert(instr->HasBailOutInfo());
@@ -11947,7 +11947,7 @@ IR::Instr *
 Lowerer::LowerBailOnNotObject(IR::Instr       *instr,
                               IR::BranchInstr *branchInstr  /* = nullptr */,
                               IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{TRACE_IT(11826);
     IR::Instr      *prevInstr          = instr->m_prev;
     IR::LabelInstr *continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label,
                                                              m_func);
@@ -11963,7 +11963,7 @@ Lowerer::LowerBailOnNotObject(IR::Instr       *instr,
 
 IR::Instr *
 Lowerer::LowerBailOnTrue(IR::Instr* instr, IR::LabelInstr* labelBailOut /*nullptr*/)
-{
+{TRACE_IT(11827);
     IR::Instr* instrPrev = instr->m_prev;
 
     IR::LabelInstr* continueLabel = instr->GetOrCreateContinueLabel();
@@ -11980,7 +11980,7 @@ IR::Instr *
 Lowerer::LowerBailOnNotBuiltIn(IR::Instr       *instr,
                                IR::BranchInstr *branchInstr  /* = nullptr */,
                                IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{TRACE_IT(11828);
     Assert(instr->GetSrc2()->IsIntConstOpnd());
     IR::Instr *prevInstr = instr->m_prev;
 
@@ -12007,7 +12007,7 @@ Lowerer::LowerBailOnNotBuiltIn(IR::Instr       *instr,
 
 IR::Instr *
 Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false */)
-{
+{TRACE_IT(11829);
     IR::Instr * prevInstr = instr->m_prev;
 
     IR::BailOutKind bailOutKind = instr->GetBailOutKind();
@@ -12018,7 +12018,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
     IR::LabelInstr* explicitBailOutLabel = nullptr;
 
     if (!(bailOutKind & IR::BailOutExplicit))
-    {
+    {TRACE_IT(11830);
         intptr_t flags = m_func->GetScriptContextInfo()->GetDebuggingFlagsAddr();
 
         // Check 1 (do we need to bail out?)
@@ -12047,7 +12047,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         const IR::BailOutKind c_forceAndIgnoreEx = IR::BailOutForceByFlag | IR::BailOutIgnoreException;
         if ((bailOutKind & c_forceAndIgnoreEx) == c_forceAndIgnoreEx)
-        {
+        {TRACE_IT(11831);
             // It's faster to check these together in 1 check rather than 2 separate checks at run time.
             // CMP [&(flags->m_forceInterpreter, flags->m_isIgnoreException)], 0
             // BNE bailout
@@ -12057,9 +12057,9 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
             bailOutKind ^= c_forceAndIgnoreEx;
         }
         else
-        {
+        {TRACE_IT(11832);
             if (bailOutKind & IR::BailOutForceByFlag)
-            {
+            {TRACE_IT(11833);
                 // CMP [&flags->m_forceInterpreter], 0
                 // BNE bailout
                 IR::Opnd* opnd1 = IR::MemRefOpnd::New((BYTE*)flags + DebuggingFlags::GetForceInterpreterOffset(), TyInt8, m_func);
@@ -12068,7 +12068,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
                 bailOutKind ^= IR::BailOutForceByFlag;
             }
             if (bailOutKind & IR::BailOutIgnoreException)
-            {
+            {TRACE_IT(11834);
                 // CMP [&flags->m_byteCodeOffsetAfterIgnoreException], DebuggingFlags::InvalidByteCodeOffset
                 // BNE bailout
                 IR::Opnd* opnd1 = IR::MemRefOpnd::New((BYTE*)flags + DebuggingFlags::GetByteCodeOffsetAfterIgnoreExceptionOffset(), TyInt32, m_func);
@@ -12079,7 +12079,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (bailOutKind & IR::BailOutBreakPointInFunction)
-        {
+        {TRACE_IT(11835);
             // CMP [&functionBody->m_sourceInfo.m_probeCount], 0
             // BNE bailout
             IR::Opnd* opnd1 = IR::MemRefOpnd::New(m_func->GetJITFunctionBody()->GetProbeCountAddr(), TyInt32, m_func);
@@ -12090,7 +12090,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         // on method entry
         if(bailOutKind & IR::BailOutStep)
-        {
+        {TRACE_IT(11836);
             // TEST STEP_BAILOUT, [&stepController->StepType]
             // BNE BailoutLabel
             IR::Opnd* opnd1 = IR::MemRefOpnd::New(m_func->GetScriptContextInfo()->GetDebugStepTypeAddr(), TyInt8, m_func);
@@ -12110,7 +12110,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         // on method exit
         if (bailOutKind & IR::BailOutStackFrameBase)
-        {
+        {TRACE_IT(11837);
             // CMP EffectiveFrameBase, [&stepController->frameAddrWhenSet]
             // BA bailoutLabel
             RegNum effectiveFrameBaseReg;
@@ -12135,10 +12135,10 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (bailOutKind & IR::BailOutLocalValueChanged)
-        {
+        {TRACE_IT(11838);
             int32 hasLocalVarChangedOffset = m_func->GetHasLocalVarChangedOffset();
             if (hasLocalVarChangedOffset != Js::Constants::InvalidOffset)
-            {
+            {TRACE_IT(11839);
                 // CMP [EBP + hasLocalVarChangedStackOffset], 0
                 // BNE bailout
                 StackSym* sym = StackSym::New(TyInt8, m_func);
@@ -12152,7 +12152,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (doGenerateBailOutDocumentBlock)
-        {
+        {TRACE_IT(11840);
             // GENERATE the BailoutDocumentLabel
             // bailOutDocumentLabel:
             //   CMP CurrentScriptId, [&stepController->ScriptIdWhenSet]
@@ -12172,7 +12172,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         // Note: at this time the 'instr' is in between bailoutLabel and continueLabel.
     }
     else
-    {
+    {TRACE_IT(11841);
         // For explicit/unconditional bailout use label which is not a helper, otherwise we would get a helper in main code path
         // which breaks helper label consistency (you can only get to helper from a conditional branch in main code), see DbCheckPostLower.
         explicitBailOutLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, false);
@@ -12185,7 +12185,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
 IR::Instr*
 Lowerer::LowerBailOnException(IR::Instr * instr)
-{
+{TRACE_IT(11842);
     Assert(instr->HasBailOutInfo());
     IR::Instr * instrPrev = instr->m_prev;
     Assert(instrPrev->m_opcode == Js::OpCode::Catch);
@@ -12199,36 +12199,36 @@ Lowerer::LowerBailOnException(IR::Instr * instr)
 // It it's not INT_MIN, we continue without bailout.
 IR::Instr *
 Lowerer::LowerBailOnIntMin(IR::Instr *instr, IR::BranchInstr *branchInstr  /* = nullptr */, IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{TRACE_IT(11843);
     Assert(instr);
     Assert(instr->GetSrc1());
     IR::LabelInstr *continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     instr->InsertAfter(continueLabelInstr);
 
     if(!instr->HasBailOutInfo())
-    {
+    {TRACE_IT(11844);
         instr->Remove();
     }
     else
-    {
+    {TRACE_IT(11845);
         Assert(instr->GetBailOutKind() == IR::BailOnIntMin);
         // Note: src1 must be int32 at this point.
         if (instr->GetSrc1()->IsIntConstOpnd())
-        {
+        {TRACE_IT(11846);
             // For consts we can check the value at JIT time. Note: without this check we'll have to legalize the CMP instr.
             IR::IntConstOpnd* intConst = instr->UnlinkSrc1()->AsIntConstOpnd();
             if (intConst->GetValue() == INT_MIN)
-            {
+            {TRACE_IT(11847);
                 this->GenerateBailOut(instr, branchInstr, labelBailOut);
                 intConst->Free(instr->m_func);
             }
             else
-            {
+            {TRACE_IT(11848);
                 instr->Remove();
             }
         }
         else
-        {
+        {TRACE_IT(11849);
             InsertCompareBranch(instr->UnlinkSrc1(), IR::IntConstOpnd::New(INT_MIN, TyInt32, this->m_func), Js::OpCode::BrNeq_A, continueLabelInstr, instr);
             this->GenerateBailOut(instr, branchInstr, labelBailOut);
         }
@@ -12244,9 +12244,9 @@ Lowerer::LowerBailOnIntMin(IR::Instr *instr, IR::BranchInstr *branchInstr  /* = 
 ///
 ///----------------------------------------------------------------------------
 void Lowerer::LowerBailOnNotString(IR::Instr *instr)
-{
+{TRACE_IT(11850);
     if (!instr->GetSrc1()->GetValueType().IsString())
-    {
+    {TRACE_IT(11851);
         /*Creating a MOV instruction*/
         IR::Instr * movInstr = IR::Instr::New(instr->m_opcode, instr->UnlinkDst(), instr->UnlinkSrc1(), instr->m_func);
         instr->InsertBefore(movInstr);
@@ -12261,7 +12261,7 @@ void Lowerer::LowerBailOnNotString(IR::Instr *instr)
         this->GenerateBailOut(instr, nullptr, helperLabelInstr);
     }
     else
-    {
+    {TRACE_IT(11852);
         instr->ClearBailOutInfo();
     }
 }
@@ -12271,7 +12271,7 @@ void Lowerer::LowerOneBailOutKind(
     const IR::BailOutKind bailOutKindToLower,
     const bool isInHelperBlock,
     const bool preserveBailOutKindInInstr)
-{
+{TRACE_IT(11853);
     Assert(instr);
     Assert(bailOutKindToLower);
     Assert(!(bailOutKindToLower & IR::BailOutKindBits) || !(bailOutKindToLower & bailOutKindToLower - 1u));
@@ -12286,13 +12286,13 @@ void Lowerer::LowerOneBailOutKind(
             ? bailOutKind & bailOutKindToLower
             : (bailOutKind & ~IR::BailOutKindBits) == bailOutKindToLower);
     if(!preserveBailOutKindInInstr)
-    {
+    {TRACE_IT(11854);
         bailOutKind -= bailOutKindToLower;
     }
     if(bailOutKind)
-    {
+    {TRACE_IT(11855);
         if(bailOutInfo->bailOutInstr == instr)
-        {
+        {TRACE_IT(11856);
             // Create a shared bailout point for the split bailout checks
             IR::Instr *const sharedBail = instr->ShareBailOut();
             Assert(sharedBail->GetBailOutInfo() == bailOutInfo);
@@ -12301,10 +12301,10 @@ void Lowerer::LowerOneBailOutKind(
         instr->SetBailOutKind(bailOutKind);
     }
     else
-    {
+    {TRACE_IT(11857);
         instr->UnlinkBailOutInfo();
         if(bailOutInfo->bailOutInstr == instr)
-        {
+        {TRACE_IT(11858);
             bailOutInfo->bailOutInstr = nullptr;
         }
     }
@@ -12324,7 +12324,7 @@ void Lowerer::SplitBailOnNotArray(
     IR::Instr *const instr,
     IR::Instr * *const bailOnNotArrayRef,
     IR::Instr * *const bailOnMissingValueRef)
-{
+{TRACE_IT(11859);
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(instr->GetSrc1());
@@ -12342,14 +12342,14 @@ void Lowerer::SplitBailOnNotArray(
     IR::BailOutKind bailOutKind = instr->GetBailOutKind();
     if(bailOutKind == IR::BailOutOnNotArray ||
        bailOutKind == IR::BailOutOnNotNativeArray)
-    {
+    {TRACE_IT(11860);
         return;
     }
 
     // Split array checks
     BailOutInfo *const bailOutInfo = instr->GetBailOutInfo();
     if(bailOutInfo->bailOutInstr == instr)
-    {
+    {TRACE_IT(11861);
         // Create a shared bailout point for the split bailout checks
         IR::Instr *const sharedBail = instr->ShareBailOut();
         Assert(sharedBail->GetBailOutInfo() == bailOutInfo);
@@ -12370,7 +12370,7 @@ void Lowerer::SplitBailOnNotArray(
 }
 
 IR::RegOpnd *Lowerer::LowerBailOnNotArray(IR::Instr *const instr)
-{
+{TRACE_IT(11862);
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(instr->GetSrc1());
@@ -12402,7 +12402,7 @@ IR::RegOpnd *Lowerer::LowerBailOnNotArray(IR::Instr *const instr)
 }
 
 void Lowerer::LowerBailOnMissingValue(IR::Instr *const instr, IR::RegOpnd *const arrayOpnd)
-{
+{TRACE_IT(11863);
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(!instr->GetSrc1());
@@ -12437,7 +12437,7 @@ void Lowerer::LowerBailOnMissingValue(IR::Instr *const instr, IR::RegOpnd *const
 }
 
 void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{TRACE_IT(11864);
     /*
         // Generate checks for whether the head segment or the head segment length changed during the helper call
 
@@ -12494,12 +12494,12 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
     IR::RegOpnd *headSegmentBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseHeadSegmentBeforeHelperCallOpnd;
     if(isArrayOrObjectWithArray && arrayOpnd && arrayOpnd->HeadSegmentSym())
-    {
+    {TRACE_IT(11865);
         headSegmentBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->HeadSegmentSym(), TyMachPtr, func);
         autoReuseHeadSegmentBeforeHelperCallOpnd.Initialize(headSegmentBeforeHelperCallOpnd, func);
     }
     else
-    {
+    {TRACE_IT(11866);
         // Record the array head segment before the helper call
         //     headSegmentBeforeHelperCall = Js::JavascriptArray::Jit_GetArrayHeadSegmentForArrayOrObjectWithArray(base)
         m_lowererMD.LoadHelperArgument(instr, baseOpnd);
@@ -12514,12 +12514,12 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
     IR::RegOpnd *headSegmentLengthBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseHeadSegmentLengthBeforeHelperCallOpnd;
     if(isArrayOrObjectWithArray && arrayOpnd && arrayOpnd->HeadSegmentLengthSym())
-    {
+    {TRACE_IT(11867);
         headSegmentLengthBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->HeadSegmentLengthSym(), TyUint32, func);
         autoReuseHeadSegmentLengthBeforeHelperCallOpnd.Initialize(headSegmentLengthBeforeHelperCallOpnd, func);
     }
     else
-    {
+    {TRACE_IT(11868);
         headSegmentLengthBeforeHelperCallOpnd = IR::RegOpnd::New(StackSym::New(TyUint32, func), TyUint32, func);
         autoReuseHeadSegmentLengthBeforeHelperCallOpnd.Initialize(headSegmentLengthBeforeHelperCallOpnd, func);
         if(isArrayOrObjectWithArray && arrayOpnd && arrayOpnd->HeadSegmentSym())
@@ -12536,7 +12536,7 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
                 instr);
         }
         else
-        {
+        {TRACE_IT(11869);
             // Record the array head segment length before the helper call
             //     headSegmentLengthBeforeHelperCall =
             //         Js::JavascriptArray::Jit_GetArrayHeadSegmentLength(headSegmentBeforeHelperCall)
@@ -12582,7 +12582,7 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
 }
 
 void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{TRACE_IT(11870);
     /*
         // Generate checks for whether the length changed during the helper call
 
@@ -12620,12 +12620,12 @@ void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bo
     IR::RegOpnd *lengthBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseLengthBeforeHelperCallOpnd;
     if(arrayOpnd && arrayOpnd->LengthSym() && arrayOpnd->LengthSym() != arrayOpnd->HeadSegmentLengthSym())
-    {
+    {TRACE_IT(11871);
         lengthBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->LengthSym(), arrayOpnd->LengthSym()->GetType(), func);
         autoReuseLengthBeforeHelperCallOpnd.Initialize(lengthBeforeHelperCallOpnd, func);
     }
     else
-    {
+    {TRACE_IT(11872);
         // Record the array length before the helper call
         //     lengthBeforeHelperCall = Js::JavascriptArray::Jit_GetArrayLength(base)
         m_lowererMD.LoadHelperArgument(instr, baseOpnd);
@@ -12666,7 +12666,7 @@ void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bo
 }
 
 void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{TRACE_IT(11873);
     /*
         // Generate checks for whether the first missing value was created during the helper call
 
@@ -12707,7 +12707,7 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
     IR::AutoReuseOpnd autoReuseArrayFlagsBeforeHelperCallOpnd;
     const IRType arrayFlagsType = sizeof(uintptr_t) == sizeof(uint32) ? TyUint32 : TyUint64;
     if(!(baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues()))
-    {
+    {TRACE_IT(11874);
         // Record whether the array has missing values before the helper call
         //     arrayFlagsBeforeHelperCall = Js::JavascriptArray::Jit_GetArrayFlagsForArrayOrObjectWithArray(base)
         m_lowererMD.LoadHelperArgument(instr, baseOpnd);
@@ -12727,7 +12727,7 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
     // call, then this store created the first missing value in the array and needs to bail out
 
     if(baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues())
-    {
+    {TRACE_IT(11875);
         //     (arrayFlagsBeforeHelperCall = Js::DynamicObjectFlags::HasNoMissingValues)
         Assert(!arrayFlagsBeforeHelperCallOpnd);
         arrayFlagsBeforeHelperCallOpnd =
@@ -12746,7 +12746,7 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
         autoReuseArrayFlagsBeforeHelperCallOpnd.Initialize(arrayFlagsBeforeHelperCallOpnd, func);
     }
     else
-    {
+    {TRACE_IT(11876);
         Assert(arrayFlagsBeforeHelperCallOpnd);
     }
 
@@ -12774,13 +12774,13 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
 }
 
 void Lowerer::LowerBoundCheck(IR::Instr *const instr)
-{
+{TRACE_IT(11877);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BoundCheck || instr->m_opcode == Js::OpCode::UnsignedBoundCheck);
 
 #if DBG
     if(instr->m_opcode == Js::OpCode::UnsignedBoundCheck)
-    {
+    {TRACE_IT(11878);
         // UnsignedBoundCheck is currently only supported for the pattern:
         //     UnsignedBoundCheck s1 <= s2 + c, where c == 0 || c == -1
         Assert(instr->GetSrc1()->IsRegOpnd());
@@ -12788,7 +12788,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
         Assert(instr->GetSrc2());
         Assert(!instr->GetSrc2()->IsIntConstOpnd());
         if(instr->GetDst())
-        {
+        {TRACE_IT(11879);
             const int32 c = instr->GetDst()->AsIntConstOpnd()->AsInt32();
             Assert(c == 0 || c == -1);
         }
@@ -12809,14 +12809,14 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
 
 #if DBG
     const auto VerifyLeftOrRightOpnd = [&](IR::Opnd *const opnd, const bool isRightOpnd)
-    {
+    {TRACE_IT(11880);
         if(!opnd)
-        {
+        {TRACE_IT(11881);
             Assert(isRightOpnd);
             return;
         }
         if(opnd->IsIntConstOpnd())
-        {
+        {TRACE_IT(11882);
             Assert(!isRightOpnd || opnd->AsIntConstOpnd()->GetValue() != 0);
             return;
         }
@@ -12840,7 +12840,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     IntConstType offset = offsetOpnd ? offsetOpnd->GetValue() : 0;
     Js::OpCode compareOpCode = Js::OpCode::BrLe_A;
     if(leftOpnd->IsIntConstOpnd() && rightOpnd->IsRegOpnd() && offset != IntConstMin)
-    {
+    {TRACE_IT(11883);
         // Put the constants together: swap the operands, negate the offset, and invert the branch
         IR::Opnd *const tempOpnd = leftOpnd;
         leftOpnd = rightOpnd;
@@ -12850,11 +12850,11 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     }
 
     if(rightOpnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(11884);
         // Try to aggregate right + offset into a constant offset
         IntConstType newOffset;
         if(!IntConstMath::Add(offset, rightOpnd->AsIntConstOpnd()->GetValue(), &newOffset))
-        {
+        {TRACE_IT(11885);
             offset = newOffset;
             rightOpnd = nullptr;
             offsetOpnd = nullptr;
@@ -12864,17 +12864,17 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     // Determine if the Add for (right + offset) is necessary, and the op code that will be used for the comparison
     IR::AutoReuseOpnd autoReuseAddResultOpnd;
     if(offset == -1 && compareOpCode == Js::OpCode::BrLe_A)
-    {
+    {TRACE_IT(11886);
         offset = 0;
         compareOpCode = Js::OpCode::BrLt_A;
     }
     else if(offset == 1 && compareOpCode == Js::OpCode::BrGe_A)
-    {
+    {TRACE_IT(11887);
         offset = 0;
         compareOpCode = Js::OpCode::BrGt_A;
     }
     else if(offset != 0 && rightOpnd)
-    {
+    {TRACE_IT(11888);
         // Need to Add (right + offset). If it overflows, bail out.
         IR::LabelInstr *const bailOutLabel = insertBeforeInstr->m_prev->GetOrCreateContinueLabel(true);
         insertBeforeInstr = bailOutLabel;
@@ -12901,7 +12901,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     //     jl[e] $skipBailOut
     // $bailOut:
     if(!rightOpnd)
-    {
+    {TRACE_IT(11889);
         rightOpnd = IR::IntConstOpnd::New(offset, TyInt32, func, true);
     }
     InsertCompareBranch(leftOpnd, rightOpnd, compareOpCode, doUnsignedCompare, skipBailOutLabel, insertBeforeInstr);
@@ -12909,7 +12909,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
 
 IR::Instr *
 Lowerer::LowerBailTarget(IR::Instr * instr)
-{
+{TRACE_IT(11890);
     // this is just a bailout target, just skip over it and generate a label before so other bailout can jump here.
     IR::Instr * prevInstr = instr->m_prev;
 
@@ -12926,7 +12926,7 @@ Lowerer::LowerBailTarget(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
-{
+{TRACE_IT(11891);
     Assert(instr->IsPlainInstr() || instr->IsProfiledInstr());
 
     const auto bailOutKind = instr->GetBailOutKind();
@@ -12942,7 +12942,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
 
     IR::Instr *disableImplicitCallsInstr = nullptr, *enableImplicitCallsInstr = nullptr;
     if(bailOutKind == IR::BailOutOnImplicitCallsPreOp)
-    {
+    {TRACE_IT(11892);
         const auto disableImplicitCallAddress =
             m_lowererMD.GenerateMemRef(
                 instr->m_func->GetThreadContextInfo()->GetDisableImplicitFlagsAddr(),
@@ -12974,7 +12974,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
     bailOutInstr->InsertBefore(instr);
 
     if(disableImplicitCallsInstr)
-    {
+    {TRACE_IT(11893);
         // Re-enable implicit calls
         Assert(enableImplicitCallsInstr);
         bailOutInstr->InsertBefore(enableImplicitCallsInstr);
@@ -12994,7 +12994,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
 
 IR::Instr *
 Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(11894);
     IR::Opnd * implicitCallFlags = this->GetImplicitCallFlagsOpnd();
     const IR::AutoReuseOpnd autoReuseImplicitCallFlags(implicitCallFlags, instr->m_func);
     IR::IntConstOpnd * noImplicitCall = IR::IntConstOpnd::New(Js::ImplicitCall_None, TyInt8, this->m_func, true);
@@ -13005,7 +13005,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::
 
     BailOutInfo * bailOutInfo = instr->GetBailOutInfo();
     if (bailOutInfo->bailOutInstr == instr)
-    {
+    {TRACE_IT(11895);
         bailOutInfo->bailOutInstr = nullptr;
     }
     IR::Instr * bailOutInstr = IR::BailOutInstr::New(Js::OpCode::BailOnNotEqual, IR::BailOutOnImplicitCalls, bailOutInfo, bailOutInfo->bailOutFunc);
@@ -13028,7 +13028,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::
 //   - real instr, then debuggerBailout -- in case we only had debugger bailout.
 //   - real instr with BailOutInfo w/o debugger bailout, then debuggerBailout, then sharedBailout -- in case bailout for debugger was shared w/some other b.o.
 IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
-{
+{TRACE_IT(11896);
     Assert(m_func->IsJitInDebugMode() && instr->m_opcode != Js::OpCode::BailForDebugger);
 
     IR::BailOutKind debuggerBailOutKind;    // Used for splitted instr.
@@ -13036,7 +13036,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
     IR::Instr* sharedBailoutInstr = nullptr;
 
     if (instr->GetBailOutKind() & IR::BailOutForDebuggerBits)
-    {
+    {TRACE_IT(11897);
         // debugger bailout is not shared.
         Assert(!instr->HasAuxBailOut());
         AssertMsg(!(instr->GetBailOutKind() & ~IR::BailOutForDebuggerBits), "There should only be debugger bailout bits in the instr.");
@@ -13046,7 +13046,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
         // There is no non-debugger bailout in the instr, still can't clear bailout info, as we use it for the splitted instr,
         // but we need to mark the bailout as hasn't been generated yet.
         if (bailOutInfo->bailOutInstr == instr)
-        {
+        {TRACE_IT(11898);
             // null will be picked up by following BailOutInstr::New which will change it to new bailout instr.
             bailOutInfo->bailOutInstr = nullptr;
         }
@@ -13055,13 +13055,13 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
         instr->ClearBailOutInfo();
     }
     else if (instr->IsBranchInstr() && instr->HasBailOutInfo() && instr->HasAuxBailOut())
-    {
+    {TRACE_IT(11899);
         // Branches with shared bailout are lowered in LowerCondBranchCheckBailOut,
         // can't do here because we need to use BranchBailOutRecord but don't know which BrTrue/BrFalse to use for it.
         debuggerBailOutKind = IR::BailOutInvalid;
     }
     else if (instr->HasAuxBailOut() && instr->GetAuxBailOutKind() & IR::BailOutForDebuggerBits)
-    {
+    {TRACE_IT(11900);
         // debugger bailout is shared.
         AssertMsg(!(instr->GetBailOutKind() & IR::BailOutForDebuggerBits), "There should be no debugger bits in main bailout kind.");
 
@@ -13080,7 +13080,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
     }
 
     if (debuggerBailOutKind != IR::BailOutInvalid)
-    {
+    {TRACE_IT(11901);
         IR::BailOutInstr* debuggerBailoutInstr = IR::BailOutInstr::New(
             Js::OpCode::BailForDebugger, debuggerBailOutKind, bailOutInfo, bailOutInfo->bailOutFunc);
         instr->InsertAfter(debuggerBailoutInstr);
@@ -13094,7 +13094,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::SplitBailOnResultCondition(IR::Instr *const instr) const
-{
+{TRACE_IT(11902);
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(
@@ -13112,7 +13112,7 @@ Lowerer::LowerBailOnResultCondition(
     IR::Instr *const instr,
     IR::LabelInstr * *const bailOutLabel,
     IR::LabelInstr * *const skipBailOutLabel)
-{
+{TRACE_IT(11903);
     Assert(instr);
     Assert(
         instr->GetBailOutKind() & IR::BailOutOnResultConditions ||
@@ -13137,7 +13137,7 @@ Lowerer::LowerBailOnResultCondition(
 
 void
 Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::LabelInstr *const skipBailOutLabel) const
-{
+{TRACE_IT(11904);
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(!instr->HasBailOutInfo());
@@ -13149,7 +13149,7 @@ Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::Lab
     Assert(dst);
     const auto dstStackSym = dst->GetStackSym();
     if(!dstStackSym || !dstStackSym->HasByteCodeRegSlot())
-    {
+    {TRACE_IT(11905);
         // We only need to ensure that a byte-code source is not being overwritten
         return;
     }
@@ -13167,7 +13167,7 @@ Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::Lab
 
     Assert(instr->GetSrc1());
     if(!dst->IsEqual(instr->GetSrc1()) && !(instr->GetSrc2() && dst->IsEqual(instr->GetSrc2())))
-    {
+    {TRACE_IT(11906);
         // The destination is different from the sources
         return;
     }
@@ -13183,7 +13183,7 @@ Lowerer::LowerInstrWithBailOnResultCondition(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel) const
-{
+{TRACE_IT(11907);
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(!instr->HasBailOutInfo());
@@ -13225,11 +13225,11 @@ Lowerer::LowerInstrWithBailOnResultCondition(
 
 void
 Lowerer::GenerateObjectTestAndTypeLoad(IR::Instr *instrLdSt, IR::RegOpnd *opndBase, IR::RegOpnd *opndType, IR::LabelInstr *labelHelper)
-{
+{TRACE_IT(11908);
     IR::IndirOpnd *opndIndir;
 
     if (!opndBase->IsNotTaggedValue())
-    {
+    {TRACE_IT(11909);
         m_lowererMD.GenerateObjectTest(opndBase, instrLdSt, labelHelper);
     }
 
@@ -13239,11 +13239,11 @@ Lowerer::GenerateObjectTestAndTypeLoad(IR::Instr *instrLdSt, IR::RegOpnd *opndBa
 
 IR::LabelInstr *
 Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::LabelInstr *bailOutLabel, IR::LabelInstr * collectRuntimeStatsLabel)
-{
+{TRACE_IT(11910);
     BailOutInfo * bailOutInfo = instr->GetBailOutInfo();
     IR::Instr * bailOutInstr = bailOutInfo->bailOutInstr;
     if (instr->IsCloned())
-    {
+    {TRACE_IT(11911);
         Assert(bailOutInstr != instr);
 
         // jump to the cloned bail out label
@@ -13256,21 +13256,21 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
     // Add helper label to trigger layout.
     if (!collectRuntimeStatsLabel)
-    {
+    {TRACE_IT(11912);
         collectRuntimeStatsLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     }
     Assert(!collectRuntimeStatsLabel->IsLinked());
     instr->InsertBefore(collectRuntimeStatsLabel);
 
     if (bailOutInstr != instr)
-    {
+    {TRACE_IT(11913);
         // this bailOutInfo is shared, just jump to the bailout target
 
         IR::Opnd * indexOpndForBailOutKind = nullptr;
 
         int bailOutRecordOffset = 0;
         if (this->m_func->IsOOPJIT())
-        {
+        {TRACE_IT(11914);
             bailOutRecordOffset = NativeCodeData::GetDataTotalOffset(bailOutInfo->bailOutRecord);
 
             indexOpndForBailOutKind = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + BailOutRecord::GetOffsetOfBailOutKind()), TyUint32,
@@ -13282,7 +13282,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
             this->addToLiveOnBackEdgeSyms->Set(m_func->GetTopFunc()->GetNativeCodeDataSym()->m_id);
         }
         else
-        {
+        {TRACE_IT(11915);
             indexOpndForBailOutKind =
                 IR::MemRefOpnd::New((BYTE*)bailOutInfo->bailOutRecord + BailOutRecord::GetOffsetOfBailOutKind(), TyUint32, this->m_func, IR::AddrOpndKindDynamicBailOutKindRef);
         }
@@ -13293,7 +13293,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         // No point in doing this for BailOutFailedEquivalentTypeCheck or BailOutFailedEquivalentFixedFieldTypeCheck,
         // because the respective inline cache is already polymorphic, anyway.
         if (instr->GetBailOutKind() == IR::BailOutFailedTypeCheck || instr->GetBailOutKind() == IR::BailOutFailedFixedFieldTypeCheck)
-        {
+        {TRACE_IT(11916);
             // We have a type check bailout that shares a bailout record with other instructions.
             // Generate code to write the cache index into the bailout record before we jump to the call site.
             Assert(bailOutInfo->polymorphicCacheIndex != (uint)-1);
@@ -13301,11 +13301,11 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
             IR::Opnd * indexOpnd = nullptr;
 
             if (this->m_func->IsOOPJIT())
-            {
+            {TRACE_IT(11917);
                 indexOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + BailOutRecord::GetOffsetOfPolymorphicCacheIndex()), TyUint32, m_func);
             }
             else
-            {
+            {TRACE_IT(11918);
                 indexOpnd = IR::MemRefOpnd::New((BYTE*)bailOutInfo->bailOutRecord + BailOutRecord::GetOffsetOfPolymorphicCacheIndex(), TyUint32, this->m_func);
             }
 
@@ -13314,14 +13314,14 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         }
 
         if (bailOutInfo->bailOutRecord->GetType() == BailOutRecord::BailoutRecordType::Shared)
-        {
+        {TRACE_IT(11919);
             IR::Opnd *functionBodyOpnd;
             if (this->m_func->IsOOPJIT())
-            {
+            {TRACE_IT(11920);
                 functionBodyOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + SharedBailOutRecord::GetOffsetOfFunctionBody()), TyMachPtr, m_func);
             }
             else
-            {
+            {TRACE_IT(11921);
                 functionBodyOpnd = IR::MemRefOpnd::New((BYTE*)bailOutInfo->bailOutRecord + SharedBailOutRecord::GetOffsetOfFunctionBody(), TyMachPtr, this->m_func);
             }
             m_lowererMD.CreateAssign(
@@ -13333,7 +13333,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         IR::LabelInstr * bailOutTargetLabel = bailOutInstr->AsLabelInstr();
 #if DBG
         if (bailOutTargetLabel->m_noHelperAssert)
-        {
+        {TRACE_IT(11922);
             collectRuntimeStatsLabel->m_noHelperAssert = true;
         }
 #endif
@@ -13350,27 +13350,27 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
     // capture the condition for this bailout
     if (bailOutLabel == nullptr)
-    {
+    {TRACE_IT(11923);
         // Create a label and place it in the bailout info so that shared bailout point can jump to this one
         if (instr->m_prev->IsLabelInstr())
-        {
+        {TRACE_IT(11924);
             bailOutLabel = instr->m_prev->AsLabelInstr();
             Assert(bailOutLabel->isOpHelper);
         }
         else
-        {
+        {TRACE_IT(11925);
             bailOutLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
             instr->InsertBefore(bailOutLabel);
         }
     }
     else
-    {
+    {TRACE_IT(11926);
         instr->InsertBefore(bailOutLabel);
     }
 
 #if DBG
     if (bailOutInstr->m_opcode == Js::OpCode::BailOnNoSimdTypeSpec || bailOutInstr->m_opcode == Js::OpCode::BailOnNoProfile || bailOutInstr->m_opcode == Js::OpCode::BailOnException || bailOutInstr->m_opcode == Js::OpCode::Yield)
-    {
+    {TRACE_IT(11927);
         bailOutLabel->m_noHelperAssert = true;
     }
 #endif
@@ -13383,7 +13383,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
     BailOutRecord * bailOutRecord;
     IR::JnHelperMethod helperMethod;
     if (branchInstr != nullptr)
-    {
+    {TRACE_IT(11928);
         Assert(branchInstr->GetSrc2() == nullptr);
         Assert(branchInstr->GetDst() == nullptr);
 
@@ -13396,7 +13396,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         bool invertTarget = (branchInstr->m_opcode == Js::OpCode::BrFalse_A);
 
         if (bailOutInfo->isInvertedBranch)
-        {
+        {TRACE_IT(11929);
             // Flip the condition
             IR::Instr *subInstr = IR::Instr::New(Js::OpCode::Sub_I4, condOpnd, condOpnd, IR::IntConstOpnd::New(1, TyMachReg, instr->m_func), instr->m_func);
             instr->InsertBefore(subInstr);
@@ -13409,12 +13409,12 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         }
 
         if (!invertTarget)
-        {
+        {TRACE_IT(11930);
             trueOffset = targetLabel->GetByteCodeOffset();
             falseOffset = bailOutInfo->bailOutOffset;
         }
         else
-        {
+        {TRACE_IT(11931);
             falseOffset = targetLabel->GetByteCodeOffset();
             trueOffset = bailOutInfo->bailOutOffset;
         }
@@ -13425,7 +13425,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         helperMethod = IR::HelperSaveAllRegistersAndBranchBailOut;
 #ifdef _M_IX86
         if(!AutoSystemInfo::Data.SSE2Available())
-        {
+        {TRACE_IT(11932);
             helperMethod = IR::HelperSaveAllRegistersNoSse2AndBranchBailOut;
         }
 #endif
@@ -13434,14 +13434,14 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         bailOutInfo->branchConditionOpnd = branchInstr->GetSrc1()->Copy(branchInstr->m_func);
     }
     else
-    {
+    {TRACE_IT(11933);
         if (bailOutInstr->GetBailOutKind() == IR::BailOutShared)
-        {
+        {TRACE_IT(11934);
             bailOutRecord = NativeCodeDataNewZ(this->m_func->GetNativeCodeDataAllocator(),
                 SharedBailOutRecord, bailOutInfo->bailOutOffset, bailOutInfo->polymorphicCacheIndex, instr->GetBailOutKind(), bailOutInfo->bailOutFunc);
         }
         else
-        {
+        {TRACE_IT(11935);
             bailOutRecord = NativeCodeDataNewZ(this->m_func->GetNativeCodeDataAllocator(),
                 BailOutRecord, bailOutInfo->bailOutOffset, bailOutInfo->polymorphicCacheIndex, instr->GetBailOutKind(), bailOutInfo->bailOutFunc);
         }
@@ -13449,7 +13449,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         helperMethod = IR::HelperSaveAllRegistersAndBailOut;
 #ifdef _M_IX86
         if(!AutoSystemInfo::Data.SSE2Available())
-        {
+        {TRACE_IT(11936);
             helperMethod = IR::HelperSaveAllRegistersNoSse2AndBailOut;
         }
 #endif
@@ -13463,14 +13463,14 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 #endif
 
     if (instr->m_opcode == Js::OpCode::BailOnNotStackArgs && instr->GetSrc1())
-    {
+    {TRACE_IT(11937);
         // src1 on BailOnNotStackArgs is helping CSE
         instr->FreeSrc1();
     }
     // Call the bail out wrapper
     instr->m_opcode = Js::OpCode::Call;
     if(instr->GetDst())
-    {
+    {TRACE_IT(11938);
         // To facilitate register allocation, don't assign a destination. The result will anyway go into the return register,
         // but the register allocator does not need to kill that register for the call.
         instr->FreeDst();
@@ -13492,16 +13492,16 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
 void
 Lowerer::GenerateJumpToEpilogForBailOut(BailOutInfo * bailOutInfo, IR::Instr *instr)
-{
+{TRACE_IT(11939);
     IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->m_prev;
     // JMP to the epilog
     IR::LabelInstr * exitTargetInstr;
     if (exitPrevInstr->IsLabelInstr())
-    {
+    {TRACE_IT(11940);
         exitTargetInstr = exitPrevInstr->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(11941);
         exitTargetInstr = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, false);
         exitPrevInstr->InsertAfter(exitTargetInstr);
     }
@@ -13520,7 +13520,7 @@ Lowerer::GenerateJumpToEpilogForBailOut(BailOutInfo * bailOutInfo, IR::Instr *in
 ///----------------------------------------------------------------------------
 bool
 Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
-{
+{TRACE_IT(11942);
     // The idea is to do an inline compare if we can prove that both sources
     // are tagged ints
     //
@@ -13549,26 +13549,26 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
     // Not tagged ints?
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {TRACE_IT(11943);
         return true;
     }
     if (opndSrc2->IsRegOpnd() && opndSrc2->AsRegOpnd()->IsNotInt())
-    {
+    {TRACE_IT(11944);
         return true;
     }
 
     // Tagged ints?
     bool isTaggedInts = false;
     if (opndSrc1->IsTaggedInt())
-    {
+    {TRACE_IT(11945);
         if (opndSrc2->IsTaggedInt())
-        {
+        {TRACE_IT(11946);
             isTaggedInts = true;
         }
     }
 
     if (!isTaggedInts)
-    {
+    {TRACE_IT(11947);
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         this->m_lowererMD.GenerateSmIntPairTest(instrBranch, opndSrc1, opndSrc2, labelHelper);
     }
@@ -13583,7 +13583,7 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
     this->m_lowererMD.LowerCondBranch(instr);
 
     if (isTaggedInts)
-    {
+    {TRACE_IT(11948);
         instrBranch->Remove();
 
         // Skip lowering call to helper
@@ -13594,11 +13594,11 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
     IR::Instr *instrNext = instrBranch->GetNextRealInstrOrLabel();
     if (instrNext->IsLabelInstr())
-    {
+    {TRACE_IT(11949);
         labelFallThru = instrNext->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(11950);
         labelFallThru = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, /**pIsHelper*/FALSE);
         instrBranch->InsertAfter(labelFallThru);
     }
@@ -13618,10 +13618,10 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
 void
 Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
-{
+{TRACE_IT(11951);
     IR::Opnd *linkOpnd   = inlineeStartInstr->GetSrc2();
     if (!linkOpnd)
-    {
+    {TRACE_IT(11952);
         Assert(inlineeStartInstr->m_func->m_hasInlineArgsOpt);
         return;
     }
@@ -13636,11 +13636,11 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         argInstr->FreeSrc2();
 #pragma prefast(suppress:6235, "Non-Zero Constant in Condition")
         if (!PHASE_ON(Js::EliminateArgoutForInlineePhase, this->m_func) || inlineeStartInstr->m_func->GetJITFunctionBody()->HasOrParentHasArguments())
-        {
+        {TRACE_IT(11953);
             m_lowererMD.ChangeToAssign(argInstr);
         }
         else
-        {
+        {TRACE_IT(11954);
             argInstr->m_opcode = Js::OpCode::ArgOut_A_InlineBuiltIn;
         }
 
@@ -13652,13 +13652,13 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
     inlineeStartInstr->IterateMetaArgs( [&] (IR::Instr* metaArg)
     {
         if(i == 0)
-        {
+        {TRACE_IT(11955);
             LowererMD::CreateAssign(metaArg->m_func->GetNextInlineeFrameArgCountSlotOpnd(),
                 IR::AddrOpnd::NewNull(metaArg->m_func),
                 argInsertInstr);
         }
         if (i == Js::Constants::InlineeMetaArgIndex_FunctionObject)
-        {
+        {TRACE_IT(11956);
             metaArg->SetSrc1(inlineeStartInstr->GetSrc1());
         }
         metaArg->Unlink();
@@ -13666,7 +13666,7 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         IR::Instr* prev = metaArg->m_prev;
         m_lowererMD.ChangeToAssign(metaArg);
         if (i == Js::Constants::InlineeMetaArgIndex_Argc)
-        {
+        {TRACE_IT(11957);
 #if defined(_M_IX86) || defined(_M_X64)
             Assert(metaArg == prev->m_next);
 #else //defined(_M_ARM)
@@ -13682,26 +13682,26 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         return false;
     });
     if (inlineeStartInstr->m_func->m_hasInlineArgsOpt)
-    {
+    {TRACE_IT(11958);
         inlineeStartInstr->FreeSrc1();
         inlineeStartInstr->FreeSrc2();
         inlineeStartInstr->FreeDst();
     }
     else
-    {
+    {TRACE_IT(11959);
         inlineeStartInstr->Remove();
     }
 }
 
 void
 Lowerer::LowerInlineeEnd(IR::Instr *instr)
-{
+{TRACE_IT(11960);
     Assert(instr->m_func->IsInlinee());
     Assert(m_func->IsTopFunc());
 
     // No need to emit code if the function wasn't marked as having implicit calls or bailout.  Dead-Store should have removed inline overhead.
     if (instr->m_func->GetHasImplicitCalls() || PHASE_OFF(Js::DeadStorePhase, this->m_func))
-    {
+    {TRACE_IT(11961);
         LowererMD::CreateAssign(instr->m_func->GetInlineeArgCountSlotOpnd(),
                                 IR::IntConstOpnd::New(0, TyMachReg, instr->m_func),
                                 instr);
@@ -13709,45 +13709,45 @@ Lowerer::LowerInlineeEnd(IR::Instr *instr)
 
     // Keep InlineeEnd around as it is used by register allocator, if we have optimized the arguments stack
     if (instr->m_func->m_hasInlineArgsOpt)
-    {
+    {TRACE_IT(11962);
         instr->FreeSrc1();
     }
     else
-    {
+    {TRACE_IT(11963);
         instr->Remove();
     }
 }
 
 IR::Instr *
 Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr * instrInsert)
-{
+{TRACE_IT(11964);
     double value;
 
     if (opndSrc->IsAddrOpnd())
-    {
+    {TRACE_IT(11965);
         Js::Var var = opndSrc->AsAddrOpnd()->m_address;
         if (Js::TaggedInt::Is(var))
-        {
+        {TRACE_IT(11966);
             value = Js::TaggedInt::ToDouble(var);
         }
         else
-        {
+        {TRACE_IT(11967);
             value = Js::JavascriptNumber::GetValue(var);
         }
     }
     else if (opndSrc->IsIntConstOpnd())
-    {
+    {TRACE_IT(11968);
         if (opndSrc->IsUInt32())
-        {
+        {TRACE_IT(11969);
             value = (double)(uint32)opndSrc->AsIntConstOpnd()->GetValue();
         }
         else
-        {
+        {TRACE_IT(11970);
             value = (double)opndSrc->AsIntConstOpnd()->GetValue();
         }
     }
     else if (opndSrc->IsFloatConstOpnd())
-    {
+    {TRACE_IT(11971);
         value = (double)opndSrc->AsFloatConstOpnd()->m_value;
     }
     else
@@ -13761,7 +13761,7 @@ Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr *
 
 void
 Lowerer::LoadInt32FromUntaggedVar(IR::Instr *const instrLoad)
-{
+{TRACE_IT(11972);
     Assert(instrLoad);
     Assert(instrLoad->GetDst());
     Assert(instrLoad->GetDst()->IsRegOpnd());
@@ -13806,25 +13806,25 @@ Lowerer::LoadInt32FromUntaggedVar(IR::Instr *const instrLoad)
 
 bool
 Lowerer::GetValueFromIndirOpnd(IR::IndirOpnd *indirOpnd, IR::Opnd **pValueOpnd, IntConstType *pValue)
-{
+{TRACE_IT(11973);
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     IR::Opnd* valueOpnd = nullptr;
     IntConstType value = 0;
     if (!indexOpnd)
-    {
+    {TRACE_IT(11974);
         value = (IntConstType)indirOpnd->GetOffset();
         if (value < 0)
-        {
+        {TRACE_IT(11975);
             // Can't do fast path for negative index
             return false;
         }
         valueOpnd = IR::IntConstOpnd::New(value, TyInt32, this->m_func);
     }
     else if (indexOpnd->m_sym->IsIntConst())
-    {
+    {TRACE_IT(11976);
         value = indexOpnd->AsRegOpnd()->m_sym->GetIntConstValue();
         if (value < 0)
-        {
+        {TRACE_IT(11977);
             // Can't do fast path for negative index
             return false;
         }
@@ -13837,7 +13837,7 @@ Lowerer::GetValueFromIndirOpnd(IR::IndirOpnd *indirOpnd, IR::Opnd **pValueOpnd, 
 
 void
 Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
-{
+{TRACE_IT(11978);
     Assert(instr->m_opcode == Js::OpCode::BrOnObject_A);
 
     IR::RegOpnd      *object        = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
@@ -13847,7 +13847,7 @@ Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
     IR::IntConstOpnd *typeIdOpnd    = IR::IntConstOpnd::New(Js::TypeIds_LastJavascriptPrimitiveType, TyInt32, instr->m_func);
 
     if (!object)
-    {
+    {TRACE_IT(11979);
         object = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(object, instr->GetSrc1(), instr);
     }
@@ -13873,7 +13873,7 @@ Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
 }
 
 void Lowerer::GenerateObjectHeaderInliningTest(IR::RegOpnd *baseOpnd, IR::LabelInstr * target,IR::Instr *insertBeforeInstr)
-{
+{TRACE_IT(11980);
     Assert(baseOpnd);
     Assert(target);
     AssertMsg(
@@ -13919,10 +13919,10 @@ void Lowerer::GenerateObjectHeaderInliningTest(IR::RegOpnd *baseOpnd, IR::LabelI
 }
 
 void Lowerer::GenerateObjectTypeTest(IR::RegOpnd *srcReg, IR::Instr *instrInsert, IR::LabelInstr *labelHelper)
-{
+{TRACE_IT(11981);
     Assert(srcReg);
     if (!srcReg->IsNotTaggedValue())
-    {
+    {TRACE_IT(11982);
         m_lowererMD.GenerateObjectTest(srcReg, instrInsert, labelHelper);
     }
 
@@ -14138,49 +14138,49 @@ const BYTE Lowerer::IndirScales[static_cast<ValueType::TSize>(ObjectType::Count)
 };
 
 VTableValue Lowerer::GetArrayVtableAddress(const ValueType valueType, bool getVirtual)
-{
+{TRACE_IT(11983);
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {TRACE_IT(11984);
         if(valueType.HasIntElements())
-        {
+        {TRACE_IT(11985);
             return VTableValue::VtableNativeIntArray;
         }
         else if(valueType.HasFloatElements())
-        {
+        {TRACE_IT(11986);
             return VTableValue::VtableNativeFloatArray;
         }
     }
     if (getVirtual && valueType.IsLikelyMixedTypedArrayType())
-    {
+    {TRACE_IT(11987);
         return VtableAddresses[static_cast<ValueType::TSize>(valueType.GetMixedToVirtualTypedArrayObjectType())];
     }
     return VtableAddresses[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 uint32 Lowerer::GetArrayOffsetOfHeadSegment(const ValueType valueType)
-{
+{TRACE_IT(11988);
     Assert(valueType.IsLikelyAnyOptimizedArray());
     return OffsetsOfHeadSegment[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 uint32 Lowerer::GetArrayOffsetOfLength(const ValueType valueType)
-{
+{TRACE_IT(11989);
     Assert(valueType.IsLikelyAnyOptimizedArray());
     return OffsetsOfLength[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 IRType Lowerer::GetArrayIndirType(const ValueType valueType)
-{
+{TRACE_IT(11990);
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {TRACE_IT(11991);
         if(valueType.HasIntElements())
-        {
+        {TRACE_IT(11992);
             return TyInt32;
         }
         else if(valueType.HasFloatElements())
-        {
+        {TRACE_IT(11993);
             return TyFloat64;
         }
     }
@@ -14189,16 +14189,16 @@ IRType Lowerer::GetArrayIndirType(const ValueType valueType)
 }
 
 BYTE Lowerer::GetArrayIndirScale(const ValueType valueType)
-{
+{TRACE_IT(11994);
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {TRACE_IT(11995);
         if(valueType.HasIntElements())
-        {
+        {TRACE_IT(11996);
             return 2; // log2(sizeof(int32))
         }
         else if(valueType.HasFloatElements())
-        {
+        {TRACE_IT(11997);
             return 3; // log2(sizeof(double))
         }
     }
@@ -14207,7 +14207,7 @@ BYTE Lowerer::GetArrayIndirScale(const ValueType valueType)
 }
 
 int Lowerer::SimdGetElementCountFromBytes(ValueType arrValueType, uint8 dataWidth)
-{
+{TRACE_IT(11998);
     Assert(dataWidth == 4 || dataWidth == 8 || dataWidth == 12 || dataWidth == 16);
     Assert(arrValueType.IsTypedArray());
     BYTE bpe = 1 << Lowerer::GetArrayIndirScale(arrValueType);
@@ -14221,19 +14221,19 @@ bool Lowerer::ShouldGenerateArrayFastPath(
     const bool supportsObjectsWithArrays,
     const bool supportsTypedArrays,
     const bool requiresSse2ForFloatArrays) const
-{
+{TRACE_IT(11999);
     Assert(arrayOpnd);
 
     const ValueType arrayValueType(arrayOpnd->GetValueType());
     if(arrayValueType.IsUninitialized())
-    {
+    {TRACE_IT(12000);
         // Don't have info about the value type, better to generate the fast path anyway
         return true;
     }
     if (!arrayValueType.IsLikelyObject())
-    {
+    {TRACE_IT(12001);
         if (!arrayValueType.HasBeenObject() || arrayValueType.IsLikelyString())
-        {
+        {TRACE_IT(12002);
             return false;
         }
         //We have seen at least once there is an object in the code path. Generate fastpath hoping it to be array.
@@ -14243,12 +14243,12 @@ bool Lowerer::ShouldGenerateArrayFastPath(
 
     if( (!supportsObjectsWithArrays && arrayValueType.GetObjectType() == ObjectType::ObjectWithArray) ||
         (!supportsTypedArrays && arrayValueType.IsLikelyTypedArray()) )
-    {
+    {TRACE_IT(12003);
         // The fast path likely would not hit
         return false;
     }
     if(arrayValueType.GetObjectType() == ObjectType::UninitializedObject)
-    {
+    {TRACE_IT(12004);
         // Don't have info about the object type, better to generate the fast path anyway
         return true;
     }
@@ -14259,7 +14259,7 @@ bool Lowerer::ShouldGenerateArrayFastPath(
             arrayValueType.GetObjectType() == ObjectType::Float64Array
         ) &&
         !AutoSystemInfo::Data.SSE2Available())
-    {
+    {TRACE_IT(12005);
         // Fast paths for float arrays rely on SSE2
         return false;
     }
@@ -14268,7 +14268,7 @@ bool Lowerer::ShouldGenerateArrayFastPath(
 }
 
 IR::RegOpnd *Lowerer::LoadObjectArray(IR::RegOpnd *const baseOpnd, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12006);
     Assert(baseOpnd);
     Assert(
         baseOpnd->GetValueType().IsLikelyObject() &&
@@ -14299,7 +14299,7 @@ void
 Lowerer::GenerateIsEnabledArraySetElementFastPathCheck(
     IR::LabelInstr * isDisabledLabel,
     IR::Instr * const insertBeforeInstr)
-{
+{TRACE_IT(12007);
     InsertCompareBranch(
         this->LoadOptimizationOverridesValueOpnd(insertBeforeInstr, OptimizationOverridesValue::OptimizationOverridesArraySetElementFastPathVtable),
         LoadVTableValueOpnd(insertBeforeInstr, VTableValue::VtableInvalid),
@@ -14316,7 +14316,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     const bool forceFloat,
     const bool isStore,
     const bool allowDefiniteArray)
-{
+{TRACE_IT(12008);
     Assert(baseOpnd);
 
     const ValueType baseValueType(baseOpnd->GetValueType());
@@ -14360,14 +14360,14 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
             insertBeforeInstr);
     }
     else
-    {
+    {TRACE_IT(12009);
         if(!baseOpnd->IsNotTaggedValue())
-        {
+        {TRACE_IT(12010);
             m_lowererMD.GenerateObjectTest(baseOpnd, insertBeforeInstr, isNotObjectLabel);
         }
         arrayOpnd = baseOpnd->Copy(func)->AsRegOpnd();
         if(!baseValueType.IsLikelyAnyOptimizedArray())
-        {
+        {TRACE_IT(12011);
             arrayOpnd->SetValueType(
                 ValueType::GetObject(ObjectType::Array)
                     .ToLikely()
@@ -14383,7 +14383,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 
     VTableValue virtualVtableAddress = VTableValue::VtableInvalid;
     if (baseValueType.IsLikelyMixedTypedArrayType())
-    {
+    {TRACE_IT(12012);
         virtualVtableAddress = GetArrayVtableAddress(baseValueType, true);
     }
     IR::Opnd * vtableOpnd;
@@ -14391,16 +14391,16 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     if (isStore &&
         (vtableAddress == VTableValue::VtableJavascriptArray ||
          baseValueType.IsLikelyNativeArray()))
-    {
+    {TRACE_IT(12013);
         vtableOpnd = IR::RegOpnd::New(TyMachPtr, func);
         if (baseValueType.IsLikelyNativeArray())
-        {
+        {TRACE_IT(12014);
             if (baseValueType.HasIntElements())
             {
                 InsertMove(vtableOpnd, this->LoadOptimizationOverridesValueOpnd(insertBeforeInstr, OptimizationOverridesValue::OptimizationOverridesIntArraySetElementFastPathVtable), insertBeforeInstr);
             }
             else
-            {
+            {TRACE_IT(12015);
                 Assert(baseValueType.HasFloatElements());
                 InsertMove(vtableOpnd, this->LoadOptimizationOverridesValueOpnd(insertBeforeInstr, OptimizationOverridesValue::OptimizationOverridesFloatArraySetElementFastPathVtable), insertBeforeInstr);
             }
@@ -14411,7 +14411,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
         }
     }
     else
-    {
+    {TRACE_IT(12016);
         vtableOpnd = LoadVTableValueOpnd(insertBeforeInstr, vtableAddress);
     }
 
@@ -14419,7 +14419,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     // jne  $isNotArrayLabel
 
     if (forceFloat && baseValueType.IsLikelyNativeFloatArray())
-    {
+    {TRACE_IT(12017);
         // We expect a native float array. If we get native int instead, convert it on the spot and bail out afterward.
         const auto goodArrayLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
@@ -14434,14 +14434,14 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
         insertBeforeInstr->InsertBefore(notFloatArrayLabel);
 
         if (isStore)
-        {
+        {TRACE_IT(12018);
             vtableOpnd = IR::RegOpnd::New(TyMachPtr, func);
             InsertMove(vtableOpnd, IR::MemRefOpnd::New(
                            func->GetScriptContextInfo()->GetIntArraySetElementFastPathVtableAddr(),
                            TyMachPtr, func), insertBeforeInstr);
         }
         else
-        {
+        {TRACE_IT(12019);
             vtableOpnd = LoadVTableValueOpnd(insertBeforeInstr, VTableValue::VtableJavascriptNativeIntArray);
         }
 
@@ -14464,10 +14464,10 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
         insertBeforeInstr->InsertBefore(goodArrayLabel);
     }
     else
-    {
+    {TRACE_IT(12020);
         IR::LabelInstr* goodArrayLabel = nullptr;
         if (baseValueType.IsLikelyMixedTypedArrayType())
-        {
+        {TRACE_IT(12021);
             goodArrayLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
             InsertCompareBranch(
                 IR::IndirOpnd::New(arrayOpnd, 0, TyMachPtr, func),
@@ -14487,7 +14487,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
             insertBeforeInstr->InsertBefore(goodArrayLabel);
         }
         else
-        {
+        {TRACE_IT(12022);
             InsertCompareBranch(
                 IR::IndirOpnd::New(arrayOpnd, 0, TyMachPtr, func),
                 vtableOpnd,
@@ -14500,7 +14500,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 
     ValueType arrayValueType(arrayOpnd->GetValueType());
     if(arrayValueType.IsLikelyArrayOrObjectWithArray() && !arrayValueType.IsObject())
-    {
+    {TRACE_IT(12023);
         arrayValueType = arrayValueType.SetHasNoMissingValues(false);
     }
     arrayValueType = arrayValueType.ToDefiniteObject();
@@ -14509,7 +14509,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 }
 
 IR::LabelInstr *Lowerer::InsertLabel(const bool isHelper, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12024);
     Assert(insertBeforeInstr);
 
     Func *const func = insertBeforeInstr->m_func;
@@ -14521,12 +14521,12 @@ IR::LabelInstr *Lowerer::InsertLabel(const bool isHelper, IR::Instr *const inser
 }
 
 IR::Instr *Lowerer::InsertMoveWithBarrier(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12025);
     return Lowerer::InsertMove(dst, src, insertBeforeInstr, true);
 }
 
 IR::Instr *Lowerer::InsertMove(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const insertBeforeInstr, bool generateWriteBarrier)
-{
+{TRACE_IT(12026);
     Assert(dst);
     Assert(src);
     Assert(insertBeforeInstr);
@@ -14534,23 +14534,23 @@ IR::Instr *Lowerer::InsertMove(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const in
     Func *const func = insertBeforeInstr->m_func;
 
     if(dst->IsFloat() && src->IsConstOpnd())
-    {
+    {TRACE_IT(12027);
         return LoadFloatFromNonReg(src, dst, insertBeforeInstr);
     }
 
     if(TySize[dst->GetType()] < TySize[src->GetType()])
-    {
+    {TRACE_IT(12028);
         src = src->UseWithNewType(dst->GetType(), func);
     }
     IR::Instr * instr = IR::Instr::New(Js::OpCode::Ld_A, dst, src, func);
 
     insertBeforeInstr->InsertBefore(instr);
     if (generateWriteBarrier)
-    {
+    {TRACE_IT(12029);
         instr = LowererMD::ChangeToWriteBarrierAssign(instr, func);
     }
     else
-    {
+    {TRACE_IT(12030);
         LowererMD::ChangeToAssignNoBarrierCheck(instr);
     }
 
@@ -14561,7 +14561,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
     const Js::OpCode opCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12031);
     return InsertBranch(opCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -14570,7 +14570,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
     const bool isUnsigned,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12032);
     Assert(target);
     Assert(insertBeforeInstr);
 
@@ -14578,17 +14578,17 @@ IR::BranchInstr *Lowerer::InsertBranch(
 
     IR::BranchInstr *const instr = IR::BranchInstr::New(opCode, target, func);
     if(!instr->IsLowered())
-    {
+    {TRACE_IT(12033);
         if(opCode == Js::OpCode::Br)
-        {
+        {TRACE_IT(12034);
             instr->m_opcode = LowererMD::MDUncondBranchOpcode;
         }
         else if(isUnsigned)
-        {
+        {TRACE_IT(12035);
             instr->m_opcode = LowererMD::MDUnsignedBranchOpcode(opCode);
         }
         else
-        {
+        {TRACE_IT(12036);
             instr->m_opcode = LowererMD::MDBranchOpcode(opCode);
         }
     }
@@ -14598,7 +14598,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
 }
 
 IR::Instr *Lowerer::InsertCompare(IR::Opnd *const src1, IR::Opnd *const src2, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12037);
     Assert(src1);
     Assert(!src1->IsFloat64()); // not implemented
     Assert(src2);
@@ -14624,7 +14624,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr,
     const bool ignoreNaN)
-{
+{TRACE_IT(12038);
     return InsertCompareBranch(compareSrc1, compareSrc2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr, ignoreNaN);
 }
 
@@ -14636,14 +14636,14 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr,
     const bool ignoreNaN)
-{
+{TRACE_IT(12039);
     Assert(compareSrc1);
     Assert(compareSrc2);
 
     Func *const func = insertBeforeInstr->m_func;
 
     if(compareSrc1->IsFloat())
-    {
+    {TRACE_IT(12040);
         Assert(compareSrc2->IsFloat());
         Assert(!isUnsigned);
         IR::BranchInstr *const instr = IR::BranchInstr::New(branchOpCode, target, compareSrc1, compareSrc2, func);
@@ -14686,7 +14686,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
                 ) &&
                 !compareSrc2->IsIntConstOpnd() &&
                 !compareSrc2->IsAddrOpnd())
-            {
+            {TRACE_IT(12041);
                 // Swap the sources and branch
                 IR::Opnd *const tempSrc = compareSrc1;
                 compareSrc1 = compareSrc2;
@@ -14701,19 +14701,19 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
                     (compareSrc2->IsAddrOpnd() && !compareSrc2->AsAddrOpnd()->m_address)
                 ) ||
                 branchOpCode == Js::OpCode::BrGt_A || branchOpCode == Js::OpCode::BrLe_A)
-            {
+            {TRACE_IT(12042);
                 goto Default;
             }
             if(branchOpCode == Js::OpCode::BrGe_A || branchOpCode == Js::OpCode::BrLt_A)
-            {
+            {TRACE_IT(12043);
                 if(isUnsigned)
-                {
+                {TRACE_IT(12044);
                     goto Default;
                 }
                 branchOpCode = LowererMD::MDCompareWithZeroBranchOpcode(branchOpCode);
             }
             if(!compareSrc2->IsInUse())
-            {
+            {TRACE_IT(12045);
                 compareSrc2->Free(func);
             }
             InsertTest(compareSrc1, compareSrc1, insertBeforeInstr);
@@ -14729,7 +14729,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
 }
 
 IR::Instr *Lowerer::InsertTest(IR::Opnd *const src1, IR::Opnd *const src2, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12046);
     Assert(src1);
     Assert(!src1->IsFloat64()); // not implemented
     Assert(src2);
@@ -14753,7 +14753,7 @@ IR::BranchInstr *Lowerer::InsertTestBranch(
     const Js::OpCode branchOpCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12047);
     return InsertTestBranch(testSrc1, testSrc2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -14775,7 +14775,7 @@ IR::Instr *Lowerer::InsertAdd(
     IR::Opnd *src1,
     IR::Opnd *src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12048);
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14784,11 +14784,11 @@ IR::Instr *Lowerer::InsertAdd(
     Func *const func = insertBeforeInstr->m_func;
 
     if(src2->IsIntConstOpnd())
-    {
+    {TRACE_IT(12049);
         IR::IntConstOpnd *const intConstOpnd = src2->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {TRACE_IT(12050);
             // Change (s1 = s1 + -5) into (s1 = s1 - 5)
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
             newSrc2->SetValue(-value);
@@ -14796,11 +14796,11 @@ IR::Instr *Lowerer::InsertAdd(
         }
     }
     else if(src1->IsIntConstOpnd())
-    {
+    {TRACE_IT(12051);
         IR::IntConstOpnd *const intConstOpnd = src1->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {TRACE_IT(12052);
             // Change (s1 = -5 + s1) into (s1 = s1 - 5)
             IR::Opnd *const newSrc1 = src2;
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
@@ -14823,7 +14823,7 @@ IR::Instr *Lowerer::InsertSub(
     IR::Opnd *src1,
     IR::Opnd *src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12053);
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14832,11 +14832,11 @@ IR::Instr *Lowerer::InsertSub(
     Func *const func = insertBeforeInstr->m_func;
 
     if(src2->IsIntConstOpnd())
-    {
+    {TRACE_IT(12054);
         IR::IntConstOpnd *const intConstOpnd = src2->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {TRACE_IT(12055);
             // Change (s1 = s1 - -5) into (s1 = s1 + 5)
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
             newSrc2->SetValue(-value);
@@ -14853,7 +14853,7 @@ IR::Instr *Lowerer::InsertSub(
 }
 
 IR::Instr *Lowerer::InsertLea(IR::RegOpnd *const dst, IR::Opnd *const src, IR::Instr *const insertBeforeInstr, bool postRegAlloc)
-{
+{TRACE_IT(12056);
     Assert(dst);
     Assert(src);
     Assert(src->IsIndirOpnd() || src->IsSymOpnd());
@@ -14872,7 +14872,7 @@ IR::Instr *Lowerer::InsertMoveBitCast(
     IR::Opnd *const dst,
     IR::Opnd *const src1,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12057);
     Assert(dst);
     Assert(dst->GetType() == TyFloat64);
     Assert(src1);
@@ -14894,7 +14894,7 @@ IR::Instr *Lowerer::InsertXor(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12058);
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14914,7 +14914,7 @@ IR::Instr *Lowerer::InsertAnd(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12059);
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14934,7 +14934,7 @@ IR::Instr *Lowerer::InsertOr(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12060);
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14956,7 +14956,7 @@ IR::Instr *Lowerer::InsertShift(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12061);
     Assert(dst);
     Assert(!dst->IsFloat64()); // not implemented
     Assert(src1);
@@ -14983,7 +14983,7 @@ IR::Instr *Lowerer::InsertShiftBranch(
     const Js::OpCode branchOpCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12062);
     return InsertShiftBranch(shiftOpCode, dst, src1, src2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -15005,7 +15005,7 @@ IR::Instr *Lowerer::InsertConvertFloat32ToFloat64(
     IR::Opnd *const dst,
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12063);
     Assert(dst);
     Assert(dst->IsFloat64());
     Assert(src);
@@ -15025,7 +15025,7 @@ IR::Instr *Lowerer::InsertConvertFloat64ToFloat32(
     IR::Opnd *const dst,
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12064);
     Assert(dst);
     Assert(dst->IsFloat32());
     Assert(src);
@@ -15046,7 +15046,7 @@ void Lowerer::InsertDecUInt32PreventOverflow(
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr,
     IR::Instr * *const onOverflowInsertBeforeInstrRef)
-{
+{TRACE_IT(12065);
     Assert(dst);
     Assert(dst->GetType() == TyUint32);
     Assert(src);
@@ -15079,7 +15079,7 @@ void Lowerer::InsertDecUInt32PreventOverflow(
 
     const bool dstEqualsSrc = dst->IsEqual(src);
     if(!dstEqualsSrc || onOverflowInsertBeforeInstrRef)
-    {
+    {TRACE_IT(12066);
         //     b $continue
         //   $overflow:
         //     mov dst, 0
@@ -15087,17 +15087,17 @@ void Lowerer::InsertDecUInt32PreventOverflow(
         IR::LabelInstr *const continueLabel = Lowerer::InsertLabel(false, insertBeforeInstr);
         Lowerer::InsertBranch(Js::OpCode::Br, continueLabel, overflowLabel);
         if(!dstEqualsSrc)
-        {
+        {TRACE_IT(12067);
             Lowerer::InsertMove(dst, IR::IntConstOpnd::New(0, TyUint32, func, true), continueLabel);
         }
 
         if(onOverflowInsertBeforeInstrRef)
-        {
+        {TRACE_IT(12068);
             *onOverflowInsertBeforeInstrRef = continueLabel;
         }
     }
     else
-    {
+    {TRACE_IT(12069);
         //   $overflow:
     }
 }
@@ -15108,7 +15108,7 @@ void Lowerer::InsertFloatCheckForZeroOrNanBranch(
     IR::LabelInstr *const target,
     IR::LabelInstr *const fallthroughLabel,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12070);
     Assert(src);
     Assert(src->IsFloat64());
     Assert(target);
@@ -15161,11 +15161,11 @@ Lowerer::GenerateFastElemICommon(
     bool forceGenerateFastPath /* = false */,
     bool returnLength,
     IR::LabelInstr *bailOutLabelInstr /* = nullptr*/)
-{
+{TRACE_IT(12071);
     *pIsTypedArrayElement = false;
     *pIsStringIndex = false;
     if(pLabelSegmentLengthIncreased)
-    {
+    {TRACE_IT(12072);
         *pLabelSegmentLengthIncreased = nullptr;
     }
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
@@ -15176,24 +15176,24 @@ Lowerer::GenerateFastElemICommon(
     // global optimizer to type specialize instructions, for which the lowerer is forced to emit unconditional
     // bailouts.
     if (baseOpnd->IsTaggedInt())
-    {
+    {TRACE_IT(12073);
         return NULL;
     }
 
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     if (indexOpnd)
-    {
+    {TRACE_IT(12074);
         if (indexOpnd->GetValueType().IsString())
-        {
+        {TRACE_IT(12075);
             if (!baseOpnd->GetValueType().IsLikelyOptimizedTypedArray())
-            {
+            {TRACE_IT(12076);
                 // If profile data says that it's a typed array - do not generate the property string fast path as the src. could be a temp and that would cause a bug.
                 *pIsTypedArrayElement = false;
                 *pIsStringIndex = true;
                 return m_lowererMD.GenerateFastElemIStringIndexCommon(instr, isStore, indirOpnd, labelHelper);
             }
             else
-            {
+            {TRACE_IT(12077);
                 // There's no point in generating the int index fast path if we know the index has a string value.
                 return nullptr;
             }
@@ -15231,7 +15231,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool forceGenerateFastPath /* = false */,
     bool returnLength,
     IR::LabelInstr *bailOutLabelInstr /* = nullptr*/)
-{
+{TRACE_IT(12078);
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     Assert(!baseOpnd->IsTaggedInt() || (indexOpnd && indexOpnd->IsNotInt()));
@@ -15297,21 +15297,21 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool invertBoundCheckComparison = false;
 
     if (indirOpnd->TryGetIntConstIndexValue(true, &value, &isIndexNotInt))
-    {
+    {TRACE_IT(12079);
         if (value >= 0)
-        {
+        {TRACE_IT(12080);
             indexValueOpnd = IR::IntConstOpnd::New(value, TyUint32, this->m_func);
             invertBoundCheckComparison = true; // facilitate folding the constant index into the compare instruction
         }
         else
-        {
+        {TRACE_IT(12081);
             // If the index is a negative int constant we go directly to helper.
             Assert(!forceGenerateFastPath);
             return nullptr;
         }
     }
     else if (isIndexNotInt)
-    {
+    {TRACE_IT(12082);
         // If we know the index is not an int we go directly to helper.
         Assert(!forceGenerateFastPath);
         return nullptr;
@@ -15320,12 +15320,12 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     //At this point indexValueOpnd is either NULL or contains the valueOpnd
 
     if(!forceGenerateFastPath && !ShouldGenerateArrayFastPath(baseOpnd, true, true, true))
-    {
+    {TRACE_IT(12083);
         return nullptr;
     }
 
     if(baseValueType.IsLikelyAnyOptimizedArray())
-    {
+    {TRACE_IT(12084);
         indirScale = GetArrayIndirScale(baseValueType);
         indirType = GetArrayIndirType(baseValueType);
     }
@@ -15334,12 +15334,12 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     IR::Opnd * element = nullptr;
 
     if(instr->m_opcode == Js::OpCode::InlineArrayPush)
-    {
+    {TRACE_IT(12085);
         element = instr->GetSrc2();
         elementType = element->GetType();
     }
     else if(isStore && instr->GetSrc1())
-    {
+    {TRACE_IT(12086);
         element = instr->GetSrc1();
         elementType = element->GetType();
     }
@@ -15347,7 +15347,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     Assert(isStore || (element == nullptr && elementType == TyIllegal));
 
     if (isStore && baseValueType.IsLikelyNativeArray() && indirType != elementType)
-    {
+    {TRACE_IT(12087);
         // We're trying to write a value of the wrong type, which should force a conversion of the array.
         // Go to the helper for that.
         return nullptr;
@@ -15360,45 +15360,45 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool indexIsNonnegative = indexValueOpnd || indexOpnd->GetType() == TyUint32 || !checkArrayLengthOverflow;
     bool indexIsLessThanHeadSegmentLength = false;
     if(!baseValueType.IsAnyOptimizedArray())
-    {
+    {TRACE_IT(12088);
         arrayOpnd = GenerateArrayTest(baseOpnd, labelCantUseArray, labelCantUseArray, instr, true, isStore);
     }
     else
-    {
+    {TRACE_IT(12089);
         if(arrayOpnd->IsArrayRegOpnd())
-        {
+        {TRACE_IT(12090);
             IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
             if(arrayRegOpnd->HeadSegmentSym())
-            {
+            {TRACE_IT(12091);
                 headSegmentOpnd = IR::RegOpnd::New(arrayRegOpnd->HeadSegmentSym(), TyMachPtr, m_func);
                 DebugOnly(headSegmentOpnd->FreezeSymValue());
                 autoReuseHeadSegmentOpnd.Initialize(headSegmentOpnd, m_func);
             }
             if(arrayRegOpnd->HeadSegmentLengthSym())
-            {
+            {TRACE_IT(12092);
                 headSegmentLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->HeadSegmentLengthSym(), TyUint32, m_func);
                 DebugOnly(headSegmentLengthOpnd->AsRegOpnd()->FreezeSymValue());
                 autoReuseHeadSegmentLengthOpnd.Initialize(headSegmentLengthOpnd, m_func);
             }
             if (arrayRegOpnd->EliminatedLowerBoundCheck())
-            {
+            {TRACE_IT(12093);
                 indexIsNonnegative = true;
             }
             if(arrayRegOpnd->EliminatedUpperBoundCheck())
-            {
+            {TRACE_IT(12094);
                 indexIsLessThanHeadSegmentLength = true;
             }
         }
     }
     IR::AutoReuseOpnd autoReuseArrayOpnd;
     if(arrayOpnd->GetValueType().GetObjectType() != ObjectType::ObjectWithArray)
-    {
+    {TRACE_IT(12095);
         autoReuseArrayOpnd.Initialize(arrayOpnd, m_func);
     }
     const auto EnsureObjectArrayLoaded = [&]()
     {
         if(arrayOpnd->GetValueType().GetObjectType() != ObjectType::ObjectWithArray)
-        {
+        {TRACE_IT(12096);
             return;
         }
         arrayOpnd = LoadObjectArray(arrayOpnd, instr);
@@ -15407,7 +15407,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
     const bool doUpperBoundCheck = checkArrayLengthOverflow && !indexIsLessThanHeadSegmentLength;
     if(!indexValueOpnd)
-    {
+    {TRACE_IT(12097);
         indexValueOpnd =
         m_lowererMD.LoadNonnegativeIndex(
             indexOpnd,
@@ -15426,13 +15426,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     const IR::AutoReuseOpnd autoReuseIndexValueOpnd(indexValueOpnd, m_func);
 
     if (baseValueType.IsLikelyTypedArray())
-    {
+    {TRACE_IT(12098);
         *pIsTypedArrayElement = true;
 
         if(doUpperBoundCheck)
-        {
+        {TRACE_IT(12099);
             if(!headSegmentLengthOpnd)
-            {
+            {TRACE_IT(12100);
                 // (headSegmentLength = [base + offset(length)])
                 int lengthOffset;
                 lengthOffset = Js::Float64Array::GetOffsetOfLength();
@@ -15452,13 +15452,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
     }
     else
-    {
+    {TRACE_IT(12101);
         *pIsTypedArrayElement = false;
 
         if (isStore &&
             baseValueType.IsLikelyNativeIntArray() &&
             (!element->IsIntConstOpnd() || Js::SparseArraySegment<int32>::GetMissingItem() == element->AsIntConstOpnd()->AsInt32()))
-        {
+        {TRACE_IT(12102);
             Assert(instr->m_opcode != Js::OpCode::InlineArrayPush || bailOutLabelInstr);
 
             // Check for a write of the MissingItem value.
@@ -15472,7 +15472,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(!headSegmentOpnd)
-        {
+        {TRACE_IT(12103);
             EnsureObjectArrayLoaded();
 
             //  MOV headSegment, [base + offset(head)]
@@ -15483,9 +15483,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(doUpperBoundCheck)
-        {
+        {TRACE_IT(12104);
             if(!headSegmentLengthOpnd)
-            {
+            {TRACE_IT(12105);
                 // (headSegmentLength = [headSegment + offset(length)])
                 headSegmentLengthOpnd =
                     IR::IndirOpnd::New(headSegmentOpnd, Js::SparseArraySegmentBase::GetOffsetOfLength(), TyUint32, m_func);
@@ -15510,9 +15510,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     const bool needBailOutOnSegmentLengthCompare = needBailOutToHelper || needBailOutOnInvalidLength;
 
     if(indexIsLessThanHeadSegmentLength || needBailOutOnSegmentLengthCompare)
-    {
+    {TRACE_IT(12106);
         if (needBailOutOnSegmentLengthCompare)
-        {
+        {TRACE_IT(12107);
             // The bailout must be pre-op because it will not have completed the operation
             Assert(instr->GetBailOutInfo()->bailOutOffset == instr->GetByteCodeOffset());
 
@@ -15532,7 +15532,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                     ));
 
             if (bailOutKind & IR::BailOutOnArrayAccessHelperCall)
-            {
+            {TRACE_IT(12108);
                 // Omit the helper call and generate a bailout instead
                 Assert(emitBailoutRef);
                 *emitBailoutRef = true;
@@ -15540,14 +15540,14 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if (indexIsLessThanHeadSegmentLength)
-        {
+        {TRACE_IT(12109);
             Assert(!(bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment));
         }
         else
-        {
+        {TRACE_IT(12110);
             IR::LabelInstr *bailOutLabel;
             if (needBailOutOnInvalidLength)
-            {
+            {TRACE_IT(12111);
                 Assert(isStore);
                 // Lower a separate (but shared) bailout for this case, and preserve the bailout kind in the instruction if the
                 // helper call is going to be generated, because the bailout kind needs to be lowered again and differently in the
@@ -15568,7 +15568,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                 InsertBranch(Js::OpCode::Br, labelFallthrough, bailOutLabel);
             }
             else
-            {
+            {TRACE_IT(12112);
                 Assert(needBailOutToHelper);
                 bailOutLabel = labelHelper;
             }
@@ -15584,7 +15584,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
     }
     else if (isStore && !baseValueType.IsLikelyTypedArray()) //  #if (opcode == StElemI_A)
-    {
+    {TRACE_IT(12113);
         IR::LabelInstr *labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr *labelSegmentLengthIncreased = nullptr;
 
@@ -15595,14 +15595,14 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         const bool isInHelperBlock = !isPush;
 
         if(checkArrayLengthOverflow)
-        {
+        {TRACE_IT(12114);
             if(pLabelSegmentLengthIncreased &&
                 !(
                     (baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues()) ||
                     ((instr->m_opcode == Js::OpCode::StElemI_A || instr->m_opcode == Js::OpCode::StElemI_A_Strict) &&
                         instr->IsProfiledInstr() && !instr->AsProfiledInstr()->u.stElemInfo->LikelyFillsMissingValue())
                 ))
-            {
+            {TRACE_IT(12115);
                 // For arrays that are not guaranteed to have no missing values, before storing to an element where
                 // (index < length), the element value needs to be checked to see if it's a missing value, and if so, fall back
                 // to the helper. This is done to keep the missing value tracking precise in arrays. So, create a separate label
@@ -15612,7 +15612,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                 *pLabelSegmentLengthIncreased = labelSegmentLengthIncreased;
             }
             else
-            {
+            {TRACE_IT(12116);
                 labelSegmentLengthIncreased = labelDone;
             }
 
@@ -15632,11 +15632,11 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         EnsureObjectArrayLoaded();
 
         do // while(false);
-        {
+        {TRACE_IT(12117);
             if(checkArrayLengthOverflow)
-            {
+            {TRACE_IT(12118);
                 if(instr->HasBailOutInfo() && instr->GetBailOutKind() & IR::BailOutOnMissingValue)
-                {
+                {TRACE_IT(12119);
                     // Need to bail out if this store would create a missing value. The store would cause a missing value to be
                     // created if (index > length && index < size). If (index >= size) we would go to helper anyway, and the bailout
                     // handling for this is done after the helper call, so just go to helper if (index > length).
@@ -15645,7 +15645,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                     InsertBranch(Js::OpCode::BrNeq_A, labelHelper, instr);
                 }
                 else
-                {
+                {TRACE_IT(12120);
                     // If (index < size) we will not call the helper, so the array flags must be updated to reflect that it no
                     // longer has no missing values.
                     //
@@ -15714,11 +15714,11 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         } while(false);
 
         if(isPush)
-        {
+        {TRACE_IT(12121);
             IR::LabelInstr *const updateLengthLabel = InsertLabel(isInHelperBlock, instr);
 
             if(!doUpperBoundCheck && !headSegmentLengthOpnd)
-            {
+            {TRACE_IT(12122);
                 // (headSegmentLength = [headSegment + offset(length)])
                 headSegmentLengthOpnd =
                     IR::IndirOpnd::New(headSegmentOpnd, Js::SparseArraySegmentBase::GetOffsetOfLength(), TyUint32, m_func);
@@ -15763,21 +15763,21 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         IR::Opnd *newLengthOpnd;
         IR::AutoReuseOpnd autoReuseNewLengthOpnd;
         if (indexValueOpnd->IsRegOpnd())
-        {
+        {TRACE_IT(12123);
             //      LEA newLength, [index + 1]
             newLengthOpnd = IR::RegOpnd::New(TyUint32, this->m_func);
             autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
             InsertAdd(false /* needFlags */, newLengthOpnd, indexValueOpnd, IR::IntConstOpnd::New(1, TyUint32, m_func), instr);
         }
         else
-        {
+        {TRACE_IT(12124);
             newLengthOpnd = IR::IntConstOpnd::New(value + 1, TyUint32, this->m_func);
             autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
         }
 
         // This is a common enough case that we want to go through this path instead of the simpler one, since doing it this way is faster for preallocated but un-filled arrays.
         if (!!(bailOutKind & IR::BailOutOnInvalidatedArrayLength))
-        {
+        {TRACE_IT(12125);
             // If we'd increase the array length, go to the helper
             indirOpnd = IR::IndirOpnd::New(arrayOpnd, Js::JavascriptArray::GetOffsetOfLength(), TyUint32, this->m_func);
             InsertCompareBranch(
@@ -15793,7 +15793,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         InsertMove(indirOpnd, newLengthOpnd, instr);
 
         if (checkArrayLengthOverflow)
-        {
+        {TRACE_IT(12126);
             //      CMP newLength, [base + offset(length)]
             //      JBE $segmentLengthIncreased
             Assert(labelSegmentLengthIncreased);
@@ -15817,9 +15817,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         InsertMove(indirOpnd, newLengthOpnd, instr);
 
         if(returnLength)
-        {
+        {TRACE_IT(12127);
             if(newLengthOpnd->GetSize() != MachPtr)
-            {
+            {TRACE_IT(12128);
                 newLengthOpnd = newLengthOpnd->UseWithNewType(TyMachPtr, m_func)->AsRegOpnd();
             }
 
@@ -15832,7 +15832,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(labelSegmentLengthIncreased && labelSegmentLengthIncreased != labelDone)
-        {
+        {TRACE_IT(12129);
             // labelSegmentLengthIncreased:
             instr->InsertBefore(labelSegmentLengthIncreased);
         }
@@ -15841,11 +15841,11 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         instr->InsertBefore(labelDone);
     }
     else //  #else
-    {
+    {TRACE_IT(12130);
         if (checkArrayLengthOverflow)
-        {
+        {TRACE_IT(12131);
             if (*pIsTypedArrayElement && isStore)
-            {
+            {TRACE_IT(12132);
                 IR::LabelInstr *labelInlineSet = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
                 //For positive index beyond length or negative index its essentially nop for typed array store
@@ -15857,7 +15857,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
                 // For typed array, call ToNumber before we fallThrough.
                 if (instr->GetSrc1()->GetType() == TyVar && !instr->GetSrc1()->GetValueType().IsPrimitive())
-                {
+                {TRACE_IT(12133);
                     IR::Instr *toNumberInstr = IR::Instr::New(Js::OpCode::Call, this->m_func);
                     toNumberInstr->SetSrc1(instr->GetSrc1());
                     instr->InsertBefore(toNumberInstr);
@@ -15869,7 +15869,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                 instr->InsertBefore(labelInlineSet);
             }
             else
-            {
+            {TRACE_IT(12134);
                 //      JAE $helper
                 InsertBranch(
                     !invertBoundCheckComparison ? Js::OpCode::BrGe_A : Js::OpCode::BrLe_A,
@@ -15882,19 +15882,19 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         EnsureObjectArrayLoaded();
 
         if (instr->m_opcode == Js::OpCode::InlineArrayPop)
-        {
+        {TRACE_IT(12135);
             Assert(!baseValueType.IsLikelyTypedArray());
             Assert(bailOutLabelInstr);
 
             if (indexValueOpnd->IsIntConstOpnd())
-            {
+            {TRACE_IT(12136);
                 // indirOpnd = [headSegment + index + offset(elements)]
                 IntConstType offset = offsetof(Js::SparseArraySegment<Js::Var>, elements) + (value << indirScale);
                 // TODO: Assert(Math::FitsInDWord(offset));
                 indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, (int32)offset, indirType, this->m_func);
             }
             else
-            {
+            {TRACE_IT(12137);
                 //  indirOpnd = [headSegment + offset(elements) + (index << scale)]
                 indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, indexValueOpnd->AsRegOpnd(), indirScale, indirType, this->m_func);
                 indirOpnd->SetOffset(offsetof(Js::SparseArraySegment<Js::Var>, elements));
@@ -15905,13 +15905,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             //Pop might not have a dst, if not don't worry about returning the last element. But we still have to
             // worry about gaps, because these force us to access the prototype chain, which may have side-effects.
             if (dst || !baseValueType.HasNoMissingValues())
-            {
+            {TRACE_IT(12138);
                 if (!dst)
-                {
+                {TRACE_IT(12139);
                     dst = IR::RegOpnd::New(indirType, this->m_func);
                 }
                 else if (dst->AsRegOpnd()->m_sym == arrayOpnd->m_sym)
-                {
+                {TRACE_IT(12140);
                     tmpDst = IR::RegOpnd::New(TyVar, this->m_func);
                     dst = tmpDst;
                 }
@@ -15937,13 +15937,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             IR::Opnd *newLengthOpnd;
             IR::AutoReuseOpnd autoReuseNewLengthOpnd;
             if (indexValueOpnd->IsRegOpnd())
-            {
+            {TRACE_IT(12141);
                 //      LEA newLength, [index]
                 newLengthOpnd = indexValueOpnd;
                 autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
             }
             else
-            {
+            {TRACE_IT(12142);
                 newLengthOpnd = IR::IntConstOpnd::New(value, TyUint32, this->m_func);
                 autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
             }
@@ -15958,7 +15958,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             InsertMove(lengthIndirOpnd, newLengthOpnd, instr);
 
             if (tmpDst)
-            {
+            {TRACE_IT(12143);
                 // The array opnd and the destination is the same, need to move the value in the tmp dst
                 // to the actual dst
                 InsertMove(instr->GetDst(), tmpDst, instr);
@@ -15969,9 +15969,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     } // #endif
 
     if (baseValueType.IsLikelyTypedArray())
-    {
+    {TRACE_IT(12144);
         if(!headSegmentOpnd)
-        {
+        {TRACE_IT(12145);
             //  MOV headSegment, [base + offset(arrayBuffer)]
             int bufferOffset;
             bufferOffset = Js::Float64Array::GetOffsetOfBuffer();
@@ -15983,25 +15983,25 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
         //  indirOpnd = [headSegment + index]
         if (indexValueOpnd->IsIntConstOpnd())
-        {
+        {TRACE_IT(12146);
             IntConstType offset = (value << indirScale);
             // TODO: Assert(Math::FitsInDWord(offset));
             indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, (int32)offset, indirType, this->m_func);
         }
         else
-        {
+        {TRACE_IT(12147);
             indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, indexValueOpnd->AsRegOpnd(), indirScale, indirType, this->m_func);
         }
     }
     else if (indexValueOpnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(12148);
         // indirOpnd = [headSegment + index + offset(elements)]
         IntConstType offset = offsetof(Js::SparseArraySegment<Js::Var>, elements) + (value << indirScale);
         // TODO: Assert(Math::FitsInDWord(offset));
         indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, (int32)offset, indirType, this->m_func);
     }
     else
-    {
+    {TRACE_IT(12149);
         //  indirOpnd = [headSegment + offset(elements) + (index << scale)]
         indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, indexValueOpnd->AsRegOpnd(), indirScale, indirType, this->m_func);
         indirOpnd->SetOffset(offsetof(Js::SparseArraySegment<Js::Var>, elements));
@@ -16012,9 +16012,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
 void
 Lowerer::GenerateTypeIdCheck(Js::TypeId typeId, IR::RegOpnd * opnd, IR::LabelInstr * labelFail, IR::Instr * insertBeforeInstr, bool generateObjectCheck)
-{
+{TRACE_IT(12150);
     if (generateObjectCheck && !opnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(12151);
         m_lowererMD.GenerateObjectTest(opnd, insertBeforeInstr, labelFail);
     }
 
@@ -16037,9 +16037,9 @@ Lowerer::GenerateTypeIdCheck(Js::TypeId typeId, IR::RegOpnd * opnd, IR::LabelIns
 
 IR::RegOpnd *
 Lowerer::GenerateUntagVar(IR::RegOpnd * opnd, IR::LabelInstr * labelFail, IR::Instr * insertBeforeInstr, bool generateTagCheck)
-{
+{TRACE_IT(12152);
     if (!opnd->IsVar())
-    {
+    {TRACE_IT(12153);
         AssertMsg(opnd->GetSize() == 4, "This should be 32-bit wide");
         return opnd;
     }
@@ -16054,13 +16054,13 @@ Lowerer::GenerateNotZeroTest( IR::Opnd * opndSrc, IR::LabelInstr * isZeroLabel, 
 
 bool
 Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelper, IR::LabelInstr * labelFallThru)
-{
+{TRACE_IT(12154);
     IR::IndirOpnd * indirOpnd = ldElem->GetSrc1()->AsIndirOpnd();
     IR::RegOpnd * baseOpnd = indirOpnd->GetBaseOpnd();
 
     // don't generate the fast path if the instance is not likely string
     if (!baseOpnd->GetValueType().IsLikelyString())
-    {
+    {TRACE_IT(12155);
         return false;
     }
 
@@ -16069,7 +16069,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
     IR::RegOpnd * indexOpnd = indirOpnd->GetIndexOpnd();
     // Don't generate the fast path if the index operand is not likely int
     if (indexOpnd && !indexOpnd->GetValueType().IsLikelyInt())
-    {
+    {TRACE_IT(12156);
         return false;
     }
 
@@ -16082,14 +16082,14 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
     const IR::AutoReuseOpnd autoReuseBufferOpnd(bufferOpnd, m_func);
     IR::IndirOpnd * charIndirOpnd;
     if (indexOpnd)
-    {
+    {TRACE_IT(12157);
         // Untag the var and generate the indir into the string buffer
         IR::RegOpnd * index32Opnd = GenerateUntagVar(indexOpnd, labelHelper, ldElem);
         charIndirOpnd = IR::IndirOpnd::New(bufferOpnd, index32Opnd, 1, TyUint16, this->m_func);
         index32CmpOpnd = index32Opnd;
     }
     else
-    {
+    {TRACE_IT(12158);
         // Just use the offset to indirect into the string buffer
         charIndirOpnd = IR::IndirOpnd::New(bufferOpnd, indirOpnd->GetOffset() * sizeof(char16), TyUint16, this->m_func);
         index32CmpOpnd = IR::IntConstOpnd::New((uint32)indirOpnd->GetOffset(), TyUint32, this->m_func);
@@ -16147,7 +16147,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
 
 bool
 Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
-{
+{TRACE_IT(12159);
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -16184,7 +16184,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     //  JNE $fallthrough
 
     if(ldElem->m_opcode == Js::OpCode::LdMethodElem && indirOpnd->GetBaseOpnd()->GetValueType().IsLikelyOptimizedTypedArray())
-    {
+    {TRACE_IT(12160);
         // Typed arrays don't return objects, so it's not worth generating a fast path for LdMethodElem. Calling the helper also
         // generates a better error message. Skip the fast path and just generate a helper call.
         return true;
@@ -16199,21 +16199,21 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     bool emitBailout = false;
 
     if (ldElem->DoStackArgsOpt(this->m_func))
-    {
+    {TRACE_IT(12161);
         emittedFastPath = GenerateFastArgumentsLdElemI(ldElem, labelFallThru);
         emitBailout = true;
     }
     else if (GenerateFastStringLdElem(ldElem, labelHelper, labelFallThru))
-    {
+    {TRACE_IT(12162);
         emittedFastPath = true;
     }
     else
-    {
+    {TRACE_IT(12163);
         IR::LabelInstr * labelCantUseArray = labelHelper;
         if (isNativeArrayLoad)
-        {
+        {TRACE_IT(12164);
             if (ldElem->GetDst()->GetType() == TyVar)
-            {
+            {TRACE_IT(12165);
                 // Skip the fast path and just generate a helper call
                 return true;
             }
@@ -16243,15 +16243,15 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
         // The index is negative or not int.
         if (indirOpnd == nullptr)
-        {
+        {TRACE_IT(12166);
             Assert(!(ldElem->HasBailOutInfo() && ldElem->GetBailOutKind() & IR::BailOutOnArrayAccessHelperCall));
 
             // The global optimizer should never type specialize a LdElem for which the index is not int or an integer constant
             // with a negative value. This would force an unconditional bail out on the main code path.
             if (dst->IsVar())
-            {
+            {TRACE_IT(12167);
                 if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-                {
+                {TRACE_IT(12168);
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                         this->m_func->GetJITFunctionBody()->GetDisplayName(),
@@ -16295,7 +16295,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 ldElem->GetBailOutInfo()->bailOutOffset <= ldElem->GetByteCodeOffset() &&
                 dst->IsEqual(src1->AsIndirOpnd()->GetBaseOpnd())) ||
             (src1->AsIndirOpnd()->GetIndexOpnd() && dst->IsEqual(src1->AsIndirOpnd()->GetIndexOpnd())))
-        {
+        {TRACE_IT(12169);
             // This is a pre-op bailout where the dst is the same as one of the srcs. The dst may be trashed before bailing out,
             // but since the operation will be processed again in the interpreter, src values need to be kept intact. Use a
             // temporary dst until after the operation is complete.
@@ -16310,7 +16310,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
         }
 
         if (isTypedArrayElement)
-        {
+        {TRACE_IT(12170);
             // For typedArrays, convert the loaded element to the appropriate type
             IR::RegOpnd *reg;
             IR::AutoReuseOpnd autoReuseReg;
@@ -16318,11 +16318,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             Assert(dst->IsRegOpnd());
 
             if(indirOpnd->IsFloat())
-            {
+            {TRACE_IT(12171);
                 AssertMsg((dstType == TyFloat64) || (dstType == TyVar), "For Float32Array LdElemI's dst should be specialized to TyFloat64 or not at all.");
 
                 if(indirOpnd->IsFloat32())
-                {
+                {TRACE_IT(12172);
                     // MOVSS reg32.f32, indirOpnd.f32
                     IR::RegOpnd *reg32 = IR::RegOpnd::New(TyFloat32, this->m_func);
                     const IR::AutoReuseOpnd autoReuseReg32(reg32, m_func);
@@ -16334,7 +16334,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     InsertConvertFloat32ToFloat64(reg, reg32, ldElem);
                 }
                 else
-                {
+                {TRACE_IT(12173);
                     Assert(indirOpnd->IsFloat64());
 
                     // MOVSD dst/reg.f64, indirOpnd.f64
@@ -16344,7 +16344,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 }
 
                 if (dstType != TyFloat64)
-                {
+                {TRACE_IT(12174);
                     // Convert reg.f64 to var
                     m_lowererMD.SaveDoubleToVar(dst->AsRegOpnd(), reg, ldElem, ldElem);
                 }
@@ -16360,19 +16360,19 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 }
 
                 // JP $helper
-                {
+                {TRACE_IT(12175);
                     IR::Instr *const instr = IR::BranchInstr::New(Js::OpCode::JP, labelHelper, this->m_func);
                     ldElem->InsertBefore(instr);
                 }
 #endif
 
                 if(dstType == TyFloat64)
-                {
+                {TRACE_IT(12176);
                     emitBailout = true;
                 }
             }
             else
-            {
+            {TRACE_IT(12177);
                 AssertMsg((dstType == TyInt32) || (dstType == TyVar), "For Int/UintArray LdElemI's dst should be specialized to TyInt32 or not at all.");
 
                 reg = dstType == TyInt32 ? dst->AsRegOpnd() : IR::RegOpnd::New(TyInt32, this->m_func);
@@ -16384,7 +16384,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     && indirOpnd->GetType() != TyInt32
 #endif
                     )
-                {
+                {TRACE_IT(12178);
                     reg->SetValueType(ValueType::GetTaggedInt());  // Fits as a tagged-int
                 }
 
@@ -16392,7 +16392,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 IR::Instr *const instrMov = InsertMove(reg, indirOpnd, ldElem);
 
                 if (dstType == TyInt32)
-                {
+                {TRACE_IT(12179);
                     instrMov->dstIsTempNumber = ldElem->dstIsTempNumber;
                     instrMov->dstIsTempNumberTransferred = ldElem->dstIsTempNumberTransferred;
 
@@ -16411,7 +16411,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     emitBailout = true;
                 }
                 else
-                {
+                {TRACE_IT(12180);
                     // MOV dst, reg
                     IR::Instr *const instr = IR::Instr::New(Js::OpCode::ToVar, dst, reg, this->m_func);
                     instr->dstIsTempNumber = ldElem->dstIsTempNumber;
@@ -16429,7 +16429,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             emittedFastPath = true;
 
             if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-            {
+            {TRACE_IT(12181);
                 char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
                 baseValueType.ToString(baseValueTypeStr);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -16470,11 +16470,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     true);
 
                 if (isNativeArrayLoad)
-                {
+                {TRACE_IT(12182);
                     Assert(!needObjectTest);
                     Assert(labelHelper != labelBailOut);
                     if(ldElem->AsProfiledInstr()->u.ldElemInfo->GetElementType().HasBeenUndefined())
-                    {
+                    {TRACE_IT(12183);
                         // We're going to bail out trying to load "missing value" into a type-spec'd opnd.
                         // Branch to a point where we'll convert the array so that we don't keep bailing here.
                         // (Gappy arrays are not well-suited to nativeness.)
@@ -16482,20 +16482,20 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                         InsertBranch(Js::OpCode::Br, labelMissingNative, ldElem);
                     }
                     else
-                    {
+                    {TRACE_IT(12184);
                         // If the value has not been profiled to be undefined at some point, jump directly to bail out
                         InsertBranch(Js::OpCode::Br, labelBailOut, ldElem);
                     }
                 }
             }
             if(needObjectTest)
-            {
+            {TRACE_IT(12185);
                 //  GenerateObjectTest(dst)
                 //  JIsObject $fallthrough
                 m_lowererMD.GenerateObjectTest(dst, ldElem, labelFallThru, true);
             }
             else if(!needMissingValueCheck)
-            {
+            {TRACE_IT(12186);
                 //  JMP $fallthrough
                 InsertBranch(Js::OpCode::Br, labelFallThru, ldElem);
             }
@@ -16508,7 +16508,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     // $fallthru:
 
     if (!emittedFastPath)
-    {
+    {TRACE_IT(12187);
         labelHelper->isOpHelper = false;
     }
 
@@ -16516,7 +16516,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     instrIsInHelperBlock = true;
 
     if (isNativeArrayLoad)
-    {
+    {TRACE_IT(12188);
         Assert(ldElem->HasBailOutInfo());
         Assert(labelHelper != labelBailOut);
 
@@ -16545,11 +16545,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
         bool hasBeenUndefined = ldElem->AsProfiledInstr()->u.ldElemInfo->GetElementType().HasBeenUndefined();
         if (hasBeenUndefined)
-        {
+        {TRACE_IT(12189);
             if(!emitBailout)
-            {
+            {TRACE_IT(12190);
                 if (labelMissingNative == nullptr)
-                {
+                {TRACE_IT(12191);
                     labelMissingNative = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
                 }
 
@@ -16557,7 +16557,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             }
             InsertBranch(Js::OpCode::Br, labelFallThru, insertBeforeInstr);
             if(labelMissingNative)
-            {
+            {TRACE_IT(12192);
                 // We're going to bail out on a load from a gap, but convert the array to Var first, so we don't just
                 // bail here over and over. Gappy arrays are not well suited to nativeness.
                 // NOTE: only emit this call if the profile tells us that this has happened before ("hasBeenUndefined").
@@ -16566,11 +16566,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 IR::JnHelperMethod helperMethod;
                 indirOpnd = ldElem->GetSrc1()->AsIndirOpnd();
                 if (indirOpnd->GetBaseOpnd()->GetValueType().HasIntElements())
-                {
+                {TRACE_IT(12193);
                     helperMethod = IR::HelperIntArr_ToVarArray;
                 }
                 else
-                {
+                {TRACE_IT(12194);
                     Assert(indirOpnd->GetBaseOpnd()->GetValueType().HasFloatElements());
                     helperMethod = IR::HelperFloatArr_ToVarArray;
                 }
@@ -16582,9 +16582,9 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             }
         }
         else
-        {
+        {TRACE_IT(12195);
             if(!emitBailout)
-            {
+            {TRACE_IT(12196);
                 InsertCompareBranch(GetMissingItemOpnd(ldElem->GetDst()->GetType(), m_func), ldElem->GetDst(), Js::OpCode::BrEq_A, labelBailOut, insertBeforeInstr, true);
             }
 
@@ -16595,7 +16595,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     }
 
     if (emitBailout)
-    {
+    {TRACE_IT(12197);
         ldElem->UnlinkSrc1();
         ldElem->UnlinkDst();
         GenerateBailOut(ldElem, nullptr, nullptr);
@@ -16606,13 +16606,13 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
 IR::Opnd *
 Lowerer::GetMissingItemOpnd(IRType type, Func *func)
-{
+{TRACE_IT(12198);
     if (type == TyVar)
-    {
+    {TRACE_IT(12199);
         return IR::AddrOpnd::New(Js::JavascriptArray::MissingItem, IR::AddrOpndKindConstantAddress, func, true);
     }
     if (type == TyInt32)
-    {
+    {TRACE_IT(12200);
         return IR::IntConstOpnd::New(Js::JavascriptNativeIntArray::MissingItem, TyInt32, func, true);
     }
     Assert(type == TyFloat64);
@@ -16621,7 +16621,7 @@ Lowerer::GetMissingItemOpnd(IRType type, Func *func)
 
 bool
 Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
-{
+{TRACE_IT(12201);
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -16669,18 +16669,18 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     bool isNativeArrayStore = indirOpnd->GetBaseOpnd()->GetValueType().IsLikelyNativeArray();
     IR::LabelInstr * labelCantUseArray = labelHelper;
     if (isNativeArrayStore)
-    {
+    {TRACE_IT(12202);
         if (stElem->GetSrc1()->GetType() != GetArrayIndirType(indirOpnd->GetBaseOpnd()->GetValueType()))
-        {
+        {TRACE_IT(12203);
             // Skip the fast path and just generate a helper call
             return true;
         }
 
         if(stElem->HasBailOutInfo())
-        {
+        {TRACE_IT(12204);
             const IR::BailOutKind bailOutKind = stElem->GetBailOutKind();
             if (bailOutKind & IR::BailOutConventionalNativeArrayAccessOnly)
-            {
+            {TRACE_IT(12205);
                 labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
                 labelCantUseArray = labelBailOut;
             }
@@ -16706,15 +16706,15 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
     // The index is negative or not int.
     if (indirOpnd == nullptr)
-    {
+    {TRACE_IT(12206);
         Assert(!(stElem->HasBailOutInfo() && stElem->GetBailOutKind() & IR::BailOutOnArrayAccessHelperCall));
 
         // The global optimizer should never type specialize a StElem for which we know the index is not int or is a negative
         // int constant.  This would result in an unconditional bailout on the main code path.
         if (src->IsVar())
-        {
+        {TRACE_IT(12207);
             if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-            {
+            {TRACE_IT(12208);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(),
@@ -16746,9 +16746,9 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
     const ValueType baseValueType(dst->AsIndirOpnd()->GetBaseOpnd()->GetValueType());
     if (isTypedArrayElement)
-    {
+    {TRACE_IT(12209);
         if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-        {
+        {TRACE_IT(12210);
             char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             baseValueType.ToString(baseValueTypeStr);
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -16765,13 +16765,13 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         ObjectType objectType = baseValueType.GetObjectType();
 
         if(indirOpnd->IsFloat())
-        {
+        {TRACE_IT(12211);
             if (src->GetType() == TyFloat64)
-            {
+            {TRACE_IT(12212);
                 IR::RegOpnd *const regSrc = src->AsRegOpnd();
 
                 if (indirOpnd->IsFloat32())
-                {
+                {TRACE_IT(12213);
                     // CVTSD2SS reg.f32, regSrc.f64    -- Convert regSrc from f64 to f32
                     IR::RegOpnd *const reg = IR::RegOpnd::New(TyFloat32, this->m_func);
                     const IR::AutoReuseOpnd autoReuseReg(reg, m_func);
@@ -16788,7 +16788,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 emitBailout = true;
             }
             else
-            {
+            {TRACE_IT(12214);
                 Assert(src->GetType() == TyVar);
 
                 // MOV reg, src
@@ -16798,30 +16798,30 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
                 // Convert to float, and assign to indirOpnd
                 if (baseValueType.IsLikelyOptimizedVirtualTypedArray())
-                {
+                {TRACE_IT(12215);
                     IR::RegOpnd* dstReg = IR::RegOpnd::New(indirOpnd->GetType(), this->m_func);
                     m_lowererMD.EmitLoadFloat(dstReg, reg, stElem);
                     InsertMove(indirOpnd, dstReg, stElem);
                 }
                 else
-                {
+                {TRACE_IT(12216);
                     m_lowererMD.EmitLoadFloat(indirOpnd, reg, stElem);
                 }
 
             }
         }
         else if (objectType == ObjectType::Uint8ClampedArray || objectType == ObjectType::Uint8ClampedVirtualArray || objectType == ObjectType::Uint8ClampedMixedArray)
-        {
+        {TRACE_IT(12217);
             Assert(indirOpnd->GetType() == TyUint8);
 
             IR::RegOpnd *regSrc;
             IR::AutoReuseOpnd autoReuseRegSrc;
             if(src->IsRegOpnd())
-            {
+            {TRACE_IT(12218);
                 regSrc = src->AsRegOpnd();
             }
             else
-            {
+            {TRACE_IT(12219);
                 regSrc = IR::RegOpnd::New(StackSym::New(src->GetType(), m_func), src->GetType(), m_func);
                 autoReuseRegSrc.Initialize(regSrc, m_func);
 
@@ -16832,7 +16832,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
             IRType srcType = regSrc->GetType();
 
             if ((srcType == TyFloat64) || (srcType == TyInt32))
-            {
+            {TRACE_IT(12220);
                 // if (srcType == TyInt32) {
                 //     TEST regSrc, ~255
                 //     JE $storeValue
@@ -16866,14 +16866,14 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 IR::RegOpnd *regOpnd;
                 IR::AutoReuseOpnd autoReuseRegOpnd;
                 if (srcType == TyInt32)
-                {
+                {TRACE_IT(12221);
                     // When srcType == TyInt32 we will never call the helper and we will never
                     // modify the regOpnd.  Therefore, it's okay to use regSrc directly, and it
                     // reduces register pressure.
                     regOpnd = regSrc;
                 }
                 else
-                {
+                {TRACE_IT(12222);
 #ifdef _M_IX86
                     AssertMsg(AutoSystemInfo::Data.SSE2Available(), "GlobOpt shouldn't have specialized Uint8ClampedArray StElem to float64 if SSE2 is unavailable.");
 #endif
@@ -16915,7 +16915,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 IR::LabelInstr *labelHandleNegative = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, srcType == TyFloat64);
 
                 if (srcType == TyInt32)
-                {
+                {TRACE_IT(12223);
                     // JSB $handleNegativeOrOverflow
                     InsertBranch(
                         LowererMD::MDCompareWithZeroBranchOpcode(Js::OpCode::BrLt_A),
@@ -16938,7 +16938,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                     InsertBranch(Js::OpCode::Br, labelFallThru, stElem);
                 }
                 else
-                {
+                {TRACE_IT(12224);
                     Assert(regOpnd != regSrc);
 
                     // This label is just to ensure the following code is moved to the helper block.
@@ -16973,7 +16973,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 emitBailout = true;
             }
             else
-            {
+            {TRACE_IT(12225);
                 Assert(srcType == TyVar);
 
 #if INT32VAR
@@ -17015,11 +17015,11 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 m_lowererMD.LoadHelperArgument(stElem, regSrc);
                 IR::Opnd *indexOpnd = indirOpnd->GetIndexOpnd();
                 if (indexOpnd == nullptr)
-                {
+                {TRACE_IT(12226);
                     indexOpnd = IR::IntConstOpnd::New(indirOpnd->GetOffset(), TyInt32, this->m_func);
                 }
                 else
-                {
+                {TRACE_IT(12227);
                     Assert(indirOpnd->GetOffset() == 0);
                 }
                 m_lowererMD.LoadHelperArgument(stElem, indexOpnd);
@@ -17062,7 +17062,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
             }
         }
         else
-        {
+        {TRACE_IT(12228);
             if (src->IsInt32())
             {
                 // MOV indirOpnd, src
@@ -17071,7 +17071,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 emitBailout = true;
             }
             else if (src->IsFloat64())
-            {
+            {TRACE_IT(12229);
                 AssertMsg(indirOpnd->GetType() == TyUint32, "Only StElemI to Uint32Array could be specialized to float64.");
 #ifdef _M_IX86
                 AssertMsg(AutoSystemInfo::Data.SSE2Available(), "GloOpt shouldn't have specialized Uint32Array StElemI to float64 if SSE2 is unavailable.");
@@ -17087,11 +17087,11 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 emitBailout = true;
             }
             else
-            {
+            {TRACE_IT(12230);
                 Assert(src->IsVar());
 
                 if(src->IsAddrOpnd())
-                {
+                {TRACE_IT(12231);
                     IR::AddrOpnd *const addrSrc = src->AsAddrOpnd();
                     Assert(addrSrc->IsVar());
                     Assert(Js::TaggedInt::Is(addrSrc->m_address));
@@ -17103,7 +17103,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                         stElem);
                 }
                 else
-                {
+                {TRACE_IT(12232);
                     IR::RegOpnd *const regSrc = src->AsRegOpnd();
 
                     // FromVar reg, Src
@@ -17124,9 +17124,9 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         }
     }
     else
-    {
+    {TRACE_IT(12233);
         if(labelSegmentLengthIncreased)
-        {
+        {TRACE_IT(12234);
             IR::Instr *const insertBeforeInstr = labelSegmentLengthIncreased->m_next;
 
             // labelSegmentLengthIncreased:
@@ -17137,7 +17137,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         }
 
         if (!(isStringIndex || (baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues())))
-        {
+        {TRACE_IT(12235);
             if(!stElem->IsProfiledInstr() || stElem->AsProfiledInstr()->u.stElemInfo->LikelyFillsMissingValue())
             {
                 // Check whether the store is filling a missing value. If so, fall back to the helper so that it can check whether
@@ -17175,7 +17175,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     instrIsInHelperBlock = true;
 
     if (isNativeArrayStore && !isStringIndex)
-    {
+    {TRACE_IT(12236);
         Assert(stElem->HasBailOutInfo());
         Assert(labelHelper != labelBailOut);
 
@@ -17201,7 +17201,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     }
 
     if (emitBailout)
-    {
+    {TRACE_IT(12237);
         stElem->UnlinkSrc1();
         stElem->UnlinkDst();
         GenerateBailOut(stElem, nullptr, nullptr);
@@ -17212,7 +17212,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
 bool
 Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
-{
+{TRACE_IT(12238);
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -17254,7 +17254,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         return false;
     }
     else
-    {
+    {TRACE_IT(12239);
         const bool arrayFastPath = ShouldGenerateArrayFastPath(src, false, true, false);
 
         // HasBeenString instead of IsLikelyString because it could be a merge between StringObject and String, and this
@@ -17262,7 +17262,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         const bool stringFastPath = srcValueType.IsUninitialized() || srcValueType.HasBeenString();
 
         if(!(arrayFastPath || stringFastPath))
-        {
+        {TRACE_IT(12240);
             return true;
         }
 
@@ -17275,11 +17275,11 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         IR::RegOpnd *arrayLengthOpnd = nullptr;
         IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
         if(arrayFastPath)
-        {
+        {TRACE_IT(12241);
             if(!srcValueType.IsAnyOptimizedArray())
-            {
+            {TRACE_IT(12242);
                 if(stringFastPath)
-                {
+                {TRACE_IT(12243);
                     // If we don't have info about the src value type or its object type, the array and string fast paths are
                     // generated
                     labelString = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
@@ -17288,10 +17288,10 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
                 arrayOpnd = GenerateArrayTest(src, labelHelper, stringFastPath ? labelString : labelHelper, ldLen, false);
             }
             else if(src->IsArrayRegOpnd())
-            {
+            {TRACE_IT(12244);
                 IR::ArrayRegOpnd *const arrayRegOpnd = src->AsArrayRegOpnd();
                 if(arrayRegOpnd->LengthSym())
-                {
+                {TRACE_IT(12245);
                     arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), TyUint32, m_func);
                     DebugOnly(arrayLengthOpnd->FreezeSymValue());
                     autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -17305,7 +17305,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         const auto EnsureLengthOpnd = [&]()
         {
             if(lengthOpnd)
-            {
+            {TRACE_IT(12246);
                 return;
             }
 
@@ -17314,15 +17314,15 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         };
 
         if(arrayFastPath)
-        {
+        {TRACE_IT(12247);
             if(arrayLengthOpnd)
-            {
+            {TRACE_IT(12248);
                 lengthOpnd = arrayLengthOpnd;
                 autoReuseLengthOpnd.Initialize(lengthOpnd, m_func);
                 Assert(!stringFastPath);
             }
             else
-            {
+            {TRACE_IT(12249);
                 //     MOV length, [array + offset(length)]     -- Load array length
                 EnsureLengthOpnd();
                 IR::IndirOpnd *const indirOpnd = IR::IndirOpnd::New(arrayOpnd, arrayOffsetOfLength, TyUint32, this->m_func);
@@ -17331,10 +17331,10 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         }
 
         if(stringFastPath)
-        {
+        {TRACE_IT(12250);
             IR::LabelInstr *labelToVar = nullptr;
             if(arrayFastPath)
-            {
+            {TRACE_IT(12251);
                 //     JMP $tovar
                 labelToVar = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
                 InsertBranch(Js::OpCode::Br, labelToVar, ldLen);
@@ -17353,7 +17353,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
             InsertMove(lengthOpnd, indirOpnd, ldLen);
 
             if(arrayFastPath)
-            {
+            {TRACE_IT(12252);
                 // $toVar:
                 ldLen->InsertBefore(labelToVar);
             }
@@ -17362,7 +17362,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         Assert(lengthOpnd);
 
         if(ldLen->HasBailOutInfo() && (ldLen->GetBailOutKind() & ~IR::BailOutKindBits) == IR::BailOutOnIrregularLength)
-        {
+        {TRACE_IT(12253);
             Assert(ldLen->GetBailOutKind() == IR::BailOutOnIrregularLength);
             Assert(dst->IsInt32());
 
@@ -17460,7 +17460,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
 
 void
 Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, IR::Opnd *strLength, IR::Opnd *srcIndex, IR::RegOpnd *lowerChar, IR::RegOpnd *strPtr)
-{
+{TRACE_IT(12254);
     //// Required State:
     // strLength - UInt32
     // srcIndex  - TyVar if not Address
@@ -17497,7 +17497,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
     IR::IndirOpnd *tempIndirOpnd;
 
     if (srcIndex->IsAddrOpnd())
-    {
+    {TRACE_IT(12255);
         uint32 length = Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) + 1U;
         InsertCompareBranch(strLength, IR::IntConstOpnd::New(length, TyUint32, func), Js::OpCode::BrLe_A, true, labelCharCodeAt, lastInstr);
         tempIndirOpnd = IR::IndirOpnd::New(strPtr, (length) * sizeof(char16), TyUint16, func);
@@ -17518,7 +17518,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
         InsertCompareBranch(strLength, tempReg, Js::OpCode::BrLe_A, true, labelCharCodeAt, lastInstr);
 
         if(tempReg->GetSize() != MachPtr)
-        {
+        {TRACE_IT(12256);
             tempReg = tempReg->UseWithNewType(TyMachPtr, func)->AsRegOpnd();
         }
 
@@ -17554,7 +17554,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
 
 bool
 Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
-{
+{TRACE_IT(12257);
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17578,7 +17578,7 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
     IR::Opnd *src1 = argInstr->GetSrc1();
 
     if (src1->GetValueType().IsLikelyNumber())
-    {
+    {TRACE_IT(12258);
         //Trying to generate this code
         //      MOV resultOpnd, dst
         //      MOV fromCharCodeIntArgOpnd, src1
@@ -17598,11 +17598,11 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
         //$helper:
         IR::RegOpnd * resultOpnd = nullptr;
         if (!instr->GetDst()->IsRegOpnd() || instr->GetDst()->IsEqual(src1))
-        {
+        {TRACE_IT(12259);
             resultOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         }
         else
-        {
+        {TRACE_IT(12260);
             resultOpnd = instr->GetDst()->AsRegOpnd();
         }
 
@@ -17629,7 +17629,7 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
 
 bool
 Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
-{
+{TRACE_IT(12261);
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17653,7 +17653,7 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
     IR::Opnd *src1 = argInstr->GetSrc1();
 
     if (src1->GetValueType().IsLikelyNumber())
-    {
+    {TRACE_IT(12262);
         //Trying to generate this code
         //      MOV resultOpnd, dst
         //      MOV fromCharCodeIntArgOpnd, src1
@@ -17673,11 +17673,11 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
         //$helper:
         IR::RegOpnd * resultOpnd = nullptr;
         if (!instr->GetDst()->IsRegOpnd() || instr->GetDst()->IsEqual(src1))
-        {
+        {TRACE_IT(12263);
             resultOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         }
         else
-        {
+        {TRACE_IT(12264);
             resultOpnd = instr->GetDst()->AsRegOpnd();
         }
 
@@ -17704,7 +17704,7 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
 
 void
 Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resultOpnd, IR::LabelInstr * labelHelper, IR::LabelInstr * doneLabel, IR::Instr * instr, bool isCodePoint)
-{
+{TRACE_IT(12265);
     //      MOV cacheReg, CharStringCache
     //      CMP charCodeOpnd, Js::ScriptContext::CharStringCacheSize
     //      JAE $labelWCharStringCheck                                   <
@@ -17741,7 +17741,7 @@ Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resu
 
     IR::JnHelperMethod helperMethod;
     if (isCodePoint)
-    {
+    {TRACE_IT(12266);
         helperMethod = IR::HelperGetStringForCharCodePoint;
     }
     else
@@ -17764,7 +17764,7 @@ Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resu
 
 bool
 Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
-{
+{TRACE_IT(12267);
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17788,17 +17788,17 @@ Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
     IR::Opnd *parseIntArgOpnd = argInstr->GetSrc1();
 
     if (parseIntArgOpnd->GetValueType().IsLikelyNumber())
-    {
+    {TRACE_IT(12268);
         //If likely int check for tagged int and set the dst
         IR::LabelInstr *doneLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if (!parseIntArgOpnd->IsTaggedInt())
-        {
+        {TRACE_IT(12269);
             this->m_lowererMD.GenerateSmIntTest(parseIntArgOpnd, instr, labelHelper);
         }
         if (instr->GetDst())
-        {
+        {TRACE_IT(12270);
             this->m_lowererMD.CreateAssign(instr->GetDst(), parseIntArgOpnd, instr);
         }
         InsertBranch(Js::OpCode::Br, doneLabel, instr);
@@ -17812,7 +17812,7 @@ Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
 
 void
 Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
-{
+{TRACE_IT(12271);
     Assert(instr->m_opcode == Js::OpCode::InlineArrayPop);
 
     IR::Opnd *arrayOpnd = instr->GetSrc1();
@@ -17823,7 +17823,7 @@ Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
     bool isLikelyNativeArray = arrayOpnd->GetValueType().IsLikelyNativeArray();
 
     if (ShouldGenerateArrayFastPath(arrayOpnd, false, false, false))
-    {
+    {TRACE_IT(12272);
         IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if(isLikelyNativeArray)
@@ -17843,7 +17843,7 @@ Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
         InsertBranch(Js::OpCode::Br, true, doneLabel, labelHelper);
     }
     else
-    {
+    {TRACE_IT(12273);
         //We assume here that the array will be a Var array. - Runtime Helper calls assume this.
         Assert(!isLikelyNativeArray);
     }
@@ -17862,7 +17862,7 @@ Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
 
 bool
 Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType argCount)
-{
+{TRACE_IT(12274);
     // a.replace(b,c)
     // We want to emit the fast path if 'a' and 'c' are strings and 'b' is a regex
     //
@@ -17876,7 +17876,7 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
     Assert(argCount == 2);
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {TRACE_IT(12275);
         IR::SymOpnd *src2 = linkOpnd->AsSymOpnd();
         StackSym *sym = src2->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -17885,12 +17885,12 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
         Assert(argCount >= 0);
         // check to see if 'a' and 'c' are likely strings
         if((argCount == 2 || argCount == 0) && (!argInstr->GetSrc1()->GetValueType().IsLikelyString()))
-        {
+        {TRACE_IT(12276);
             return false;
         }
         // we want 'b' to be regex. Don't generate fastpath if it is a tagged int
         if((argCount == 1) && (argInstr->GetSrc1()->IsTaggedInt()))
-        {
+        {TRACE_IT(12277);
             return false;
         }
         argCount--;
@@ -17901,7 +17901,7 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
 
 bool
 Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, IR::Instr *callInstr, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr *doneLabel)
-{
+{TRACE_IT(12278);
     // a.replace(b,c)
     // We want to emit the fast path if 'a' and 'c' are strings and 'b' is a regex
     //
@@ -17914,9 +17914,9 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     Assert(strOpnd->GetValueType().IsLikelyString() && src2->GetValueType().IsLikelyString());
 
     if(!strOpnd->GetValueType().IsString())
-    {
+    {TRACE_IT(12279);
         if(!strOpnd->IsRegOpnd())
-        {
+        {TRACE_IT(12280);
             IR::RegOpnd *strOpndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(strOpndReg, strOpnd, insertInstr);
             strOpnd = strOpndReg;
@@ -17926,7 +17926,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     }
 
     if(!src1->IsNotTaggedValue())
-    {
+    {TRACE_IT(12281);
         m_lowererMD.GenerateObjectTest(src1, insertInstr, labelHelper);
     }
 
@@ -17935,7 +17935,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!src1->IsRegOpnd())
-    {
+    {TRACE_IT(12282);
         IR::RegOpnd *src1Reg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(src1Reg, src1, insertInstr);
         src1 = src1Reg;
@@ -17948,9 +17948,9 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
         insertInstr);
 
     if(!src2->GetValueType().IsString())
-    {
+    {TRACE_IT(12283);
         if(!src2->IsRegOpnd())
-        {
+        {TRACE_IT(12284);
             IR::RegOpnd *src2Reg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(src2Reg, src2, insertInstr);
             src2 = src2Reg;
@@ -17970,16 +17970,16 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, insertInstr->m_func);
     if(callDst)
-    {
+    {TRACE_IT(12285);
         helperCallInstr->SetDst(callDst);
     }
     insertInstr->InsertBefore(helperCallInstr);
     if(callDst)
-    {
+    {TRACE_IT(12286);
         m_lowererMD.ChangeToHelperCall(helperCallInstr, IR::JnHelperMethod::HelperRegExp_ReplaceStringResultUsed);
     }
     else
-    {
+    {TRACE_IT(12287);
         m_lowererMD.ChangeToHelperCall(helperCallInstr, IR::JnHelperMethod::HelperRegExp_ReplaceStringResultNotUsed);
     }
 
@@ -17990,7 +17990,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
 
 void
 Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
-{
+{TRACE_IT(12288);
     // a.split(b,c (optional) )
     // We want to emit the fast path when
     //     1. c is not present, and
@@ -18010,20 +18010,20 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
     IR::Opnd * argsOpnd[2];
     if(!instr->FetchOperands(argsOpnd, 2))
-    {
+    {TRACE_IT(12289);
         return;
     }
 
     if(!argsOpnd[0]->GetValueType().IsLikelyString() || argsOpnd[1]->IsTaggedInt())
-    {
+    {TRACE_IT(12290);
         return;
     }
 
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     if(!argsOpnd[0]->GetValueType().IsString())
-    {
+    {TRACE_IT(12291);
         if(!argsOpnd[0]->IsRegOpnd())
-        {
+        {TRACE_IT(12292);
             IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(opndReg, argsOpnd[0], instr);
             argsOpnd[0] = opndReg;
@@ -18032,7 +18032,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     }
 
     if(!argsOpnd[1]->IsNotTaggedValue())
-    {
+    {TRACE_IT(12293);
         m_lowererMD.GenerateObjectTest(argsOpnd[1], instr, labelHelper);
     }
 
@@ -18041,7 +18041,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!argsOpnd[1]->IsRegOpnd())
-    {
+    {TRACE_IT(12294);
         IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(opndReg, argsOpnd[1], instr);
         argsOpnd[1] = opndReg;
@@ -18056,7 +18056,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     // [stackAllocationPointer, ]scriptcontext, regexp, input[, limit] (to be pushed in reverse order)
 
     if(src1->AsHelperCallOpnd()->m_fnHelper == IR::JnHelperMethod::HelperString_Split)
-    {
+    {TRACE_IT(12295);
         //limit
         //As we are optimizing only for two operands, make limit UINT_MAX
         IR::Opnd* limit = IR::IntConstOpnd::New(UINT_MAX, TyUint32, instr->m_func);
@@ -18073,7 +18073,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     IR::JnHelperMethod helperMethod;
     IR::AutoReuseOpnd autoReuseStackAllocationOpnd;
     if(callDst && instr->dstIsTempObject)
-    {
+    {TRACE_IT(12296);
         switch(src1->AsHelperCallOpnd()->m_fnHelper)
         {
             case IR::JnHelperMethod::HelperString_Split:
@@ -18097,7 +18097,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
         m_lowererMD.LoadHelperArgument(instr, stackAllocationOpnd);
     }
     else
-    {
+    {TRACE_IT(12297);
         switch(src1->AsHelperCallOpnd()->m_fnHelper)
         {
             case IR::JnHelperMethod::HelperString_Split:
@@ -18122,7 +18122,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, instr->m_func);
     if(callDst)
-    {
+    {TRACE_IT(12298);
         helperCallInstr->SetDst(callDst);
     }
     instr->InsertBefore(helperCallInstr);
@@ -18139,7 +18139,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
 void
 Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
-{
+{TRACE_IT(12299);
     // a.exec(b)
     // We want to emit the fast path when 'a' is a regex and 'b' is a string
 
@@ -18151,21 +18151,21 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
     IR::Opnd * argsOpnd[2];
     if (!instr->FetchOperands(argsOpnd, 2))
-    {
+    {TRACE_IT(12300);
         return;
     }
 
     IR::Opnd *opndString = argsOpnd[1];
     if(!opndString->GetValueType().IsLikelyString() || argsOpnd[0]->IsTaggedInt())
-    {
+    {TRACE_IT(12301);
         return;
     }
 
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     if(!opndString->GetValueType().IsString())
-    {
+    {TRACE_IT(12302);
         if(!opndString->IsRegOpnd())
-        {
+        {TRACE_IT(12303);
             IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(opndReg, opndString, instr);
             opndString = opndReg;
@@ -18175,7 +18175,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
     IR::Opnd *opndRegex = argsOpnd[0];
     if(!opndRegex->IsNotTaggedValue())
-    {
+    {TRACE_IT(12304);
         m_lowererMD.GenerateObjectTest(opndRegex, instr, labelHelper);
     }
 
@@ -18184,7 +18184,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!opndRegex->IsRegOpnd())
-    {
+    {TRACE_IT(12305);
         IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(opndReg, opndRegex, instr);
         opndRegex = opndReg;
@@ -18199,7 +18199,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     IR::LabelInstr *doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     if (!PHASE_OFF(Js::ExecBOIFastPathPhase, m_func))
-    {
+    {TRACE_IT(12306);
         // Load pattern from regex operand
         IR::RegOpnd *opndPattern = IR::RegOpnd::New(TyMachPtr, m_func);
         LowererMD::CreateAssign(
@@ -18288,7 +18288,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
         // ...and set the dst to null...
         if (callDst)
-        {
+        {TRACE_IT(12307);
             LowererMD::CreateAssign(
                 callDst,
                 LoadLibraryValueOpnd(instr, LibraryValue::ValueNull),
@@ -18313,9 +18313,9 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     IR::JnHelperMethod helperMethod;
     IR::AutoReuseOpnd autoReuseStackAllocationOpnd;
     if(callDst)
-    {
+    {TRACE_IT(12308);
         if(instr->dstIsTempObject)
-        {
+        {TRACE_IT(12309);
             helperMethod = IR::JnHelperMethod::HelperRegExp_ExecResultUsedAndMayBeTemp;
 
             // Allocate some space on the stack for the result array
@@ -18326,18 +18326,18 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
             m_lowererMD.LoadHelperArgument(instr, stackAllocationOpnd);
         }
         else
-        {
+        {TRACE_IT(12310);
             helperMethod = IR::JnHelperMethod::HelperRegExp_ExecResultUsed;
         }
     }
     else
-    {
+    {TRACE_IT(12311);
         helperMethod = IR::JnHelperMethod::HelperRegExp_ExecResultNotUsed;
     }
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, instr->m_func);
     if(callDst)
-    {
+    {TRACE_IT(12312);
         helperCallInstr->SetDst(callDst);
     }
     instr->InsertBefore(helperCallInstr);
@@ -18351,24 +18351,24 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 }
 
 void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
-{
+{TRACE_IT(12313);
 
     Assert(instr->GetSrc1()->IsFloat());
     if (instr->GetDst()->IsInt32() || instr->GetDst()->IsUInt32())
-    {
+    {TRACE_IT(12314);
         m_lowererMD.GenerateTruncWithCheck(instr);
     }
     else
-    {
+    {TRACE_IT(12315);
         Assert(instr->GetDst()->IsInt64() || instr->GetDst()->GetType() == TyUint64);
         LoadScriptContext(instr);
 
         if (instr->GetSrc1()->IsFloat32())
-        {
+        {TRACE_IT(12316);
             m_lowererMD.LoadFloatHelperArgument(instr, instr->GetSrc1());
         }
         else 
-        {
+        {TRACE_IT(12317);
             m_lowererMD.LoadDoubleHelperArgument(instr, instr->GetSrc1());
         }
         IR::JnHelperMethod helperList[2][2] = { IR::HelperF32TOI64, IR::HelperF32TOU64, IR::HelperF64TOI64 ,IR::HelperF64TOU64 };
@@ -18380,14 +18380,14 @@ void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
 
 void
 Lowerer::RelocateCallDirectToHelperPath(IR::Instr* argoutInlineSpecialized, IR::LabelInstr* labelHelper)
-{
+{TRACE_IT(12318);
     IR::Opnd *linkOpnd = argoutInlineSpecialized->GetSrc2(); //ArgOut_A_InlineSpecialized src2; link to actual argouts.
 
     argoutInlineSpecialized->Unlink();
     labelHelper->InsertAfter(argoutInlineSpecialized);
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {TRACE_IT(12319);
         IR::SymOpnd *src2 = linkOpnd->AsSymOpnd();
         StackSym *sym = src2->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -18412,7 +18412,7 @@ Lowerer::RelocateCallDirectToHelperPath(IR::Instr* argoutInlineSpecialized, IR::
 
 bool
 Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFunction index)
-{
+{TRACE_IT(12320);
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
     //CallDirect src2
@@ -18434,7 +18434,7 @@ Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFuncti
 
     instr->InsertBefore(labelHelper);
     if (!success)
-    {
+    {TRACE_IT(12321);
         return false;
     }
 
@@ -18447,14 +18447,14 @@ Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFuncti
 
 void
 Lowerer::GenerateCtz(IR::Instr* instr)
-{
+{TRACE_IT(12322);
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsInt64());
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsInt64());
     m_lowererMD.GenerateCtz(instr);
 }
 
 void Lowerer::GenerateThrowUnreachable(IR::Instr* instr)
-{
+{TRACE_IT(12323);
     GenerateThrow(instr->GetSrc1(), instr);
     instr->UnlinkSrc1();
     instr->Remove();
@@ -18462,7 +18462,7 @@ void Lowerer::GenerateThrowUnreachable(IR::Instr* instr)
 
 void
 Lowerer::GeneratePopCnt(IR::Instr* instr)
-{
+{TRACE_IT(12324);
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsUInt32() || instr->GetSrc1()->IsInt64());
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsUInt32() || instr->GetDst()->IsInt64());
     m_lowererMD.GeneratePopCnt(instr);
@@ -18470,7 +18470,7 @@ Lowerer::GeneratePopCnt(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathClz(IR::Instr* instr)
-{
+{TRACE_IT(12325);
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsInt64());
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsInt64());
     m_lowererMD.GenerateClz(instr);
@@ -18478,7 +18478,7 @@ Lowerer::GenerateFastInlineMathClz(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathImul(IR::Instr* instr)
-{
+{TRACE_IT(12326);
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* src2 = instr->GetSrc2();
     IR::Opnd* dst = instr->GetDst();
@@ -18497,7 +18497,7 @@ Lowerer::GenerateFastInlineMathImul(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerReinterpretPrimitive(IR::Instr* instr)
-{
+{TRACE_IT(12327);
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* dst = instr->GetDst();
@@ -18513,7 +18513,7 @@ Lowerer::LowerReinterpretPrimitive(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
-{
+{TRACE_IT(12328);
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* dst = instr->GetDst();
 
@@ -18526,7 +18526,7 @@ Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
     LowererMD::Legalize(fcvt64to32);
 
     if (dst->IsFloat64())
-    {
+    {TRACE_IT(12329);
         IR::Instr* fcvt32to64 = IR::Instr::New(LowererMD::MDConvertFloat32ToFloat64Opcode, dst, dst, instr->m_func);
         instr->InsertBefore(fcvt32to64);
         LowererMD::Legalize(fcvt32to64);
@@ -18538,7 +18538,7 @@ Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
 
 bool
 Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
-{
+{TRACE_IT(12330);
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
     //CallDirect src2
@@ -18554,7 +18554,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
     if (!argsOpnd[0]->GetValueType().IsLikelyString()
         || argsOpnd[1]->GetValueType().IsNotObject()
         || !argsOpnd[2]->GetValueType().IsLikelyString())
-    {
+    {TRACE_IT(12331);
         return false;
     }
 
@@ -18568,7 +18568,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
 
     instr->InsertBefore(labelHelper);
     if (!success)
-    {
+    {TRACE_IT(12332);
         return false;
     }
 
@@ -18592,7 +18592,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
 */
 void
 Lowerer::LowerFastInlineDOMFastPathGetter(IR::Instr* instr)
-{
+{TRACE_IT(12333);
     IR::Opnd* helperOpnd = instr->UnlinkSrc1();
     Assert(helperOpnd->IsHelperCallOpnd());
 
@@ -18636,7 +18636,7 @@ Lowerer::LowerFastInlineDOMFastPathGetter(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineArrayPush(IR::Instr * instr)
-{
+{TRACE_IT(12334);
     Assert(instr->m_opcode == Js::OpCode::InlineArrayPush);
 
     IR::Opnd * baseOpnd = instr->GetSrc1();
@@ -18644,7 +18644,7 @@ Lowerer::GenerateFastInlineArrayPush(IR::Instr * instr)
 
     bool returnLength = false;
     if(instr->GetDst())
-    {
+    {TRACE_IT(12335);
         returnLength = true;
     }
 
@@ -18694,15 +18694,15 @@ bool Lowerer::GenerateFastPop(IR::Opnd *baseOpndParam, IR::Instr *callInstr, IR:
     IR::RegOpnd *arrayLengthOpnd = nullptr;
     IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
     if(!arrValueType.IsAnyOptimizedArray())
-    {
+    {TRACE_IT(12336);
         arrayOpnd = GenerateArrayTest(baseOpnd, bailOutLabelHelper, bailOutLabelHelper, callInstr, false, true);
         arrValueType = arrayOpnd->GetValueType().ToDefiniteObject().SetHasNoMissingValues(false);
     }
     else if(arrayOpnd->IsArrayRegOpnd())
-    {
+    {TRACE_IT(12337);
         IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
         if(arrayRegOpnd->LengthSym())
-        {
+        {TRACE_IT(12338);
             arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), arrayRegOpnd->LengthSym()->GetType(), m_func);
             DebugOnly(arrayLengthOpnd->FreezeSymValue());
             autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -18783,15 +18783,15 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     IR::RegOpnd *arrayLengthOpnd = nullptr;
     IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
     if(!arrValueType.IsAnyOptimizedArray())
-    {
+    {TRACE_IT(12339);
         arrayOpnd = GenerateArrayTest(baseOpnd, labelHelper, labelHelper, insertInstr, false, true);
         arrValueType = arrayOpnd->GetValueType().ToDefiniteObject().SetHasNoMissingValues(false);
     }
     else if(arrayOpnd->IsArrayRegOpnd())
-    {
+    {TRACE_IT(12340);
         IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
         if(arrayRegOpnd->LengthSym())
-        {
+        {TRACE_IT(12341);
             arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), arrayRegOpnd->LengthSym()->GetType(), m_func);
             DebugOnly(arrayLengthOpnd->FreezeSymValue());
             autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -18800,7 +18800,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     const IR::AutoReuseOpnd autoReuseArrayOpnd(arrayOpnd, m_func);
 
     if(!arrayLengthOpnd)
-    {
+    {TRACE_IT(12342);
         //     MOV arrayLength, [array + offset(length)]     -- Load array length
         // We know this index is safe since, so mark it as UInt32 to avoid unnecessary conversion/checks
         arrayLengthOpnd = IR::RegOpnd::New(TyUint32, m_func);
@@ -18815,7 +18815,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     arrayRef->GetBaseOpnd()->SetValueType(arrValueType);
 
     if (returnLength && src->IsEqual(insertInstr->GetDst()))
-    {
+    {TRACE_IT(12343);
         //If the dst is same as the src, then dst is going to be overridden by GenerateFastElemICommon in process of updating the length.
         //Save it in a temp register.
         IR::RegOpnd *opnd = IR::RegOpnd::New(src->GetType(), this->m_func);
@@ -18853,7 +18853,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
 
 IR::Opnd*
 Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr)
-{
+{TRACE_IT(12344);
     Assert(callInstr->m_func->IsInlinee());
     Func *func = callInstr->m_func;
     uint32 actualCount = func->actualCount - 1; // don't count this pointer
@@ -18873,7 +18873,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 #if defined(_M_IX86)
     // Maintain alignment
     if ((actualCount & 1) == 0)
-    {
+    {TRACE_IT(12345);
         IR::Instr *alignPush = IR::Instr::New(Js::OpCode::PUSH, this->m_func);
         alignPush->SetSrc1(IR::IntConstOpnd::New(1, TyInt32, this->m_func));
         callInstr->InsertBefore(alignPush);
@@ -18881,7 +18881,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 #endif
 
     for(uint i = actualCount; i > 0; i--)
-    {
+    {TRACE_IT(12346);
         argIndirOpnd = IR::IndirOpnd::New(argInOpnd, (i - 1) * MachPtr, TyMachReg, func);
         argout = IR::Instr::New(Js::OpCode::ArgOut_A_Dynamic, func);
         argout->SetSrc1(argIndirOpnd);
@@ -18895,7 +18895,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 // For AMD64 and ARM only.
 void
 Lowerer::LowerInlineSpreadArgOutLoopUsingRegisters(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd)
-{
+{TRACE_IT(12347);
     Func *const func = callInstr->m_func;
 
     IR::LabelInstr *oneArgLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -18933,7 +18933,7 @@ Lowerer::LowerInlineSpreadArgOutLoopUsingRegisters(IR::Instr *callInstr, IR::Reg
 
 IR::Instr *
 Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
-{
+{TRACE_IT(12348);
     Assert(callInstr->m_opcode == Js::OpCode::CallIDynamicSpread);
 
     IR::Instr * insertBeforeInstrForCFG = nullptr;
@@ -18941,7 +18941,7 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
     Func *const func = callInstr->m_func;
 
     if (func->IsInlinee())
-    {
+    {TRACE_IT(12349);
         throw Js::RejitException(RejitReason::InlineSpreadDisabled);
     }
 
@@ -18957,12 +18957,12 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
     IR::RegOpnd *arrayOpnd = nullptr;
     IR::Opnd *arraySrcOpnd = spreadArrayInstr->UnlinkSrc1();
     if (!arraySrcOpnd->IsRegOpnd())
-    {
+    {TRACE_IT(12350);
         arrayOpnd = IR::RegOpnd::New(TyMachPtr, func);
         LowererMD::CreateAssign(arrayOpnd, arraySrcOpnd, spreadArrayInstr);
     }
     else
-    {
+    {TRACE_IT(12351);
         arrayOpnd = arraySrcOpnd->AsRegOpnd();
     }
 
@@ -19018,9 +19018,9 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
 
 IR::Instr *
 Lowerer::LowerCallIDynamic(IR::Instr * callInstr, ushort callFlags)
-{
+{TRACE_IT(12352);
     if (!this->m_func->GetHasStackArgs())
-    {
+    {TRACE_IT(12353);
         throw Js::RejitException(RejitReason::InlineApplyDisabled);
     }
 
@@ -19064,7 +19064,7 @@ Lowerer::LowerCallIDynamic(IR::Instr * callInstr, ushort callFlags)
 //This is only for x64 & ARM.
 IR::Opnd*
 Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr)
-{
+{TRACE_IT(12354);
 //    s25.var       =  LdLen_A          s4.var
 //    s26.var       =  Ld_A             s25.var
 //                    BrNeq_I4          $L3, s25.var,0
@@ -19088,7 +19088,7 @@ Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsIn
     this->m_lowererMD.GenerateFunctionObjectTest(callInstr, callInstr->GetSrc1()->AsRegOpnd(), false);
 
     if (callInstr->m_func->IsInlinee())
-    {
+    {TRACE_IT(12355);
         return this->GenerateArgOutForInlineeStackArgs(callInstr, stackArgsInstr);
     }
     Func *func = callInstr->m_func;
@@ -19163,7 +19163,7 @@ Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsIn
 
 void
 Lowerer::GenerateLoadStackArgumentByIndex(IR::Opnd *dst, IR::RegOpnd *indexOpnd, IR::Instr *instr, int32 offset, Func *func)
-{
+{TRACE_IT(12356);
     // Load argument set dst = [ebp + index].
 
     IR::RegOpnd *ebpOpnd = IR::Opnd::CreateFramePointerOpnd(func);
@@ -19196,7 +19196,7 @@ Lowerer::GenerateLoadStackArgumentByIndex(IR::Opnd *dst, IR::RegOpnd *indexOpnd,
 //This function assumes there is stackargs bailout and index is always on the range.
 bool
 Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
-{
+{TRACE_IT(12357);
     //  MOV dst, ebp [(valueOpnd + 5) *4]  // 5 for the stack layout
     //
 
@@ -19206,13 +19206,13 @@ Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
     Assert (indexOpnd && indexOpnd->IsTaggedInt());
 
     if(ldElem->m_func->IsInlinee())
-    {
+    {TRACE_IT(12358);
         IR::IndirOpnd *argIndirOpnd = GetArgsIndirOpndForInlinee(ldElem, indexOpnd);
 
         LowererMD::CreateAssign(ldElem->GetDst(), argIndirOpnd, ldElem);
     }
     else
-    {
+    {TRACE_IT(12359);
         GenerateLoadStackArgumentByIndex(ldElem->GetDst(), indexOpnd, ldElem, indirOpnd->GetOffset() + 1, m_func); // +1 to offset 'this'
     }
 
@@ -19222,7 +19222,7 @@ Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
 
 IR::IndirOpnd*
 Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
-{
+{TRACE_IT(12360);
     Assert(ldElem->m_func->IsInlinee());
     IR::IndirOpnd* argIndirOpnd = nullptr;
 
@@ -19237,13 +19237,13 @@ Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
     InsertLea(baseOpnd, firstArg, ldElem);
 
     if (valueOpnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(12361);
         IntConstType offset = valueOpnd->AsIntConstOpnd()->GetValue() * MachPtr;
         // TODO: Assert(Math::FitsInDWord(offset));
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd, (int32)offset, TyMachReg, ldElem->m_func);
     }
     else
-    {
+    {TRACE_IT(12362);
         Assert(valueOpnd->IsRegOpnd());
         const BYTE indirScale = this->m_lowererMD.GetDefaultIndirScale();
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd, valueOpnd->AsRegOpnd(), indirScale, TyMachReg, ldElem->m_func);
@@ -19253,7 +19253,7 @@ Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
 
 IR::IndirOpnd*
 Lowerer::GetArgsIndirOpndForTopFunction(IR::Instr* ldElem, IR::Opnd* valueOpnd)
-{
+{TRACE_IT(12363);
     // Load argument set dst = [ebp + index] (or grab from the generator object if m_func is a generator function).
     IR::RegOpnd *baseOpnd = m_func->GetJITFunctionBody()->IsCoroutine() ? LoadGeneratorArgsPtr(ldElem) : IR::Opnd::CreateFramePointerOpnd(m_func);
     IR::IndirOpnd* argIndirOpnd = nullptr;
@@ -19272,13 +19272,13 @@ Lowerer::GetArgsIndirOpndForTopFunction(IR::Instr* ldElem, IR::Opnd* valueOpnd)
     uint16 actualOffset = m_func->GetJITFunctionBody()->IsCoroutine() ? 1 : GetFormalParamOffset() + 1; //5
     Assert(actualOffset == 5 || m_func->GetJITFunctionBody()->IsGenerator());
     if (valueOpnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(12364);
         IntConstType offset = (valueOpnd->AsIntConstOpnd()->GetValue() + actualOffset) * MachPtr;
         // TODO: Assert(Math::FitsInDWord(offset));
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd, (int32)offset, TyMachReg, this->m_func);
     }
     else
-    {
+    {TRACE_IT(12365);
         const BYTE indirScale = this->m_lowererMD.GetDefaultIndirScale();
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd->AsRegOpnd(), valueOpnd->AsRegOpnd(), indirScale, TyMachReg, this->m_func);
 
@@ -19303,7 +19303,7 @@ Lowerer::GenerateCheckForArgumentsLength(IR::Instr* ldElem, IR::LabelInstr* labe
 
 bool
 Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFallThru)
-{
+{TRACE_IT(12366);
     //  ---GenerateSmIntTest
     //  ---GenerateLdValueFromCheckedIndexOpnd
     //  ---LoadInputParamCount
@@ -19334,29 +19334,29 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
     bool hasIntConstIndex = indirOpnd->TryGetIntConstIndexValue(true, &value, &isNotInt);
 
     if (isInlinee && hasIntConstIndex && value >= (ldElem->m_func->actualCount - 1))
-    {
+    {TRACE_IT(12367);
         //Outside the range of actuals, skip
     }
     else if (labelFallThru != nullptr && !(hasIntConstIndex && value < 0)) //if index is not a negative int constant
-    {
+    {TRACE_IT(12368);
         if (isInlinee)
-        {
+        {TRACE_IT(12369);
             actualParamOpnd = IR::IntConstOpnd::New(ldElem->m_func->actualCount - 1, TyInt32, func);
         }
         else
-        {
+        {TRACE_IT(12370);
             // Load actuals count, LoadHeapArguments will reuse the generated instructions here
             IR::Instr      *loadInputParamCountInstr = this->m_lowererMD.LoadInputParamCount(ldElem, -1 /* don't include 'this' while counting actuals. */);
             actualParamOpnd = loadInputParamCountInstr->GetDst()->AsRegOpnd();
         }
 
         if (hasIntConstIndex)
-        {
+        {TRACE_IT(12371);
             //Constant index
             valueOpnd = IR::IntConstOpnd::New(value, TyInt32, func);
         }
         else
-        {
+        {TRACE_IT(12372);
             //Load valueOpnd from the index
             valueOpnd =
                 m_lowererMD.LoadNonnegativeIndex(
@@ -19375,7 +19375,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
         }
 
         if (isInlinee)
-        {
+        {TRACE_IT(12373);
             if (!hasIntConstIndex)
             {
                 //Runtime check if to make sure length is within the arguments.length range.
@@ -19389,11 +19389,11 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
 
         IR::Opnd *argIndirOpnd = nullptr;
         if (isInlinee)
-        {
+        {TRACE_IT(12374);
             argIndirOpnd = GetArgsIndirOpndForInlinee(ldElem, valueOpnd);
         }
         else
-        {
+        {TRACE_IT(12375);
             argIndirOpnd = GetArgsIndirOpndForTopFunction(ldElem, valueOpnd);
         }
 
@@ -19407,7 +19407,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
     }
 
     if (!emittedFastPath)
-    {
+    {TRACE_IT(12376);
         throw Js::RejitException(RejitReason::DisableStackArgOpt);
     }
 
@@ -19416,16 +19416,16 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
 
 bool
 Lowerer::GenerateFastRealStackArgumentsLdLen(IR::Instr *ldLen)
-{
+{TRACE_IT(12377);
     if(ldLen->m_func->IsInlinee())
-    {
+    {TRACE_IT(12378);
         //Get the length of the arguments
         LowererMD::CreateAssign(ldLen->GetDst(),
                                IR::IntConstOpnd::New(ldLen->m_func->actualCount - 1, TyUint32, ldLen->m_func),
                                ldLen);
     }
     else
-    {
+    {TRACE_IT(12379);
         IR::Instr *loadInputParamCountInstr = this->m_lowererMD.LoadInputParamCount(ldLen, -1);
         IR::RegOpnd *actualCountOpnd = loadInputParamCountInstr->GetDst()->AsRegOpnd();
         LowererMD::CreateAssign(ldLen->GetDst(), actualCountOpnd, ldLen);
@@ -19436,7 +19436,7 @@ Lowerer::GenerateFastRealStackArgumentsLdLen(IR::Instr *ldLen)
 
 bool
 Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallThru)
-{
+{TRACE_IT(12380);
     // TEST argslot, argslot  //Test if the arguments slot is zero
     // JNE $helper
     // actualCountOpnd <-LoadInputParamCount fastpath
@@ -19449,14 +19449,14 @@ Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallT
     Assert(ldLen->DoStackArgsOpt(this->m_func));
 
     if(ldLen->m_func->IsInlinee())
-    {
+    {TRACE_IT(12381);
         //Get the length of the arguments
         LowererMD::CreateAssign(ldLen->GetDst(),
                                 IR::AddrOpnd::New(Js::TaggedInt::ToVarUnchecked(ldLen->m_func->actualCount - 1), IR::AddrOpndKindConstantVar, ldLen->m_func), // -1 to exclude this pointer
                                 ldLen);
     }
     else
-    {
+    {TRACE_IT(12382);
         IR::Instr      *loadInputParamCountInstr = this->m_lowererMD.LoadInputParamCount(ldLen, -1);
         IR::RegOpnd    *actualCountOpnd          = loadInputParamCountInstr->GetDst()->AsRegOpnd();
 
@@ -19468,12 +19468,12 @@ Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallT
 
 IR::RegOpnd*
 Lowerer::GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *insertInstrPt, IR::Opnd* functionObjOpnd)
-{
+{TRACE_IT(12383);
     IR::RegOpnd * functionTypeRegOpnd = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::Opnd *functionTypeOpnd = nullptr;
 
     if(functionObjOpnd->IsAddrOpnd())
-    {
+    {TRACE_IT(12384);
         IR::AddrOpnd* functionObjAddrOpnd = functionObjOpnd->AsAddrOpnd();
         // functionTypeRegOpnd = MOV [fixed function address + type offset]
         functionObjAddrOpnd->m_address;
@@ -19481,7 +19481,7 @@ Lowerer::GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *insertInstrPt, I
             IR::AddrOpndKindDynamicObjectTypeRef);
     }
     else
-    {
+    {TRACE_IT(12385);
         functionTypeOpnd = IR::IndirOpnd::New(functionObjOpnd->AsRegOpnd(), Js::RecyclableObject::GetOffsetOfType(), TyMachPtr, this->m_func);
     }
     LowererMD::CreateAssign(functionTypeRegOpnd, functionTypeOpnd, insertInstrPt);
@@ -19490,27 +19490,27 @@ Lowerer::GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *insertInstrPt, I
 
 void
 Lowerer::FinalLower()
-{
+{TRACE_IT(12386);
     this->m_lowererMD.FinalLower();
 
     // ensure that the StartLabel and EndLabel are inserted
     // before the prolog and after the epilog respectively
     IR::LabelInstr * startLabel = m_func->GetFuncStartLabel();
     if (startLabel != nullptr)
-    {
+    {TRACE_IT(12387);
         m_func->m_headInstr->InsertAfter(startLabel);
     }
 
     IR::LabelInstr * endLabel = m_func->GetFuncEndLabel();
     if (endLabel != nullptr)
-    {
+    {TRACE_IT(12388);
         m_func->m_tailInstr->GetPrevRealInstr()->InsertBefore(endLabel);
     }
 }
 
 void
 Lowerer::EHBailoutPatchUp()
-{
+{TRACE_IT(12389);
     Assert(this->m_func->isPostLayout);
     // 1. Insert return thunks for all the regions.
     // 2. Set the hasBailedOut bit to true on all bailout paths in EH regions.
@@ -19522,11 +19522,11 @@ Lowerer::EHBailoutPatchUp()
     IR::LabelInstr * epilogLabel;
     IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->GetPrevRealInstrOrLabel();
     if (exitPrevInstr->IsLabelInstr())
-    {
+    {TRACE_IT(12390);
         epilogLabel = exitPrevInstr->AsLabelInstr();
     }
     else
-    {
+    {TRACE_IT(12391);
         epilogLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         this->m_func->m_exitInstr->InsertBefore(epilogLabel);
     }
@@ -19534,26 +19534,26 @@ Lowerer::EHBailoutPatchUp()
     IR::Instr * tmpInstr = nullptr;
     bool restoreReturnFromBailoutEmitted = false;
     FOREACH_INSTR_IN_FUNC_EDITING(instr, instrNext, this->m_func)
-    {
+    {TRACE_IT(12392);
         if (instr->IsLabelInstr())
-        {
+        {TRACE_IT(12393);
             this->currentRegion = instr->AsLabelInstr()->GetRegion();
         }
 
         // Consider (radua): Assert(this->currentRegion) here?
         if (this->currentRegion)
-        {
+        {TRACE_IT(12394);
             RegionType currentRegionType = this->currentRegion->GetType();
             if (currentRegionType == RegionTypeTry || currentRegionType == RegionTypeCatch)
-            {
+            {TRACE_IT(12395);
                 this->InsertReturnThunkForRegion(this->currentRegion, restoreReturnValueFromBailoutLabel);
                 if (instr->HasBailOutInfo())
-                {
+                {TRACE_IT(12396);
                     this->SetHasBailedOut(instr);
                     tmpInstr = this->EmitEHBailoutStackRestore(instr);
                     this->EmitSaveEHBailoutReturnValueAndJumpToRetThunk(tmpInstr);
                     if (!restoreReturnFromBailoutEmitted)
-                    {
+                    {TRACE_IT(12397);
                         this->EmitRestoreReturnValueFromEHBailout(restoreReturnValueFromBailoutLabel, epilogLabel);
                         restoreReturnFromBailoutEmitted = true;
                     }
@@ -19567,7 +19567,7 @@ Lowerer::EHBailoutPatchUp()
 bool
 Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod helperMethod, IR::JnHelperMethod polymorphicHelperMethod,
     IR::LabelInstr ** labelBailOut, IR::RegOpnd* typeOpnd, bool* pIsHelper, IR::LabelInstr** pLabelHelper)
-{
+{TRACE_IT(12398);
         // Generates:
     //
     // r1 = object->type
@@ -19656,26 +19656,26 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     bool doInlineSlots = true;
     bool doAuxSlots = true;
     if (!PHASE_OFF(Js::ProfileBasedFldFastPathPhase, this->m_func) && instrLdFld->IsProfiledInstr())
-    {
+    {TRACE_IT(12399);
         IR::ProfiledInstr * profiledInstrLdFld = instrLdFld->AsProfiledInstr();
         if (profiledInstrLdFld->u.FldInfo().flags != Js::FldInfo_NoInfo)
-        {
+        {TRACE_IT(12400);
             doProto = !!(profiledInstrLdFld->u.FldInfo().flags & Js::FldInfo_FromProto);
             doLocal = !!(profiledInstrLdFld->u.FldInfo().flags & Js::FldInfo_FromLocal);
 
             if ((profiledInstrLdFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromInlineSlots)
-            {
+            {TRACE_IT(12401);
                 // If the inline slots flag is set and the aux slots flag is not, only generate the inline slots check
                 doAuxSlots = false;
             }
             else if ((profiledInstrLdFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromAuxSlots)
-            {
+            {TRACE_IT(12402);
                 // If the aux slots flag is set and the inline slots flag is not, only generate the aux slots check
                 doInlineSlots = false;
             }
         }
         else if (!profiledInstrLdFld->u.FldInfo().valueType.IsUninitialized())
-        {
+        {TRACE_IT(12403);
             // We have value type info about the field but no flags. This means we shouldn't generate any
             // fast paths for this field load.
             doLocal = false;
@@ -19684,14 +19684,14 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     }
 
     if (!doLocal && !doProto)
-    {
+    {TRACE_IT(12404);
         return false;
     }
 
     IR::LabelInstr * labelFallThru = instrLdFld->GetOrCreateContinueLabel();
 
     if (labelHelper == nullptr)
-    {
+    {TRACE_IT(12405);
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
     }
 
@@ -19700,22 +19700,22 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
 
     IR::RegOpnd * opndInlineCache = IR::RegOpnd::New(TyMachPtr, this->m_func);
     if (usePolymorphicInlineCache)
-    {
+    {TRACE_IT(12406);
         LowererMD::CreateAssign(opndInlineCache, IR::AddrOpnd::New(propertySymOpnd->m_runtimePolymorphicInlineCache->GetInlineCachesAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func, true), instrLdFld);
     }
     else
-    {
+    {TRACE_IT(12407);
         LowererMD::CreateAssign(opndInlineCache, this->LoadRuntimeInlineCacheOpnd(instrLdFld, propertySymOpnd, isHelper), instrLdFld);
     }
 
     if (typeOpnd == nullptr)
-    {
+    {TRACE_IT(12408);
         typeOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         GenerateObjectTestAndTypeLoad(instrLdFld, opndBase, typeOpnd, labelHelper);
     }
 
     if (usePolymorphicInlineCache)
-    {
+    {TRACE_IT(12409);
         LowererMD::GenerateLoadPolymorphicInlineCacheSlot(instrLdFld, opndInlineCache, typeOpnd, propertySymOpnd->m_runtimePolymorphicInlineCache->GetSize());
     }
 
@@ -19725,18 +19725,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     IR::BranchInstr * labelNextBranchToPatch = nullptr;
 
     if (doProto && doProtoFirst)
-    {
+    {TRACE_IT(12410);
         if (doInlineSlots)
-        {
+        {TRACE_IT(12411);
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateProtoInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromProtoInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {TRACE_IT(12412);
             if (opndTaggedType == nullptr)
-            {
+            {TRACE_IT(12413);
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19747,18 +19747,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
         }
     }
     if (doLocal)
-    {
+    {TRACE_IT(12414);
         if (doInlineSlots)
-        {
+        {TRACE_IT(12415);
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateLocalInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromLocalInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {TRACE_IT(12416);
             if (opndTaggedType == nullptr)
-            {
+            {TRACE_IT(12417);
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19769,18 +19769,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
         }
     }
     if (doProto && !doProtoFirst)
-    {
+    {TRACE_IT(12418);
         if (doInlineSlots)
-        {
+        {TRACE_IT(12419);
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateProtoInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromProtoInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {TRACE_IT(12420);
             if (opndTaggedType == nullptr)
-            {
+            {TRACE_IT(12421);
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19809,7 +19809,7 @@ Lowerer::GenerateAuxSlotAdjustmentRequiredCheck(
     IR::Instr * instrToInsertBefore,
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelHelper)
-{
+{TRACE_IT(12422);
     // regSlotCap = MOV [&(inlineCache->u.local.rawUInt16)] // sized to 16 bits
     IR::RegOpnd * regSlotCap = IR::RegOpnd::New(TyMachReg, instrToInsertBefore->m_func);
     IR::IndirOpnd * memSlotCap = IR::IndirOpnd::New(opndInlineCache, (int32)offsetof(Js::InlineCache, u.local.rawUInt16), TyUint16, instrToInsertBefore->m_func);
@@ -19826,7 +19826,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
     IR::RegOpnd * opndBase,
     IR::RegOpnd * opndInlineCache,
     bool isTypeTagged)
-{
+{TRACE_IT(12423);
     // regNewType = MOV [&(inlineCache->u.local.type)]
     IR::RegOpnd * regNewType = IR::RegOpnd::New(TyMachReg, instrToInsertBefore->m_func);
     IR::IndirOpnd * memNewType = IR::IndirOpnd::New(opndInlineCache, (int32)offsetof(Js::InlineCache, u.local.type), TyMachReg, instrToInsertBefore->m_func);
@@ -19834,7 +19834,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
 
     // AND regNewType, ~InlineCacheAuxSlotTypeTag
     if (isTypeTagged)
-    {
+    {TRACE_IT(12424);
         // On 64-bit platforms IntConstOpnd isn't big enough to hold TyMachReg values.
         IR::IntConstOpnd * constTypeTagComplement = IR::IntConstOpnd::New(~InlineCacheAuxSlotTypeTag, TyMachReg, instrToInsertBefore->m_func, /* dontEncode = */ true);
         InsertAnd(regNewType, regNewType, constTypeTagComplement, instrToInsertBefore);
@@ -19848,7 +19848,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
 bool
 Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod helperMethod, IR::JnHelperMethod polymorphicHelperMethod, IR::LabelInstr ** labelBailOut, IR::RegOpnd* typeOpnd,
     bool* pIsHelper, IR::LabelInstr** pLabelHelper, bool withPutFlags, Js::PropertyOperationFlags flags)
-{
+{TRACE_IT(12425);
     // Generates:
     //
     // r1 = object->type
@@ -19908,31 +19908,31 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     bool doInlineSlots = true;
     bool doAuxSlots = true;
     if (!PHASE_OFF(Js::ProfileBasedFldFastPathPhase, this->m_func) && instrStFld->IsProfiledInstr())
-    {
+    {TRACE_IT(12426);
         IR::ProfiledInstr * profiledInstrStFld = instrStFld->AsProfiledInstr();
         if (profiledInstrStFld->u.FldInfo().flags != Js::FldInfo_NoInfo)
-        {
+        {TRACE_IT(12427);
             if (!(profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromLocal | Js::FldInfo_FromLocalWithoutProperty)))
-            {
+            {TRACE_IT(12428);
                 return false;
             }
 
             if (!PHASE_OFF(Js::AddFldFastPathPhase, this->m_func))
-            {
+            {TRACE_IT(12429);
                 // We always try to do the store field fast path, unless the profile specifically says we never set, but always add a property here.
                 if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromLocal | Js::FldInfo_FromLocalWithoutProperty)) == Js::FldInfo_FromLocalWithoutProperty)
-                {
+                {TRACE_IT(12430);
                     doStore = false;
                 }
 
                 // On the other hand, we only emit the add field fast path, if the profile explicitly says we do add properties here.
                 if (!!(profiledInstrStFld->u.FldInfo().flags & Js::FldInfo_FromLocalWithoutProperty))
-                {
+                {TRACE_IT(12431);
                     doAdd = true;
                 }
             }
             else
-            {
+            {TRACE_IT(12432);
                 #if ENABLE_DEBUG_CONFIG_OPTIONS
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 #endif
@@ -19943,18 +19943,18 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
             }
 
             if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromInlineSlots)
-            {
+            {TRACE_IT(12433);
                 // If the inline slots flag is set and the aux slots flag is not, only generate the inline slots check
                 doAuxSlots = false;
             }
             else if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromAuxSlots)
-            {
+            {TRACE_IT(12434);
                 // If the aux slots flag is set and the inline slots flag is not, only generate the aux slots check
                 doInlineSlots = false;
             }
         }
         else if (!profiledInstrStFld->u.FldInfo().valueType.IsUninitialized())
-        {
+        {TRACE_IT(12435);
             // We have value type info about the field but no flags. This means we shouldn't generate any
             // fast paths for this field store.
             return false;
@@ -19964,7 +19964,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     Assert(doStore || doAdd);
 
     if (labelHelper == nullptr)
-    {
+    {TRACE_IT(12436);
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     }
 
@@ -19973,7 +19973,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     bool usePolymorphicInlineCache = !!propertySymOpnd->m_runtimePolymorphicInlineCache;
 
     if (doAdd)
-    {
+    {TRACE_IT(12437);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
@@ -19986,22 +19986,22 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
 
     IR::RegOpnd * opndInlineCache = IR::RegOpnd::New(TyMachPtr, this->m_func);
     if (usePolymorphicInlineCache)
-    {
+    {TRACE_IT(12438);
         LowererMD::CreateAssign(opndInlineCache, IR::AddrOpnd::New(propertySymOpnd->m_runtimePolymorphicInlineCache->GetInlineCachesAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func, true), instrStFld);
     }
     else
-    {
+    {TRACE_IT(12439);
         LowererMD::CreateAssign(opndInlineCache, this->LoadRuntimeInlineCacheOpnd(instrStFld, propertySymOpnd, isHelper), instrStFld);
     }
 
     if (typeOpnd == nullptr)
-    {
+    {TRACE_IT(12440);
         typeOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         GenerateObjectTestAndTypeLoad(instrStFld, opndBase, typeOpnd, labelHelper);
     }
 
     if (usePolymorphicInlineCache)
-    {
+    {TRACE_IT(12441);
         LowererMD::GenerateLoadPolymorphicInlineCacheSlot(instrStFld, opndInlineCache, typeOpnd, propertySymOpnd->m_runtimePolymorphicInlineCache->GetSize());
     }
 
@@ -20010,18 +20010,18 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     IR::BranchInstr * lastBranchToNext = nullptr;
 
     if (doStore)
-    {
+    {TRACE_IT(12442);
         if (doInlineSlots)
-        {
+        {TRACE_IT(12443);
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             lastBranchToNext = LowererMD::GenerateLocalInlineCacheCheck(instrStFld, typeOpnd, opndInlineCache, labelNext);
             this->GetLowererMD()->GenerateStFldFromLocalInlineCache(instrStFld, opndBase, opndSrc, opndInlineCache, labelFallThru, true);
             instrStFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {TRACE_IT(12444);
             if (opndTaggedType == nullptr)
-            {
+            {TRACE_IT(12445);
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrStFld, typeOpnd, opndTaggedType);
             }
@@ -20033,9 +20033,9 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     }
 
     if (doAdd)
-    {
+    {TRACE_IT(12446);
         if (doInlineSlots)
-        {
+        {TRACE_IT(12447);
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             lastBranchToNext = LowererMD::GenerateLocalInlineCacheCheck(instrStFld, typeOpnd, opndInlineCache, labelNext, true);
             GenerateSetObjectTypeFromInlineCache(instrStFld, opndBase, opndInlineCache, false);
@@ -20043,9 +20043,9 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
             instrStFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {TRACE_IT(12448);
             if (opndTaggedType == nullptr)
-            {
+            {TRACE_IT(12449);
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrStFld, typeOpnd, opndTaggedType);
             }
@@ -20072,7 +20072,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
 }
 
 bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::LabelInstr * *const labelHelperRef)
-{
+{TRACE_IT(12450);
     Assert(instr);
     Assert(labelHelperRef);
     Assert(!*labelHelperRef);
@@ -20090,21 +20090,21 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
     IR::SymOpnd *const symOpnd = instr->GetDst()->AsSymOpnd();
     PropertySym *const propertySym = symOpnd->m_sym->AsPropertySym();
     if(propertySym->m_propertyId != Js::PropertyIds::lastIndex || !symOpnd->IsPropertySymOpnd())
-    {
+    {TRACE_IT(12451);
         return false;
     }
 
     const ValueType objectValueType(symOpnd->GetPropertyOwnerValueType());
     if(!objectValueType.IsLikelyRegExp())
-    {
+    {TRACE_IT(12452);
         return false;
     }
 
     if(instr->HasBailOutInfo())
-    {
+    {TRACE_IT(12453);
         const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if(!BailOutInfo::IsBailOutOnImplicitCalls(bailOutKind) || bailOutKind & IR::BailOutKindBits)
-        {
+        {TRACE_IT(12454);
             // Other bailout kinds will likely need bailout checks that would not be generated here. In particular, if a type
             // check is necessary here to guard against downstream property accesses on the same object, the type check will
             // fail and cause a bailout if the object is a RegExp object since the "lastIndex" property accesses are not cached.
@@ -20119,22 +20119,22 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
 
     IR::LabelInstr *labelHelper = nullptr;
     if(!objectOpnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(12455);
         //     test object, 1
         //     jnz $helper
         if(!labelHelper)
-        {
+        {TRACE_IT(12456);
             *labelHelperRef = labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         m_lowererMD.GenerateObjectTest(objectOpnd, instr, labelHelper);
     }
 
     if(!objectValueType.IsObject())
-    {
+    {TRACE_IT(12457);
         //     cmp [object], Js::JavascriptRegExp::vtable
         //     jne $helper
         if(!labelHelper)
-        {
+        {TRACE_IT(12458);
             *labelHelperRef = labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         InsertCompareBranch(
@@ -20164,7 +20164,7 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
 
 IR::RegOpnd *
 Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, bool checkObjectAndDynamicObject, IR::LabelInstr *labelContinue)
-{
+{TRACE_IT(12459);
     // CMP [srcReg], Js::DynamicObject::`vtable'
     // JEQ $fallThough
     // MOV r1, [src1 + offset(type)]                      -- get the type id
@@ -20177,9 +20177,9 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
     IR::LabelInstr *labelFallthrough = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
     if (checkObjectAndDynamicObject)
-    {
+    {TRACE_IT(12460);
         if (!regOpnd->IsNotTaggedValue())
-        {
+        {TRACE_IT(12461);
             m_lowererMD.GenerateObjectTest(regOpnd, insertInstr, labelHelper);
         }
 
@@ -20209,12 +20209,12 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
         insertInstr);
 
     if (labelContinue)
-    {
+    {TRACE_IT(12462);
         // On success, go to continuation label.
         InsertBranch(Js::OpCode::BrLe_A, true, labelContinue, insertInstr);
     }
     else
-    {
+    {TRACE_IT(12463);
         // On failure, go to helper.
         InsertBranch(Js::OpCode::BrGt_A, true, labelHelper, insertInstr);
     }
@@ -20226,7 +20226,7 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
 }
 
 void Lowerer::GenerateBooleanNegate(IR::Instr * instr, IR::Opnd * srcBool, IR::Opnd * dst)
-{
+{TRACE_IT(12464);
     // dst = src
     // dst = dst ^ (true ^ false) (= !src)
     LowererMD::CreateAssign(dst, srcBool, instr);
@@ -20236,7 +20236,7 @@ void Lowerer::GenerateBooleanNegate(IR::Instr * instr, IR::Opnd * srcBool, IR::O
 }
 
 bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
-{
+{TRACE_IT(12465);
     Assert(instr);
 
     // There's a total of 8 modes for this function, based on these inferred flags
@@ -20287,7 +20287,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // The instrucions given to this _should_ all be 2-arg.
     Assert(src1 && src2);
     if (!(src1 && src2))
-    {
+    {TRACE_IT(12466);
         return false;
     }
 
@@ -20297,7 +20297,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     IR::LabelInstr *labelFallthrough = nullptr;
 
     if (isBranchNotCompare)
-    {
+    {TRACE_IT(12467);
         IR::BranchInstr * instrBranch = instr->AsBranchInstr();
         targetInstr = instrBranch->GetTarget();
         labelFallthrough = instrBranch->GetOrCreateContinueLabel();
@@ -20315,17 +20315,17 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     IR::Opnd *srcBool = nullptr;
     IR::Opnd *srcInt = nullptr;
     if (src1->GetValueType().IsLikelyBoolean() && src2->GetValueType().IsLikelyTaggedInt())
-    {
+    {TRACE_IT(12468);
         srcBool = src1;
         srcInt = src2;
     }
     else if (src1->GetValueType().IsLikelyTaggedInt() && src2->GetValueType().IsLikelyBoolean())
-    {
+    {TRACE_IT(12469);
         srcInt = src1;
         srcBool = src2;
     }
     else
-    {
+    {TRACE_IT(12470);
         return false;
     }
 
@@ -20337,58 +20337,58 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     bool srcBoolConst = false;
     bool srcBoolConstVal = false;
     if (srcInt->IsIntConstOpnd())
-    {
+    {TRACE_IT(12471);
         IR::IntConstOpnd * constSrcInt = srcInt->AsIntConstOpnd();
         IntConstType constIntVal = constSrcInt->GetValue();
         srcIntConst = true;
         if (constIntVal == 0)
-        {
+        {TRACE_IT(12472);
             srcIntConstVal = false;
             srcIntIsBoolable = true;
         }
         else if (constIntVal == 1)
-        {
+        {TRACE_IT(12473);
             srcIntConstVal = true;
             srcIntIsBoolable = true;
         }
     }
     else if (srcInt->IsAddrOpnd())
-    {
+    {TRACE_IT(12474);
         IR::AddrOpnd * addrSrcInt = srcInt->AsAddrOpnd();
         if (!(addrSrcInt && addrSrcInt->IsVar() && Js::TaggedInt::Is(addrSrcInt->m_address)))
-        {
+        {TRACE_IT(12475);
             return false;
         }
         int32 constIntVal = Js::TaggedInt::ToInt32(addrSrcInt->m_address);
         srcIntConst = true;
         if (constIntVal == 0)
-        {
+        {TRACE_IT(12476);
             srcIntConstVal = false;
             srcIntIsBoolable = true;
         }
         else if (constIntVal == 1)
-        {
+        {TRACE_IT(12477);
             srcIntConstVal = true;
             srcIntIsBoolable = true;
         }
     }
     else if (srcInt->IsConstOpnd())
-    {
+    {TRACE_IT(12478);
         // Not handled yet
         return false;
     }
     if (srcBool->IsIntConstOpnd())
-    {
+    {TRACE_IT(12479);
         IR::IntConstOpnd * constSrcBool = srcBool->AsIntConstOpnd();
         IntConstType constIntVal = constSrcBool->GetValue();
         srcBoolConst = true;
         srcBoolConstVal = constIntVal != 0;
     }
     else if (srcBool->IsAddrOpnd())
-    {
+    {TRACE_IT(12480);
         IR::AddrOpnd * addrSrcBool = srcInt->AsAddrOpnd();
         if (!(addrSrcBool && addrSrcBool->IsVar() && Js::TaggedInt::Is(addrSrcBool->m_address)))
-        {
+        {TRACE_IT(12481);
             return false;
         }
         int32 value = Js::TaggedInt::ToInt32(addrSrcBool->m_address);
@@ -20396,28 +20396,28 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         srcBoolConstVal = value != 0;
     }
     else if (srcBool->IsConstOpnd())
-    {
+    {TRACE_IT(12482);
         // Not handled yet
         return false;
     }
 
     // Do these checks here, since that way we avoid emitting instructions before exiting earlier
-    if (srcInt->GetValueType().IsTaggedInt() && srcBool->GetValueType().IsBoolean()) {
+    if (srcInt->GetValueType().IsTaggedInt() && srcBool->GetValueType().IsBoolean()) {TRACE_IT(12483);
         // ok, we know the types, so no helper needed
         *pNeedHelper = false;
     }
     else
-    {
+    {TRACE_IT(12484);
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         // check the types and jump to the helper if incorrect
         if (!srcInt->IsConstOpnd() && !srcInt->GetValueType().IsTaggedInt())
-        {
+        {TRACE_IT(12485);
             this->m_lowererMD.GenerateSmIntTest(srcInt->AsRegOpnd(), instr, labelHelper);
         }
         if (!srcBool->IsConstOpnd() && !srcBool->GetValueType().IsBoolean())
-        {
+        {TRACE_IT(12486);
             if (!srcBool->GetValueType().IsObject())
-            {
+            {TRACE_IT(12487);
                 this->m_lowererMD.GenerateObjectTest(srcBool->AsRegOpnd(), instr, labelHelper, false);
             }
             this->m_lowererMD.GenerateJSBooleanTest(srcBool->AsRegOpnd(), instr, labelHelper, false);
@@ -20436,9 +20436,9 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // For the Sr instructions, we now know that the types are different, so we can immediately
     // decide what the result will be.
     if (isStrict)
-    {
+    {TRACE_IT(12488);
         if (isBranchNotCompare)
-        {
+        {TRACE_IT(12489);
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, inequalResultTarget, this->m_func));
 #if DBG
             // Since we're not making a non-helper path to one of the branches, we need to tell
@@ -20449,7 +20449,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
 #endif
         }
         else
-        {
+        {TRACE_IT(12490);
             LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, inequalResultValue), instr);
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
         }
@@ -20457,11 +20457,11 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // Now that we've checked the types, we can lower some instructions to quickly do the check
     // in the case that it's not a type-strict strict equality/inequality check.
     else if (srcIntConst && srcBoolConst)
-    {
+    {TRACE_IT(12491);
         // If both arguments are constant, we can statically determine the result.
         bool sameVal = srcIntConstVal == srcBoolConstVal;
         if (isBranchNotCompare)
-        {
+        {TRACE_IT(12492);
             // For constant branches, branch to the target
             Assert(instr);
             IR::LabelInstr * target = sameVal && srcIntIsBoolable ? equalResultTarget : inequalResultTarget;
@@ -20475,14 +20475,14 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
 #endif
         }
         else
-        {
+        {TRACE_IT(12493);
             // For constant compares, load the constant result
             LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, sameVal && srcIntIsBoolable ? equalResultValue : inequalResultValue), instr);
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
         }
     }
     else if (!srcIntConst && !srcBoolConst)
-    {
+    {TRACE_IT(12494);
         // If neither is constant, we can still do a bit better than loading the helper
         IR::LabelInstr * firstFalse = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr * forceInequal = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
@@ -20519,7 +20519,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelFallthrough, this->m_func));
         }
         else
-        {
+        {TRACE_IT(12495);
             // the int resolves to 1 (true)
             // Load either the bool or its complement into the dst reg, depending on the opcode
             if (isNegOp)
@@ -20527,7 +20527,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
                 GenerateBooleanNegate(instr, srcBool, instr->GetDst());
             }
             else
-            {
+            {TRACE_IT(12496);
                 this->InsertMove(instr->GetDst(), srcBool, instr);
             }
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
@@ -20540,7 +20540,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
                 GenerateBooleanNegate(instr, srcBool, instr->GetDst());
             }
             else
-            {
+            {TRACE_IT(12497);
                 this->InsertMove(instr->GetDst(), srcBool, instr);
             }
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
@@ -20552,11 +20552,11 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     else if (srcIntConst)
-    {
+    {TRACE_IT(12498);
         if (isBranchNotCompare)
-        {
+        {TRACE_IT(12499);
             if (srcIntIsBoolable)
-            {
+            {TRACE_IT(12500);
                 LibraryValue intval = srcIntConstVal ? LibraryValue::ValueTrue : LibraryValue::ValueFalse;
                 InsertCompareBranch(
                     srcBool,
@@ -20567,7 +20567,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelFallthrough, this->m_func));
             }
             else
-            {
+            {TRACE_IT(12501);
                 // Since a constant int that isn't 0 or 1 will always be inequal to bools, just jump to the inequal result
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, inequalResultTarget, this->m_func));
 #if DBG
@@ -20580,12 +20580,12 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
             }
         }
         else
-        {
+        {TRACE_IT(12502);
             if (srcIntIsBoolable)
-            {
+            {TRACE_IT(12503);
                 bool directPassthrough = isNegOp != srcIntConstVal;
                 if (directPassthrough)
-                {
+                {TRACE_IT(12504);
                     // If this case is hit, the result value is the same as the value in srcBool
                     this->InsertMove(instr->GetDst(), srcBool, instr);
                 }
@@ -20597,19 +20597,19 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
             }
             else
-            {
+            {TRACE_IT(12505);
                 LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, inequalResultValue), instr);
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelDone, this->m_func));
             }
         }
     }
     else if (srcBoolConst)
-    {
+    {TRACE_IT(12506);
         if (isBranchNotCompare)
-        {
+        {TRACE_IT(12507);
             this->m_lowererMD.GenerateTaggedZeroTest(srcInt->AsRegOpnd(), instr, srcBoolConstVal ? inequalResultTarget : equalResultTarget);
             if (srcBoolConstVal)
-            {
+            {TRACE_IT(12508);
                 // If it's not zero, then it's either 1, in which case it's true, or it's something else, in which
                 // case we have an issue.
                 InsertCompareBranch(IR::IntConstOpnd::New((((IntConstType)1) << Js::VarTag_Shift) + Js::AtomTag, IRType::TyVar, this->m_func), srcInt->AsRegOpnd(), Js::OpCode::BrNeq_A, inequalResultTarget, instr, true);
@@ -20617,12 +20617,12 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, srcBoolConstVal ? equalResultTarget : inequalResultTarget, this->m_func));
         }
         else
-        {
+        {TRACE_IT(12509);
             IR::LabelInstr* isNonZero = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             IR::LabelInstr* isZero = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             this->m_lowererMD.GenerateTaggedZeroTest(srcInt->AsRegOpnd(), instr, isZero);
             if (srcBoolConstVal)
-            {
+            {TRACE_IT(12510);
                 // If it's not zero, then it's either 1, in which case it's true, or it's something else, in which
                 // case we have an issue.
                 InsertCompareBranch(IR::IntConstOpnd::New((((IntConstType)1) << Js::VarTag_Shift) + Js::AtomTag, IRType::TyVar, this->m_func), srcInt->AsRegOpnd(), Js::OpCode::BrNeq_A, isZero, instr, true);
@@ -20636,14 +20636,14 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     if (*pNeedHelper)
-    {
+    {TRACE_IT(12511);
         instr->InsertBefore(labelHelper);
     }
     return true;
 }
 
 bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedHelper)
-{
+{TRACE_IT(12512);
     IR::Opnd *src1 = instrBranch->GetSrc1();
     IR::Opnd *src2 = instrBranch->GetSrc2();
     IR::LabelInstr *targetInstr = instrBranch->GetTarget();
@@ -20655,7 +20655,7 @@ bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedH
     *pNeedHelper = true;
 
     if (!this->GenerateFastBooleanAndObjectEqLikely(instrBranch, src1, src2, labelHelper, labelEqualLikely, pNeedHelper))
-    {
+    {TRACE_IT(12513);
         return false;
     }
 
@@ -20675,11 +20675,11 @@ bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedH
 }
 
 bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *src1, IR::Opnd *src2, IR::LabelInstr * labelHelper, IR::LabelInstr * labelEqualLikely, bool *pNeedHelper)
-{
+{TRACE_IT(12514);
     *pNeedHelper = true;
 
     if (!src1 || !src2)
-    {
+    {TRACE_IT(12515);
         return false;
     }
 
@@ -20699,52 +20699,52 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
     }
 
     if (src1->GetValueType().IsLikelyBoolean() && src2->GetValueType().IsLikelyBoolean())
-    {
+    {TRACE_IT(12516);
         //
         // Booleans
         //
         if (isStrictCompare)
-        {
+        {TRACE_IT(12517);
             if (!src1->GetValueType().IsBoolean() && !src2->GetValueType().IsBoolean())
-            {
+            {TRACE_IT(12518);
                 this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
                 if (this->m_lowererMD.GenerateJSBooleanTest(src2->AsRegOpnd(), instr, labelEqualLikely, true))
-                {
+                {TRACE_IT(12519);
                     instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func));
                 }
             }
             else
-            {
+            {TRACE_IT(12520);
                 *pNeedHelper = false;
             }
         }
         else
-        {
+        {TRACE_IT(12521);
             this->m_lowererMD.GenerateObjectTest(src1->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateJSBooleanTest(src1->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
             if (this->m_lowererMD.GenerateJSBooleanTest(src2->AsRegOpnd(), instr, labelEqualLikely, true))
-            {
+            {TRACE_IT(12522);
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func));
             }
         }
     }
     else if (src1->GetValueType().IsLikelyObject() && src2->GetValueType().IsLikelyObject())
-    {
+    {TRACE_IT(12523);
         //
         // Objects
         //
         IR::LabelInstr *labelTypeIdCheck = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
         if (!isStrictCompare)
-        {
+        {TRACE_IT(12524);
             // If not strictBr, verify both sides are dynamic objects
             this->m_lowererMD.GenerateObjectTest(src1->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateIsDynamicObject(src1->AsRegOpnd(), instr, labelTypeIdCheck, false);
         }
         else
-        {
+        {TRACE_IT(12525);
             this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
         }
         this->m_lowererMD.GenerateIsDynamicObject(src2->AsRegOpnd(), instr, labelEqualLikely, true);
@@ -20752,17 +20752,17 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
         instr->InsertBefore(labelTypeIdCheck);
 
         if (isStrictMode)
-        {
+        {TRACE_IT(12526);
             labelTypeIdCheck->isOpHelper = true;
             IR::BranchInstr *branchToHelper = IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func);
             instr->InsertBefore(branchToHelper);
         }
         else
-        {
+        {TRACE_IT(12527);
             if (!ExternalLowerer::TryGenerateFastExternalEqTest(src1, src2, instr, labelHelper, labelEqualLikely, this, isStrictCompare))
-            {
+            {TRACE_IT(12528);
                 if (!isStrictCompare)
-                {
+                {TRACE_IT(12529);
                     GenerateIsBuiltinRecyclableObject(src1->AsRegOpnd(), instr, labelHelper, false /*checkObjectAndDynamicObject*/);
                 }
                 GenerateIsBuiltinRecyclableObject(src2->AsRegOpnd(), instr, labelHelper, false /*checkObjectAndDynamicObject*/);
@@ -20770,7 +20770,7 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
         }
     }
     else
-    {
+    {TRACE_IT(12530);
         return false;
     }
 
@@ -20778,7 +20778,7 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
 }
 
 bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
-{
+{TRACE_IT(12531);
     *pNeedHelper = false;
 
     Assert(instr->m_opcode == Js::OpCode::CmSrEq_A ||
@@ -20809,7 +20809,7 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
     if (!this->GenerateFastBooleanAndObjectEqLikely(instr, src1, src2, labelHelper, labelEqualLikely, pNeedHelper))
-    {
+    {TRACE_IT(12532);
         return false;
     }
 
@@ -20835,12 +20835,12 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
     LibraryValue failureValueType = !isNegOp ? LibraryValue::ValueFalse : LibraryValue::ValueTrue;
 
     if (src1->IsEqual(src2))
-    {
+    {TRACE_IT(12533);
         LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, successValueType), instr);
         instr->InsertBefore(IR::BranchInstr::New(this->m_lowererMD.MDUncondBranchOpcode, labelDone, this->m_func));
     }
     else
-    {
+    {TRACE_IT(12534);
         IR::LabelInstr *cmEqual = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         this->InsertCompareBranch(src1, src2, isStrict ? Js::OpCode::BrSrEq_A : Js::OpCode::BrEq_A, cmEqual, instr);
         LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, failureValueType), instr);
@@ -20860,14 +20860,14 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
 }
 
 bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
-{
+{TRACE_IT(12535);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BrFalse_A || instr->m_opcode == Js::OpCode::BrTrue_A);
 
     Func *const func = instr->m_func;
 
     if(!instr->GetSrc1()->IsRegOpnd())
-    {
+    {TRACE_IT(12536);
         LowererMD::ChangeToAssign(instr->HoistSrc1(Js::OpCode::Ld_A));
     }
     IR::RegOpnd *const src = instr->GetSrc1()->Copy(func)->AsRegOpnd();
@@ -20878,7 +20878,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     IR::LabelInstr *const labelTarget = instr->GetTarget();
     IR::LabelInstr *const labelFallthrough = instr->GetOrCreateContinueLabel();
     if(labelTarget == labelFallthrough)
-    {
+    {TRACE_IT(12537);
         // Nothing to do
         instr->Remove();
         return false;
@@ -20892,7 +20892,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
     /// Typespec'd float
     if (instr->GetSrc1()->GetType() == TyFloat64)
-    {
+    {TRACE_IT(12538);
         InsertFloatCheckForZeroOrNanBranch(instr->GetSrc1(), branchOnFalse, labelTarget, labelFallthrough, instr);
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
         instr->Remove();
@@ -20903,9 +20903,9 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Null fast path
 
     if (srcValueType.HasBeenNull() || srcOriginalValueType.IsUninitialized())
-    {
+    {TRACE_IT(12539);
         if(srcValueType.IsNull())
-        {
+        {TRACE_IT(12540);
             //     jmp $false
             InsertBranch(Js::OpCode::Br, labelFalse, instr);
 
@@ -20931,9 +20931,9 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Undefined fast path
 
     if(srcValueType.HasBeenUndefined() || srcOriginalValueType.IsUninitialized())
-    {
+    {TRACE_IT(12541);
         if(srcValueType.IsUndefined())
-        {
+        {TRACE_IT(12542);
             //     jmp $false
             InsertBranch(Js::OpCode::Br, labelFalse, instr);
 
@@ -20965,11 +20965,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             srcValueType.HasBeenUnknownNumber() ||
             srcOriginalValueType.IsUninitialized()
         ) && !isNotInt)
-    {
+    {TRACE_IT(12543);
         checkedForTaggedInt = true;
         IR::LabelInstr *notTaggedIntLabel = nullptr;
         if(!src->IsTaggedInt())
-        {
+        {TRACE_IT(12544);
             //     test src, 1
             //     jz $notTaggedInt
             notTaggedIntLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -20982,7 +20982,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(compareWithFalseBranchToTargetOpCode, labelTarget, instr);
 
         if(src->IsTaggedInt())
-        {
+        {TRACE_IT(12545);
             // Skip lowering call to helper
             Assert(instr->m_prev->IsBranchInstr());
             instr->Remove();
@@ -20994,7 +20994,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
         // $notTaggedInt:
         if(notTaggedIntLabel)
-        {
+        {TRACE_IT(12546);
             instr->InsertBefore(notTaggedIntLabel);
             lastLabelBeforeHelper = notTaggedIntLabel;
         }
@@ -21006,7 +21006,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     bool generateFloatTest = srcValueType.IsLikelyFloat();
 #ifdef _M_IX86
     if (!AutoSystemInfo::Data.SSE2Available())
-    {
+    {TRACE_IT(12547);
         generateFloatTest = false;
     }
 #endif
@@ -21017,7 +21017,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         true; // there are no tagged floats, indicate that it has been checked
 #endif
     if (generateFloatTest)
-    {
+    {TRACE_IT(12548);
         // if(srcValueType.IsFloat()) // skip tagged int check?
         //
         // ValueType::IsFloat() does not guarantee that the storage is not in a tagged int.
@@ -21026,7 +21026,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
         IR::LabelInstr *const notFloatLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
         if(!checkedForTaggedInt)
-        {
+        {TRACE_IT(12549);
             checkedForTaggedInt = true;
             m_lowererMD.GenerateSmIntTest(src, instr, notFloatLabel, nullptr, true);
         }
@@ -21060,11 +21060,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     const auto EnsureObjectTest = [&]()
     {
         if(_didObjectTest)
-        {
+        {TRACE_IT(12550);
             return;
         }
         if(!labelHelper)
-        {
+        {TRACE_IT(12551);
             labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         m_lowererMD.GenerateObjectTest(src, instr, labelHelper);
@@ -21075,10 +21075,10 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Boolean fast path
 
     if (srcValueType.HasBeenBoolean() || srcOriginalValueType.IsUninitialized())
-    {
+    {TRACE_IT(12552);
         IR::LabelInstr *notBooleanLabel = nullptr;
         if (!srcValueType.IsBoolean())
-        {
+        {TRACE_IT(12553);
             EnsureObjectTest();
 
             //     cmp [src], JavascriptBoolean::vtable
@@ -21102,7 +21102,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if (srcValueType.IsBoolean())
-        {
+        {TRACE_IT(12554);
             // Skip lowering call to helper
             Assert(!labelHelper);
             Assert(instr->m_prev->IsBranchInstr());
@@ -21113,7 +21113,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
 
         if (notBooleanLabel)
-        {
+        {TRACE_IT(12555);
             instr->InsertBefore(notBooleanLabel);
             lastLabelBeforeHelper = notBooleanLabel;
 
@@ -21126,10 +21126,10 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // String fast path
 
     if(srcValueType.HasBeenString())
-    {
+    {TRACE_IT(12556);
         IR::LabelInstr *notStringLabel = nullptr;
         if(!srcValueType.IsString())
-        {
+        {TRACE_IT(12557);
             EnsureObjectTest();
 
             notStringLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -21146,7 +21146,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if(srcValueType.IsString())
-        {
+        {TRACE_IT(12558);
             // Skip lowering call to helper
             Assert(!labelHelper);
             Assert(instr->m_prev->IsBranchInstr());
@@ -21158,7 +21158,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
 
         if(notStringLabel)
-        {
+        {TRACE_IT(12559);
             instr->InsertBefore(notStringLabel);
             lastLabelBeforeHelper = notStringLabel;
         }
@@ -21170,11 +21170,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Object fast path
 
     if (srcValueType.IsLikelyObject())
-    {
+    {TRACE_IT(12560);
         if(srcValueType.IsObject())
-        {
+        {TRACE_IT(12561);
             if(srcValueType.GetObjectType() > ObjectType::Object)
-            {
+            {TRACE_IT(12562);
                 // Specific object types that are tracked are equivalent to 'true'
                 //     jmp $true
                 InsertBranch(Js::OpCode::Br, labelTrue, instr);
@@ -21187,7 +21187,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             }
         }
         else
-        {
+        {TRACE_IT(12563);
             EnsureObjectTest();
         }
 
@@ -21216,7 +21216,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if(!labelHelper)
-        {
+        {TRACE_IT(12564);
             labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         lastLabelBeforeHelper = nullptr;
@@ -21227,12 +21227,12 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
     // $helper:
     if(lastLabelBeforeHelper)
-    {
+    {TRACE_IT(12565);
         Assert(instr->m_prev == lastLabelBeforeHelper);
         lastLabelBeforeHelper->isOpHelper = true;
     }
     if (labelHelper)
-    {
+    {TRACE_IT(12566);
         Assert(labelHelper->isOpHelper);
         instr->InsertBefore(labelHelper);
     }
@@ -21262,21 +21262,21 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 // static
 IR::HelperCallOpnd*
 Lowerer::CreateHelperCallOpnd(IR::JnHelperMethod helperMethod, int helperArgCount, Func* func)
-{
+{TRACE_IT(12567);
     Assert(func);
 
     IR::HelperCallOpnd* helperCallOpnd;
     if (CONFIG_FLAG(EnableContinueAfterExceptionWrappersForHelpers) &&
         func->IsJitInDebugMode() &&
         HelperMethodAttributes::CanThrow(helperMethod))
-    {
+    {TRACE_IT(12568);
         // Create DiagHelperCallOpnd to indicate that it's needed to wrap original helper with try-catch wrapper,
         // so that we can ignore exception and bailout to next stmt in debugger.
         // For details, see: Lib\Runtime\Debug\DiagHelperMethodWrapper.{h,cpp}.
         helperCallOpnd = IR::DiagHelperCallOpnd::New(helperMethod, func, helperArgCount);
     }
     else
-    {
+    {TRACE_IT(12569);
          helperCallOpnd = IR::HelperCallOpnd::New(helperMethod, func);
     }
 
@@ -21285,7 +21285,7 @@ Lowerer::CreateHelperCallOpnd(IR::JnHelperMethod helperMethod, int helperArgCoun
 
 bool
 Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool isNeqOp, bool *pfNoLower)
-{
+{TRACE_IT(12570);
     Assert(prev);
     Assert(instr->m_opcode == Js::OpCode::BrSrEq_A     ||
            instr->m_opcode == Js::OpCode::BrSrNeq_A    ||
@@ -21308,13 +21308,13 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     bool skippedLoads = false;
     //Skip intermediate Ld_A which might be inserted by flow graph peeps
     while (instrLd && instrLd->m_opcode == Js::OpCode::Ld_A )
-    {
+    {TRACE_IT(12571);
         if (!(instrLd->GetDst()->IsRegOpnd() && instrLd->GetDst()->AsRegOpnd()->m_fgPeepTmp))
-        {
+        {TRACE_IT(12572);
             return false;
         }
         if (instrLd->HasBailOutInfo())
-        {
+        {TRACE_IT(12573);
             return false;
         }
         instrLd = instrLd->GetPrevRealInstrOrLabel();
@@ -21326,36 +21326,36 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     IR::RegOpnd *instrSrc1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *instrSrc2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
     if (typeOf && (typeOf->m_opcode == Js::OpCode::Typeof))
-    {
+    {TRACE_IT(12574);
         IR::RegOpnd *typeOfDst = typeOf->GetDst()->IsRegOpnd() ? typeOf->GetDst()->AsRegOpnd() : nullptr;
 
         if (typeOfDst && instrSrc1 && instrSrc2)
-        {
+        {TRACE_IT(12575);
             IR::RegOpnd *typeOpnd = nullptr;
             IR::RegOpnd *idOpnd = nullptr;
             if (instrSrc1->m_sym == typeOfDst->m_sym)
-            {
+            {TRACE_IT(12576);
                 typeOpnd = instrSrc1;
                 idOpnd = instrSrc2;
             }
             else if (instrSrc2->m_sym == typeOfDst->m_sym)
-            {
+            {TRACE_IT(12577);
                 typeOpnd = instrSrc2;
                 idOpnd = instrSrc1;
             }
             else
-            {
+            {TRACE_IT(12578);
                 // Neither source turned out to be the typeOpnd
                 return false;
             }
 
             if (!typeOpnd->m_isTempLastUse)
-            {
+            {TRACE_IT(12579);
                 return false;
             }
 
             if (!(idOpnd->m_sym->m_isSingleDef && idOpnd->m_sym->m_isStrConst))
-            {
+            {TRACE_IT(12580);
                 return false;
             }
 
@@ -21371,43 +21371,43 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
 
             Js::InternalString typeNameString(typeName, typeNameJsString->GetLength());
             if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::UndefinedTypeNameString))
-            {
+            {TRACE_IT(12581);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Undefined, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::ObjectTypeNameString))
-            {
+            {TRACE_IT(12582);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Object, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::BooleanTypeNameString))
-            {
+            {TRACE_IT(12583);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Boolean, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::NumberTypeNameString))
-            {
+            {TRACE_IT(12584);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Number, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::StringTypeNameString))
-            {
+            {TRACE_IT(12585);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_String, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::FunctionTypeNameString))
-            {
+            {TRACE_IT(12586);
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Function, TyInt32, instr->m_func);
             }
             else
-            {
+            {TRACE_IT(12587);
                 return false;
             }
 
             if (skippedLoads)
-            {
+            {TRACE_IT(12588);
                 //validate none of dst of Ld_A overlaps with typeof src or dst
                 IR::Opnd* typeOfSrc = typeOf->GetSrc1();
                 instrLd = typeOf->GetNextRealInstr();
                 while (instrLd != instr)
-                {
+                {TRACE_IT(12589);
                     if (instrLd->GetDst()->IsEqual(typeOfDst) || instrLd->GetDst()->IsEqual(typeOfSrc))
-                    {
+                    {TRACE_IT(12590);
                         return false;
                     }
                     instrLd = instrLd->GetNextRealInstr();
@@ -21438,14 +21438,14 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     if (instrSrc1 && instrSrc1->GetStackSym()->IsSingleDef() && instrSrc2 && instrSrc2->GetStackSym()->IsSingleDef() &&
         instrSrc1->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof &&
         instrSrc2->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof)
-    {
+    {TRACE_IT(12591);
         *pfNoLower = true;
         if (instr->IsBranchInstr())
-        {
+        {TRACE_IT(12592);
             if (instrSrc1->IsEqual(instrSrc2))
-            {
+            {TRACE_IT(12593);
                 if (!isNeqOp)
-                {
+                {TRACE_IT(12594);
                     InsertBranch(Js::OpCode::Br, instr->AsBranchInstr()->GetTarget(), instr);
                 }
             }
@@ -21456,13 +21456,13 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
             instr->Remove();
         }
         else
-        {
+        {TRACE_IT(12595);
             if (instrSrc1->IsEqual(instrSrc2))
-            {
+            {TRACE_IT(12596);
                 InsertMove(instr->GetDst(), LoadLibraryValueOpnd(instr, isNeqOp ? LibraryValue::ValueFalse : LibraryValue::ValueTrue), instr);
             }
             else
-            {
+            {TRACE_IT(12597);
                 // t1 = typeof o1
                 // t2 = typeof o2
                 // dst = t1 == t2
@@ -21479,12 +21479,12 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
                 // $done
 
                 if (instr->GetDst()->IsEqual(instrSrc1))
-                {
+                {TRACE_IT(12598);
                     IR::Instr* hoistInstr = m_lowererMD.ChangeToAssign(instr->HoistSrc1(Js::OpCode::Ld_A));
                     instrSrc1 = hoistInstr->GetDst()->AsRegOpnd();
                 }
                 if (instr->GetDst()->IsEqual(instrSrc2))
-                {
+                {TRACE_IT(12599);
                     IR::Instr* hoistInstr = m_lowererMD.ChangeToAssign(instr->HoistSrc2(Js::OpCode::Ld_A));
                     instrSrc2 = hoistInstr->GetDst()->AsRegOpnd();
                 }
@@ -21511,16 +21511,16 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
 
 void
 Lowerer::GenerateFalsyObjectTest(IR::Instr * insertInstr, IR::RegOpnd * typeOpnd, IR::LabelInstr * falsyLabel)
-{
+{TRACE_IT(12600);
     IR::Opnd *flagsOpnd = IR::IndirOpnd::New(typeOpnd, Js::Type::GetOffsetOfFlags(), TyInt32, this->m_func);
     InsertTestBranch(flagsOpnd, IR::IntConstOpnd::New(TypeFlagMask_IsFalsy, TyInt32, this->m_func), Js::OpCode::BrNeq_A, falsyLabel, insertInstr);
 }
 
 void
 Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, Js::TypeId typeIdToCheck, IR::LabelInstr* target, IR::LabelInstr* done, bool isNeqOp)
-{
+{TRACE_IT(12601);
     if (!this->m_func->GetThreadContextInfo()->CanBeFalsy(typeIdToCheck) && typeIdToCheck != Js::TypeIds_Undefined)
-    {
+    {TRACE_IT(12602);
         // Don't need the check for falsy, the typeId we are looking for doesn't care
         return;
     }
@@ -21529,12 +21529,12 @@ Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, 
     InsertTest(flagsOpnd, IR::IntConstOpnd::New(TypeFlagMask_IsFalsy, TyInt32, this->m_func), insertInstr);
 
     if (typeIdToCheck == Js::TypeIds_Undefined)
-    {
+    {TRACE_IT(12603);
         //Falsy object returns true for undefined ((typeof falsyObj) == "undefined")
         InsertBranch( Js::OpCode::BrNeq_A, true, isNeqOp ? done : target, insertInstr);
     }
     else
-    {
+    {TRACE_IT(12604);
         //Falsy object returns false for all other types ((typeof falsyObj) != "function")
         InsertBranch( Js::OpCode::BrNeq_A, true, isNeqOp? target : done , insertInstr);
     }
@@ -21547,7 +21547,7 @@ Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, 
 ///----------------------------------------------------------------------------
 void
 Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntConstOpnd *typeIdOpnd, IR::Instr *typeOf, bool *pfNoLower, bool isNeqOp)
-{
+{TRACE_IT(12605);
     Js::TypeId      typeId   = static_cast<Js::TypeId>(typeIdOpnd->GetValue());
     IR::LabelInstr *target   = branch->AsBranchInstr()->GetTarget();
     IR::LabelInstr *done     = IR::LabelInstr::New(Js::OpCode::Label, m_func, false);
@@ -21648,7 +21648,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
                             branch);
 
         // Now emit Typeof and lower it like we would've for the helper call.
-        {
+        {TRACE_IT(12606);
             branch->InsertBefore(helper);
             typeOf->Unlink();
             branch->InsertBefore(typeOf);
@@ -21656,7 +21656,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
         }
     }
     else // Other primitive types don't need helper
-    {
+    {TRACE_IT(12607);
         typeOf->Remove();
         branch->Remove();
         *pfNoLower = true;
@@ -21672,7 +21672,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
 ///----------------------------------------------------------------------------
 void
 Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntConstOpnd *typeIdOpnd, IR::Instr *typeOf, bool *pfNoLower, bool isNeqOp)
-{
+{TRACE_IT(12608);
     Assert(compare->m_opcode == Js::OpCode::CmSrEq_A  ||
            compare->m_opcode == Js::OpCode::CmEq_A    ||
            compare->m_opcode == Js::OpCode::CmSrNeq_A ||
@@ -21688,7 +21688,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     Assert(dst);
 
     if (dst->IsEqual(object))
-    {
+    {TRACE_IT(12609);
         //dst same as the src of typeof. As we need to move true to dst first we need to save the src to a new opnd
         IR::RegOpnd *newObject = IR::RegOpnd::New(object->GetType(), m_func);
         InsertMove(newObject, object, compare); //Save src
@@ -21704,7 +21704,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     // JNE (typeId == Js::TypeIds_Number) ? $done : $movFalse
     IR::LabelInstr *target = (typeId == Js::TypeIds_Number) ? done : movFalse;
     if (isNeqOp)
-    {
+    {TRACE_IT(12610);
         target = (target == done) ? movFalse : done;
     }
 
@@ -21788,7 +21788,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
                             compare);
 
         // Now emit Typeof like we would've for the helper call.
-        {
+        {TRACE_IT(12611);
             compare->InsertBefore(helper);
             typeOf->Unlink();
             compare->InsertBefore(typeOf);
@@ -21799,7 +21799,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
         InsertBranch(Js::OpCode::Br, done, done);
     }
     else // Other primitive types don't need helper
-    {
+    {TRACE_IT(12612);
         typeOf->Remove();
         compare->Remove();
         *pfNoLower = true;
@@ -21816,7 +21816,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
 
 void
 Lowerer::GenerateCheckForCallFlagNew(IR::Instr* instrInsert)
-{
+{TRACE_IT(12613);
     Func *func = instrInsert->m_func;
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
 
@@ -21851,7 +21851,7 @@ Lowerer::GenerateCheckForCallFlagNew(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateJavascriptOperatorsIsConstructorGotoElse(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelReturnTrue, IR::LabelInstr *labelReturnFalse)
-{
+{TRACE_IT(12614);
     //  $ProxyLoop:
     //  // if (!RecyclableObject::Is(instance)) { goto $ReturnFalse }; // omitted: RecyclableObject::Is(instance) always true
     //  MOV s0, instance->type
@@ -21915,7 +21915,7 @@ Lowerer::GenerateJavascriptOperatorsIsConstructorGotoElse(IR::Instr *instrInsert
 
 void
 Lowerer::GenerateRecyclableObjectGetPrototypeNullptrGoto(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelReturnNullptr)
-{
+{TRACE_IT(12615);
     //  MOV instance, instance->type
     //  MOV flags, instance->flags
     //  TEST flags, TypeFlagMask_HasSpecialPrototype
@@ -21940,7 +21940,7 @@ Lowerer::GenerateRecyclableObjectGetPrototypeNullptrGoto(IR::Instr *instrInsert,
 
 void
 Lowerer::GenerateRecyclableObjectIsElse(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelFalse)
-{
+{TRACE_IT(12616);
     Func *func = instrInsert->m_func;
 
 #if INT32VAR
@@ -21952,7 +21952,7 @@ Lowerer::GenerateRecyclableObjectIsElse(IR::Instr *instrInsert, IR::RegOpnd *ins
 
 void
 Lowerer::GenerateLdHomeObj(IR::Instr* instr)
-{
+{TRACE_IT(12617);
     //  MOV dst, undefined
     //  MOV instance, functionObject  // functionObject through stack params or src1
     //  CMP [instance], VtableStackScriptFunction
@@ -21995,7 +21995,7 @@ Lowerer::GenerateLdHomeObj(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdHomeObjProto(IR::Instr* instr)
-{
+{TRACE_IT(12618);
     //  MOV dst, undefined
     //  MOV instance, src1   // homeObj
     //  TEST instance, instance
@@ -22066,7 +22066,7 @@ Lowerer::GenerateLdHomeObjProto(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdFuncObj(IR::Instr* instr)
-{
+{TRACE_IT(12619);
     //  MOV dst, functionObject  // functionObject through stack params or src1
 
     IR::Opnd *dstOpnd = instr->GetDst();
@@ -22079,7 +22079,7 @@ Lowerer::GenerateLdFuncObj(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdFuncObjProto(IR::Instr* instr)
-{
+{TRACE_IT(12620);
     //  MOV instance, src1
     //
     //  instance = ((RecyclableObject*)instance)->GetPrototype();
@@ -22123,7 +22123,7 @@ Lowerer::GenerateLdFuncObjProto(IR::Instr* instr)
 
 void
 Lowerer::GenerateSetHomeObj(IR::Instr* instrInsert)
-{
+{TRACE_IT(12621);
     //  MOV funcObj, src1
     //  CMP [funcObj], VtableJavascriptGeneratorFunction
     //  JNE $ScriptFunction
@@ -22170,7 +22170,7 @@ Lowerer::GenerateSetHomeObj(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
-{
+{TRACE_IT(12622);
     Func *func = instrInsert->m_func;
 
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
@@ -22180,7 +22180,7 @@ Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
     Assert(!func->IsInlinee());
 
     if (func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(12623);
         instrInsert->SetSrc1(opndUndefAddress);
         LowererMD::ChangeToAssign(instrInsert);
         return;
@@ -22233,7 +22233,7 @@ Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateGetCurrentFunctionObject(IR::Instr * instr)
-{
+{TRACE_IT(12624);
     Func * func = this->m_func;
     IR::Instr * insertBeforeInstr = instr->m_next;
     IR::RegOpnd * functionObjectOpnd = instr->GetDst()->AsRegOpnd();
@@ -22251,7 +22251,7 @@ Lowerer::GenerateGetCurrentFunctionObject(IR::Instr * instr)
 
 IR::Opnd *
 Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::PropertySymOpnd * propSymOpnd, bool isHelper)
-{
+{TRACE_IT(12625);
     // MOV s1, [ebp + 8]                        //s1 = function object
     // MOV s2, [s1 + offset(hasInlineCaches)]
     // TEST s2, s2
@@ -22283,11 +22283,11 @@ Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::Proper
     IR::RegOpnd * indexOpnd = IR::RegOpnd::New(TyMachReg, instr->m_func);
     int inlineCacheOffset;
     if (!Int32Math::Mul(sizeof(Js::InlineCache *), propSymOpnd->m_inlineCacheIndex, &inlineCacheOffset))
-    {
+    {TRACE_IT(12626);
         Lowerer::InsertMove(inlineCacheOpnd, IR::IndirOpnd::New(inlineCachesOpnd, inlineCacheOffset, TyMachPtr, instr->m_func), instr);
     }
     else
-    {
+    {TRACE_IT(12627);
         Lowerer::InsertMove(indexOpnd, IR::IntConstOpnd::New(propSymOpnd->m_inlineCacheIndex, TyUint32, instr->m_func), instr);
         Lowerer::InsertMove(inlineCacheOpnd, IR::IndirOpnd::New(inlineCachesOpnd, indexOpnd, indirScale, TyMachPtr, instr->m_func), instr);
     }
@@ -22305,18 +22305,18 @@ Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::Proper
 
 IR::Instr *
 Lowerer::LowerInitClass(IR::Instr * instr)
-{
+{TRACE_IT(12628);
     // scriptContext
     IR::Instr   * prevInstr = LoadScriptContext(instr);
 
     // extends
     if (instr->GetSrc2() != nullptr)
-    {
+    {TRACE_IT(12629);
         IR::Opnd * extendsOpnd = instr->UnlinkSrc2();
         m_lowererMD.LoadHelperArgument(instr, extendsOpnd);
     }
     else
-    {
+    {TRACE_IT(12630);
         IR::AddrOpnd* extendsOpnd = IR::AddrOpnd::NewNull(this->m_func);
         m_lowererMD.LoadHelperArgument(instr, extendsOpnd);
     }
@@ -22333,7 +22333,7 @@ Lowerer::LowerInitClass(IR::Instr * instr)
 
 void
 Lowerer::LowerNewConcatStrMulti(IR::Instr * instr)
-{
+{TRACE_IT(12631);
     IR::IntConstOpnd * countOpnd = instr->UnlinkSrc1()->AsIntConstOpnd();
     IR::RegOpnd * dstOpnd = instr->UnlinkDst()->AsRegOpnd();
     uint8 count = (uint8)countOpnd->GetValue();
@@ -22354,7 +22354,7 @@ Lowerer::LowerNewConcatStrMulti(IR::Instr * instr)
 
 void
 Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
-{
+{TRACE_IT(12632);
     // Lower
     // t1 = SetConcatStrMultiBE s1
     // t2 = SetConcatStrMultiBE s2, t1
@@ -22375,7 +22375,7 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
     IR::Instr * concatItemInstr = nullptr;
     IR::Opnd * linkOpnd = instr->GetSrc2();
     while (linkOpnd)
-    {
+    {TRACE_IT(12633);
         Assert(linkOpnd->IsRegOpnd());
         concatItemInstr = linkOpnd->GetStackSym()->GetInstrDef();
         Assert(concatItemInstr->m_opcode == Js::OpCode::SetConcatStrMultiItemBE);
@@ -22386,16 +22386,16 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
         // If one of the concat items is equal to the dst of the concat expressions (s = s + a + b),
         // hoist the load of that item to before the setting of the new string to the dst.
         if (concatItemOpnd->IsEqual(newString))
-        {
+        {TRACE_IT(12634);
             if (!newConcatItemOpnd)
-            {
+            {TRACE_IT(12635);
                 IR::Instr * hoistSrcInstr = concatItemInstr->HoistSrc1(Js::OpCode::Ld_A);
                 newConcatItemOpnd = hoistSrcInstr->GetDst();
             }
             concatItemOpnd = newConcatItemOpnd;
         }
         else
-        {
+        {TRACE_IT(12636);
             // If only some of the SetConcatStrMultiItemBE instructions were CSE'd and the rest, along with the NewConcatStrMultiBE
             // instruction, were in a loop, the strings on the CSE'd Set*BE instructions will become live on back edge. Add them to
             // addToLiveOnBackEdgeSyms here and clear when we reach the Set*BE instruction.
@@ -22422,7 +22422,7 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
 
 void
 Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
-{
+{TRACE_IT(12637);
     Func * func = this->m_func;
     IR::IndirOpnd * dstOpnd = instr->GetDst()->AsIndirOpnd();
     IR::RegOpnd * concatStrOpnd = dstOpnd->GetBaseOpnd();
@@ -22437,11 +22437,11 @@ Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
     IR::Opnd * srcLength;
 
     if (srcOpnd->m_sym->m_isStrConst)
-    {
+    {TRACE_IT(12638);
         srcLength = IR::IntConstOpnd::New(JITJavascriptString::FromVar(srcOpnd->m_sym->GetConstAddress(true))->GetLength(), TyUint32, func);
     }
     else
-    {
+    {TRACE_IT(12639);
         srcLength = IR::RegOpnd::New(TyUint32, func);
         InsertMove(srcLength, IR::IndirOpnd::New(srcOpnd, Js::ConcatStringMulti::GetOffsetOfcharLength(), TyUint32, func), instr);
     }
@@ -22454,9 +22454,9 @@ Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
 
 IR::RegOpnd *
 Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, IR::Instr * insertBeforeInstr, IR::JnHelperMethod helperMethod, bool reloadDst)
-{
+{TRACE_IT(12640);
     if (strOpnd->m_sym->m_isStrConst)
-    {
+    {TRACE_IT(12641);
         return strOpnd;
     }
 
@@ -22466,7 +22466,7 @@ Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, I
     IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
 
     if (!strOpnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(12642);
         this->m_lowererMD.GenerateObjectTest(strOpnd, insertBeforeInstr, doneLabel);
     }
     // CMP [strOpnd], Js::CompoundString::`vtable'
@@ -22499,10 +22499,10 @@ Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, I
 
 void
 Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
-{
+{TRACE_IT(12643);
     IR::RegOpnd * src1Opnd = instr->UnlinkSrc1()->AsRegOpnd();
     if (!src1Opnd->GetValueType().IsNotString())
-    {
+    {TRACE_IT(12644);
         IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
         this->GenerateStringTest(src1Opnd, instr, helperLabel);
@@ -22512,7 +22512,7 @@ Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
         instr->InsertAfter(doneLabel);
     }
     if (instr->GetSrc2())
-    {
+    {TRACE_IT(12645);
         this->m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
     }
 
@@ -22523,13 +22523,13 @@ Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
 
 void
 Lowerer::LowerConvStr(IR::Instr * instr)
-{
+{TRACE_IT(12646);
     LowerConvStrCommon(IR::HelperOp_ConvString, instr);
 }
 
 void
 Lowerer::LowerCoerseStr(IR::Instr* instr)
-{
+{TRACE_IT(12647);
     LowerConvStrCommon(IR::HelperOp_CoerseString, instr);
 }
 
@@ -22549,7 +22549,7 @@ Lowerer::LowerCoerseStr(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
-{
+{TRACE_IT(12648);
     IR::RegOpnd * src1Opnd = instr->GetSrc1()->AsRegOpnd();
 
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
@@ -22557,7 +22557,7 @@ Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
 
     // if (value == regex) goto :done
     if (!src1Opnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(12649);
         this->m_lowererMD.GenerateObjectTest(src1Opnd, instr, helperLabel);
     }
 
@@ -22584,12 +22584,12 @@ Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerCoerseRegex(IR::Instr* instr)
-{
+{TRACE_IT(12650);
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     IR::RegOpnd * src1Opnd = instr->UnlinkSrc1()->AsRegOpnd();
     if (!src1Opnd->IsNotTaggedValue())
-    {
+    {TRACE_IT(12651);
         this->m_lowererMD.GenerateObjectTest(src1Opnd, instr, helperLabel);
     }
 
@@ -22611,31 +22611,31 @@ Lowerer::LowerCoerseRegex(IR::Instr* instr)
 
 void
 Lowerer::LowerConvPrimStr(IR::Instr * instr)
-{
+{TRACE_IT(12652);
     LowerConvStrCommon(IR::HelperOp_ConvPrimitiveString, instr);
 }
 
 void
 Lowerer::GenerateRecyclerAlloc(IR::JnHelperMethod allocHelper, size_t allocSize, IR::RegOpnd* newObjDst, IR::Instr* insertionPointInstr, bool inOpHelper)
-{
+{TRACE_IT(12653);
     size_t alignedSize = HeapInfo::GetAlignedSizeNoCheck(allocSize);
     this->GenerateRecyclerAllocAligned(allocHelper, alignedSize, newObjDst, insertionPointInstr, inOpHelper);
 }
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, int value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(12654);
     IRType type = TyInt32;
     if (isZeroed)
-    {
+    {TRACE_IT(12655);
         if (value == 0)
-        {
+        {TRACE_IT(12656);
             // Recycler memory are zero initialized
             return;
         }
 
         if (value > 0 && value <= USHORT_MAX)
-        {
+        {TRACE_IT(12657);
             // Recycler memory are zero initialized, so we can just initialize the 8 or 16 bits of value
             type = (value <= UCHAR_MAX)? TyUint8 : TyUint16;
         }
@@ -22646,18 +22646,18 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, int value, IR::Instr 
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, uint32 value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(12658);
     IRType type = TyUint32;
     if (isZeroed)
-    {
+    {TRACE_IT(12659);
         if (value == 0)
-        {
+        {TRACE_IT(12660);
             // Recycler memory are zero initialized
             return;
         }
 
         if (value <= USHORT_MAX)
-        {
+        {TRACE_IT(12661);
             // Recycler memory are zero initialized, so we can just initialize the 8 or 16 bits of value
             type = (value <= UCHAR_MAX)? TyUint8 : TyUint16;
         }
@@ -22669,9 +22669,9 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, uint32 value, IR::Ins
 
 void
 Lowerer::GenerateMemInitNull(IR::RegOpnd * opnd, int32 offset, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(12662);
     if (isZeroed)
-    {
+    {TRACE_IT(12663);
         return;
     }
     GenerateMemInit(opnd, offset, IR::AddrOpnd::NewNull(m_func), insertBeforeInstr);
@@ -22679,7 +22679,7 @@ Lowerer::GenerateMemInitNull(IR::RegOpnd * opnd, int32 offset, IR::Instr * inser
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(12664);
     IRType type = value->GetType();
 
     Func * func = this->m_func;
@@ -22688,7 +22688,7 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * value, IR:
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, IR::RegOpnd * offset, IR::Opnd * value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{TRACE_IT(12665);
     IRType type = value->GetType();
 
     Func * func = this->m_func;
@@ -22721,7 +22721,7 @@ Lowerer::GenerateRecyclerMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * va
 
 void
 Lowerer::GenerateMemCopy(IR::Opnd * dst, IR::Opnd * src, uint32 size, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(12666);
     Func * func = this->m_func;
     this->m_lowererMD.LoadHelperArgument(insertBeforeInstr, IR::IntConstOpnd::New(size, TyUint32, func));
     this->m_lowererMD.LoadHelperArgument(insertBeforeInstr, src);
@@ -22736,7 +22736,7 @@ bool
 Lowerer::GenerateSimplifiedInt4Rem(
     IR::Instr *const remInstr,
     IR::LabelInstr *const skipBailOutLabel) const
-{
+{TRACE_IT(12667);
     Assert(remInstr);
     Assert(remInstr->m_opcode == Js::OpCode::Rem_I4);
 
@@ -22751,7 +22751,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
         return false;
 
     if (!(src2->IsIntConstOpnd() && Math::IsPow2(src2->AsIntConstOpnd()->AsInt32())) && !isModByPowerOf2)
-    {
+    {TRACE_IT(12668);
         return false;
     }
     // We have:
@@ -22771,7 +22771,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
     IR::LabelInstr *doneLabel = skipBailOutLabel, *slowPathLabel;
 
     if (!doneLabel)
-    {
+    {TRACE_IT(12669);
         doneLabel = IR::LabelInstr::New(Js::OpCode::Label, remInstr->m_func);
         remInstr->InsertAfter(doneLabel);
     }
@@ -22788,7 +22788,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
     IR::Opnd* maskOpnd;
 
     if(isModByPowerOf2)
-    {
+    {TRACE_IT(12670);
         Assert(isModByPowerOf2);
         maskOpnd = IR::RegOpnd::New(TyInt32, remInstr->m_func);
 
@@ -22805,7 +22805,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
         InsertTestBranch(src2, maskOpnd, Js::OpCode::BrNeq_A, slowPathLabel, slowPathLabel);
     }
     else
-    {
+    {TRACE_IT(12671);
         Assert(src2->IsIntConstOpnd());
         int32 mask =  src2->AsIntConstOpnd()->AsInt32() - 1;
         maskOpnd = IR::IntConstOpnd::New(mask, TyInt32, remInstr->m_func);
@@ -22822,10 +22822,10 @@ Lowerer::GenerateSimplifiedInt4Rem(
 #if DBG
 bool
 Lowerer::ValidOpcodeAfterLower(IR::Instr* instr, Func * func)
-{
+{TRACE_IT(12672);
     Js::OpCode opcode = instr->m_opcode;
     if (opcode > Js::OpCode::MDStart)
-    {
+    {TRACE_IT(12673);
         return true;
     }
     switch (opcode)
@@ -22883,7 +22883,7 @@ Lowerer::ValidOpcodeAfterLower(IR::Instr* instr, Func * func)
 #endif
 
 void Lowerer::LowerProfiledBeginSwitch(IR::JitProfilingInstr* instr)
-{
+{TRACE_IT(12674);
     Assert(instr->isBeginSwitch);
 
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
@@ -22894,7 +22894,7 @@ void Lowerer::LowerProfiledBeginSwitch(IR::JitProfilingInstr* instr)
 }
 
 void Lowerer::LowerProfiledBinaryOp(IR::JitProfilingInstr* instr, IR::JnHelperMethod meth)
-{
+{TRACE_IT(12675);
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
     m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(instr->profileId, m_func));
@@ -22904,7 +22904,7 @@ void Lowerer::LowerProfiledBinaryOp(IR::JitProfilingInstr* instr, IR::JnHelperMe
 }
 
 void Lowerer::GenerateNullOutGeneratorFrame(IR::Instr* insertInstr)
-{
+{TRACE_IT(12676);
     // null out frame pointer on generator object to signal completion to JavascriptGenerator::CallGenerator
     // s = MOV prm1
     // s[offset of JavascriptGenerator::frame] = MOV nullptr
@@ -22920,14 +22920,14 @@ void Lowerer::GenerateNullOutGeneratorFrame(IR::Instr* insertInstr)
 }
 
 void Lowerer::LowerFunctionExit(IR::Instr* funcExit)
-{
+{TRACE_IT(12677);
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {TRACE_IT(12678);
         GenerateNullOutGeneratorFrame(funcExit->m_prev);
     }
 
     if (!m_func->DoSimpleJitDynamicProfile())
-    {
+    {TRACE_IT(12679);
         return;
     }
 
@@ -22940,12 +22940,12 @@ void Lowerer::LowerFunctionExit(IR::Instr* funcExit)
 }
 
 void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
-{
+{TRACE_IT(12680);
     Assert(funcEntry->m_opcode == Js::OpCode::FunctionEntry);
 
     //Don't do a body call increment for loops or asm.js
     if (m_func->IsLoopBody() || m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {TRACE_IT(12681);
         return;
     }
 
@@ -22954,12 +22954,12 @@ void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
     LowerFunctionBodyCallCountChange(insertBeforeInstr);
 
     if (m_func->DoSimpleJitDynamicProfile())
-    {
+    {TRACE_IT(12682);
         // Only generate the argument profiling if the function expects to have some arguments to profile and only if
         //    it has implicit ArgIns (the latter is a restriction imposed by the Interpreter, so it is mirrored in SimpleJit)
 
         if (m_func->GetJITFunctionBody()->GetInParamsCount() > 1 && m_func->GetJITFunctionBody()->HasImplicitArgIns())
-        {
+        {TRACE_IT(12683);
             // Call out to the argument profiling helper
             IR::Instr* callInstr = IR::Instr::New(Js::OpCode::Call, m_func);
             callInstr->SetSrc1(IR::HelperCallOpnd::New(IR::HelperSimpleProfileParameters, m_func));
@@ -22975,14 +22975,14 @@ void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
 }
 
 void Lowerer::LowerFunctionBodyCallCountChange(IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12684);
     Assert(insertBeforeInstr);
 
     Func *const func = insertBeforeInstr->m_func;
     const bool isSimpleJit = func->IsSimpleJit();
 
     if ((isSimpleJit && PHASE_OFF(Js::FullJitPhase, m_func)))
-    {
+    {TRACE_IT(12685);
         return;
     }
 
@@ -23020,25 +23020,25 @@ void Lowerer::LowerFunctionBodyCallCountChange(IR::Instr *const insertBeforeInst
 
 IR::Opnd*
 Lowerer::GetImplicitCallFlagsOpnd()
-{
+{TRACE_IT(12686);
     return GetImplicitCallFlagsOpnd(m_func);
 }
 
 IR::Opnd*
 Lowerer::GetImplicitCallFlagsOpnd(Func * func)
-{
+{TRACE_IT(12687);
     return IR::MemRefOpnd::New(func->GetThreadContextInfo()->GetImplicitCallFlagsAddr(), GetImplicitCallFlagsType(), func);
 }
 
 IR::Opnd*
 Lowerer::CreateClearImplicitCallFlagsOpnd()
-{
+{TRACE_IT(12688);
     return IR::IntConstOpnd::New(Js::ImplicitCall_None, GetImplicitCallFlagsType(), m_func);
 }
 
 void
 Lowerer::LowerSpreadArrayLiteral(IR::Instr *instr)
-{
+{TRACE_IT(12689);
     LoadScriptContext(instr);
 
     IR::Opnd *src2Opnd = instr->UnlinkSrc2();
@@ -23052,13 +23052,13 @@ Lowerer::LowerSpreadArrayLiteral(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupProfiledVersion)
-{
+{TRACE_IT(12690);
     // Get the target function object, and emit function object test.
     IR::RegOpnd * functionObjOpnd = instr->UnlinkSrc1()->AsRegOpnd();
     functionObjOpnd->m_isCallArg = true;
 
     if (!(callFlags & Js::CallFlags_New) && !setupProfiledVersion)
-    {
+    {TRACE_IT(12691);
         IR::LabelInstr* continueAfterExLabel = InsertContinueAfterExceptionLabelForDebugger(m_func, instr, false);
         this->m_lowererMD.GenerateFunctionObjectTest(instr, functionObjOpnd, false, continueAfterExLabel);
     }
@@ -23075,7 +23075,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
     // Emit the normal args
     if (!(callFlags & Js::CallFlags_New))
-    {
+    {TRACE_IT(12692);
         callFlags = (Js::CallFlags)(callFlags | (instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed));
     }
 
@@ -23086,7 +23086,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
     // Emit our extra (first) args for the Spread helper in reverse order
     if (setupProfiledVersion)
-    {
+    {TRACE_IT(12693);
         IR::JitProfilingInstr* jitInstr = (IR::JitProfilingInstr*)instr;
         m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(jitInstr->arrayProfileId, m_func));
         m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(jitInstr->profileId, m_func));
@@ -23105,7 +23105,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
 void
 Lowerer::LowerDivI4Common(IR::Instr * instr)
-{
+{TRACE_IT(12694);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_I4 || instr->m_opcode == Js::OpCode::Div_I4);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
@@ -23145,7 +23145,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
         InsertTestBranch(src2, src2, Js::OpCode::BrEq_A, div0Label, div0Label);
 
         if (divideByZeroInstr)
-        {
+        {TRACE_IT(12695);
             GenerateThrow(IR::IntConstOpnd::NewFromType(SCODE_CODE(WASMERR_DivideByZero), TyInt32, m_func), divLabel);
         }
         else
@@ -23157,39 +23157,39 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
 
 
     if (instr->GetSrc1()->IsSigned())
-    {
+    {TRACE_IT(12696);
         IR::LabelInstr * minIntLabel = nullptr;
         // we need to check for INT_MIN/-1 if divisor is either -1 or variable, and dividend is either INT_MIN or variable
         int64 intMin = IRType_IsInt64(src1->GetType()) ? LONGLONG_MIN : INT_MIN;
         IR::Instr* overflowReg3 = IR::Instr::FindSingleDefInstr(Js::OpCode::TrapIfMinIntOverNegOne, instr->GetSrc1());
         bool needsMinOverNeg1Check = true;
         if (isWasmFunc && instr->m_opcode != Js::OpCode::Rem_I4)
-        {
+        {TRACE_IT(12697);
             needsMinOverNeg1Check = overflowReg3 != nullptr;
         }
         else
-        {
+        {TRACE_IT(12698);
             needsMinOverNeg1Check = !(src2->IsImmediateOpnd() && src2->GetImmediateValue(m_func) != -1);
         }
         if (src1->IsImmediateOpnd())
-        {
+        {TRACE_IT(12699);
             if (needsMinOverNeg1Check && src1->GetImmediateValue(m_func) == intMin)
-            {
+            {TRACE_IT(12700);
                 minIntLabel = InsertLabel(true, divLabel);
                 InsertBranch(Js::OpCode::Br, minIntLabel, div0Label);
             }
             else
-            {
+            {TRACE_IT(12701);
                 needsMinOverNeg1Check = false;
             }
         }
         else if(needsMinOverNeg1Check)
-        {
+        {TRACE_IT(12702);
             minIntLabel = InsertLabel(true, divLabel);
             InsertCompareBranch(src1, IR::IntConstOpnd::NewFromType(intMin, src1->GetType(), m_func), Js::OpCode::BrEq_A, minIntLabel, div0Label);
         }
         if (needsMinOverNeg1Check)
-        {
+        {TRACE_IT(12703);
             Assert(minIntLabel);
             Assert(!src2->IsIntConstOpnd() || src2->AsIntConstOpnd()->GetValue() == -1);
             if (!src2->IsIntConstOpnd())
@@ -23198,7 +23198,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             }
             
             if (overflowReg3)
-            {
+            {TRACE_IT(12704);
                 GenerateThrow( IR::IntConstOpnd::NewFromType(SCODE_CODE(VBSERR_Overflow), TyInt32, m_func), divLabel);
             }
             else
@@ -23215,22 +23215,22 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
 
 void
 Lowerer::LowerRemI4(IR::Instr * instr)
-{
+{TRACE_IT(12705);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_I4);
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {TRACE_IT(12706);
         LowerDivI4Common(instr);
     }
     else
-    {
+    {TRACE_IT(12707);
         m_lowererMD.EmitInt4Instr(instr);
     }
 }
 
 void
 Lowerer::GenerateThrow(IR::Opnd* errorCode, IR::Instr * instr) const
-{
+{TRACE_IT(12708);
     IR::Instr *throwInstr = IR::Instr::New(Js::OpCode::RuntimeTypeError, IR::RegOpnd::New(TyMachReg, m_func), errorCode, m_func);
     instr->InsertBefore(throwInstr);
     Lowerer* lw = const_cast<Lowerer*> (this); //LowerUnaryHelperMem unlinks src1 of throwInstr,
@@ -23241,7 +23241,7 @@ Lowerer::GenerateThrow(IR::Opnd* errorCode, IR::Instr * instr) const
 
 void
 Lowerer::LowerDivI4(IR::Instr * instr)
-{
+{TRACE_IT(12709);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Div_I4);
 
@@ -23251,20 +23251,20 @@ Lowerer::LowerDivI4(IR::Instr * instr)
         instr->GetSrc1() && instr->GetSrc1()->IsInt64() ||
         instr->GetSrc2() && instr->GetSrc2()->IsInt64()
         )
-    {
+    {TRACE_IT(12710);
         m_lowererMD.EmitInt64Instr(instr);
         return;
     }
 #endif
 
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {TRACE_IT(12711);
         LowerDivI4Common(instr);
         return;
     }
 
     if(!instr->HasBailOutInfo())
-    {
+    {TRACE_IT(12712);
         m_lowererMD.EmitInt4Instr(instr);
         return;
     }
@@ -23296,7 +23296,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
     }
 
     if (denominatorOpnd->IsIntConstOpnd() && Math::IsPow2(denominatorOpnd->AsIntConstOpnd()->AsInt32()))
-    {
+    {TRACE_IT(12713);
         Assert((bailOutKind & (IR::BailOutOnNegativeZero | IR::BailOutOnDivByZero)) == 0);
         int pow2 = denominatorOpnd->AsIntConstOpnd()->AsInt32();
         InsertTestBranch(nominatorOpnd, IR::IntConstOpnd::New(pow2 - 1, TyInt32, this->m_func, true),
@@ -23307,7 +23307,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
         LowererMD::Legalize(nonBailOutInstr);
     }
     else
-    {
+    {TRACE_IT(12714);
         if (bailOutKind & IR::BailOutOnDivByZero)
         {
             // Bailout if denominator is 0
@@ -23319,7 +23319,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
 
         IR::Opnd * resultOpnd = nonBailOutInstr->GetDst();
         if (bailOutKind & IR::BailOutOnNegativeZero)
-        {
+        {TRACE_IT(12715);
             //      TEST result, result
             //      JNE skipNegDenominatorCheckLabel         // Result not 0
             //      TEST denominator, denominator
@@ -23345,7 +23345,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
 
 void
 Lowerer::LowerRemR8(IR::Instr * instr)
-{
+{TRACE_IT(12716);
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_A);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
@@ -23358,10 +23358,10 @@ Lowerer::LowerRemR8(IR::Instr * instr)
 
 void
 Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
-{
+{TRACE_IT(12717);
     Func * func = m_func;
     if (PHASE_OFF(Js::NewScopeSlotFastPathPhase, func))
-    {
+    {TRACE_IT(12718);
         this->LowerUnaryHelperMemWithFunctionInfo(instr, IR::HelperOP_NewScopeSlots);
         return;
     }
@@ -23381,7 +23381,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     // Note: stack allocation of both scope slots and frame display are done together
     // in lowering of NewStackFrameDisplay
     if (!doStackSlots)
-    {
+    {TRACE_IT(12719);
         GenerateRecyclerAlloc(IR::HelperAllocMemForVarArray, allocSize, dst, instr);
     }
     GenerateMemInit(dst, Js::ScopeSlots::EncodedSlotCountSlotIndex * sizeof(Js::Var),
@@ -23396,7 +23396,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     // avoid using a register for the undefined pointer if we are going to assign 1 or 2
 
     if (actualSlotCount > 2 && !undefinedOpnd->IsRegOpnd())
-    {
+    {TRACE_IT(12720);
 
         // mov undefinedOpnd, undefined
         IR::RegOpnd * regOpnd = IR::RegOpnd::New(TyVar, func);
@@ -23407,7 +23407,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     int const loopUnrollCount = 8;
 
     if (actualSlotCount <= loopUnrollCount * 2)
-    {
+    {TRACE_IT(12721);
         // Just generate all the assignment in straight line code
         //  mov[dst + Js::FirstSlotIndex], undefinedOpnd
         // ...
@@ -23418,7 +23418,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
         }
     }
     else
-    {
+    {TRACE_IT(12722);
         // Just generate all the assignment in loop of loopUnrollCount and the rest as straight line code
         //
         //      lea currOpnd, [dst + sizeof(Var) * (loopAssignCount + Js::ScopeSlots::FirstSlotIndex - loopUnrollCount)];
@@ -23472,23 +23472,23 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     }
 
     if (!doStackSlots)
-    {
+    {TRACE_IT(12723);
         InsertMove(IR::RegOpnd::New(instr->m_func->GetLocalClosureSym(), TyMachPtr, func), dst, instr);
     }
     instr->Remove();
 }
 
 void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
-{
+{TRACE_IT(12724);
     bool isStrict = instr->m_func->GetJITFunctionBody()->IsStrictMode();
     if (isStrict)
-    {
+    {TRACE_IT(12725);
         if (instr->GetSrc2())
-        {
+        {TRACE_IT(12726);
             this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdStrictInnerFrameDisplay);
         }
         else
-        {
+        {TRACE_IT(12727);
 #if DBG
             instr->m_opcode = Js::OpCode::LdInnerFrameDisplayNoParent;
 #endif
@@ -23496,13 +23496,13 @@ void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
         }
     }
     else
-    {
+    {TRACE_IT(12728);
         if (instr->GetSrc2())
-        {
+        {TRACE_IT(12729);
             this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdInnerFrameDisplay);
         }
         else
-        {
+        {TRACE_IT(12730);
 #if DBG
             instr->m_opcode = Js::OpCode::LdInnerFrameDisplayNoParent;
 #endif
@@ -23512,7 +23512,7 @@ void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
 }
 
 void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
-{
+{TRACE_IT(12731);
     bool isStrict = instr->m_func->GetJITFunctionBody()->IsStrictMode();
     uint16 envDepth = instr->m_func->GetJITFunctionBody()->GetEnvDepth();
     Func *func = this->m_func;
@@ -23525,15 +23525,15 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
     if (envDepth == (uint16)-1 ||
         (!doStackFrameDisplay && (instr->isNonFastPathFrameDisplay || instr->GetDst()->AsRegOpnd()->m_sym->IsTempReg(instr->m_func))) ||
         PHASE_OFF(Js::FrameDisplayFastPathPhase, func))
-    {
+    {TRACE_IT(12732);
         if (isStrict)
-        {
+        {TRACE_IT(12733);
             if (instr->GetSrc2())
-            {
+            {TRACE_IT(12734);
                 this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdStrictFrameDisplay);
             }
             else
-            {
+            {TRACE_IT(12735);
 #if DBG
                 instr->m_opcode = Js::OpCode::LdFrameDisplayNoParent;
 #endif
@@ -23541,13 +23541,13 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
             }
         }
         else
-        {
+        {TRACE_IT(12736);
             if (instr->GetSrc2())
-            {
+            {TRACE_IT(12737);
                 this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdFrameDisplay);
             }
             else
-            {
+            {TRACE_IT(12738);
 #if DBG
                 instr->m_opcode = Js::OpCode::LdFrameDisplayNoParent;
 #endif
@@ -23565,7 +23565,7 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
 
     uint allocSize = sizeof(Js::FrameDisplay) + (frameDispLength * sizeof(Js::Var));
     if (doStackFrameDisplay)
-    {
+    {TRACE_IT(12739);
         IR::Instr *insertInstr = func->GetFunctionEntryInsertionPoint();
 
         // Initialize stack pointers for scope slots and frame display together at the top of the function
@@ -23602,17 +23602,17 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
         m_lowererMD.CreateAssign(IR::SymOpnd::New(m_func->GetLocalClosureSym(), 0, TyMachReg, m_func), currentFrameOpnd, insertInstr);
     }
     else
-    {
+    {TRACE_IT(12740);
         GenerateRecyclerAlloc(IR::HelperAllocMemForFrameDisplay, allocSize, dstOpnd, instr);
     }
 
     // Copy contents of environment
     // Work back to front to leave the head element(s) in cache
     if (envDepth > 0)
-    {
+    {TRACE_IT(12741);
         IR::RegOpnd *envOpnd = instr->UnlinkSrc2()->AsRegOpnd();
         for (uint16 i = envDepth; i >= 1; i--)
-        {
+        {TRACE_IT(12742);
             IR::Opnd *scopeOpnd = IR::RegOpnd::New(TyMachReg, func);
             IR::Opnd *envLoadOpnd =
                 IR::IndirOpnd::New(envOpnd, Js::FrameDisplay::GetOffsetOfScopes() + ((i - 1) * sizeof(Js::Var)), TyMachReg, func);
@@ -23643,12 +23643,12 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
 }
 
 IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Func *const func) const
-{
+{TRACE_IT(12743);
     return IR::AddrOpnd::New(func->GetJITFunctionBody()->GetAddr(), IR::AddrOpndKindDynamicFunctionBody, m_func, true);
 }
 
 IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Js::FunctionBody *const functionBody) const
-{
+{TRACE_IT(12744);
     // TODO: OOP JIT, CreateFunctionBodyOpnd
     Assert(!m_func->IsOOPJIT());
     return IR::AddrOpnd::New(functionBody, IR::AddrOpndKindDynamicFunctionBody, m_func, true);
@@ -23656,9 +23656,9 @@ IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Js::FunctionBody *const functionBo
 
 bool
 Lowerer::GenerateRecyclerOrMarkTempAlloc(IR::Instr * instr, IR::RegOpnd * dstOpnd, IR::JnHelperMethod allocHelper, size_t allocSize, IR::SymOpnd ** tempObjectSymOpnd)
-{
+{TRACE_IT(12745);
     if (instr->dstIsTempObject)
-    {
+    {TRACE_IT(12746);
         *tempObjectSymOpnd = GenerateMarkTempAlloc(dstOpnd, allocSize, instr);
         return false;
     }
@@ -23670,7 +23670,7 @@ Lowerer::GenerateRecyclerOrMarkTempAlloc(IR::Instr * instr, IR::RegOpnd * dstOpn
 
 IR::SymOpnd *
 Lowerer::GenerateMarkTempAlloc(IR::RegOpnd *const dstOpnd, const size_t allocSize, IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12747);
     Assert(dstOpnd);
     Assert(allocSize != 0);
     Assert(insertBeforeInstr);
@@ -23689,14 +23689,14 @@ Lowerer::GenerateMarkTempAlloc(IR::RegOpnd *const dstOpnd, const size_t allocSiz
         GenerateMemInit(dstOpnd, -(int)sizeof(void *), IR::AddrOpnd::NewNull(func), insertBeforeInstr, false);
     }
     else if (!PHASE_OFF(Js::HoistMarkTempInitPhase, this->m_func))
-    {
+    {TRACE_IT(12748);
         InsertMove(IR::SymOpnd::New(tempObjectSym, TyMachPtr, func), IR::AddrOpnd::NewNull(func), this->outerMostLoopLabel, false);
     }
     return tempObjectOpnd;
 }
 
 void Lowerer::LowerBrFncCachedScopeEq(IR::Instr *instr)
-{
+{TRACE_IT(12749);
     Assert(instr->m_opcode == Js::OpCode::BrFncCachedScopeEq || instr->m_opcode == Js::OpCode::BrFncCachedScopeNeq);
     Js::OpCode opcode = (instr->m_opcode == Js::OpCode::BrFncCachedScopeEq ? Js::OpCode::BrEq_A : Js::OpCode::BrNeq_A);
 
@@ -23709,7 +23709,7 @@ void Lowerer::LowerBrFncCachedScopeEq(IR::Instr *instr)
 }
 
 IR::Instr* Lowerer::InsertLoweredRegionStartMarker(IR::Instr* instrToInsertBefore)
-{
+{TRACE_IT(12750);
     AssertMsg(instrToInsertBefore->m_prev != nullptr, "Can't insert lowered region start marker as the first instr in the func.");
     IR::LabelInstr* startMarkerLabel = IR::LabelInstr::New(Js::OpCode::Label, instrToInsertBefore->m_func);
     instrToInsertBefore->InsertBefore(startMarkerLabel);
@@ -23717,7 +23717,7 @@ IR::Instr* Lowerer::InsertLoweredRegionStartMarker(IR::Instr* instrToInsertBefor
 }
 
 IR::Instr* Lowerer::RemoveLoweredRegionStartMarker(IR::Instr* startMarkerInstr)
-{
+{TRACE_IT(12751);
     AssertMsg(startMarkerInstr->m_prev != nullptr, "Lowered region start marker became the first instruction in the func after lowering?");
     IR::Instr* prevInstr = startMarkerInstr->m_prev;
     startMarkerInstr->Remove();
@@ -23725,10 +23725,10 @@ IR::Instr* Lowerer::RemoveLoweredRegionStartMarker(IR::Instr* startMarkerInstr)
 }
 
 IR::Instr* Lowerer::GetLdSpreadIndicesInstr(IR::Instr *instr)
-{
+{TRACE_IT(12752);
     IR::Opnd *src2 = instr->GetSrc2();
     if (!src2->IsSymOpnd())
-    {
+    {TRACE_IT(12753);
         return nullptr;
     }
 
@@ -23741,7 +23741,7 @@ IR::Instr* Lowerer::GetLdSpreadIndicesInstr(IR::Instr *instr)
 }
 
 bool Lowerer::IsSpreadCall(IR::Instr *instr)
-{
+{TRACE_IT(12754);
     IR::Instr *lastInstr = GetLdSpreadIndicesInstr(instr);
     return lastInstr && lastInstr->m_opcode == Js::OpCode::LdSpreadIndices;
 }
@@ -23751,13 +23751,13 @@ bool Lowerer::IsSpreadCall(IR::Instr *instr)
 // Returns nullptr/NoOP for non-debugger code path.
 //static
 IR::LabelInstr* Lowerer::InsertContinueAfterExceptionLabelForDebugger(Func* func, IR::Instr* insertAfterInstr, bool isHelper)
-{
+{TRACE_IT(12755);
     Assert(func);
     Assert(insertAfterInstr);
 
     IR::LabelInstr* continueAfterExLabel = nullptr;
     if (func->IsJitInDebugMode())
-    {
+    {TRACE_IT(12756);
         continueAfterExLabel = IR::LabelInstr::New(Js::OpCode::Label, func, isHelper);
         insertAfterInstr->InsertAfter(continueAfterExLabel);
     }
@@ -23765,7 +23765,7 @@ IR::LabelInstr* Lowerer::InsertContinueAfterExceptionLabelForDebugger(Func* func
 }
 
 void Lowerer::GenerateSingleCharStrJumpTableLookup(IR::Instr * instr)
-{
+{TRACE_IT(12757);
     IR::MultiBranchInstr * multiBrInstr = instr->AsBranchInstr()->AsMultiBrInstr();
     Func * func = instr->m_func;
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
@@ -23820,7 +23820,7 @@ void Lowerer::GenerateSingleCharStrJumpTableLookup(IR::Instr * instr)
 }
 
 void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
-{
+{TRACE_IT(12758);
     /* Collect information about string length in all the case*/
     charcount_t minLength = UINT_MAX;
     charcount_t maxLength = 0;
@@ -23831,7 +23831,7 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
         minLength = min(minLength, str->GetLength());
         maxLength = max(maxLength, str->GetLength());
         if (len < 32)
-        {
+        {TRACE_IT(12759);
             bvLength.Set(len);
         }
     });
@@ -23846,7 +23846,7 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
         InsertCompareBranch(strLengthOpnd, IR::IntConstOpnd::New(minLength, TyUint32, func), Js::OpCode::BrNeq_A, defaultLabelInstr, instr);
     }
     else if (maxLength < 32)
-    {
+    {TRACE_IT(12760);
         // Generate bit filter
 
         // Jump to default label if the bit is not on for the length % 32
@@ -23856,7 +23856,7 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
         InsertTestBranch(strLengthOpnd, IR::IntConstOpnd::New(UINT32_MAX ^ 31, TyUint32, func), Js::OpCode::BrNeq_A, defaultLabelInstr, instr);
     }
     else
-    {
+    {TRACE_IT(12761);
         // CONSIDER: Generate range filter
     }
     this->LowerMultiBr(instr, IR::HelperOp_SwitchStringLookUp);
@@ -23864,9 +23864,9 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerTry(IR::Instr* instr, bool tryCatch)
-{
+{TRACE_IT(12762);
     if (this->m_func->hasBailout)
-    {
+    {TRACE_IT(12763);
         this->EnsureBailoutReturnValueSym();
     }
     this->EnsureHasBailedOutSym();
@@ -23880,9 +23880,9 @@ Lowerer::LowerTry(IR::Instr* instr, bool tryCatch)
 
 void
 Lowerer::EnsureBailoutReturnValueSym()
-{
+{TRACE_IT(12764);
     if (this->m_func->m_bailoutReturnValueSym == nullptr)
-    {
+    {TRACE_IT(12765);
         this->m_func->m_bailoutReturnValueSym = StackSym::New(TyVar, this->m_func);
         this->m_func->StackAllocate(this->m_func->m_bailoutReturnValueSym, sizeof(Js::Var));
     }
@@ -23890,9 +23890,9 @@ Lowerer::EnsureBailoutReturnValueSym()
 
 void
 Lowerer::EnsureHasBailedOutSym()
-{
+{TRACE_IT(12766);
     if (this->m_func->m_hasBailedOutSym == nullptr)
-    {
+    {TRACE_IT(12767);
         this->m_func->m_hasBailedOutSym = StackSym::New(TyUint32, this->m_func);
         this->m_func->StackAllocate(this->m_func->m_hasBailedOutSym, MachRegInt);
     }
@@ -23900,18 +23900,18 @@ Lowerer::EnsureHasBailedOutSym()
 
 void
 Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel)
-{
+{TRACE_IT(12768);
     Assert(this->m_func->isPostLayout);
     Assert(region->GetType() == RegionTypeTry || region->GetType() == RegionTypeCatch);
 
     if (!region->returnThunkEmitted)
-    {
+    {TRACE_IT(12769);
         this->m_func->m_exitInstr->InsertAfter(region->GetBailoutReturnThunkLabel());
 
         bool newLastInstrInserted = false;
         IR::Instr * insertBeforeInstr = region->GetBailoutReturnThunkLabel()->m_next;
         if (insertBeforeInstr == nullptr)
-        {
+        {TRACE_IT(12770);
             Assert(this->m_func->m_exitInstr == this->m_func->m_tailInstr);
             insertBeforeInstr = IR::Instr::New(Js::OpCode::Nop, this->m_func);
             newLastInstrInserted = true;
@@ -23921,17 +23921,17 @@ Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel
 
         IR::LabelOpnd * continuationAddr;
         if (region->GetParent()->GetType() != RegionTypeRoot)
-        {
+        {TRACE_IT(12771);
             continuationAddr = IR::LabelOpnd::New(region->GetParent()->GetBailoutReturnThunkLabel(), this->m_func);
         }
         else
-        {
+        {TRACE_IT(12772);
             continuationAddr = IR::LabelOpnd::New(restoreLabel, this->m_func);
         }
 
         IR::Instr * lastInstr = m_lowererMD.LowerEHRegionReturn(insertBeforeInstr, continuationAddr);
         if (newLastInstrInserted)
-        {
+        {TRACE_IT(12773);
             Assert(this->m_func->m_tailInstr == insertBeforeInstr);
             insertBeforeInstr->Remove();
             this->m_func->m_tailInstr = lastInstr;
@@ -23943,7 +23943,7 @@ Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel
 
 void
 Lowerer::SetHasBailedOut(IR::Instr * bailoutInstr)
-{
+{TRACE_IT(12774);
     Assert(this->m_func->isPostLayout);
     IR::SymOpnd * hasBailedOutOpnd = IR::SymOpnd::New(this->m_func->m_hasBailedOutSym, TyUint32, this->m_func);
     IR::Instr * setInstr = IR::Instr::New(LowererMD::GetStoreOp(TyUint32), hasBailedOutOpnd, IR::IntConstOpnd::New(1, TyUint32, this->m_func), this->m_func);
@@ -23953,20 +23953,20 @@ Lowerer::SetHasBailedOut(IR::Instr * bailoutInstr)
 
 IR::Instr*
 Lowerer::EmitEHBailoutStackRestore(IR::Instr * bailoutInstr)
-{
+{TRACE_IT(12775);
     Assert(this->m_func->isPostLayout);
 
 #ifdef _M_IX86
     BailOutInfo * bailoutInfo = bailoutInstr->GetBailOutInfo();
     if (bailoutInfo->startCallCount != 0)
-    {
+    {TRACE_IT(12776);
         uint totalStackToBeRestored = 0;
         uint stackAlignmentAdjustment = 0;
         for (uint i = 0; i < bailoutInfo->startCallCount; i++)
-        {
+        {TRACE_IT(12777);
             uint startCallOutParamCount = bailoutInfo->GetStartCallOutParamCount(i);
             if ((Math::Align<int32>(startCallOutParamCount * MachPtr, MachStackAlignment) - (startCallOutParamCount * MachPtr)) != 0)
-            {
+            {TRACE_IT(12778);
                 stackAlignmentAdjustment++;
             }
         }
@@ -23986,7 +23986,7 @@ Lowerer::EmitEHBailoutStackRestore(IR::Instr * bailoutInstr)
 
 void
 Lowerer::EmitSaveEHBailoutReturnValueAndJumpToRetThunk(IR::Instr * insertAfterInstr)
-{
+{TRACE_IT(12779);
     Assert(this->m_func->isPostLayout);
     // After the CALL SaveAllRegistersAndBailout instruction, emit
     //
@@ -24005,7 +24005,7 @@ Lowerer::EmitSaveEHBailoutReturnValueAndJumpToRetThunk(IR::Instr * insertAfterIn
 
 void
 Lowerer::EmitRestoreReturnValueFromEHBailout(IR::LabelInstr * restoreLabel, IR::LabelInstr * epilogLabel)
-{
+{TRACE_IT(12780);
     Assert(this->m_func->isPostLayout);
     //          JMP $epilog
     // $restore:
@@ -24025,7 +24025,7 @@ Lowerer::EmitRestoreReturnValueFromEHBailout(IR::LabelInstr * restoreLabel, IR::
 
 void
 Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool jumpIfBitOn, IR::LabelInstr * targetLabel, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(12781);
 #if defined(_M_IX86) || defined(_M_AMD64)
     // Generate bit test and branch
     // BT bitMaskOpnd, bitIndex
@@ -24037,7 +24037,7 @@ Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool j
     insertBeforeInstr->InsertBefore(instr);
 
     if (!(bitMaskOpnd->IsRegOpnd() || bitMaskOpnd->IsIndirOpnd() || bitMaskOpnd->IsMemRefOpnd()))
-    {
+    {TRACE_IT(12782);
         instr->HoistSrc1(Js::OpCode::MOV);
     }
 
@@ -24063,12 +24063,12 @@ Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool j
 //
 void
 Lowerer::GenerateStringTest(IR::RegOpnd *srcReg, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr * continueLabel, bool generateObjectCheck)
-{
+{TRACE_IT(12783);
     Assert(srcReg);
     if (!srcReg->GetValueType().IsString())
-    {
+    {TRACE_IT(12784);
         if (generateObjectCheck && !srcReg->IsNotTaggedValue())
-        {
+        {TRACE_IT(12785);
             this->m_lowererMD.GenerateObjectTest(srcReg, insertInstr, labelHelper);
         }
 
@@ -24089,9 +24089,9 @@ Lowerer::GenerateStringTest(IR::RegOpnd *srcReg, IR::Instr *insertInstr, IR::Lab
 
 void
 Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
-{
+{TRACE_IT(12786);
     if (PHASE_OFF(Js::OtherFastPathPhase, this->m_func) || noMathFastPath || !instrLoad->GetSrc1()->IsRegOpnd())
-    {
+    {TRACE_IT(12787);
         this->LowerUnaryHelperMemWithTemp2(instrLoad, IR_HELPER_OP_FULL_OR_INPLACE(ConvNumber));
         return;
     }
@@ -24109,26 +24109,26 @@ Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
     IR::Instr *instr;
 
     if (src1->IsTaggedInt())
-    {
+    {TRACE_IT(12788);
         isInt = true;
     }
     else if (src1->IsNotInt())
-    {
+    {TRACE_IT(12789);
         isNotInt = true;
     }
     if (!isNotInt)
-    {
+    {TRACE_IT(12790);
         //      MOV dst, src1
 
         instr = LowererMD::CreateAssign(instrLoad->GetDst(), src1, instrLoad);
 
         if (!isInt)
-        {
+        {TRACE_IT(12791);
             labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             bool didTest = m_lowererMD.GenerateObjectTest(src1, instrLoad, labelDone);
 
             if (didTest)
-            {
+            {TRACE_IT(12792);
                 // This label is needed only to mark the helper block
                 IR::LabelInstr * labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
                 instrLoad->InsertBefore(labelHelper);
@@ -24137,25 +24137,25 @@ Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
     }
 
     if (!isInt)
-    {
+    {TRACE_IT(12793);
         if (labelDone)
-        {
+        {TRACE_IT(12794);
             instrLoad->InsertAfter(labelDone);
         }
         this->LowerUnaryHelperMemWithTemp2(instrLoad, IR_HELPER_OP_FULL_OR_INPLACE(ConvNumber));
     }
     else
-    {
+    {TRACE_IT(12795);
         instrLoad->Remove();
     }
 }
 
 IR::Opnd *
 Lowerer::LoadSlotArrayWithCachedLocalType(IR::Instr * instrInsert, IR::PropertySymOpnd *propertySymOpnd)
-{
+{TRACE_IT(12796);
     IR::RegOpnd *opndBase = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {TRACE_IT(12797);
         // If we use the auxiliary slot array, load it and return it
         IR::RegOpnd *opndSlotArray = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::Opnd *opndIndir = IR::IndirOpnd::New(opndBase, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, this->m_func);
@@ -24164,7 +24164,7 @@ Lowerer::LoadSlotArrayWithCachedLocalType(IR::Instr * instrInsert, IR::PropertyS
         return opndSlotArray;
     }
     else
-    {
+    {TRACE_IT(12798);
         // If we use inline slot return the address to the object header
         return opndBase;
     }
@@ -24172,13 +24172,13 @@ Lowerer::LoadSlotArrayWithCachedLocalType(IR::Instr * instrInsert, IR::PropertyS
 
 IR::Opnd *
 Lowerer::LoadSlotArrayWithCachedProtoType(IR::Instr * instrInsert, IR::PropertySymOpnd *propertySymOpnd)
-{
+{TRACE_IT(12799);
     // Get the prototype object from the cache
     intptr_t prototypeObject = propertySymOpnd->GetProtoObject();
     Assert(prototypeObject != 0);
 
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {TRACE_IT(12800);
         // If we use the auxiliary slot array, load it from the prototype object and return it
         IR::RegOpnd *opndSlotArray = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::Opnd *opnd = IR::MemRefOpnd::New((char*)prototypeObject + Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, this->m_func, IR::AddrOpndKindDynamicAuxSlotArrayRef);
@@ -24186,7 +24186,7 @@ Lowerer::LoadSlotArrayWithCachedProtoType(IR::Instr * instrInsert, IR::PropertyS
         return opndSlotArray;
     }
     else
-    {
+    {TRACE_IT(12801);
         // If we use inline slot return the address of the prototype object
         return IR::MemRefOpnd::New(prototypeObject, TyMachReg, this->m_func);
     }
@@ -24194,7 +24194,7 @@ Lowerer::LoadSlotArrayWithCachedProtoType(IR::Instr * instrInsert, IR::PropertyS
 
 IR::Instr *
 Lowerer::LowerLdAsmJsEnv(IR::Instr * instr)
-{
+{TRACE_IT(12802);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     IR::Opnd * functionObjOpnd;
     IR::Instr * instrPrev = this->m_lowererMD.LoadFunctionObjectOpnd(instr, functionObjOpnd);
@@ -24208,7 +24208,7 @@ Lowerer::LowerLdAsmJsEnv(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdNativeCodeData(IR::Instr * instr)
-{
+{TRACE_IT(12803);
     Assert(!instr->GetSrc1());
     Assert(m_func->IsTopFunc());
     IR::Instr * instrPrev = instr->m_prev;
@@ -24221,19 +24221,19 @@ Lowerer::LowerLdNativeCodeData(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdEnv(IR::Instr * instr)
-{
+{TRACE_IT(12804);
     IR::Opnd * src1 = instr->GetSrc1();
     IR::Opnd * functionObjOpnd;
     IR::Instr * instrPrev = this->m_lowererMD.LoadFunctionObjectOpnd(instr, functionObjOpnd);
     Assert(!instr->GetSrc1());
     if (src1 == nullptr || functionObjOpnd->IsRegOpnd())
-    {
+    {TRACE_IT(12805);
         IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(functionObjOpnd->AsRegOpnd(),
             Js::ScriptFunction::GetOffsetOfEnvironment(), TyMachPtr, m_func);
         instr->SetSrc1(indirOpnd);
     }
     else
-    {
+    {TRACE_IT(12806);
         Assert(functionObjOpnd->IsAddrOpnd());
         IR::AddrOpnd* functionObjAddrOpnd = functionObjOpnd->AsAddrOpnd();
         IR::MemRefOpnd* functionEnvMemRefOpnd = IR::MemRefOpnd::New((void *)((intptr_t)functionObjAddrOpnd->m_address + Js::ScriptFunction::GetOffsetOfEnvironment()),
@@ -24247,7 +24247,7 @@ Lowerer::LowerLdEnv(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
-{
+{TRACE_IT(12807);
     IR::Instr *instrPrev = instr->m_prev;
     IR::Instr *insertInstr = instr->m_next;
     IR::AddrOpnd *addrOpnd = instr->UnlinkSrc2()->AsAddrOpnd();
@@ -24259,7 +24259,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     uint32 frameDisplayOffset = Js::FrameDisplay::GetOffsetOfScopes()/sizeof(Js::Var);
 
     if (record->slotId != (uint32)-1 && record->slotId > frameDisplayOffset)
-    {
+    {TRACE_IT(12808);
         // Check that the frame display has enough scopes in it to satisfy the code.
         errorLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         continueLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -24276,12 +24276,12 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     {
         // Check the size of each of the slot arrays in the scope chain.
         FOREACH_HASHTABLE_ENTRY(uint32, bucket, record->table)
-        {
+        {TRACE_IT(12809);
             uint32 slotId = bucket.element;
             if (slotId != (uint32)-1 && slotId > Js::ScopeSlots::FirstSlotIndex)
-            {
+            {TRACE_IT(12810);
                 if (errorLabel == nullptr)
-                {
+                {TRACE_IT(12811);
                     errorLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
                     continueLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                 }
@@ -24304,7 +24304,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     }
 
     if (errorLabel)
-    {
+    {TRACE_IT(12812);
         InsertBranch(Js::OpCode::Br, continueLabel, insertInstr);
 
         insertInstr->InsertBefore(errorLabel);
@@ -24321,7 +24321,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerSlotArrayCheck(IR::Instr * instr)
-{
+{TRACE_IT(12813);
     IR::Instr *instrPrev = instr->m_prev;
     IR::Instr *insertInstr = instr->m_next;
 
@@ -24333,9 +24333,9 @@ Lowerer::LowerSlotArrayCheck(IR::Instr * instr)
     Assert(slotId != (uint32)-1 && slotId >= Js::ScopeSlots::FirstSlotIndex);
 
     if (slotId > Js::ScopeSlots::FirstSlotIndex)
-    {
+    {TRACE_IT(12814);
         if (m_func->DoStackFrameDisplay() && stackSym->m_id == m_func->GetLocalClosureSym()->m_id)
-        {
+        {TRACE_IT(12815);
             // The pointer we loaded points to the reserved/known address where the slot array can be boxed.
             // Deref to get the real value.
             IR::IndirOpnd * srcOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(stackSym, TyVar, m_func), 0, TyVar, m_func);
@@ -24373,7 +24373,7 @@ Lowerer::LoadIndexFromLikelyFloat(
     IR::LabelInstr *const notIntLabel,
     IR::LabelInstr *const negativeLabel,
     IR::Instr *const insertBeforeInstr)
-{
+{TRACE_IT(12816);
 #ifdef _M_IX86
     // We should only generate this if sse2 is available
     Assert(AutoSystemInfo::Data.SSE2Available());
@@ -24437,22 +24437,22 @@ Lowerer::LoadIndexFromLikelyFloat(
 
 void
 Lowerer::AllocStackForInObjectEnumeratorArray()
-{
+{TRACE_IT(12817);
     Func * func = this->m_func;
     Assert(func->IsTopFunc());
     if (func->m_forInLoopMaxDepth)
-    {
+    {TRACE_IT(12818);
         func->m_forInEnumeratorArrayOffset = func->StackAllocate(sizeof(Js::ForInObjectEnumerator) * this->m_func->m_forInLoopMaxDepth);
     }
 }
 
 IR::RegOpnd *
 Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(12819);
     Func * func = insertBeforeInstr->m_func;
 
     if (forInEnumeratorOpnd->IsSymOpnd())
-    {
+    {TRACE_IT(12820);
         StackSym * stackSym = forInEnumeratorOpnd->AsSymOpnd()->GetStackSym();
         Assert(!stackSym->m_allocated);
         uint forInLoopLevel = stackSym->m_offset;
@@ -24461,10 +24461,10 @@ Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr *
         stackSym->m_allocated = true;
     }
     else
-    {
+    {TRACE_IT(12821);
         Assert(forInEnumeratorOpnd->IsIndirOpnd());
         if (forInEnumeratorOpnd->AsIndirOpnd()->GetOffset() == 0)
-        {
+        {TRACE_IT(12822);
             return forInEnumeratorOpnd->AsIndirOpnd()->GetBaseOpnd();
         }
     }
@@ -24475,7 +24475,7 @@ Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr *
 
 void
 Lowerer::GenerateHasObjectArrayCheck(IR::RegOpnd * objectOpnd, IR::RegOpnd * typeOpnd, IR::LabelInstr * hasObjectArrayLabel, IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(12823);
     //   CMP [objectOpnd + offset(objectArray)], nullptr
     //   JEQ $noObjectArrayLabel
     //   TEST[objectOpnd + offset(objectArray)], ObjectArrayFlagsTag        (used as flags)
@@ -24503,7 +24503,7 @@ Lowerer::GenerateHasObjectArrayCheck(IR::RegOpnd * objectOpnd, IR::RegOpnd * typ
 
 void
 Lowerer::GenerateInitForInEnumeratorFastPath(IR::Instr * instr, Js::ForInCache * forInCache)
-{
+{TRACE_IT(12824);
     Func * func = this->m_func;
 
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
@@ -24634,11 +24634,11 @@ Lowerer::GenerateInitForInEnumeratorFastPath(IR::Instr * instr, Js::ForInCache *
 
 void
 Lowerer::LowerInitForInEnumerator(IR::Instr * instr)
-{
+{TRACE_IT(12825);
     Js::ForInCache * forInCache = nullptr;
     Func * func = instr->m_func;
     if (instr->IsProfiledInstr())
-    {
+    {TRACE_IT(12826);
         uint profileId = instr->AsProfiledInstr()->u.profileId;
         forInCache = instr->m_func->GetJITFunctionBody()->GetForInCache(profileId);
         Assert(forInCache != nullptr);
@@ -24662,7 +24662,7 @@ Lowerer::LowerInitForInEnumerator(IR::Instr * instr)
 
 IR::LabelInstr *
 Lowerer::InsertLoopTopLabel(IR::Instr * insertBeforeInstr)
-{
+{TRACE_IT(12827);
     Func * func = this->m_func;
     IR::LabelInstr * loopTopLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
     loopTopLabel->m_isLoopTop = true;
@@ -24681,7 +24681,7 @@ void
 Lowerer::LegalizeVerifyRange(IR::Instr * instrStart, IR::Instr * instrLast)
 {
     FOREACH_INSTR_IN_RANGE(verifyLegalizeInstr, instrStart, instrLast)
-    {
+    {TRACE_IT(12828);
         LowererMD::Legalize<true>(verifyLegalizeInstr);
     }
     NEXT_INSTR_IN_RANGE;

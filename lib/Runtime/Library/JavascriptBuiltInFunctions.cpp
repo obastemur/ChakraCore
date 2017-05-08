@@ -22,9 +22,9 @@ namespace Js
 
     FunctionInfo *
     JavascriptBuiltInFunction::GetFunctionInfo(Js::LocalFunctionId builtinId)
-    {
+    {TRACE_IT(58230);
         if (IsValidId(builtinId))
-        {
+        {TRACE_IT(58231);
             return builtInFunctionInfo[builtinId];
         }
         return nullptr;
@@ -32,13 +32,13 @@ namespace Js
 
     bool
     JavascriptBuiltInFunction::CanChangeEntryPoint(Js::LocalFunctionId builtInId)
-    {
+    {TRACE_IT(58232);
         return IsValidId(builtInId);
     }
 
     bool
     JavascriptBuiltInFunction::IsValidId(Js::LocalFunctionId builtInId)
-    {
+    {TRACE_IT(58233);
         return builtInId < MaxBuiltInEnum;
     }
 };

@@ -17,8 +17,8 @@ enum
 class ParseExceptionObject
 {
 public:
-    ParseExceptionObject(HRESULT hr) : m_hr(hr) {}
-    HRESULT GetError() { return m_hr; }
+    ParseExceptionObject(HRESULT hr) : m_hr(hr) {TRACE_IT(32985);}
+    HRESULT GetError() {TRACE_IT(32986); return m_hr; }
 private:
     HRESULT m_hr;
 };
@@ -38,7 +38,7 @@ public:
 #if DEBUG
     BOOL fInited;
     ErrHandler()
-    { fInited = FALSE; }
+    {TRACE_IT(32987); fInited = FALSE; }
 #endif //DEBUG
 };
 

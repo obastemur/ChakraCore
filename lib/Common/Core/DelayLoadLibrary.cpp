@@ -6,39 +6,39 @@
 #include "Core/DelayLoadLibrary.h"
 
 DelayLoadLibrary::DelayLoadLibrary()
-{
+{TRACE_IT(19988);
     m_hModule = nullptr;
     m_isInit = false;
 }
 
 DelayLoadLibrary::~DelayLoadLibrary()
-{
+{TRACE_IT(19989);
     if (m_hModule)
-    {
+    {TRACE_IT(19990);
         FreeLibrary(m_hModule);
         m_hModule = nullptr;
     }
 }
 
 void DelayLoadLibrary::Ensure(DWORD dwFlags)
-{
+{TRACE_IT(19991);
     if (!m_isInit)
-    {
+    {TRACE_IT(19992);
         m_hModule = LoadLibraryEx(GetLibraryName(), nullptr, dwFlags);
         m_isInit = true;
     }
 }
 
 void DelayLoadLibrary::EnsureFromSystemDirOnly()
-{
+{TRACE_IT(19993);
     Ensure(LOAD_LIBRARY_SEARCH_SYSTEM32);
 }
 
 
 FARPROC DelayLoadLibrary::GetFunction(__in LPCSTR lpFunctionName)
-{
+{TRACE_IT(19994);
     if (m_hModule)
-    {
+    {TRACE_IT(19995);
         return GetProcAddress(m_hModule, lpFunctionName);
     }
 
@@ -46,7 +46,7 @@ FARPROC DelayLoadLibrary::GetFunction(__in LPCSTR lpFunctionName)
 }
 
 bool DelayLoadLibrary::IsAvailable()
-{
+{TRACE_IT(19996);
     return m_hModule != nullptr;
 }
 
@@ -56,7 +56,7 @@ static NtdllLibrary NtdllLibraryObject;
 NtdllLibrary* NtdllLibrary::Instance = &NtdllLibraryObject;
 
 LPCTSTR NtdllLibrary::GetLibraryName() const
-{
+{TRACE_IT(19997);
     return _u("ntdll.dll");
 }
 
@@ -69,14 +69,14 @@ DWORD NtdllLibrary::AddGrowableFunctionTable( _Out_ PVOID * DynamicTable,
     _In_ DWORD MaximumEntryCount,
     _In_ ULONG_PTR RangeBase,
     _In_ ULONG_PTR RangeEnd )
-{
+{TRACE_IT(19998);
     if(m_hModule)
-    {
+    {TRACE_IT(19999);
         if(addGrowableFunctionTable == NULL)
-        {
+        {TRACE_IT(20000);
             addGrowableFunctionTable = (PFnRtlAddGrowableFunctionTable)GetFunction("RtlAddGrowableFunctionTable");
             if(addGrowableFunctionTable == NULL)
-            {
+            {TRACE_IT(20001);
                 Assert(false);
                 return 1;
             }
@@ -92,14 +92,14 @@ DWORD NtdllLibrary::AddGrowableFunctionTable( _Out_ PVOID * DynamicTable,
 }
 
 VOID NtdllLibrary::DeleteGrowableFunctionTable( _In_ PVOID DynamicTable )
-{
+{TRACE_IT(20002);
     if(m_hModule)
-    {
+    {TRACE_IT(20003);
         if(deleteGrowableFunctionTable == NULL)
-        {
+        {TRACE_IT(20004);
             deleteGrowableFunctionTable = (PFnRtlDeleteGrowableFunctionTable)GetFunction("RtlDeleteGrowableFunctionTable");
             if(deleteGrowableFunctionTable == NULL)
-            {
+            {TRACE_IT(20005);
                 Assert(false);
                 return;
             }
@@ -109,14 +109,14 @@ VOID NtdllLibrary::DeleteGrowableFunctionTable( _In_ PVOID DynamicTable )
 }
 
 VOID NtdllLibrary::GrowFunctionTable(_Inout_ PVOID DynamicTable, _In_ ULONG NewEntryCount)
-{
+{TRACE_IT(20006);
     if (m_hModule)
-    {
+    {TRACE_IT(20007);
         if (growFunctionTable == nullptr)
-        {
+        {TRACE_IT(20008);
             growFunctionTable = (PFnRtlGrowFunctionTable)GetFunction("RtlGrowFunctionTable");
             if (growFunctionTable == nullptr)
-            {
+            {TRACE_IT(20009);
                 Assert(false);
                 return;
             }
@@ -133,7 +133,7 @@ VOID NtdllLibrary::InitializeObjectAttributes(
     ULONG                Attributes,
     HANDLE               RootDirectory,
     PSECURITY_DESCRIPTOR SecurityDescriptor)
-{
+{TRACE_IT(20010);
     InitializedAttributes->Length = sizeof(OBJECT_ATTRIBUTES);
     InitializedAttributes->RootDirectory = RootDirectory;
     InitializedAttributes->Attributes = Attributes;
@@ -166,15 +166,15 @@ NtdllLibrary::NTSTATUS NtdllLibrary::CreateSection(
     _In_     ULONG              SectionPageProtection,
     _In_     ULONG              AllocationAttributes,
     _In_opt_ HANDLE             FileHandle)
-{
+{TRACE_IT(20011);
 #ifdef DELAYLOAD_SECTIONAPI
     if (m_hModule)
-    {
+    {TRACE_IT(20012);
         if (createSection == nullptr)
-        {
+        {TRACE_IT(20013);
             createSection = (PFnNtCreateSection)GetFunction("NtCreateSection");
             if (createSection == nullptr)
-            {
+            {TRACE_IT(20014);
                 Assert(false);
                 SectionHandle = nullptr;
                 return -1;
@@ -219,15 +219,15 @@ NtdllLibrary::NTSTATUS NtdllLibrary::MapViewOfSection(
     _In_        SECTION_INHERIT InheritDisposition,
     _In_        ULONG           AllocationType,
     _In_        ULONG           Win32Protect)
-{
+{TRACE_IT(20015);
 #ifdef DELAYLOAD_SECTIONAPI
     if (m_hModule)
-    {
+    {TRACE_IT(20016);
         if (mapViewOfSection == nullptr)
-        {
+        {TRACE_IT(20017);
             mapViewOfSection = (PFnNtMapViewOfSection)GetFunction("NtMapViewOfSection");
             if (mapViewOfSection == nullptr)
-            {
+            {TRACE_IT(20018);
                 Assert(false);
                 return -1;
             }
@@ -254,15 +254,15 @@ NtUnmapViewOfSection(
 NtdllLibrary::NTSTATUS NtdllLibrary::UnmapViewOfSection(
     _In_     HANDLE ProcessHandle,
     _In_opt_ PVOID  BaseAddress)
-{
+{TRACE_IT(20019);
 #ifdef DELAYLOAD_SECTIONAPI
     if (m_hModule)
-    {
+    {TRACE_IT(20020);
         if (unmapViewOfSection == nullptr)
-        {
+        {TRACE_IT(20021);
             unmapViewOfSection = (PFnNtUnmapViewOfSection)GetFunction("NtUnmapViewOfSection");
             if (unmapViewOfSection == nullptr)
-            {
+            {TRACE_IT(20022);
                 Assert(false);
                 return -1;
             }
@@ -284,15 +284,15 @@ NtClose(_In_ HANDLE Handle);
 #endif
 
 NtdllLibrary::NTSTATUS NtdllLibrary::Close(_In_ HANDLE Handle)
-{
+{TRACE_IT(20023);
 #ifdef DELAYLOAD_SECTIONAPI
     if (m_hModule)
-    {
+    {TRACE_IT(20024);
         if (close == nullptr)
-        {
+        {TRACE_IT(20025);
             close = (PFnNtClose)GetFunction("NtClose");
             if (close == nullptr)
-            {
+            {TRACE_IT(20026);
                 Assert(false);
                 return -1;
             }

@@ -10,9 +10,9 @@
 /* ----- PRIVATE ----- */
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateIntConstOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8726);
     if (!opnd || !opnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(8727);
         return NULL;
     }
 
@@ -28,9 +28,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIntConstOpnd(Js::ScriptContext *s
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateFloatConstOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8728);
     if (!opnd || !opnd->IsFloatConstOpnd())
-    {
+    {TRACE_IT(8729);
         return NULL;
     }
 
@@ -46,9 +46,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateFloatConstOpnd(Js::ScriptContext 
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateHelperCallOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8730);
     if (!opnd || !opnd->IsHelperCallOpnd())
-    {
+    {TRACE_IT(8731);
         return NULL;
     }
 
@@ -65,9 +65,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateHelperCallOpnd(Js::ScriptContext 
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateSymOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8732);
     if (!opnd || !opnd->IsSymOpnd())
-    {
+    {TRACE_IT(8733);
         return NULL;
     }
 
@@ -83,9 +83,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateSymOpnd(Js::ScriptContext *script
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8734);
     if (!opnd || !opnd->IsRegOpnd())
-    {
+    {TRACE_IT(8735);
         return NULL;
     }
 
@@ -96,12 +96,12 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *script
     SymID symid = 0;
 
     if (op->m_sym)
-    {
+    {TRACE_IT(8736);
         symid = op->m_sym->m_id;
     }
 
     if (regid != RegNOREG)
-    {
+    {TRACE_IT(8737);
         Js::Var regidValue = Js::JavascriptNumber::ToVar(regid, scriptContext);
         SetProperty(opObject, _u("regid"), regidValue);
     }
@@ -113,9 +113,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *script
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateAddrOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd, Func *func)
-{
+{TRACE_IT(8738);
     if (!opnd || !opnd->IsAddrOpnd())
-    {
+    {TRACE_IT(8739);
         return NULL;
     }
 
@@ -138,9 +138,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateAddrOpnd(Js::ScriptContext *scrip
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8740);
     if (!opnd || !opnd->IsIndirOpnd())
-    {
+    {TRACE_IT(8741);
         return NULL;
     }
 
@@ -150,10 +150,10 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
     IR::RegOpnd *baseOpnd = op->GetBaseOpnd();
 
     Js::Var baseVar = NULL;
-    if (baseOpnd->m_sym) {
+    if (baseOpnd->m_sym) {TRACE_IT(8742);
         SymID baseid = baseOpnd->m_sym->m_id;
         baseVar = Js::JavascriptNumber::ToVar(baseid, scriptContext);
-    } else {
+    } else {TRACE_IT(8743);
         RegNum regid = baseOpnd->GetReg();
         baseVar = Js::JavascriptNumber::ToVar(regid, scriptContext);
     }
@@ -162,7 +162,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 
     IR::RegOpnd *indexOpnd = op->GetIndexOpnd();
     if (indexOpnd)
-    {
+    {TRACE_IT(8744);
         SymID indexid = indexOpnd->m_sym->m_id;
         Js::Var indexVar = Js::JavascriptNumber::ToVar(indexid, scriptContext);
         SetProperty(opObject, _u("index"), indexVar);
@@ -170,7 +170,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 
     int32 offset = op->GetOffset();
     if (offset)
-    {
+    {TRACE_IT(8745);
         Js::Var offsetVar = Js::JavascriptNumber::ToVar(offset, scriptContext);
         SetProperty(opObject, _u("offset"), offsetVar);
     }
@@ -179,9 +179,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateLabelOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{TRACE_IT(8746);
     if (!opnd || !opnd->IsLabelOpnd())
-    {
+    {TRACE_IT(8747);
         return NULL;
     }
 
@@ -204,9 +204,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateLabelOpnd(Js::ScriptContext *scri
 
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd, Func *func)
-{
+{TRACE_IT(8748);
     if (!opnd)
-    {
+    {TRACE_IT(8749);
         return NULL;
     }
 
@@ -267,7 +267,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
 
     // fallback create an object that can be used for identifying what info is missing
     if (!opObject)
-    {
+    {TRACE_IT(8750);
         opObject = scriptContext->GetLibrary()->CreateObject();
     }
 
@@ -280,7 +280,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
 }
 
 Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
-{
+{TRACE_IT(8751);
     Js::PropertyRecord const *propertyRecord;
     scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
     Js::PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -289,10 +289,10 @@ Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptCont
 }
 
 void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, const char16 *propertyName, Js::Var value)
-{
+{TRACE_IT(8752);
     const size_t len = wcslen(propertyName);
     if (!(len > 0))
-    {
+    {TRACE_IT(8753);
         return;
     }
 
@@ -301,9 +301,9 @@ void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, const char16 *prop
 }
 
 void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, Js::PropertyId id, Js::Var value)
-{
+{TRACE_IT(8754);
     if (value == NULL)
-    {
+    {TRACE_IT(8755);
         return;
     }
 
@@ -340,7 +340,7 @@ enum STATEMENT_PARSE_T {
     @param len              The size of the buffer (maximum number of characters to copy).
 */
 void IRtoJSObjectBuilder::GetStatementSourceString(__out_ecount(len) char16 *buffer, LPCUTF8 sourceBegin, LPCUTF8 sourceEnd, const size_t len)
-{
+{TRACE_IT(8756);
     enum STATEMENT_PARSE_T state;
     size_t i;
 
@@ -348,7 +348,7 @@ void IRtoJSObjectBuilder::GetStatementSourceString(__out_ecount(len) char16 *buf
     for (i = 0, state = STATEMENT_PARSE_NORMAL;
         (i < len-1) && ((sourceBegin+i) < sourceEnd) && state != STATEMENT_PARSE_END;
         i++)
-    {
+    {TRACE_IT(8757);
         utf8char_t ch = sourceBegin[i];
         buffer[i] = ch;
 

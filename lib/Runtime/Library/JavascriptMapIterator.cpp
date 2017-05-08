@@ -11,12 +11,12 @@ namespace Js
         m_map(map),
         m_mapIterator(map->GetIterator()),
         m_kind(kind)
-    {
+    {TRACE_IT(60140);
         Assert(type->GetTypeId() == TypeIds_MapIterator);
     }
 
     bool JavascriptMapIterator::Is(Var aValue)
-    {
+    {TRACE_IT(60141);
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_MapIterator;
     }
@@ -41,7 +41,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptMapIterator::Is(thisObj))
-        {
+        {TRACE_IT(60142);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedMapIterator, _u("Map Iterator.prototype.next"));
         }
 
@@ -50,7 +50,7 @@ namespace Js
         auto& mapIterator = iterator->m_mapIterator;
 
         if (map == nullptr || !mapIterator.Next())
-        {
+        {TRACE_IT(60143);
             iterator->m_map = nullptr;
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
@@ -59,18 +59,18 @@ namespace Js
         Var result;
 
         if (iterator->m_kind == JavascriptMapIteratorKind::KeyAndValue)
-        {
+        {TRACE_IT(60144);
             JavascriptArray* keyValueTuple = library->CreateArray(2);
             keyValueTuple->SetItem(0, entry.Key(), PropertyOperation_None);
             keyValueTuple->SetItem(1, entry.Value(), PropertyOperation_None);
             result = keyValueTuple;
         }
         else if (iterator->m_kind == JavascriptMapIteratorKind::Key)
-        {
+        {TRACE_IT(60145);
             result = entry.Key();
         }
         else
-        {
+        {TRACE_IT(60146);
             Assert(iterator->m_kind == JavascriptMapIteratorKind::Value);
             result = entry.Value();
         }

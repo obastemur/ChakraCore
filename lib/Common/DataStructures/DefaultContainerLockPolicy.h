@@ -15,7 +15,7 @@ namespace Js
         public:
             template <class SyncObject>
             NoLock(const SyncObject&)
-            {
+            {TRACE_IT(21131);
                 // No lock, do nothing.
             }
         };

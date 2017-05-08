@@ -15,38 +15,38 @@ namespace Js
         friend class RemoteUtf8SourceInfo;
         friend class ScriptContext;
     public:
-        bool HasSource() const { return !this->sourceHolder->IsEmpty(); }
+        bool HasSource() const {TRACE_IT(37920); return !this->sourceHolder->IsEmpty(); }
 
         LPCUTF8 GetSource(const char16 * reason = nullptr) const;
         size_t GetCbLength(const char16 * reason = nullptr) const;
 
         ULONG GetParseFlags()
-        {
+        {TRACE_IT(37921);
             return this->parseFlags;
         }
 
         void SetParseFlags(ULONG parseFlags)
-        {
+        {TRACE_IT(37922);
             this->parseFlags = parseFlags;
         }
 
         ULONG GetByteCodeGenerationFlags()
-        {
+        {TRACE_IT(37923);
             return this->byteCodeGenerationFlags;
         }
 
         void SetByteCodeGenerationFlags(ULONG byteCodeGenerationFlags)
-        {
+        {TRACE_IT(37924);
             this->byteCodeGenerationFlags = byteCodeGenerationFlags;
         }
 
         bool IsInDebugMode() const
-        {
+        {TRACE_IT(37925);
             return (this->debugModeSource != nullptr || this->debugModeSourceIsEmpty) && this->m_isInDebugMode;
         }
 
         void SetInDebugMode(bool inDebugMode)
-        {
+        {TRACE_IT(37926);
             AssertMsg(!GetIsLibraryCode(), "Shouldn't call SetInDebugMode for Library code.");
 
             AssertMsg(this->sourceHolder != nullptr, "We have no source holder.");
@@ -56,19 +56,19 @@ namespace Js
             this->m_isInDebugMode = inDebugMode;
 
             if (!this->sourceHolder->IsDeferrable())
-            {
+            {TRACE_IT(37927);
                 return;
             }
 
             if (inDebugMode)
-            {
+            {TRACE_IT(37928);
                 this->debugModeSource = this->sourceHolder->GetSource(_u("Entering Debug Mode"));
                 this->debugModeSourceLength = this->sourceHolder->GetByteLength(_u("Entering Debug Mode"));
                 this->debugModeSourceIsEmpty = !this->HasSource() || this->debugModeSource == nullptr;
                 this->EnsureLineOffsetCache();
             }
             else
-            {
+            {TRACE_IT(37929);
                 // If debugModeSourceIsEmpty is false, that means debugModeSource isn't nullptr or we aren't in debug mode.
                 this->debugModeSourceIsEmpty = false;
                 this->debugModeSource = nullptr;
@@ -77,19 +77,19 @@ namespace Js
         }
 
         void RetrieveSourceText(__out_ecount_full(cchLim - cchMin) LPOLESTR cpText, charcount_t cchMin, charcount_t cchLim) const
-        {
+        {TRACE_IT(37930);
             size_t cbLength = GetCbLength(_u("Utf8SourceInfo::RetrieveSourceText"));
             LPCUTF8 source = GetSource(_u("Utf8SourceInfo::RetrieveSourceText"));
             LPCUTF8 pbStart = nullptr;
             LPCUTF8 pbEnd = nullptr;
             
             if (cbLength == GetCchLength())
-            {
+            {TRACE_IT(37931);
                 pbStart = source + cchMin;
                 pbEnd = source + cchLim;
             }
             else
-            {
+            {TRACE_IT(37932);
                 pbStart = source + utf8::CharacterIndexToByteIndex(source, cbLength, cchMin, utf8::doAllowThreeByteSurrogates);
                 pbEnd = source + utf8::CharacterIndexToByteIndex(source, cbLength, cchLim, utf8::doAllowThreeByteSurrogates);
             }
@@ -98,27 +98,27 @@ namespace Js
         }
 
         size_t CharacterIndexToByteIndex(charcount_t cchIndex) const
-        {
+        {TRACE_IT(37933);
             return cchIndex < m_cchLength ? (GetCbLength(_u("CharacterIndexToByteIndex")) == m_cchLength ?  cchIndex : utf8::CharacterIndexToByteIndex(this->GetSource(_u("CharacterIndexToByteIndex")), GetCbLength(_u("CharacterIndexToByteIndex")), cchIndex, utf8::doAllowThreeByteSurrogates)) : m_cchLength;
         }
 
         charcount_t ByteIndexToCharacterIndex(size_t cbIndex) const
-        {
+        {TRACE_IT(37934);
             return cbIndex < GetCbLength(_u("CharacterIndexToByteIndex")) ? static_cast< charcount_t>(GetCbLength(_u("CharacterIndexToByteIndex")) == m_cchLength ? cbIndex : utf8::ByteIndexIntoCharacterIndex(this->GetSource(_u("CharacterIndexToByteIndex")), cbIndex, utf8::doAllowThreeByteSurrogates)) : static_cast< charcount_t >(GetCbLength(_u("CharacterIndexToByteIndex")));
         }
 
         charcount_t GetCchLength() const
-        {
+        {TRACE_IT(37935);
             return m_cchLength;
         }
 
         void SetCchLength(charcount_t cchLength)
-        {
+        {TRACE_IT(37936);
             m_cchLength = cchLength;
         }
 
         const SRCINFO* GetSrcInfo() const
-        {
+        {TRACE_IT(37937);
             return m_srcInfo;
         }
 
@@ -135,7 +135,7 @@ namespace Js
         void ClearTopLevelFunctionInfoList();
         JsUtil::List<Js::FunctionInfo *, Recycler> * EnsureTopLevelFunctionInfoList(Recycler * recycler);
         JsUtil::List<Js::FunctionInfo *, Recycler> * GetTopLevelFunctionInfoList() const
-        {
+        {TRACE_IT(37938);
             return this->topLevelFunctionInfoList;
         }
 
@@ -143,35 +143,35 @@ namespace Js
         // (Namely in the OOM scenario), so we simply guard against that condition rather than
         // asserting
         int GetFunctionBodyCount() const
-        {
+        {TRACE_IT(37939);
             return (this->functionBodyDictionary ? this->functionBodyDictionary->Count() : 0);
         }
 
         // Gets a thread-unique id for this source info
         // (Behaves the same as the function number)
         uint GetSourceInfoId()
-        {
+        {TRACE_IT(37940);
             return m_sourceInfoId;
         }
 
         void ClearFunctions()
-        {
+        {TRACE_IT(37941);
             if (this->functionBodyDictionary)
-            {
+            {TRACE_IT(37942);
                 this->functionBodyDictionary->Clear();
             }
         }
 
         bool HasFunctions() const
-        {
+        {TRACE_IT(37943);
             return (this->functionBodyDictionary ? this->functionBodyDictionary->Count() > 0 : false);
         }
 
         template <typename TDelegate>
         void MapFunction(TDelegate mapper) const
-        {
+        {TRACE_IT(37944);
             if (this->functionBodyDictionary)
-            {
+            {TRACE_IT(37945);
                 this->functionBodyDictionary->Map([mapper] (Js::LocalFunctionId, Js::FunctionBody* functionBody) {
                     Assert(functionBody);
                     mapper(functionBody);
@@ -185,9 +185,9 @@ namespace Js
 
         template <typename TDelegate>
         void MapFunctionUntil(TDelegate mapper) const
-        {
+        {TRACE_IT(37946);
             if (this->functionBodyDictionary)
-            {
+            {TRACE_IT(37947);
                 this->functionBodyDictionary->MapUntil([mapper] (Js::LocalFunctionId, Js::FunctionBody* functionBody) {
                     Assert(functionBody);
                     return mapper(functionBody);
@@ -198,7 +198,7 @@ namespace Js
 
         template <typename TDelegate>
         Js::FunctionBody* FindFunction(TDelegate predicate) const
-        {
+        {TRACE_IT(37948);
             Js::FunctionBody* matchedFunctionBody = nullptr;
 
             // Function body collection could be null if we OOMed
@@ -206,12 +206,12 @@ namespace Js
             // collected because of a false positive reference- we should
             // skip over these Utf8SourceInfos.
             if (this->functionBodyDictionary)
-            {
+            {TRACE_IT(37949);
                 this->functionBodyDictionary->Map(
                     [&matchedFunctionBody, predicate] (Js::LocalFunctionId, Js::FunctionBody* functionBody)
                 {
                     Assert(functionBody);
-                    if (predicate(functionBody)) {
+                    if (predicate(functionBody)) {TRACE_IT(37950);
                         matchedFunctionBody = functionBody;
                         return true;
                     }
@@ -226,18 +226,18 @@ namespace Js
         void SetHostBuffer(BYTE * pcszCode);
 
         bool HasDebugDocument() const
-        {
+        {TRACE_IT(37951);
             return m_debugDocument != nullptr;
         }
 
         void SetDebugDocument(DebugDocument * document)
-        {
+        {TRACE_IT(37952);
             Assert(!HasDebugDocument());
             m_debugDocument = document;
         }
 
         DebugDocument* GetDebugDocument() const
-        {
+        {TRACE_IT(37953);
             Assert(HasDebugDocument());
             return m_debugDocument;
         }
@@ -245,30 +245,30 @@ namespace Js
         void ClearDebugDocument(bool close = true);
 
         void SetIsCesu8(bool isCesu8)
-        {
+        {TRACE_IT(37954);
             this->m_isCesu8 = isCesu8;
         }
 
         bool GetIsCesu8() const
-        {
+        {TRACE_IT(37955);
             return m_isCesu8;
         }
 
         DWORD_PTR GetSecondaryHostSourceContext() const
-        {
+        {TRACE_IT(37956);
             return m_secondaryHostSourceContext;
         }
 
         bool GetIsLibraryCode() const
-        {
+        {TRACE_IT(37957);
             return m_isLibraryCode;
         }
 
-        bool GetIsXDomain() const { return m_isXDomain; }
-        void SetIsXDomain() { m_isXDomain = true; }
+        bool GetIsXDomain() const {TRACE_IT(37958); return m_isXDomain; }
+        void SetIsXDomain() {TRACE_IT(37959); m_isXDomain = true; }
 
-        bool GetIsXDomainString() const { return m_isXDomainString; }
-        void SetIsXDomainString() { m_isXDomainString = true; }
+        bool GetIsXDomainString() const {TRACE_IT(37960); return m_isXDomainString; }
+        void SetIsXDomainString() {TRACE_IT(37961); m_isXDomainString = true; }
 
         DWORD_PTR GetHostSourceContext() const;
         bool IsDynamic() const;
@@ -278,12 +278,12 @@ namespace Js
         bool IsHostManagedSource() const;
 
         static int StaticGetHashCode(__in const Utf8SourceInfo* const si)
-        {
+        {TRACE_IT(37962);
             return si->GetSourceHolder()->GetHashCode();
         }
 
         static bool StaticEquals(__in Utf8SourceInfo* s1, __in Utf8SourceInfo* s2)
-        {
+        {TRACE_IT(37963);
             if (s1 == nullptr || s2 == nullptr) return false;
 
             //If the source holders have the same pointer, we are expecting the sources to be equal
@@ -306,26 +306,26 @@ namespace Js
         static Utf8SourceInfo* Clone(ScriptContext* scriptContext, const Utf8SourceInfo* sourceinfo);
 
         ScriptContext * GetScriptContext() const
-        {
+        {TRACE_IT(37964);
             return this->m_scriptContext;
         }
 
         void EnsureLineOffsetCache();
         HRESULT EnsureLineOffsetCacheNoThrow();
         void DeleteLineOffsetCache()
-        {
+        {TRACE_IT(37965);
             this->m_lineOffsetCache = nullptr;
         }
 
         void CreateLineOffsetCache(const JsUtil::LineOffsetCache<Recycler>::LineOffsetCacheItem *items, charcount_t numberOfItems);
 
         size_t GetLineCount()
-        {
+        {TRACE_IT(37966);
             return this->GetLineOffsetCache()->GetLineCount();
         }
 
         JsUtil::LineOffsetCache<Recycler> *GetLineOffsetCache()
-        {
+        {TRACE_IT(37967);
             AssertMsg(this->m_lineOffsetCache != nullptr, "LineOffsetCache wasn't created, EnsureLineOffsetCache should have been called.");
             return m_lineOffsetCache;
         }
@@ -333,7 +333,7 @@ namespace Js
         void GetLineInfoForCharPosition(charcount_t charPosition, charcount_t *outLineNumber, charcount_t *outColumn, charcount_t *outLineByteOffset, bool allowSlowLookup = false);
 
         void GetCharPositionForLineInfo(charcount_t lineNumber, charcount_t *outCharPosition, charcount_t *outByteOffset)
-        {
+        {TRACE_IT(37968);
             Assert(outCharPosition != nullptr && outByteOffset != nullptr);
             *outCharPosition = this->m_lineOffsetCache->GetCharacterOffsetForLine(lineNumber, outByteOffset);
         }
@@ -343,12 +343,12 @@ namespace Js
 
         template <class Fn>
         void UndeferGlobalFunctions(Fn fn)
-        {
+        {TRACE_IT(37969);
             if (this->m_scriptContext->DoUndeferGlobalFunctions())
-            {
+            {TRACE_IT(37970);
                 Assert(m_deferredFunctionsInitialized);
                 if (m_deferredFunctionsDictionary == nullptr)
-                {
+                {TRACE_IT(37971);
                     return;
                 }
 
@@ -360,12 +360,12 @@ namespace Js
         }
 
         ISourceHolder* GetSourceHolder() const
-        {
+        {TRACE_IT(37972);
             return sourceHolder;
         }
 
         bool IsCesu8() const
-        {
+        {TRACE_IT(37973);
             return this->m_isCesu8;
         }
 
@@ -430,12 +430,12 @@ template <>
 struct DefaultComparer<Js::Utf8SourceInfo*>
 {
     inline static bool Equals(Js::Utf8SourceInfo* const& x, Js::Utf8SourceInfo* const& y)
-    {
+    {TRACE_IT(37974);
         return Js::Utf8SourceInfo::StaticEquals(x, y);
     }
 
     inline static hash_t GetHashCode(Js::Utf8SourceInfo* const& s)
-    {
+    {TRACE_IT(37975);
         return Js::Utf8SourceInfo::StaticGetHashCode(s);
     }
 };

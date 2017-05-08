@@ -102,7 +102,7 @@ private:
     {
         BlockRecord(__in_ecount_pagesize char * blockAddress, PageSegment * segment)
             : blockAddress(blockAddress), segment(segment)
-        {
+        {TRACE_IT(1559);
         }
         char * blockAddress;
         PageSegment * segment;
@@ -159,9 +159,9 @@ struct XProcNumberPageSegmentImpl : public XProcNumberPageSegment
 {
     XProcNumberPageSegmentImpl();
     Js::JavascriptNumber* AllocateNumber(Func* func, double value);
-    unsigned int GetTotalSize() { return PageCount * AutoSystemInfo::PageSize; }
-    void* GetEndAddress() { return (void*)(this->pageAddress + PageCount * AutoSystemInfo::PageSize); }
-    void* GetCommitEndAddress() { return (void*)(this->pageAddress + this->committedEnd); }
+    unsigned int GetTotalSize() {TRACE_IT(1560); return PageCount * AutoSystemInfo::PageSize; }
+    void* GetEndAddress() {TRACE_IT(1561); return (void*)(this->pageAddress + PageCount * AutoSystemInfo::PageSize); }
+    void* GetCommitEndAddress() {TRACE_IT(1562); return (void*)(this->pageAddress + this->committedEnd); }
 
     static const uint BlockSize = SmallAllocationBlockAttributes::PageCount*AutoSystemInfo::PageSize;
     static const uint PageCount = Memory::IdleDecommitPageAllocator::DefaultMaxAllocPageCount;

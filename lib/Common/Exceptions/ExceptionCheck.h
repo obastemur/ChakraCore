@@ -98,8 +98,8 @@ private:
 class DebugCheckNoException
 {
 public:
-    DebugCheckNoException() : hasException(true) { SAVE_EXCEPTION_CHECK;}
-    ~DebugCheckNoException() { Assert(!hasException); RESTORE_EXCEPTION_CHECK; }
+    DebugCheckNoException() : hasException(true) {TRACE_IT(22522); SAVE_EXCEPTION_CHECK;}
+    ~DebugCheckNoException() {TRACE_IT(22523); Assert(!hasException); RESTORE_EXCEPTION_CHECK; }
     DECLARE_EXCEPTION_CHECK_DATA;
     bool hasException;
 };

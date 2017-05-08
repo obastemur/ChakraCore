@@ -50,7 +50,7 @@ public:
     void ClearHeapBlock(void * address, uint pageCount);
 
     HeapBlock * GetHeapBlock(void * address);
-    bool Empty() const { return count == 0; }
+    bool Empty() const {TRACE_IT(23840); return count == 0; }
 
     // Heap block map marking
     PageMarkBitVector * GetPageMarkBitVector(void * address);
@@ -101,13 +101,13 @@ private:
     void ChangeProtectionLevel(Recycler* recycler, DWORD protectFlags, DWORD expectedOldFlags);
 
     static uint GetLevel1Id(void * address)
-    {
+    {TRACE_IT(23841);
         return ::Math::PointerCastToIntegralTruncate<uint>(address) / L2Count / PageSize;
     }
 
 public:
     static uint GetLevel2Id(void * address)
-    {
+    {TRACE_IT(23842);
         return ::Math::PointerCastToIntegralTruncate<uint>(address) % (L2Count * PageSize) / PageSize;
     }
 
@@ -122,7 +122,7 @@ private:
 #endif
 
     static void * GetAddressFromIds(uint id1, uint id2)
-    {
+    {TRACE_IT(23843);
         Assert(id1 < L1Count);
         Assert(id2 < L2Count);
 
@@ -156,7 +156,7 @@ private:
         void SetMark(void * address);
 
         static uint GetMarkBitIndex(void * address)
-        {
+        {TRACE_IT(23844);
             uint bitIndex = (::Math::PointerCastToIntegralTruncate<uint>(address) % (L2Count * PageSize)) / HeapConstants::ObjectGranularity;
             Assert(bitIndex < L2ChunkMarkBitCount);
             return bitIndex;
@@ -289,7 +289,7 @@ private:
 
     struct Node
     {
-        Node(__in char * startAddress) : map(startAddress) { }
+        Node(__in char * startAddress) : map(startAddress) {TRACE_IT(23845); }
 
         uint nodeIndex;
         Node * next;
@@ -299,12 +299,12 @@ private:
     static const uint PagesPer4GB = 1 << 20; // = 1M,  assume page size = 4K
 
     static uint GetNodeIndex(void * address)
-    {
+    {TRACE_IT(23846);
         return GetNodeIndex((ULONG64)address);
     }
 
     static uint GetNodeIndex(ULONG64 address)
-    {
+    {TRACE_IT(23847);
         return (uint)((ULONG64)address >> 32);
     }
 
@@ -327,7 +327,7 @@ public:
 
 #if !defined(JD_PRIVATE)
     static char * GetNodeStartAddress(void * address)
-    {
+    {TRACE_IT(23848);
         return (char *)(((size_t)address) & ~(HeapBlockMap32::TotalSize - 1));
     }
 #endif

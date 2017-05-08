@@ -7,7 +7,7 @@
 template <class TBlockAttributes>
 SmallLeafHeapBlockT<TBlockAttributes> *
 SmallLeafHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallLeafHeapBlockT<TBlockAttributes>> * bucket)
-{
+{TRACE_IT(26972);
     CompileAssert(TBlockAttributes::MaxObjectSize <= USHRT_MAX);
     Assert(bucket->sizeCat <= TBlockAttributes::MaxObjectSize);
     Assert((TBlockAttributes::PageCount * AutoSystemInfo::PageSize) / bucket->sizeCat <= USHRT_MAX);
@@ -20,21 +20,21 @@ SmallLeafHeapBlockT<TBlockAttributes>::New(HeapBucketT<SmallLeafHeapBlockT<TBloc
 template <>
 SmallLeafHeapBlockT<SmallAllocationBlockAttributes>::SmallLeafHeapBlockT(HeapBucketT<SmallLeafHeapBlockT<SmallAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, HeapBlock::HeapBlockType::SmallLeafBlockType)
-{
+{TRACE_IT(26973);
     Assert(objectCount > 1 && objectCount == (this->GetPageCount() * AutoSystemInfo::PageSize)/ objectSize);
 }
 
 template <>
 SmallLeafHeapBlockT<MediumAllocationBlockAttributes>::SmallLeafHeapBlockT(HeapBucketT<SmallLeafHeapBlockT<MediumAllocationBlockAttributes>> * bucket, ushort objectSize, ushort objectCount)
     : Base(bucket, objectSize, objectCount, HeapBlock::HeapBlockType::MediumLeafBlockType)
-{
+{TRACE_IT(26974);
     Assert(objectCount > 1 && objectCount == (this->GetPageCount() * AutoSystemInfo::PageSize) / objectSize);
 }
 
 template <class TBlockAttributes>
 void
 SmallLeafHeapBlockT<TBlockAttributes>::Delete(SmallLeafHeapBlockT<TBlockAttributes> * heapBlock)
-{
+{TRACE_IT(26975);
     Assert(heapBlock->IsLeafBlock());
     NoMemProtectHeapDeletePlusPrefix(Base::GetAllocPlusSize(heapBlock->objectCount), heapBlock);
 }
@@ -42,7 +42,7 @@ SmallLeafHeapBlockT<TBlockAttributes>::Delete(SmallLeafHeapBlockT<TBlockAttribut
 template <class TBlockAttributes>
 void
 SmallLeafHeapBlockT<TBlockAttributes>::ScanNewImplicitRoots(Recycler * recycler)
-{
+{TRACE_IT(26976);
     Base::ScanNewImplicitRootsBase([](void * object, size_t objectSize){});
 }
 
@@ -50,7 +50,7 @@ SmallLeafHeapBlockT<TBlockAttributes>::ScanNewImplicitRoots(Recycler * recycler)
 template <class TBlockAttributes>
 bool
 SmallLeafHeapBlockT<TBlockAttributes>::GetFreeObjectListOnAllocator(FreeObject ** freeObjectList)
-{
+{TRACE_IT(26977);
     return this->template GetFreeObjectListOnAllocatorImpl<SmallLeafHeapBlockT<TBlockAttributes>>(freeObjectList);
 }
 #endif

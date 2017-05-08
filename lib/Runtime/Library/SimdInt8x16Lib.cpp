@@ -24,7 +24,7 @@ namespace Js
         int8 values[LANES];
 
         for (uint i = 0; i < LANES; i++)
-        {
+        {TRACE_IT(63343);
             values[i] = JavascriptConversion::ToInt8(args.Info.Count >= (i + 2) ? args[i + 1] : undefinedVar, scriptContext);
         }
         SIMDValue lanes = SIMDInt8x16Operation::OpInt8x16(values);
@@ -40,7 +40,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63344);
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdInt8x16TypeMismatch, _u("Int8x16"));
@@ -74,7 +74,7 @@ namespace Js
 
         if (args.Info.Count >= 4 && JavascriptSIMDBool8x16::Is(args[1]) &&
             JavascriptSIMDInt8x16::Is(args[2]) && JavascriptSIMDInt8x16::Is(args[3]))
-        {
+        {TRACE_IT(63345);
             JavascriptSIMDBool8x16 *m = JavascriptSIMDBool8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *t  = JavascriptSIMDInt8x16::FromVar(args[2]);
             JavascriptSIMDInt8x16 *f  = JavascriptSIMDInt8x16::FromVar(args[3]);
@@ -103,7 +103,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {TRACE_IT(63346);
             JavascriptSIMDFloat32x4 *instance = JavascriptSIMDFloat32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDFloat32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -120,7 +120,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {TRACE_IT(63347);
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -137,7 +137,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt16x8::Is(args[1]))
-        {
+        {TRACE_IT(63348);
             JavascriptSIMDInt16x8 *instance = JavascriptSIMDInt16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt16x8, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -154,7 +154,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint32x4::Is(args[1]))
-        {
+        {TRACE_IT(63349);
             JavascriptSIMDUint32x4 *instance = JavascriptSIMDUint32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -171,7 +171,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint16x8::Is(args[1]))
-        {
+        {TRACE_IT(63350);
             JavascriptSIMDUint16x8 *instance = JavascriptSIMDUint16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint16x8, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -189,7 +189,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint8x16::Is(args[1]))
-        {
+        {TRACE_IT(63351);
             JavascriptSIMDUint8x16 *instance = JavascriptSIMDUint8x16::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint8x16, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -207,7 +207,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63352);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -233,7 +233,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63353);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -260,7 +260,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63354);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -289,7 +289,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63355);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -318,7 +318,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63356);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -347,7 +347,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63357);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -376,7 +376,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63358);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -405,7 +405,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63359);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -434,7 +434,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63360);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -463,7 +463,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63361);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -492,7 +492,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63362);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -521,7 +521,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63363);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -551,7 +551,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63364);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -582,7 +582,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63365);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -613,7 +613,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63366);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -644,7 +644,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63367);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -675,7 +675,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63368);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -706,7 +706,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63369);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -735,7 +735,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63370);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -764,7 +764,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63371);
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -795,19 +795,19 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(63372);
             tarray = args[1];
         }
         else
-        {
+        {TRACE_IT(63373);
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {TRACE_IT(63374);
             index = args[2];
         }
         else
-        {
+        {TRACE_IT(63375);
             index = scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -825,7 +825,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDInt8x16::Is(args[3]))
-        {
+        {TRACE_IT(63376);
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDInt8x16>(args[1], args[2], args[3], 16 * INT8_SIZE, scriptContext);
             return JavascriptSIMDInt8x16::FromVar(args[3]);
         }
@@ -846,17 +846,17 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63377);
             // type check on lane indices
             if (args.Info.Count < 18)
-            {
+            {TRACE_IT(63378);
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[16];
             for (uint i = 0; i < 16; ++i)
-            {
+            {TRACE_IT(63379);
                 lanes[i] = args[i + 2];
             }
 
@@ -878,17 +878,17 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {TRACE_IT(63380);
             // type check on lane indices
             if (args.Info.Count < 19)
-            {
+            {TRACE_IT(63381);
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[16];
             for (uint i = 0; i < 16; ++i)
-            {
+            {TRACE_IT(63382);
                 lanes[i] = args[i + 3];
             }
             return SIMDUtils::SIMD128SlowShuffle<JavascriptSIMDInt8x16>(args[1], args[2], lanes, 16, 32, scriptContext);
@@ -910,7 +910,7 @@ namespace Js
 
         // first arg has to be of type Int8x16, so cannot be missing.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63383);
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             int8 result = SIMDUtils::SIMD128ExtractLane<JavascriptSIMDInt8x16, 16, int8>(args[1], laneVar, scriptContext);
@@ -933,7 +933,7 @@ namespace Js
 
         // first arg has to be of type Int8x16, so cannot be missing.
         if (args.Info.Count >= 4 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {TRACE_IT(63384);
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();

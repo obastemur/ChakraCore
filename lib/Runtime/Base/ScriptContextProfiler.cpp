@@ -11,18 +11,18 @@ namespace Js
 {
     ULONG
     ScriptContextProfiler::AddRef()
-    {
+    {TRACE_IT(36840);
         return refcount++;
     }
 
     ULONG
     ScriptContextProfiler::Release()
-    {
+    {TRACE_IT(36841);
         ULONG count = --refcount;
         if (count == 0)
-        {
+        {TRACE_IT(36842);
             if (recycler != nullptr && this->profiler == recycler->GetProfiler())
-            {
+            {TRACE_IT(36843);
                 recycler->SetProfiler(nullptr, nullptr);
             }
             NoCheckHeapDelete(this);
@@ -32,17 +32,17 @@ namespace Js
 
     ScriptContextProfiler::ScriptContextProfiler() :
         refcount(1), profilerArena(nullptr), profiler(nullptr), backgroundRecyclerProfilerArena(nullptr), backgroundRecyclerProfiler(nullptr), recycler(nullptr), pageAllocator(nullptr), next(nullptr)
-    {
+    {TRACE_IT(36844);
     }
 
     void
     ScriptContextProfiler::Initialize(PageAllocator * pageAllocator, Recycler * recycler)
-    {
+    {TRACE_IT(36845);
         Assert(!IsInitialized());
         profilerArena = HeapNew(ArenaAllocator, _u("Profiler"), pageAllocator, Js::Throw::OutOfMemory);
         profiler = Anew(profilerArena, Profiler, profilerArena);
         if (recycler)
-        {
+        {TRACE_IT(36846);
             backgroundRecyclerProfilerArena = recycler->AddBackgroundProfilerArena();
             backgroundRecyclerProfiler = Anew(profilerArena, Profiler, backgroundRecyclerProfilerArena);
 
@@ -64,15 +64,15 @@ namespace Js
 
     void
     ScriptContextProfiler::ProfilePrint(Js::Phase phase)
-    {
+    {TRACE_IT(36847);
         if (!IsInitialized())
-        {
+        {TRACE_IT(36848);
             return;
         }
         profiler->End(Js::AllPhase);
         profiler->Print(phase);
         if (this->backgroundRecyclerProfiler)
-        {
+        {TRACE_IT(36849);
             this->backgroundRecyclerProfiler->End(Js::AllPhase);
             this->backgroundRecyclerProfiler->Print(phase);
             this->backgroundRecyclerProfiler->Begin(Js::AllPhase);
@@ -81,14 +81,14 @@ namespace Js
     }
 
     ScriptContextProfiler::~ScriptContextProfiler()
-    {
+    {TRACE_IT(36850);
         if (profilerArena)
-        {
+        {TRACE_IT(36851);
             HeapDelete(profilerArena);
         }
 
         if (recycler && backgroundRecyclerProfilerArena)
-        {
+        {TRACE_IT(36852);
 #if DBG
             //We are freeing from main thread, disable thread check assert.
             backgroundRecyclerProfilerArena->GetPageAllocator()->SetDisableThreadAccessCheck();
@@ -99,35 +99,35 @@ namespace Js
 
     void
     ScriptContextProfiler::ProfileBegin(Js::Phase phase)
-    {
+    {TRACE_IT(36853);
         Assert(IsInitialized());
         this->profiler->Begin(phase);
     }
 
     void
     ScriptContextProfiler::ProfileEnd(Js::Phase phase)
-    {
+    {TRACE_IT(36854);
         Assert(IsInitialized());
         this->profiler->End(phase);
     }
 
     void
     ScriptContextProfiler::ProfileSuspend(Js::Phase phase, Js::Profiler::SuspendRecord * suspendRecord)
-    {
+    {TRACE_IT(36855);
         Assert(IsInitialized());
         this->profiler->Suspend(phase, suspendRecord);
     }
 
     void
     ScriptContextProfiler::ProfileResume(Js::Profiler::SuspendRecord * suspendRecord)
-    {
+    {TRACE_IT(36856);
         Assert(IsInitialized());
         this->profiler->Resume(suspendRecord);
     }
 
     void
     ScriptContextProfiler::ProfileMerge(ScriptContextProfiler * profiler)
-    {
+    {TRACE_IT(36857);
         Assert(IsInitialized());
         this->profiler->Merge(profiler->profiler);
     }

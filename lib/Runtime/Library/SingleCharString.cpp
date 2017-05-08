@@ -9,7 +9,7 @@ namespace Js
     DEFINE_RECYCLER_TRACKER_PERF_COUNTER(SingleCharString);
 
     SingleCharString::SingleCharString(char16 ch, StaticType * type) : JavascriptString(type, 1, m_buff)
-    {
+    {TRACE_IT(63523);
         m_buff[0] = ch;
         m_buff[1] = _u('\0');
 
@@ -19,7 +19,7 @@ namespace Js
     }
 
     /*static*/ SingleCharString* SingleCharString::New(char16 ch, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(63524);
         Assert(scriptContext != nullptr);
 
         return RecyclerNew(scriptContext->GetRecycler(),SingleCharString,ch,
@@ -27,7 +27,7 @@ namespace Js
     }
 
     /*static*/ SingleCharString* SingleCharString::New(char16 ch, ScriptContext* scriptContext, ArenaAllocator* arena)
-    {
+    {TRACE_IT(63525);
         Assert(scriptContext != nullptr);
         Assert(arena != nullptr);
 

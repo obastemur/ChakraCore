@@ -30,10 +30,10 @@ namespace Js
         {
         private:
             char faultTypeBitArray[InvalidFaultType/8+1];
-            char getBit(int index) {
+            char getBit(int index) {TRACE_IT(20207);
                 return (faultTypeBitArray[index/8] >> (7-(index & 0x7))) & 0x1;
             }
-            void setBit(int index, int value) {
+            void setBit(int index, int value) {TRACE_IT(20208);
                 faultTypeBitArray[index/8] = faultTypeBitArray[index/8] | (value & 0x1) << (7-(index & 0x7));
             }
         public:
@@ -44,7 +44,7 @@ namespace Js
                 memset(&faultTypeBitArray, ~0, sizeof(faultTypeBitArray));
             }
             void EnableType(FaultType type);
-            void EnableType(int type){
+            void EnableType(int type){TRACE_IT(20209);
                 EnableType((FaultType)type);
             }
             bool IsEnabled(FaultType type);
@@ -100,11 +100,11 @@ namespace Js
 
         // sample for customized fault type
         template<class Pred>
-        bool ShouldInjectFault(FaultType fType, Pred p) {
+        bool ShouldInjectFault(FaultType fType, Pred p) {TRACE_IT(20210);
             bool shouldInjectionFault = Js::Configuration::Global.flags.FaultInjectionCount == 0
                 || ShouldInjectFaultHelper(fType);
-            if (shouldInjectionFault && p()) {
-                if(IsDebuggerPresent()) {
+            if (shouldInjectionFault && p()) {TRACE_IT(20211);
+                if(IsDebuggerPresent()) {TRACE_IT(20212);
                     DebugBreak();
                 }
                 dumpCurrentStackData();
@@ -163,24 +163,24 @@ namespace Js
         Js::Throw::OutOfMemory();
 
 #define FAULTINJECT_MEMORY_MARK_THROW(name, size) \
-    if(Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.MarkThrow, name, size)) { \
+    if(Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.MarkThrow, name, size)) {TRACE_IT(20213); \
         Js::Throw::OutOfMemory(); \
     }
 
 #define FAULTINJECT_MEMORY_MARK_NOTHROW(name, size) \
-    if(Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.MarkNoThrow, name, size)) { \
+    if(Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.MarkNoThrow, name, size)) {TRACE_IT(20214); \
         return false; \
     }
 
 #define FAULTINJECT_SCRIPT_TERMINATION \
-    if((this->threadContextFlags & ThreadContextFlagCanDisableExecution) != 0){ \
-        if( Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.ScriptTermination)){ \
+    if((this->threadContextFlags & ThreadContextFlagCanDisableExecution) != 0){TRACE_IT(20215); \
+        if( Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.ScriptTermination)){TRACE_IT(20216); \
             this->stackLimitForCurrentThread = Js::Constants::StackLimitForScriptInterrupt; \
         }\
     }
 
 #define FAULTINJECT_STACK_PROBE \
-    if( Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.StackProbe)){ \
+    if( Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.StackProbe)){TRACE_IT(20217); \
         stackAvailable = false; \
     }
 
@@ -192,8 +192,8 @@ namespace Js
 
 // A general implementation of customized fault type injection
 #define INJECT_FAULT(type, condition, execution) \
-    do{\
-        if(Js::FaultInjection::Global.ShouldInjectFault(type, condition)) {\
+    do{TRACE_IT(20218);\
+        if(Js::FaultInjection::Global.ShouldInjectFault(type, condition)) {TRACE_IT(20219);\
             ##execution##\
         };\
     }while(0)

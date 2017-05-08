@@ -12,7 +12,7 @@ private:
     Func *      func;
     Peeps *     peeps;
 public:
-    PeepsMD(Func *func) : func(func) {}
+    PeepsMD(Func *func) : func(func) {TRACE_IT(18672);}
 
     void        Init(Peeps *peeps);
     void        ProcessImplicitRegs(IR::Instr *instr);

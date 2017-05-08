@@ -13,17 +13,17 @@ namespace Js
 
     public:
         RejitException(const RejitReason reason) : reason(reason)
-        {
+        {TRACE_IT(22526);
         }
 
     public:
         RejitReason Reason() const
-        {
+        {TRACE_IT(22527);
             return reason;
         }
 
         const char *ReasonName() const
-        {
+        {TRACE_IT(22528);
             return RejitReasonNames[reason];
         }
     };

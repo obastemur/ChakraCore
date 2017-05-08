@@ -21,11 +21,11 @@ namespace Memory
     {
     public:
         AutoTimestamp(FILETIME * startTimestamp, FILETIME * endTimestamp) : endTimestamp(endTimestamp)
-        {
+        {TRACE_IT(26584);
             ::GetSystemTimeAsFileTime(startTimestamp);
         }
         ~AutoTimestamp()
-        {
+        {TRACE_IT(26585);
             ::GetSystemTimeAsFileTime(endTimestamp);
         }
     private:

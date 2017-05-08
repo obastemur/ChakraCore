@@ -9,13 +9,13 @@ template <ObjectInfoBits attributes, bool nothrow>
 
 inline char *
 HeapBucketT<TBlockType>::RealAlloc(Recycler * recycler, size_t sizeCat, size_t size)
-{
+{TRACE_IT(24057);
     Assert(sizeCat == this->sizeCat);
 
     char * memBlock = allocatorHead.template InlinedAlloc<(ObjectInfoBits)(attributes & InternalObjectInfoBitMask)>(recycler, sizeCat);
 
     if (memBlock == nullptr)
-    {
+    {TRACE_IT(24058);
         memBlock = SnailAlloc(recycler, &allocatorHead, sizeCat, size, attributes, nothrow);
         Assert(memBlock != nullptr || nothrow);
     }
@@ -24,9 +24,9 @@ HeapBucketT<TBlockType>::RealAlloc(Recycler * recycler, size_t sizeCat, size_t s
     // check if we actually allocated a block before verifying
     // its zero fill state. If it is nullptr, return that here.
     if (nothrow)
-    {
+    {TRACE_IT(24059);
         if (memBlock == nullptr)
-        {
+        {TRACE_IT(24060);
             return nullptr;
         }
     }
@@ -38,14 +38,14 @@ HeapBucketT<TBlockType>::RealAlloc(Recycler * recycler, size_t sizeCat, size_t s
         && ((attributes & ObjectInfoBits::WithBarrierBit) == 0)
 #endif
         )
-    {
+    {TRACE_IT(24061);
         if (this->IsPageHeapEnabled(attributes))
-        {
+        {TRACE_IT(24062);
             // in page heap there's no free list, and using size instead of sizeCat
             recycler->VerifyZeroFill(memBlock, size);
         }
         else
-        {
+        {TRACE_IT(24063);
             // Skip the first and the last pointer objects- the first may have next pointer for the free list
             // the last might have the old size of the object if this was allocated from an explicit free list
             recycler->VerifyZeroFill(memBlock + sizeof(FreeObject), sizeCat - (2 * sizeof(FreeObject)));
@@ -59,15 +59,15 @@ HeapBucketT<TBlockType>::RealAlloc(Recycler * recycler, size_t sizeCat, size_t s
 template <typename TBlockType>
 void
 HeapBucketT<TBlockType>::ExplicitFree(void* object, size_t sizeCat)
-{
+{TRACE_IT(24064);
     FreeObject* explicitFreeObject = (FreeObject*) object;
     if (lastExplicitFreeListAllocator->IsExplicitFreeObjectListAllocMode())
-    {
+    {TRACE_IT(24065);
         explicitFreeObject->SetNext(lastExplicitFreeListAllocator->GetFreeObjectList());
         lastExplicitFreeListAllocator->SetFreeObjectList(explicitFreeObject);
     }
     else
-    {
+    {TRACE_IT(24066);
         explicitFreeObject->SetNext(this->explicitFreeList);
         this->explicitFreeList = explicitFreeObject;
     }
@@ -80,7 +80,7 @@ HeapBucketT<TBlockType>::ExplicitFree(void* object, size_t sizeCat)
 inline
 Recycler *
 HeapBucket::GetRecycler() const
-{
+{TRACE_IT(24067);
     return this->heapInfo->recycler;
 }
 #endif

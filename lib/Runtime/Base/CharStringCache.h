@@ -17,11 +17,11 @@ namespace Js
 
         // For JIT
         static const char16 CharStringCacheSize = 0x80; /*range of ASCII 7-bit chars*/
-        static DWORD GetCharStringCacheAOffset() { return offsetof(CharStringCache, charStringCacheA); }
+        static DWORD GetCharStringCacheAOffset() {TRACE_IT(33503); return offsetof(CharStringCache, charStringCacheA); }
 
-        static JavascriptString* GetStringForChar(CharStringCache *charStringCache, char16 c) { return charStringCache->GetStringForChar(c); }
+        static JavascriptString* GetStringForChar(CharStringCache *charStringCache, char16 c) {TRACE_IT(33504); return charStringCache->GetStringForChar(c); }
         static JavascriptString* GetStringForCharCodePoint(CharStringCache *charStringCache, codepoint_t c)
-        {
+        {TRACE_IT(33505);
             return (c >= 0x10000 ? charStringCache->GetStringForCharSP(c) : charStringCache->GetStringForCharW((char16)c));
         }
 

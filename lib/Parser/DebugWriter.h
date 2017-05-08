@@ -32,9 +32,9 @@ namespace UnifiedRegex
 
     private:
         inline void CheckForNewline()
-        {
+        {TRACE_IT(29185);
             if (nlPending)
-            {
+            {TRACE_IT(29186);
                 BeginLine();
                 nlPending = false;
             }

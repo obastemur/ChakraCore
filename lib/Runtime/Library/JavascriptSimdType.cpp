@@ -8,9 +8,9 @@ namespace Js
 {
     // Constructors
     JavascriptSIMDType::JavascriptSIMDType(StaticType *type) : RecyclableObject(type)
-    { }
+    {TRACE_IT(61521); }
     JavascriptSIMDType::JavascriptSIMDType(SIMDValue *val, StaticType *type) : RecyclableObject(type), value(*val)
-    { }
+    {TRACE_IT(61522); }
 
     // Entry Points
     template <typename SIMDType>
@@ -25,7 +25,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !SIMDType::Is(args[0]))
-        {
+        {TRACE_IT(61523);
             char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
@@ -47,7 +47,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || !SIMDType::Is(args[0]))
-        {
+        {TRACE_IT(61524);
             char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toLocaleString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
@@ -58,14 +58,14 @@ namespace Js
         //args[1] and args[2] are optional reserved parameters.
         RecyclableObject *obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
-        {
+        {TRACE_IT(61525);
             char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toLocaleString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
         }
 
         if (JavascriptSIMDBool32x4::Is(args[0]) || JavascriptSIMDBool16x8::Is(args[0]) || JavascriptSIMDBool8x16::Is(args[0]))
-        {   //Boolean types  are independent of locale.
+        {TRACE_IT(61526);   //Boolean types  are independent of locale.
             return JavascriptSIMDObject::FromVar(obj)->ToString(scriptContext);
         }
 
@@ -88,22 +88,22 @@ namespace Js
         // One argument given will be hint
         //The allowed values for hint are "default", "number", and "string"
         if (args.Info.Count == 2)
-        {
+        {TRACE_IT(61527);
             if (JavascriptString::Is(args[1]))
-            {
+            {TRACE_IT(61528);
                 JavascriptString* StringObject = JavascriptString::FromVar(args[1]);
 
                 if (wcscmp(StringObject->UnsafeGetBuffer(), _u("default")) == 0 ||
                     wcscmp(StringObject->UnsafeGetBuffer(), _u("number")) == 0 ||
                     wcscmp(StringObject->UnsafeGetBuffer(), _u("string")) == 0)
-                {
+                {TRACE_IT(61529);
                     // The hint values are validated when provided but ignored for simd types.
                     if (SIMDType::Is(args[0]))
-                    {
+                    {TRACE_IT(61530);
                         return SIMDType::FromVar(args[0]);
                     }
                     else if (JavascriptSIMDObject::Is(args[0]))
-                    {
+                    {TRACE_IT(61531);
                         return SIMDType::FromVar(JavascriptSIMDObject::FromVar(args[0])->GetValue());
                     }
                 }
@@ -126,11 +126,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || SIMDType::Is(args[0]))
-        {
+        {TRACE_IT(61532);
             return SIMDType::FromVar(args[0]);
         }
         else if (JavascriptSIMDObject::Is(args[0]))
-        {
+        {TRACE_IT(61533);
             return SIMDType::FromVar((JavascriptSIMDObject::FromVar(args[0]))->GetValue());
         }
         char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
@@ -141,17 +141,17 @@ namespace Js
 
     //Shared utility methods.
     BOOL JavascriptSIMDType::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61534);
         return GetPropertyBuiltIns(propertyId, value, requestContext);
     }
 
     BOOL JavascriptSIMDType::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61535);
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
-        {
+        {TRACE_IT(61536);
             return true;
         }
 
@@ -160,12 +160,12 @@ namespace Js
     }
 
     BOOL JavascriptSIMDType::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61537);
         return GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     bool JavascriptSIMDType::GetPropertyBuiltIns(PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {TRACE_IT(61538);
         *value = requestContext->GetMissingPropertyResult();
         return false;
     }

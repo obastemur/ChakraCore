@@ -23,7 +23,7 @@ namespace Js
             !AutoRegisterIgnoreExceptionWrapper::IsRegistered(scriptContext->GetThreadContext());
 
         if (useExceptionWrapper)
-        {
+        {TRACE_IT(63776);
             // Forward the throw via regular try-catch wrapper logic that we use for helper/library calls.
             AutoRegisterIgnoreExceptionWrapper autoWrapper(scriptContext->GetThreadContext());
 
@@ -33,34 +33,34 @@ namespace Js
             return ret;
         }
         else
-        {
+        {TRACE_IT(63777);
             JavascriptExceptionOperators::Throw(throwErrorObject->m_error, scriptContext);
         }
     }
 
     ThrowErrorObject::ThrowErrorObject(StaticType* type, JavascriptError* error)
         : RecyclableObject(type), m_error(error)
-    {
+    {TRACE_IT(63778);
     }
 
     ThrowErrorObject* ThrowErrorObject::New(StaticType* type, JavascriptError* error, Recycler* recycler)
-    {
+    {TRACE_IT(63779);
         return RecyclerNew(recycler, ThrowErrorObject, type, error);
     }
 
     bool ThrowErrorObject::Is(Var aValue)
-    {
+    {TRACE_IT(63780);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Undefined;
     }
 
     ThrowErrorObject* ThrowErrorObject::FromVar(Var aValue)
-    {
+    {TRACE_IT(63781);
         Assert(Is(aValue));
         return static_cast<ThrowErrorObject*>(RecyclableObject::FromVar(aValue));
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowErrorObject(CreateErrorFunc createError, ScriptContext* scriptContext, int32 hCode, PCWSTR varName)
-    {
+    {TRACE_IT(63782);
         JavascriptLibrary* library = scriptContext->GetLibrary();
         JavascriptError *pError = (library->*createError)();
         JavascriptError::SetErrorMessage(pError, hCode, varName, scriptContext);
@@ -68,12 +68,12 @@ namespace Js
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowTypeErrorObject(ScriptContext* scriptContext, int32 hCode, PCWSTR varName)
-    {
+    {TRACE_IT(63783);
         return CreateThrowErrorObject(&JavascriptLibrary::CreateTypeError, scriptContext, hCode, varName);
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowTypeErrorObject(ScriptContext* scriptContext, int32 hCode, JavascriptString* varName)
-    {
+    {TRACE_IT(63784);
         return CreateThrowTypeErrorObject(scriptContext, hCode, varName->GetSz());
     }
 }

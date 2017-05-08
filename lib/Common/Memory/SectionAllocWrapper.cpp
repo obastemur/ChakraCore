@@ -17,7 +17,7 @@ namespace Memory
 {
 
 void CloseSectionHandle(HANDLE handle)
-{
+{TRACE_IT(26692);
 #if USEFILEMAP2
     CloseHandle(handle);
 #else
@@ -26,7 +26,7 @@ void CloseSectionHandle(HANDLE handle)
 }
 
 HANDLE CreateSection(size_t sectionSize, bool commit)
-{
+{TRACE_IT(26693);
     const ULONG allocAttributes = commit ? SEC_COMMIT : SEC_RESERVE;
 #if USEFILEMAP2
 #if TARGET_32
@@ -36,7 +36,7 @@ HANDLE CreateSection(size_t sectionSize, bool commit)
 #endif
     HANDLE handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_EXECUTE_READWRITE | allocAttributes, sizeHigh, (DWORD)sectionSize, NULL);
     if (handle == nullptr)
-    {
+    {TRACE_IT(26694);
         return nullptr;
     }
 #else
@@ -51,7 +51,7 @@ HANDLE CreateSection(size_t sectionSize, bool commit)
     HANDLE handle = nullptr;
     int status = NtdllLibrary::Instance->CreateSection(&handle, SECTION_MAP_READ | SECTION_MAP_WRITE | SECTION_QUERY | SECTION_MAP_EXECUTE, &attr, &size, PAGE_EXECUTE_READWRITE, allocAttributes, NULL);
     if (status != 0)
-    {
+    {TRACE_IT(26695);
         return nullptr;
     }
 #endif
@@ -59,7 +59,7 @@ HANDLE CreateSection(size_t sectionSize, bool commit)
 }
 
 void UnmapView(HANDLE process, PVOID address)
-{
+{TRACE_IT(26696);
 #if USEFILEMAP2
     UnmapViewOfFile2(process, address, 0);
 #else
@@ -68,21 +68,21 @@ void UnmapView(HANDLE process, PVOID address)
 }
 
 PVOID MapView(HANDLE process, HANDLE sectionHandle, size_t size, size_t offset, bool local)
-{
+{TRACE_IT(26697);
     PVOID address = nullptr;
     DWORD flags = 0;
     if (local)
-    {
+    {TRACE_IT(26698);
         if (process != GetCurrentProcess())
-        {
+        {TRACE_IT(26699);
             return nullptr;
         }
         flags = PAGE_READWRITE;
     }
     else
-    {
+    {TRACE_IT(26700);
         if (process == GetCurrentProcess())
-        {
+        {TRACE_IT(26701);
             return nullptr;
         }
         flags = AutoSystemInfo::Data.IsCFGEnabled() ? PAGE_EXECUTE_RO_TARGETS_INVALID : PAGE_EXECUTE;
@@ -91,7 +91,7 @@ PVOID MapView(HANDLE process, HANDLE sectionHandle, size_t size, size_t offset, 
 #if USEFILEMAP2
     address = MapViewOfFile2(sectionHandle, process, offset, nullptr, size, NULL, flags);
     if (local && address != nullptr)
-    {
+    {TRACE_IT(26702);
         address = VirtualAlloc(address, size, MEM_COMMIT, flags);
     }
 #else
@@ -106,7 +106,7 @@ PVOID MapView(HANDLE process, HANDLE sectionHandle, size_t size, size_t offset, 
     SIZE_T viewSize = size;
     int status = NtdllLibrary::Instance->MapViewOfSection(sectionHandle, process, &address, NULL, viewSize, &mapOffset, &viewSize, NtdllLibrary::ViewUnmap, NULL, flags);
     if (status != 0)
-    {
+    {TRACE_IT(26703);
         return nullptr;
     }
 #endif
@@ -129,12 +129,12 @@ SectionMap32::SectionMap32() :
 }
 
 SectionMap32::~SectionMap32()
-{
+{TRACE_IT(26704);
     for (uint i = 0; i < _countof(map); i++)
-    {
+    {TRACE_IT(26705);
         L2MapChunk * chunk = map[i];
         if (chunk)
-        {
+        {TRACE_IT(26706);
             HeapDelete(chunk);
         }
     }
@@ -142,13 +142,13 @@ SectionMap32::~SectionMap32()
 
 SectionInfo *
 SectionMap32::GetSection(void* address)
-{
+{TRACE_IT(26707);
 
     uint id1 = GetLevel1Id(address);
 
     L2MapChunk * l2map = map[id1];
     if (l2map == nullptr)
-    {
+    {TRACE_IT(26708);
         return nullptr;
     }
 
@@ -157,12 +157,12 @@ SectionMap32::GetSection(void* address)
 
 void
 SectionMap32::Cleanup()
-{
+{TRACE_IT(26709);
     for (uint id1 = 0; id1 < L1Count; id1++)
-    {
+    {TRACE_IT(26710);
         L2MapChunk * l2map = map[id1];
         if (l2map != nullptr && l2map->IsEmpty())
-        {
+        {TRACE_IT(26711);
             map[id1] = nullptr;
             HeapDelete(l2map);
             Assert(count > 0);
@@ -173,19 +173,19 @@ SectionMap32::Cleanup()
 
 bool
 SectionMap32::EnsureSection(void * address, uint pageCount)
-{
+{TRACE_IT(26712);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(26713);
         if (map[id1] == nullptr)
-        {
+        {TRACE_IT(26714);
             L2MapChunk * newChunk = HeapNewNoThrowZ(L2MapChunk);
             if (newChunk == nullptr)
-            {
+            {TRACE_IT(26715);
                 // remove any previously allocated L2 maps
                 Cleanup();
 
@@ -198,7 +198,7 @@ SectionMap32::EnsureSection(void * address, uint pageCount)
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(26716);
             break;
         }
 
@@ -212,21 +212,21 @@ SectionMap32::EnsureSection(void * address, uint pageCount)
 
 void
 SectionMap32::ClearSection(void * address, uint pageCount)
-{
+{TRACE_IT(26717);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(26718);
         Assert(map[id1] != nullptr);
 
         map[id1]->Clear(id2, currentPageCount);
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(26719);
             return;
         }
 
@@ -238,21 +238,21 @@ SectionMap32::ClearSection(void * address, uint pageCount)
 
 void
 SectionMap32::SetSectionNoCheck(void * address, uint pageCount, SectionInfo * section)
-{
+{TRACE_IT(26720);
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
     uint currentPageCount = min(pageCount, L2Count - id2);
 
     while (true)
-    {
+    {TRACE_IT(26721);
         Assert(map[id1] != nullptr);
 
         map[id1]->Set(id2, currentPageCount, section);
 
         pageCount -= currentPageCount;
         if (pageCount == 0)
-        {
+        {TRACE_IT(26722);
             return;
         }
 
@@ -266,7 +266,7 @@ bool
 SectionMap32::SetSection(void * address, uint pageCount, SectionInfo * section)
 {
     if (!EnsureSection(address, pageCount))
-    {
+    {TRACE_IT(26723);
         return false;
     }
 
@@ -275,11 +275,11 @@ SectionMap32::SetSection(void * address, uint pageCount, SectionInfo * section)
 }
 
 SectionMap32::L2MapChunk::~L2MapChunk()
-{
+{TRACE_IT(26724);
     for (uint i = 0; i < L2Count; ++i)
-    {
+    {TRACE_IT(26725);
         if (map[i] != nullptr)
-        {
+        {TRACE_IT(26726);
             // in case runtime process has abnormal termination, map may not be empty
             CloseSectionHandle(map[i]->handle);
             HeapDelete(map[i]);
@@ -289,11 +289,11 @@ SectionMap32::L2MapChunk::~L2MapChunk()
 
 bool
 SectionMap32::L2MapChunk::IsEmpty() const
-{
+{TRACE_IT(26727);
     for (uint i = 0; i < L2Count; i++)
-    {
+    {TRACE_IT(26728);
         if (this->map[i] != nullptr)
-        {
+        {TRACE_IT(26729);
             return false;
         }
     }
@@ -303,14 +303,14 @@ SectionMap32::L2MapChunk::IsEmpty() const
 
 void
 SectionMap32::L2MapChunk::Clear(uint id2, uint pageCount)
-{
+{TRACE_IT(26730);
     uint id2End = id2 + pageCount;
 
     Assert(id2 < L2Count);
     Assert(id2End <= L2Count);
 
     for (uint i = id2; i < id2End; i++)
-    {
+    {TRACE_IT(26731);
         __analysis_assume(i < L2Count);
         Assert(map[i] != nullptr);
         map[i] = nullptr;
@@ -319,14 +319,14 @@ SectionMap32::L2MapChunk::Clear(uint id2, uint pageCount)
 
 void
 SectionMap32::L2MapChunk::Set(uint id2, uint pageCount, SectionInfo * section)
-{
+{TRACE_IT(26732);
     uint id2End = id2 + pageCount;
 
     Assert(id2 < L2Count);
     Assert(id2End <= L2Count);
 
     for (uint i = id2; i < id2End; i++)
-    {
+    {TRACE_IT(26733);
         __analysis_assume(i < L2Count);
         Assert(map[i] == nullptr);
         map[i] = section;
@@ -335,7 +335,7 @@ SectionMap32::L2MapChunk::Set(uint id2, uint pageCount, SectionInfo * section)
 
 SectionInfo *
 SectionMap32::L2MapChunk::Get(void * address)
-{
+{TRACE_IT(26734);
     uint id2 = GetLevel2Id(address);
     Assert(id2 < L2Count);
     __analysis_assume(id2 < L2Count);
@@ -345,16 +345,16 @@ SectionMap32::L2MapChunk::Get(void * address)
 #if TARGET_64
 
 SectionMap64::SectionMap64() : list(nullptr)
-{
+{TRACE_IT(26735);
 }
 
 SectionMap64::~SectionMap64()
-{
+{TRACE_IT(26736);
     Node * node = list;
     list = nullptr;
 
     while (node != nullptr)
-    {
+    {TRACE_IT(26737);
         Node * next = node->next;
         HeapDelete(node);
         node = next;
@@ -363,32 +363,32 @@ SectionMap64::~SectionMap64()
 
 bool
 SectionMap64::EnsureSection(void * address, size_t pageCount)
-{
+{TRACE_IT(26738);
     uint lowerBitsAddress = ::Math::PointerCastToIntegralTruncate<uint>(address);
     size_t pageCountLeft = pageCount;
     uint nodePages = PagesPer4GB - lowerBitsAddress / AutoSystemInfo::PageSize;
     if (pageCountLeft < nodePages)
-    {
+    {TRACE_IT(26739);
         nodePages = (uint)pageCountLeft;
     }
 
     do
-    {
+    {TRACE_IT(26740);
         Node * node = FindOrInsertNode(address);
         if (node == nullptr || !node->map.EnsureSection(address, nodePages))
-        {
+        {TRACE_IT(26741);
             return false;
         }
 
         pageCountLeft -= nodePages;
         if (pageCountLeft == 0)
-        {
+        {TRACE_IT(26742);
             return true;
         }
         address = (void *)((size_t)address + (nodePages * AutoSystemInfo::PageSize));
         nodePages = PagesPer4GB;
         if (pageCountLeft < PagesPer4GB)
-        {
+        {TRACE_IT(26743);
             nodePages = (uint)pageCountLeft;
         }
     } while (true);
@@ -408,7 +408,7 @@ bool
 SectionMap64::SetSection(void * address, uint pageCount, SectionInfo * section)
 {
     if (!EnsureSection(address, pageCount))
-    {
+    {TRACE_IT(26744);
         return false;
     }
 
@@ -419,10 +419,10 @@ SectionMap64::SetSection(void * address, uint pageCount, SectionInfo * section)
 
 SectionInfo *
 SectionMap64::GetSection(void * address)
-{
+{TRACE_IT(26745);
     Node * node = FindNode(address);
     if (node == nullptr)
-    {
+    {TRACE_IT(26746);
         return nullptr;
     }
     return node->map.GetSection(address);
@@ -440,29 +440,29 @@ SectionMap64::ClearSection(void * address, uint pageCount)
 
 template <class Fn>
 void SectionMap64::ForEachNodeInAddressRange(void * address, size_t pageCount, Fn fn)
-{
+{TRACE_IT(26747);
     uint lowerBitsAddress = ::Math::PointerCastToIntegralTruncate<uint>(address);
     uint nodePages = SectionMap64::PagesPer4GB - lowerBitsAddress / AutoSystemInfo::PageSize;
     if (pageCount < nodePages)
-    {
+    {TRACE_IT(26748);
         nodePages = (uint)pageCount;
     }
 
     do
-    {
+    {TRACE_IT(26749);
         Node * node = FindNode(address);
 
         fn(node, address, nodePages);
 
         pageCount -= nodePages;
         if (pageCount == 0)
-        {
+        {TRACE_IT(26750);
             break;
         }
         address = (void *)((size_t)address + (nodePages * AutoSystemInfo::PageSize));
         nodePages = SectionMap64::PagesPer4GB;
         if (pageCount < SectionMap64::PagesPer4GB)
-        {
+        {TRACE_IT(26751);
             nodePages = (uint)pageCount;
         }
     } while (true);
@@ -470,14 +470,14 @@ void SectionMap64::ForEachNodeInAddressRange(void * address, size_t pageCount, F
 
 SectionMap64::Node *
 SectionMap64::FindOrInsertNode(void * address)
-{
+{TRACE_IT(26752);
     Node * node = FindNode(address);
 
     if (node == nullptr)
-    {
+    {TRACE_IT(26753);
         node = HeapNewNoThrowZ(Node, GetNodeStartAddress(address));
         if (node != nullptr)
-        {
+        {TRACE_IT(26754);
             node->nodeIndex = GetNodeIndex(address);
             node->next = list;
             list = node;
@@ -489,14 +489,14 @@ SectionMap64::FindOrInsertNode(void * address)
 
 SectionMap64::Node *
 SectionMap64::FindNode(void * address) const
-{
+{TRACE_IT(26755);
     uint index = GetNodeIndex(address);
 
     Node * node = list;
     while (node != nullptr)
-    {
+    {TRACE_IT(26756);
         if (node->nodeIndex == index)
-        {
+        {TRACE_IT(26757);
             return node;
         }
 
@@ -512,7 +512,7 @@ static const uint SectionAlignment = 65536;
 
 PVOID
 AllocLocalView(HANDLE sectionHandle, LPVOID remoteBaseAddr, LPVOID remoteRequestAddress, size_t requestSize)
-{
+{TRACE_IT(26758);
     const size_t offset = (uintptr_t)remoteRequestAddress - (uintptr_t)remoteBaseAddr;
     const size_t offsetAlignment = offset % SectionAlignment;
     const size_t alignedOffset = offset - offsetAlignment;
@@ -520,7 +520,7 @@ AllocLocalView(HANDLE sectionHandle, LPVOID remoteBaseAddr, LPVOID remoteRequest
     
     PVOID address = MapView(GetCurrentProcess(), sectionHandle, viewSize, alignedOffset, true);
     if (address == nullptr)
-    {
+    {TRACE_IT(26759);
         return nullptr;
     }
     return (PVOID)((uintptr_t)address + offsetAlignment);
@@ -528,7 +528,7 @@ AllocLocalView(HANDLE sectionHandle, LPVOID remoteBaseAddr, LPVOID remoteRequest
 
 BOOL
 FreeLocalView(LPVOID lpAddress)
-{
+{TRACE_IT(26760);
     const size_t alignment = (uintptr_t)lpAddress % SectionAlignment;
     UnmapView(GetCurrentProcess(), (LPVOID)((uintptr_t)lpAddress - alignment));
     return TRUE;
@@ -536,13 +536,13 @@ FreeLocalView(LPVOID lpAddress)
 
 SectionAllocWrapper::SectionAllocWrapper(HANDLE process) :
     process(process)
-{
+{TRACE_IT(26761);
     Assert(process != GetCurrentProcess()); // only use sections when OOP
 }
 
 LPVOID
 SectionAllocWrapper::Alloc(LPVOID requestAddress, size_t dwSize, DWORD allocationType, DWORD protectFlags, bool isCustomHeapAllocation)
-{
+{TRACE_IT(26762);
     Assert(isCustomHeapAllocation);
 
     LPVOID address = nullptr;
@@ -556,40 +556,40 @@ SectionAllocWrapper::Alloc(LPVOID requestAddress, size_t dwSize, DWORD allocatio
 
     // for new allocations, create new section and fully map it (reserved) into runtime process
     if (requestAddress == nullptr)
-    {
+    {TRACE_IT(26763);
         sectionHandle = CreateSection(dwSize, ((allocationType & MEM_COMMIT) == MEM_COMMIT));
         if (sectionHandle == nullptr)
-        {
+        {TRACE_IT(26764);
             goto FailureCleanup;
         }
         address = MapView(this->process, sectionHandle, 0, 0, false);
         if(address == nullptr)
-        {
+        {TRACE_IT(26765);
             goto FailureCleanup;
         }
 
         section = HeapNewNoThrowStruct(SectionInfo);
         if (section == nullptr)
-        {
+        {TRACE_IT(26766);
             goto FailureCleanup;
         }
         section->handle = sectionHandle;
         section->runtimeBaseAddress = address;
         if (!sections.SetSection(address, (uint)(dwSize / AutoSystemInfo::PageSize), section))
-        {
+        {TRACE_IT(26767);
             goto FailureCleanup;
         }
     }
     else
-    {
+    {TRACE_IT(26768);
         if (!sections.GetSection(requestAddress))
-        {
+        {TRACE_IT(26769);
             return nullptr;
         }
         address = requestAddress;
 
         if ((allocationType & MEM_COMMIT) == MEM_COMMIT)
-        {
+        {TRACE_IT(26770);
             const DWORD allocProtectFlags = AutoSystemInfo::Data.IsCFGEnabled() ? PAGE_EXECUTE_RO_TARGETS_INVALID : PAGE_EXECUTE;
             address = VirtualAllocEx(this->process, address, dwSize, MEM_COMMIT, allocProtectFlags);
         }
@@ -600,15 +600,15 @@ SectionAllocWrapper::Alloc(LPVOID requestAddress, size_t dwSize, DWORD allocatio
 FailureCleanup:
     // if section allocation failed, free whatever we started to allocate
     if (sectionHandle != nullptr)
-    {
+    {TRACE_IT(26771);
         CloseSectionHandle(sectionHandle);
     }
     if (address != nullptr)
-    {
+    {TRACE_IT(26772);
         UnmapView(this->process, address);
     }
     if (section != nullptr)
-    {
+    {TRACE_IT(26773);
         HeapDelete(section);
     }
     return nullptr;
@@ -616,24 +616,24 @@ FailureCleanup:
 
 LPVOID
 SectionAllocWrapper::AllocLocal(LPVOID requestAddress, size_t dwSize)
-{
+{TRACE_IT(26774);
     SectionInfo * section = sections.GetSection(requestAddress);
     Assert(section);
     return AllocLocalView(section->handle, section->runtimeBaseAddress, requestAddress, dwSize);
 }
 
 BOOL SectionAllocWrapper::FreeLocal(LPVOID lpAddress)
-{
+{TRACE_IT(26775);
     return FreeLocalView(lpAddress);
 }
 
 BOOL SectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType)
-{
+{TRACE_IT(26776);
     Assert(dwSize % AutoSystemInfo::PageSize == 0);
     Assert(this->process != GetCurrentProcess()); // only use sections when OOP
 
     if ((dwFreeType & MEM_RELEASE) == MEM_RELEASE)
-    {
+    {TRACE_IT(26777);
         SectionInfo * section = sections.GetSection(lpAddress);
         Assert(section);
         Assert(section->runtimeBaseAddress == lpAddress);
@@ -643,13 +643,13 @@ BOOL SectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType
         CloseSectionHandle(section->handle);
     }
     else
-    {
+    {TRACE_IT(26778);
         Assert((dwFreeType & MEM_DECOMMIT) == MEM_DECOMMIT);
         for (size_t i = 0; i < dwSize / AutoSystemInfo::PageSize; ++i)
-        {
+        {TRACE_IT(26779);
             LPVOID localAddr = AllocLocal((char*)lpAddress + i * AutoSystemInfo::PageSize, AutoSystemInfo::PageSize);
             if (localAddr == nullptr)
-            {
+            {TRACE_IT(26780);
                 return FALSE;
             }
             ZeroMemory(localAddr, AutoSystemInfo::PageSize);
@@ -657,7 +657,7 @@ BOOL SectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType
         }
         DWORD oldFlags = NULL;
         if (!VirtualProtectEx(this->process, lpAddress, dwSize, PAGE_NOACCESS, &oldFlags))
-        {
+        {TRACE_IT(26781);
             return FALSE;
         }
     }
@@ -678,15 +678,15 @@ PreReservedSectionAllocWrapper::PreReservedSectionAllocWrapper(HANDLE process) :
     process(process),
     cs(4000),
     section(nullptr)
-{
+{TRACE_IT(26782);
     Assert(process != GetCurrentProcess()); // only use sections when OOP
     freeSegments.SetAll();
 }
 
 PreReservedSectionAllocWrapper::~PreReservedSectionAllocWrapper()
-{
+{TRACE_IT(26783);
     if (IsPreReservedRegionPresent())
-    {
+    {TRACE_IT(26784);
         UnmapView(this->process, this->preReservedStartAddress);
         CloseSectionHandle(this->section);
         PreReservedHeapTrace(_u("MEM_RELEASE the PreReservedSegment. Start Address: 0x%p, Size: 0x%x * 0x%x bytes"), this->preReservedStartAddress, PreReservedAllocationSegmentCount,
@@ -700,21 +700,21 @@ PreReservedSectionAllocWrapper::~PreReservedSectionAllocWrapper()
 
 bool
 PreReservedSectionAllocWrapper::IsPreReservedRegionPresent()
-{
+{TRACE_IT(26785);
     return this->preReservedStartAddress != nullptr;
 }
 
 bool
 PreReservedSectionAllocWrapper::IsInRange(void * address)
-{
+{TRACE_IT(26786);
     if (!this->IsPreReservedRegionPresent())
-    {
+    {TRACE_IT(26787);
         return false;
     }
     bool isInRange = IsInRange(GetPreReservedStartAddress(), address);
 #if DBG
     if (isInRange)
-    {
+    {TRACE_IT(26788);
         MEMORY_BASIC_INFORMATION memBasicInfo;
         size_t bytes = VirtualQueryEx(this->process, address, &memBasicInfo, sizeof(memBasicInfo));
         Assert(bytes != 0 && memBasicInfo.State == MEM_COMMIT && memBasicInfo.AllocationProtect == PAGE_EXECUTE);
@@ -726,13 +726,13 @@ PreReservedSectionAllocWrapper::IsInRange(void * address)
 /* static */
 bool
 PreReservedSectionAllocWrapper::IsInRange(void * regionStart, void * address)
-{
+{TRACE_IT(26789);
     if (!regionStart)
-    {
+    {TRACE_IT(26790);
         return false;
     }
     if (address >= regionStart && address < GetPreReservedEndAddress(regionStart))
-    {
+    {TRACE_IT(26791);
         return true;
     }
 
@@ -742,13 +742,13 @@ PreReservedSectionAllocWrapper::IsInRange(void * regionStart, void * address)
 
 LPVOID
 PreReservedSectionAllocWrapper::GetPreReservedStartAddress()
-{
+{TRACE_IT(26792);
     return this->preReservedStartAddress;
 }
 
 LPVOID
 PreReservedSectionAllocWrapper::GetPreReservedEndAddress()
-{
+{TRACE_IT(26793);
     Assert(IsPreReservedRegionPresent());
     return GetPreReservedEndAddress(this->preReservedStartAddress);
 }
@@ -756,16 +756,16 @@ PreReservedSectionAllocWrapper::GetPreReservedEndAddress()
 /* static */
 LPVOID
 PreReservedSectionAllocWrapper::GetPreReservedEndAddress(void * regionStart)
-{
+{TRACE_IT(26794);
     return (char*)regionStart + (PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageCount() * AutoSystemInfo::PageSize);
 }
 
 
 LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegion()
-{
+{TRACE_IT(26795);
     LPVOID startAddress = this->preReservedStartAddress;
     if (startAddress != nullptr)
-    {
+    {TRACE_IT(26796);
         return startAddress;
     }
 
@@ -776,24 +776,24 @@ LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegion()
 }
 
 LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegionInternal()
-{
+{TRACE_IT(26797);
     LPVOID startAddress = this->preReservedStartAddress;
     if (startAddress != nullptr)
-    {
+    {TRACE_IT(26798);
         return startAddress;
     }
 
     size_t bytes = PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageSize();
     if (PHASE_FORCE1(Js::PreReservedHeapAllocPhase))
-    {
+    {TRACE_IT(26799);
         HANDLE sectionHandle = CreateSection(bytes, false);
         if (sectionHandle == nullptr)
-        {
+        {TRACE_IT(26800);
             return nullptr;
         }
         startAddress = MapView(this->process, sectionHandle, 0, 0, false);
         if (startAddress == nullptr)
-        {
+        {TRACE_IT(26801);
             CloseSectionHandle(sectionHandle);
             return nullptr;
         }
@@ -814,7 +814,7 @@ LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegionInternal()
     // It doesn't affect functionally, and it should be OK if we exceed.
 
     if (PreReservedSectionAllocWrapper::numPreReservedSegment > PreReservedSectionAllocWrapper::MaxPreReserveSegment)
-    {
+    {TRACE_IT(26802);
         supportPreReservedRegion = false;
     }
 #else
@@ -824,15 +824,15 @@ LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegionInternal()
 #endif
 
     if (AutoSystemInfo::Data.IsCFGEnabled() && supportPreReservedRegion)
-    {
+    {TRACE_IT(26803);
         HANDLE sectionHandle = CreateSection(bytes, false);
         if (sectionHandle == nullptr)
-        {
+        {TRACE_IT(26804);
             return nullptr;
         }
         startAddress = MapView(this->process, sectionHandle, 0, 0, false);
         if (startAddress == nullptr)
-        {
+        {TRACE_IT(26805);
             CloseSectionHandle(sectionHandle);
             return nullptr;
         }
@@ -842,7 +842,7 @@ LPVOID PreReservedSectionAllocWrapper::EnsurePreReservedRegionInternal()
 
 #if TARGET_32
         if (startAddress)
-        {
+        {TRACE_IT(26806);
             InterlockedIncrement(&PreReservedSectionAllocWrapper::numPreReservedSegment);
         }
 #endif
@@ -859,11 +859,11 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
     AssertMsg(AutoSystemInfo::Data.IsCFGEnabled() || PHASE_FORCE1(Js::PreReservedHeapAllocPhase), "PreReservation without CFG ?");
     Assert(dwSize != 0);
 
-    {
+    {TRACE_IT(26807);
         AutoCriticalSection autocs(&this->cs);
         //Return nullptr, if no space to Reserve
         if (EnsurePreReservedRegionInternal() == nullptr)
-        {
+        {TRACE_IT(26808);
             PreReservedHeapTrace(_u("No space to pre-reserve memory with %d pages. Returning NULL\n"), PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageCount());
             return nullptr;
         }
@@ -875,17 +875,17 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
         Assert(requestedNumOfSegments <= MAXUINT32);
 
         if (lpAddress == nullptr)
-        {
+        {TRACE_IT(26809);
             Assert(requestedNumOfSegments != 0);
             AssertMsg(dwSize % AutoSystemInfo::Data.GetAllocationGranularityPageSize() == 0, "dwSize should be aligned with Allocation Granularity");
 
             do
-            {
+            {TRACE_IT(26810);
                 freeSegmentsBVIndex = freeSegments.GetNextBit(freeSegmentsBVIndex + 1);
                 //Return nullptr, if we don't have free/decommit pages to allocate
                 if ((freeSegments.Length() - freeSegmentsBVIndex < requestedNumOfSegments) ||
                     freeSegmentsBVIndex == BVInvalidIndex)
-                {
+                {TRACE_IT(26811);
                     PreReservedHeapTrace(_u("No more space to commit in PreReserved Memory region.\n"));
                     return nullptr;
                 }
@@ -895,7 +895,7 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
             addressToReserve = (char*)this->preReservedStartAddress + offset;
         }
         else
-        {
+        {TRACE_IT(26812);
             //Check If the lpAddress is within the range of the preReserved Memory Region
             Assert(((char*)lpAddress) >= (char*)this->preReservedStartAddress || ((char*)lpAddress + dwSize) < GetPreReservedEndAddress());
 
@@ -915,7 +915,7 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
         char * allocatedAddress = nullptr;
 
         if ((allocationType & MEM_COMMIT) != 0)
-        {
+        {TRACE_IT(26813);
 #if defined(ENABLE_JIT_CLAMP)
             AutoEnableDynamicCodeGen enableCodeGen;
 #endif
@@ -923,19 +923,19 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
             const DWORD allocProtectFlags = AutoSystemInfo::Data.IsCFGEnabled() ? PAGE_EXECUTE_RO_TARGETS_INVALID : PAGE_EXECUTE;
             allocatedAddress = (char *)VirtualAllocEx(this->process, addressToReserve, dwSize, MEM_COMMIT, allocProtectFlags);
             if (allocatedAddress == nullptr)
-            {
+            {TRACE_IT(26814);
                 MemoryOperationLastError::RecordLastError();
             }
         }
         else
-        {
+        {TRACE_IT(26815);
             // Just return the uncommitted address if we didn't ask to commit it.
             allocatedAddress = addressToReserve;
         }
 
         // Keep track of the committed pages within the preReserved Memory Region
         if (lpAddress == nullptr && allocatedAddress != nullptr)
-        {
+        {TRACE_IT(26816);
             Assert(allocatedAddress == addressToReserve);
             Assert(requestedNumOfSegments != 0);
             freeSegments.ClearRange(freeSegmentsBVIndex, static_cast<uint>(requestedNumOfSegments));
@@ -948,17 +948,17 @@ LPVOID PreReservedSectionAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
 
 BOOL
 PreReservedSectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType)
-{
+{TRACE_IT(26817);
     AutoCriticalSection autocs(&this->cs);
 
     if (dwSize == 0)
-    {
+    {TRACE_IT(26818);
         Assert(false);
         return FALSE;
     }
 
     if (this->preReservedStartAddress == nullptr)
-    {
+    {TRACE_IT(26819);
         Assert(false);
         return FALSE;
     }
@@ -967,10 +967,10 @@ PreReservedSectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFr
 
     // zero one page at a time to minimize working set impact while zeroing
     for (size_t i = 0; i < dwSize / AutoSystemInfo::PageSize; ++i)
-    {
+    {TRACE_IT(26820);
         LPVOID localAddr = AllocLocal((char*)lpAddress + i * AutoSystemInfo::PageSize, AutoSystemInfo::PageSize);
         if (localAddr == nullptr)
-        {
+        {TRACE_IT(26821);
             return FALSE;
         }
         ZeroMemory(localAddr, AutoSystemInfo::PageSize);
@@ -979,7 +979,7 @@ PreReservedSectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFr
 
     DWORD oldFlags = NULL;
     if(!VirtualProtectEx(this->process, lpAddress, dwSize, PAGE_NOACCESS, &oldFlags))
-    {
+    {TRACE_IT(26822);
         return FALSE;
     }
 
@@ -989,7 +989,7 @@ PreReservedSectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFr
     PreReservedHeapTrace(_u("MEM_DECOMMIT: Address: 0x%p of size: 0x%x bytes\n"), lpAddress, dwSize);
 
     if ((dwFreeType & MEM_RELEASE) == MEM_RELEASE)
-    {
+    {TRACE_IT(26823);
         Assert((uintptr_t)lpAddress >= (uintptr_t)this->preReservedStartAddress);
         AssertMsg(((uintptr_t)lpAddress & (AutoSystemInfo::Data.GetAllocationGranularityPageCount() - 1)) == 0, "Not aligned with Allocation Granularity?");
         AssertMsg(dwSize % AutoSystemInfo::Data.GetAllocationGranularityPageSize() == 0, "Release size should match the allocation granularity size");
@@ -1007,13 +1007,13 @@ PreReservedSectionAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFr
 
 LPVOID
 PreReservedSectionAllocWrapper::AllocLocal(LPVOID requestAddress, size_t dwSize)
-{
+{TRACE_IT(26824);
     return AllocLocalView(this->section, this->preReservedStartAddress, requestAddress, dwSize);
 }
 
 BOOL
 PreReservedSectionAllocWrapper::FreeLocal(LPVOID lpAddress)
-{
+{TRACE_IT(26825);
     return FreeLocalView(lpAddress);
 }
 

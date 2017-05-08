@@ -39,7 +39,7 @@ namespace Js
 
     template<typename CharT>
     bool isEqualIgnoreCase(CharT c1, CharT c2)
-    {
+    {TRACE_IT(20037);
         return c1 == c2
             || ((c2 <= 'Z') && (c1 >= 'a') && (c1 - c2 == 'a' - 'A'))
             || ((c1 <= 'Z') && (c2 >= 'a') && (c2 - c1 == 'a' - 'A'));
@@ -48,7 +48,7 @@ namespace Js
     template<typename CharT>
     CharT *stristr(const CharT * cs1,
         const CharT * cs2)
-    {
+    {TRACE_IT(20038);
         CharT *cp = (CharT *)cs1;
         CharT *s1, *s2;
 
@@ -56,7 +56,7 @@ namespace Js
             return (CharT *)cs1;
 
         while (*cp)
-        {
+        {TRACE_IT(20039);
             s1 = cp;
             s2 = (CharT *)cs2;
 
@@ -73,7 +73,7 @@ namespace Js
     }
 
     static char16* trimRight(_Inout_z_ char16* str)
-    {
+    {TRACE_IT(20040);
         auto tmp = str + wcslen(str);
         while (!isprint(*--tmp));
         *(tmp + 1) = _u('\0');
@@ -91,12 +91,12 @@ namespace Js
 
     template<typename CharT>
     static UINT_PTR HexStrToAddress(const CharT* str)
-    {
+    {TRACE_IT(20041);
         UINT_PTR address = 0;
         while (*str == '0' || *str == '`' || *str == 'x' || *str == 'X')
             str++; // leading zero
         do
-        {
+        {TRACE_IT(20042);
             if (*str == '`') // amd64 address
                 continue;
             if (hexTable[*str & 0xff] < 0)
@@ -115,7 +115,7 @@ namespace Js
         _Out_writes_to_(FramesToCapture, return) PVOID * BackTrace,
         _Out_opt_ PDWORD BackTraceHash,
         _In_opt_ const CONTEXT* pCtx = nullptr)
-    {
+    {TRACE_IT(20043);
         CONTEXT                         Context;
         KNONVOLATILE_CONTEXT_POINTERS   NvContext;
         UNWIND_HISTORY_TABLE            UnwindHistoryTable;
@@ -126,11 +126,11 @@ namespace Js
         ULONG                           Frame = 0;
 
         if (BackTraceHash)
-        {
+        {TRACE_IT(20044);
             *BackTraceHash = 0;
         }
         if (pCtx == nullptr)
-        {
+        {TRACE_IT(20045);
             RtlCaptureContext(&Context);
         }
         else
@@ -139,11 +139,11 @@ namespace Js
         }
         RtlZeroMemory(&UnwindHistoryTable, sizeof(UNWIND_HISTORY_TABLE));
         while (true)
-        {
+        {TRACE_IT(20046);
             RuntimeFunction = RtlLookupFunctionEntry(Context.Rip, &ImageBase, &UnwindHistoryTable);
             RtlZeroMemory(&NvContext, sizeof(KNONVOLATILE_CONTEXT_POINTERS));
             if (!RuntimeFunction)
-            {
+            {TRACE_IT(20047);
                 Context.Rip = (ULONG64)(*(PULONG64)Context.Rsp);
                 Context.Rsp += 8;
             }
@@ -154,24 +154,24 @@ namespace Js
             }
 
             if (!Context.Rip)
-            {
+            {TRACE_IT(20048);
                 break;
             }
 
             if (FramesToSkip > 0)
-            {
+            {TRACE_IT(20049);
                 FramesToSkip--;
                 continue;
             }
 
             if (Frame >= FramesToCapture)
-            {
+            {TRACE_IT(20050);
                 break;
             }
 
             BackTrace[Frame] = (PVOID)Context.Rip;
             if (BackTraceHash)
-            {
+            {TRACE_IT(20051);
                 *BackTraceHash += (Context.Rip & 0xffffffff);
             }
             Frame++;
@@ -194,7 +194,7 @@ namespace Js
         _Inout_opt_ PDWORD BackTraceHash,
         __in_opt CONST PCONTEXT InitialContext = NULL
         )
-    {
+    {TRACE_IT(20052);
         _Analysis_assume_(FramesToSkip >= 0);
         _Analysis_assume_(FramesToCapture >= 0);
         DWORD MachineType;
@@ -207,7 +207,7 @@ namespace Js
             ZeroMemory(&Context, sizeof(CONTEXT));
             Context.ContextFlags = CONTEXT_CONTROL;
             __asm
-            {
+            {TRACE_IT(20053);
             Label:
                 mov[Context.Ebp], ebp;
                 mov[Context.Esp], esp;
@@ -234,36 +234,36 @@ namespace Js
         {
             if (!pfnStackWalk64(MachineType, GetCurrentProcess(), GetCurrentThread(), &StackFrame,
                 NULL, NULL, pfnSymFunctionTableAccess64, pfnSymGetModuleBase64, NULL))
-            {
+            {TRACE_IT(20054);
                 break;
             }
 
             if (StackFrame.AddrPC.Offset != 0)
-            {
+            {TRACE_IT(20055);
                 if (FrameCount >= FramesToSkip)
-                {
+                {TRACE_IT(20056);
 #pragma warning(suppress: 22102)
 #pragma warning(suppress: 26014)
                     BackTrace[FrameCount - FramesToSkip] = (PVOID)StackFrame.AddrPC.Offset;
                     if (BackTraceHash)
-                    {
+                    {TRACE_IT(20057);
                         *BackTraceHash += (StackFrame.AddrPC.Offset & 0xffffffff);
                     }
                 }
                 FrameCount++;
             }
             else
-            {
+            {TRACE_IT(20058);
                 break;
             }
         }
 
         if (FrameCount > FramesToSkip)
-        {
+        {TRACE_IT(20059);
             return (WORD)(FrameCount - FramesToSkip);
         }
         else
-        {
+        {TRACE_IT(20060);
             return 0;
         }
     }
@@ -277,9 +277,9 @@ namespace Js
 #endif
     struct SymbolInfoPackage : public SYMBOL_INFO_PACKAGEW
     {
-        SymbolInfoPackage() { Init(); }
+        SymbolInfoPackage() {TRACE_IT(20061); Init(); }
         void Init()
-        {
+        {TRACE_IT(20062);
             si.SizeOfStruct = sizeof(SYMBOL_INFOW);
             si.MaxNameLen = sizeof(name);
         }
@@ -287,23 +287,23 @@ namespace Js
 
     struct ModuleInfo : public IMAGEHLP_MODULEW64
     {
-        ModuleInfo() { Init(); }
+        ModuleInfo() {TRACE_IT(20063); Init(); }
         void Init()
-        {
+        {TRACE_IT(20064);
             SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
         }
     };
 
     bool FaultInjection::InitializeSym()
-    {
+    {TRACE_IT(20065);
         if (symInitialized)
-        {
+        {TRACE_IT(20066);
             return true;
         }
 
         // load dbghelp APIs
         if (hDbgHelp == NULL)
-        {
+        {TRACE_IT(20067);
             hDbgHelp = LoadLibraryEx(_u("dbghelp.dll"), 0, 0);
         }
         if (hDbgHelp == NULL)
@@ -386,19 +386,19 @@ namespace Js
         "FaultTypeNames count is wrong");
 
     void FaultInjection::FaultInjectionTypes::EnableType(FaultType type)
-    {
+    {TRACE_IT(20068);
         Assert(type >= 0 && type < FaultType::FaultTypeCount);
         setBit(type, 1);
     }
     bool FaultInjection::FaultInjectionTypes::IsEnabled(FaultType type)
-    {
+    {TRACE_IT(20069);
         Assert(type >= 0 && type < FaultType::FaultTypeCount);
         return getBit(type) == 0x1;
     }
     bool FaultInjection::FaultInjectionTypes::IsEnabled(const char16* name)
-    {
+    {TRACE_IT(20070);
         for (int type = 0; type < FaultType::FaultTypeCount; type++)
-        {
+        {TRACE_IT(20071);
             if (wcscmp(FaultTypeNames[type], name) == 0)
                 return getBit(type) == 0x1;
         }
@@ -407,7 +407,7 @@ namespace Js
     }
 
     FaultInjection::FaultInjection()
-    {
+    {TRACE_IT(20072);
         stackMatchInitialized = Uninitialized;
         countOfInjectionPoints = 0;
         hDbgHelp = NULL;
@@ -422,14 +422,14 @@ namespace Js
         symInitialized = false;
 
         for (int i = 0; i < MAX_FRAME_COUNT; i++)
-        {
+        {TRACE_IT(20073);
             baselineStack[i] = nullptr;
             baselineAddresses[i] = 0;
         }
     }
 
     FaultInjection::~FaultInjection()
-    {
+    {TRACE_IT(20074);
         RemoveExceptionFilters();
 
         // when fault injection count only is passing from jscript.config(in case of running on 3rd part host)
@@ -449,9 +449,9 @@ namespace Js
                 fclose(fp);
             }
             for (int i = 0; i < MAX_FRAME_COUNT; i++)
-            {
+            {TRACE_IT(20075);
                 if (stackMatchRank[i] == 0)
-                {
+                {TRACE_IT(20076);
                     break;
                 }
                 fwprintf(stderr, _u("FaultInjection stack matching rank %d: %u\n"), i + 1, stackMatchRank[i]);
@@ -461,10 +461,10 @@ namespace Js
         }
 
         if (globalFlags.FaultInjection == StackHashCountOnly)
-        {
+        {TRACE_IT(20077);
             FILE *fp;
             if (fopen_s(&fp, "ChakraFaultInjectionHashes.txt", "w") == 0)
-            {
+            {TRACE_IT(20078);
                 for (uint i = 0; i < countOfInjectionPoints; i++)
                 {
                     fprintf(fp, "%p\n", (void*)stackHashOfAllInjectionPoints[i]);
@@ -478,10 +478,10 @@ namespace Js
         stackHashOfAllInjectionPoints = nullptr;
 
         if (globalFlags.FaultInjection == FaultMode::DisplayAvailableFaultTypes)
-        {
+        {TRACE_IT(20079);
             Output::Print(_u("Available Fault Types:\n"));
             for (int i = 0; i < FaultType::FaultTypeCount; i++)
-            {
+            {TRACE_IT(20080);
                 Output::Print(_u("%d-%s\n"), i, FaultTypeNames[i]);
             }
             Output::Flush();
@@ -489,10 +489,10 @@ namespace Js
 
         InjectionRecord* head = InjectionFirstRecord;
         while (head != nullptr)
-        {
+        {TRACE_IT(20081);
             InjectionRecord* next = head->next;
             if (head->StackData)
-            {
+            {TRACE_IT(20082);
                 free(head->StackData);
             }
             free(head);
@@ -500,46 +500,46 @@ namespace Js
         }
 
         for (int i = 0; i < MAX_FRAME_COUNT; i++)
-        {
+        {TRACE_IT(20083);
             if (baselineStack[i])
-            {
+            {TRACE_IT(20084);
                 free(baselineStack[i]);
             }
             if (baselineFuncSigs[i])
-            {
+            {TRACE_IT(20085);
                 free(baselineFuncSigs[i]);
             }
         }
 
         if (stackMatchInitialized == Succeeded)
-        {
+        {TRACE_IT(20086);
             pfnSymCleanup(GetCurrentProcess());
         }
 
         if (hDbgHelp)
-        {
+        {TRACE_IT(20087);
             FreeLibrary(hDbgHelp);
         }
 
         if (faultInjectionTypes)
-        {
+        {TRACE_IT(20088);
             faultInjectionTypes->~FaultInjectionTypes();
             NoCheckHeapDelete(faultInjectionTypes);
         }
     }
 
     bool FaultInjection::IsFaultEnabled(FaultType faultType)
-    {
+    {TRACE_IT(20089);
         if (!faultInjectionTypes)
-        {
+        {TRACE_IT(20090);
             faultInjectionTypes = NoCheckHeapNew(FaultInjectionTypes);
             if ((const char16*)globalFlags.FaultInjectionType == nullptr)
-            {
+            {TRACE_IT(20091);
                 // no -FaultInjectionType specified, inject all
                 faultInjectionTypes->EnableAll();
             }
             else
-            {
+            {TRACE_IT(20092);
                 ParseFaultTypes(globalFlags.FaultInjectionType);
             }
         }
@@ -548,13 +548,13 @@ namespace Js
     }
 
     bool FaultInjection::IsFaultInjectionOn(FaultType faultType)
-    {
+    {TRACE_IT(20093);
         return globalFlags.FaultInjection >= 0 //-FaultInjection switch
             && IsFaultEnabled(faultType);
     }
 
     void FaultInjection::ParseFaultTypes(const char16* szFaultTypes)
-    {
+    {TRACE_IT(20094);
         auto charCount = wcslen(szFaultTypes) + 1;
         char16* szTypes = (char16*)malloc(charCount*sizeof(char16));
         AssertMsg(szTypes, "OOM in FaultInjection Infra");
@@ -563,46 +563,46 @@ namespace Js
         char16 *nextTok = nullptr;
         char16* tok = wcstok_s(szTypes, delims, &nextTok);
         while (tok != NULL)
-        {
+        {TRACE_IT(20095);
             if (wcslen(tok) > 0)
-            {
+            {TRACE_IT(20096);
                 if (iswdigit(tok[0]))
-                {
+                {TRACE_IT(20097);
                     auto numType = _wtoi(tok);
                     for (int i = 0; i< FaultType::FaultTypeCount; i++)
-                    {
+                    {TRACE_IT(20098);
                         if (numType & (1 << i))
-                        {
+                        {TRACE_IT(20099);
                             faultInjectionTypes->EnableType(i);
                         }
                     }
                 }
                 else if (tok[0] == _u('#'))
-                {
+                {TRACE_IT(20100);
                     // FaultInjectionType:#1-4,#6 format, not flags
                     auto tok1 = tok + 1;
                     if (wcslen(tok1)>0 && iswdigit(tok1[0]))
-                    {
+                    {TRACE_IT(20101);
                         char16* pDash = wcschr(tok1, _u('-'));
                         if (pDash)
-                        {
+                        {TRACE_IT(20102);
                             for (int i = _wtoi(tok1); i <= _wtoi(pDash + 1); i++)
-                            {
+                            {TRACE_IT(20103);
                                 faultInjectionTypes->EnableType(i);
                             }
                         }
                         else
-                        {
+                        {TRACE_IT(20104);
                             faultInjectionTypes->EnableType(_wtoi(tok1));
                         }
                     }
                 }
                 else
-                {
+                {TRACE_IT(20105);
                     for (int i = 0; i < FaultType::FaultTypeCount; i++)
-                    {
+                    {TRACE_IT(20106);
                         if (_wcsicmp(FaultTypeNames[i], tok) == 0)
-                        {
+                        {TRACE_IT(20107);
                             faultInjectionTypes->EnableType(i);
                             break;
                         }
@@ -615,24 +615,24 @@ namespace Js
     }
 
     static void SmashLambda(_Inout_z_ char16* str)
-    {
+    {TRACE_IT(20108);
         //jscript9test!<lambda_dc7f9e8c591f1832700d6567e43faa6c>::operator()
         const char16 lambdaSig[] = _u("<lambda_");
         const int lambdaSigLen = (int)wcslen(lambdaSig);
         auto temp = str;
         while (temp != nullptr)
-        {
+        {TRACE_IT(20109);
             auto lambdaStart = wcsstr(temp, lambdaSig);
             temp = nullptr;
             if (lambdaStart != nullptr)
-            {
+            {TRACE_IT(20110);
                 auto lambdaEnd = wcschr(lambdaStart, _u('>'));
                 temp = lambdaEnd;
                 if (lambdaEnd != nullptr && lambdaEnd - lambdaStart == lambdaSigLen + 32)
-                {
+                {TRACE_IT(20111);
                     lambdaStart += lambdaSigLen;
                     while (lambdaStart < lambdaEnd)
-                    {
+                    {TRACE_IT(20112);
                         *(lambdaStart++) = _u('?');
                     }
                 }
@@ -641,22 +641,22 @@ namespace Js
     }
 
     bool FaultInjection::EnsureStackMatchInfraInitialized()
-    {
+    {TRACE_IT(20113);
         if (stackMatchInitialized == Succeeded)
-        {
+        {TRACE_IT(20114);
             return true;
         }
         else if (stackMatchInitialized == FailedToInitialize)
-        {
+        {TRACE_IT(20115);
             // previous try to initialize and failed
             return false;
         }
         else if (stackMatchInitialized == Uninitialized)
-        {
+        {TRACE_IT(20116);
             stackMatchInitialized = FailedToInitialize; //tried
 
             if (!InitializeSym())
-            {
+            {TRACE_IT(20117);
                 return false;
             }
 
@@ -681,13 +681,13 @@ namespace Js
             while (fgetws(buffer, MAX_SYM_NAME, fp))
             {
                 if (wcscmp(buffer, injectionStackStart) == 0)
-                {
+                {TRACE_IT(20118);
                     baselineFrameCount = 0;
                     continue;
                 }
 
                 if (baselineFrameCount >= maxLineCount)
-                {
+                {TRACE_IT(20119);
                     continue; // don't break because we can hit the start marker and reset
                 }
 
@@ -695,37 +695,37 @@ namespace Js
                 const char16 jscript9[] = _u("jscript9!");
                 char16* symbolStart = stristr(buffer, jscript9test);
                 if (symbolStart == nullptr)
-                {
+                {TRACE_IT(20120);
                     symbolStart = stristr(buffer, jscript9);
                 }
                 if (symbolStart == nullptr)
-                {
+                {TRACE_IT(20121);
                     continue;// no "jscript9test!", skip this line
                 }
 
                 if (wcsstr(symbolStart, _u("Js::FaultInjection")) != NULL)
-                { // skip faultinjection infra frames.
+                {TRACE_IT(20122); // skip faultinjection infra frames.
                     continue;
                 }
 
                 auto plus = wcschr(symbolStart, _u('+'));
                 if (plus)
-                {
+                {TRACE_IT(20123);
                     *plus = _u('\0');
                 }
                 else
-                {
+                {TRACE_IT(20124);
                     trimRight(symbolStart);
                 }
                 SmashLambda(symbolStart);
                 size_t len = wcslen(symbolStart);
                 if (baselineStack[baselineFrameCount] == nullptr)
-                {
+                {TRACE_IT(20125);
                     baselineStack[baselineFrameCount] = (char16*)malloc((len + 1)*sizeof(char16));
                     AssertMsg(baselineStack[baselineFrameCount], "OOM in FaultInjection Infra");
                 }
                 else
-                {
+                {TRACE_IT(20126);
                     auto tmp = (char16*)realloc(baselineStack[baselineFrameCount], (len + 1)*sizeof(char16));
                     AssertMsg(tmp, "OOM in FaultInjection Infra");
                     baselineStack[baselineFrameCount] = tmp;
@@ -737,11 +737,11 @@ namespace Js
 
             OutputDebugString(_u("Fault will be injected when hit following stack:\n"));
             for (uint i = 0; i<baselineFrameCount; i++)
-            {
+            {TRACE_IT(20127);
                 OutputDebugString(baselineStack[i]);
                 OutputDebugString(_u("\n"));
                 if (wcschr(baselineStack[i], '*') != nullptr || wcschr(baselineStack[i], '?') != nullptr)
-                {
+                {TRACE_IT(20128);
                     continue; // there's wildcard in this line, don't use address matching
                 }
 
@@ -751,7 +751,7 @@ namespace Js
                 {
                     Assert(UserContext != nullptr); // did passed in the user context
                     if (pSymInfo->Size > 0)
-                    {
+                    {TRACE_IT(20129);
                         PFUNCTION_SIGNATURES* sigs = (PFUNCTION_SIGNATURES*)UserContext;
                         int count = (*sigs) == nullptr ? 0 : (*sigs)->count;
                         auto tmp = (PFUNCTION_SIGNATURES)realloc(*sigs, sizeof(FUNCTION_SIGNATURES) + count*sizeof(RANGE));
@@ -773,11 +773,11 @@ namespace Js
     }
 
     bool FaultInjection::IsCurrentStackMatch()
-    {
+    {TRACE_IT(20130);
         AutoCriticalSection autocs(&cs_Sym); // sym* API is thread unsafe
 
         if (!EnsureStackMatchInfraInitialized())
-        {
+        {TRACE_IT(20131);
             return false;
         }
 
@@ -788,36 +788,36 @@ namespace Js
 
         uint n = 0;
         for (uint i = 0; i < frameCount; i++)
-        {
+        {TRACE_IT(20132);
             if (n >= baselineFrameCount)
-            {
+            {TRACE_IT(20133);
                 return true;
             }
 
             if (!AutoSystemInfo::Data.IsJscriptModulePointer(framesBuffer[i]))
-            { // skip non-Chakra frame
+            {TRACE_IT(20134); // skip non-Chakra frame
                 continue;
             }
 
             bool match = false;
             if (baselineFuncSigs[n] != nullptr)
-            {
+            {TRACE_IT(20135);
                 for (int j = 0; j<baselineFuncSigs[n]->count; j++)
-                {
+                {TRACE_IT(20136);
                     match = baselineFuncSigs[n]->signatures[j].startAddress <= (UINT_PTR)framesBuffer[i]
                         && (UINT_PTR)framesBuffer[i] < baselineFuncSigs[n]->signatures[j].endAddress;
                     if (match)
-                    {
+                    {TRACE_IT(20137);
                         break;
                     }
                 }
             }
             else
-            {
+            {TRACE_IT(20138);
                 // fallback to symbol name matching
                 sip.Init();
                 if (!pfnSymFromAddrW(hProcess, (DWORD64)framesBuffer[i], &dwSymDisplacement, &sip.si))
-                {
+                {TRACE_IT(20139);
                     continue;
                 }
                 SmashLambda(sip.si.Name);
@@ -827,22 +827,22 @@ namespace Js
             }
 
             if (match)
-            {
+            {TRACE_IT(20140);
                 stackMatchRank[n]++;
                 if (n == 0)
-                {
+                {TRACE_IT(20141);
                     n++;
                     continue;
                 }
             }
             else if (n > 0)
-            {
+            {TRACE_IT(20142);
                 return false;
             }
 
             // First line in baseline is found, moving forward.
             if (n > 0)
-            {
+            {TRACE_IT(20143);
                 n++;
             }
         }
@@ -851,18 +851,18 @@ namespace Js
 
     static bool faultInjectionDebug = false;
     bool FaultInjection::InstallExceptionFilters()
-    {
+    {TRACE_IT(20144);
         if (GetEnvironmentVariable(_u("FAULTINJECTION_DEBUG"), nullptr, 0) != 0)
-        {
+        {TRACE_IT(20145);
             faultInjectionDebug = true;
         }
         if (globalFlags.FaultInjection >= 0)
-        {
+        {TRACE_IT(20146);
             // initialize symbol system here instead of inside the exception filter
             // because some hard stack overflow can happen in SymInitialize
             // when the exception filter is handling stack overflow exception
             if (!FaultInjection::Global.InitializeSym())
-            {
+            {TRACE_IT(20147);
                 return false;
             }
             //C28725:    Use Watson instead of this SetUnhandledExceptionFilter.
@@ -877,10 +877,10 @@ namespace Js
                 {
                     // selected fatal exceptions:
                 case STATUS_ACCESS_VIOLATION:
-                {
+                {TRACE_IT(20148);
                     if (pfnHandleAV
                         && pfnHandleAV(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo) == EXCEPTION_CONTINUE_EXECUTION)
-                    {
+                    {TRACE_IT(20149);
                         return EXCEPTION_CONTINUE_EXECUTION;
                     }
                 }
@@ -898,12 +898,12 @@ namespace Js
     }
 
     void FaultInjection::RemoveExceptionFilters()
-    {
+    {TRACE_IT(20150);
         //C28725:    Use Watson instead of this SetUnhandledExceptionFilter.
 #pragma prefast(suppress: 28725)
         SetUnhandledExceptionFilter(nullptr);
         if (vectoredExceptionHandler != nullptr)
-        {
+        {TRACE_IT(20151);
             RemoveVectoredExceptionHandler(vectoredExceptionHandler);
 
             // remove the handler from the list second time. 
@@ -919,12 +919,12 @@ namespace Js
 
     // Calculate stack hash by adding the addresses (only jscript9 frames)
     UINT_PTR FaultInjection::CalculateStackHash(void* frames[], WORD frameCount, WORD framesToSkip)
-    {
+    {TRACE_IT(20152);
         UINT_PTR hash = 0;
         for (int i = framesToSkip; i < frameCount; i++)
-        {
+        {TRACE_IT(20153);
             if (AutoSystemInfo::Data.IsJscriptModulePointer(frames[i]))
-            {
+            {TRACE_IT(20154);
                 hash += (UINT_PTR)frames[i] - AutoSystemInfo::Data.dllLoadAddress;
             }
         }
@@ -937,13 +937,13 @@ namespace Js
     // to rebuild the stack (locals are available)
     // .cxr @@C++(&jscript9test!Js::FaultInjection::Global.InjectionFirstRecord->Context)
     _NOINLINE void FaultInjection::dumpCurrentStackData(LPCWSTR name /*= nullptr*/, size_t size /*= 0*/)
-    {
+    {TRACE_IT(20155);
 
 #if !defined(_M_ARM32_OR_ARM64)
 
         static bool keepBreak = true; // for disabling following breakpoint by editing the value
         if (keepBreak && IsDebuggerPresent())
-        {
+        {TRACE_IT(20156);
             DebugBreak();
         }
 
@@ -965,14 +965,14 @@ namespace Js
         record->StackDataLength = (spType)_stackbasepointer - _stackpointer;
         record->StackData = malloc(record->StackDataLength);
         if (record->StackData)
-        {
+        {TRACE_IT(20157);
             memcpy(record->StackData, (void*)_stackpointer, record->StackDataLength);
             _basepointer = _basepointer + (spType)record->StackData - _stackpointer;
             _stackpointer = (spType)record->StackData; // for .cxr switching to this state
         }
 
         if (name)
-        {
+        {TRACE_IT(20158);
             wcscpy_s(record->name, name);
         }
         record->allocSize = size;
@@ -993,7 +993,7 @@ namespace Js
     }
 
     bool FaultInjection::ShouldInjectFault(FaultType fType, LPCWSTR name, size_t size)
-    {
+    {TRACE_IT(20159);
         bool shouldInjectionFault = ShouldInjectFaultHelper(fType, name, size);
         if (shouldInjectionFault && fType != FaultType::ScriptTerminationOnDispose)
         {
@@ -1003,17 +1003,17 @@ namespace Js
     }
 
     bool FaultInjection::ShouldInjectFaultHelper(FaultType fType, LPCWSTR name, size_t size)
-    {
+    {TRACE_IT(20160);
         if (globalFlags.FaultInjection < 0)
-        {
+        {TRACE_IT(20161);
             return false; // no -FaultInjection switch
         }
         if (globalFlags.FaultInjectionFilter && _wcsicmp(globalFlags.FaultInjectionFilter, name) != 0)
-        {
+        {TRACE_IT(20162);
             return false;
         }
         if (globalFlags.FaultInjectionAllocSize >= 0 && size != (size_t)globalFlags.FaultInjectionAllocSize)
-        {
+        {TRACE_IT(20163);
             return false;
         }
 
@@ -1024,7 +1024,7 @@ namespace Js
 
         bool validInjectionPoint = IsFaultEnabled(fType);
         if (!validInjectionPoint)
-        {
+        {TRACE_IT(20164);
             return false;
         }
 
@@ -1034,7 +1034,7 @@ namespace Js
         case CountEquals:
             //Fault inject on count only when equal
             if (countOfInjectionPoints == (uint)globalFlags.FaultInjectionCount)
-            {
+            {TRACE_IT(20165);
                 shouldInjectionFault = true;
             }
             break;
@@ -1042,18 +1042,18 @@ namespace Js
         case CountEqualsOrAbove:
             //Fault inject on count greater than or equal
             if (countOfInjectionPoints >= (uint)globalFlags.FaultInjectionCount)
-            {
+            {TRACE_IT(20166);
                 shouldInjectionFault = true;
             }
             break;
         case StackMatch:
             // We don't care about the fault if we already passed in terms of count, or the stack doesn't match
             if (countOfInjectionPoints > (uint)globalFlags.FaultInjectionCount || !IsCurrentStackMatch())
-            {
+            {TRACE_IT(20167);
                 validInjectionPoint = false;
             }
             else // otherwise determine if we will be injecting this time around
-            {
+            {TRACE_IT(20168);
                 shouldInjectionFault = countOfInjectionPoints == (uint)globalFlags.FaultInjectionCount || globalFlags.FaultInjectionCount == -1;
             }
             break;
@@ -1061,10 +1061,10 @@ namespace Js
             validInjectionPoint = IsCurrentStackMatch();
             break;
         case StackHashCountOnly:
-        {
+        {TRACE_IT(20169);
             // extend the storage when necessary
             if (countOfInjectionPoints > stackHashOfAllInjectionPointsSize)
-            {
+            {TRACE_IT(20170);
                 stackHashOfAllInjectionPointsSize += 1024;
                 auto extended = (ULONG_PTR*)realloc(stackHashOfAllInjectionPoints,
                     stackHashOfAllInjectionPointsSize*sizeof(ULONG_PTR));
@@ -1088,21 +1088,21 @@ namespace Js
         }
 
         if (validInjectionPoint)
-        {
+        {TRACE_IT(20171);
             countOfInjectionPoints++;
         }
 
         // try to lookup stack hash, to see if it matches
         if (!shouldInjectionFault)
-        {
+        {TRACE_IT(20172);
             const UINT_PTR expectedHash = HexStrToAddress((LPCWSTR)globalFlags.FaultInjectionStackHash);
             if (expectedHash != 0)
-            {
+            {TRACE_IT(20173);
                 void* StackFrames[MAX_FRAME_COUNT];
                 auto FrameCount = CaptureStack(0, MAX_FRAME_COUNT, StackFrames, 0);
                 UINT_PTR hash = CalculateStackHash(StackFrames, FrameCount, 2);
                 if (hash == expectedHash)
-                {
+                {TRACE_IT(20174);
                     shouldInjectionFault = true;
                 }
             }
@@ -1113,7 +1113,7 @@ namespace Js
 
     // For faster fault injection test run, filter out the AVs on same IP/hash
     void FaultInjection::FaultInjectionAnalyzeException(_EXCEPTION_POINTERS *ep)
-    {
+    {TRACE_IT(20175);
 #if !defined(_M_ARM32_OR_ARM64) // not support ARM for now, add support in case we run fault injection on ARM
         AutoCriticalSection autocs(&cs_Sym);
         CONTEXT* pContext = ep->ContextRecord;
@@ -1123,10 +1123,10 @@ namespace Js
         HANDLE hProcess = GetCurrentProcess();
         DWORD64 dwSymDisplacement = 0;
         auto printFrame = [&](LPVOID addr)
-        {
+        {TRACE_IT(20176);
             sip.Init();
             if (pfnSymFromAddrW(hProcess, (DWORD64)addr, &dwSymDisplacement, &sip.si))
-            {
+            {TRACE_IT(20177);
                 mi.Init();
                 pfnSymGetModuleInfoW64(hProcess, (DWORD64)addr, &mi);
                 fwprintf(stderr, _u("%s!%s+0x%llx\n"), mi.ModuleName, sip.si.Name, (ULONGLONG)dwSymDisplacement);
@@ -1151,31 +1151,31 @@ namespace Js
         fwprintf(stderr, crashStackStart);
 
         for (int i = 0; i < nStackCount; i++)
-        {
+        {TRACE_IT(20178);
             printFrame(backTrace[i]);
             displacements[i] = dwSymDisplacement;
         }
 
         LPVOID internalExceptionAddr = nullptr;
         for (int i = 0; i < nStackCount - 1 && internalExceptionAddr == nullptr; i++)
-        {
+        {TRACE_IT(20179);
             if (backTrace[i] == (char*)Js::Throw::FatalInternalError + displacements[i])
-            {
+            {TRACE_IT(20180);
                 internalExceptionAddr = backTrace[i + 1];
             }
             else if (backTrace[i] == (char*)Js::Throw::ReportAssert + displacements[i])
-            {
+            {TRACE_IT(20181);
                 if (backTrace[i + 1] == (char*)Js::Throw::InternalError + displacements[i + 1])
-                {
+                {TRACE_IT(20182);
                     // skip to next frame
                 }
                 else
-                {
+                {TRACE_IT(20183);
                     internalExceptionAddr = backTrace[i + 1];
                 }
             }
             else if (backTrace[i] == (char*)Js::Throw::InternalError + displacements[i])
-            {
+            {TRACE_IT(20184);
                 internalExceptionAddr = backTrace[i + 1];
             }
         }
@@ -1185,12 +1185,12 @@ namespace Js
         // Print fault injecting point stacks
         auto record = InjectionFirstRecord;
         while (record)
-        {
+        {TRACE_IT(20185);
             if (record->StackFrames)
             {
                 fwprintf(stderr, injectionStackStart);
                 for (int i = 0; i < record->FrameCount; i++)
-                {
+                {TRACE_IT(20186);
                     printFrame(backTrace[i]);
                 }
                 fwprintf(stderr, injectionStackEnd);
@@ -1200,7 +1200,7 @@ namespace Js
 
         // we called RaiseException() which always use RaiseException as exception address, restore the real exception addr
         if (internalExceptionAddr != nullptr)
-        {
+        {TRACE_IT(20187);
             ep->ExceptionRecord->ExceptionAddress = internalExceptionAddr;
         }
 
@@ -1229,7 +1229,7 @@ namespace Js
 
         auto fp = _wfsopen(filename, _u("a+t"), _SH_DENYNO);
         if (fp != nullptr)
-        {
+        {TRACE_IT(20188);
             HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(fp));
             OVERLAPPED overlapped;
             memset(&overlapped, 0, sizeof(overlapped));
@@ -1240,13 +1240,13 @@ namespace Js
                 fclose(fp);
             }
             else
-            { // file locked
+            {TRACE_IT(20189); // file locked
                 char16 content[32] = { 0 };
                 while (fgetws(content, 31, fp))
-                {
+                {TRACE_IT(20190);
                     savedOffset = HexStrToAddress(content);
                     if (offset == savedOffset)
-                    {
+                    {TRACE_IT(20191);
                         // found duplicate so not creating dump
                         needDump = false;
                     }
@@ -1267,11 +1267,11 @@ namespace Js
                 _snwprintf_s(filename, _TRUNCATE, _u("%s.HitCount_%llx.txt"), mainModule, (long long)offset);
                 auto hcfp = _wfsopen(filename, _u("r+"), _SH_DENYNO);
                 if (!hcfp)
-                {
+                {TRACE_IT(20192);
                     hcfp = _wfsopen(filename, _u("w+"), _SH_DENYNO);
                 }
                 if (hcfp)
-                {
+                {TRACE_IT(20193);
                     auto count = 0;
                     fscanf_s(hcfp, "%d", &count);
                     count++;
@@ -1287,26 +1287,26 @@ namespace Js
         }
 
         if (globalFlags.FaultInjection == InstallExceptionHandlerOnly)
-        {
+        {TRACE_IT(20194);
             needDump = true;
         }
 
         // create dump for this crash
         if (needDump)
-        {
+        {TRACE_IT(20195);
             THREAD_LOCAL static char16 dumpName[MAX_PATH + 1];
             wcscpy_s(filename, globalFlags.Filename);
             char16* jsFile = filename;
             char16 *pch = jsFile;
             // remove path and keep only alphabet and number to make a valid filename
             while (*pch)
-            {
+            {TRACE_IT(20196);
                 if (*pch == _u(':') || *pch == _u('\\'))
-                {
+                {TRACE_IT(20197);
                     jsFile = pch + 1;
                 }
                 else if (!isalnum(*pch))
-                {
+                {TRACE_IT(20198);
                     *pch = _u('_');
                 }
                 pch++;
@@ -1317,7 +1317,7 @@ namespace Js
             int suffix = 1;
             const char16* fiType = _u("undefined");
             if (globalFlags.FaultInjectionType != nullptr)
-            {
+            {TRACE_IT(20199);
                 fiType = (LPCWSTR)globalFlags.FaultInjectionType;
             }
             while (true)
@@ -1329,7 +1329,7 @@ namespace Js
                 WIN32_FIND_DATAW data;
                 HANDLE hExist = FindFirstFile(dumpName, &data);
                 if (hExist == INVALID_HANDLE_VALUE)
-                {
+                {TRACE_IT(20200);
                     FindClose(hExist);
                     break;
                 }
@@ -1344,7 +1344,7 @@ namespace Js
                 fwprintf(stderr, _u("CreateFile <%s> failed. gle=0x%08x\n"), dumpName, GetLastError());
             }
             else
-            {
+            {TRACE_IT(20201);
                 MINIDUMP_EXCEPTION_INFORMATION mdei;
                 mdei.ThreadId = GetCurrentThreadId();
                 mdei.ExceptionPointers = ep;
@@ -1362,7 +1362,7 @@ namespace Js
                     wcslen(AutoSystemInfo::Data.GetJscriptDllFileName()) - 4);
                 char16* jscript9Name = jscript9Path + wcslen(jscript9Path);
                 while (*(jscript9Name - 1) != _u('\\') && jscript9Name > jscript9Path)
-                {
+                {TRACE_IT(20202);
                     jscript9Name--;
                 }
 
@@ -1420,7 +1420,7 @@ namespace Js
     LONG WINAPI FaultInjection::FaultInjectionExceptionFilter(_In_  struct _EXCEPTION_POINTERS *ExceptionInfo)
     {
         if (inExceptionHandler)
-        {
+        {TRACE_IT(20203);
             // re-entering, this can happen if RemoveExceptionFilters() failed because of stack overflow
             // Let it crash and the postmortem debugger can catch it.
             DebugBreak();
@@ -1432,12 +1432,12 @@ namespace Js
 
         // for debugging, can't hit here in windbg because of using vectored exception handling
         if (faultInjectionDebug)
-        {
+        {TRACE_IT(20204);
             DebugBreak();
         }
 
         if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) // hard stack overflow
-        {
+        {TRACE_IT(20205);
             DebugBreak(); // let the postmortem debugger to create the dump, make sure they are filing bug with same bucket
         }        
 
@@ -1448,7 +1448,7 @@ namespace Js
             FaultInjection::Global.FaultInjectionAnalyzeException(ExceptionInfo);
         }
         __except (EXCEPTION_EXECUTE_HANDLER)
-        {
+        {TRACE_IT(20206);
             DebugBreak();
         }
         inExceptionHandler = false;

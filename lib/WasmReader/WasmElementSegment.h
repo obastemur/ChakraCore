@@ -14,8 +14,8 @@ namespace Wasm
         WasmElementSegment(ArenaAllocator * alloc, const UINT32 index, const WasmNode initExpr, const UINT32 numElem);
         void AddElement(const UINT32 funcIndex, const Js::WebAssemblyModule& module);
         UINT32 GetElement(const UINT32 tableIndex) const;
-        UINT32 GetNumElements() const { return m_numElem; }
-        WasmNode GetOffsetExpr() const { return m_offsetExpr; }
+        UINT32 GetNumElements() const {TRACE_IT(68403); return m_numElem; }
+        WasmNode GetOffsetExpr() const {TRACE_IT(68404); return m_offsetExpr; }
     private:
         ArenaAllocator* m_alloc;
         UINT32 m_index;

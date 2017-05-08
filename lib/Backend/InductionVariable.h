@@ -47,6 +47,6 @@ public:
 
 template<>
 inline SymID JsUtil::ValueToKey<SymID, InductionVariable>::ToKey(const InductionVariable &inductionVariable)
-{
+{TRACE_IT(8778);
     return inductionVariable.Sym()->m_id;
 }

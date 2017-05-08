@@ -16,7 +16,7 @@
 
 
 #define BEGIN_ENTER_SCRIPT_EX(scriptContext, doCleanup, isCallRoot, hasCaller, isScript) \
-        { \
+        {TRACE_IT(35783); \
             Js::ScriptContext* __localScriptContext = scriptContext; \
             Js::ScriptEntryExitRecord __entryExitRecord = {0}; \
             SAVE_FS0(); \
@@ -36,11 +36,11 @@
 //---------------------------------------------------------------------
 #define BEGIN_JS_RUNTIME_CALL_EX(scriptContext, doCleanup) \
         BEGIN_ENTER_SCRIPT(scriptContext, doCleanup, /*isCallRoot*/ false, /*hasCaller*/false) \
-        {
+        {TRACE_IT(35784);
 
 #define BEGIN_JS_RUNTIME_CALLROOT_EX(scriptContext, hasCaller) \
         BEGIN_ENTER_SCRIPT(scriptContext, /*doCleanup*/ true, /*isCallRoot*/ true, hasCaller) \
-        {
+        {TRACE_IT(35785);
 
 #define BEGIN_JS_RUNTIME_CALL(scriptContext) \
         BEGIN_JS_RUNTIME_CALL_EX(scriptContext, /*doCleanup*/ true)
@@ -48,7 +48,7 @@
 // Use _NOT_SCRIPT to indicate we are not really starting script, avoid certain risky/lengthy work.
 #define BEGIN_JS_RUNTIME_CALL_NOT_SCRIPT(scriptContext) \
         BEGIN_ENTER_SCRIPT_EX(scriptContext, /*doCleanup*/false, /*isCallRoot*/false, /*hasCaller*/false, /*isScript*/false) \
-        {
+        {TRACE_IT(35786);
 
 #define END_JS_RUNTIME_CALL(scriptContext) \
         } \
@@ -57,7 +57,7 @@
 #define BEGIN_JS_RUNTIME_CALL_EX_AND_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT(scriptContext, doCleanup) \
         BEGIN_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT \
         BEGIN_ENTER_SCRIPT(scriptContext, doCleanup, /*isCallRoot*/ false, /*hasCaller*/false) \
-        { \
+        {TRACE_IT(35787); \
         IGNORE_STACKWALK_EXCEPTION(scriptContext); \
 
 #define BEGIN_JS_RUNTIME_CALL_EX_AND_TRANSLATE_AND_GET_EXCEPTION_AND_ERROROBJECT_TO_HRESULT(scriptContext, doCleanup) \
@@ -66,7 +66,7 @@
 #define BEGIN_JS_RUNTIME_CALL_EX_AND_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT_NESTED(scriptContext, doCleanup) \
         BEGIN_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT_NESTED \
         BEGIN_ENTER_SCRIPT(scriptContext, doCleanup, /*isCallRoot*/ false, /*hasCaller*/false) \
-        { \
+        {TRACE_IT(35788); \
 
 #define END_JS_RUNTIME_CALL_AND_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT(hr) \
         } \
@@ -85,7 +85,7 @@
 #define BEGIN_JS_RUNTIME_CALL_EX_AND_TRANSLATE_OOM_TO_HRESULT(scriptContext, doCleanup, hasCaller) \
         BEGIN_TRANSLATE_OOM_TO_HRESULT \
         BEGIN_ENTER_SCRIPT(scriptContext, doCleanup, /*isCallRoot*/ false, hasCaller) \
-        {
+        {TRACE_IT(35789);
 
 #define END_JS_RUNTIME_CALL_AND_TRANSLATE_OOM_TO_HRESULT(hr) \
         } \
@@ -95,14 +95,14 @@
 #define END_TRANSLATE_SO_OOM_JSEXCEPTION(hr) \
         } \
         catch (const JavascriptException& err) \
-        { \
+        {TRACE_IT(35790); \
             err.GetAndClear(); \
         } \
         catch (Js::OutOfMemoryException) \
-        { \
+        {TRACE_IT(35791); \
         } \
         catch (Js::StackOverflowException) \
-        { \
+        {TRACE_IT(35792); \
         } \
         catch (...) \
         { \
@@ -159,7 +159,7 @@ namespace Js
             : scriptContext(scriptContext),
             frameAddress(frameAddress),
             savedFPUControl()
-        {
+        {TRACE_IT(35793);
 
             leftScript = scriptContext->LeaveScriptStart<stackProbe, leaveForHost>(frameAddress);
 
@@ -169,12 +169,12 @@ namespace Js
         }
 
         ~LeaveScriptObject()
-        {
+        {TRACE_IT(35794);
             // We should be in script when we leave
             Assert(leftScript);
             RESTORE_EXCEPTION_CHECK;
             if(leftScript)
-            {
+            {TRACE_IT(35795);
                 scriptContext->LeaveScriptEnd<leaveForHost>(frameAddress);
             }
         }

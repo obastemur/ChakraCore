@@ -44,21 +44,21 @@ namespace Js
 
     // Template version to access register mask
     template<typename T> uint GetRegMask();
-    template<> uint GetRegMask<int>() { return Mask32BitsReg; }
-    template<> uint GetRegMask<double>() { return Mask64BitsReg; }
-    template<> uint GetRegMask<float>() { return Mask64BitsReg; }
-    template<> uint GetRegMask<AsmJsSIMDValue>() { return Mask64BitsReg; }
+    template<> uint GetRegMask<int>() {TRACE_IT(53584); return Mask32BitsReg; }
+    template<> uint GetRegMask<double>() {TRACE_IT(53585); return Mask64BitsReg; }
+    template<> uint GetRegMask<float>() {TRACE_IT(53586); return Mask64BitsReg; }
+    template<> uint GetRegMask<AsmJsSIMDValue>() {TRACE_IT(53587); return Mask64BitsReg; }
 
 
     // Template version to access first register available
     template<typename T> RegNum GetFirstReg();
-    template<> RegNum GetFirstReg<int>() { return FIRST_INT_REG; }
-    template<> RegNum GetFirstReg<double>() { return FIRST_FLOAT_REG; }
-    template<> RegNum GetFirstReg<float>() { return FIRST_FLOAT_REG; }
-    template<> RegNum GetFirstReg<AsmJsSIMDValue>() { return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<int>() {TRACE_IT(53588); return FIRST_INT_REG; }
+    template<> RegNum GetFirstReg<double>() {TRACE_IT(53589); return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<float>() {TRACE_IT(53590); return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<AsmJsSIMDValue>() {TRACE_IT(53591); return FIRST_FLOAT_REG; }
 
     // Returns the last register available + 1, forms an upper bound  [GetFirstReg, GetLastReg[
-    template<typename T> RegNum GetLastReg() { return RegNum(GetFirstReg<T>()+8); }
+    template<typename T> RegNum GetLastReg() {TRACE_IT(53592); return RegNum(GetFirstReg<T>()+8); }
 
     struct InternalCallInfo
     {
@@ -92,27 +92,27 @@ namespace Js
         // Applies the register choosing algorithm and returns it
         template<typename T> RegNum GetNextReg(RegNum reg);
         template<> RegNum GetNextReg<int>(RegNum reg)
-        {
+        {TRACE_IT(53593);
             return RegNum((reg + 1) % GetLastReg<int>());
         }
         template<> RegNum GetNextReg<double>(RegNum reg)
-        {
+        {TRACE_IT(53594);
             RegNum nextReg = RegNum((reg + 1) % GetLastReg<double>());
             if (nextReg < GetFirstReg<double>())
-            {
+            {TRACE_IT(53595);
                 return RegNum(GetFirstReg<double>());
             }
             return nextReg;
         }
         template<typename T> RegNum NextReg(const int registerRestriction)
-        {
+        {TRACE_IT(53596);
             RegNum reg = GetNextRegister<T>();
             const uint unavailable = registerRestriction | MaskUnavailableReg;
             Assert( unavailable != GetRegMask<T>() );
             if( (1<<reg) & unavailable )
-            {
+            {TRACE_IT(53597);
                 while( (1<<reg) & unavailable )
-                {
+                {TRACE_IT(53598);
                     reg = GetNextReg<T>(reg);
                 }
                 Assert( !(1 << reg & unavailable) );
@@ -120,7 +120,7 @@ namespace Js
             }
             RegNum next = reg;
             do
-            {
+            {TRACE_IT(53599);
                 next = GetNextReg<T>(next);
             } while( ( 1 << next ) & MaskUnavailableReg );
             SetNextRegister<T>( next );
@@ -129,7 +129,7 @@ namespace Js
         }
     public:
         X86TemplateData()
-        {
+        {TRACE_IT(53600);
             Assert( !( (1<<GetFirstReg<int>()) & MaskUnavailableReg ) );
             Assert(!((1 << GetFirstReg<double>()) & MaskUnavailableReg));
             Assert(!((1 << GetFirstReg<float>()) & MaskUnavailableReg));
@@ -138,23 +138,23 @@ namespace Js
             mAnyStackSaved = 0;
             mCallInfoList = nullptr;
             for (int i = 0; i < RegNumCount ; i++)
-            {
+            {TRACE_IT(53601);
                 mRegisterStackOffsetSaved[i] = 0;
             }
         }
 
         ~X86TemplateData()
-        {
+        {TRACE_IT(53602);
             Assert( !mCallInfoList );
         }
 
         InternalCallInfo* GetInternalCallInfo() const
-        {
+        {TRACE_IT(53603);
             return mCallInfoList;
         }
 
         void StartInternalCall( int argSizeByte )
-        {
+        {TRACE_IT(53604);
             InternalCallInfo* info = HeapNew( InternalCallInfo );
             info->argByteSize = argSizeByte;
             info->currentOffset = 0;
@@ -164,7 +164,7 @@ namespace Js
         }
 
         void InternalCallDone()
-        {
+        {TRACE_IT(53605);
             Assert( mCallInfoList );
             Assert( mCallInfoList->currentOffset + MachPtr == mCallInfoList->argByteSize );
             InternalCallInfo* next = mCallInfoList->next;
@@ -174,7 +174,7 @@ namespace Js
 
         // Tells this register is holding the content located at the stackOffset
         void SetStackInfo( RegNum reg, int stackOffset )
-        {
+        {TRACE_IT(53606);
             Assert( !( 1 << reg & MaskUnavailableReg ) );
             mRegisterStackOffsetSaved[reg] = stackOffset;
             mAnyStackSaved |= 1 << reg;
@@ -182,40 +182,40 @@ namespace Js
 
         // Call when register content is data dependent
         void InvalidateReg( RegNum reg )
-        {
+        {TRACE_IT(53607);
             mAnyStackSaved &= ~( 1 << reg );
         }
 
         void InvalidateAllVolatileReg()
-        {
+        {TRACE_IT(53608);
             mAnyStackSaved &= MaskNonVolatileReg;
         }
 
         void InvalidateAllReg()
-        {
+        {TRACE_IT(53609);
             mAnyStackSaved = 0;
         }
 
         // Call when stack value has changed
         void OverwriteStack( int stackOffset )
-        {
+        {TRACE_IT(53610);
             if( mAnyStackSaved )
-            {
+            {TRACE_IT(53611);
                 // check all register with a stack offset saved
                 int stackSavedReg = mAnyStackSaved;
                 int reg = 0;
                 while( stackSavedReg )
-                {
+                {TRACE_IT(53612);
                     // skip reg with no stack info
                     while( !(stackSavedReg & 1) )
-                    {
+                    {TRACE_IT(53613);
                         stackSavedReg >>= 1;
                         ++reg;
                     }
 
                     // invalidate register with this stack location
                     if( mRegisterStackOffsetSaved[reg] == stackOffset )
-                    {
+                    {TRACE_IT(53614);
                         InvalidateReg( RegNum( reg ) );
                     }
 
@@ -230,14 +230,14 @@ namespace Js
         // Gets a register to use
         // registerRestriction : bit vector, 1 means the register cannot be chosen
         template<typename T> RegNum GetReg(const int registerRestriction = 0)
-        {
+        {TRACE_IT(53615);
             CompileAssert( sizeof(T) == 4 || sizeof(T) == 8 );
             const int mask = GetRegMask<T>() & ~registerRestriction;
             int stackSavedReg = mAnyStackSaved & mask;
 
             // No more register available
             if( stackSavedReg == mask )
-            {
+            {TRACE_IT(53616);
                 RegNum reg = NextReg<T>(registerRestriction);
                 Assert( !(1 << reg & registerRestriction) );
                 return reg;
@@ -249,10 +249,10 @@ namespace Js
             stackSavedReg >>= reg;
             // will always find a value under these conditions
             while( 1 )
-            {
+            {TRACE_IT(53617);
                 // if the register hold no useful info, return it
                 if( !( stackSavedReg & 1 ) )
-                {
+                {TRACE_IT(53618);
                      Assert( !(1 << reg & registerRestriction) );
                     return RegNum( reg );
                 }
@@ -264,13 +264,13 @@ namespace Js
         // Gets a register to use
         // registerRestriction : bit vector, 1 means the register cannot be chosen
         template<> RegNum GetReg<float>(const int registerRestriction)
-        {
+        {TRACE_IT(53619);
             const int mask = GetRegMask<double>() & ~registerRestriction;
             int stackSavedReg = mAnyStackSaved & mask;
 
             // No more register available
             if (stackSavedReg == mask)
-            {
+            {TRACE_IT(53620);
                 RegNum reg = NextReg<double>(registerRestriction);
                 Assert(!(1 << reg & registerRestriction));
                 return reg;
@@ -282,10 +282,10 @@ namespace Js
             stackSavedReg >>= reg;
             // will always find a value under these conditions
             while (1)
-            {
+            {TRACE_IT(53621);
                 // if the register hold no useful info, return it
                 if (!(stackSavedReg & 1))
-                {
+                {TRACE_IT(53622);
                     Assert(!(1 << reg & registerRestriction));
                     return RegNum(reg);
                 }
@@ -295,32 +295,32 @@ namespace Js
         }
 
         template<> RegNum GetReg<AsmJsSIMDValue>(const int registerRestriction)
-        {
+        {TRACE_IT(53623);
             return GetReg<float>(registerRestriction);
         }
 
         // Search for a register already holding the value at this location
         template<typename T> bool FindRegWithStackOffset( RegNum& outReg, int stackOffset, int registerRestriction = 0 )
-        {
+        {TRACE_IT(53624);
             CompileAssert( sizeof(T) == 4 || sizeof(T) == 8 || sizeof(T) == 16);
 
             int stackSavedReg = mAnyStackSaved & GetRegMask<T>() & ~registerRestriction;
             if( stackSavedReg )
-            {
+            {TRACE_IT(53625);
                 int reg = GetFirstReg<T>();
                 stackSavedReg >>= reg;
                 while( stackSavedReg )
-                {
+                {TRACE_IT(53626);
                     // skip reg with no stack info
                     while( !(stackSavedReg & 1) )
-                    {
+                    {TRACE_IT(53627);
                         stackSavedReg >>= 1;
                         ++reg;
                     }
 
                     // invalidate register with this stack location
                     if( mRegisterStackOffsetSaved[reg] == stackOffset )
-                    {
+                    {TRACE_IT(53628);
                         outReg = RegNum( reg );
                         return true;
                     }
@@ -333,7 +333,7 @@ namespace Js
             return false;
         }
         void SetBaseOffset(int baseOffSet)
-        {
+        {TRACE_IT(53629);
             // We subtract with the baseoffset as the layout of the stack has changed from the interpreter
             // Assume Stack is growing downwards
             // Interpreter - Stack is above EBP and offsets are positive
@@ -346,44 +346,44 @@ namespace Js
             mScriptContextOffSet = AsmJsJitTemplate::Globals::ScriptContextOffset - mBaseOffset;
         }
         int GetBaseOffSet()
-        {
+        {TRACE_IT(53630);
             return mBaseOffset;
         }
         int GetModuleSlotOffset()
-        {
+        {TRACE_IT(53631);
             return mModuleSlotOffset;
         }
         int GetModuleEnvOffset()
-        {
+        {TRACE_IT(53632);
             return mModuleEnvOffset;
         }
         int GetArrayBufferOffset()
-        {
+        {TRACE_IT(53633);
             return mArrayBufferOffSet;
         }
         int GetArraySizeOffset()
-        {
+        {TRACE_IT(53634);
             return mArraySizeOffset;
         }
         int GetScriptContextOffset()
-        {
+        {TRACE_IT(53635);
             return mScriptContextOffSet;
         }
         const int GetCalleSavedRegSizeInByte()
-        {
+        {TRACE_IT(53636);
             //EBX,ESI,EDI
             return 3 * sizeof(void*);
         }
         const int GetEBPOffsetCorrection()
-        {
+        {TRACE_IT(53637);
             //We computed the offset in BCG adjusting for push ebp and ret address
             return 2 * sizeof(void*);
         }
     };
-    template<> RegNum X86TemplateData::GetNextRegister<int>() { return mNext32BitsReg; }
-    template<> RegNum X86TemplateData::GetNextRegister<double>() { return mNext64BitsReg; }
-    template<> void X86TemplateData::SetNextRegister<int>(RegNum reg) { mNext32BitsReg = reg; }
-    template<> void X86TemplateData::SetNextRegister<double>(RegNum reg) { mNext64BitsReg = reg; }
+    template<> RegNum X86TemplateData::GetNextRegister<int>() {TRACE_IT(53638); return mNext32BitsReg; }
+    template<> RegNum X86TemplateData::GetNextRegister<double>() {TRACE_IT(53639); return mNext64BitsReg; }
+    template<> void X86TemplateData::SetNextRegister<int>(RegNum reg) {TRACE_IT(53640); mNext32BitsReg = reg; }
+    template<> void X86TemplateData::SetNextRegister<double>(RegNum reg) {TRACE_IT(53641); mNext64BitsReg = reg; }
 
 
 
@@ -400,35 +400,35 @@ namespace Js
 #endif
     };
     template<> int ReturnContent::GetReturnVal<int>()const
-    {
+    {TRACE_IT(53642);
         return intVal;
     }
     template<> float ReturnContent::GetReturnVal<float>()const
-    {
+    {TRACE_IT(53643);
         return (float)doubleVal;
     }
     template<> double ReturnContent::GetReturnVal<double>()const
-    {
+    {TRACE_IT(53644);
         return doubleVal;
     }
 #if DBG_DUMP
     template<> void ReturnContent::Print<int>()const
-    {
+    {TRACE_IT(53645);
         Output::Print( _u(" = %d"), intVal );
     }
     template<> void ReturnContent::Print<double>()const
-    {
+    {TRACE_IT(53646);
         Output::Print( _u(" = %.4f"), doubleVal );
     }
     template<> void ReturnContent::Print<float>()const
-    {
+    {TRACE_IT(53647);
         Output::Print( _u(" = %.4f"), doubleVal );
     }
     int AsmJsCallDepth = 0;
 #endif
 
     uint CallLoopBody(JavascriptMethod address, ScriptFunction* function, Var frameAddress)
-    {
+    {TRACE_IT(53648);
         void *savedEsp = NULL;
         __asm
         {
@@ -448,7 +448,7 @@ namespace Js
     }
 
     uint DoLoopBodyStart(Js::ScriptFunction* function,Var ebpPtr,uint32 loopNumber)
-    {
+    {TRACE_IT(53649);
 
         FunctionBody* fn = function->GetFunctionBody();
         Assert(loopNumber < fn->GetLoopCount());
@@ -458,10 +458,10 @@ namespace Js
         ScriptContext* scriptContext = fn->GetScriptContext();
         // If we have JITted the loop, call the JITted code
         if (entryPointInfo != NULL && entryPointInfo->IsCodeGenDone())
-        {
+        {TRACE_IT(53650);
 #if DBG_DUMP
             if (PHASE_TRACE1(Js::JITLoopBodyPhase) && CONFIG_FLAG(Verbose))
-            {
+            {TRACE_IT(53651);
                 fn->DumpFunctionId(true);
                 Output::Print(_u(": %-20s LoopBody Execute  Loop: %2d\n"), fn->GetDisplayName(), loopNumber);
                 Output::Flush();
@@ -483,9 +483,9 @@ namespace Js
         // interpreCount for loopHeader is incremented before calling DoLoopBody
         const uint loopInterpretCount = fn->GetLoopInterpretCount(loopHeader);
         if (loopHeader->interpretCount > loopInterpretCount)
-        {
+        {TRACE_IT(53652);
             if (!fn->DoJITLoopBody())
-            {
+            {TRACE_IT(53653);
                 return 0;
             }
 
@@ -499,7 +499,7 @@ namespace Js
             // by checking the state we are safe from racing with the JIT thread when looking at the other fields
             // of the entry point.
             if (entryPointInfo != NULL && entryPointInfo->IsNotScheduled())
-            {
+            {TRACE_IT(53654);
                 entryPointInfo->SetIsAsmJSFunction(true);
                 entryPointInfo->SetIsTJMode(true);
                 GenerateLoopBody(scriptContext->GetNativeCodeGenerator(), fn, loopHeader, entryPointInfo, fn->GetLocalsCount(), &ebpPtr);
@@ -516,18 +516,18 @@ namespace Js
     // void InterpreterStackFrame::AlignMemoryForAsmJs()  (InterpreterStackFrame.cpp)
     // update any changes there
     void AsmJsCommonEntryPoint(Js::ScriptFunction* func, void* savedEbpPtr)
-    {
+    {TRACE_IT(53655);
         int savedEbp = (int)savedEbpPtr;
         FunctionBody* body = func->GetFunctionBody();
         Js::FunctionEntryPointInfo * entryPointInfo = body->GetDefaultFunctionEntryPointInfo();
         //CodeGenDone status is set by TJ
         if ((entryPointInfo->IsNotScheduled() || entryPointInfo->IsCodeGenDone()) && !PHASE_OFF(BackEndPhase, body) && !PHASE_OFF(FullJitPhase, body))
-        {
+        {TRACE_IT(53656);
             const uint32 minTemplatizedJitRunCount = (uint32)CONFIG_FLAG(MinTemplatizedJitRunCount);
             if ((entryPointInfo->callsCount >= minTemplatizedJitRunCount || body->IsHotAsmJsLoop()))
-            {
+            {TRACE_IT(53657);
                 if (PHASE_TRACE1(AsmjsEntryPointInfoPhase))
-                {
+                {TRACE_IT(53658);
                     Output::Print(_u("Scheduling %s For Full JIT at callcount:%d\n"), body->GetDisplayName(), entryPointInfo->callsCount);
                 }
                 GenerateFunction(body->GetScriptContext()->GetNativeCodeGenerator(), body, func);
@@ -565,7 +565,7 @@ namespace Js
         int arraySize = 0;
         BYTE* arrayPtr = nullptr;
         if (*arrayBufferVar && JavascriptArrayBuffer::Is(*arrayBufferVar))
-        {
+        {TRACE_IT(53659);
             JavascriptArrayBuffer* arrayBuffer = *(JavascriptArrayBuffer**)arrayBufferVar;
             arrayPtr = arrayBuffer->GetBuffer();
             arraySize = arrayBuffer->GetByteLength();
@@ -579,9 +579,9 @@ namespace Js
 #if DBG_DUMP
         const bool tracingFunc = PHASE_TRACE( AsmjsFunctionEntryPhase, body );
         if( tracingFunc )
-        {
+        {TRACE_IT(53660);
             if( AsmJsCallDepth )
-            {
+            {TRACE_IT(53661);
                 Output::Print( _u("%*c"), AsmJsCallDepth,' ');
             }
             Output::Print( _u("Executing function %s("), body->GetDisplayName());
@@ -615,7 +615,7 @@ namespace Js
             memcpy_s(m_localDoubleSlots, doubleConstCount*sizeof(double), constTable, doubleConstCount*sizeof(double));
 
             if (func->GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-            {
+            {TRACE_IT(53662);
                 // Copy SIMD constants to TJ stack frame. No data alignment.
                 constTable = (void*)(((double*)constTable) + doubleConstCount);
                 m_localSimdSlots = (AsmJsSIMDValue*)((char*)m_localSlots + simdByteOffset);
@@ -628,11 +628,11 @@ namespace Js
             simdArg = m_localSimdSlots + simdConstCount;
 
             for(ArgSlot i = 0; i < argCount; i++ )
-            {
+            {TRACE_IT(53663);
                 if(asmInfo->GetArgType(i).isInt())
-                {
+                {TRACE_IT(53664);
                     __asm
-                    {
+                    {TRACE_IT(53665);
                         mov eax, argoffset
                         mov eax, [eax]
                         mov ecx, intArg
@@ -640,7 +640,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if( tracingFunc )
-                    {
+                    {TRACE_IT(53666);
                         Output::Print( _u(" %d%c"), *intArg, i+1 < argCount ? ',':' ');
                     }
 #endif
@@ -648,9 +648,9 @@ namespace Js
                     argoffset += sizeof( int );
                 }
                 else if (asmInfo->GetArgType(i).isFloat())
-                {
+                {TRACE_IT(53667);
                     __asm
-                    {
+                    {TRACE_IT(53668);
                         mov eax, argoffset
                         movss xmm0, [eax]
                         mov eax, floatArg
@@ -658,7 +658,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if (tracingFunc)
-                    {
+                    {TRACE_IT(53669);
                         Output::Print(_u(" %.4f%c"), *floatArg, i + 1 < argCount ? ',' : ' ');
                     }
 #endif
@@ -666,9 +666,9 @@ namespace Js
                     argoffset += sizeof(float);
                 }
                 else if (asmInfo->GetArgType(i).isDouble())
-                {
+                {TRACE_IT(53670);
                     __asm
-                    {
+                    {TRACE_IT(53671);
                         mov eax, argoffset
                         movsd xmm0, [eax]
                         mov eax, doubleArg
@@ -676,7 +676,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if( tracingFunc )
-                    {
+                    {TRACE_IT(53672);
                         Output::Print( _u(" %.4f%c"), *doubleArg, i+1 < argCount ? ',':' ');
                     }
 #endif
@@ -684,9 +684,9 @@ namespace Js
                     argoffset += sizeof( double );
                 }
                 else if (asmInfo->GetArgType(i).isSIMD())
-                {
+                {TRACE_IT(53673);
                     __asm
-                    {
+                    {TRACE_IT(53674);
                         mov eax, argoffset
                         movups xmm0, [eax]
                         mov eax, simdArg
@@ -695,7 +695,7 @@ namespace Js
 
 #if DBG_DUMP
                     if (tracingFunc)
-                    {
+                    {TRACE_IT(53675);
                         switch (asmInfo->GetArgType(i).which())
                         {
                         case AsmJsType::Int32x4:
@@ -721,30 +721,30 @@ namespace Js
         }
 #if DBG_DUMP
         if( tracingFunc )
-        {
+        {TRACE_IT(53676);
             Output::Print( _u("){\n"));
         }
 #endif
     }
 #if DBG_DUMP
     void AsmJSCommonCallHelper(Js::ScriptFunction* func)
-    {
+    {TRACE_IT(53677);
         FunctionBody* body = func->GetFunctionBody();
         AsmJsFunctionInfo* asmInfo = body->GetAsmJsFunctionInfo();
         const bool tracingFunc = PHASE_TRACE(AsmjsFunctionEntryPhase, body);
         if (tracingFunc)
-        {
+        {TRACE_IT(53678);
             --AsmJsCallDepth;
             if (AsmJsCallDepth)
-            {
+            {TRACE_IT(53679);
                 Output::Print(_u("%*c}"), AsmJsCallDepth, ' ');
             }
             else
-            {
+            {TRACE_IT(53680);
                 Output::Print(_u("}"));
             }
             if (asmInfo->GetReturnType() != AsmJsRetType::Void)
-            {
+            {TRACE_IT(53681);
                 //returnContent.Print<T>();
             }
             Output::Print(_u(";\n"));
@@ -752,7 +752,7 @@ namespace Js
     }
 #endif
     Var ExternalCallHelper( JavascriptFunction* function, int nbArgs, Var* paramsAddr )
-    {
+    {TRACE_IT(53682);
         int flags = CallFlags_Value;
         Arguments args(CallInfo((CallFlags)flags, (ushort)nbArgs), paramsAddr);
         return JavascriptFunction::CallFunction<true>(function, function->GetEntryPoint(), args);
@@ -775,7 +775,7 @@ namespace Js
             // buffer : where the instruction will be encoded
             // size : address of a variable tracking the instructions size encoded after the jump
             JumpRelocation( BYTE* buffer, int* size )
-            {
+            {TRACE_IT(53683);
 #if DBG
                 mRelocDone = false;
                 mEncodingImmSize = -1;
@@ -785,7 +785,7 @@ namespace Js
 
             // Default Constructor, must call Init before using
             JumpRelocation()
-            {
+            {TRACE_IT(53684);
 #if DBG
                 mRelocDone = false;
                 mEncodingImmSize = -1;
@@ -794,14 +794,14 @@ namespace Js
 
 #if DBG
             ~JumpRelocation()
-            {
+            {TRACE_IT(53685);
                 // Make sure the relocation is done when destruction the object
                 Assert( mRelocDone );
             }
 #endif
 
             void Init( BYTE* buffer, int* size )
-            {
+            {TRACE_IT(53686);
 #if DBG
                 // this cannot be called twice
                 Assert( mEncodingImmSize == -1 );
@@ -813,7 +813,7 @@ namespace Js
 
             // to be called right after encoding a jump
             void JumpEncoded( const EncodingInfo& info )
-            {
+            {TRACE_IT(53687);
 #if DBG
                 // this cannot be called twice
                 Assert( mEncodingImmSize == -1 );
@@ -830,7 +830,7 @@ namespace Js
             // use when only 1 Byte was allocated
             template<typename OffsetType>
             void ApplyReloc()
-            {
+            {TRACE_IT(53688);
 #if DBG
                 Assert( mEncodingImmSize == sizeof(OffsetType) );
                 mRelocDone = true;
@@ -855,13 +855,13 @@ namespace Js
 
         // Initialize template data
         void* InitTemplateData()
-        {
+        {TRACE_IT(53689);
             return HeapNew( X86TemplateData );
         }
 
         // Free template data for architecture specific
         void FreeTemplateData( void* userData )
-        {
+        {TRACE_IT(53690);
             HeapDelete( (X86TemplateData*)userData );
         }
 
@@ -876,10 +876,10 @@ namespace Js
             // put the value on the stack into a register
             template<typename RegisterSize>
             RegNum GetStackReg( BYTE*& buffer, X86TemplateData* templateData, int varOffset, int &size, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53691);
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<RegisterSize>( reg, varOffset, registerRestriction ) )
-                {
+                {TRACE_IT(53692);
                     reg = templateData->GetReg<RegisterSize>( registerRestriction );
                     size += InstructionBySize<RegisterSize>::MoveInstruction::EncodeInstruction<RegisterSize>( buffer, InstrParamsRegAddr( reg, RegEBP, varOffset ) );
                     templateData->SetStackInfo( reg, varOffset );
@@ -890,7 +890,7 @@ namespace Js
             // put the value of a register on the stack
             template<typename RegisterSize>
             int SetStackReg( BYTE*& buffer, X86TemplateData* templateData, int targetOffset, RegNum reg )
-            {
+            {TRACE_IT(53693);
                 CompileAssert(sizeof(RegisterSize) == 4 || sizeof(RegisterSize) == 8);
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( reg, targetOffset );
@@ -898,14 +898,14 @@ namespace Js
             }
             template<typename LaneType=int>
             int SIMDSetStackReg(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, RegNum reg)
-            {
+            {TRACE_IT(53694);
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
                 AssertMsg(((1<<reg) & GetRegMask<AsmJsSIMDValue>()), "Expecting XMM reg.");
 
                 // On a stack spill, we need to invalidate any registers holding lane values.
                 int laneOffset = 0;
                 while (laneOffset < sizeof(AsmJsSIMDValue))
-                {
+                {TRACE_IT(53695);
                     templateData->OverwriteStack(targetOffset + laneOffset);
                     laneOffset += sizeof(LaneType);
                 }
@@ -918,7 +918,7 @@ namespace Js
             */
             template<typename LaneType>
             int SIMDInitFromPrimitives(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2, int srcOffset3 = 0, int srcOffset4 = 0)
-            {
+            {TRACE_IT(53696);
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
 
                 int size = 0;
@@ -942,7 +942,7 @@ namespace Js
                 templateData->InvalidateReg(reg);
                 laneOffset += sizeof(LaneType);
                 if (laneOffset < sizeof(AsmJsSIMDValue))
-                {
+                {TRACE_IT(53697);
 
                     reg = EncodingHelpers::GetStackReg<LaneType>(buffer, templateData, srcOffset3, size);
                     size += EncodingHelpers::SetStackReg<LaneType>(buffer, templateData, targetOffset + laneOffset, reg);
@@ -959,7 +959,7 @@ namespace Js
             // Since SIMD data is unaligned, we cannot support "OP reg, [mem]" operations.
             template <typename Operation, typename LaneType=int>
             int SIMDUnaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int registerRestriction = 0)
-            {
+            {TRACE_IT(53698);
                 int size = 0;
                 RegNum dstReg, srcReg;
 
@@ -979,7 +979,7 @@ namespace Js
 
             template <typename Operation, typename LaneType = int>
             int SIMDBinaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2)
-            {
+            {TRACE_IT(53699);
                 int size = 0;
                 RegNum srcReg1, srcReg2, dstReg;
 
@@ -1005,7 +1005,7 @@ namespace Js
             // for CMP and Shuffle operations
             template <typename Operation, typename LaneType = int>
             int SIMDBinaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2, byte imm8)
-            {
+            {TRACE_IT(53700);
                 int size = 0;
                 RegNum srcReg1, srcReg2, dstReg;
 
@@ -1030,7 +1030,7 @@ namespace Js
 
             template <typename Operation, typename LaneType>
             RegNum SIMDRcpOperation(BYTE*& buffer, X86TemplateData* templateData, RegNum srcReg, void *ones, int &size)
-            {
+            {TRACE_IT(53701);
                 RegNum reg;
                 // MOVAPS reg, [mask]
                 reg = templateData->GetReg<AsmJsSIMDValue>(1 << srcReg);
@@ -1042,7 +1042,7 @@ namespace Js
 
             template <typename Operation, typename LaneType>
             int SIMDLdLaneOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, const int index, const bool reUseResult = true)
-            {
+            {TRACE_IT(53702);
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
 
                 targetOffset -= templateData->GetBaseOffSet();
@@ -1062,7 +1062,7 @@ namespace Js
 
                 templateData->OverwriteStack(targetOffset);
                 if (reUseResult)
-                {
+                {TRACE_IT(53703);
                     // can re-use register for floats and doubles only.
                     templateData->SetStackInfo(tmpReg, targetOffset);
                 }
@@ -1072,7 +1072,7 @@ namespace Js
 
             template <typename LaneType, typename ShufOperation = SHUFPS>
             int SIMDSetLaneOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int valOffset, const int laneIndex)
-            {
+            {TRACE_IT(53704);
                 CompileAssert(sizeof(LaneType) == 4);
 
                 targetOffset -= templateData->GetBaseOffSet();
@@ -1092,13 +1092,13 @@ namespace Js
                 // MOVSS valReg, [val] ; valReg is XMM
                 valReg = EncodingHelpers::GetStackReg<float>(buffer, templateData, valOffset, size, (1 << srcReg) | (1 << tmpReg));
                 if (laneIndex == 0)
-                {
+                {TRACE_IT(53705);
                     // MOVSS tmpReg, valReg
                     // Note: we use MOVSS for both F4 and I4. MOVD sets upper bits to zero, MOVSS leaves them unmodified.
                     size += MOVSS::EncodeInstruction<LaneType>(buffer, InstrParams2Reg(tmpReg, valReg));
                 }
                 else if (laneIndex == 1 || laneIndex == 3)
-                {
+                {TRACE_IT(53706);
                     // shuf, mov, shuf
 
                     byte shufMask;
@@ -1115,7 +1115,7 @@ namespace Js
                     size += ShufOperation::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParams2RegImm<byte>(tmpReg, tmpReg, shufMask));
                 }
                 else
-                {
+                {TRACE_IT(53707);
                     Assert(laneIndex == 2);
                     RegNum tmpReg2 = templateData->GetReg<AsmJsSIMDValue>((1 << srcReg) | (1 << tmpReg));
                     // MOVHLPS tmpReg2, tmpReg
@@ -1132,7 +1132,7 @@ namespace Js
 
             template <>
             int SIMDSetLaneOperation<double>(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int valOffset, const int laneIndex)
-            {
+            {TRACE_IT(53708);
                 targetOffset -= templateData->GetBaseOffSet();
                 srcOffset -= templateData->GetBaseOffSet();
                 valOffset -= templateData->GetBaseOffSet();
@@ -1147,7 +1147,7 @@ namespace Js
                 tmpReg = templateData->GetReg<AsmJsSIMDValue>(1 << srcReg);
                 size += MOVAPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParams2Reg(tmpReg, srcReg));
                 if (laneIndex == 0)
-                {
+                {TRACE_IT(53709);
                     // We have to load val to reg. MOVSD reg, [val] will zero upper bits.
                     // MOVSD valReg, [val]
                     valReg = EncodingHelpers::GetStackReg<double>(buffer, templateData, valOffset, size, (1 << srcReg) | (1 << tmpReg));
@@ -1155,7 +1155,7 @@ namespace Js
                     size += MOVSD::EncodeInstruction<double>(buffer, InstrParams2Reg(tmpReg, valReg));
                 }
                 else
-                {
+                {TRACE_IT(53710);
                     Assert(laneIndex == 1);
                     // MOVHPD tmpReg, [val]
                     size += MOVHPD::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParamsRegAddr(tmpReg, RegEBP, valOffset));
@@ -1167,26 +1167,26 @@ namespace Js
 
             // Retrieve the value of the array buffer and put it in a register to use
             RegNum GetArrayBufferRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53711);
                 return ArrayBufferReg;
             }
 
             // Retrieve the value of the module environment and put it in a register to use
             RegNum GetModuleEnvironmentRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53712);
                 return ModuleEnvReg;
             }
 
             // Retrieve the value of the script context and put it in a register to use
             RegNum GetScriptContextRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53713);
                 X86TemplateData* templateData = GetTemplateData(context);
                 return GetStackReg<int>(buffer, GetTemplateData(context), templateData->GetScriptContextOffset(), size, registerRestriction);
             }
 
             // Encode a Compare instruction between a register and the array length : format   cmp length, reg
             int CompareRegisterToArrayLength( BYTE*& buffer, TemplateContext context, RegNum reg, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53714);
                 X86TemplateData* templateData = GetTemplateData(context);
                 return CMP::EncodeInstruction<int>(buffer, InstrParamsAddrReg(RegEBP, templateData->GetArraySizeOffset(), reg));
             }
@@ -1194,7 +1194,7 @@ namespace Js
             // Encode a Compare instruction between an immutable value and the array length : format   cmp length, imm
             template<typename T>
             int CompareImmutableToArrayLength( BYTE*& buffer, TemplateContext context, T imm, const int registerRestriction = 0 )
-            {
+            {TRACE_IT(53715);
                 X86TemplateData* templateData = GetTemplateData(context);
                 return CMP::EncodeInstruction<int>(buffer, InstrParamsAddrImm<T>(RegEBP, templateData->GetArraySizeOffset(), imm));
             }
@@ -1202,7 +1202,7 @@ namespace Js
             // Encodes a short(1 Byte offset) jump instruction
             template<typename JCC>
             void EncodeShortJump( BYTE*& buffer, JumpRelocation& reloc, int* size )
-            {
+            {TRACE_IT(53716);
                 Assert( size != nullptr );
                 reloc.Init( buffer, size );
                 EncodingInfo info;
@@ -1212,7 +1212,7 @@ namespace Js
 
             template<typename Operation, typename OperationSize>
             int CommutativeOperation( TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, int* targetOffset = nullptr, RegNum* outReg = nullptr, int registerRestriction = 0 )
-            {
+            {TRACE_IT(53717);
 
                 X86TemplateData* templateData = GetTemplateData( context );
                 leftOffset -= templateData->GetBaseOffSet();
@@ -1230,11 +1230,11 @@ namespace Js
                     reg1 = templateData->GetReg<OperationSize>( registerRestriction );
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>(buffer, InstrParamsRegAddr(reg1, RegEBP, leftOffset));
                     if( leftOffset == rightOffset )
-                    {
+                    {TRACE_IT(53718);
                         size += Operation::EncodeInstruction<OperationSize>( buffer, InstrParams2Reg( reg1, reg1 ) );
                     }
                     else
-                    {
+                    {TRACE_IT(53719);
                         size += Operation::EncodeInstruction<OperationSize>(buffer, InstrParamsRegAddr(reg1, RegEBP, rightOffset));
                     }
                     resultReg = reg1;
@@ -1256,12 +1256,12 @@ namespace Js
                 }
 
                 if( Operation::Flags & AffectOp1 )
-                {
+                {TRACE_IT(53720);
                     templateData->InvalidateReg( resultReg );
                 }
 
                 if( targetOffset )
-                {
+                {TRACE_IT(53721);
                     const int offset = *targetOffset;
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>(buffer, InstrParamsAddrReg(RegEBP, offset, resultReg));
                     templateData->OverwriteStack( offset );
@@ -1269,7 +1269,7 @@ namespace Js
                 }
 
                 if( outReg )
-                {
+                {TRACE_IT(53722);
                     *outReg = resultReg;
                 }
 
@@ -1278,7 +1278,7 @@ namespace Js
 
             template<typename Operation, typename OperationSize>
             int NonCommutativeOperation( TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, int* targetOffset = nullptr, RegNum* outReg = nullptr, int registerRestriction = 0 )
-            {
+            {TRACE_IT(53723);
                 X86TemplateData* templateData = GetTemplateData( context );
                 leftOffset -= templateData->GetBaseOffSet();
                 rightOffset -= templateData->GetBaseOffSet();
@@ -1287,7 +1287,7 @@ namespace Js
                 const int reg1Found = templateData->FindRegWithStackOffset<OperationSize>( reg1, leftOffset, registerRestriction );
                 int size = 0;
                 if( !reg1Found )
-                {
+                {TRACE_IT(53724);
                     reg1 = templateData->GetReg<OperationSize>( registerRestriction );
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
@@ -1295,17 +1295,17 @@ namespace Js
 
                 const int reg2Found = templateData->FindRegWithStackOffset<OperationSize>( reg2, rightOffset, registerRestriction );
                 if( reg2Found )
-                {
+                {TRACE_IT(53725);
                     size += Operation::EncodeInstruction<OperationSize>( buffer, InstrParams2Reg( reg1, reg2 ) );
                 }
                 else
-                {
+                {TRACE_IT(53726);
                     size += Operation::EncodeInstruction<OperationSize>( buffer, InstrParamsRegAddr( reg1, RegEBP, rightOffset ) );
                 }
 
                 templateData->InvalidateReg( reg1 );
                 if( targetOffset )
-                {
+                {TRACE_IT(53727);
                     int offset = *targetOffset;
                     offset -= templateData->GetBaseOffSet();
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>( buffer, InstrParamsAddrReg( RegEBP, offset, reg1 ) );
@@ -1313,7 +1313,7 @@ namespace Js
                     templateData->SetStackInfo( reg1, offset );
                 }
                 if( outReg )
-                {
+                {TRACE_IT(53728);
                     *outReg = reg1;
                 }
 
@@ -1321,10 +1321,10 @@ namespace Js
             }
 
             int ReloadArrayBuffer(TemplateContext context, BYTE*& buffer)
-            {
+            {TRACE_IT(53729);
                 int size = 0;
                 if (!context->GetFunctionBody()->GetAsmJsFunctionInfo()->IsHeapBufferConst())
-                {
+                {TRACE_IT(53730);
                     X86TemplateData* templateData = GetTemplateData(context);
                     // mov buffer, [mod+bufferOffset]
                     size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(ArrayBufferReg, ModuleEnvReg, AsmJsModuleMemory::MemoryTableBeginOffset));
@@ -1341,10 +1341,10 @@ namespace Js
             }
 
             int CheckForArrayBufferDetached(TemplateContext context, BYTE*& buffer)
-            {
+            {TRACE_IT(53731);
                 int size = 0;
                 if (context->GetFunctionBody()->GetAsmJsFunctionInfo()->UsesHeapBuffer())
-                {
+                {TRACE_IT(53732);
                     X86TemplateData* templateData = GetTemplateData(context);
                     RegNum reg = templateData->GetReg<int>(1 << RegEAX);
                     templateData->InvalidateReg(reg);
@@ -1369,11 +1369,11 @@ namespace Js
         }
 
         int Br::ApplyTemplate(TemplateContext context, BYTE*& buffer, BYTE** relocAddr, bool isBackEdge)
-        {
+        {TRACE_IT(53733);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             if (isBackEdge)
-            {
+            {TRACE_IT(53734);
                 RegNum regInc = templateData->GetReg<int>(0);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
                 size += INC::EncodeInstruction<int>(buffer, InstrParamsAddr(regInc, context->GetFunctionBody()->GetAsmJsTotalLoopCountOffset()));
@@ -1388,16 +1388,16 @@ namespace Js
         }
 
         int BrEq::ApplyTemplate(TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, BYTE** relocAddr, bool isBackEdge, bool isSrc2Const /*= false*/)
-        {
+        {TRACE_IT(53735);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             leftOffset -= templateData->GetBaseOffSet();
             if (!isSrc2Const) 
-            {
+            {TRACE_IT(53736);
                 rightOffset -= templateData->GetBaseOffSet();
             }
             if (isBackEdge)
-            {
+            {TRACE_IT(53737);
                 RegNum regInc = templateData->GetReg<int>(0);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
                 size += INC::EncodeInstruction<int>(buffer, InstrParamsAddr(regInc, context->GetFunctionBody()->GetAsmJsTotalLoopCountOffset()));
@@ -1419,21 +1419,21 @@ namespace Js
                 break;
             case 2:
                 if (isSrc2Const) 
-                {
+                {TRACE_IT(53738);
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsAddrImm<int32>(RegEBP, leftOffset, rightOffset));
                 }
                 else 
-                {
+                {TRACE_IT(53739);
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsRegAddr(reg2, RegEBP, leftOffset));
                 }
                 break;
             case 3:
                 if (isSrc2Const)
-                {
+                {TRACE_IT(53740);
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsRegImm<int32>(reg1, rightOffset));
                 }
                 else if( reg1 == reg2 )
-                {
+                {TRACE_IT(53741);
                     templateData->InvalidateAllReg();
                     *relocAddr = buffer;
                     EncodingInfo info;
@@ -1442,7 +1442,7 @@ namespace Js
                     return size;
                 }
                 else
-                {
+                {TRACE_IT(53742);
                     size += CMP::EncodeInstruction<int32>( buffer, InstrParams2Reg( reg1, reg2 ) );
                 }
             default:
@@ -1458,13 +1458,13 @@ namespace Js
         }
 
         int BrTrue::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset, BYTE** relocAddr, bool isBackEdge)
-        {
+        {TRACE_IT(53743);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
             RegNum reg;
             if (isBackEdge)
-            {
+            {TRACE_IT(53744);
                 RegNum regInc = templateData->GetReg<int>(0);
                 //see if we can change this to just Inc
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
@@ -1473,11 +1473,11 @@ namespace Js
             }
 
             if( templateData->FindRegWithStackOffset<int>( reg, offset ) )
-            {
+            {TRACE_IT(53745);
                 size += CMP::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( reg, 0 ) );
             }
             else
-            {
+            {TRACE_IT(53746);
                 size += CMP::EncodeInstruction<int>( buffer, InstrParamsAddrImm<int32>( RegEBP, offset, 0 ) );
             }
             *relocAddr = buffer;
@@ -1489,14 +1489,14 @@ namespace Js
         }
 
         int Label::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {TRACE_IT(53747);
             X86TemplateData* templateData = GetTemplateData( context );
             templateData->InvalidateAllReg();
             return 0;
         }
 
         int FunctionEntry::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {TRACE_IT(53748);
             int size = 0;
             X86TemplateData* templateData = GetTemplateData(context);
             Var CommonEntryPoint = (void(*)(Js::ScriptFunction*, void*))AsmJsCommonEntryPoint;
@@ -1546,12 +1546,12 @@ namespace Js
 
             //End Stack Probe:
             if (stackSize <= PAGESIZE)
-            {
+            {TRACE_IT(53749);
                 //Stack Size
                 size += SUB::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegESP, stackSize));
             }
             else
-            {
+            {TRACE_IT(53750);
                 // call ChkStack
                 int chkStk = (int)(void(*)(int))_chkstk;
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegEAX, stackSize));
@@ -1596,11 +1596,11 @@ namespace Js
         }
 
         int FunctionExit::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {TRACE_IT(53751);
             int size = 0;
 #if DBG_DUMP
             if (PHASE_ON1(AsmjsFunctionEntryPhase))
-            {
+            {TRACE_IT(53752);
                 Var CommonCallHelper = (void(*)(Js::ScriptFunction*))AsmJSCommonCallHelper;
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegEAX, (int32)CommonCallHelper));
                 size += CALL::EncodeInstruction<int>(buffer, InstrParamsReg(RegEAX));
@@ -1623,7 +1623,7 @@ namespace Js
         }
 
         int LdSlot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex )
-        {
+        {TRACE_IT(53753);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1637,7 +1637,7 @@ namespace Js
         }
 
         int LdSlot_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {TRACE_IT(53754);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1651,7 +1651,7 @@ namespace Js
         }
 
         int StSlot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex )
-        {
+        {TRACE_IT(53755);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -1659,7 +1659,7 @@ namespace Js
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister( buffer, context, size );
             RegNum reg2;
             if( !templateData->FindRegWithStackOffset<int>( reg2, srcOffset ) )
-            {
+            {TRACE_IT(53756);
                 reg2 = templateData->GetReg<int>( 1 << reg );
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg2, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg2, srcOffset );
@@ -1670,7 +1670,7 @@ namespace Js
         }
 
         int StSlot_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {TRACE_IT(53757);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -1678,7 +1678,7 @@ namespace Js
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister(buffer, context, size);
             RegNum reg2;
             if (!templateData->FindRegWithStackOffset<float>(reg2, srcOffset))
-            {
+            {TRACE_IT(53758);
                 reg2 = templateData->GetReg<float>(1 << reg);
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg2, RegEBP, srcOffset));
                 templateData->SetStackInfo(reg2, srcOffset);
@@ -1688,12 +1688,12 @@ namespace Js
             return size;
         }
         int Ld_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53759);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             if( targetOffset == rightOffset )
-            {
+            {TRACE_IT(53760);
                 return 0;
             }
 
@@ -1709,7 +1709,7 @@ namespace Js
         }
 
         int LdConst_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset, int value )
-        {
+        {TRACE_IT(53761);
             X86TemplateData* templateData = GetTemplateData( context );
             offset -= templateData->GetBaseOffSet();
             templateData->OverwriteStack( offset );
@@ -1719,17 +1719,17 @@ namespace Js
         }
 
         int SetReturn_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset )
-        {
+        {TRACE_IT(53762);
             X86TemplateData* templateData = GetTemplateData( context );
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegEAX;
             if( !templateData->FindRegWithStackOffset<int>( reg, offset ) )
-            {
+            {TRACE_IT(53763);
                 templateData->SetStackInfo( RegEAX, offset );
                 return MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr(RegEAX, RegEBP, offset) );
             }
             else if( reg != RegEAX )
-            {
+            {TRACE_IT(53764);
                 templateData->SetStackInfo( RegEAX, offset );
                 return MOV::EncodeInstruction<int32>( buffer, InstrParams2Reg(RegEAX, reg) );
             }
@@ -1738,22 +1738,22 @@ namespace Js
         }
 
         int Neg_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53765);
             X86TemplateData* templateData = GetTemplateData( context );
             rightOffset -= templateData->GetBaseOffSet();
             targetOffset -= templateData->GetBaseOffSet();
             int size = 0;
 
             if( targetOffset == rightOffset )
-            {
+            {TRACE_IT(53766);
                 size += NEG::EncodeInstruction<int32>( buffer, InstrParamsAddr( RegEBP, targetOffset ) );
                 templateData->OverwriteStack( targetOffset );
             }
             else
-            {
+            {TRACE_IT(53767);
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-                {
+                {TRACE_IT(53768);
                     reg = templateData->GetReg<int>();
                     MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 }
@@ -1765,22 +1765,22 @@ namespace Js
         }
 
         int Not_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53769);
             X86TemplateData* templateData = GetTemplateData( context );
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             int size = 0;
 
             if( targetOffset == rightOffset )
-            {
+            {TRACE_IT(53770);
                 size += NOT::EncodeInstruction<int32>( buffer, InstrParamsAddr( RegEBP, targetOffset ) );
                 templateData->OverwriteStack( targetOffset );
             }
             else
-            {
+            {TRACE_IT(53771);
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-                {
+                {TRACE_IT(53772);
                     reg = templateData->GetReg<int>();
                     MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 }
@@ -1792,7 +1792,7 @@ namespace Js
         }
 
         int Int_To_Bool::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53773);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1807,7 +1807,7 @@ namespace Js
         }
 
         int LogNot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53774);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1823,27 +1823,27 @@ namespace Js
         }
 
         int Or_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53775);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<OR,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
         int And_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53776);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<AND,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Xor_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53777);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<XOR,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Shr_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53778);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1852,26 +1852,26 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {TRACE_IT(53779);
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {TRACE_IT(53780);
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
                 }
             }
             else
-            {
+            {TRACE_IT(53781);
                 reg1 = RegECX;
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {TRACE_IT(53782);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {TRACE_IT(53783);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1884,7 +1884,7 @@ namespace Js
         }
 
         int Shl_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53784);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1893,26 +1893,26 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {TRACE_IT(53785);
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {TRACE_IT(53786);
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
                 }
             }
             else
-            {
+            {TRACE_IT(53787);
                 reg1 = RegECX;
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {TRACE_IT(53788);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {TRACE_IT(53789);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1926,7 +1926,7 @@ namespace Js
         }
 
         int Shr_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53790);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1935,26 +1935,26 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {TRACE_IT(53791);
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {TRACE_IT(53792);
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
                 }
             }
             else
-            {
+            {TRACE_IT(53793);
                 reg1 = RegECX;
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {TRACE_IT(53794);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {TRACE_IT(53795);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1968,28 +1968,28 @@ namespace Js
         }
 
         int Add_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {TRACE_IT(53796);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<ADD,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Sub_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {TRACE_IT(53797);
             int size = 0;
             size += EncodingHelpers::NonCommutativeOperation<SUB,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Mul_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {TRACE_IT(53798);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<IMUL,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Div_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {TRACE_IT(53799);
             X86TemplateData* templateData = GetTemplateData( context );
 
             int size = 0;
@@ -2015,11 +2015,11 @@ namespace Js
             // MOV  eax, [leftOffset]
             RegNum lhsReg;
             if (!templateData->FindRegWithStackOffset<int>(lhsReg, leftOffset))
-            {
+            {TRACE_IT(53800);
                 size += MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr(RegEAX, RegEBP, leftOffset) );
             }
             else if (lhsReg != RegEAX)
-            {
+            {TRACE_IT(53801);
                 size += MOV::EncodeInstruction<int32>(buffer, InstrParams2Reg(RegEAX, lhsReg));
             }
 
@@ -2056,7 +2056,7 @@ namespace Js
         }
 
         int Rem_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53802);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2133,7 +2133,7 @@ namespace Js
 
 #define IntCmp(name, jmp) \
         int name::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )\
-        {\
+        {TRACE_IT(53803);\
             X86TemplateData* templateData = GetTemplateData( context );\
             int size = 0;\
             RegNum resultReg = templateData->GetReg<int>();\
@@ -2159,7 +2159,7 @@ namespace Js
 #undef IntCmp
 
         int Min_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53804);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
 
@@ -2169,11 +2169,11 @@ namespace Js
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             if( templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {TRACE_IT(53805);
                 size += CMOVG::EncodeInstruction<int>( buffer, InstrParams2Reg( reg1, reg2 ) );
             }
             else
-            {
+            {TRACE_IT(53806);
                 size += CMOVG::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, rightOffset) );
             }
 
@@ -2183,7 +2183,7 @@ namespace Js
         }
 
         int Max_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53807);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             RegNum reg1;
@@ -2193,11 +2193,11 @@ namespace Js
             rightOffset -= templateData->GetBaseOffSet();
 
             if( templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {TRACE_IT(53808);
                 size += CMOVL::EncodeInstruction<int>( buffer, InstrParams2Reg( reg1, reg2 ) );
             }
             else
-            {
+            {TRACE_IT(53809);
                 size += CMOVL::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, rightOffset) );
             }
 
@@ -2207,7 +2207,7 @@ namespace Js
         }
 
         int Abs_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53810);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2215,14 +2215,14 @@ namespace Js
 
             RegNum reg;
             if( templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-            {
+            {TRACE_IT(53811);
                 if( reg != RegEAX )
-                {
+                {TRACE_IT(53812);
                     size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegEAX, reg ) );
                 }
             }
             else
-            {
+            {TRACE_IT(53813);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegEAX, RegEBP, rightOffset ) );
             }
 
@@ -2236,7 +2236,7 @@ namespace Js
         }
 
         int Clz32_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53814);
             // BSR tmp, src
             // JE  $label32
             // MOV dst, 31
@@ -2253,11 +2253,11 @@ namespace Js
             RegNum tmpReg = templateData->GetReg<int>();
             RegNum srcReg;
             if (templateData->FindRegWithStackOffset<int>(srcReg, rightOffset))
-            {
+            {TRACE_IT(53815);
                 size += BSR::EncodeInstruction<int>(buffer, InstrParams2Reg(tmpReg, srcReg));
             }
             else
-            {
+            {TRACE_IT(53816);
                 size += BSR::EncodeInstruction<int>(buffer, InstrParamsRegAddr(tmpReg, RegEBP, rightOffset));
             }
             JumpRelocation relocLabel32;
@@ -2282,7 +2282,7 @@ namespace Js
         }
 
         int Mul_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53817);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2304,37 +2304,37 @@ namespace Js
                 break;
             case 1: // found 2
                 if( reg2 == RegEAX )
-                {
+                {TRACE_IT(53818);
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsAddr(RegEBP, leftOffset) );
                 }
                 else
-                {
+                {TRACE_IT(53819);
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegEAX, RegEBP, leftOffset ) );
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg2) );
                 }
                 break;
             case 2: // found 1
                 if( reg1 == RegEAX )
-                {
+                {TRACE_IT(53820);
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsAddr(RegEBP, rightOffset) );
                 }
                 else
-                {
+                {TRACE_IT(53821);
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegEAX, RegEBP, rightOffset ) );
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg1) );
                 }
                 break;
             case 3: // found both
                 if( reg1 == RegEAX )
-                {
+                {TRACE_IT(53822);
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg2) );
                 }
                 else if( reg2 == RegEAX )
-                {
+                {TRACE_IT(53823);
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg1) );
                 }
                 else
-                {
+                {TRACE_IT(53824);
                     size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegEAX, reg1 ) );
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg2) );
                 }
@@ -2356,7 +2356,7 @@ namespace Js
         }
 
         int Div_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53825);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2389,7 +2389,7 @@ namespace Js
         }
 
         int Rem_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53826);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2414,41 +2414,41 @@ namespace Js
         }
 
         int SetReturn_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset )
-        {
+        {TRACE_IT(53827);
             X86TemplateData* templateData = GetTemplateData(context);
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<double>(reg, offset))
-            {
+            {TRACE_IT(53828);
                 templateData->SetStackInfo(RegXMM0, offset);
                 return MOVSD::EncodeInstruction<double>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, offset));
             }
             if (reg != RegXMM0)
-            {
+            {TRACE_IT(53829);
                 return MOVSD::EncodeInstruction<double>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int SetReturn_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int offset)
-        {
+        {TRACE_IT(53830);
             X86TemplateData* templateData = GetTemplateData(context);
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<float>(reg, offset))
-            {
+            {TRACE_IT(53831);
                 templateData->SetStackInfo(RegXMM0, offset);
                 return MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, offset));
             }
             if (reg != RegXMM0)
-            {
+            {TRACE_IT(53832);
                 return MOVSS::EncodeInstruction<float>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int SetFround_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset,int rightOffset)
-        {
+        {TRACE_IT(53833);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2457,11 +2457,11 @@ namespace Js
             RegNum reg1;
             int size = 0;
             if (templateData->FindRegWithStackOffset<double>(reg1, rightOffset))
-            {
+            {TRACE_IT(53834);
                 size += CVTSD2SS::EncodeInstruction<double>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
-            {
+            {TRACE_IT(53835);
                 size += CVTSD2SS::EncodeInstruction<double>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
             size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsAddrReg(RegEBP, targetOffset, reg));
@@ -2471,7 +2471,7 @@ namespace Js
         }
 
         int SetFround_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53836);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2480,7 +2480,7 @@ namespace Js
 
             int size = 0;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {TRACE_IT(53837);
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
                 templateData->SetStackInfo(reg, rightOffset);
             }
@@ -2490,7 +2490,7 @@ namespace Js
         }
 
         int SetFround_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53838);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2500,11 +2500,11 @@ namespace Js
 
             int size = 0;
             if (templateData->FindRegWithStackOffset<int32>(reg1, rightOffset))
-            {
+            {TRACE_IT(53839);
                 size += CVTSI2SS::EncodeInstruction<int32>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
-            {
+            {TRACE_IT(53840);
                 size += CVTSI2SS::EncodeInstruction<int32>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
 
@@ -2516,14 +2516,14 @@ namespace Js
         }
 
         int StSlot_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex )
-        {
+        {TRACE_IT(53841);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister( buffer, context, size );
             RegNum reg2;
             if( !templateData->FindRegWithStackOffset<double>( reg2, srcOffset ) )
-            {
+            {TRACE_IT(53842);
                 reg2 = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg2, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg2, srcOffset );
@@ -2534,7 +2534,7 @@ namespace Js
         }
 
         int LdSlot_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex )
-        {
+        {TRACE_IT(53843);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2548,7 +2548,7 @@ namespace Js
         }
 
         int LdAddr_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, const double* dbAddr )
-        {
+        {TRACE_IT(53844);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2560,13 +2560,13 @@ namespace Js
         }
 
         int Ld_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53845);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
 
             if( targetOffset == rightOffset )
-            {
+            {TRACE_IT(53846);
                 return 0;
             }
 
@@ -2574,7 +2574,7 @@ namespace Js
 
             int size = 0;
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {TRACE_IT(53847);
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset) );
                 templateData->SetStackInfo( reg, rightOffset );
             }
@@ -2584,13 +2584,13 @@ namespace Js
             return size;
         }
         int Ld_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53848);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
 
             if (targetOffset == rightOffset)
-            {
+            {TRACE_IT(53849);
                 return 0;
             }
             //get reg can be double registers for float too
@@ -2598,7 +2598,7 @@ namespace Js
 
             int size = 0;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {TRACE_IT(53850);
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
                 templateData->SetStackInfo(reg, rightOffset);
             }
@@ -2608,7 +2608,7 @@ namespace Js
         }
 
         int Add_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53851);
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<ADDSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2616,7 +2616,7 @@ namespace Js
         }
 
         int Add_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53852);
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<ADDSD, double>( context, buffer, leftOffset, rightOffset, &targetOffset );
@@ -2624,7 +2624,7 @@ namespace Js
         }
 
         int Sub_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53853);
             int size = 0;
 
             size += EncodingHelpers::NonCommutativeOperation<SUBSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2632,7 +2632,7 @@ namespace Js
         }
 
         int Mul_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53854);
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<MULSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2640,28 +2640,28 @@ namespace Js
         }
 
         int Div_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53855);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<DIVSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Sub_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53856);
             int size = 0;
             size += EncodingHelpers::NonCommutativeOperation<SUBSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Mul_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53857);
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<MULSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Div_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53858);
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<DIVSS, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2671,7 +2671,7 @@ namespace Js
 
 
         int Rem_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53859);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2699,7 +2699,7 @@ namespace Js
 
         template<typename JCC, typename OperationSignature, typename Size>
         int CompareEq(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53860);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             RegNum resultReg = templateData->GetReg<int>(1 << RegEAX);
@@ -2717,28 +2717,28 @@ namespace Js
         }
 
         int CmpEq_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53861);
             return CompareEq<JP, UCOMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpNe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53862);
             return CompareEq<JNP, UCOMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpEq_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53863);
             return CompareEq<JP, UCOMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpNe_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53864);
             return CompareEq<JNP, UCOMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         template<typename JCC, typename OperationSignature, typename Size>
         int CompareDbOrFlt( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53865);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             // we are modifying the rightoffset and leftoffset in the call to  EncodingHelpers::NonCommutativeOperation
@@ -2753,43 +2753,43 @@ namespace Js
             return size;
         }
         int CmpLt_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53866);
             return CompareDbOrFlt<JBE, COMISS, float>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpLe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53867);
             return CompareDbOrFlt<JB, COMISS, float>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpGt_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53868);
             return CompareDbOrFlt<JBE, COMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
         int CmpGe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {TRACE_IT(53869);
             return CompareDbOrFlt<JB, COMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpLt_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53870);
             return CompareDbOrFlt<JBE, COMISD, double>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpLe_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53871);
             return CompareDbOrFlt<JB, COMISD, double>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpGt_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53872);
             return CompareDbOrFlt<JBE, COMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
         int CmpGe_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {TRACE_IT(53873);
             return CompareDbOrFlt<JB, COMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         __declspec(align(8)) const double MaskConvUintDouble[] = { 0.0, 4294967296.0 };
 
         int UInt_To_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53874);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2798,7 +2798,7 @@ namespace Js
             RegNum regInt;
             RegNum regDouble = templateData->GetReg<double>();
             if( !templateData->FindRegWithStackOffset<int>( regInt, rightOffset ) )
-            {
+            {TRACE_IT(53875);
                 regInt = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( regInt, RegEBP, rightOffset ) );
             }
@@ -2816,7 +2816,7 @@ namespace Js
 
 
         int Int_To_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53876);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2824,11 +2824,11 @@ namespace Js
 
             RegNum reg = templateData->GetReg<double>(), regInt;
             if( templateData->FindRegWithStackOffset<int>( regInt, rightOffset ) )
-            {
+            {TRACE_IT(53877);
                 size += CVTSI2SD::EncodeInstruction<double>( buffer, InstrParams2Reg( reg, regInt ) );
             }
             else
-            {
+            {TRACE_IT(53878);
                 size += CVTSI2SD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
             }
             size += EncodingHelpers::SetStackReg<double>( buffer, templateData, targetOffset , reg);
@@ -2837,7 +2837,7 @@ namespace Js
         }
 
         int Float_To_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53879);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2846,11 +2846,11 @@ namespace Js
             RegNum reg = templateData->GetReg<double>();
             RegNum reg1;
             if (templateData->FindRegWithStackOffset<float>(reg1, rightOffset))
-            {
+            {TRACE_IT(53880);
                 size += CVTSS2SD::EncodeInstruction<float>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
-            {
+            {TRACE_IT(53881);
                 size += CVTSS2SD::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
             size += EncodingHelpers::SetStackReg<double>(buffer, templateData, targetOffset, reg);
@@ -2859,7 +2859,7 @@ namespace Js
         }
 
         int Float_To_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53882);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2868,11 +2868,11 @@ namespace Js
             RegNum reg = templateData->GetReg<int>();
             RegNum reg1;
             if (templateData->FindRegWithStackOffset<float>(reg1, rightOffset))
-            {
+            {TRACE_IT(53883);
                 size += CVTTSS2SI::EncodeInstruction<float>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
-            {
+            {TRACE_IT(53884);
                 size += CVTTSS2SI::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
             size += EncodingHelpers::SetStackReg<int>(buffer, templateData, targetOffset, reg);
@@ -2881,7 +2881,7 @@ namespace Js
         }
 
         int Db_To_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53885);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2890,7 +2890,7 @@ namespace Js
             RegNum reg;
             size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, 8 ) );
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {TRACE_IT(53886);
                 reg = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( reg, rightOffset );
@@ -2915,7 +2915,7 @@ namespace Js
         };
 
         int Neg_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {TRACE_IT(53887);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2923,7 +2923,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {TRACE_IT(53888);
                 reg = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
             }
@@ -2946,7 +2946,7 @@ namespace Js
         };
 
         int Neg_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {TRACE_IT(53889);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2954,7 +2954,7 @@ namespace Js
 
             RegNum reg;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {TRACE_IT(53890);
                 reg = templateData->GetReg<float>();
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
@@ -2970,7 +2970,7 @@ namespace Js
         }
 
         int Call_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int nbOffsets, int* offsets, void* addr, bool addEsp )
-        {
+        {TRACE_IT(53891);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             *offsets -= templateData->GetBaseOffSet();
@@ -2983,20 +2983,20 @@ namespace Js
             Assert( stackSize > nbArgs ); // check for overflow
 
             if( nbArgs > 0 )
-            {
+            {TRACE_IT(53892);
                 RegNum reg = templateData->GetReg<double>();
                 if( FitsInByte( stackSize ) )
-                {
+                {TRACE_IT(53893);
                     size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)( stackSize ) ) );
                 }
                 else
-                {
+                {TRACE_IT(53894);
                     size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( RegESP, stackSize ) );
                 }
 
                 int espOffset = stackSize - 8;
                 for( int i = nbArgs - 1; i >= 0; i-- )
-                {
+                {TRACE_IT(53895);
                     // TODO: check for reg in template
                     int argOffset = args[i] - templateData->GetBaseOffSet();
                     size += MOVSD::EncodeInstruction<double>(buffer, InstrParamsRegAddr(reg, RegEBP, argOffset));
@@ -3015,13 +3015,13 @@ namespace Js
             templateData->OverwriteStack( targetOffset );
 
             if( addEsp )
-            {
+            {TRACE_IT(53896);
                 if( FitsInByte( stackSize ) )
-                {
+                {TRACE_IT(53897);
                     size += ADD::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)stackSize ) );
                 }
                 else
-                {
+                {TRACE_IT(53898);
                     size += ADD::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( RegESP, stackSize ) );
                 }
             }
@@ -3030,7 +3030,7 @@ namespace Js
         }
 
         int Call_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int nbOffsets, int* offsets, void* addr, bool addEsp)
-        {
+        {TRACE_IT(53899);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             *offsets -= templateData->GetBaseOffSet();
@@ -3044,20 +3044,20 @@ namespace Js
             Assert(stackSize > nbArgs); // check for overflow
 
             if (nbArgs > 0)
-            {
+            {TRACE_IT(53900);
                 RegNum reg = templateData->GetReg<float>();
                 if (FitsInByte(stackSize))
-                {
+                {TRACE_IT(53901);
                     size += SUB::EncodeInstruction<int>(buffer, InstrParamsRegImm<int8>(RegESP, (int8)(stackSize)));
                 }
                 else
-                {
+                {TRACE_IT(53902);
                     size += SUB::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegESP, stackSize));
                 }
 
                 int espOffset = stackSize - 4;
                 for (int i = nbArgs - 1; i >= 0; i--)
-                {
+                {TRACE_IT(53903);
                     // TODO: check for reg in template
                     int argOffset = args[i] - templateData->GetBaseOffSet();
                     size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, argOffset));
@@ -3076,13 +3076,13 @@ namespace Js
             templateData->OverwriteStack(targetOffset);
 
             if (addEsp)
-            {
+            {TRACE_IT(53904);
                 if (FitsInByte(stackSize))
-                {
+                {TRACE_IT(53905);
                     size += ADD::EncodeInstruction<int>(buffer, InstrParamsRegImm<int8>(RegESP, (int8)stackSize));
                 }
                 else
-                {
+                {TRACE_IT(53906);
                     size += ADD::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegESP, stackSize));
                 }
             }
@@ -3090,16 +3090,16 @@ namespace Js
             return size;
         }
         int StartCall::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argBytesSize )
-        {
+        {TRACE_IT(53907);
             int size = 0;
             // remove extra var from sub because we are using push to add it
             argBytesSize -= sizeof(Var);
             if( FitsInByte( argBytesSize ) )
-            {
+            {TRACE_IT(53908);
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)argBytesSize ) );
             }
             else
-            {
+            {TRACE_IT(53909);
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( RegESP, argBytesSize ) );
             }
             // pushing undefined as the first var
@@ -3109,14 +3109,14 @@ namespace Js
             return size;
         }
         int ArgOut_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {TRACE_IT(53910);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
 
             RegNum regScriptContext, regVariable;
             if( !templateData->FindRegWithStackOffset<int>( regScriptContext, templateData->GetScriptContextOffset() ) )
-            {
+            {TRACE_IT(53911);
                 regScriptContext = templateData->GetReg<int>(1<<RegEAX);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(regScriptContext, RegEBP, templateData->GetScriptContextOffset()));
                 templateData->SetStackInfo(regScriptContext, templateData->GetScriptContextOffset());
@@ -3124,7 +3124,7 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsReg( regScriptContext ) );
 
             if( !templateData->FindRegWithStackOffset<int>( regVariable, offset ) )
-            {
+            {TRACE_IT(53912);
                 regVariable = templateData->GetReg<int>(1<<RegEAX);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regVariable, RegEBP, offset ) );
                 templateData->SetStackInfo( regVariable, offset );
@@ -3140,7 +3140,7 @@ namespace Js
             return size;
         }
         int ArgOut_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {TRACE_IT(53913);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3149,7 +3149,7 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsReg( regScriptContext ) );
 
             if( !templateData->FindRegWithStackOffset<double>( regVariable, offset ) )
-            {
+            {TRACE_IT(53914);
                 regVariable = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( regVariable, RegEBP, offset ) );
                 templateData->SetStackInfo( regVariable, offset );
@@ -3168,7 +3168,7 @@ namespace Js
         }
 
         int Call::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int funcOffset, int nbArgs )
-        {
+        {TRACE_IT(53915);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3178,11 +3178,11 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsImm<int8>( (int8)nbArgs ) );
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, funcOffset ) )
-            {
+            {TRACE_IT(53916);
                 size += PUSH::EncodeInstruction<int>( buffer, InstrParamsAddr( RegEBP, funcOffset ) );
             }
             else
-            {
+            {TRACE_IT(53917);
                 size += PUSH::EncodeInstruction<int>( buffer, InstrParamsReg( reg ) );
             }
 
@@ -3195,7 +3195,7 @@ namespace Js
             size += EncodingHelpers::ReloadArrayBuffer(context, buffer);
             size += EncodingHelpers::CheckForArrayBufferDetached(context, buffer);
             if (targetOffset != templateData->GetModuleSlotOffset())
-            {
+            {TRACE_IT(53918);
                 size += EncodingHelpers::SetStackReg<int>( buffer, templateData, targetOffset , RegEAX);
             }
             templateData->SetStackInfo( RegEAX, targetOffset );
@@ -3204,7 +3204,7 @@ namespace Js
         }
 
         int Conv_VTI::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {TRACE_IT(53919);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3212,7 +3212,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, srcOffset ) )
-            {
+            {TRACE_IT(53920);
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg, srcOffset );
@@ -3230,7 +3230,7 @@ namespace Js
             return size;
         }
         int Conv_VTD::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {TRACE_IT(53921);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3238,7 +3238,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, srcOffset ) )
-            {
+            {TRACE_IT(53922);
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg, srcOffset );
@@ -3257,7 +3257,7 @@ namespace Js
         }
         //TODO - consider changing this to template (Conv_vtd and Conv_vtf)
         int Conv_VTF::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {TRACE_IT(53923);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3265,7 +3265,7 @@ namespace Js
 
             RegNum reg;
             if (!templateData->FindRegWithStackOffset<int>(reg, srcOffset))
-            {
+            {TRACE_IT(53924);
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(reg, RegEBP, srcOffset));
                 templateData->SetStackInfo(reg, srcOffset);
@@ -3284,24 +3284,24 @@ namespace Js
         }
 
         int I_StartCall::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argBytesSize )
-        {
+        {TRACE_IT(53925);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
 
             templateData->StartInternalCall(argBytesSize);
             argBytesSize = ::Math::Align<int32>(argBytesSize - MachPtr, 8);
             if( FitsInByte( argBytesSize ) )
-            {
+            {TRACE_IT(53926);
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)argBytesSize ) );
             }
             else
-            {
+            {TRACE_IT(53927);
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( RegESP, argBytesSize ) );
             }
             return size;
         }
         int I_ArgOut_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {TRACE_IT(53928);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3317,7 +3317,7 @@ namespace Js
             return size;
         }
         int I_ArgOut_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {TRACE_IT(53929);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3334,7 +3334,7 @@ namespace Js
         }
 
         int I_ArgOut_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {TRACE_IT(53930);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3351,7 +3351,7 @@ namespace Js
         }
 
         int I_Call::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int funcOffset, int nbArgs, AsmJsRetType retType)
-        {
+        {TRACE_IT(53931);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3376,7 +3376,7 @@ namespace Js
             return size;
         }
         int AsmJsLoopBody::ApplyTemplate(TemplateContext context, BYTE*& buffer, int loopNumber)
-        {
+        {TRACE_IT(53932);
             int size = 0;
             X86TemplateData* templateData = GetTemplateData(context);
             AsmJsFunctionInfo* funcInfo = context->GetFunctionBody()->GetAsmJsFunctionInfo();
@@ -3455,7 +3455,7 @@ namespace Js
         }
 
         int I_Conv_VTI::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {TRACE_IT(53933);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3466,7 +3466,7 @@ namespace Js
             return size;
         }
         int I_Conv_VTD::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {TRACE_IT(53934);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3479,7 +3479,7 @@ namespace Js
         }
 
         int I_Conv_VTF::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {TRACE_IT(53935);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3492,7 +3492,7 @@ namespace Js
         }
 
         int LdUndef::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset )
-        {
+        {TRACE_IT(53936);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3504,7 +3504,7 @@ namespace Js
         }
 
         int LdArr_Func::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int arrOffset, int slotVarIndexOffset )
-        {
+        {TRACE_IT(53937);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3513,14 +3513,14 @@ namespace Js
 
             RegNum regArr, regIndex;
             if( !templateData->FindRegWithStackOffset<int>( regArr, arrOffset ) )
-            {
+            {TRACE_IT(53938);
                 regArr = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regArr, RegEBP, arrOffset ) );
                 templateData->SetStackInfo( regArr, arrOffset );
             }
 
             if( !templateData->FindRegWithStackOffset<int>(regIndex,slotVarIndexOffset) )
-            {
+            {TRACE_IT(53939);
                 regIndex = templateData->GetReg<int>( 1 << regArr );
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regIndex, RegEBP, slotVarIndexOffset ) );
                 templateData->SetStackInfo( regIndex, slotVarIndexOffset );
@@ -3531,12 +3531,12 @@ namespace Js
             size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( targetReg, regArr, regIndex, 4, 0 ) );
 
             if (targetOffset == templateData->GetModuleSlotOffset())
-            {
+            {TRACE_IT(53940);
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( RegEAX, targetOffset );
             }
             else
-            {
+            {TRACE_IT(53941);
                 size += EncodingHelpers::SetStackReg<int>( buffer, templateData, targetOffset , targetReg);
             }
 
@@ -3544,7 +3544,7 @@ namespace Js
         }
 
         int LdSlot::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int arrOffset, int slotIndex )
-        {
+        {TRACE_IT(53942);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3552,19 +3552,19 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, arrOffset ) )
-            {
+            {TRACE_IT(53943);
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, arrOffset ) );
                 templateData->SetStackInfo( reg, arrOffset );
             }
             if (targetOffset == templateData->GetModuleSlotOffset())
-            {
+            {TRACE_IT(53944);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegEAX, reg, slotIndex*sizeof(Var) ) );
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( RegEAX, targetOffset );
             }
             else
-            {
+            {TRACE_IT(53945);
                 RegNum targetReg = templateData->GetReg<int>(1<<reg);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( targetReg, reg, slotIndex*sizeof(Var) ) );
                 size += EncodingHelpers::SetStackReg<int>( buffer, templateData, targetOffset , targetReg);
@@ -3610,7 +3610,7 @@ namespace Js
         };
 
         int LdArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53946);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3649,7 +3649,7 @@ namespace Js
         }
 
         int LdArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType)
-        {
+        {TRACE_IT(53947);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3690,7 +3690,7 @@ namespace Js
         }
 
         int LdArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53948);
             AnalysisAssert(viewType >= ArrayBufferView::TYPE_INT8 && viewType < ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3701,7 +3701,7 @@ namespace Js
             RegNum resultReg = templateData->GetReg<int>( 1 << regIndex );
             RegNum regArrayBuffer = EncodingHelpers::GetArrayBufferRegister( buffer, context, size, 1 << regIndex | 1 << resultReg );
             if( viewType != ArrayBufferView::TYPE_INT8 && viewType != ArrayBufferView::TYPE_UINT8 )
-            {
+            {TRACE_IT(53949);
                 size += AND::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( regIndex, TypedArrayViewMask[viewType] ) );
                 templateData->InvalidateReg( regIndex );
             }
@@ -3730,7 +3730,7 @@ namespace Js
         }
 
         int StArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53950);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3760,7 +3760,7 @@ namespace Js
         }
 
         int StArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType)
-        {
+        {TRACE_IT(53951);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3789,7 +3789,7 @@ namespace Js
         }
 
         int StArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53952);
             AnalysisAssert(viewType >= ArrayBufferView::TYPE_INT8 && viewType < ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3799,7 +3799,7 @@ namespace Js
             RegNum regIndex = EncodingHelpers::GetStackReg<int>( buffer, templateData, slotVarIndex, size );
             RegNum regArrayBuffer = EncodingHelpers::GetArrayBufferRegister( buffer, context, size, 1 << regIndex );
             if( viewType != ArrayBufferView::TYPE_INT8 && viewType != ArrayBufferView::TYPE_UINT8 )
-            {
+            {TRACE_IT(53953);
                 size += AND::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( regIndex, TypedArrayViewMask[viewType] ) );
                 templateData->InvalidateReg( regIndex );
             }
@@ -3822,7 +3822,7 @@ namespace Js
 
         // Version with const index
         int ConstLdArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53954);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3858,7 +3858,7 @@ namespace Js
 
         // Version with const index
         int ConstLdArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {TRACE_IT(53955);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3894,7 +3894,7 @@ namespace Js
         }
 
         int ConstLdArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53956);
             AnalysisAssert(viewType < ArrayBufferView::TYPE_FLOAT32 && viewType >= ArrayBufferView::TYPE_INT8);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3929,7 +3929,7 @@ namespace Js
 
         template<typename Size>
         int ConstStArrDbOrFlt(TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {TRACE_IT(53957);
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32 || viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3955,19 +3955,19 @@ namespace Js
         }
 
         int ConstStArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53958);
             Assert(viewType == ArrayBufferView::TYPE_FLOAT64);
             return ConstStArrDbOrFlt<double>(context, buffer, srcOffset, constIndex, viewType);
         }
 
         int ConstStArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {TRACE_IT(53959);
             Assert(viewType == ArrayBufferView::TYPE_FLOAT32);
             return ConstStArrDbOrFlt<float>(context, buffer, srcOffset, constIndex, viewType);
         }
 
         int ConstStArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {TRACE_IT(53960);
             AnalysisAssert(viewType < ArrayBufferView::TYPE_FLOAT32 && viewType >= ArrayBufferView::TYPE_INT8);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3993,12 +3993,12 @@ namespace Js
         }
 
         int Simd128_Ld_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4, int srcOffsetF4)
-        {
+        {TRACE_IT(53961);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4 -= templateData->GetBaseOffSet();
             srcOffsetF4 -= templateData->GetBaseOffSet();
             if (targetOffsetF4 == srcOffsetF4)
-            {
+            {TRACE_IT(53962);
                 return 0;
             }
 
@@ -4011,17 +4011,17 @@ namespace Js
         }
 
         int Simd128_Ld_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4, int srcOffsetI4)
-        {
+        {TRACE_IT(53963);
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetI4, srcOffsetI4);
         }
 
         int Simd128_Ld_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2, int srcOffsetD2)
-        {
+        {TRACE_IT(53964);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2 -= templateData->GetBaseOffSet();
             srcOffsetD2 -= templateData->GetBaseOffSet();
             if (targetOffsetD2 == srcOffsetD2)
-            {
+            {TRACE_IT(53965);
                 return 0;
             }
 
@@ -4034,7 +4034,7 @@ namespace Js
         }
 
         int Simd128_LdSlot_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {TRACE_IT(53966);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -4048,17 +4048,17 @@ namespace Js
         }
 
         int Simd128_LdSlot_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {TRACE_IT(53967);
             return Simd128_LdSlot_F4::ApplyTemplate(context, buffer, targetOffset, slotIndex);
         }
 
         int Simd128_LdSlot_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {TRACE_IT(53968);
             return Simd128_LdSlot_F4::ApplyTemplate(context, buffer, targetOffset, slotIndex);
         }
 
         int Simd128_StSlot_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {TRACE_IT(53969);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -4072,62 +4072,62 @@ namespace Js
         }
 
         int Simd128_StSlot_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {TRACE_IT(53970);
             return Simd128_StSlot_F4::ApplyTemplate(context, buffer, srcOffset, slotIndex);
         }
 
         int Simd128_StSlot_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {TRACE_IT(53971);
             return Simd128_StSlot_F4::ApplyTemplate(context, buffer, srcOffset, slotIndex);
         }
 
         int Simd128_FloatsToF4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF1, int srcOffsetF2, int srcOffsetF3, int srcOffsetF4)
-        {
+        {TRACE_IT(53972);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<float>(buffer, templateData, targetOffsetF4_0, srcOffsetF1, srcOffsetF2, srcOffsetF3, srcOffsetF4);
         }
 
         int Simd128_IntsToI4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI1, int srcOffsetI2, int srcOffsetI3, int srcOffsetI4)
-        {
+        {TRACE_IT(53973);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<int>(buffer, templateData, targetOffsetI4_0, srcOffsetI1, srcOffsetI2, srcOffsetI3, srcOffsetI4);
         }
 
         int Simd128_DoublesToD2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD1, int srcOffsetD2)
-        {
+        {TRACE_IT(53974);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<double>(buffer, templateData, targetOffsetD2_0, srcOffsetD1, srcOffsetD2);
         }
 
         int Simd128_Return_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetF4)
-        {
+        {TRACE_IT(53975);
             X86TemplateData* templateData = GetTemplateData(context);
             srcOffsetF4 -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<AsmJsSIMDValue>(reg, srcOffsetF4))
-            {
+            {TRACE_IT(53976);
                 templateData->SetStackInfo(RegXMM0, srcOffsetF4);
                 return MOVUPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, srcOffsetF4));
             }
             if (reg != RegXMM0)
-            {
+            {TRACE_IT(53977);
                 return MOVUPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int Simd128_Return_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetI4)
-        {
+        {TRACE_IT(53978);
             return Simd128_Return_F4::ApplyTemplate(context, buffer, srcOffsetI4);
         }
 
         int Simd128_Return_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetD2)
-        {
+        {TRACE_IT(53979);
             return Simd128_Return_F4::ApplyTemplate(context, buffer, srcOffsetD2);
         }
 
         int Simd128_Splat_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF1)
-        {
+        {TRACE_IT(53980);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF1 -= templateData->GetBaseOffSet();
@@ -4140,7 +4140,7 @@ namespace Js
         }
 
         int Simd128_Splat_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI1)
-        {
+        {TRACE_IT(53981);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetI4_0 -= templateData->GetBaseOffSet();
             srcOffsetI1 -= templateData->GetBaseOffSet();
@@ -4158,7 +4158,7 @@ namespace Js
         }
 
         int Simd128_Splat_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD1)
-        {
+        {TRACE_IT(53982);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD1 -= templateData->GetBaseOffSet();
@@ -4175,59 +4175,59 @@ namespace Js
 
         // Type conversions
         int Simd128_FromFloat64x2_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53983);
             return EncodingHelpers::SIMDUnaryOperation<CVTPD2PS, float>(buffer, GetTemplateData(context), targetOffsetF4_0, srcOffsetD2_1);
         }
         int Simd128_FromInt32x4_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(53984);
             return EncodingHelpers::SIMDUnaryOperation<CVTDQ2PS, float>(buffer, GetTemplateData(context), targetOffsetF4_0, srcOffsetI4_1);
         }
         int Simd128_FromFloat32x4_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53985);
             return EncodingHelpers::SIMDUnaryOperation<CVTTPS2DQ, int>(buffer, GetTemplateData(context), targetOffsetI4_0, srcOffsetF4_1);
         }
         int Simd128_FromFloat64x2_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53986);
             return EncodingHelpers::SIMDUnaryOperation<CVTTPD2DQ, int>(buffer, GetTemplateData(context), targetOffsetI4_0, srcOffsetD2_1);
         }
         int Simd128_FromFloat32x4_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53987);
             return EncodingHelpers::SIMDUnaryOperation<CVTPS2PD, double>(buffer, GetTemplateData(context), targetOffsetD2_0, srcOffsetF4_1);
         }
         int Simd128_FromInt32x4_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(53988);
             return EncodingHelpers::SIMDUnaryOperation<CVTDQ2PD, float>(buffer, GetTemplateData(context), targetOffsetD2_0, srcOffsetI4_1);
         }
 
         // Bits conversions
         int Simd128_FromFloat64x2Bits_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53989);
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetF4_0, srcOffsetD2_1);
         }
         int Simd128_FromInt32x4Bits_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(53990);
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetF4_0, srcOffsetI4_1);
         }
         int Simd128_FromFloat32x4Bits_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53991);
             return Simd128_Ld_I4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetF4_1);
         }
         int Simd128_FromFloat64x2Bits_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53992);
             return Simd128_Ld_I4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetD2_1);
         }
         int Simd128_FromFloat32x4Bits_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53993);
             return Simd128_Ld_D2::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetF4_1);
         }
         int Simd128_FromInt32x4Bits_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(53994);
             return Simd128_Ld_D2::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetI4_1);
         }
 
         // Unary operations
         int Simd128_Abs_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53995);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4245,7 +4245,7 @@ namespace Js
         }
 
         int Simd128_Abs_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53996);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4262,7 +4262,7 @@ namespace Js
         }
 
         int Simd128_Neg_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(53997);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4279,7 +4279,7 @@ namespace Js
         }
 
         int Simd128_Neg_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(53998);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetI4_0 -= templateData->GetBaseOffSet();
             srcOffsetI4_1 -= templateData->GetBaseOffSet();
@@ -4298,7 +4298,7 @@ namespace Js
         }
 
         int Simd128_Neg_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(53999);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4316,7 +4316,7 @@ namespace Js
         }
 
         int Simd128_Rcp_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(54000);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4330,7 +4330,7 @@ namespace Js
         }
 
         int Simd128_Rcp_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(54001);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4344,7 +4344,7 @@ namespace Js
         }
 
         int Simd128_RcpSqrt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(54002);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4360,7 +4360,7 @@ namespace Js
         }
 
         int Simd128_RcpSqrt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(54003);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4376,7 +4376,7 @@ namespace Js
         }
 
         int Simd128_Sqrt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(54004);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4390,7 +4390,7 @@ namespace Js
         }
 
         int Simd128_Sqrt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {TRACE_IT(54005);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4404,7 +4404,7 @@ namespace Js
         }
 
         int Simd128_Not_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {TRACE_IT(54006);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4421,54 +4421,54 @@ namespace Js
         }
 
         int Simd128_Not_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1)
-        {
+        {TRACE_IT(54007);
             return Simd128_Not_F4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetI4_1);
         }
 
         int Simd128_Add_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54008);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<ADDPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Add_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54009);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PADDD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Add_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54010);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<ADDPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Sub_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54011);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<SUBPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Sub_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54012);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PSUBD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Sub_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54013);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<SUBPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Mul_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54014);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MULPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Mul_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54015);
             X86TemplateData* templateData = GetTemplateData(context);
             RegNum srcReg1, srcReg2, tmpReg;
             int size = 0;
@@ -4492,7 +4492,7 @@ namespace Js
             templateData->InvalidateReg(srcReg1);
 
             if (srcReg1 != srcReg2)
-            {
+            {TRACE_IT(54016);
                 // PSRLDQ srcReg2, 0x04
                 size += PSRLDQ::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParamsRegImm<byte>(srcReg2, 0x04));
                 templateData->InvalidateReg(srcReg2);
@@ -4513,173 +4513,173 @@ namespace Js
         }
 
         int Simd128_Mul_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54017);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MULPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Div_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54018);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<DIVPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Div_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54019);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<DIVPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Min_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54020);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MINPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Min_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54021);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MINPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Max_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54022);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MAXPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Max_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54023);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MAXPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         // comparison
         int Simd128_Lt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54024);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::LT);
         }
         int Simd128_Lt_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54025);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<PCMPGTD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_2, srcOffsetI4_1);
         }
         int Simd128_Lt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54026);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::LT);
         }
 
         int Simd128_Gt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54027);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1, CMP_IMM8::LT);
         }
         int Simd128_Gt_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54028);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PCMPGTD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
         int Simd128_Gt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54029);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_2, srcOffsetD2_1, CMP_IMM8::LT);
         }
 
         int Simd128_LtEq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54030);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::LE);
         }
         int Simd128_LtEq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54031);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::LE);
         }
 
         int Simd128_GtEq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54032);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1, CMP_IMM8::LE);
         }
         int Simd128_GtEq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54033);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_2, srcOffsetD2_1, CMP_IMM8::LE);
         }
 
         int Simd128_Eq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54034);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::EQ);
         }
         int Simd128_Eq_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54035);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<PCMPEQD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_2, srcOffsetI4_1);
         }
         int Simd128_Eq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54036);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::EQ);
         }
 
         int Simd128_Neq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54037);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::NEQ);
         }
         int Simd128_Neq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {TRACE_IT(54038);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::NEQ);
         }
 
         int Simd128_And_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54039);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<ANDPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_And_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54040);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PAND, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Or_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54041);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<ORPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_Or_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54042);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<POR, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Xor_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {TRACE_IT(54043);
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<XORPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_Xor_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {TRACE_IT(54044);
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PXOR, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Select_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1, int srcOffsetF4_2, int srcOffsetF4_3)
-        {
+        {TRACE_IT(54045);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetI4_1 -= templateData->GetBaseOffSet();
@@ -4717,34 +4717,34 @@ namespace Js
         }
 
         int Simd128_Select_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2, int srcOffsetI4_3)
-        {
+        {TRACE_IT(54046);
             // ok to re-use F4, size of I4 lane >= size of F4 lane. Important for correct invalidation of regs upon store to stack.
             return Simd128_Select_F4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2, srcOffsetI4_3);
         }
 
         int Simd128_Select_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1, int srcOffsetD2_2, int srcOffsetD2_3)
-        {
+        {TRACE_IT(54047);
             // ok to re-use F4, size of D2 lane >= size of F4 lane. Important for correct invalidation of regs upon store to stack.
             return Simd128_Select_F4::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetI4_1, srcOffsetD2_2, srcOffsetD2_3);
         }
 
         //Lane Access
         int Simd128_ExtractLane_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI0, int srcOffsetI4_1, int index)
-        {
+        {TRACE_IT(54048);
             AssertMsg(index >= 0 && index < 4, "Invalid lane index");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDLdLaneOperation<MOVSS, int>(buffer, templateData, targetOffsetI0, srcOffsetI4_1, index, false);
         }
 
         int Simd128_ExtractLane_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF0, int srcOffsetF4_1, int index)
-        {
+        {TRACE_IT(54049);
             AssertMsg(index >= 0 && index < 4, "Invalid lane index");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDLdLaneOperation<MOVSS, int>(buffer, templateData, targetOffsetF0, srcOffsetF4_1, index, false);
         }
 
         int Simd128_ReplaceLane_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF2, int laneIndex)
-        {
+        {TRACE_IT(54050);
             X86TemplateData* templateData = GetTemplateData(context);
             AssertMsg(laneIndex >= 0 && laneIndex < 4, "Invalid lane index");
             return EncodingHelpers::SIMDSetLaneOperation<float, SHUFPS>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF2, laneIndex);
@@ -4752,14 +4752,14 @@ namespace Js
         }
 
         int Simd128_ReplaceLane_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI2, int laneIndex)
-        {
+        {TRACE_IT(54051);
             X86TemplateData* templateData = GetTemplateData(context);
             AssertMsg(laneIndex >= 0 && laneIndex < 4, "Invalid lane index");
             return EncodingHelpers::SIMDSetLaneOperation<int, PSHUFD>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI2, laneIndex);
         }
 
         int Simd128_I_ArgOut_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {TRACE_IT(54052);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -4774,16 +4774,16 @@ namespace Js
             return size;
         }
         int Simd128_I_ArgOut_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {TRACE_IT(54053);
             return Simd128_I_ArgOut_F4::ApplyTemplate(context, buffer, argIndex, offset);
         }
         int Simd128_I_ArgOut_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {TRACE_IT(54054);
             return Simd128_I_ArgOut_F4::ApplyTemplate(context, buffer, argIndex, offset);
         }
 
         int Simd128_I_Conv_VTF4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {TRACE_IT(54055);
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             srcOffset -= templateData->GetBaseOffSet();
@@ -4791,11 +4791,11 @@ namespace Js
             return EncodingHelpers::SIMDSetStackReg(buffer, templateData, targetOffset, RegXMM0);
         }
         int Simd128_I_Conv_VTI4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {TRACE_IT(54056);
             return Simd128_I_Conv_VTF4::ApplyTemplate(context, buffer, targetOffset, srcOffset);
         }
         int Simd128_I_Conv_VTD2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {TRACE_IT(54057);
             return Simd128_I_Conv_VTF4::ApplyTemplate(context, buffer, targetOffset, srcOffset);
         }
     };

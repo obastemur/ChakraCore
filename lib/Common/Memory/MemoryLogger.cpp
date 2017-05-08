@@ -9,7 +9,7 @@
 namespace Js
 {
     MemoryLogger::MemoryLogger(TAllocator* alloc, ULONG count) : m_alloc(alloc), m_capacity(count), m_current(0)
-    {
+    {TRACE_IT(24722);
         m_log = AnewArrayZ(m_alloc, char16*, m_capacity);
     }
 
@@ -19,7 +19,7 @@ namespace Js
     }
 
     void MemoryLogger::Write(const char16* msg)
-    {
+    {TRACE_IT(24723);
 #ifdef EXCEPTION_CHECK
         // In most cases this will be called at runtime when we have exception check enabled.
         AutoNestedHandledExceptionType autoNestedHandledExceptionType(ExceptionType_DisableCheck);
@@ -41,7 +41,7 @@ namespace Js
     }
 
     MemoryLogger* MemoryLogger::Create(TAllocator* alloc, ULONG count)
-    {
+    {TRACE_IT(24724);
 #ifdef EXCEPTION_CHECK
         AutoNestedHandledExceptionType autoNestedHandledExceptionType(ExceptionType_DisableCheck);
 #endif
@@ -50,7 +50,7 @@ namespace Js
 
 #ifdef STACK_BACK_TRACE
     StackTraceHelper* StackTraceHelper::Create(TAllocator* alloc)
-    {
+    {TRACE_IT(24725);
 #ifdef EXCEPTION_CHECK
         AutoNestedHandledExceptionType autoNestedHandledExceptionType(ExceptionType_DisableCheck);
 #endif
@@ -59,7 +59,7 @@ namespace Js
 
     // Capture and fill buffer.
     ULONG StackTraceHelper::GetStackTrace(ULONG framesToSkip, ULONG framesToCapture, void** stackFrames)
-    {
+    {TRACE_IT(24726);
 #ifdef EXCEPTION_CHECK
         AutoNestedHandledExceptionType autoNestedHandledExceptionType(ExceptionType_DisableCheck);
 #endif
@@ -76,7 +76,7 @@ namespace Js
 
     // Capture and print.
     size_t StackTraceHelper::PrintStackTrace(ULONG framesToSkip, ULONG framesToCapture)
-    {
+    {TRACE_IT(24727);
 #ifdef EXCEPTION_CHECK
         AutoNestedHandledExceptionType autoNestedHandledExceptionType(ExceptionType_DisableCheck);
 #endif
@@ -86,10 +86,10 @@ namespace Js
     }
 
     StackBackTrace* StackTraceHelper::GetStackBackTrace(ULONG frameCount)
-    {
+    {TRACE_IT(24728);
         // Create, if we haven't already for calling thread.
         if (!s_stackBackTrace)
-        {
+        {TRACE_IT(24729);
             s_stackBackTrace = StackBackTrace::Create(m_alloc, frameCount);
         }
 

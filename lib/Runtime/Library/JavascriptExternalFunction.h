@@ -27,10 +27,10 @@ namespace Js
         JavascriptExternalFunction(StdCallJavascriptMethod nativeMethod, DynamicType* type);
 
         virtual BOOL IsExternalFunction() override {return TRUE; }
-        inline void SetSignature(Var signature) { this->signature = signature; }
-        Var GetSignature() { return signature; }
-        inline void SetCallbackState(void *callbackState) { this->callbackState = callbackState; }
-        void *GetCallbackState() { return callbackState; }
+        inline void SetSignature(Var signature) {TRACE_IT(58565); this->signature = signature; }
+        Var GetSignature() {TRACE_IT(58566); return signature; }
+        inline void SetCallbackState(void *callbackState) {TRACE_IT(58567); this->callbackState = callbackState; }
+        void *GetCallbackState() {TRACE_IT(58568); return callbackState; }
 
         static const int ETW_MIN_COUNT_FOR_CALLER = 0x100; // power of 2
         class EntryInfo
@@ -42,11 +42,11 @@ namespace Js
             static FunctionInfo DefaultExternalFunctionThunk;
         };
 
-        ExternalMethod GetNativeMethod() { return nativeMethod; }
+        ExternalMethod GetNativeMethod() {TRACE_IT(58569); return nativeMethod; }
         BOOL SetLengthProperty(Var length);
 
-        void SetPrototypeTypeId(JavascriptTypeId prototypeTypeId) { this->prototypeTypeId = prototypeTypeId; }
-        void SetExternalFlags(UINT64 flags) { this->flags = flags; }
+        void SetPrototypeTypeId(JavascriptTypeId prototypeTypeId) {TRACE_IT(58570); this->prototypeTypeId = prototypeTypeId; }
+        void SetExternalFlags(UINT64 flags) {TRACE_IT(58571); this->flags = flags; }
 
     private:
         Field(Var) signature;

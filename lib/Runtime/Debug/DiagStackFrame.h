@@ -15,7 +15,7 @@ namespace Js
     class DiagStackFrame
     {
     public:
-        virtual ~DiagStackFrame() {}
+        virtual ~DiagStackFrame() {TRACE_IT(43132);}
         virtual JavascriptFunction* GetJavascriptFunction() = 0;
         virtual int GetByteCodeOffset() = 0;
         virtual DWORD_PTR GetStackAddress() = 0;

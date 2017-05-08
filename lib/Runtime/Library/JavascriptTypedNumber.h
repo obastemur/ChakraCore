@@ -12,7 +12,7 @@ namespace Js
     private:
         Field(T) m_value;
         inline JavascriptTypedNumber(T value, StaticType * type) : RecyclableObject(type), m_value(value)
-        {
+        {TRACE_IT(62192);
 #if DBG
             AssertMsg(type->GetTypeId() == TypeIds_Int64Number ||
                 type->GetTypeId() == TypeIds_UInt64Number, "invalid typed number");
@@ -25,14 +25,14 @@ namespace Js
     public:
 
         T GetValue() const
-        {
+        {TRACE_IT(62193);
             return m_value;
         }
 
         static Var ToVar(T nValue, ScriptContext* scriptContext);
 
         static JavascriptTypedNumber<T>* FromVar(Var value)
-        {
+        {TRACE_IT(62194);
 #if DBG
             AssertMsg(JavascriptOperators::GetTypeId(value) == TypeIds_Int64Number ||
                 JavascriptOperators::GetTypeId(value) == TypeIds_UInt64Number, "invalid typed number");
@@ -43,7 +43,7 @@ namespace Js
         static JavascriptString* ToString(Var value, ScriptContext* scriptContext);
 
         Var ToJavascriptNumber()
-        {
+        {TRACE_IT(62195);
             return JavascriptNumber::New((double)GetValue(), GetScriptContext());
         }
 

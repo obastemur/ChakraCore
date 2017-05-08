@@ -28,12 +28,12 @@ namespace UnifiedRegex
         inline bool Find(Char c, int& outi);
 
     public:
-        inline CharTrie() : isAccepting(false), capacity(0), count(0), children(0) {}
-        inline void Reset() { isAccepting = false; capacity = 0; count = 0; children = 0; }
+        inline CharTrie() : isAccepting(false), capacity(0), count(0), children(0) {TRACE_IT(29146);}
+        inline void Reset() {TRACE_IT(29147); isAccepting = false; capacity = 0; count = 0; children = 0; }
         void FreeBody(ArenaAllocator* allocator);
-        inline int Count() const { return count; }
-        inline bool IsAccepting() const { return isAccepting; }
-        inline void SetAccepting() { isAccepting = true; }
+        inline int Count() const {TRACE_IT(29148); return count; }
+        inline bool IsAccepting() const {TRACE_IT(29149); return isAccepting; }
+        inline void SetAccepting() {TRACE_IT(29150); isAccepting = true; }
         CharTrie* Add(ArenaAllocator* allocator, Char c);
         bool IsDepthZero() const;
         bool IsDepthOne() const;
@@ -63,7 +63,7 @@ namespace UnifiedRegex
         RuntimeCharTrieEntry* children;
 
     public:
-        inline RuntimeCharTrie() : count(0), children(0) {}
+        inline RuntimeCharTrie() : count(0), children(0) {TRACE_IT(29151);}
         void FreeBody(ArenaAllocator* allocator);
         void CloneFrom(ArenaAllocator* allocator, const CharTrie& other);
 

@@ -11,16 +11,16 @@
 */
 
 int CountNewlines(LPCOLESTR psz, int cch)
-{
+{TRACE_IT(32571);
     int cln = 0;
 
     while (0 != *psz && 0 != cch--)
-    {
+    {TRACE_IT(32572);
         switch (*psz++)
         {
         case _u('\xD'):
             if (*psz == _u('\xA'))
-            {
+            {TRACE_IT(32573);
                 ++psz;
                 if (0 == cch--)
                     break;
@@ -48,20 +48,20 @@ struct AorW< UTF8Char >
     // are the same length. If not, we get a compile time error.
     template< size_t N >
     static const UTF8Char* Choose( const char (&a)[N], const char16 (&w)[N] )
-    {
+    {TRACE_IT(32574);
         // The reinterpret_cast is necessary to go from signed to unsigned char
         return reinterpret_cast< const UTF8Char* >(a);
     }
 
     template< size_t N >
     static const bool Test(const char (&a)[N], const char16 (&w)[N], LPCUTF8 value)
-    {
+    {TRACE_IT(32575);
         return 0 == memcmp(a, value, (N - 1) * sizeof(utf8char_t));
     }
 
     template< size_t N >
     static const bool Test(const char (&a)[N], const char16 (&w)[N], LPCUTF8 start, LPCUTF8 end)
-    {
+    {TRACE_IT(32576);
         return (end - start == N - 1) && (0 == memcmp(a, start, (N - 1) * sizeof(utf8char_t)));
     }
 };
@@ -72,31 +72,31 @@ struct AorW< OLECHAR >
 {
     template< size_t N >
     static const char16* Choose( const char (&a)[N], const char16 (&w)[N] )
-    {
+    {TRACE_IT(32577);
         return w;
     }
 
     template < size_t N >
     static bool Test(const char (&a)[N], const char16 (&w)[N], const char16 *value)
-    {
+    {TRACE_IT(32578);
         return 0 == memcmp(w, value, (N - 1) * sizeof(char16));
     }
 
     template < size_t N >
     static bool Test(const char (&a)[N], const char16 (&w)[N], const char16 *start, const char16 *end)
-    {
+    {TRACE_IT(32579);
         return (end - start == N - 1) && (0 == memcmp(w, start, (N - 1) * sizeof(char16)));
     }
 };
 
 BOOL Token::IsKeyword() const
-{
+{TRACE_IT(32580);
     // keywords (but not future reserved words)
     return (tk <= tkYIELD);
 }
 
 tokens Token::SetRegex(UnifiedRegex::RegexPattern *const pattern, Parser *const parser)
-{
+{TRACE_IT(32581);
     Assert(parser);
 
     if(pattern)
@@ -106,10 +106,10 @@ tokens Token::SetRegex(UnifiedRegex::RegexPattern *const pattern, Parser *const 
 }
 
 IdentPtr Token::CreateIdentifier(HashTbl * hashTbl)
-{
+{TRACE_IT(32582);
     Assert(this->u.pid == nullptr);
     if (this->u.pchMin)
-    {
+    {TRACE_IT(32583);
         Assert(IsIdentifier());
         IdentPtr pid = hashTbl->PidHashNameLen(this->u.pchMin, this->u.pchMin + this->u.length, this->u.length);
         this->u.pid = pid;
@@ -125,7 +125,7 @@ IdentPtr Token::CreateIdentifier(HashTbl * hashTbl)
 
 template <typename EncodingPolicy>
 Scanner<EncodingPolicy>::Scanner(Parser* parser, HashTbl *phtbl, Token *ptoken, ErrHandler *perr, Js::ScriptContext* scriptContext)
-{
+{TRACE_IT(32584);
     AssertMem(phtbl);
     AssertMem(ptoken);
     AssertMem(perr);
@@ -166,7 +166,7 @@ Scanner<EncodingPolicy>::Scanner(Parser* parser, HashTbl *phtbl, Token *ptoken, 
 
 template <typename EncodingPolicy>
 Scanner<EncodingPolicy>::~Scanner(void)
-{
+{TRACE_IT(32585);
 }
 
 /*****************************************************************************
@@ -175,7 +175,7 @@ Scanner<EncodingPolicy>::~Scanner(void)
 */
 template <typename EncodingPolicy>
 void Scanner<EncodingPolicy>::SetText(EncodedCharPtr pszSrc, size_t offset, size_t length, charcount_t charOffset, ULONG grfscr, ULONG lineNumber)
-{
+{TRACE_IT(32586);
     // Save the start of the script and add the offset to get the point where we should start scanning.
     m_pchBase = pszSrc;
     m_pchLast = m_pchBase + offset + length;
@@ -185,7 +185,7 @@ void Scanner<EncodingPolicy>::SetText(EncodedCharPtr pszSrc, size_t offset, size
 
     // Absorb any byte order mark at the start
     if(offset == 0)
-    {
+    {TRACE_IT(32587);
         switch( this->PeekFull(m_currentCharacter, m_pchLast) )
         {
         case 0xFFEE:    // "Opposite" endian BOM
@@ -210,7 +210,7 @@ void Scanner<EncodingPolicy>::SetText(EncodedCharPtr pszSrc, size_t offset, size
 
 template <typename EncodingPolicy>
 void Scanner<EncodingPolicy>::PrepareForBackgroundParse(Js::ScriptContext *scriptContext)
-{
+{TRACE_IT(32588);
     scriptContext->GetThreadContext()->GetStandardChars((EncodedChar*)0);
     scriptContext->GetThreadContext()->GetStandardChars((char16*)0);
 }
@@ -223,12 +223,12 @@ void Scanner<EncodingPolicy>::PrepareForBackgroundParse(Js::ScriptContext *scrip
 //-----------------------------------------------------------------------------
 template <typename EncodingPolicy>
 charcount_t Scanner<EncodingPolicy>::LineLength(EncodedCharPtr first, EncodedCharPtr last)
-{
+{TRACE_IT(32589);
     charcount_t result = 0;
     EncodedCharPtr p = first;
 
     for (;;)
-    {
+    {TRACE_IT(32590);
         switch( this->template ReadFull<false>(p, last) )
         {
             case kchNWL: // _C_NWL
@@ -244,20 +244,20 @@ charcount_t Scanner<EncodingPolicy>::LineLength(EncodedCharPtr first, EncodedCha
 
 template <typename EncodingPolicy>
 charcount_t Scanner<EncodingPolicy>::UpdateLine(int32 &line, EncodedCharPtr start, EncodedCharPtr last, charcount_t ichStart, charcount_t ichEnd)
-{
+{TRACE_IT(32591);
     EncodedCharPtr p = start;
     charcount_t ich = ichStart;
     int32 current = line;
     charcount_t lastStart = ichStart;
 
     while (ich < ichEnd)
-    {
+    {TRACE_IT(32592);
         ich++;
         switch (this->template ReadFull<false>(p, last))
         {
         case kchRET:
             if (this->PeekFull(p, last) == kchNWL)
-            {
+            {TRACE_IT(32593);
                 ich++;
                 this->template ReadFull<false>(p, last);
             }
@@ -282,7 +282,7 @@ done:
 
 template <typename EncodingPolicy>
 bool Scanner<EncodingPolicy>::TryReadEscape(EncodedCharPtr& startingLocation, EncodedCharPtr endOfSource, codepoint_t *outChar)
-{
+{TRACE_IT(32594);
     Assert(outChar != nullptr);
     Assert(startingLocation <= endOfSource);
 
@@ -299,7 +299,7 @@ bool Scanner<EncodingPolicy>::TryReadEscape(EncodedCharPtr& startingLocation, En
     bool expectCurly = false;
 
     if (currentLocation < endOfSource && this->PeekFirst(currentLocation, endOfSource) == '{' && es6UnicodeMode)
-    {
+    {TRACE_IT(32595);
         expectCurly = true;
         // Move past the character
         this->ReadFirst(currentLocation, endOfSource);
@@ -311,23 +311,23 @@ bool Scanner<EncodingPolicy>::TryReadEscape(EncodedCharPtr& startingLocation, En
     uint maxHexDigits = (expectCurly ? MAXUINT32 : 4u);
 
     for(; i < maxHexDigits && currentLocation < endOfSource; i++)
-    {
+    {TRACE_IT(32596);
         if (!Js::NumberUtilities::FHexDigit(ch = this->ReadFirst(currentLocation, endOfSource), &hexValue))
-        {
+        {TRACE_IT(32597);
             break;
         }
 
         charToOutput = charToOutput * 0x10 + hexValue;
 
         if (charToOutput > 0x10FFFF)
-        {
+        {TRACE_IT(32598);
             return false;
         }
     }
 
     //At least 4 characters have to be read
     if (i == 0 || (i != 4 && !expectCurly))
-    {
+    {TRACE_IT(32599);
         return false;
     }
 
@@ -347,7 +347,7 @@ template <typename EncodingPolicy>
 template <bool bScan>
 bool Scanner<EncodingPolicy>::TryReadCodePointRest(codepoint_t lower, EncodedCharPtr& startingLocation, EncodedCharPtr endOfSource, codepoint_t *outChar, bool *outContainsMultiUnitChar)
 
-{
+{TRACE_IT(32600);
     Assert(outChar != nullptr);
     Assert(outContainsMultiUnitChar != nullptr);
     Assert(es6UnicodeMode);
@@ -357,23 +357,23 @@ bool Scanner<EncodingPolicy>::TryReadCodePointRest(codepoint_t lower, EncodedCha
     *outChar = lower;
 
     if (currentLocation < endOfSource)
-    {
+    {TRACE_IT(32601);
         size_t restorePoint = this->m_cMultiUnits;
         codepoint_t upper = this->template ReadFull<bScan>(currentLocation, endOfSource);
 
         if (Js::NumberUtilities::IsSurrogateUpperPart(upper))
-        {
+        {TRACE_IT(32602);
             *outChar = Js::NumberUtilities::SurrogatePairAsCodePoint(lower, upper);
 
             if (this->IsMultiUnitChar(static_cast<OLECHAR>(upper)))
-            {
+            {TRACE_IT(32603);
                 *outContainsMultiUnitChar = true;
             }
 
             startingLocation = currentLocation;
         }
         else
-        {
+        {TRACE_IT(32604);
             this->RestoreMultiUnits(restorePoint);
         }
     }
@@ -384,30 +384,30 @@ bool Scanner<EncodingPolicy>::TryReadCodePointRest(codepoint_t lower, EncodedCha
 template <typename EncodingPolicy>
 template <bool bScan>
 inline bool Scanner<EncodingPolicy>::TryReadCodePoint(EncodedCharPtr &startingLocation, EncodedCharPtr endOfSource, codepoint_t *outChar, bool *hasEscape, bool *outContainsMultiUnitChar)
-{
+{TRACE_IT(32605);
     Assert(outChar != nullptr);
     Assert(outContainsMultiUnitChar != nullptr);
 
     if (startingLocation >= endOfSource)
-    {
+    {TRACE_IT(32606);
         return false;
     }
 
     codepoint_t ch = this->template ReadFull<bScan>(startingLocation, endOfSource);
     if (FBigChar(ch))
-    {
+    {TRACE_IT(32607);
         if (this->IsMultiUnitChar(static_cast<OLECHAR>(ch)))
-        {
+        {TRACE_IT(32608);
             *outContainsMultiUnitChar = true;
         }
 
         if (es6UnicodeMode && Js::NumberUtilities::IsSurrogateLowerPart(ch))
-        {
+        {TRACE_IT(32609);
             return TryReadCodePointRest<bScan>(ch, startingLocation, endOfSource, outChar, outContainsMultiUnitChar);
         }
     }
     else if (ch == '\\' && TryReadEscape(startingLocation, endOfSource, &ch))
-    {
+    {TRACE_IT(32610);
         *hasEscape = true;
     }
 
@@ -417,7 +417,7 @@ inline bool Scanner<EncodingPolicy>::TryReadCodePoint(EncodedCharPtr &startingLo
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanIdentifier(bool identifyKwds, EncodedCharPtr *pp)
-{
+{TRACE_IT(32611);
     EncodedCharPtr p = *pp;
     EncodedCharPtr pchMin = p;
 
@@ -431,14 +431,14 @@ tokens Scanner<EncodingPolicy>::ScanIdentifier(bool identifyKwds, EncodedCharPtr
 
     // Check if we started the id
     if (!TryReadCodePoint<true>(p, m_pchLast, &codePoint, &fHasEscape, &fHasMultiChar))
-    {
+    {TRACE_IT(32612);
         // If no chars. could be scanned as part of the identifier, return error.
         return tkScanError;
     }
 
     Assert(codePoint < 0x110000u);
     if (!charClassifier->IsIdStart(codePoint))
-    {
+    {TRACE_IT(32613);
         // Put back the last character
         this->RestoreMultiUnits(multiUnitsBeforeLast);
 
@@ -451,20 +451,20 @@ tokens Scanner<EncodingPolicy>::ScanIdentifier(bool identifyKwds, EncodedCharPtr
 
 template <typename EncodingPolicy>
 BOOL Scanner<EncodingPolicy>::FastIdentifierContinue(EncodedCharPtr&p, EncodedCharPtr last)
-{
+{TRACE_IT(32614);
     if (EncodingPolicy::MultiUnitEncoding)
-    {
+    {TRACE_IT(32615);
         while (p < last)
-        {
+        {TRACE_IT(32616);
             EncodedChar currentChar = *p;
             if (this->IsMultiUnitChar(currentChar))
-            {
+            {TRACE_IT(32617);
                 // multi unit character, we may not have reach the end yet
                 return FALSE;
             }
             Assert(currentChar != '\\' || !charClassifier->IsIdContinueFast<false>(currentChar));
             if (!charClassifier->IsIdContinueFast<false>(currentChar))
-            {
+            {TRACE_IT(32618);
                 // only reach the end of the identifier if it is not the start of an escape sequence
                 return currentChar != '\\';
             }
@@ -481,14 +481,14 @@ BOOL Scanner<EncodingPolicy>::FastIdentifierContinue(EncodedCharPtr&p, EncodedCh
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool fHasEscape, bool fHasMultiChar,
     EncodedCharPtr pchMin, EncodedCharPtr p, EncodedCharPtr *pp)
-{
+{TRACE_IT(32619);
     EncodedCharPtr last = m_pchLast;
 
     while (true)
     {
         // Fast path for utf8, non-multi unit char and not escape
         if (FastIdentifierContinue(p, last))
-        {
+        {TRACE_IT(32620);
             break;
         }
 
@@ -497,10 +497,10 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
         EncodedCharPtr pchBeforeLast = p;
         size_t multiUnitsBeforeLast = this->m_cMultiUnits;
         if (TryReadCodePoint<true>(p, last, &codePoint, &fHasEscape, &fHasMultiChar))
-        {
+        {TRACE_IT(32621);
             Assert(codePoint < 0x110000u);
             if (charClassifier->IsIdContinue(codePoint))
-            {
+            {TRACE_IT(32622);
                 continue;
             }
         }
@@ -516,7 +516,7 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
     *pp = p;
 
     if (!identifyKwds)
-    {
+    {TRACE_IT(32623);
         return tkID;
     }
 
@@ -524,10 +524,10 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
     // So call up hashtables custom method to check if the string scanned is identifier or keyword.
     // Do the same for deferred parsing, but use a custom method that only tokenizes JS keywords.
     if ((m_DeferredParseFlags & ScanFlagSuppressIdPid) != 0)
-    {
+    {TRACE_IT(32624);
         m_ptoken->SetIdentifier(NULL);
         if (!fHasEscape)
-        {
+        {TRACE_IT(32625);
             // If there are no escape, that the main scan loop would have found the keyword already
             // So we can just assume it is an ID
             DebugOnly(int32 cch = UnescapeToTempBuf(pchMin, p));
@@ -540,7 +540,7 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
         return (!m_fYieldIsKeyword && tk == tkYIELD) || (!m_fAwaitIsKeyword && tk == tkAWAIT) ? tkID : tk;
     }
     else if (m_fSyntaxColor)
-    {
+    {TRACE_IT(32626);
         m_ptoken->SetIdentifier(NULL);
         // We always need to check TkFromNameLenColor because
         // the main Scan switch doesn't detect all non-keyword that needs coloring
@@ -551,7 +551,7 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
 
     // UTF16 Scanner are only for syntax coloring, so it shouldn't come here.
     if (EncodingPolicy::MultiUnitEncoding && !fHasMultiChar && !fHasEscape)
-    {
+    {TRACE_IT(32627);
         Assert(sizeof(EncodedChar) == 1);
 
         // If there are no escape, that the main scan loop would have found the keyword already
@@ -568,7 +568,7 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
     m_ptoken->SetIdentifier(pid);
 
     if (!fHasEscape)
-    {
+    {TRACE_IT(32628);
         // If it doesn't have escape, then Scan() should have taken care of keywords (except
         // yield if m_fYieldIsKeyword is false, in which case yield is treated as an identifier, and except
         // await if m_fAwaitIsKeyword is false, in which case await is treated as an identifier).
@@ -584,28 +584,28 @@ tokens Scanner<EncodingPolicy>::ScanIdentifierContinue(bool identifyKwds, bool f
 
 template <typename EncodingPolicy>
 IdentPtr Scanner<EncodingPolicy>::PidAt(size_t iecpMin, size_t iecpLim)
-{
+{TRACE_IT(32629);
     Assert(iecpMin < AdjustedLength() && iecpLim <= AdjustedLength() && iecpLim > iecpMin);
     return PidOfIdentiferAt(m_pchBase + iecpMin, m_pchBase + iecpLim);
 }
 
 template <typename EncodingPolicy>
 uint32 Scanner<EncodingPolicy>::UnescapeToTempBuf(EncodedCharPtr p, EncodedCharPtr last)
-{
+{TRACE_IT(32630);
     m_tempChBuf.Init();
     while( p < last )
-    {
+    {TRACE_IT(32631);
         codepoint_t codePoint;
         bool hasEscape, isMultiChar;
         bool gotCodePoint = TryReadCodePoint<false>(p, last, &codePoint, &hasEscape, &isMultiChar);
         Assert(gotCodePoint);
         Assert(codePoint < 0x110000);
         if (codePoint < 0x10000)
-        {
+        {TRACE_IT(32632);
             m_tempChBuf.AppendCh((OLECHAR)codePoint);
         }
         else
-        {
+        {TRACE_IT(32633);
             char16 lower, upper;
             Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &lower, &upper);
             m_tempChBuf.AppendCh(lower);
@@ -617,28 +617,28 @@ uint32 Scanner<EncodingPolicy>::UnescapeToTempBuf(EncodedCharPtr p, EncodedCharP
 
 template <typename EncodingPolicy>
 IdentPtr Scanner<EncodingPolicy>::PidOfIdentiferAt(EncodedCharPtr p, EncodedCharPtr last)
-{
+{TRACE_IT(32634);
     int32 cch = UnescapeToTempBuf(p, last);
     return m_phtbl->PidHashNameLen(m_tempChBuf.m_prgch, cch);
 }
 
 template <typename EncodingPolicy>
 IdentPtr Scanner<EncodingPolicy>::PidOfIdentiferAt(EncodedCharPtr p, EncodedCharPtr last, bool fHadEscape, bool fHasMultiChar)
-{
+{TRACE_IT(32635);
     // If there is an escape sequence in the JS6 identifier or it is a UTF8
     // source then we have to convert it to the equivalent char so we use a
     // buffer for translation.
     if ((EncodingPolicy::MultiUnitEncoding && fHasMultiChar) || fHadEscape)
-    {
+    {TRACE_IT(32636);
         return PidOfIdentiferAt(p, last);
     }
     else if (EncodingPolicy::MultiUnitEncoding)
-    {
+    {TRACE_IT(32637);
         Assert(sizeof(EncodedChar) == 1);
         return m_phtbl->PidHashNameLen(reinterpret_cast<const char *>(p), reinterpret_cast<const char *>(last), (int32)(last - p));
     }
     else
-    {
+    {TRACE_IT(32638);
         Assert(sizeof(EncodedChar) == 2);
         return m_phtbl->PidHashNameLen(reinterpret_cast< const char16 * >(p), (int32)(last - p));
     }
@@ -646,14 +646,14 @@ IdentPtr Scanner<EncodingPolicy>::PidOfIdentiferAt(EncodedCharPtr p, EncodedChar
 
 template <typename EncodingPolicy>
 typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanNumber(EncodedCharPtr p, double *pdbl, bool& likelyInt)
-{
+{TRACE_IT(32639);
     EncodedCharPtr last = m_pchLast;
     EncodedCharPtr pchT;
     likelyInt = true;
     // Reset
     m_OctOrLeadingZeroOnLastTKNumber = false;
     if ('0' == this->PeekFirst(p, last))
-    {
+    {TRACE_IT(32640);
         switch(this->PeekFirst(p + 1, last))
         {
         case '.':
@@ -668,7 +668,7 @@ typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanN
             // Hex
             *pdbl = Js::NumberUtilities::DblFromHex(p + 2, &pchT);
             if (pchT == p + 2)
-            {
+            {TRACE_IT(32641);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'x'/'X'
                 *pdbl = 0;
                 return p + 1;
@@ -680,7 +680,7 @@ typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanN
             // Octal
             *pdbl = Js::NumberUtilities::DblFromOctal(p + 2, &pchT);
             if (pchT == p + 2)
-            {
+            {TRACE_IT(32642);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'o'/'O'
                 *pdbl = 0;
                 return p + 1;
@@ -692,7 +692,7 @@ typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanN
             // Binary
             *pdbl = Js::NumberUtilities::DblFromBinary(p + 2, &pchT);
             if (pchT == p + 2)
-            {
+            {TRACE_IT(32643);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'b'/'B'
                 *pdbl = 0;
                 return p + 1;
@@ -724,7 +724,7 @@ typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanN
         }
     }
     else
-    {
+    {TRACE_IT(32644);
 LFloat:
         *pdbl = Js::NumberUtilities::StrToDbl(p, &pchT, likelyInt);
         Assert(pchT == p || !Js::NumberUtilities::IsNan(*pdbl));
@@ -734,12 +734,12 @@ LFloat:
 
 template <typename EncodingPolicy>
 BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
-{
+{TRACE_IT(32645);
     EncodedCharPtr pchT;
     m_OctOrLeadingZeroOnLastTKNumber = false;
     likelyInt = true;
     if  ('0' == *m_currentCharacter)
-    {
+    {TRACE_IT(32646);
         switch (m_currentCharacter[1])
         {
         case '.':
@@ -754,7 +754,7 @@ BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
             // Hex.
             *pdbl = Js::NumberUtilities::DblFromHex<EncodedChar>(m_currentCharacter + 2, &pchT);
             if (pchT == m_currentCharacter + 2)
-            {
+            {TRACE_IT(32647);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'x'/'X'
                 *pdbl = 0;
                 m_currentCharacter++;
@@ -766,7 +766,7 @@ BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
         case 'O':
             *pdbl = Js::NumberUtilities::DblFromOctal(m_currentCharacter + 2, &pchT);
             if (pchT == m_currentCharacter + 2)
-            {
+            {TRACE_IT(32648);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'o'/'O'
                 *pdbl = 0;
                 m_currentCharacter++;
@@ -779,7 +779,7 @@ BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
         case 'B':
             *pdbl = Js::NumberUtilities::DblFromBinary(m_currentCharacter + 2, &pchT);
             if (pchT == m_currentCharacter + 2)
-            {
+            {TRACE_IT(32649);
                 // "Octal zero token "0" followed by an identifier token beginning with character 'b'/'B'
                 *pdbl = 0;
                 m_currentCharacter++;
@@ -815,7 +815,7 @@ BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
         }
     }
     else
-    {
+    {TRACE_IT(32650);
 LFloat:
         // Let StrToDbl do all the work.
 
@@ -831,7 +831,7 @@ LFloat:
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::TryRescanRegExp()
-{
+{TRACE_IT(32651);
     EncodedCharPtr current = m_currentCharacter;
     tokens result = RescanRegExp();
     if (result == tkScanError)
@@ -841,7 +841,7 @@ tokens Scanner<EncodingPolicy>::TryRescanRegExp()
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::RescanRegExp()
-{
+{TRACE_IT(32652);
 #if DEBUG
     switch (m_ptoken->tk)
     {
@@ -864,7 +864,7 @@ tokens Scanner<EncodingPolicy>::RescanRegExp()
 
     tokens tk = tkNone;
 
-    {
+    {TRACE_IT(32653);
         ArenaAllocator alloc(_u("RescanRegExp"), m_parser->GetAllocator()->GetPageAllocator(), m_parser->GetAllocator()->outOfMemoryFunc);
         tk = ScanRegExpConstant(&alloc);
     }
@@ -874,7 +874,7 @@ tokens Scanner<EncodingPolicy>::RescanRegExp()
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::RescanRegExpNoAST()
-{
+{TRACE_IT(32654);
 #if DEBUG
     switch (m_ptoken->tk)
     {
@@ -897,9 +897,9 @@ tokens Scanner<EncodingPolicy>::RescanRegExpNoAST()
 
     tokens tk = tkNone;
 
-    {
+    {TRACE_IT(32655);
         ArenaAllocator alloc(_u("RescanRegExp"), m_parser->GetAllocator()->GetPageAllocator(), m_parser->GetAllocator()->outOfMemoryFunc);
-        {
+        {TRACE_IT(32656);
             tk = ScanRegExpConstantNoAST(&alloc);
         }
     }
@@ -909,7 +909,7 @@ tokens Scanner<EncodingPolicy>::RescanRegExpNoAST()
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::RescanRegExpTokenizer()
-{
+{TRACE_IT(32657);
 #if DEBUG
     switch (m_ptoken->tk)
     {
@@ -941,7 +941,7 @@ tokens Scanner<EncodingPolicy>::RescanRegExpTokenizer()
             tk = this->ScanRegExpConstantNoAST(alloc->GetAllocator());
         },
         [&](bool /* hasException */) /* finally block */
-        {
+        {TRACE_IT(32658);
             threadContext->ReleaseTemporaryAllocator(alloc);
         });
 
@@ -950,7 +950,7 @@ tokens Scanner<EncodingPolicy>::RescanRegExpTokenizer()
 
 template <typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanRegExpConstant(ArenaAllocator* alloc)
-{
+{TRACE_IT(32659);
     if (m_parser && m_parser->IsBackgroundParser())
     {
         PROBE_STACK_NO_DISPOSE(m_scriptContext, Js::Constants::MinStackRegex);
@@ -989,11 +989,11 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstant(ArenaAllocator* alloc)
 #endif
             );
     try
-    {
+    {TRACE_IT(32660);
         root = parser.ParseLiteral(m_currentCharacter, m_pchLast, bodyLen, totalLen, bodyChars, totalChars, flags);
     }
     catch (UnifiedRegex::ParseError e)
-    {
+    {TRACE_IT(32661);
 #ifdef PROFILE_EXEC
         m_scriptContext->ProfileEnd(Js::RegexCompilePhase);
 #endif
@@ -1006,13 +1006,13 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstant(ArenaAllocator* alloc)
 
     UnifiedRegex::RegexPattern* pattern;
     if (m_parser->IsBackgroundParser())
-    {
+    {TRACE_IT(32662);
         // Avoid allocating pattern from recycler on background thread. The main thread will create the pattern
         // and hook it to this parse node.
         pattern = parser.template CompileProgram<false>(root, m_currentCharacter, totalLen, bodyChars, bodyLen, totalChars, flags);
     }
     else
-    {
+    {TRACE_IT(32663);
         pattern = parser.template CompileProgram<true>(root, m_currentCharacter, totalLen, bodyChars, bodyLen, totalChars, flags);
     }
     this->RestoreMultiUnits(this->m_cMultiUnits + parser.GetMultiUnits()); // m_currentCharacter changed, sync MultiUnits
@@ -1022,7 +1022,7 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstant(ArenaAllocator* alloc)
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanRegExpConstantNoAST(ArenaAllocator* alloc)
-{
+{TRACE_IT(32664);
     if (m_parser && m_parser->IsBackgroundParser())
     {
         PROBE_STACK_NO_DISPOSE(m_scriptContext, Js::Constants::MinStackRegex);
@@ -1047,11 +1047,11 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstantNoAST(ArenaAllocator* alloc)
 #endif
             );
     try
-    {
+    {TRACE_IT(32665);
         parser.ParseLiteralNoAST(m_currentCharacter, m_pchLast, bodyLen, totalLen, bodyChars, totalChars);
     }
     catch (UnifiedRegex::ParseError e)
-    {
+    {TRACE_IT(32666);
         if (m_fSyntaxColor)
             return ScanError(m_currentCharacter + e.encodedPos, tkRegExp);
 
@@ -1080,16 +1080,16 @@ tokens Scanner<EncodingPolicy>::ScanStringTemplateBegin(EncodedCharPtr *pp)
     ch = this->ReadFirst(*pp, last);
 
     if (ch == '`')
-    {
+    {TRACE_IT(32667);
         // Simple string template - no substitutions
         return tkStrTmplBasic;
     }
     else if (ch == '$')
-    {
+    {TRACE_IT(32668);
         ch = this->ReadFirst(*pp, last);
 
         if (ch == '{')
-        {
+        {TRACE_IT(32669);
             // Next token after expr should be tkStrTmplMid or tkStrTmplEnd.
             // In string template scanning mode, we expect the next char to be '}'
             // and will treat it as the beginning of tkStrTmplEnd or tkStrTmplMid
@@ -1117,7 +1117,7 @@ tokens Scanner<EncodingPolicy>::ScanStringTemplateMiddleOrEnd(EncodedCharPtr *pp
     ch = this->ReadFirst(*pp, last);
 
     if (ch == '`')
-    {
+    {TRACE_IT(32670);
         // No longer in string template scanning mode
         m_fStringTemplateDepth--;
 
@@ -1125,11 +1125,11 @@ tokens Scanner<EncodingPolicy>::ScanStringTemplateMiddleOrEnd(EncodedCharPtr *pp
         return tkStrTmplEnd;
     }
     else if (ch == '$')
-    {
+    {TRACE_IT(32671);
         ch = this->ReadFirst(*pp, last);
 
         if (ch == '{')
-        {
+        {TRACE_IT(32672);
             // This is just another middle part of the template }...${
             return tkStrTmplMid;
         }
@@ -1150,7 +1150,7 @@ tokens Scanner<EncodingPolicy>::ScanStringTemplateMiddleOrEnd(EncodedCharPtr *pp
 template<typename EncodingPolicy>
 template<bool stringTemplateMode, bool createRawString>
 tokens Scanner<EncodingPolicy>::ScanStringConstant(OLECHAR delim, EncodedCharPtr *pp)
-{
+{TRACE_IT(32673);
     static_assert((stringTemplateMode && createRawString) || (!stringTemplateMode && !createRawString), "stringTemplateMode and createRawString must have the same value");
 
     OLECHAR ch, c, rawch;
@@ -1167,19 +1167,19 @@ tokens Scanner<EncodingPolicy>::ScanStringConstant(OLECHAR delim, EncodedCharPtr
     // Use template parameter to gate raw string creation.
     // If createRawString is false, all these operations should be no-ops
     if (createRawString)
-    {
+    {TRACE_IT(32674);
         m_tempChBufSecondary.Init();
     }
 
     for (;;)
-    {
+    {TRACE_IT(32675);
         switch ((rawch = ch = this->ReadFirst(p, last)))
         {
         case kchRET:
             if (stringTemplateMode)
-            {
+            {TRACE_IT(32676);
                 if (this->PeekFirst(p, last) == kchNWL)
-                {
+                {TRACE_IT(32677);
                     // Eat the <LF> char, ignore return
                     this->ReadFirst(p, last);
                 }
@@ -1192,7 +1192,7 @@ LEcmaLineBreak:
             // Fall through
         case kchNWL:
             if (stringTemplateMode)
-            {
+            {TRACE_IT(32678);
                 // Notify the scanner to update current line, number of lines etc
                 NotifyScannedNewLine();
                 break;
@@ -1200,7 +1200,7 @@ LEcmaLineBreak:
 
             m_currentCharacter = p - 1;
             if (m_fSyntaxColor)
-            {
+            {TRACE_IT(32679);
                 *pp = p - 1;
                 return ScanError(p - 1, tkStrCon);
             }
@@ -1216,7 +1216,7 @@ LEcmaLineBreak:
             // In string template scan mode, don't consume the '`' - we need to differentiate
             // between a closed string template and the expression open sequence - ${
             if (stringTemplateMode)
-            {
+            {TRACE_IT(32680);
                 p--;
                 goto LBreak;
             }
@@ -1228,7 +1228,7 @@ LEcmaLineBreak:
             // If we are parsing a string literal part of a string template, ${ indicates we need to switch
             // to parsing an expression.
             if (stringTemplateMode && this->PeekFirst(p, last) == '{')
-            {
+            {TRACE_IT(32681);
                 // Rewind to the $ and return
                 p--;
                 goto LBreak;
@@ -1239,10 +1239,10 @@ LEcmaLineBreak:
 
         case kchNUL:
             if (p >= last)
-            {
+            {TRACE_IT(32682);
                 m_currentCharacter = p - 1;
                 if (m_fSyntaxColor)
-                {
+                {TRACE_IT(32683);
                     *pp = p - 1;
                     return ScanError(p - 1, tkStrCon);
                 }
@@ -1253,9 +1253,9 @@ LEcmaLineBreak:
         default:
 LMainDefault:
             if (this->IsMultiUnitChar(ch))
-            {
+            {TRACE_IT(32684);
                 if ((ch == kchLS || ch == kchPS))
-                {
+                {TRACE_IT(32685);
                     goto LEcmaLineBreak;
                 }
 
@@ -1322,7 +1322,7 @@ LMainDefault:
 
                 //At least one digit is expected
                 if (!Js::NumberUtilities::FHexDigit(c = this->ReadFirst(p, last), &wT))
-                {
+                {TRACE_IT(32686);
                     goto ReturnScanError;
                 }
 
@@ -1331,13 +1331,13 @@ LMainDefault:
                 codePoint = static_cast<codepoint_t>(wT);
 
                 while(Js::NumberUtilities::FHexDigit(c = this->ReadFirst(p, last), &wT))
-                {
+                {TRACE_IT(32687);
                     m_tempChBufSecondary.template AppendCh<createRawString>(c);
                     codePoint <<= 4;
                     codePoint += static_cast<codepoint_t>(wT);
 
                     if (codePoint > 0x10FFFF)
-                    {
+                    {TRACE_IT(32688);
                         errorType = (uint)ERRInvalidCodePoint;
                         goto ReturnScanError;
                     }
@@ -1352,13 +1352,13 @@ LMainDefault:
                 Assert(codePoint <= 0x10FFFF);
 
                 if (codePoint >= 0x10000)
-                {
+                {TRACE_IT(32689);
                     OLECHAR lower = 0;
                     Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &lower, &ch);
                     m_tempChBuf.AppendCh(lower);
                 }
                 else
-                {
+                {TRACE_IT(32690);
                     ch = (char16)codePoint;
                 }
 
@@ -1401,11 +1401,11 @@ LTwoHex:
                     rawch = c;
 
                 if (codePoint < 0x10000)
-                {
+                {TRACE_IT(32691);
                     ch = static_cast<OLECHAR>(codePoint);
                 }
                 else
-                {
+                {TRACE_IT(32692);
                     goto ReturnScanError;
                 }
                 break;
@@ -1419,10 +1419,10 @@ LTwoHex:
 
                 // Octal escape sequences are not allowed inside string template literals
                 if (stringTemplateMode)
-                {
+                {TRACE_IT(32693);
                     c = this->PeekFirst(p, last);
                     if (ch != 0 || (c >= '0' && c <= '7'))
-                    {
+                    {TRACE_IT(32694);
                         errorType = (uint)ERRES5NoOctal;
                         goto ReturnScanError;
                     }
@@ -1431,9 +1431,9 @@ LTwoHex:
 
                 wT = (c = this->ReadFirst(p, last)) - '0';
                 if ((char16)wT > 7)
-                {
+                {TRACE_IT(32695);
                     if (ch != 0 || ((char16)wT <= 9))
-                    {
+                    {TRACE_IT(32696);
                         m_OctOrLeadingZeroOnLastTKNumber = true;
                     }
                     p--;
@@ -1451,7 +1451,7 @@ LTwoHex:
 
                 // Octal escape sequences are not allowed inside string template literals
                 if (stringTemplateMode)
-                {
+                {TRACE_IT(32697);
                     errorType = (uint)ERRES5NoOctal;
                     goto ReturnScanError;
                 }
@@ -1463,7 +1463,7 @@ LTwoHex:
 LOneOctal:
                 wT = (c = this->ReadFirst(p, last)) - '0';
                 if ((char16)wT > 7)
-                {
+                {TRACE_IT(32698);
                     p--;
                     break;
                 }
@@ -1473,10 +1473,10 @@ LOneOctal:
 
             case kchRET:        // 0xD
                 if (stringTemplateMode)
-                {
+                {TRACE_IT(32699);
                     // If this is \<CR><LF> we can eat the <LF> right now
                     if (this->PeekFirst(p, last) == kchNWL)
-                    {
+                    {TRACE_IT(32700);
                         // Eat the <LF> char, ignore return
                         this->ReadFirst(p, last);
                     }
@@ -1489,7 +1489,7 @@ LOneOctal:
             case kchNWL:        // 0xA
 LEcmaEscapeLineBreak:
                 if (stringTemplateMode)
-                {
+                {TRACE_IT(32701);
                     // We're going to ignore the line continuation tokens for the cooked strings, but we need to append the token for raw strings
                     m_tempChBufSecondary.template AppendCh<createRawString>(rawch);
 
@@ -1502,7 +1502,7 @@ LEcmaEscapeLineBreak:
                 ScanNewLine(ch);
                 p = m_currentCharacter;
                 if (m_fSyntaxColor && *p == 0)
-                {
+                {TRACE_IT(32702);
                     // Special case for multi-line strings during colorization.
                     m_scanState = delim == '"' ?  ScanStateMultiLineDoubleQuoteString : ScanStateMultiLineSingleQuoteString;
                     *pp = p;
@@ -1512,20 +1512,20 @@ LEcmaEscapeLineBreak:
 
             case 0:
                 if (p >= last)
-                {
+                {TRACE_IT(32703);
                     errorType = (uint)ERRnoStrEnd;
 
 ReturnScanError:
                     m_currentCharacter = p - 1;
                     if (m_fSyntaxColor)
-                    {
+                    {TRACE_IT(32704);
                         *pp = p - 1;
                         return ScanError(p - 1, tkStrCon);
                     }
                     Error(errorType);
                 }
                 else if (stringTemplateMode)
-                {
+                {TRACE_IT(32705);
                     // Escaped null character is translated into 0x0030 for raw template literals
                     rawch = 0x0030;
                 }
@@ -1533,7 +1533,7 @@ ReturnScanError:
 
             default:
                 if (this->IsMultiUnitChar(ch))
-                {
+                {TRACE_IT(32706);
                     rawch = ch = this->template ReadRest<true>(ch, p, last);
                     switch (ch)
                     {
@@ -1555,21 +1555,21 @@ LBreak:
     bool createPid = true;
 
     if (m_fSyntaxColor || (m_DeferredParseFlags & ScanFlagSuppressStrPid) != 0)
-    {
+    {TRACE_IT(32707);
         createPid = false;
 
         if ((m_tempChBuf.m_ichCur == 10) && (0 == memcmp(_u("use strict"), m_tempChBuf.m_prgch, m_tempChBuf.m_ichCur * sizeof(OLECHAR))))
-        {
+        {TRACE_IT(32708);
             createPid = true;
         }
     }
 
     if (createPid)
-    {
+    {TRACE_IT(32709);
         m_ptoken->SetIdentifier(m_phtbl->PidHashNameLen(m_tempChBuf.m_prgch, m_tempChBuf.m_ichCur));
     }
     else
-    {
+    {TRACE_IT(32710);
         m_ptoken->SetIdentifier(NULL);
     }
 
@@ -1582,7 +1582,7 @@ LBreak:
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanStringConstant(OLECHAR delim, EncodedCharPtr *pp)
-{
+{TRACE_IT(32711);
     return ScanStringConstant<false, false>(delim, pp);
 }
 
@@ -1592,7 +1592,7 @@ tokens Scanner<EncodingPolicy>::ScanStringConstant(OLECHAR delim, EncodedCharPtr
 */
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::SkipComment(EncodedCharPtr *pp, /* out */ bool* containTypeDef)
-{
+{TRACE_IT(32712);
     Assert(containTypeDef != nullptr);
     EncodedCharPtr p = *pp;
     *containTypeDef = false;
@@ -1600,15 +1600,15 @@ tokens Scanner<EncodingPolicy>::SkipComment(EncodedCharPtr *pp, /* out */ bool* 
     OLECHAR ch;
 
     for (;;)
-    {
+    {TRACE_IT(32713);
         switch((ch = this->ReadFirst(p, last)))
         {
         case '*':
             if (*p == '/')
-            {
+            {TRACE_IT(32714);
                 *pp = p + 1;
                 if (m_fSyntaxColor)
-                {
+                {TRACE_IT(32715);
                     m_scanState = ScanStateNormal;
                     return tkComment;
                 }
@@ -1633,11 +1633,11 @@ LLineBreak:
 
         case kchNUL:
             if (p >= last)
-            {
+            {TRACE_IT(32716);
                 m_currentCharacter = p - 1;
                 *pp = p - 1;
                 if (m_fSyntaxColor)
-                {
+                {TRACE_IT(32717);
                     m_scanState = ScanStateMultiLineComment;
                     return tkComment;
                 }
@@ -1647,7 +1647,7 @@ LLineBreak:
 
         default:
             if (this->IsMultiUnitChar(ch))
-            {
+            {TRACE_IT(32718);
                 ch = this->template ReadRest<true>(ch, p, last);
                 switch (ch)
                 {
@@ -1667,9 +1667,9 @@ LLineBreak:
 */
 template<typename EncodingPolicy>
 void Scanner<EncodingPolicy>::ScanNewLine(uint ch)
-{
+{TRACE_IT(32719);
     if (ch == '\r' && PeekNextChar() == '\n')
-    {
+    {TRACE_IT(32720);
         ReadNextChar();
     }
 
@@ -1682,7 +1682,7 @@ void Scanner<EncodingPolicy>::ScanNewLine(uint ch)
 */
 template<typename EncodingPolicy>
 void Scanner<EncodingPolicy>::NotifyScannedNewLine()
-{
+{TRACE_IT(32721);
     // update in scanner:  previous line, current line, number of lines.
     m_line++;
     m_pchPrevLine = m_pchMinLine;
@@ -1698,9 +1698,9 @@ void Scanner<EncodingPolicy>::NotifyScannedNewLine()
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanForcingPid()
-{
+{TRACE_IT(32722);
     if (m_DeferredParseFlags != ScanFlagNone)
-    {
+    {TRACE_IT(32723);
         BYTE deferredParseFlagsSave = m_DeferredParseFlags;
         m_DeferredParseFlags = ScanFlagNone;
         tokens result = tkEOF;
@@ -1710,7 +1710,7 @@ tokens Scanner<EncodingPolicy>::ScanForcingPid()
                 result = this->Scan();
             },
             [&](bool) /* finally block */
-            {
+            {TRACE_IT(32724);
                 this->m_DeferredParseFlags = deferredParseFlagsSave;
             });
 
@@ -1721,25 +1721,25 @@ tokens Scanner<EncodingPolicy>::ScanForcingPid()
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::Scan()
-{
+{TRACE_IT(32725);
     return ScanCore(true);
 }
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanNoKeywords()
-{
+{TRACE_IT(32726);
     return ScanCore(false);
 }
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanAhead()
-{
+{TRACE_IT(32727);
     return ScanNoKeywords();
 }
 
 template<typename EncodingPolicy>
 tokens Scanner<EncodingPolicy>::ScanCore(bool identifyKwds)
-{
+{TRACE_IT(32728);
     codepoint_t ch;
     OLECHAR firstChar;
     OLECHAR secondChar;
@@ -1754,7 +1754,7 @@ tokens Scanner<EncodingPolicy>::ScanCore(bool identifyKwds)
     m_iecpLimTokPrevious = IecpLimTok();    // Introduced for use by lambda parsing to find correct span of expression lambdas
 
     if (p >= last)
-    {
+    {TRACE_IT(32729);
         m_pchMinTok = p;
         m_cMinTokMultiUnits = this->m_cMultiUnits;
         goto LEof;
@@ -1765,9 +1765,9 @@ tokens Scanner<EncodingPolicy>::ScanCore(bool identifyKwds)
     charcount_t commentStartLine;
 
     if (m_scanState && *p != 0)
-    {
+    {TRACE_IT(32730);
         if (m_fSyntaxColor)
-        {
+        {TRACE_IT(32731);
             firstChar = 0;
             secondChar = 0;
             m_pchMinTok = p;
@@ -2156,7 +2156,7 @@ LIdentifier:
 LSkipLineComment:
                 pchT = NULL;
                 for (;;)
-                {
+                {TRACE_IT(32732);
                     switch ((ch = this->ReadFirst(p, last)))
                     {
                     case kchLS:         // 0x2028, classifies as new line
@@ -2164,12 +2164,12 @@ LSkipLineComment:
 LEcmaCommentLineBreak:
                         // kchPS and kchLS are more than one unit in UTF-8.
                         if (pchT)
-                        {
+                        {TRACE_IT(32733);
                             // kchPS and kchLS are more than one unit in UTF-8.
                             p = pchT;
                         }
                         else
-                        {
+                        {TRACE_IT(32734);
                             // But only a single code unit in UTF16
                             p--;
                         }
@@ -2181,7 +2181,7 @@ LEcmaCommentLineBreak:
                         p--;
 LCommentLineBreak:
                         if (m_fSyntaxColor)
-                        {
+                        {TRACE_IT(32735);
                             token = tkComment;
                             goto LDone;
                         }
@@ -2191,7 +2191,7 @@ LCommentLineBreak:
                         break;
                     case kchNUL:
                         if (p >= last)
-                        {
+                        {TRACE_IT(32736);
                             p--;
                             goto LCommentLineBreak;
                         }
@@ -2199,7 +2199,7 @@ LCommentLineBreak:
 
                     default:
                         if (this->IsMultiUnitChar((OLECHAR)ch))
-                        {
+                        {TRACE_IT(32737);
                             pchT = p - 1;
                             multiUnits = this->m_cMultiUnits;
                             switch (ch = this->template ReadRest<true>((OLECHAR)ch, p, last))
@@ -2221,11 +2221,11 @@ LCommentLineBreak:
                 ch = *++p;
                 firstChar = (OLECHAR)ch;
                 if ((p + 1) < last)
-                {
+                {TRACE_IT(32738);
                     secondChar = (OLECHAR)(*(p + 1));
                 }
                 else
-                {
+                {TRACE_IT(32739);
                     secondChar = '\0';
                 }
 
@@ -2235,7 +2235,7 @@ LMultiLineComment:
                 commentStartLine = m_line;
                 bool containTypeDef;
                 if (tkNone == (token = SkipComment(&pchT, &containTypeDef)))
-                {
+                {TRACE_IT(32740);
                     // Subtract the comment length from the total char count for the purpose
                     // of deciding whether to defer AST and byte code generation.
                     m_parser->ReduceDeferredScriptLength((ULONG)(pchT - m_pchMinTok));
@@ -2251,7 +2251,7 @@ LMultiLineComment:
             Assert(chType == _C_PCT);
             token = tkPct;
             if (this->PeekFirst(p, last) == '=')
-            {
+            {TRACE_IT(32741);
                 p++;
                 token = tkAsgMod;
             }
@@ -2269,7 +2269,7 @@ LMultiLineComment:
                 p++;
                 token = tkLsh;
                 if (this->PeekFirst(p, last) == '=')
-                {
+                {TRACE_IT(32742);
                     p++;
                     token = tkAsgLsh;
                     break;
@@ -2278,10 +2278,10 @@ LMultiLineComment:
             case '!':
                 // ES 2015 B.1.3 -  HTML comments are only allowed when parsing non-module code.
                 if (!m_fIsModuleCode && this->PeekFirst(p + 1, last) == '-' && this->PeekFirst(p + 2, last) == '-')
-                {
+                {TRACE_IT(32743);
                     // This is a "<!--" comment - treat as //
                     if (p >= last)
-                    {
+                    {TRACE_IT(32744);
                         // Effective source length may have excluded HTMLCommentSuffix "<!-- ... -->". If we are scanning
                         // those, we have passed "last" already. Move back and return EOF.
                         p = last;
@@ -2315,7 +2315,7 @@ LMultiLineComment:
                     p++;
                     token = tkRs2;
                     if (*p == '=')
-                    {
+                    {TRACE_IT(32745);
                         p++;
                         token = tkAsgRs2;
                     }
@@ -2328,7 +2328,7 @@ LMultiLineComment:
             Assert(chType == _C_XOR);
             token = tkXor;
             if (this->PeekFirst(p, last) == '=')
-            {
+            {TRACE_IT(32746);
                 p++;
                 token = tkAsgXor;
             }

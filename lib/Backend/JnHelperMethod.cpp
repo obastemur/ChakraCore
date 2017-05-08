@@ -43,9 +43,9 @@ intptr_t const JnHelperMethodAddresses_SSE2[] =
 };
 
 intptr_t const *GetHelperMethods()
-{
+{TRACE_IT(10100);
     if (AutoSystemInfo::Data.SSE2Available())
-    {
+    {TRACE_IT(10101);
         return JnHelperMethodAddresses_SSE2;
     }
     return JnHelperMethodAddresses;
@@ -53,7 +53,7 @@ intptr_t const *GetHelperMethods()
 #else
 
 intptr_t const *GetHelperMethods()
-{
+{TRACE_IT(10102);
     return JnHelperMethodAddresses;
 }
 #endif
@@ -62,7 +62,7 @@ intptr_t const *GetHelperMethods()
 class HelperTableCheck
 {
 public:
-    HelperTableCheck() {
+    HelperTableCheck() {TRACE_IT(10103);
         CheckJnHelperTable(JnHelperMethodAddresses);
 #if defined(_M_IX86)
         CheckJnHelperTable(JnHelperMethodAddresses_SSE2);
@@ -74,7 +74,7 @@ public:
 static HelperTableCheck LoadTimeHelperTableCheck;
 
 void CheckJnHelperTable(intptr_t const* table)
-{
+{TRACE_IT(10104);
     MEMORY_BASIC_INFORMATION memBuffer;
 
     // Make sure the helper table is in read-only memory for security reasons.
@@ -123,7 +123,7 @@ static intptr_t const helperMethodWrappers[] = {
 ///----------------------------------------------------------------------------
 intptr_t
 GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
-{
+{TRACE_IT(10105);
     Assert(opnd);
 
 #if defined(_M_ARM32_OR_ARM64)
@@ -135,12 +135,12 @@ GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
     CompileAssert(_countof(helperMethodWrappers) == LowererMDFinal::MaxArgumentsToHelper + 1);
 
     if (opnd->IsDiagHelperCallOpnd())
-    {
+    {TRACE_IT(10106);
         // Note: all arguments are already loaded for the original helper. Here we just return the address.
         IR::DiagHelperCallOpnd* diagOpnd = (IR::DiagHelperCallOpnd*)opnd;
 
         if (0 <= diagOpnd->m_argCount && diagOpnd->m_argCount <= LowererMDFinal::MaxArgumentsToHelper)
-        {
+        {TRACE_IT(10107);
             return SHIFT_ADDR(context, helperMethodWrappers[diagOpnd->m_argCount]);
         }
         else
@@ -166,7 +166,7 @@ GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
 // Additionally, all function ptrs are automatically marked as safe CFG addresses by the compiler.
 // __declspec(guard(ignore)) can be used on methods to have the compiler not mark these as valid CFG targets.
 DECLSPEC_GUARDIGNORE  _NOINLINE intptr_t GetNonTableMethodAddress(ThreadContextInfo * context, JnHelperMethod helperMethod)
-{
+{TRACE_IT(10108);
     switch (helperMethod)
     {
     //
@@ -326,10 +326,10 @@ DECLSPEC_GUARDIGNORE  _NOINLINE intptr_t GetNonTableMethodAddress(ThreadContextI
 ///
 ///----------------------------------------------------------------------------
 intptr_t GetMethodOriginalAddress(ThreadContextInfo * context, JnHelperMethod helperMethod)
-{
+{TRACE_IT(10109);
     intptr_t address = GetHelperMethods()[static_cast<WORD>(helperMethod)];
     if (address == 0)
-    {
+    {TRACE_IT(10110);
         return GetNonTableMethodAddress(context, helperMethod);
     }
 
@@ -359,7 +359,7 @@ char16 const * const JnHelperMethodNames[] =
 
 char16 const*
 GetMethodName(JnHelperMethod helperMethod)
-{
+{TRACE_IT(10111);
     return JnHelperMethodNames[static_cast<WORD>(helperMethod)];
 }
 
@@ -370,7 +370,7 @@ GetMethodName(JnHelperMethod helperMethod)
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 const char16 *GetVtableName(VTableValue value)
-{
+{TRACE_IT(10112);
     switch (value)
     {
 #if !defined(_M_X64)
@@ -506,12 +506,12 @@ static const BYTE JnHelperMethodAttributes[] =
 
 // Returns true if the helper can throw non-OOM / non-SO exception.
 bool CanThrow(IR::JnHelperMethod helper)
-{
+{TRACE_IT(10113);
     return (JnHelperMethodAttributes[helper] & AttrCanThrow) != 0;
 }
 
 bool IsInVariant(IR::JnHelperMethod helper)
-{
+{TRACE_IT(10114);
     return (JnHelperMethodAttributes[helper] & AttrInVariant) != 0;
 }
 

@@ -13,7 +13,7 @@ namespace PlatformAgnostic
                                         unsigned ( __stdcall *start_address )( void * ),
                                         void* arg_list,
                                         ThreadInitFlag init_flag)
-    {
+    {TRACE_IT(65187);
         unsigned int flag = 0;
 
         switch (init_flag)

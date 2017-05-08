@@ -10,10 +10,10 @@
 #endif
 #include "Language/JavascriptStackWalker.h"
 
-WCHAR* DumpCallStack(uint frameCount) { return DumpCallStackFull(frameCount, /*print*/ true); }
+WCHAR* DumpCallStack(uint frameCount) {TRACE_IT(33642); return DumpCallStackFull(frameCount, /*print*/ true); }
 
 WCHAR* DumpCallStackFull(uint frameCount, bool print)
-{
+{TRACE_IT(33643);
     Js::ScriptContext* scriptContext = ThreadContext::GetContextForCurrentThread()->GetScriptContextList();
     Js::JavascriptStackWalker walker(scriptContext);
 
@@ -21,10 +21,10 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
     Js::StringBuilder<ArenaAllocator> sb(scriptContext->GeneralAllocator());
     uint fc = 0;
     while (walker.Walk())
-    {
+    {TRACE_IT(33644);
         void * codeAddr = walker.GetCurrentCodeAddr();
         if (walker.IsJavascriptFrame())
-        {
+        {TRACE_IT(33645);
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             StringCchPrintf(buffer, _countof(buffer), _u("0x%p  "), codeAddr);
             sb.AppendSz(buffer);
@@ -50,7 +50,7 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
             sb.AppendSz(buffer);
             fc++;
             if(fc >= frameCount)
-            {
+            {TRACE_IT(33646);
                 break;
             }
        }
@@ -58,7 +58,7 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
     sb.AppendCppLiteral(_u("----------------------------------------------------------------------\n"));
     WCHAR* stack = sb.Detach();
     if(print)
-    {
+    {TRACE_IT(33647);
         Output::Print(stack);
     }
     return stack;

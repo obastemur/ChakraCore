@@ -21,9 +21,9 @@ namespace Js
             hadDuplicates(hadDuplicates),
             has__proto__(has__proto__),
             hasNonSimpleParams(hasNonSimpleParams)
-        {
+        {TRACE_IT(41809);
         }
 
-        size_t GetDataSize() const { return sizeof(PropertyIdArray) + sizeof(PropertyId) * (count + extraSlots); }
+        size_t GetDataSize() const {TRACE_IT(41810); return sizeof(PropertyIdArray) + sizeof(PropertyId) * (count + extraSlots); }
     };
 };

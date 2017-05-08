@@ -71,12 +71,12 @@ public:
     }
 
     Symbol *FindLocalSymbol(SymbolName const& key)
-    {
+    {TRACE_IT(41831);
         Symbol *sym;
         for (sym = m_symList; sym; sym = sym->GetNext())
-        {
+        {TRACE_IT(41832);
             if (sym->GetName() == key)
-            {
+            {TRACE_IT(41833);
                 break;
             }
         }
@@ -85,9 +85,9 @@ public:
 
     template<class Fn>
     void ForEachSymbol(Fn fn)
-    {
+    {TRACE_IT(41834);
         for (Symbol *sym = m_symList; sym;)
-        {
+        {TRACE_IT(41835);
             Symbol *next = sym->GetNext();
             fn(sym);
             sym = next;
@@ -96,12 +96,12 @@ public:
 
     template<class Fn>
     void ForEachSymbolUntil(Fn fn)
-    {
+    {TRACE_IT(41836);
         for (Symbol *sym = m_symList; sym;)
-        {
+        {TRACE_IT(41837);
             Symbol *next = sym->GetNext();
             if (fn(sym))
-            {
+            {TRACE_IT(41838);
                 return;
             }
             sym = next;
@@ -111,16 +111,16 @@ public:
     // For JScript, this should not return NULL because
     // there is always an enclosing global scope.
     Symbol *FindSymbol(SymbolName const& name, SymbolType symbolType, bool fCreate = true)
-    {
+    {TRACE_IT(41839);
         Symbol *sym = FindLocalSymbol(name);
         if (sym == nullptr)
-        {
+        {TRACE_IT(41840);
             if (enclosingScope != nullptr)
-            {
+            {TRACE_IT(41841);
                 sym = enclosingScope->FindSymbol(name, symbolType);
             }
             else if (fCreate)
-            {
+            {TRACE_IT(41842);
                 sym = Anew(alloc, Symbol, name, nullptr, symbolType);
                 AddNewSymbol(sym);
             }
@@ -129,16 +129,16 @@ public:
     }
 
     void AddSymbol(Symbol *sym)
-    {
+    {TRACE_IT(41843);
         if (enclosingScope == nullptr)
-        {
+        {TRACE_IT(41844);
             sym->SetIsGlobal(true);
         }
         sym->SetScope(this);
         for (Symbol *symInList = m_symList; symInList; symInList = symInList->GetNext())
-        {
+        {TRACE_IT(41845);
             if (symInList->GetName() == sym->GetName())
-            {
+            {TRACE_IT(41846);
                 return;
             }
         }
@@ -148,9 +148,9 @@ public:
     }
 
     void AddNewSymbol(Symbol *sym)
-    {
+    {TRACE_IT(41847);
         if (scopeType == ScopeType_Global)
-        {
+        {TRACE_IT(41848);
             sym->SetIsGlobal(true);
         }
         sym->SetScope(this);
@@ -160,12 +160,12 @@ public:
     }
 
     bool HasStaticPathToAncestor(Scope const * target) const
-    {
+    {TRACE_IT(41849);
         return target == this || (!isDynamic && enclosingScope != nullptr && enclosingScope->HasStaticPathToAncestor(target));
     }
 
     void SetEnclosingScope(Scope *enclosingScope)
-    {
+    {TRACE_IT(41850);
         // Check for scope cycles
         Assert(enclosingScope != this);
         Assert(enclosingScope == nullptr || this != enclosingScope->GetEnclosingScope());
@@ -173,17 +173,17 @@ public:
     }
 
     Scope *GetEnclosingScope() const
-    {
+    {TRACE_IT(41851);
         return enclosingScope;
     }
 
     ScopeType GetScopeType() const
-    {
+    {TRACE_IT(41852);
         return this->scopeType;
     }
 
     bool IsInnerScope() const
-    {
+    {TRACE_IT(41853);
         return scopeType == ScopeType_Block
             || scopeType == ScopeType_Catch
             || scopeType == ScopeType_CatchParamPattern
@@ -191,73 +191,73 @@ public:
     }
 
     int Count() const
-    {
+    {TRACE_IT(41854);
         return m_count;
     }
 
     void SetFunc(FuncInfo *func)
-    {
+    {TRACE_IT(41855);
         this->func = func;
     }
 
     FuncInfo *GetFunc() const
-    {
+    {TRACE_IT(41856);
         return func;
     }
 
     FuncInfo *GetEnclosingFunc()
-    {
+    {TRACE_IT(41857);
         Scope *scope = this;
         while (scope && scope->func == nullptr)
-        {
+        {TRACE_IT(41858);
             scope = scope->GetEnclosingScope();
         }
         AnalysisAssert(scope);
         return scope->func;
     }
 
-    void SetLocation(Js::RegSlot loc) { location = loc; }
-    Js::RegSlot GetLocation() const { return location; }
+    void SetLocation(Js::RegSlot loc) {TRACE_IT(41859); location = loc; }
+    Js::RegSlot GetLocation() const {TRACE_IT(41860); return location; }
 
-    void SetIsDynamic(bool is) { isDynamic = is; }
-    bool GetIsDynamic() const { return isDynamic; }
+    void SetIsDynamic(bool is) {TRACE_IT(41861); isDynamic = is; }
+    bool GetIsDynamic() const {TRACE_IT(41862); return isDynamic; }
 
     bool IsEmpty() const;
 
     bool IsBlockScope(FuncInfo *funcInfo);
 
     void SetIsObject();
-    bool GetIsObject() const { return isObject; }
+    bool GetIsObject() const {TRACE_IT(41863); return isObject; }
 
-    void SetCapturesAll(bool does) { capturesAll = does; }
-    bool GetCapturesAll() const { return capturesAll; }
+    void SetCapturesAll(bool does) {TRACE_IT(41864); capturesAll = does; }
+    bool GetCapturesAll() const {TRACE_IT(41865); return capturesAll; }
 
-    void SetMustInstantiate(bool must) { mustInstantiate = must; }
-    bool GetMustInstantiate() const { return mustInstantiate; }
+    void SetMustInstantiate(bool must) {TRACE_IT(41866); mustInstantiate = must; }
+    bool GetMustInstantiate() const {TRACE_IT(41867); return mustInstantiate; }
 
-    void SetCanMerge(bool can) { canMerge = can; }
-    bool GetCanMerge() const { return canMerge && !mustInstantiate && !isObject; }
+    void SetCanMerge(bool can) {TRACE_IT(41868); canMerge = can; }
+    bool GetCanMerge() const {TRACE_IT(41869); return canMerge && !mustInstantiate && !isObject; }
 
-    void SetScopeSlotCount(uint i) { scopeSlotCount = i; }
-    uint GetScopeSlotCount() const { return scopeSlotCount; }
+    void SetScopeSlotCount(uint i) {TRACE_IT(41870); scopeSlotCount = i; }
+    uint GetScopeSlotCount() const {TRACE_IT(41871); return scopeSlotCount; }
 
-    void SetHasDuplicateFormals() { hasDuplicateFormals = true; }
-    bool GetHasDuplicateFormals() { return hasDuplicateFormals; }
+    void SetHasDuplicateFormals() {TRACE_IT(41872); hasDuplicateFormals = true; }
+    bool GetHasDuplicateFormals() {TRACE_IT(41873); return hasDuplicateFormals; }
 
-    void SetHasOwnLocalInClosure(bool has) { hasLocalInClosure = has; }
-    bool GetHasOwnLocalInClosure() const { return hasLocalInClosure; }
+    void SetHasOwnLocalInClosure(bool has) {TRACE_IT(41874); hasLocalInClosure = has; }
+    bool GetHasOwnLocalInClosure() const {TRACE_IT(41875); return hasLocalInClosure; }
 
-    void SetIsBlockInLoop(bool is = true) { isBlockInLoop = is; }
-    bool IsBlockInLoop() const { return isBlockInLoop; }
+    void SetIsBlockInLoop(bool is = true) {TRACE_IT(41876); isBlockInLoop = is; }
+    bool IsBlockInLoop() const {TRACE_IT(41877); return isBlockInLoop; }
 
-    bool HasInnerScopeIndex() const { return innerScopeIndex != (uint)-1; }
-    uint GetInnerScopeIndex() const { return innerScopeIndex; }
-    void SetInnerScopeIndex(uint index) { innerScopeIndex = index; }
+    bool HasInnerScopeIndex() const {TRACE_IT(41878); return innerScopeIndex != (uint)-1; }
+    uint GetInnerScopeIndex() const {TRACE_IT(41879); return innerScopeIndex; }
+    void SetInnerScopeIndex(uint index) {TRACE_IT(41880); innerScopeIndex = index; }
 
     int AddScopeSlot();
 
-    void SetHasCrossScopeFuncAssignment() { hasCrossScopeFuncAssignment = true; }
-    bool HasCrossScopeFuncAssignment() const { return hasCrossScopeFuncAssignment; }
+    void SetHasCrossScopeFuncAssignment() {TRACE_IT(41881); hasCrossScopeFuncAssignment = true; }
+    bool HasCrossScopeFuncAssignment() const {TRACE_IT(41882); return hasCrossScopeFuncAssignment; }
 
     void ForceAllSymbolNonLocalReference(ByteCodeGenerator *byteCodeGenerator);
 

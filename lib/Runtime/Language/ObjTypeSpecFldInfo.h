@@ -46,7 +46,7 @@ namespace Js
         {
             Field(uint16) flags;
         };
-        ObjTypeSpecFldInfoFlags(uint16 flags) : flags(flags) { }
+        ObjTypeSpecFldInfoFlags(uint16 flags) : flags(flags) {TRACE_IT(52003); }
     };
 
     class ObjTypeSpecFldInfo
@@ -72,7 +72,7 @@ namespace Js
         ObjTypeSpecFldInfo() :
             id(0), typeId(TypeIds_Limit), typeSet(nullptr), initialType(nullptr), flags(InitialObjTypeSpecFldInfoFlagValue),
             slotIndex(Constants::NoSlot), propertyId(Constants::NoProperty), protoObject(nullptr), propertyGuard(nullptr),
-            ctorCache(nullptr), fixedFieldInfoArray(nullptr) {}
+            ctorCache(nullptr), fixedFieldInfoArray(nullptr) {TRACE_IT(52004);}
 
         ObjTypeSpecFldInfo(uint id, TypeId typeId, Type* initialType,
             bool usesAuxSlot, bool isLoadedFromProto, bool usesAccessor, bool isFieldValueFixed, bool keepFieldValue, bool isBuiltIn,
@@ -81,7 +81,7 @@ namespace Js
             id(id), typeId(typeId), typeSet(nullptr), initialType(initialType), flags(InitialObjTypeSpecFldInfoFlagValue),
             slotIndex(slotIndex), propertyId(propertyId), protoObject(protoObject), propertyGuard(propertyGuard),
             ctorCache(ctorCache), fixedFieldInfoArray(fixedFieldInfoArray)
-        {
+        {TRACE_IT(52005);
             this->flags.isPolymorphic = false;
             this->flags.usesAuxSlot = usesAuxSlot;
             this->flags.isLocal = !isLoadedFromProto && !usesAccessor;
@@ -102,7 +102,7 @@ namespace Js
             id(id), typeId(typeId), typeSet(typeSet), initialType(initialType), flags(InitialObjTypeSpecFldInfoFlagValue),
             slotIndex(slotIndex), propertyId(propertyId), protoObject(protoObject), propertyGuard(propertyGuard),
             ctorCache(ctorCache), fixedFieldInfoArray(fixedFieldInfoArray)
-        {
+        {TRACE_IT(52006);
             this->flags.isPolymorphic = isPolymorphic;
             this->flags.usesAuxSlot = usesAuxSlot;
             this->flags.isLocal = !isLoadedFromProto && !usesAccessor;
@@ -123,146 +123,146 @@ namespace Js
             EntryPointInfo *entryPoint, FunctionBody* const topFunctionBody, FunctionBody *const functionBody, FieldAccessStatsPtr inlineCacheStats);
 
         uint GetObjTypeSpecFldId() const
-        {
+        {TRACE_IT(52007);
             return this->id;
         }
 
         bool IsMono() const
-        {
+        {TRACE_IT(52008);
             return !this->flags.isPolymorphic;
         }
 
         bool IsPoly() const
-        {
+        {TRACE_IT(52009);
             return this->flags.isPolymorphic;
         }
 
         bool UsesAuxSlot() const
-        {
+        {TRACE_IT(52010);
             return this->flags.usesAuxSlot;
         }
 
         bool IsBuiltin() const
-        {
+        {TRACE_IT(52011);
             return this->flags.isBuiltIn;
         }
 
         void SetUsesAuxSlot(bool value)
-        {
+        {TRACE_IT(52012);
             this->flags.usesAuxSlot = value;
         }
 
         bool IsLoadedFromProto() const
-        {
+        {TRACE_IT(52013);
             return this->flags.isLoadedFromProto;
         }
 
         bool IsLocal() const
-        {
+        {TRACE_IT(52014);
             return this->flags.isLocal;
         }
 
         bool UsesAccessor() const
-        {
+        {TRACE_IT(52015);
             return this->flags.usesAccessor;
         }
 
         bool HasFixedValue() const
-        {
+        {TRACE_IT(52016);
             return this->flags.hasFixedValue;
         }
 
         void SetHasFixedValue(bool value)
-        {
+        {TRACE_IT(52017);
             this->flags.hasFixedValue = value;
         }
 
         bool IsBeingStored() const
-        {
+        {TRACE_IT(52018);
             return this->flags.isBeingStored;
         }
 
         void SetIsBeingStored(bool value)
-        {
+        {TRACE_IT(52019);
             this->flags.isBeingStored = value;
         }
 
         bool IsBeingAdded() const
-        {
+        {TRACE_IT(52020);
             return this->flags.isBeingAdded;
         }
 
         bool IsRootObjectNonConfigurableField() const
-        {
+        {TRACE_IT(52021);
             return this->flags.isRootObjectNonConfigurableField;
         }
 
         bool IsRootObjectNonConfigurableFieldLoad() const
-        {
+        {TRACE_IT(52022);
             return this->flags.isRootObjectNonConfigurableField && this->flags.isRootObjectNonConfigurableFieldLoad;
         }
 
         void SetRootObjectNonConfigurableField(bool isLoad)
-        {
+        {TRACE_IT(52023);
             this->flags.isRootObjectNonConfigurableField = true;
             this->flags.isRootObjectNonConfigurableFieldLoad = isLoad;
         }
 
         bool DoesntHaveEquivalence() const
-        {
+        {TRACE_IT(52024);
             return this->flags.doesntHaveEquivalence;
         }
 
         void ClearFlags()
-        {
+        {TRACE_IT(52025);
             this->flags = 0;
         }
 
         void SetFlags(uint16 flags)
-        {
+        {TRACE_IT(52026);
             this->flags = flags | 0x01;
         }
 
         uint16 GetFlags() const
-        {
+        {TRACE_IT(52027);
             return this->flags.flags;
         }
 
         uint16 GetSlotIndex() const
-        {
+        {TRACE_IT(52028);
             return this->slotIndex;
         }
 
         void SetSlotIndex(uint16 index)
-        {
+        {TRACE_IT(52029);
             this->slotIndex = index;
         }
 
         PropertyId GetPropertyId() const
-        {
+        {TRACE_IT(52030);
             return this->propertyId;
         }
 
         Js::DynamicObject* GetProtoObject() const
-        {
+        {TRACE_IT(52031);
             Assert(IsLoadedFromProto());
             return this->protoObject;
         }
 
         Var GetFieldValue() const
-        {
+        {TRACE_IT(52032);
             Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
             return this->fixedFieldInfoArray[0].fieldValue;
         }
 
         Var GetFieldValue(uint i) const
-        {
+        {TRACE_IT(52033);
             Assert(IsPoly());
             return this->fixedFieldInfoArray[i].fieldValue;
         }
 
         void SetFieldValue(Var value)
-        {
+        {TRACE_IT(52034);
             Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
             this->fixedFieldInfoArray[0].fieldValue = value;
         }
@@ -280,72 +280,72 @@ namespace Js
         Js::JavascriptFunction* GetFieldValueAsFixedFunctionIfAvailable(uint i) const;
 
         bool GetKeepFieldValue() const
-        {
+        {TRACE_IT(52035);
             return this->flags.keepFieldValue;
         }
 
         JITTimeConstructorCache* GetCtorCache() const
-        {
+        {TRACE_IT(52036);
             return this->ctorCache;
         }
 
         Js::PropertyGuard* GetPropertyGuard() const
-        {
+        {TRACE_IT(52037);
             return this->propertyGuard;
         }
 
         bool IsObjTypeSpecCandidate() const
-        {
+        {TRACE_IT(52038);
             return true;
         }
 
         bool IsMonoObjTypeSpecCandidate() const
-        {
+        {TRACE_IT(52039);
             return IsObjTypeSpecCandidate() && IsMono();
         }
 
         bool IsPolyObjTypeSpecCandidate() const
-        {
+        {TRACE_IT(52040);
             return IsObjTypeSpecCandidate() && IsPoly();
         }
 
         Js::TypeId GetTypeId() const
-        {
+        {TRACE_IT(52041);
             Assert(typeId != TypeIds_Limit);
             return this->typeId;
         }
 
         Js::TypeId GetTypeId(uint i) const
-        {
+        {TRACE_IT(52042);
             Assert(IsPoly());
             return this->fixedFieldInfoArray[i].type->GetTypeId();
         }
 
         Js::Type * GetType() const
-        {
+        {TRACE_IT(52043);
             Assert(IsObjTypeSpecCandidate() && IsMono());
             return this->fixedFieldInfoArray[0].type;
         }
 
         Js::Type * GetType(uint i) const
-        {
+        {TRACE_IT(52044);
             Assert(IsPoly());
             return this->fixedFieldInfoArray[i].type;
         }
 
         bool HasInitialType() const
-        {
+        {TRACE_IT(52045);
             return IsObjTypeSpecCandidate() && IsMono() && !IsLoadedFromProto() && this->initialType != nullptr;
         }
 
         Js::Type * GetInitialType() const
-        {
+        {TRACE_IT(52046);
             Assert(IsObjTypeSpecCandidate() && IsMono() && !IsLoadedFromProto());
             return this->initialType;
         }
 
         Js::EquivalentTypeSet * GetEquivalentTypeSet() const
-        {
+        {TRACE_IT(52047);
             Assert(IsObjTypeSpecCandidate());
             return this->typeSet;
         }
@@ -353,12 +353,12 @@ namespace Js
         JITTypeHolder GetFirstEquivalentType() const;
 
         Js::FixedFieldInfo* GetFixedFieldInfoArray()
-        {
+        {TRACE_IT(52048);
             return this->fixedFieldInfoArray;
         }
 
         uint16 GetFixedFieldCount() const
-        {
+        {TRACE_IT(52049);
             return this->fixedFieldCount;
         }
 
@@ -383,7 +383,7 @@ namespace Js
     public:
         ObjTypeSpecFldInfo* GetInfo(FunctionBody *const functionBody, const uint index) const;
         ObjTypeSpecFldInfo* GetInfo(const uint index) const;
-        Field(ObjTypeSpecFldInfo*)* GetInfoArray() const { return infoArray; }
+        Field(ObjTypeSpecFldInfo*)* GetInfoArray() const {TRACE_IT(52050); return infoArray; }
 
         void SetInfo(Recycler *const recycler, FunctionBody *const functionBody,
             const uint index, ObjTypeSpecFldInfo* info);
@@ -392,15 +392,15 @@ namespace Js
 
         template <class Fn>
         void Map(Fn fn, uint count) const
-        {
+        {TRACE_IT(52051);
             if (this->infoArray != nullptr)
-            {
+            {TRACE_IT(52052);
                 for (uint i = 0; i < count; i++)
-                {
+                {TRACE_IT(52053);
                     ObjTypeSpecFldInfo* info = this->infoArray[i];
 
                     if (info != nullptr)
-                    {
+                    {TRACE_IT(52054);
                         fn(info);
                     }
                 }

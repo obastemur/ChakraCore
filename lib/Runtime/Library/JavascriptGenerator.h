@@ -13,7 +13,7 @@ namespace Js
         Var data;
         JavascriptExceptionObject* exceptionObj;
 
-        ResumeYieldData(Var data, JavascriptExceptionObject* exceptionObj) : data(data), exceptionObj(exceptionObj) { }
+        ResumeYieldData(Var data, JavascriptExceptionObject* exceptionObj) : data(data), exceptionObj(exceptionObj) {TRACE_IT(58995); }
     };
 
     class JavascriptGenerator : public DynamicObject
@@ -25,9 +25,9 @@ namespace Js
             Completed
         };
 
-        static uint32 GetFrameOffset() { return offsetof(JavascriptGenerator, frame); }
-        static uint32 GetCallInfoOffset() { return offsetof(JavascriptGenerator, args) + Arguments::GetCallInfoOffset(); }
-        static uint32 GetArgsPtrOffset() { return offsetof(JavascriptGenerator, args) + Arguments::GetValuesOffset(); }
+        static uint32 GetFrameOffset() {TRACE_IT(58996); return offsetof(JavascriptGenerator, frame); }
+        static uint32 GetCallInfoOffset() {TRACE_IT(58997); return offsetof(JavascriptGenerator, args) + Arguments::GetCallInfoOffset(); }
+        static uint32 GetArgsPtrOffset() {TRACE_IT(58998); return offsetof(JavascriptGenerator, args) + Arguments::GetValuesOffset(); }
 
     private:
         Field(InterpreterStackFrame*) frame;
@@ -39,10 +39,10 @@ namespace Js
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(JavascriptGenerator);
 
         void SetState(GeneratorState state)
-        {
+        {TRACE_IT(58999);
             this->state = state;
             if (state == GeneratorState::Completed)
-            {
+            {TRACE_IT(59000);
                 frame = nullptr;
                 args.Values = nullptr;
                 scriptFunction = nullptr;
@@ -55,19 +55,19 @@ namespace Js
     public:
         static JavascriptGenerator* New(Recycler* recycler, DynamicType* generatorType, Arguments& args, ScriptFunction* scriptFunction);
 
-        bool IsExecuting() const { return state == GeneratorState::Executing; }
-        bool IsSuspended() const { return state == GeneratorState::Suspended; }
-        bool IsCompleted() const { return state == GeneratorState::Completed; }
-        bool IsSuspendedStart() const { return state == GeneratorState::Suspended && this->frame == nullptr; }
+        bool IsExecuting() const {TRACE_IT(59001); return state == GeneratorState::Executing; }
+        bool IsSuspended() const {TRACE_IT(59002); return state == GeneratorState::Suspended; }
+        bool IsCompleted() const {TRACE_IT(59003); return state == GeneratorState::Completed; }
+        bool IsSuspendedStart() const {TRACE_IT(59004); return state == GeneratorState::Suspended && this->frame == nullptr; }
 
         void SetFrame(InterpreterStackFrame* frame, size_t bytes);
-        InterpreterStackFrame* GetFrame() const { return frame; }
+        InterpreterStackFrame* GetFrame() const {TRACE_IT(59005); return frame; }
 
 #if GLOBAL_ENABLE_WRITE_BARRIER
         virtual void Finalize(bool isShutdown) override;
 #endif
 
-        const Arguments& GetArguments() const { return args; }
+        const Arguments& GetArguments() const {TRACE_IT(59006); return args; }
 
         static bool Is(Var var);
         static JavascriptGenerator* FromVar(Var var);

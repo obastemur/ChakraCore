@@ -33,7 +33,7 @@ namespace Js
         static Var EntrySymbolIterator(RecyclableObject* function, CallInfo callInfo, ...);
         void Initialize();
         ListForListIterator* EnsureSortedExportedNames();
-        static ModuleNamespace* FromVar(Var obj) { Assert(JavascriptOperators::GetTypeId(obj) == TypeIds_ModuleNamespace); return static_cast<ModuleNamespace*>(obj); }
+        static ModuleNamespace* FromVar(Var obj) {TRACE_IT(51870); Assert(JavascriptOperators::GetTypeId(obj) == TypeIds_ModuleNamespace); return static_cast<ModuleNamespace*>(obj); }
 
         virtual PropertyId GetPropertyId(BigPropertyIndex index) override;
         virtual BOOL HasProperty(PropertyId propertyId) override;
@@ -67,7 +67,7 @@ namespace Js
         virtual BOOL IsEnumerable(PropertyId propertyId) override { return true; }
         virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) override { return false; }
         virtual BOOL SetWritable(PropertyId propertyId, BOOL value) override { return false; }
-        virtual BOOL IsProtoImmutable() const { return true; }
+        virtual BOOL IsProtoImmutable() const {TRACE_IT(51871); return true; }
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override { return false; }
         virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) override { return false; }
         virtual BOOL IsExtensible() override { return false; };
@@ -90,10 +90,10 @@ namespace Js
         Field(ListForListIterator*) sortedExportedNames;   // sorted exported names for both local and indirect exports; excludes symbols.
         Field(Field(Var)*) nsSlots;
 
-        void SetNSSlotsForModuleNS(Field(Var)* nsSlot) { this->nsSlots = nsSlot; }
+        void SetNSSlotsForModuleNS(Field(Var)* nsSlot) {TRACE_IT(51872); this->nsSlots = nsSlot; }
         Var GetNSSlot(BigPropertyIndex propertyIndex);
         void AddUnambiguousNonLocalExport(PropertyId exportId, ModuleNameRecord* nonLocalExportNameRecord);
-        UnambiguousExportMap* GetUnambiguousNonLocalExports() const { return unambiguousNonLocalExports; }
+        UnambiguousExportMap* GetUnambiguousNonLocalExports() const {TRACE_IT(51873); return unambiguousNonLocalExports; }
 
         // Methods used by NamespaceEnumerator;
         BOOL FindNextProperty(BigPropertyIndex& index, JavascriptString** propertyString, PropertyId* propertyId, PropertyAttributes* attributes, ScriptContext * requestContext) const;

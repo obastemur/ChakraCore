@@ -67,7 +67,7 @@ struct ArenaMemoryBlock
     size_t nbytes;
 
     char * GetBytes() const
-    {
+    {TRACE_IT(22876);
         return ((char *)this) + sizeof(ArenaMemoryBlock);
     }
 };
@@ -79,7 +79,7 @@ public:
     size_t currentByte;
 
     char * GetBytes() const
-    {
+    {TRACE_IT(22877);
         return ((char *)this) + sizeof(BigBlock);
     }
 };
@@ -106,22 +106,22 @@ protected:
 
 public:
     BigBlock* GetBigBlocks(bool background)
-    {
+    {TRACE_IT(22878);
         if (!background)
-        {
+        {TRACE_IT(22879);
             UpdateCacheBlock();
         }
         return bigBlocks;
     }
-    BigBlock* GetFullBlocks() { return fullBlocks; }
-    ArenaMemoryBlock * GetMemoryBlocks() { return mallocBlocks; }
+    BigBlock* GetFullBlocks() {TRACE_IT(22880); return fullBlocks; }
+    ArenaMemoryBlock * GetMemoryBlocks() {TRACE_IT(22881); return mallocBlocks; }
     PageAllocator * GetPageAllocator() const
-    {
+    {TRACE_IT(22882);
         return pageAllocator;
     }
 
-    bool IsBlockListLocked() { return lockBlockList; }
-    void SetLockBlockList(bool lock) { lockBlockList = lock; }
+    bool IsBlockListLocked() {TRACE_IT(22883); return lockBlockList; }
+    void SetLockBlockList(bool lock) {TRACE_IT(22884); lockBlockList = lock; }
 
 protected:
     void UpdateCacheBlock() const;
@@ -168,7 +168,7 @@ public:
     ~ArenaAllocatorBase();
 
     void Reset()
-    {
+    {TRACE_IT(22885);
         ASSERT_THREAD();
         Assert(!lockBlockList);
 
@@ -180,7 +180,7 @@ public:
         ArenaMemoryTracking::ReportFreeAll(this);
 
         if (this->blockState == 1)
-        {
+        {TRACE_IT(22886);
             Assert(this->bigBlocks != nullptr && this->fullBlocks == nullptr && this->mallocBlocks == nullptr && this->bigBlocks->nextBigBlock == nullptr);
             Assert(this->largestHole == 0);
             Assert(cacheBlockEnd == bigBlocks->GetBytes() + bigBlocks->nbytes);
@@ -197,7 +197,7 @@ public:
     void Move(ArenaAllocatorBase *srcAllocator);
 
     void Clear()
-    {
+    {TRACE_IT(22887);
         ASSERT_THREAD();
         Assert(!lockBlockList);
         ArenaMemoryTracking::ReportFreeAll(this);
@@ -220,7 +220,7 @@ public:
     size_t Size();              // amount of allocated memory is used.
 
     size_t FreeListSize()
-    {
+    {TRACE_IT(22888);
 #ifdef ARENA_ALLOCATOR_FREE_LIST_SIZE
         return this->freeListSize;
 #else
@@ -228,7 +228,7 @@ public:
 #endif
     }
 
-    static size_t GetAlignedSize(size_t size) { return AllocSizeMath::Align(size, ArenaAllocatorBase::ObjectAlignment); }
+    static size_t GetAlignedSize(size_t size) {TRACE_IT(22889); return AllocSizeMath::Align(size, ArenaAllocatorBase::ObjectAlignment); }
 
     char * AllocInternal(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes);
 
@@ -236,19 +236,19 @@ public:
     void Free(void * buffer, size_t byteSize);
 #if DBG
     bool HasDelayFreeList() const
-    {
+    {TRACE_IT(22890);
         return needsDelayFreeList;
     }
     void SetNeedsDelayFreeList()
-    {
+    {TRACE_IT(22891);
         needsDelayFreeList = true;
     }
     void MergeDelayFreeList();
 #endif
 #ifdef TRACK_ALLOC
     // Doesn't support tracking information, dummy implementation
-    ArenaAllocatorBase * TrackAllocInfo(TrackAllocData const& data) { return this; }
-    void ClearTrackAllocInfo(TrackAllocData* data = nullptr) {}
+    ArenaAllocatorBase * TrackAllocInfo(TrackAllocData const& data) {TRACE_IT(22892); return this; }
+    void ClearTrackAllocInfo(TrackAllocData* data = nullptr) {TRACE_IT(22893);}
 #endif
 
 protected:
@@ -313,7 +313,7 @@ public:
     static void MergeDelayFreeList(void * freeList);
 #endif
     static void PrepareFreeObject(__out_bcount(size) void * object, _In_ size_t size)
-    {
+    {TRACE_IT(22894);
 #ifdef ARENA_MEMORY_VERIFY
         memset(object, InPlaceFreeListPolicy::DbgFreeMemFill, size);
 #endif
@@ -321,7 +321,7 @@ public:
 #ifdef ARENA_MEMORY_VERIFY
     static void VerifyFreeObjectIsFreeMemFilled(void * object, size_t size);
 #endif
-    static void Release(void * policy) {}
+    static void Release(void * policy) {TRACE_IT(22895);}
 };
 
 // Implements free-listing in separate memory. Bucketizes allocation sizes, there is a free list
@@ -351,7 +351,7 @@ private:
     static StandAloneFreeListPolicy * NewInternal(uint entriesPerBucket);
     static bool TryEnsureFreeListEntry(StandAloneFreeListPolicy *& _this);
     static uint GetPlusSize(const StandAloneFreeListPolicy * policy)
-    {
+    {TRACE_IT(22896);
         return buckets * sizeof(uint) + policy->allocated * sizeof(FreeObjectListEntry);
     }
 
@@ -365,7 +365,7 @@ public:
     static void * Free(void * policy, void * object, size_t size);
     static void * Reset(void * policy);
     static void PrepareFreeObject(_Out_writes_bytes_all_(size) void * object, _In_ size_t size)
-    {
+    {TRACE_IT(22897);
 #ifdef ARENA_MEMORY_VERIFY
         memset(object, StandAloneFreeListPolicy::DbgFreeMemFill, size);
 #endif
@@ -379,7 +379,7 @@ public:
     static void Release(void * policy);
 };
 
-#define ARENA_FAULTINJECT_MEMORY(name, size) { \
+#define ARENA_FAULTINJECT_MEMORY(name, size) {TRACE_IT(22898); \
     if (outOfMemoryFunc) \
     { \
         FAULTINJECT_MEMORY_THROW(name, size); \
@@ -396,17 +396,17 @@ class ArenaAllocator : public ArenaAllocatorBase<InPlaceFreeListPolicy>
 public:
     ArenaAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)(), void (*recoverMemoryFunc)() = JsUtil::ExternalApi::RecoverUnusedMemory) :
         ArenaAllocatorBase<InPlaceFreeListPolicy>(name, pageAllocator, outOfMemoryFunc, recoverMemoryFunc)
-    {
+    {TRACE_IT(22899);
     }
 
     __forceinline
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22900);
         return AllocInternal(requestedBytes);
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t nbytes)
-    {
+    {TRACE_IT(22901);
         char * buffer = Alloc(nbytes);
         memset(buffer, 0, nbytes);
 #if DBG
@@ -417,13 +417,13 @@ public:
     }
 
     char * AllocLeaf(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22902);
         // Leaf allocation is not meaningful here, but needed by Allocator-templatized classes that may call one of the Leaf versions of AllocatorNew
         return Alloc(requestedBytes);
     }
 
     char * NoThrowAlloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22903);
         void (*tempOutOfMemoryFunc)() = outOfMemoryFunc;
         outOfMemoryFunc = nullptr;
         char * buffer = AllocInternal(requestedBytes);
@@ -432,7 +432,7 @@ public:
     }
 
     char * NoThrowAllocZero(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22904);
         char * buffer = NoThrowAlloc(requestedBytes);
         if (buffer != nullptr)
         {
@@ -442,7 +442,7 @@ public:
     }
 
     char * NoThrowNoRecoveryAlloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22905);
         void (*tempRecoverMemoryFunc)() = recoverMemoryFunc;
         recoverMemoryFunc = nullptr;
         char * buffer = NoThrowAlloc(requestedBytes);
@@ -451,7 +451,7 @@ public:
     }
 
     char * NoThrowNoRecoveryAllocZero(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22906);
         char * buffer = NoThrowNoRecoveryAlloc(requestedBytes);
         if (buffer != nullptr)
         {
@@ -474,17 +474,17 @@ public:
 
     JitArenaAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)(), void(*recoverMemoryFunc)() = JsUtil::ExternalApi::RecoverUnusedMemory) :
         bvFreeList(nullptr), ArenaAllocator(name, pageAllocator, outOfMemoryFunc, recoverMemoryFunc)
-    {
+    {TRACE_IT(22907);
     }
 
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22908);
         // Fast path
         if (sizeof(BVSparseNode) == requestedBytes)
-        {
+        {TRACE_IT(22909);
             // Fast path for BVSparseNode allocation
             if (bvFreeList)
-            {
+            {TRACE_IT(22910);
                 BVSparseNode *node = bvFreeList;
                 bvFreeList = bvFreeList->next;
                 return (char*)node;
@@ -499,14 +499,14 @@ public:
     }
 
     void Free(void * buffer, size_t byteSize)
-    {
+    {TRACE_IT(22911);
         return FreeInline(buffer, byteSize);
     }
 
     __forceinline void FreeInline(void * buffer, size_t byteSize)
-    {
+    {TRACE_IT(22912);
         if (sizeof(BVSparseNode) == byteSize)
-        {
+        {TRACE_IT(22913);
             //FastPath
             ((BVSparseNode*)buffer)->next = bvFreeList;
             bvFreeList = (BVSparseNode*)buffer;
@@ -516,33 +516,33 @@ public:
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t nbytes)
-    {
+    {TRACE_IT(22914);
         return ArenaAllocator::AllocZero(nbytes);
     }
 
     char * AllocLeaf(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22915);
         return ArenaAllocator::AllocLeaf(requestedBytes);
     }
 
     char * NoThrowAlloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22916);
         return ArenaAllocator::NoThrowAlloc(requestedBytes);
     }
 
     char * NoThrowAllocZero(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22917);
         return ArenaAllocator::NoThrowAllocZero(requestedBytes);
     }
 
     void Reset()
-    {
+    {TRACE_IT(22918);
         bvFreeList = nullptr;
         ArenaAllocator::Reset();
     }
 
     void Clear()
-    {
+    {TRACE_IT(22919);
         bvFreeList = nullptr;
         ArenaAllocator::Clear();
     }
@@ -554,7 +554,7 @@ class NoRecoverMemoryJitArenaAllocator : public JitArenaAllocator
 public:
     NoRecoverMemoryJitArenaAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)()) :
         JitArenaAllocator(name, pageAllocator, outOfMemoryFunc, NULL)
-    {
+    {TRACE_IT(22920);
     }
 };
 
@@ -565,7 +565,7 @@ class NoRecoverMemoryArenaAllocator : public ArenaAllocator
 public:
     NoRecoverMemoryArenaAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)()) :
         ArenaAllocator(name, pageAllocator, outOfMemoryFunc, NULL)
-    {
+    {TRACE_IT(22921);
     }
 };
 
@@ -621,7 +621,7 @@ public:
     static void * Reset(void * policy);
     static void Release(void * policy);
     static void PrepareFreeObject(_Out_writes_bytes_all_(size) void * object, _In_ size_t size)
-    {
+    {TRACE_IT(22922);
 #ifdef ARENA_MEMORY_VERIFY
         // In debug builds if we're verifying arena memory to avoid "use after free" problems, we want to fill the whole object with the debug pattern here.
         // There is a very subtle point here.  Inline caches can be allocated and freed in batches. This happens commonly when a PolymorphicInlineCache grows,
@@ -676,12 +676,12 @@ public:
     {}
 
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22923);
         return AllocInternal(requestedBytes);
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t nbytes)
-    {
+    {TRACE_IT(22924);
         char * buffer = Alloc(nbytes);
         memset(buffer, 0, nbytes);
 #if DBG
@@ -703,9 +703,9 @@ public:
     void ClearCachesWithDeadWeakRefs(Recycler* recycler);
 
 #ifdef POLY_INLINE_CACHE_SIZE_STATS
-    size_t GetPolyInlineCacheSize() { return this->polyCacheAllocSize; }
-    void LogPolyCacheAlloc(size_t size) { this->polyCacheAllocSize += size;  }
-    void LogPolyCacheFree(size_t size) { this->polyCacheAllocSize -= size; }
+    size_t GetPolyInlineCacheSize() {TRACE_IT(22925); return this->polyCacheAllocSize; }
+    void LogPolyCacheAlloc(size_t size) {TRACE_IT(22926); this->polyCacheAllocSize += size;  }
+    void LogPolyCacheFree(size_t size) {TRACE_IT(22927); this->polyCacheAllocSize -= size; }
 #endif
 };
 
@@ -729,15 +729,15 @@ private:
 
 public:
     InlineCacheAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)()) :
-        ArenaAllocatorBase<InlineCacheAllocatorTraits>(name, pageAllocator, outOfMemoryFunc) {}
+        ArenaAllocatorBase<InlineCacheAllocatorTraits>(name, pageAllocator, outOfMemoryFunc) {TRACE_IT(22928);}
 
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22929);
         return AllocInternal(requestedBytes);
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t nbytes)
-    {
+    {TRACE_IT(22930);
         char * buffer = Alloc(nbytes);
         memset(buffer, 0, nbytes);
 #if DBG
@@ -753,9 +753,9 @@ public:
     void ZeroAll();
 
 #ifdef POLY_INLINE_CACHE_SIZE_STATS
-    size_t GetPolyInlineCacheSize() { return this->polyCacheAllocSize; }
-    void LogPolyCacheAlloc(size_t size) { this->polyCacheAllocSize += size;  }
-    void LogPolyCacheFree(size_t size) { this->polyCacheAllocSize -= size; }
+    size_t GetPolyInlineCacheSize() {TRACE_IT(22931); return this->polyCacheAllocSize; }
+    void LogPolyCacheAlloc(size_t size) {TRACE_IT(22932); this->polyCacheAllocSize += size;  }
+    void LogPolyCacheFree(size_t size) {TRACE_IT(22933); this->polyCacheAllocSize -= size; }
 #endif
 };
 
@@ -768,15 +768,15 @@ class CacheAllocator : public ArenaAllocatorBase<CacheAllocatorTraits>
 {
 public:
     CacheAllocator(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)()) :
-        ArenaAllocatorBase<CacheAllocatorTraits>(name, pageAllocator, outOfMemoryFunc) {}
+        ArenaAllocatorBase<CacheAllocatorTraits>(name, pageAllocator, outOfMemoryFunc) {TRACE_IT(22934);}
 
     char * Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestedBytes)
-    {
+    {TRACE_IT(22935);
         return AllocInternal(requestedBytes);
     }
 
     char * AllocZero(DECLSPEC_GUARD_OVERFLOW size_t nbytes)
-    {
+    {TRACE_IT(22936);
         char * buffer = Alloc(nbytes);
         memset(buffer, 0, nbytes);
 #if DBG
@@ -804,11 +804,11 @@ class RefCounted
 protected:
     RefCounted()
         : refCount(1)
-    {
+    {TRACE_IT(22937);
     }
 
     virtual ~RefCounted()
-    {
+    {TRACE_IT(22938);
     }
 
     void operator delete(void* p, size_t size)
@@ -818,16 +818,16 @@ protected:
 
 public:
     uint32 AddRef(void)
-    {
+    {TRACE_IT(22939);
         return (uint32)InterlockedIncrement(&refCount);
     }
 
     uint32 Release(void)
-    {
+    {TRACE_IT(22940);
         uint32 refs = (uint32)InterlockedDecrement(&refCount);
 
         if (0 == refs)
-        {
+        {TRACE_IT(22941);
             delete this;  // invokes overrided operator delete
         }
 
@@ -848,29 +848,29 @@ public:
     WeakArenaReference(ReferencedArenaAdapter* _adapter,T* _p)
         : adapter(_adapter),
           p(_p)
-    {
+    {TRACE_IT(22942);
         adapter->AddRef();
     }
 
     ~WeakArenaReference()
-    {
+    {TRACE_IT(22943);
         adapter->Release();
         adapter = NULL;
     }
 
     T* GetStrongReference()
-    {
+    {TRACE_IT(22944);
         if(adapter->AddStrongReference())
-        {
+        {TRACE_IT(22945);
             return p;
         }
         else
-        {
+        {TRACE_IT(22946);
             return NULL;
         }
     }
     void ReleaseStrongReference()
-    {
+    {TRACE_IT(22947);
         adapter->ReleaseStrongReference();
     }
 };
@@ -888,9 +888,9 @@ class ReferencedArenaAdapter : public RefCounted
 
 public:
     ~ReferencedArenaAdapter()
-    {
+    {TRACE_IT(22948);
         if (this->arena)
-        {
+        {TRACE_IT(22949);
             HeapDelete(this->arena);
         }
         DeleteCriticalSection(&adapterLock);
@@ -901,19 +901,19 @@ public:
           strongRefCount(0),
           arena(_arena),
           deleteFlag(false)
-    {
+    {TRACE_IT(22950);
         InitializeCriticalSection(&adapterLock);
     }
 
     bool AddStrongReference()
-    {
+    {TRACE_IT(22951);
         EnterCriticalSection(&adapterLock);
 
         if (deleteFlag)
-        {
+        {TRACE_IT(22952);
             // Arena exists and is marked deleted, we must fail to acquire a new reference
             if (arena && 0 == strongRefCount)
-            {
+            {TRACE_IT(22953);
                 // All strong references are gone, delete the arena
                 HeapDelete(this->arena);
                 this->arena = nullptr;
@@ -922,7 +922,7 @@ public:
             return false;
         }
         else
-        {
+        {TRACE_IT(22954);
             // Succeed at acquiring a Strong Reference into the Arena
             strongRefCount++;
             LeaveCriticalSection(&adapterLock);
@@ -931,12 +931,12 @@ public:
     }
 
     void ReleaseStrongReference()
-    {
+    {TRACE_IT(22955);
         EnterCriticalSection(&adapterLock);
         strongRefCount--;
 
         if (deleteFlag && this->arena && 0 == strongRefCount)
-        {
+        {TRACE_IT(22956);
             // All strong references are gone, delete the arena
             HeapDelete(this->arena);
             this->arena = NULL;
@@ -946,12 +946,12 @@ public:
     }
 
     void DeleteArena()
-    {
+    {TRACE_IT(22957);
         deleteFlag = true;
         if (TryEnterCriticalSection(&adapterLock))
-        {
+        {TRACE_IT(22958);
             if (0 == strongRefCount)
-            {
+            {TRACE_IT(22959);
                 // All strong references are gone, delete the arena
                 HeapDelete(this->arena);
                 this->arena = NULL;
@@ -961,9 +961,9 @@ public:
     }
 
     ArenaAllocator* Arena()
-    {
+    {TRACE_IT(22960);
         if (!deleteFlag)
-        {
+        {TRACE_IT(22961);
             return this->arena;
         }
         return NULL;
@@ -975,13 +975,13 @@ public:
 #if 0
 inline void __cdecl
 operator delete(void * obj, ArenaAllocator * alloc, char * (ArenaAllocator::*AllocFunc)(size_t))
-{
+{TRACE_IT(22962);
     alloc->Free(obj, (size_t)-1);
 }
 
 inline void __cdecl
 operator delete(void * obj, ArenaAllocator * alloc, char * (ArenaAllocator::*AllocFunc)(size_t), size_t plusSize)
-{
+{TRACE_IT(22963);
     alloc->Free(obj, (size_t)-1);
 }
 #endif

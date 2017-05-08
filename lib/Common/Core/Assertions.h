@@ -39,14 +39,14 @@ __declspec(selectany) int IsInAssert = false;
 #endif
 
 #define AssertMsg(f, comment) \
-    do { \
+    do {TRACE_IT(19613); \
         if (!(f)) \
-        { \
+        {TRACE_IT(19614); \
             AssertCount++; \
             LOG_ASSERT(); \
             IsInAssert = TRUE; \
             if (!REPORT_ASSERT(f, comment))      \
-            { \
+            {TRACE_IT(19615); \
                 RAISE_ASSERTION(comment);        \
             } \
             IsInAssert = FALSE; \
@@ -81,7 +81,7 @@ __declspec(selectany) int IsInAssert = false;
 #define AnalysisAssertOrFailFast(x)         AnalysisAssert(x)
 #define AnalysisAssertOrFailFastMsg(x, msg) AnalysisAssertMsg(x, msg)
 #else
-#define AssertOrFailFast(x)                 do { if (!(x)) { Js::Throw::FatalInternalError(); } } while (false)
+#define AssertOrFailFast(x)                 do {TRACE_IT(19616); if (!(x)) {TRACE_IT(19617); Js::Throw::FatalInternalError(); } } while (false)
 #define AssertOrFailFastMsg(x, msg)         AssertOrFailFast(x)
 #define AnalysisAssertOrFailFast(x)         AssertOrFailFast(x)
 #define AnalysisAssertOrFailFastMsg(x, msg) AssertOrFailFast(x)

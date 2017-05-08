@@ -8,19 +8,19 @@ namespace JsUtil
 {
     template<class T, class TAllocator>
     DoublyLinkedListElement<T, TAllocator>::DoublyLinkedListElement() : previous(nullptr), next(nullptr)
-    {
+    {TRACE_IT(21270);
         TemplateParameter::SameOrDerivedFrom<T, DoublyLinkedListElement<T, TAllocator>>();
     }
 
     template<class T, class TAllocator>
     T *DoublyLinkedListElement<T, TAllocator>::Previous() const
-    {
+    {TRACE_IT(21271);
         return previous;
     }
 
     template<class T, class TAllocator>
     T *DoublyLinkedListElement<T, TAllocator>::Next() const
-    {
+    {TRACE_IT(21272);
         return next;
     }
 
@@ -28,7 +28,7 @@ namespace JsUtil
     template<class D>
     bool DoublyLinkedListElement<T, TAllocator>::Contains(
         D *const element, Field(D *, TAllocator) const head)
-    {
+    {TRACE_IT(21273);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(!head || !head->previous);
@@ -37,7 +37,7 @@ namespace JsUtil
             return element == head;
 
         for(T *e = head; e; e = e->next)
-        {
+        {TRACE_IT(21274);
             if(e == element)
                 return true;
         }
@@ -48,7 +48,7 @@ namespace JsUtil
     template<class D>
     bool DoublyLinkedListElement<T, TAllocator>::ContainsSubsequence(
         D *const first, D *const last, Field(D *, TAllocator) const head)
-    {
+    {TRACE_IT(21275);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(first);
         Assert(last);
@@ -59,7 +59,7 @@ namespace JsUtil
 
         bool foundFirst = false;
         for(T *e = head; e; e = e->next)
-        {
+        {TRACE_IT(21276);
             if(e == first)
                 foundFirst = true;
             if(e == last)
@@ -73,7 +73,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::LinkToBeginning(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21277);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -90,7 +90,7 @@ namespace JsUtil
         if(element->next)
             element->next->previous = element;
         else
-        {
+        {TRACE_IT(21278);
             Assert(!*tail);
             *tail = element;
         }
@@ -101,7 +101,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::LinkToEnd(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21279);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -118,7 +118,7 @@ namespace JsUtil
         if(element->previous)
             element->previous->next = element;
         else
-        {
+        {TRACE_IT(21280);
             Assert(!*head);
             *head = element;
         }
@@ -129,7 +129,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::LinkBefore(
         D *const element, D *const nextElement,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21281);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(nextElement);
@@ -151,7 +151,7 @@ namespace JsUtil
         if(previousElement)
             previousElement->next = element;
         else
-        {
+        {TRACE_IT(21282);
             Assert(*head == nextElement);
             *head = element;
         }
@@ -162,7 +162,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::LinkAfter(
         D *const element, D *const previousElement,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21283);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(previousElement);
@@ -184,7 +184,7 @@ namespace JsUtil
         if(nextElement)
             nextElement->previous = element;
         else
-        {
+        {TRACE_IT(21284);
             Assert(*tail == previousElement);
             *tail = element;
         }
@@ -195,7 +195,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::UnlinkFromBeginning(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21285);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -210,12 +210,12 @@ namespace JsUtil
         *head = static_cast<D *>(element->next);
 
         if(element->next)
-        {
+        {TRACE_IT(21286);
             element->next->previous = nullptr;
             element->next = nullptr;
         }
         else
-        {
+        {TRACE_IT(21287);
             Assert(*tail == element);
             *tail = nullptr;
         }
@@ -226,7 +226,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::UnlinkFromEnd(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21288);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -241,12 +241,12 @@ namespace JsUtil
         *tail = static_cast<D *>(element->previous);
 
         if(element->previous)
-        {
+        {TRACE_IT(21289);
             element->previous->next = nullptr;
             element->previous = nullptr;
         }
         else
-        {
+        {TRACE_IT(21290);
             Assert(*head == element);
             *head = nullptr;
         }
@@ -257,7 +257,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::UnlinkPartial(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21291);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -271,7 +271,7 @@ namespace JsUtil
         if(element->previous)
             element->previous->next = element->next;
         else
-        {
+        {TRACE_IT(21292);
             Assert(*head == element);
             *head = static_cast<D *>(element->next);
         }
@@ -279,7 +279,7 @@ namespace JsUtil
         if(element->next)
             element->next->previous = element->previous;
         else
-        {
+        {TRACE_IT(21293);
             Assert(*tail == element);
             *tail = static_cast<D *>(element->previous);
         }
@@ -305,7 +305,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::MoveToBeginning(
         D *const element,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21294);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(element);
         Assert(head);
@@ -317,7 +317,7 @@ namespace JsUtil
         Assert(Contains(element, *head));
 
         if(!element->previous)
-        {
+        {TRACE_IT(21295);
             Assert(*head == element);
             return;
         }
@@ -326,7 +326,7 @@ namespace JsUtil
         if(element->next)
             element->next->previous = element->previous;
         else
-        {
+        {TRACE_IT(21296);
             Assert(*tail == element);
             *tail = static_cast<D *>(element->previous);
         }
@@ -342,7 +342,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::UnlinkSubsequenceFromEnd(
         D *const first,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21297);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(first);
         Assert(head);
@@ -356,7 +356,7 @@ namespace JsUtil
         if(first->previous)
             first->previous->next = nullptr;
         else
-        {
+        {TRACE_IT(21298);
             Assert(*head == first);
             *head = nullptr;
         }
@@ -370,7 +370,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::UnlinkSubsequence(
         D *const first, D *const last,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21299);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(first);
         Assert(last);
@@ -385,7 +385,7 @@ namespace JsUtil
         if(first->previous)
             first->previous->next = last->next;
         else
-        {
+        {TRACE_IT(21300);
             Assert(*head == first);
             *head = static_cast<D *>(last->next);
         }
@@ -393,7 +393,7 @@ namespace JsUtil
         if(last->next)
             last->next->previous = first->previous;
         else
-        {
+        {TRACE_IT(21301);
             Assert(*tail == last);
             *tail = static_cast<D *>(first->previous);
         }
@@ -407,7 +407,7 @@ namespace JsUtil
     void DoublyLinkedListElement<T, TAllocator>::MoveSubsequenceToBeginning(
         D *const first, D *const last,
         Field(D *, TAllocator) *const head, Field(D *, TAllocator) *const tail)
-    {
+    {TRACE_IT(21302);
         TemplateParameter::SameOrDerivedFrom<D, T>();
         Assert(first);
         Assert(last);
@@ -420,7 +420,7 @@ namespace JsUtil
         Assert(ContainsSubsequence(first, last, *head));
 
         if(!first->previous)
-        {
+        {TRACE_IT(21303);
             Assert(*head == first);
             return;
         }
@@ -429,7 +429,7 @@ namespace JsUtil
         if(last->next)
             last->next->previous = first->previous;
         else
-        {
+        {TRACE_IT(21304);
             Assert(*tail == last);
             *tail = static_cast<D *>(first->previous);
         }

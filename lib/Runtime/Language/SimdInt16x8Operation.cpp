@@ -9,17 +9,17 @@
 namespace Js
 {
     SIMDValue SIMDInt16x8Operation::OpInt16x8(int16 values[])
-    {
+    {TRACE_IT(52310);
         SIMDValue result;
         for (uint i = 0; i < 8; i ++)
-        { 
+        {TRACE_IT(52311); 
             result.i16[i] = values[i];
         }
         return result;
     }
 
     SIMDValue SIMDInt16x8Operation::OpSplat(int16 x)
-    {
+    {TRACE_IT(52312);
         SIMDValue result;
 
         result.i16[0] = result.i16[1] = result.i16[2] = result.i16[3] = x;
@@ -30,7 +30,7 @@ namespace Js
 
     // Unary Ops
     SIMDValue SIMDInt16x8Operation::OpNeg(const SIMDValue& value)
-    {
+    {TRACE_IT(52313);
         SIMDValue result;
 
         result.i16[0] = -1 * value.i16[0];
@@ -46,7 +46,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpNot(const SIMDValue& value)
-    {
+    {TRACE_IT(52314);
         SIMDValue result;
 
         result.i16[0] = ~(value.i16[0]);
@@ -63,7 +63,7 @@ namespace Js
 
     // Binary Ops
     SIMDValue SIMDInt16x8Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52315);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] + bValue.i16[0];
@@ -79,7 +79,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52316);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] - bValue.i16[0];
@@ -95,7 +95,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52317);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] * bValue.i16[0];
@@ -111,7 +111,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpAnd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52318);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] & bValue.i16[0];
@@ -127,7 +127,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpOr(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52319);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] | bValue.i16[0];
@@ -143,7 +143,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpXor(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52320);
         SIMDValue result;
 
         result.i16[0] = aValue.i16[0] ^ bValue.i16[0];
@@ -159,22 +159,22 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpAddSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52321);
         SIMDValue result;
         int mask = 0x8000;
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52322);
             int16 val1 = aValue.i16[idx];
             int16 val2 = bValue.i16[idx];
             int16 sum = val1 + val2;
 
             result.i16[idx] = sum;
             if (val1 > 0 && val2 > 0 && sum < 0)
-            {
+            {TRACE_IT(52323);
                 result.i16[idx] = 0x7fff;
             }
             else if (val1 < 0 && val2 < 0 && sum > 0)
-            {
+            {TRACE_IT(52324);
                 result.i16[idx] = static_cast<int16>(mask);
             }
         }
@@ -182,11 +182,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpSubSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52325);
         SIMDValue result;
         int mask = 0x8000;
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52326);
             int16 val1 = aValue.i16[idx];
             int16 val2 = bValue.i16[idx];
             int16 diff = val1 + val2;
@@ -201,21 +201,21 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52327);
         SIMDValue result;
         for (int idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52328);
             result.i16[idx] = (aValue.i16[idx] < bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
         return result;
     }
 
     SIMDValue SIMDInt16x8Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52329);
         SIMDValue result;
 
         for (int idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52330);
             result.i16[idx] = (aValue.i16[idx] > bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -224,11 +224,11 @@ namespace Js
 
     // compare ops
     SIMDValue SIMDInt16x8Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52331);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52332);
             result.i16[idx] = (aValue.i16[idx] < bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -236,11 +236,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52333);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52334);
             result.i16[idx] = (aValue.i16[idx] <= bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -248,11 +248,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52335);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52336);
             result.i16[idx] = (aValue.i16[idx] == bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -260,11 +260,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52337);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52338);
             result.i16[idx] = (aValue.i16[idx] != bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -272,11 +272,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52339);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52340);
             result.i16[idx] = (aValue.i16[idx] > bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -284,11 +284,11 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52341);
         SIMDValue result;
 
         for (uint idx = 0; idx < 8; ++idx)
-        {
+        {TRACE_IT(52342);
             result.i16[idx] = (aValue.i16[idx] >= bValue.i16[idx]) ? aValue.i16[idx] : bValue.i16[idx];
         }
 
@@ -297,7 +297,7 @@ namespace Js
 
     // ShiftOps
     SIMDValue SIMDInt16x8Operation::OpShiftLeftByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52343);
         SIMDValue result;
 
         count = count & SIMDUtils::SIMDGetShiftAmountMask(2);
@@ -315,7 +315,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {TRACE_IT(52344);
         SIMDValue result;
 
         count = count & SIMDUtils::SIMDGetShiftAmountMask(2);

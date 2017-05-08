@@ -14,7 +14,7 @@ public:
     uint GetAllocationGranularityPageCount() const;
     uint GetAllocationGranularityPageSize() const;
 
-    bool DisableDebugScopeCapture() const { return this->disableDebugScopeCapture; }
+    bool DisableDebugScopeCapture() const {TRACE_IT(20589); return this->disableDebugScopeCapture; }
     bool IsCFGEnabled();
     bool IsWin8OrLater();
 #if defined(_CONTROL_FLOW_GUARD)
@@ -36,15 +36,15 @@ public:
     bool IsLowMemoryProcess();
     BOOL GetAvailableCommit(ULONG64 *pCommit);
     void SetAvailableCommit(ULONG64 commit);
-    DWORD GetNumberOfLogicalProcessors() const { return this->dwNumberOfProcessors; }
-    DWORD GetNumberOfPhysicalProcessors() const { return this->dwNumberOfPhysicalProcessors; }
+    DWORD GetNumberOfLogicalProcessors() const {TRACE_IT(20590); return this->dwNumberOfProcessors; }
+    DWORD GetNumberOfPhysicalProcessors() const {TRACE_IT(20591); return this->dwNumberOfPhysicalProcessors; }
 
 #if SYSINFO_IMAGE_BASE_AVAILABLE
     UINT_PTR GetChakraBaseAddr() const;
 #endif
 
 #if defined(_M_ARM32_OR_ARM64)
-    bool ArmDivAvailable() const { return this->armDivAvailable; }
+    bool ArmDivAvailable() const {TRACE_IT(20592); return this->armDivAvailable; }
 #endif
     static DWORD SaveModuleFileName(HANDLE hMod);
     static LPCWSTR GetJscriptDllFileName();
@@ -77,7 +77,7 @@ public:
 #endif
     
 private:
-    AutoSystemInfo() : majorVersion(0), minorVersion(0), buildDateHash(0), buildTimeHash(0) { Initialize(); }
+    AutoSystemInfo() : majorVersion(0), minorVersion(0), buildDateHash(0), buildTimeHash(0) {TRACE_IT(20593); Initialize(); }
     void Initialize();
     bool isWindows8OrGreater;
     uint allocationGranularityPageCount;

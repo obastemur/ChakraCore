@@ -15,13 +15,13 @@ namespace Js
     }
 
     AutoRegisterIgnoreExceptionWrapper::~AutoRegisterIgnoreExceptionWrapper()
-    {
+    {TRACE_IT(42271);
         m_threadContext->GetDebugManager()->GetDebuggingFlags()->SetIsBuiltInWrapperPresent(false);
     }
 
     // static
     bool AutoRegisterIgnoreExceptionWrapper::IsRegistered(ThreadContext* threadContext)
-    {
+    {TRACE_IT(42272);
         return threadContext->GetDebugManager()->GetDebuggingFlags()->IsBuiltInWrapperPresent();
     }
 
@@ -55,20 +55,20 @@ namespace Js
 
     template<typename Fn>
     Var HelperMethodWrapper(ScriptContext* scriptContext, Fn fn)
-    {
+    {TRACE_IT(42273);
         if (AutoRegisterIgnoreExceptionWrapper::IsRegistered(scriptContext->GetThreadContext()))
-        {
+        {TRACE_IT(42274);
             return fn();
         }
         else
-        {
+        {TRACE_IT(42275);
             AutoRegisterIgnoreExceptionWrapper autoWrapper(scriptContext->GetThreadContext());
             return HelperOrLibraryMethodWrapper<false>(scriptContext, fn);
         }
     }
 
     Var HelperMethodWrapper0(ScriptContext* scriptContext, void* origHelperAddr)
-    {
+    {TRACE_IT(42276);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod0)origHelperAddr)();
@@ -76,7 +76,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper1(ScriptContext* scriptContext, void* origHelperAddr, Var arg1)
-    {
+    {TRACE_IT(42277);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod1)origHelperAddr)(arg1);
@@ -84,7 +84,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper2(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2)
-    {
+    {TRACE_IT(42278);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod2)origHelperAddr)(arg1, arg2);
@@ -92,7 +92,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper3(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3)
-    {
+    {TRACE_IT(42279);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod3)origHelperAddr)(arg1, arg2, arg3);
@@ -100,7 +100,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper4(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4)
-    {
+    {TRACE_IT(42280);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod4)origHelperAddr)(arg1, arg2, arg3, arg4);
@@ -108,7 +108,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper5(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5)
-    {
+    {TRACE_IT(42281);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod5)origHelperAddr)(arg1, arg2, arg3, arg4, arg5);
@@ -116,7 +116,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper6(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6)
-    {
+    {TRACE_IT(42282);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod6)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6);
@@ -124,7 +124,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper7(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7)
-    {
+    {TRACE_IT(42283);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod7)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -132,7 +132,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper8(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8)
-    {
+    {TRACE_IT(42284);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod8)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -140,7 +140,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper9(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9)
-    {
+    {TRACE_IT(42285);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod9)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
@@ -148,7 +148,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper10(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10)
-    {
+    {TRACE_IT(42286);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod10)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
@@ -156,7 +156,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper11(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11)
-    {
+    {TRACE_IT(42287);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod11)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
@@ -164,7 +164,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper12(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11, Var arg12)
-    {
+    {TRACE_IT(42288);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod12)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
@@ -172,7 +172,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper13(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11, Var arg12, Var arg13)
-    {
+    {TRACE_IT(42289);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod13)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
@@ -180,7 +180,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper14(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11, Var arg12, Var arg13, Var arg14)
-    {
+    {TRACE_IT(42290);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod14)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
@@ -188,7 +188,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper15(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11, Var arg12, Var arg13, Var arg14, Var arg15)
-    {
+    {TRACE_IT(42291);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod15)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
@@ -196,7 +196,7 @@ namespace Js
     }
 
     Var HelperMethodWrapper16(ScriptContext* scriptContext, void* origHelperAddr, Var arg1, Var arg2, Var arg3, Var arg4, Var arg5, Var arg6, Var arg7, Var arg8, Var arg9, Var arg10, Var arg11, Var arg12, Var arg13, Var arg14, Var arg15, Var arg16)
-    {
+    {TRACE_IT(42292);
         Assert(origHelperAddr);
         return HelperMethodWrapper(scriptContext, [=] {
             return ((OrigHelperMethod16)origHelperAddr)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
@@ -205,7 +205,7 @@ namespace Js
 
     template <bool doCheckParentInterpreterFrame>
     void HandleHelperOrLibraryMethodWrapperException(ScriptContext * scriptContext, JavascriptExceptionObject * exceptionObject)
-    {
+    {TRACE_IT(42293);
         Assert(scriptContext);
         Assert(exceptionObject);
 
@@ -213,12 +213,12 @@ namespace Js
         if (!exceptionObject->IsDebuggerSkip() ||
             exceptionObject == scriptContext->GetThreadContext()->GetPendingOOMErrorObject() ||
             exceptionObject == scriptContext->GetThreadContext()->GetPendingSOErrorObject())
-        {
+        {TRACE_IT(42294);
             JavascriptExceptionOperators::DoThrowCheckClone(exceptionObject, scriptContext);
         }
 
         if (doCheckParentInterpreterFrame)
-        {
+        {TRACE_IT(42295);
             // Note: JavascriptStackWalker is slow, but this is not hot path at all.
             // Note: we treat internal script code (such as Intl) as library code, thus
             //       ignore isLibraryCode=true callers.
@@ -228,7 +228,7 @@ namespace Js
             AssertMsg(isTopUserFrameJavaScript, "How could we get non-javascript frame on exception?");
 
             if (isTopUserFrameJavaScript && !isTopUserFrameNative)
-            {
+            {TRACE_IT(42296);
                 // If parent frame is interpreter frame, it already has try-catch around all calls,
                 // so that we don't need any special handling here.
                 JavascriptExceptionOperators::DoThrowCheckClone(exceptionObject, scriptContext);
@@ -239,18 +239,18 @@ namespace Js
         int nextStatementOffset;
         int offsetFromDebugger = exceptionObject->GetByteCodeOffsetAfterDebuggerSkip();
         if (offsetFromDebugger != DebuggingFlags::InvalidByteCodeOffset)
-        {
+        {TRACE_IT(42297);
             // The offset is already set for us by debugger (such as by set next statement).
             nextStatementOffset = offsetFromDebugger;
         }
         else
-        {
+        {TRACE_IT(42298);
             ByteCodeReader reader;
             reader.Create(exceptionObject->GetFunctionBody(), exceptionObject->GetByteCodeOffset());
             // Determine offset for next statement here.
             if (!scriptContext->GetDebugContext()->GetProbeContainer()->GetNextUserStatementOffsetForAdvance(
                 exceptionObject->GetFunctionBody(), &reader, exceptionObject->GetByteCodeOffset(), &nextStatementOffset))
-            {
+            {TRACE_IT(42299);
                 // Can't advance.
                 JavascriptExceptionOperators::DoThrowCheckClone(exceptionObject, scriptContext);
             }

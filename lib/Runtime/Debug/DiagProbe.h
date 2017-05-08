@@ -19,12 +19,12 @@ namespace Js
 
     struct ReturnedValue
     {
-        ReturnedValue() {}
+        ReturnedValue() {TRACE_IT(43022);}
         ReturnedValue(Js::Var _returnedValue, Js::JavascriptFunction * _calledFunction, bool _isValueOfReturnStatement)
             : returnedValue(_returnedValue), calledFunction(_calledFunction), isValueOfReturnStatement(_isValueOfReturnStatement)
-        {
+        {TRACE_IT(43023);
             if (isValueOfReturnStatement)
-            {
+            {TRACE_IT(43024);
                 Assert(returnedValue == nullptr);
                 Assert(calledFunction == nullptr);
             }
@@ -66,10 +66,10 @@ namespace Js
         virtual bool CanHalt(InterpreterHaltState* pHaltState) = 0;
         virtual void DispatchHalt(InterpreterHaltState* pHaltState) = 0;
         virtual void CleanupHalt() = 0;
-        virtual bool IsInClosedState() { return false; }
+        virtual bool IsInClosedState() {TRACE_IT(43025); return false; }
 
         // Mentions the policy if the hitting a breakpoint is allowed (based on the fact whether we are at callback from the breakpoint)
-        virtual bool CanAllowBreakpoints() { return false; }
+        virtual bool CanAllowBreakpoints() {TRACE_IT(43026); return false; }
     };
 
     struct Probe : HaltCallback
@@ -94,10 +94,10 @@ namespace Js
 
     struct DebuggerOptionsCallback
     {
-        virtual bool IsExceptionReportingEnabled() { return true; }
-        virtual bool IsFirstChanceExceptionEnabled() { return false; }
-        virtual bool IsNonUserCodeSupportEnabled() { return false; }
-        virtual bool IsLibraryStackFrameSupportEnabled() { return false; }
+        virtual bool IsExceptionReportingEnabled() {TRACE_IT(43027); return true; }
+        virtual bool IsFirstChanceExceptionEnabled() {TRACE_IT(43028); return false; }
+        virtual bool IsNonUserCodeSupportEnabled() {TRACE_IT(43029); return false; }
+        virtual bool IsLibraryStackFrameSupportEnabled() {TRACE_IT(43030); return false; }
     };
 
     class StepController
@@ -125,7 +125,7 @@ namespace Js
 
         StepController();
         ~StepController()
-        {
+        {TRACE_IT(43031);
             this->Deactivate();
         }
 
@@ -137,27 +137,27 @@ namespace Js
         bool ContinueFromInlineBreakpoint();
 
         ScriptContext* GetActivatedContext() const
-        {
+        {TRACE_IT(43032);
             return this->pActivatedContext;
         }
 
         const StepType* GetAddressOfStepType() const
-        {
+        {TRACE_IT(43033);
             return &stepType;
         }
 
         void* GetAddressOfScriptIdWhenSet() const
-        {
+        {TRACE_IT(43034);
             return (void*)&scriptIdWhenSet;
         }
 
         void* GetAddressOfFrameAddress() const
-        {
+        {TRACE_IT(43035);
             return (void*)&frameAddrWhenSet;
         }
 
         void SetFrameAddr(DWORD_PTR value)
-        {
+        {TRACE_IT(43036);
             this->frameAddrWhenSet = value;
         }
 
@@ -166,7 +166,7 @@ namespace Js
         void StartRecordingCall();
         void EndRecordingCall(Js::Var returnValue, Js::JavascriptFunction * function);
 
-        ReturnedValueList* GetReturnedValueList() const { return this->returnedValueList; }
+        ReturnedValueList* GetReturnedValueList() const {TRACE_IT(43037); return this->returnedValueList; }
         void ResetReturnedValueList();
         void HandleResumeAction(Js::InterpreterHaltState* haltState, BREAKRESUMEACTION resumeAction);
 

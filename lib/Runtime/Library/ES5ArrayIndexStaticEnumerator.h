@@ -27,7 +27,7 @@ namespace Js
     public:
         ES5ArrayIndexStaticEnumerator(ES5Array* array)
             : m_array(array)
-        {
+        {TRACE_IT(55207);
             Reset();
         }
 
@@ -35,7 +35,7 @@ namespace Js
         // Reset to enumerate from beginning.
         //
         void Reset()
-        {
+        {TRACE_IT(55208);
             m_initialLength = m_array->GetLength();
             m_index = JavascriptArray::InvalidIndex;
             m_dataIndex = JavascriptArray::InvalidIndex;
@@ -48,7 +48,7 @@ namespace Js
         // Get the current index. Valid only when MoveNext() returns true.
         //
         uint32 GetIndex() const
-        {
+        {TRACE_IT(55209);
             return m_index;
         }
 
@@ -56,37 +56,37 @@ namespace Js
         // Move to next index. If successful, use GetIndex() to get the index.
         //
         bool MoveNext(PropertyAttributes* attributes = nullptr)
-        {
+        {TRACE_IT(55210);
             while (true)
-            {
+            {TRACE_IT(55211);
                 Assert(m_index == min(m_dataIndex, m_descriptorIndex));
                 if (m_index == m_dataIndex)
-                {
+                {TRACE_IT(55212);
                     m_dataIndex = m_array->GetNextIndex(m_dataIndex);
                 }
                 if (m_index == m_descriptorIndex || !m_array->IsValidDescriptorToken(m_descriptorValidationToken))
-                {
+                {TRACE_IT(55213);
                     m_descriptorIndex = m_array->GetNextDescriptor(m_index, &m_descriptor, &m_descriptorValidationToken);
                 }
 
                 m_index = min(m_dataIndex, m_descriptorIndex);
                 if (m_index >= m_initialLength) // End of array
-                {
+                {TRACE_IT(55214);
                     break;
                 }
 
                 if (enumNonEnumerable
                     || m_index < m_descriptorIndex
                     || (m_descriptor->Attributes & PropertyEnumerable))
-                {
+                {TRACE_IT(55215);
                     if (attributes != nullptr)
-                    {
+                    {TRACE_IT(55216);
                         if (m_index < m_descriptorIndex)
-                        {
+                        {TRACE_IT(55217);
                             *attributes = PropertyEnumerable;
                         }
                         else
-                        {
+                        {TRACE_IT(55218);
                             *attributes = m_descriptor->Attributes;
                         }
                     }

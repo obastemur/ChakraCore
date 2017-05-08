@@ -21,31 +21,31 @@ XDataAllocator::XDataAllocator(BYTE* address, uint size) :
     start(address),
     current(address),
     size(size)
-{
+{TRACE_IT(27176);
     Assert(size > 0);
     Assert(address != nullptr);
 }
 
 bool XDataAllocator::Initialize(void* segmentStart, void* segmentEnd)
-{
+{TRACE_IT(27177);
     Assert(segmentEnd > segmentStart);
     return true;
 }
 
 XDataAllocator::~XDataAllocator()
-{
+{TRACE_IT(27178);
     current = nullptr;
     ClearFreeList();
 }
 
 void XDataAllocator::Delete()
-{
+{TRACE_IT(27179);
     HeapDelete(this);
 }
 
 bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize,
     ushort pdataCount, ushort xdataSize, SecondaryAllocation* allocation)
-{
+{TRACE_IT(27180);
     XDataAllocation* xdata = static_cast<XDataAllocation*>(allocation);
     Assert(start != nullptr);
     Assert(current != nullptr);
@@ -55,26 +55,26 @@ bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize,
 
     // Allocate a new xdata entry
     if((End() - current) >= XDATA_SIZE)
-    {
+    {TRACE_IT(27181);
         xdata->address = current;
         current += XDATA_SIZE;
     } // try allocating from the free list
     else if(freeList)
-    {
+    {TRACE_IT(27182);
         auto entry = freeList;
         xdata->address = entry->address;
         this->freeList = entry->next;
         HeapDelete(entry);
     }
     else
-    {
+    {TRACE_IT(27183);
         xdata->address = nullptr;
         OUTPUT_TRACE(Js::XDataAllocatorPhase, _u("No space for XDATA.\n"));
     }
 
 #ifndef _WIN32
     if (xdata->address)
-    {
+    {TRACE_IT(27184);
         ClearHead(xdata->address);  // mark empty .eh_frame
     }
 #endif
@@ -83,13 +83,13 @@ bool XDataAllocator::Alloc(ULONG_PTR functionStart, DWORD functionSize,
 }
 
 void XDataAllocator::Release(const SecondaryAllocation& allocation)
-{
+{TRACE_IT(27185);
     const XDataAllocation& xdata = static_cast<const XDataAllocation&>(allocation);
     Assert(allocation.address);
     // Add it to free list
     auto freed = HeapNewNoThrowStruct(XDataAllocationEntry);
     if(freed)
-    {
+    {TRACE_IT(27186);
         freed->address = xdata.address;
         freed->next = this->freeList;
         this->freeList = freed;
@@ -97,16 +97,16 @@ void XDataAllocator::Release(const SecondaryAllocation& allocation)
 }
 
 bool XDataAllocator::CanAllocate()
-{
+{TRACE_IT(27187);
     return ((End() - current) >= XDATA_SIZE) || this->freeList;
 }
 
 void XDataAllocator::ClearFreeList()
-{
+{TRACE_IT(27188);
     XDataAllocationEntry* next = this->freeList;
     XDataAllocationEntry* entry;
     while(next)
-    {
+    {TRACE_IT(27189);
         entry = next;
         next = entry->next;
         entry->address = nullptr;
@@ -117,7 +117,7 @@ void XDataAllocator::ClearFreeList()
 
 /* static */
 void XDataAllocator::Register(XDataAllocation * xdataInfo, ULONG_PTR functionStart, DWORD functionSize)
-{
+{TRACE_IT(27190);
 #ifdef _WIN32
     ULONG_PTR baseAddress = functionStart;
     xdataInfo->pdata.BeginAddress = (DWORD)(functionStart - baseAddress);
@@ -126,7 +126,7 @@ void XDataAllocator::Register(XDataAllocation * xdataInfo, ULONG_PTR functionSta
 
     BOOLEAN success = FALSE;
     if (AutoSystemInfo::Data.IsWin8OrLater())
-    {
+    {TRACE_IT(27191);
         DWORD status = NtdllLibrary::Instance->AddGrowableFunctionTable(&xdataInfo->functionTable,
             &xdataInfo->pdata,
             /*MaxEntryCount*/ 1,
@@ -135,12 +135,12 @@ void XDataAllocator::Register(XDataAllocation * xdataInfo, ULONG_PTR functionSta
             /*RangeEnd*/ functionStart + functionSize);
         success = NT_SUCCESS(status);
         if (success)
-        {
+        {TRACE_IT(27192);
             Assert(xdataInfo->functionTable != nullptr);
         }
     }
     else
-    {
+    {TRACE_IT(27193);
         success = RtlAddFunctionTable(&xdataInfo->pdata, 1, functionStart);
     }
     Js::Throw::CheckAndThrowOutOfMemory(success);
@@ -160,15 +160,15 @@ void XDataAllocator::Register(XDataAllocation * xdataInfo, ULONG_PTR functionSta
 
 /* static */
 void XDataAllocator::Unregister(XDataAllocation * xdataInfo)
-{
+{TRACE_IT(27194);
 #ifdef _WIN32
     // Delete the table
     if (AutoSystemInfo::Data.IsWin8OrLater())
-    {
+    {TRACE_IT(27195);
         NtdllLibrary::Instance->DeleteGrowableFunctionTable(xdataInfo->functionTable);
     }
     else
-    {
+    {TRACE_IT(27196);
         BOOLEAN success = RtlDeleteFunctionTable(&xdataInfo->pdata);
         Assert(success);
     }

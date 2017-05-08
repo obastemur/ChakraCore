@@ -9,7 +9,7 @@
 namespace Js
 {
     SIMDValue SIMDFloat32x4Operation::OpFloat32x4(float x, float y, float z, float w)
-    {
+    {TRACE_IT(52186);
         SIMDValue result;
 
         result.f32[SIMD_X] = x;
@@ -21,7 +21,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpSplat(float x)
-    {
+    {TRACE_IT(52187);
         SIMDValue result;
 
         result.f32[SIMD_X] = result.f32[SIMD_Y] = result.f32[SIMD_Z] = result.f32[SIMD_W] = x;
@@ -31,7 +31,7 @@ namespace Js
 
     // Conversions
     SIMDValue SIMDFloat32x4Operation::OpFromFloat64x2(const SIMDValue& v)
-    {
+    {TRACE_IT(52188);
         SIMDValue result;
 
         result.f32[SIMD_X] = (float)(v.f64[SIMD_X]);
@@ -42,7 +42,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpFromInt32x4(const SIMDValue& v)
-    {
+    {TRACE_IT(52189);
         SIMDValue result;
 
         result.f32[SIMD_X] = (float)(v.i32[SIMD_X]);
@@ -54,7 +54,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpFromUint32x4(const SIMDValue& v)
-    {
+    {TRACE_IT(52190);
         SIMDValue result;
 
         result.f32[SIMD_X] = (float)(v.u32[SIMD_X]);
@@ -67,7 +67,7 @@ namespace Js
 
     // Unary Ops
     SIMDValue SIMDFloat32x4Operation::OpAbs(const SIMDValue& value)
-    {
+    {TRACE_IT(52191);
         SIMDValue result;
 
         result.f32[SIMD_X] = (value.f32[SIMD_X] < 0) ? -1 * value.f32[SIMD_X] : value.f32[SIMD_X];
@@ -79,7 +79,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpNeg(const SIMDValue& value)
-    {
+    {TRACE_IT(52192);
         SIMDValue result;
 
         result.f32[SIMD_X] = -1 * value.f32[SIMD_X];
@@ -91,7 +91,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpNot(const SIMDValue& value)
-    {
+    {TRACE_IT(52193);
         SIMDValue result;
 
         result = SIMDInt32x4Operation::OpNot(value);
@@ -100,7 +100,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpReciprocal(const SIMDValue& value)
-    {
+    {TRACE_IT(52194);
         SIMDValue result;
 
         result.f32[SIMD_X] = (float)(1.0 / (value.f32[SIMD_X]));
@@ -112,7 +112,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpReciprocalSqrt(const SIMDValue& value)
-    {
+    {TRACE_IT(52195);
         SIMDValue result;
 
         result.f32[SIMD_X] = (float)sqrt(1.0 / (value.f32[SIMD_X]));
@@ -124,7 +124,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpSqrt(const SIMDValue& value)
-    {
+    {TRACE_IT(52196);
         SIMDValue result;
 
         result.f32[SIMD_X] = sqrtf(value.f32[SIMD_X]);
@@ -137,7 +137,7 @@ namespace Js
 
     // Binary Ops
     SIMDValue SIMDFloat32x4Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52197);
         SIMDValue result;
 
         result.f32[SIMD_X] = aValue.f32[SIMD_X] + bValue.f32[SIMD_X];
@@ -149,7 +149,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52198);
         SIMDValue result;
 
         result.f32[SIMD_X] = aValue.f32[SIMD_X] - bValue.f32[SIMD_X];
@@ -161,7 +161,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52199);
         SIMDValue result;
 
         result.f32[SIMD_X] = aValue.f32[SIMD_X] * bValue.f32[SIMD_X];
@@ -173,7 +173,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpDiv(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52200);
         SIMDValue result;
 
         result.f32[SIMD_X] = aValue.f32[SIMD_X] / bValue.f32[SIMD_X];
@@ -185,7 +185,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpAnd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52201);
         SIMDValue result;
 
         result = SIMDInt32x4Operation::OpAnd(aValue, bValue);
@@ -194,7 +194,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpOr(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52202);
         SIMDValue result;
 
         result = SIMDInt32x4Operation::OpOr(aValue, bValue);
@@ -203,7 +203,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpXor(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52203);
         SIMDValue result;
 
         result = SIMDInt32x4Operation::OpXor(aValue, bValue);
@@ -217,30 +217,30 @@ namespace Js
     a < b ? a : b; where +0.0 > -0.0 (vice versa for Max)
     */
     SIMDValue SIMDFloat32x4Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52204);
         SIMDValue result;
         for (uint i = 0; i < 4; i++)
-        {
+        {TRACE_IT(52205);
             float a = aValue.f32[i];
             float b = bValue.f32[i];
             if (Js::NumberUtilities::IsNan(a))
-            {
+            {TRACE_IT(52206);
                 result.f32[i] = a;
             }
             else if (Js::NumberUtilities::IsNan(b))
-            {
+            {TRACE_IT(52207);
                 result.f32[i] = b;
             }
             else if (Js::NumberUtilities::IsFloat32NegZero(a) && b >= 0.0)
-            {
+            {TRACE_IT(52208);
                 result.f32[i] = a;
             }
             else if (Js::NumberUtilities::IsFloat32NegZero(b) && a >= 0.0)
-            {
+            {TRACE_IT(52209);
                 result.f32[i] = b;
             }
             else
-            {
+            {TRACE_IT(52210);
                 result.f32[i] = a < b ? a : b;
             }
         }
@@ -248,30 +248,30 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52211);
         SIMDValue result;
         for (uint i = 0; i < 4; i++)
-        {
+        {TRACE_IT(52212);
             float a = aValue.f32[i];
             float b = bValue.f32[i];
             if (Js::NumberUtilities::IsNan(a))
-            {
+            {TRACE_IT(52213);
                 result.f32[i] = a;
             }
             else if (Js::NumberUtilities::IsNan(b))
-            {
+            {TRACE_IT(52214);
                 result.f32[i] = b;
             }
             else if (Js::NumberUtilities::IsFloat32NegZero(a) && b >= 0.0)
-            {
+            {TRACE_IT(52215);
                 result.f32[i] = b;
             }
             else if (Js::NumberUtilities::IsFloat32NegZero(b) && a >= 0.0)
-            {
+            {TRACE_IT(52216);
                 result.f32[i] = a;
             }
             else
-            {
+            {TRACE_IT(52217);
                 result.f32[i] = a < b ? b : a;
             }
         }
@@ -279,7 +279,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpScale(const SIMDValue& Value, float scaleValue)
-    {
+    {TRACE_IT(52218);
         SIMDValue result;
 
         result.f32[SIMD_X] = Value.f32[SIMD_X] * scaleValue;
@@ -291,7 +291,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52219);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] < bValue.f32[SIMD_X];
@@ -305,7 +305,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52220);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] <= bValue.f32[SIMD_X];
@@ -319,7 +319,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52221);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] == bValue.f32[SIMD_X];
@@ -333,7 +333,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52222);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] != bValue.f32[SIMD_X];
@@ -347,7 +347,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52223);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] > bValue.f32[SIMD_X];
@@ -361,7 +361,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {TRACE_IT(52224);
         SIMDValue result;
 
         int x = aValue.f32[SIMD_X] >= bValue.f32[SIMD_X];
@@ -375,7 +375,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat32x4Operation::OpClamp(const SIMDValue& value, const SIMDValue& lower, const SIMDValue& upper)
-    {
+    {TRACE_IT(52225);
         SIMDValue result;
 
         // lower clamp
@@ -395,7 +395,7 @@ namespace Js
 
 
     SIMDValue SIMDFloat32x4Operation::OpSelect(const SIMDValue& mV, const SIMDValue& tV, const SIMDValue& fV)
-    {
+    {TRACE_IT(52226);
         SIMDValue result;
 
         SIMDValue trueResult  = SIMDInt32x4Operation::OpAnd(mV, tV);

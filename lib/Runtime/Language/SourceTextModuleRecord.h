@@ -19,11 +19,11 @@ namespace Js
         friend class ModuleNamespace;
 
         SourceTextModuleRecord(ScriptContext* scriptContext);
-        IdentPtrList* GetRequestedModuleList() const { return requestedModuleList; }
-        ModuleImportOrExportEntryList* GetImportEntryList() const { return importRecordList; }
-        ModuleImportOrExportEntryList* GetLocalExportEntryList() const { return localExportRecordList; }
-        ModuleImportOrExportEntryList* GetIndirectExportEntryList() const { return indirectExportRecordList; }
-        ModuleImportOrExportEntryList* GetStarExportRecordList() const { return starExportRecordList; }
+        IdentPtrList* GetRequestedModuleList() const {TRACE_IT(52847); return requestedModuleList; }
+        ModuleImportOrExportEntryList* GetImportEntryList() const {TRACE_IT(52848); return importRecordList; }
+        ModuleImportOrExportEntryList* GetLocalExportEntryList() const {TRACE_IT(52849); return localExportRecordList; }
+        ModuleImportOrExportEntryList* GetIndirectExportEntryList() const {TRACE_IT(52850); return indirectExportRecordList; }
+        ModuleImportOrExportEntryList* GetStarExportRecordList() const {TRACE_IT(52851); return starExportRecordList; }
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) override;
         virtual bool IsSourceTextModuleRecord() override { return true; } // we don't really have other kind of modulerecord at this time.
 
@@ -42,42 +42,42 @@ namespace Js
 
         HRESULT ResolveExternalModuleDependencies();
 
-        void* GetHostDefined() const { return hostDefined; }
-        void SetHostDefined(void* hostObj) { hostDefined = hostObj; }
+        void* GetHostDefined() const {TRACE_IT(52852); return hostDefined; }
+        void SetHostDefined(void* hostObj) {TRACE_IT(52853); hostDefined = hostObj; }
 
-        void SetSpecifier(Var specifier) { this->normalizedSpecifier = specifier; }
-        Var GetSpecifier() const { return normalizedSpecifier; }
+        void SetSpecifier(Var specifier) {TRACE_IT(52854); this->normalizedSpecifier = specifier; }
+        Var GetSpecifier() const {TRACE_IT(52855); return normalizedSpecifier; }
 
-        Var GetErrorObject() const { return errorObject; }
+        Var GetErrorObject() const {TRACE_IT(52856); return errorObject; }
 
-        bool WasParsed() const { return wasParsed; }
-        void SetWasParsed() { wasParsed = true; }
-        bool WasDeclarationInitialized() const { return wasDeclarationInitialized; }
-        void SetWasDeclarationInitialized() { wasDeclarationInitialized = true; }
-        void SetIsRootModule() { isRootModule = true; }
+        bool WasParsed() const {TRACE_IT(52857); return wasParsed; }
+        void SetWasParsed() {TRACE_IT(52858); wasParsed = true; }
+        bool WasDeclarationInitialized() const {TRACE_IT(52859); return wasDeclarationInitialized; }
+        void SetWasDeclarationInitialized() {TRACE_IT(52860); wasDeclarationInitialized = true; }
+        void SetIsRootModule() {TRACE_IT(52861); isRootModule = true; }
 
-        void SetImportRecordList(ModuleImportOrExportEntryList* importList) { importRecordList = importList; }
-        void SetLocalExportRecordList(ModuleImportOrExportEntryList* localExports) { localExportRecordList = localExports; }
-        void SetIndirectExportRecordList(ModuleImportOrExportEntryList* indirectExports) { indirectExportRecordList = indirectExports; }
-        void SetStarExportRecordList(ModuleImportOrExportEntryList* starExports) { starExportRecordList = starExports; }
-        void SetrequestedModuleList(IdentPtrList* requestModules) { requestedModuleList = requestModules; }
+        void SetImportRecordList(ModuleImportOrExportEntryList* importList) {TRACE_IT(52862); importRecordList = importList; }
+        void SetLocalExportRecordList(ModuleImportOrExportEntryList* localExports) {TRACE_IT(52863); localExportRecordList = localExports; }
+        void SetIndirectExportRecordList(ModuleImportOrExportEntryList* indirectExports) {TRACE_IT(52864); indirectExportRecordList = indirectExports; }
+        void SetStarExportRecordList(ModuleImportOrExportEntryList* starExports) {TRACE_IT(52865); starExportRecordList = starExports; }
+        void SetrequestedModuleList(IdentPtrList* requestModules) {TRACE_IT(52866); requestedModuleList = requestModules; }
 
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        ScriptContext* GetScriptContext() const {TRACE_IT(52867); return scriptContext; }
         HRESULT ParseSource(__in_bcount(sourceLength) byte* sourceText, uint32 sourceLength, SRCINFO * srcInfo, Var* exceptionVar, bool isUtf8);
         HRESULT OnHostException(void* errorVar);
 
         static SourceTextModuleRecord* FromHost(void* hostModuleRecord)
-        {
+        {TRACE_IT(52868);
             SourceTextModuleRecord* moduleRecord = static_cast<SourceTextModuleRecord*>(hostModuleRecord);
             Assert((moduleRecord == nullptr) || (moduleRecord->magicNumber == moduleRecord->ModuleMagicNumber));
             return moduleRecord;
         }
 
         static bool Is(void* hostModuleRecord)
-        {
+        {TRACE_IT(52869);
             SourceTextModuleRecord* moduleRecord = static_cast<SourceTextModuleRecord*>(hostModuleRecord);
             if (moduleRecord != nullptr && (moduleRecord->magicNumber == moduleRecord->ModuleMagicNumber))
-            {
+            {TRACE_IT(52870);
                 return true;
             }
             return false;
@@ -87,17 +87,17 @@ namespace Js
 
         uint GetLocalExportSlotIndexByExportName(PropertyId exportNameId);
         uint GetLocalExportSlotIndexByLocalName(PropertyId localNameId);
-        Field(Var)* GetLocalExportSlots() const { return localExportSlots; }
-        uint GetLocalExportSlotCount() const { return localSlotCount; }
-        uint GetModuleId() const { return moduleId; }
-        uint GetLocalExportCount() const { return localExportCount; }
+        Field(Var)* GetLocalExportSlots() const {TRACE_IT(52871); return localExportSlots; }
+        uint GetLocalExportSlotCount() const {TRACE_IT(52872); return localSlotCount; }
+        uint GetModuleId() const {TRACE_IT(52873); return moduleId; }
+        uint GetLocalExportCount() const {TRACE_IT(52874); return localExportCount; }
 
-        ModuleNameRecord* GetNamespaceNameRecord() { return &namespaceRecord; }
+        ModuleNameRecord* GetNamespaceNameRecord() {TRACE_IT(52875); return &namespaceRecord; }
 
         SourceTextModuleRecord* GetChildModuleRecord(LPCOLESTR specifier) const;
 
         void SetParent(SourceTextModuleRecord* parentRecord, LPCOLESTR moduleName);
-        Utf8SourceInfo* GetSourceInfo() { return this->pSourceInfo; }
+        Utf8SourceInfo* GetSourceInfo() {TRACE_IT(52876); return this->pSourceInfo; }
 
     private:
         const static uint InvalidModuleIndex = 0xffffffff;
@@ -151,9 +151,9 @@ namespace Js
         void InitializeLocalExports();
         void InitializeIndirectExports();
         PropertyId EnsurePropertyIdForIdentifier(IdentPtr pid);
-        LocalExportMap* GetLocalExportMap() const { return localExportMapByExportName; }
-        LocalExportIndexList* GetLocalExportIndexList() const { return localExportIndexList; }
-        ResolvedExportMap* GetExportedNamesMap() const { return resolvedExportMap; }
+        LocalExportMap* GetLocalExportMap() const {TRACE_IT(52877); return localExportMapByExportName; }
+        LocalExportIndexList* GetLocalExportIndexList() const {TRACE_IT(52878); return localExportIndexList; }
+        ResolvedExportMap* GetExportedNamesMap() const {TRACE_IT(52879); return resolvedExportMap; }
     };
 
     struct ServerSourceTextModuleRecord

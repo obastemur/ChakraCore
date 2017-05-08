@@ -18,14 +18,14 @@ namespace Memory
 struct XDataAllocation : public SecondaryAllocation
 {
     XDataAllocation()
-    {}
+    {TRACE_IT(27197);}
 
     bool IsFreed() const
-    {
+    {TRACE_IT(27198);
         return address == nullptr;
     }
     void Free()
-    {
+    {TRACE_IT(27199);
         address = nullptr;
     }
 
@@ -79,18 +79,18 @@ public:
 
 // -------- Private helpers ---------/
 private:
-    BYTE* End() { return start + size; }
+    BYTE* End() {TRACE_IT(27200); return start + size; }
 
 #ifndef _WIN32
     // Read .eh_frame data head (length record). 0 means empty.
     static uint32 ReadHead(const void* p)
-    {
+    {TRACE_IT(27201);
         return *reinterpret_cast<const uint32*>(p);
     }
 
     // Clear .eh_frame data head (length record). Set to 0 to mark empty.
     static void ClearHead(void* p)
-    {
+    {TRACE_IT(27202);
         *reinterpret_cast<uint32*>(p) = 0;
     }
 #endif

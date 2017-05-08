@@ -14,7 +14,7 @@ namespace Js
 
     public:
         static ISourceHolder *GetEmptySourceHolder()
-        {
+        {TRACE_IT(36884);
             return (ISourceHolder *)&emptySourceHolder;
         }
 
@@ -39,7 +39,7 @@ namespace Js
             : source(NO_WRITE_BARRIER_TAG(source)),
             byteLength(byteLength),
             isEmpty(isEmpty)
-        {
+        {TRACE_IT(36885);
         }
 
     public:
@@ -47,7 +47,7 @@ namespace Js
             : source(source),
             byteLength(byteLength),
             isEmpty(false)
-        {
+        {TRACE_IT(36886);
         }
 
         virtual LPCUTF8 GetSource(const char16* reasonString) override

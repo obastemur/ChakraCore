@@ -6,8 +6,8 @@
 
 
 //Helpers
-static inline BOOL FBigChar(codepoint_t ch) { return ch >= 128u; }
-static inline BOOL BoolFromDbl(double dbl) { return !Js::NumberUtilities::IsNan(dbl) && (0 != dbl); }
+static inline BOOL FBigChar(codepoint_t ch) {TRACE_IT(28697); return ch >= 128u; }
+static inline BOOL BoolFromDbl(double dbl) {TRACE_IT(28698); return !Js::NumberUtilities::IsNan(dbl) && (0 != dbl); }
 
 enum CharTypes
 {

@@ -25,7 +25,7 @@ namespace Js
         ScriptContext *const requestContext,
         PropertyCacheOperationInfo * operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(47419);
         CompileAssert(IsInlineCacheAvailable || IsPolymorphicInlineCacheAvailable);
         Assert(!CheckTypePropertyCache || !isRoot);
         Assert(propertyValueInfo);
@@ -34,10 +34,10 @@ namespace Js
         Assert(!ReturnOperationInfo || operationInfo);
 
         if(CheckLocal || CheckProto || CheckAccessor)
-        {
+        {TRACE_IT(47420);
             InlineCache *const inlineCache = IsInlineCacheAvailable ? propertyValueInfo->GetInlineCache() : nullptr;
             if(IsInlineCacheAvailable)
-            {
+            {TRACE_IT(47421);
                 if (inlineCache->TryGetProperty<CheckLocal, CheckProto, CheckAccessor, CheckMissing, ReturnOperationInfo>(
                         instance,
                         object,
@@ -45,21 +45,21 @@ namespace Js
                         propertyValue,
                         requestContext,
                         operationInfo))
-                {
+                {TRACE_IT(47422);
                     return true;
                 }
                 if(ReturnOperationInfo)
-                {
+                {TRACE_IT(47423);
                     operationInfo->isPolymorphic = inlineCache->HasDifferentType(object->GetType());
                 }
             }
             else if(ReturnOperationInfo)
-            {
+            {TRACE_IT(47424);
                 operationInfo->isPolymorphic = true;
             }
 
             if(CheckPolymorphicInlineCache)
-            {
+            {TRACE_IT(47425);
                 Assert(IsPolymorphicInlineCacheAvailable || propertyValueInfo->GetFunctionBody());
                 PolymorphicInlineCache *const polymorphicInlineCache =
                     IsPolymorphicInlineCacheAvailable
@@ -83,14 +83,14 @@ namespace Js
                             operationInfo,
                             inlineCache
                         ))
-                {
+                {TRACE_IT(47426);
                     return true;
                 }
             }
         }
 
         if(!CheckTypePropertyCache)
-        {
+        {TRACE_IT(47427);
             return false;
         }
 
@@ -104,12 +104,12 @@ namespace Js
                     requestContext,
                     ReturnOperationInfo ? operationInfo : nullptr,
                     propertyValueInfo))
-        {
+        {TRACE_IT(47428);
             return false;
         }
 
         if(!ReturnOperationInfo || operationInfo->cacheType == CacheType_TypeProperty)
-        {
+        {TRACE_IT(47429);
             return true;
         }
 
@@ -139,7 +139,7 @@ namespace Js
         const PropertyOperationFlags propertyOperationFlags,
         PropertyCacheOperationInfo * operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(47430);
         CompileAssert(IsInlineCacheAvailable || IsPolymorphicInlineCacheAvailable);
         Assert(!CheckTypePropertyCache || !isRoot);
         Assert(propertyValueInfo);
@@ -148,10 +148,10 @@ namespace Js
         Assert(!ReturnOperationInfo || operationInfo);
 
         if(CheckLocal || CheckLocalTypeWithoutProperty || CheckAccessor)
-        {
+        {TRACE_IT(47431);
             InlineCache *const inlineCache = IsInlineCacheAvailable ? propertyValueInfo->GetInlineCache() : nullptr;
             if(IsInlineCacheAvailable)
-            {
+            {TRACE_IT(47432);
                 if (inlineCache->TrySetProperty<CheckLocal, CheckLocalTypeWithoutProperty, CheckAccessor, ReturnOperationInfo>(
                         object,
                         propertyId,
@@ -159,21 +159,21 @@ namespace Js
                         requestContext,
                         operationInfo,
                         propertyOperationFlags))
-                {
+                {TRACE_IT(47433);
                     return true;
                 }
                 if(ReturnOperationInfo)
-                {
+                {TRACE_IT(47434);
                     operationInfo->isPolymorphic = inlineCache->HasDifferentType(object->GetType());
                 }
             }
             else if(ReturnOperationInfo)
-            {
+            {TRACE_IT(47435);
                 operationInfo->isPolymorphic = true;
             }
 
             if(CheckPolymorphicInlineCache)
-            {
+            {TRACE_IT(47436);
                 Assert(IsPolymorphicInlineCacheAvailable || propertyValueInfo->GetFunctionBody());
                 PolymorphicInlineCache *const polymorphicInlineCache =
                     IsPolymorphicInlineCacheAvailable
@@ -196,14 +196,14 @@ namespace Js
                             inlineCache,
                             propertyOperationFlags
                         ))
-                {
+                {TRACE_IT(47437);
                     return true;
                 }
             }
         }
 
         if(!CheckTypePropertyCache)
-        {
+        {TRACE_IT(47438);
             return false;
         }
 
@@ -216,12 +216,12 @@ namespace Js
                 requestContext,
                 ReturnOperationInfo ? operationInfo : nullptr,
                 propertyValueInfo))
-        {
+        {TRACE_IT(47439);
             return false;
         }
 
         if(!ReturnOperationInfo || operationInfo->cacheType == CacheType_TypeProperty)
-        {
+        {TRACE_IT(47440);
             return true;
         }
 
@@ -241,7 +241,7 @@ namespace Js
         Type *const type,
         PropertyCacheOperationInfo *operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(47441);
         CompileAssert(IsInlineCacheAvailable || IsPolymorphicInlineCacheAvailable);
         Assert(propertyValueInfo);
         Assert(IsInlineCacheAvailable == !!propertyValueInfo->GetInlineCache());
@@ -249,7 +249,7 @@ namespace Js
         Assert(operationInfo);
 
         if (IsInlineCacheAvailable && propertyValueInfo->GetInlineCache()->PretendTryGetProperty(type, operationInfo))
-        {
+        {TRACE_IT(47442);
             return;
         }
 
@@ -259,7 +259,7 @@ namespace Js
                 ? propertyValueInfo->GetPolymorphicInlineCache()
                 : propertyValueInfo->GetFunctionBody()->GetPolymorphicInlineCache(propertyValueInfo->GetInlineCacheIndex());
         if (IsPolymorphicInlineCacheAvailable || polymorphicInlineCache)
-        {
+        {TRACE_IT(47443);
             polymorphicInlineCache->PretendTryGetProperty(type, operationInfo);
         }
     }
@@ -272,7 +272,7 @@ namespace Js
         Type *const oldType,
         PropertyCacheOperationInfo * operationInfo,
         PropertyValueInfo *const propertyValueInfo)
-    {
+    {TRACE_IT(47444);
         CompileAssert(IsInlineCacheAvailable || IsPolymorphicInlineCacheAvailable);
         Assert(propertyValueInfo);
         Assert(IsInlineCacheAvailable == !!propertyValueInfo->GetInlineCache());
@@ -280,7 +280,7 @@ namespace Js
         Assert(operationInfo);
 
         if (IsInlineCacheAvailable && propertyValueInfo->GetInlineCache()->PretendTrySetProperty(type, oldType, operationInfo))
-        {
+        {TRACE_IT(47445);
             return;
         }
 
@@ -290,7 +290,7 @@ namespace Js
                 ? propertyValueInfo->GetPolymorphicInlineCache()
                 : propertyValueInfo->GetFunctionBody()->GetPolymorphicInlineCache(propertyValueInfo->GetInlineCacheIndex());
         if (IsPolymorphicInlineCacheAvailable || polymorphicInlineCache)
-        {
+        {TRACE_IT(47446);
             polymorphicInlineCache->PretendTrySetProperty(type, oldType, operationInfo);
         }
     }
@@ -312,38 +312,38 @@ namespace Js
         const int requiredAuxSlotCapacity,
         const PropertyValueInfo *const info,
         ScriptContext *const requestContext)
-    {
+    {TRACE_IT(47447);
         CompileAssert(!IsAccessor || !IncludeTypePropertyCache);
         Assert(info);
         Assert(objectWithProperty);
 
         if(!IsAccessor)
-        {
+        {TRACE_IT(47448);
             if(!isProto)
-            {
+            {TRACE_IT(47449);
                 Assert(type == objectWithProperty->GetType());
             }
             else
-            {
+            {TRACE_IT(47450);
                 Assert(IsRead);
                 Assert(type != objectWithProperty->GetType());
             }
         }
         else
-        {
+        {TRACE_IT(47451);
             Assert(!isRoot); // could still be root object, but the parameter will be false and shouldn't be used for accessors
             Assert(!typeWithoutProperty);
             Assert(requiredAuxSlotCapacity == 0);
         }
 
         if(IsRead)
-        {
+        {TRACE_IT(47452);
             Assert(!typeWithoutProperty);
             Assert(requiredAuxSlotCapacity == 0);
             Assert(CanCachePropertyRead(objectWithProperty, requestContext));
 
             if(!IsAccessor && isProto && PropertyValueInfo::PrototypeCacheDisabled(info))
-            {
+            {TRACE_IT(47453);
                 return;
             }
         }
@@ -366,18 +366,18 @@ namespace Js
         bool createTypePropertyCache = false;
         PolymorphicInlineCache *polymorphicInlineCache = info->GetPolymorphicInlineCache();
         if(!polymorphicInlineCache && info->GetFunctionBody())
-        {
+        {TRACE_IT(47454);
             polymorphicInlineCache = info->GetFunctionBody()->GetPolymorphicInlineCache(info->GetInlineCacheIndex());
         }
         InlineCache *const inlineCache = info->GetInlineCache();
         if(inlineCache)
-        {
+        {TRACE_IT(47455);
             const bool tryCreatePolymorphicInlineCache = !polymorphicInlineCache && info->GetFunctionBody();
             if((includeTypePropertyCache || tryCreatePolymorphicInlineCache) &&
                 inlineCache->HasDifferentType<IsAccessor>(isProto, type, typeWithoutProperty))
-            {
+            {TRACE_IT(47456);
                 if(tryCreatePolymorphicInlineCache)
-                {
+                {TRACE_IT(47457);
                     polymorphicInlineCache =
                         info->GetFunctionBody()->CreateNewPolymorphicInlineCache(
                             info->GetInlineCacheIndex(),
@@ -385,15 +385,15 @@ namespace Js
                             inlineCache);
                 }
                 if(includeTypePropertyCache)
-                {
+                {TRACE_IT(47458);
                     createTypePropertyCache = true;
                 }
             }
 
             if(!IsAccessor)
-            {
+            {TRACE_IT(47459);
                 if(!isProto)
-                {
+                {TRACE_IT(47460);
                     inlineCache->CacheLocal(
                         type,
                         propertyId,
@@ -404,7 +404,7 @@ namespace Js
                         requestContext);
                 }
                 else
-                {
+                {TRACE_IT(47461);
                     inlineCache->CacheProto(
                         objectWithProperty,
                         propertyId,
@@ -416,7 +416,7 @@ namespace Js
                 }
             }
             else
-            {
+            {TRACE_IT(47462);
                 inlineCache->CacheAccessor(
                     IsRead,
                     propertyId,
@@ -430,31 +430,31 @@ namespace Js
         }
 
         if(polymorphicInlineCache)
-        {
+        {TRACE_IT(47463);
             // Don't resize a polymorphic inline cache from full JIT because it currently doesn't rejit to use the new
             // polymorphic inline cache. Once resized, bailouts would populate only the new set of caches and full JIT would
             // continue to use to old set of caches.
             Assert(!info->AllowResizingPolymorphicInlineCache() || info->GetFunctionBody());
             if(((includeTypePropertyCache && !createTypePropertyCache) || info->AllowResizingPolymorphicInlineCache()) &&
                 polymorphicInlineCache->HasDifferentType<IsAccessor>(isProto, type, typeWithoutProperty))
-            {
+            {TRACE_IT(47464);
                 if(info->AllowResizingPolymorphicInlineCache() && polymorphicInlineCache->CanAllocateBigger())
-                {
+                {TRACE_IT(47465);
                     polymorphicInlineCache =
                         info->GetFunctionBody()->CreateBiggerPolymorphicInlineCache(
                             info->GetInlineCacheIndex(),
                             propertyId);
                 }
                 if(includeTypePropertyCache)
-                {
+                {TRACE_IT(47466);
                     createTypePropertyCache = true;
                 }
             }
 
             if(!IsAccessor)
-            {
+            {TRACE_IT(47467);
                 if(!isProto)
-                {
+                {TRACE_IT(47468);
                     polymorphicInlineCache->CacheLocal(
                         type,
                         propertyId,
@@ -465,7 +465,7 @@ namespace Js
                         requestContext);
                 }
                 else
-                {
+                {TRACE_IT(47469);
                     polymorphicInlineCache->CacheProto(
                         objectWithProperty,
                         propertyId,
@@ -477,7 +477,7 @@ namespace Js
                 }
             }
             else
-            {
+            {TRACE_IT(47470);
                 polymorphicInlineCache->CacheAccessor(
                     IsRead,
                     propertyId,
@@ -491,23 +491,23 @@ namespace Js
         }
 
         if(!includeTypePropertyCache)
-        {
+        {TRACE_IT(47471);
             return;
         }
         Assert(!IsAccessor);
 
         TypePropertyCache *typePropertyCache = type->GetPropertyCache();
         if(!typePropertyCache)
-        {
+        {TRACE_IT(47472);
             if(!createTypePropertyCache)
-            {
+            {TRACE_IT(47473);
                 return;
             }
             typePropertyCache = type->CreatePropertyCache();
         }
 
         if(isProto)
-        {
+        {TRACE_IT(47474);
             typePropertyCache->Cache(
                 propertyId,
                 propertyIndex,
@@ -519,7 +519,7 @@ namespace Js
 
             typePropertyCache = objectWithProperty->GetType()->GetPropertyCache();
             if(!typePropertyCache)
-            {
+            {TRACE_IT(47475);
                 return;
             }
         }

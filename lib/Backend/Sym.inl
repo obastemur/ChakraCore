@@ -13,7 +13,7 @@
 
 inline bool
 Sym::IsStackSym() const
-{
+{TRACE_IT(15737);
     return m_kind == SymKindStack;
 }
 
@@ -27,7 +27,7 @@ Sym::IsStackSym() const
 
 inline StackSym *
 Sym::AsStackSym()
-{
+{TRACE_IT(15738);
     AssertMsg(this->IsStackSym(), "Bad call to AsStackSym()");
 
     return reinterpret_cast<StackSym *>(this);
@@ -41,7 +41,7 @@ Sym::AsStackSym()
 
 inline bool
 Sym::IsPropertySym() const
-{
+{TRACE_IT(15739);
     return m_kind == SymKindProperty;
 }
 
@@ -55,7 +55,7 @@ Sym::IsPropertySym() const
 
 inline PropertySym *
 Sym::AsPropertySym()
-{
+{TRACE_IT(15740);
     AssertMsg(this->IsPropertySym(), "Bad call to AsPropertySym()");
 
     return reinterpret_cast<PropertySym *>(this);
@@ -69,9 +69,9 @@ Sym::AsPropertySym()
 
 inline bool
 StackSym::IsArgSlotSym() const
-{
+{TRACE_IT(15741);
     if(m_isArgSlotSym)
-    {
+    {TRACE_IT(15742);
         Assert(this->m_slotNum != 0);
     }
     return m_isArgSlotSym;
@@ -85,7 +85,7 @@ StackSym::IsArgSlotSym() const
 
 inline bool
 StackSym::IsParamSlotSym() const
-{
+{TRACE_IT(15743);
     return m_isParamSym;
 }
 
@@ -97,6 +97,6 @@ StackSym::IsParamSlotSym() const
 
 inline bool
 StackSym::IsAllocated() const
-{
+{TRACE_IT(15744);
     return m_allocated;
 }

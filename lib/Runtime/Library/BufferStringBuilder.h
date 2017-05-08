@@ -12,13 +12,13 @@ namespace Js
     public:
         BufferStringBuilder(charcount_t charLength, ScriptContext* scriptContext)
             : m_string( WritableString::New(charLength, scriptContext) )
-        {
+        {TRACE_IT(54517);
         }
 
         JavascriptString* ToString();
 
         void DbgAssertNotFrozen() const
-        {
+        {TRACE_IT(54518);
             AssertMsg(this->m_string != nullptr, "Do not call BufferStringBuilder methods after ToString() has been called.");
         }
 
@@ -26,14 +26,14 @@ namespace Js
             const char16* prefix, charcount_t cchPrefix,
             const char16* content, charcount_t cchContent,
             const char16* suffix, charcount_t cchSuffix)
-        {
+        {TRACE_IT(54519);
             DbgAssertNotFrozen();
             this->m_string->SetContent(prefix, cchPrefix, content, cchContent, suffix, cchSuffix);
         }
 
         // Caution: Do not retain the writable buffer after ToString has been called
         char16* DangerousGetWritableBuffer()
-        {
+        {TRACE_IT(54520);
             DbgAssertNotFrozen();
             return this->m_string->GetWritableBuffer();
         }
@@ -43,7 +43,7 @@ namespace Js
         public:
             static WritableString* New(charcount_t length, ScriptContext* scriptContext);
             char16* GetWritableBuffer() const
-            {
+            {TRACE_IT(54521);
                 return const_cast< char16* >( this->UnsafeGetBuffer() );
             }
 
@@ -59,7 +59,7 @@ namespace Js
         private:
             WritableString(StaticType * type, charcount_t length, const char16* szValue)
                 : JavascriptString(type, length, szValue)
-            {
+            {TRACE_IT(54522);
             }
 
             static char16* SafeCopyAndAdvancePtr(__out_ecount(cchDst) char16* dst, charcount_t& cchDst, __in_ecount(cch) const char16* ptr, charcount_t cch);

@@ -54,12 +54,12 @@ namespace Js
         Var GetOptions();
 
         void SetPattern(UnifiedRegex::RegexPattern* pattern)
-        {
+        {TRACE_IT(61340);
             this->pattern = pattern;
         }
 
         void SetSplitPattern(UnifiedRegex::RegexPattern* splitPattern)
-        {
+        {TRACE_IT(61341);
             this->splitPattern = splitPattern;
         }
 
@@ -92,13 +92,13 @@ namespace Js
         JavascriptRegExp(UnifiedRegex::RegexPattern* pattern, DynamicType* type);
         JavascriptRegExp(DynamicType * type);
 
-        static uint GetOffsetOfPattern() { return offsetof(JavascriptRegExp, pattern); }
-        static uint GetOffsetOfSplitPattern() { return offsetof(JavascriptRegExp, splitPattern); }
-        static uint GetOffsetOfLastIndexVar() { return offsetof(JavascriptRegExp, lastIndexVar); }
-        static uint GetOffsetOfLastIndexOrFlag() { return offsetof(JavascriptRegExp, lastIndexOrFlag); }
+        static uint GetOffsetOfPattern() {TRACE_IT(61342); return offsetof(JavascriptRegExp, pattern); }
+        static uint GetOffsetOfSplitPattern() {TRACE_IT(61343); return offsetof(JavascriptRegExp, splitPattern); }
+        static uint GetOffsetOfLastIndexVar() {TRACE_IT(61344); return offsetof(JavascriptRegExp, lastIndexVar); }
+        static uint GetOffsetOfLastIndexOrFlag() {TRACE_IT(61345); return offsetof(JavascriptRegExp, lastIndexOrFlag); }
 
-        inline UnifiedRegex::RegexPattern* GetPattern() const { return pattern; }
-        inline UnifiedRegex::RegexPattern* GetSplitPattern() const { return splitPattern; }
+        inline UnifiedRegex::RegexPattern* GetPattern() const {TRACE_IT(61346); return pattern; }
+        inline UnifiedRegex::RegexPattern* GetSplitPattern() const {TRACE_IT(61347); return splitPattern; }
 
         InternalString GetSource() const;
         UnifiedRegex::RegexFlags GetFlags() const;
@@ -106,16 +106,16 @@ namespace Js
         void CacheLastIndex();
 
         inline CharCountOrFlag GetLastIndex()
-        {
+        {TRACE_IT(61348);
             if (lastIndexOrFlag == NotCachedValue)
-            {
+            {TRACE_IT(61349);
                 CacheLastIndex();
             }
             return lastIndexOrFlag;
         }
 
         inline void SetLastIndex(CharCount lastIndex)
-        {
+        {TRACE_IT(61350);
             Assert(lastIndex <= MaxCharCount);
             lastIndexVar = nullptr;
             this->lastIndexOrFlag = lastIndex;

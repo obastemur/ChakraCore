@@ -27,14 +27,14 @@ namespace Numbers
 
             NumbersLocale();
 
-            inline int   GetMaxDigitsAfterDecimals() { return maxDigitsAfterDecimals; }
-            inline WCHAR GetLocaleThousands()        { return localeThousands; }
-            inline bool  HasLocaleThousands()        { return localeThousands != 0; }
-            inline WCHAR GetLocaleDecimal()          { return localeDecimal; }
-            inline WCHAR GetLocaleNegativeSign()     { return localeNegativeSign; }
+            inline int   GetMaxDigitsAfterDecimals() {TRACE_IT(27253); return maxDigitsAfterDecimals; }
+            inline WCHAR GetLocaleThousands()        {TRACE_IT(27254); return localeThousands; }
+            inline bool  HasLocaleThousands()        {TRACE_IT(27255); return localeThousands != 0; }
+            inline WCHAR GetLocaleDecimal()          {TRACE_IT(27256); return localeDecimal; }
+            inline WCHAR GetLocaleNegativeSign()     {TRACE_IT(27257); return localeNegativeSign; }
 
             inline bool  IsDecimalPoint(const WCHAR wc)
-                                                     { return wc == defaultDecimalDot
+                                                     {TRACE_IT(27258); return wc == defaultDecimalDot
                                                            || wc == defaultDecimalComma; }
         };
 

@@ -11,29 +11,29 @@
 // ----------------------------------------------------------------------------
 
 void PrologEncoder::RecordNonVolRegSave()
-{
+{TRACE_IT(15077);
     requiredUnwindCodeNodeCount++;
 }
 
 void PrologEncoder::RecordXmmRegSave()
-{
+{TRACE_IT(15078);
     requiredUnwindCodeNodeCount += 2;
 }
 
 void PrologEncoder::RecordAlloca(size_t size)
-{
+{TRACE_IT(15079);
     Assert(size);
 
     requiredUnwindCodeNodeCount += PrologEncoderMD::GetRequiredNodeCountForAlloca(size);
 }
 
 DWORD PrologEncoder::SizeOfPData()
-{
+{TRACE_IT(15080);
     return sizeof(PData) + (sizeof(UNWIND_CODE) * requiredUnwindCodeNodeCount);
 }
 
 void PrologEncoder::EncodeSmallProlog(uint8 prologSize, size_t allocaSize)
-{
+{TRACE_IT(15081);
     Assert(allocaSize <= 128);
     Assert(requiredUnwindCodeNodeCount == 0);
 
@@ -52,7 +52,7 @@ void PrologEncoder::EncodeSmallProlog(uint8 prologSize, size_t allocaSize)
 }
 
 void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
-{
+{TRACE_IT(15082);
     Assert(instr);
     Assert(size);
 
@@ -71,14 +71,14 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     switch (unwindCodeOp)
     {
     case UWOP_PUSH_NONVOL:
-    {
+    {TRACE_IT(15083);
         unwindCode = GetUnwindCode(1);
         unwindCodeOpInfo = PrologEncoderMD::GetNonVolRegToSave(instr);
         break;
     }
 
     case UWOP_SAVE_XMM128:
-    {
+    {TRACE_IT(15084);
         unwindCode       = GetUnwindCode(2);
         unwindCodeOpInfo = PrologEncoderMD::GetXmmRegToSave(instr, &uint16Val);
 
@@ -87,7 +87,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     }
 
     case UWOP_ALLOC_SMALL:
-    {
+    {TRACE_IT(15085);
         unwindCode = GetUnwindCode(1);
         size_t allocaSize = PrologEncoderMD::GetAllocaSize(instr);
         Assert((allocaSize - MachPtr) % MachPtr == 0);
@@ -98,7 +98,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     }
 
     case UWOP_ALLOC_LARGE:
-    {
+    {TRACE_IT(15086);
         size_t allocaSize = PrologEncoderMD::GetAllocaSize(instr);
         Assert(allocaSize > 0x80);
         Assert(allocaSize % 8 == 0);
@@ -106,7 +106,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
 
         size_t slots = allocaSize / MachPtr;
         if (allocaSize > 0x7FF8)
-        {
+        {TRACE_IT(15087);
             unwindCode       = GetUnwindCode(3);
             uint32Val        = TO_UINT32(allocaSize);
             unwindCodeOpInfo = 1;
@@ -115,7 +115,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
             *((unsigned __int32 *)&((UNWIND_CODE *)unwindCode)[1]) = uint32Val;
         }
         else
-        {
+        {TRACE_IT(15088);
             unwindCode       = GetUnwindCode(2);
             uint16Val        = TO_UINT16(slots);
             unwindCodeOpInfo = 0;
@@ -127,7 +127,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     }
 
     case UWOP_IGNORE:
-    {
+    {TRACE_IT(15089);
         return;
     }
 
@@ -151,7 +151,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
 BYTE *PrologEncoder::Finalize(BYTE *functionStart,
                               DWORD codeSize,
                               BYTE *pdataBuffer)
-{
+{TRACE_IT(15090);
     Assert(pdataBuffer > functionStart);
     Assert((size_t)pdataBuffer % sizeof(DWORD) == 0);
 
@@ -165,7 +165,7 @@ BYTE *PrologEncoder::Finalize(BYTE *functionStart,
 }
 
 void PrologEncoder::FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize)
-{
+{TRACE_IT(15091);
     pdata.unwindInfo.Version           = 1;
     pdata.unwindInfo.Flags             = 0;
     pdata.unwindInfo.SizeOfProlog      = currentInstrOffset;
@@ -181,7 +181,7 @@ void PrologEncoder::FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize)
 }
 
 PrologEncoder::UnwindCode *PrologEncoder::GetUnwindCode(unsigned __int8 nodeCount)
-{
+{TRACE_IT(15092);
     Assert(nodeCount && ((currentUnwindCodeNodeIndex - nodeCount) >= 0));
     currentUnwindCodeNodeIndex -= nodeCount;
 
@@ -189,12 +189,12 @@ PrologEncoder::UnwindCode *PrologEncoder::GetUnwindCode(unsigned __int8 nodeCoun
 }
 
 DWORD PrologEncoder::SizeOfUnwindInfo()
-{
+{TRACE_IT(15093);
     return (sizeof(UNWIND_INFO) + (sizeof(UNWIND_CODE) * requiredUnwindCodeNodeCount));
 }
 
 BYTE *PrologEncoder::GetUnwindInfo()
-{
+{TRACE_IT(15094);
     return (BYTE *)&pdata.unwindInfo;
 }
 
@@ -204,7 +204,7 @@ BYTE *PrologEncoder::GetUnwindInfo()
 // ----------------------------------------------------------------------------
 
 void PrologEncoder::EncodeSmallProlog(uint8 prologSize, size_t size)
-{
+{TRACE_IT(15095);
     auto fde = ehFrame.GetFDE();
 
     // prolog: push rbp
@@ -216,37 +216,37 @@ void PrologEncoder::EncodeSmallProlog(uint8 prologSize, size_t size)
 }
 
 DWORD PrologEncoder::SizeOfPData()
-{
+{TRACE_IT(15096);
     return ehFrame.Count();
 }
 
 BYTE* PrologEncoder::Finalize(BYTE *functionStart, DWORD codeSize, BYTE *pdataBuffer)
-{
+{TRACE_IT(15097);
     auto fde = ehFrame.GetFDE();
     fde->UpdateAddressRange(functionStart, codeSize);
     return ehFrame.Buffer();
 }
 
 void PrologEncoder::Begin(size_t prologStartOffset)
-{
+{TRACE_IT(15098);
     Assert(currentInstrOffset == 0);
 
     currentInstrOffset = prologStartOffset;
 }
 
 void PrologEncoder::End()
-{
+{TRACE_IT(15099);
     ehFrame.End();
 }
 
 void PrologEncoder::FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize)
-{
+{TRACE_IT(15100);
     auto fde = ehFrame.GetFDE();
     fde->UpdateAddressRange(functionStart, codeSize);
 }
 
 void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
-{
+{TRACE_IT(15101);
     auto fde = ehFrame.GetFDE();
 
     uint8 unwindCodeOp = PrologEncoderMD::GetOp(instr);
@@ -257,7 +257,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     switch (unwindCodeOp)
     {
     case UWOP_PUSH_NONVOL:
-    {
+    {TRACE_IT(15102);
         const uword advance = currentInstrOffset - cfiInstrOffset;
         cfiInstrOffset = currentInstrOffset;
         cfaWordOffset++;
@@ -271,14 +271,14 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     }
 
     case UWOP_SAVE_XMM128:
-    {
+    {TRACE_IT(15103);
         // TODO
         break;
     }
 
     case UWOP_ALLOC_SMALL:
     case UWOP_ALLOC_LARGE:
-    {
+    {TRACE_IT(15104);
         size_t allocaSize = PrologEncoderMD::GetAllocaSize(instr);
         Assert(allocaSize % MachPtr == 0);
 
@@ -295,7 +295,7 @@ void PrologEncoder::EncodeInstr(IR::Instr *instr, unsigned __int8 size)
     }
 
     case UWOP_IGNORE:
-    {
+    {TRACE_IT(15105);
         return;
     }
 

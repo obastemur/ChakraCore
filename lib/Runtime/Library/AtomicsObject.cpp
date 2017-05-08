@@ -10,7 +10,7 @@
         ScriptContext* scriptContext = function->GetScriptContext(); \
         Assert(!(callInfo.Flags & CallFlags_New)); \
         if (args.Info.Count <= length) \
-        { \
+        {TRACE_IT(54400); \
             JavascriptError::ThrowRangeError(scriptContext, JSERR_WinRTFunction_TooFewArguments, _u(methodName)); \
         } \
 
@@ -18,24 +18,24 @@
 namespace Js
 {
     Var AtomicsObject::ValidateSharedIntegerTypedArray(Var typedArray, ScriptContext *scriptContext, bool onlyInt32)
-    {
+    {TRACE_IT(54401);
         if (!TypedArrayBase::Is(typedArray))
-        {
+        {TRACE_IT(54402);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedTypedArrayObject);
         }
 
         if (onlyInt32)
-        {
+        {TRACE_IT(54403);
             if (!Int32Array::Is(typedArray))
-            {
+            {TRACE_IT(54404);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidOperationOnTypedArray);
             }
         }
         else
-        {
+        {TRACE_IT(54405);
             if (!(Int8Array::Is(typedArray) || Uint8Array::Is(typedArray) || Int16Array::Is(typedArray) ||
                 Uint16Array::Is(typedArray) || Int32Array::Is(typedArray) || Uint32Array::Is(typedArray)))
-            {
+            {TRACE_IT(54406);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidOperationOnTypedArray);
             }
         }
@@ -43,7 +43,7 @@ namespace Js
         TypedArrayBase *typedArrayBase = TypedArrayBase::FromVar(typedArray);
         ArrayBufferBase* arrayBuffer = typedArrayBase->GetArrayBuffer();
         if (arrayBuffer == nullptr || !ArrayBufferBase::Is(arrayBuffer) || !arrayBuffer->IsSharedArrayBuffer())
-        {
+        {TRACE_IT(54407);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedSharedArrayBufferObject);
         }
 
@@ -51,18 +51,18 @@ namespace Js
     }
 
     uint32 AtomicsObject::ValidateAtomicAccess(Var typedArray, Var requestIndex, ScriptContext *scriptContext)
-    {
+    {TRACE_IT(54408);
         int32 accessIndex = -1;
         if (TaggedInt::Is(requestIndex))
-        {
+        {TRACE_IT(54409);
             accessIndex = TaggedInt::ToInt32(requestIndex);
         }
         else
-        {
+        {TRACE_IT(54410);
             accessIndex = JavascriptConversion::ToInt32_Full(requestIndex, scriptContext);
             double dblValue = JavascriptConversion::ToNumber(requestIndex, scriptContext);
             if (dblValue != accessIndex)
-            {
+            {TRACE_IT(54411);
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidTypedArrayIndex);
             }
         }
@@ -70,7 +70,7 @@ namespace Js
         Assert(TypedArrayBase::Is(typedArray));
         
         if (accessIndex < 0 || accessIndex >= (int32)TypedArrayBase::FromVar(typedArray)->GetLength())
-        {
+        {TRACE_IT(54412);
             JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidTypedArrayIndex);
         }
 
@@ -82,7 +82,7 @@ namespace Js
         ValidateSharedIntegerTypedArray(typedArray, scriptContext, onlyInt32);
         uint32 i = ValidateAtomicAccess(typedArray, index, scriptContext);
         if (accessIndex != nullptr)
-        {
+        {TRACE_IT(54413);
             *accessIndex = i;
         }
 
@@ -181,17 +181,17 @@ namespace Js
         uint32 timeout = INFINITE;
 
         if (args.Info.Count > 4 && !JavascriptOperators::IsUndefinedObject(args[4]))
-        {
+        {TRACE_IT(54414);
             double t =JavascriptConversion::ToNumber(args[4], scriptContext);
             if (!(NumberUtilities::IsNan(t) || JavascriptNumber::IsPosInf(t)))
-            {
+            {TRACE_IT(54415);
                 int32 t1 = JavascriptConversion::ToInt32(t);
                 timeout = (uint32)max(0, t1);
             }
         }
 
         if (!AgentOfBuffer::AgentCanSuspend(scriptContext))
-        {
+        {TRACE_IT(54416);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_CannotSuspendBuffer);
         }
 
@@ -209,7 +209,7 @@ namespace Js
 
             int32 w = JavascriptConversion::ToInt32(typedArrayBase->DirectGetItem(accessIndex), scriptContext);
             if (value != w)
-            {
+            {TRACE_IT(54417);
                 return scriptContext->GetLibrary()->CreateStringFromCppLiteral(_u("not-equal"));
             }
 
@@ -231,10 +231,10 @@ namespace Js
         TypedArrayBase *typedArrayBase = ValidateAndGetTypedArray(args[1], args[2], &accessIndex, scriptContext, true /*onlyInt32*/);
         int32 count = INT_MAX;
         if (args.Info.Count > 3 && !JavascriptOperators::IsUndefinedObject(args[3]))
-        {
+        {TRACE_IT(54418);
             double d = JavascriptConversion::ToInteger(args[3], scriptContext);
             if (!(NumberUtilities::IsNan(d) || JavascriptNumber::IsPosInf(d)))
-            {
+            {TRACE_IT(54419);
                 int32 c = JavascriptConversion::ToInt32(d);
                 count = max(0, c);
             }

@@ -12,13 +12,13 @@ namespace Js
 #endif
 
     void* AsmJsJitTemplate::InitTemplateData()
-    {
+    {TRACE_IT(53290);
         __debugbreak();
         return nullptr;
     }
 
     void AsmJsJitTemplate::FreeTemplateData(void* userData)
-    {
+    {TRACE_IT(53291);
         __debugbreak();
     }
 }

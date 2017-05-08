@@ -31,14 +31,14 @@ class Provider
 public:
     static Provider InternalCounter;
 #ifdef ENABLE_COUNTER_NOTIFICATION_CALLBACK
-    void SetNotificationCallBack(PERFLIBREQUEST pfn) { pfnNotificationCallBack = pfn; }
+    void SetNotificationCallBack(PERFLIBREQUEST pfn) {TRACE_IT(20283); pfnNotificationCallBack = pfn; }
 #endif
 private:
     Provider(HANDLE& handle);
     ~Provider();
 
-    bool IsInitialized() const { return isInitialized; }
-    HANDLE GetHandler() { return handle; }
+    bool IsInitialized() const {TRACE_IT(20284); return isInitialized; }
+    HANDLE GetHandler() {TRACE_IT(20285); return handle; }
 
 #ifdef ENABLE_COUNTER_NOTIFICATION_CALLBACK
     PERFLIBREQUEST pfnNotificationCallBack;
@@ -55,9 +55,9 @@ Provider Provider::InternalCounter(JS9InternalCounterProvider);
 #ifdef ENABLE_COUNTER_NOTIFICATION_CALLBACK
 ULONG WINAPI
 Provider::NotificationCallBack(ULONG RequestCode, PVOID Buffer, ULONG BufferSize)
-{
+{TRACE_IT(20286);
     if (Provider::InternalCounter.pfnNotificationCallBack != NULL)
-    {
+    {TRACE_IT(20287);
         return Provider::InternalCounter.pfnNotificationCallBack(RequestCode, Buffer, BufferSize);
     }
     return ERROR_SUCCESS;
@@ -65,46 +65,46 @@ Provider::NotificationCallBack(ULONG RequestCode, PVOID Buffer, ULONG BufferSize
 #endif
 Provider::Provider(HANDLE& handle) :
     handle(handle), isInitialized(false)
-{
+{TRACE_IT(20288);
     PERFLIBREQUEST callback = NULL;
 #ifdef ENABLE_COUNTER_NOTIFICATION_CALLBACK
     callback = &NotificationCallBack;
 #endif
     if (ERROR_SUCCESS == CounterInitialize(callback, NULL, NULL, NULL))
-    {
+    {TRACE_IT(20289);
         isInitialized = true;
     }
 }
 
 Provider::~Provider()
-{
+{TRACE_IT(20290);
     if (IsInitialized())
-    {
+    {TRACE_IT(20291);
         CounterCleanup();
     }
 }
 
 InstanceBase::InstanceBase(Provider& provider, GUID const& guid) : provider(provider), guid(guid), instanceData(NULL)
-{
+{TRACE_IT(20292);
 }
 
 InstanceBase::~InstanceBase()
-{
+{TRACE_IT(20293);
     if (IsEnabled())
-    {
+    {TRACE_IT(20294);
         ::PerfDeleteInstance(provider.GetHandler(), instanceData);
     }
 }
 
 bool
 InstanceBase::IsProviderInitialized() const
-{
+{TRACE_IT(20295);
     return provider.IsInitialized();
 }
 
 bool
 InstanceBase::IsEnabled() const
-{
+{TRACE_IT(20296);
     return instanceData != NULL;
 }
 
@@ -126,9 +126,9 @@ void GetSharedMemoryObjectName(__inout_ecount(OBJECT_NAME_LEN) char16 wszObjectN
 
 bool
 InstanceBase::Initialize(char16 const * wszInstanceName, DWORD processId)
-{
+{TRACE_IT(20297);
     if (provider.IsInitialized())
-    {
+    {TRACE_IT(20298);
         instanceData = PerfCreateInstance(provider.GetHandler(), &guid,
             wszInstanceName, processId);
         return instanceData != NULL;
@@ -138,7 +138,7 @@ InstanceBase::Initialize(char16 const * wszInstanceName, DWORD processId)
 
 DWORD *
 InstanceBase::InitializeSharedMemory(DWORD numCounter, HANDLE& handle)
-{
+{TRACE_IT(20299);
     Assert(!IsEnabled());
 
     DWORD size = numCounter * sizeof(DWORD);
@@ -146,12 +146,12 @@ InstanceBase::InitializeSharedMemory(DWORD numCounter, HANDLE& handle)
     GetSharedMemoryObjectName(wszObjectName, GetCurrentProcessId(), guid);
     handle = ::CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size, wszObjectName);
     if (handle == NULL)
-    {
+    {TRACE_IT(20300);
         return NULL;
     }
     DWORD * data = (DWORD *)MapViewOfFile(handle, FILE_MAP_WRITE, 0, 0, size);
     if (data == NULL)
-    {
+    {TRACE_IT(20301);
         CloseHandle(handle);
         handle = NULL;
     }
@@ -161,7 +161,7 @@ InstanceBase::InitializeSharedMemory(DWORD numCounter, HANDLE& handle)
 DWORD *
 InstanceBase::OpenSharedMemory(__in_ecount(MAX_OBJECT_NAME_PREFIX) char16 const wszObjectNamePrefix[MAX_OBJECT_NAME_PREFIX],
     DWORD pid, DWORD numCounter, HANDLE& handle)
-{
+{TRACE_IT(20302);
     DWORD size = numCounter * sizeof(DWORD);
     char16 wszObjectName[OBJECT_NAME_LEN];
     GetSharedMemoryObjectName(wszObjectName, pid, guid);
@@ -169,12 +169,12 @@ InstanceBase::OpenSharedMemory(__in_ecount(MAX_OBJECT_NAME_PREFIX) char16 const 
     swprintf_s(wszObjectNameFull, _u("%s\\%s"), wszObjectNamePrefix, wszObjectName);
     handle = ::OpenFileMapping(FILE_MAP_READ, FALSE, wszObjectNameFull);
     if (handle == NULL)
-    {
+    {TRACE_IT(20303);
         return NULL;
     }
     DWORD * data = (DWORD *)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, size);
     if (data == NULL)
-    {
+    {TRACE_IT(20304);
         CloseHandle(handle);
         handle = NULL;
     }
@@ -183,26 +183,26 @@ InstanceBase::OpenSharedMemory(__in_ecount(MAX_OBJECT_NAME_PREFIX) char16 const 
 
 void
 InstanceBase::UninitializeSharedMemory(DWORD * data, HANDLE handle)
-{
+{TRACE_IT(20305);
     UnmapViewOfFile(data);
     CloseHandle(handle);
 }
 
 void
 Counter::Initialize(InstanceBase& instance, DWORD id, DWORD * count)
-{
+{TRACE_IT(20306);
     this->count = count;
     if (instance.IsEnabled())
-    {
+    {TRACE_IT(20307);
         ::PerfSetCounterRefValue(instance.GetProvider().GetHandler(), instance.GetData(), id, count);
     }
 }
 
 void
 Counter::Uninitialize(InstanceBase& instance, DWORD id)
-{
+{TRACE_IT(20308);
     if (instance.IsEnabled())
-    {
+    {TRACE_IT(20309);
         ::PerfSetCounterRefValue(instance.GetProvider().GetHandler(), instance.GetData(), id, NULL);
     }
 }
@@ -232,43 +232,43 @@ static uint UsedCounterId[PageAllocatorType_Max + 1] =
 #undef DEFINE_PAGE_ALLOCATOR_COUNTER_ID
 uint
 PageAllocatorCounterSetDefinition::GetReservedCounterId(PageAllocatorType type)
-{
+{TRACE_IT(20310);
     return ReservedCounterId[type];
 }
 uint
 PageAllocatorCounterSetDefinition::GetCommittedCounterId(PageAllocatorType type)
-{
+{TRACE_IT(20311);
     return CommittedCounterId[type];
 }
 uint
 PageAllocatorCounterSetDefinition::GetUsedCounterId(PageAllocatorType type)
-{
+{TRACE_IT(20312);
     return UsedCounterId[type];
 }
 
 
-GUID const& PageAllocatorCounterSetDefinition::GetGuid() { return JS9InternalCounter_PageAllocCounterSetGuid; }
-Provider& PageAllocatorCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& PageAllocatorCounterSetDefinition::GetGuid() {TRACE_IT(20313); return JS9InternalCounter_PageAllocCounterSetGuid; }
+Provider& PageAllocatorCounterSetDefinition::GetProvider() {TRACE_IT(20314); return Provider::InternalCounter; }
 
-GUID const& BasicCounterSetDefinition::GetGuid() { return JS9InternalCounter_BasicCounterSetGuid; }
-Provider& BasicCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& BasicCounterSetDefinition::GetGuid() {TRACE_IT(20315); return JS9InternalCounter_BasicCounterSetGuid; }
+Provider& BasicCounterSetDefinition::GetProvider() {TRACE_IT(20316); return Provider::InternalCounter; }
 
-GUID const& CodeCounterSetDefinition::GetGuid() { return JS9InternalCounter_CodeCounterSetGuid; }
-Provider& CodeCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& CodeCounterSetDefinition::GetGuid() {TRACE_IT(20317); return JS9InternalCounter_CodeCounterSetGuid; }
+Provider& CodeCounterSetDefinition::GetProvider() {TRACE_IT(20318); return Provider::InternalCounter; }
 
 #ifdef HEAP_PERF_COUNTERS
-GUID const& HeapCounterSetDefinition::GetGuid() { return JS9InternalCounter_HeapCounterSetGuid; }
-Provider& HeapCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& HeapCounterSetDefinition::GetGuid() {TRACE_IT(20319); return JS9InternalCounter_HeapCounterSetGuid; }
+Provider& HeapCounterSetDefinition::GetProvider() {TRACE_IT(20320); return Provider::InternalCounter; }
 #endif
 
 #ifdef RECYCLER_PERF_COUNTERS
-GUID const& RecyclerCounterSetDefinition::GetGuid() { return JS9InternalCounter_RecyclerCounterSetGuid; }
-Provider& RecyclerCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& RecyclerCounterSetDefinition::GetGuid() {TRACE_IT(20321); return JS9InternalCounter_RecyclerCounterSetGuid; }
+Provider& RecyclerCounterSetDefinition::GetProvider() {TRACE_IT(20322); return Provider::InternalCounter; }
 #endif
 
 #ifdef PROFILE_RECYCLER_ALLOC
-GUID const& RecyclerTrackerCounterSetDefinition::GetGuid() { return JS9InternalCounter_RecyclerTrackerCounterSetGuid; }
-Provider& RecyclerTrackerCounterSetDefinition::GetProvider() { return Provider::InternalCounter; }
+GUID const& RecyclerTrackerCounterSetDefinition::GetGuid() {TRACE_IT(20323); return JS9InternalCounter_RecyclerTrackerCounterSetGuid; }
+Provider& RecyclerTrackerCounterSetDefinition::GetProvider() {TRACE_IT(20324); return Provider::InternalCounter; }
 
 #define DEFINE_RECYCLER_TRACKER_PERF_COUNTER_INDEX(type) \
     uint const RecyclerTrackerCounterSetDefinition::##type##CounterIndex = JS9InternalCounter_RecyclerTrackerCounterSet_##type##Count; \

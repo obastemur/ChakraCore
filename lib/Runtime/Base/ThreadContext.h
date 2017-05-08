@@ -60,15 +60,15 @@ class InterruptPoller _ABSTRACT
 public:
     InterruptPoller(ThreadContext *tc);
 
-    virtual ~InterruptPoller() { }
+    virtual ~InterruptPoller() {TRACE_IT(37536); }
 
     void CheckInterruptPoll();
     void GetStatementCount(ULONG *pluHi, ULONG *pluLo);
-    void ResetStatementCount() { lastResetTick = lastPollTick; }
-    void StartScript() { lastResetTick = lastPollTick = ::GetTickCount(); }
-    void EndScript() { lastResetTick = lastPollTick = 0;}
-    bool IsDisabled() const { return isDisabled; }
-    void SetDisabled(bool disable) { isDisabled = disable; }
+    void ResetStatementCount() {TRACE_IT(37537); lastResetTick = lastPollTick; }
+    void StartScript() {TRACE_IT(37538); lastResetTick = lastPollTick = ::GetTickCount(); }
+    void EndScript() {TRACE_IT(37539); lastResetTick = lastPollTick = 0;}
+    bool IsDisabled() const {TRACE_IT(37540); return isDisabled; }
+    void SetDisabled(bool disable) {TRACE_IT(37541); isDisabled = disable; }
 
     virtual void TryInterruptPoll(Js::ScriptContext *scriptContext) = 0;
 
@@ -90,17 +90,17 @@ private:
 public:
     AutoDisableInterrupt(InterruptPoller* interruptPoller, bool disable)
         : interruptPoller(interruptPoller)
-    {
+    {TRACE_IT(37542);
         if (interruptPoller != nullptr)
-        {
+        {TRACE_IT(37543);
             previousState = interruptPoller->IsDisabled();
             interruptPoller->SetDisabled(disable);
         }
     }
     ~AutoDisableInterrupt()
-    {
+    {TRACE_IT(37544);
         if (interruptPoller != nullptr)
-        {
+        {TRACE_IT(37545);
             interruptPoller->SetDisabled(previousState);
         }
     }
@@ -121,14 +121,14 @@ extern "C" void* MarkerForExternalDebugStep();
 #define AssertNotInScript() Assert(!ThreadContext::GetContextForCurrentThread()->IsScriptActive());
 
 #define LEAVE_SCRIPT_START_EX(scriptContext, stackProbe, leaveForHost, isFPUControlRestoreNeeded) \
-        { \
+        {TRACE_IT(37546); \
             void * __frameAddr = nullptr; \
             GET_CURRENT_FRAME_ID(__frameAddr); \
             Js::LeaveScriptObject<stackProbe, leaveForHost, isFPUControlRestoreNeeded> __leaveScriptObject(scriptContext, __frameAddr);
 
 #define LEAVE_SCRIPT_END_EX(scriptContext) \
             if (scriptContext != nullptr) \
-                {   \
+                {TRACE_IT(37547);   \
                     scriptContext->GetThreadContext()->DisposeOnLeaveScript(); \
                 }\
         }
@@ -231,22 +231,22 @@ private:
 
 public:
     NativeLibraryEntryRecord() : head(nullptr)
-    {
+    {TRACE_IT(37548);
     }
 
     const Entry* Peek() const
-    {
+    {TRACE_IT(37549);
         return head;
     }
 
     void Push(_In_ Entry* e)
-    {
+    {TRACE_IT(37550);
         e->next = head;
         head = e;
     }
 
     void Pop()
-    {
+    {TRACE_IT(37551);
         head = head->next;
     }
 };
@@ -268,10 +268,10 @@ class ThreadConfiguration
 {
 public:
     ThreadConfiguration(bool enableExperimentalFeatures)
-    {
+    {TRACE_IT(37552);
         CopyGlobalFlags();
         if (enableExperimentalFeatures)
-        {
+        {TRACE_IT(37553);
             EnableExperimentalFeatures();
             ResetExperimentalFeaturesFromConfig();
         }
@@ -279,7 +279,7 @@ public:
 
 #define DEFINE_FLAG(threadFlag, globalFlag) \
     public: \
-        inline bool threadFlag() const { return m_##globalFlag##; } \
+        inline bool threadFlag() const {TRACE_IT(37554); return m_##globalFlag##; } \
     \
     private: \
         bool m_##globalFlag##;
@@ -292,7 +292,7 @@ public:
 
 private:
     void CopyGlobalFlags()
-    {
+    {TRACE_IT(37555);
         AutoCriticalSection autocs(&Js::Configuration::Global.flags.csExperimentalFlags);
 
 #define FLAG(threadFlag, globalFlag) m_##globalFlag## = CONFIG_FLAG(globalFlag);
@@ -303,7 +303,7 @@ private:
     }
 
     void EnableExperimentalFeatures()
-    {
+    {TRACE_IT(37556);
         // If a ES6 flag is disabled using compile flag don't enable it
 #define FLAG_REGOVR_EXP(type, name, ...) m_##name## = COMPILE_DISABLE_##name## ? false : true;
 #include "ConfigFlagsList.h"
@@ -311,9 +311,9 @@ private:
     }
 
     void ResetExperimentalFeaturesFromConfig()
-    {
+    {TRACE_IT(37557);
         // If a flag was overridden using config/command line it should take precedence
-#define FLAG_REGOVR_EXP(type, name, ...) if(CONFIG_ISENABLED(Js::Flag::##name##Flag)) { m_##name## = CONFIG_FLAG_RELEASE(##name##); }
+#define FLAG_REGOVR_EXP(type, name, ...) if(CONFIG_ISENABLED(Js::Flag::##name##Flag)) {TRACE_IT(37558); m_##name## = CONFIG_FLAG_RELEASE(##name##); }
 #include "ConfigFlagsList.h"
 #undef FLAG_REGOVR_EXP
     }
@@ -338,27 +338,27 @@ public:
     {
         // Abstract notion to hold onto threadHandle of worker thread
         HANDLE threadHandle;
-        WorkerThread(HANDLE handle = nullptr) :threadHandle(handle){};
+        WorkerThread(HANDLE handle = nullptr) :threadHandle(handle){TRACE_IT(37559);};
     };
 
-    void SetCurrentThreadId(DWORD threadId) { this->currentThreadId = threadId; }
-    DWORD GetCurrentThreadId() const { return this->currentThreadId; }
+    void SetCurrentThreadId(DWORD threadId) {TRACE_IT(37560); this->currentThreadId = threadId; }
+    DWORD GetCurrentThreadId() const {TRACE_IT(37561); return this->currentThreadId; }
     void SetIsThreadBound()
-    {
+    {TRACE_IT(37562);
         if (this->recycler)
-        {
+        {TRACE_IT(37563);
             this->recycler->SetIsThreadBound();
         }
         this->isThreadBound = true;
     }
-    bool IsJSRT() const { return !this->isThreadBound; }
+    bool IsJSRT() const {TRACE_IT(37564); return !this->isThreadBound; }
     virtual bool IsThreadBound() const override { return this->isThreadBound; }
     void SetStackProber(StackProber * stackProber);
-    static DWORD GetStackLimitForCurrentThreadOffset() { return offsetof(ThreadContext, stackLimitForCurrentThread); }
+    static DWORD GetStackLimitForCurrentThreadOffset() {TRACE_IT(37565); return offsetof(ThreadContext, stackLimitForCurrentThread); }
 
     template <class Fn>
     Js::ImplicitCallFlags TryWithDisabledImplicitCall(Fn fn)
-    {
+    {TRACE_IT(37566);
         DisableImplicitFlags prevDisableImplicitFlags = this->GetDisableImplicitFlags();
         Js::ImplicitCallFlags savedImplicitCallFlags = this->GetImplicitCallFlags();
 
@@ -375,7 +375,7 @@ public:
     }
 
     void * GetAddressOfStackLimitForCurrentThread() const
-    {
+    {TRACE_IT(37567);
         FAULTINJECT_SCRIPT_TERMINATION
 
         return &this->stackLimitForCurrentThread;
@@ -383,7 +383,7 @@ public:
     void InitAvailableCommit();
 
     // This is always on for JSRT APIs.
-    bool IsRentalThreadingEnabledInJSRT() const { return true; }
+    bool IsRentalThreadingEnabledInJSRT() const {TRACE_IT(37568); return true; }
 
     IActiveScriptProfilerHeapEnum* GetHeapEnum();
     void SetHeapEnum(IActiveScriptProfilerHeapEnum* newHeapEnum);
@@ -395,12 +395,12 @@ public:
 
 #ifdef ENABLE_BASIC_TELEMETRY
     Js::LanguageStats* GetLanguageStats()
-    {
+    {TRACE_IT(37569);
         return langTel.GetLanguageStats();
     }
 
     void ResetLangStats()
-    {
+    {TRACE_IT(37570);
         this->langTel.Reset();
     }
 #endif
@@ -428,7 +428,7 @@ public:
 #if _M_IX86 || _M_AMD64
     // auxiliary SIMD values in memory to help JIT'ed code. E.g. used for Int8x16 shuffle.
     _x86_SIMDValue X86_TEMP_SIMD[SIMD_TEMP_SIZE];
-    _x86_SIMDValue * GetSimdTempArea() { return X86_TEMP_SIMD; }
+    _x86_SIMDValue * GetSimdTempArea() {TRACE_IT(37571); return X86_TEMP_SIMD; }
 #endif
 #endif
 
@@ -441,7 +441,7 @@ private:
 
     static CriticalSection s_csThreadContext;
 
-    StackProber * GetStackProber() const { return this->stackProber; }
+    StackProber * GetStackProber() const {TRACE_IT(37572); return this->stackProber; }
     size_t GetStackLimitForCurrentThread() const;
     void SetStackLimitForCurrentThread(size_t limit);
 
@@ -467,7 +467,7 @@ private:
         Field(PropertyGuardHashSet) uniqueGuards;
         Field(EntryPointDictionary*) entryPoints;
 
-        PropertyGuardEntry(Recycler* recycler) : sharedGuard(nullptr), uniqueGuards(recycler), entryPoints(nullptr) {}
+        PropertyGuardEntry(Recycler* recycler) : sharedGuard(nullptr), uniqueGuards(recycler), entryPoints(nullptr) {TRACE_IT(37573);}
     };
 
 public:
@@ -490,19 +490,19 @@ private:
     bool m_jitNeedsPropertyUpdate;
 public:
     intptr_t GetPreReservedRegionAddr()
-    {
+    {TRACE_IT(37574);
         return m_prereservedRegionAddr;
     }
     BVSparse<HeapAllocator> * GetJITNumericProperties() const
-    {
+    {TRACE_IT(37575);
         return m_jitNumericProperties;
     }
     bool JITNeedsPropUpdate() const
-    {
+    {TRACE_IT(37576);
         return m_jitNeedsPropertyUpdate;
     }
     void ResetJITNeedsPropUpdate()
-    {
+    {TRACE_IT(37577);
         m_jitNeedsPropertyUpdate = false;
     }
 
@@ -510,7 +510,7 @@ public:
     bool EnsureJITThreadContext(bool allowPrereserveAlloc);
 
     PTHREADCONTEXT_HANDLE GetRemoteThreadContextAddr()
-    {
+    {TRACE_IT(37578);
         Assert(m_remoteThreadContextInfo);
         return m_remoteThreadContextInfo;
     }
@@ -524,11 +524,11 @@ private:
     class SourceDynamicProfileManagerCache
     {
     public:
-        SourceDynamicProfileManagerCache() : refCount(0), sourceProfileManagerMap(nullptr) {}
+        SourceDynamicProfileManagerCache() : refCount(0), sourceProfileManagerMap(nullptr) {TRACE_IT(37579);}
 
         Field(SourceDynamicProfileManagerMap*) sourceProfileManagerMap;
-        void AddRef() { refCount++; }
-        uint Release() { Assert(refCount > 0); return --refCount; }
+        void AddRef() {TRACE_IT(37580); refCount++; }
+        uint Release() {TRACE_IT(37581); Assert(refCount > 0); return --refCount; }
     private:
         Field(uint) refCount;              // For every script context using this cache, there is a ref count added.
     };
@@ -638,7 +638,7 @@ private:
     {
     public:
         StaticPropertyRecordReference(const Js::PropertyRecord* propertyRecord)
-        {
+        {TRACE_IT(37582);
             strongRef = (char*)propertyRecord;
             strongRefHeapBlock = &CollectedRecyclerWeakRefHeapBlock::Instance;
         }
@@ -805,7 +805,7 @@ private:
 #ifdef _M_X64
     friend class Js::Amd64StackFrame;
     Js::Amd64ContextsManager amd64ContextsManager;
-    Js::Amd64ContextsManager* GetAmd64ContextsManager() { return &amd64ContextsManager; }
+    Js::Amd64ContextsManager* GetAmd64ContextsManager() {TRACE_IT(37583); return &amd64ContextsManager; }
 #endif
 
     typedef JsUtil::BaseDictionary<Js::DynamicType const *, void *, HeapAllocator, PowerOf2SizePolicy> DynamicObjectEnumeratorCacheMap;
@@ -827,31 +827,31 @@ private:
 public:
     static ThreadContext * globalListFirst;
 
-    static uint GetScriptSiteHolderCount() { return activeScriptSiteCount; }
-    static uint IncrementActiveScriptSiteCount() { return ++activeScriptSiteCount; }
-    static uint DecrementActiveScriptSiteCount() { return --activeScriptSiteCount; }
+    static uint GetScriptSiteHolderCount() {TRACE_IT(37584); return activeScriptSiteCount; }
+    static uint IncrementActiveScriptSiteCount() {TRACE_IT(37585); return ++activeScriptSiteCount; }
+    static uint DecrementActiveScriptSiteCount() {TRACE_IT(37586); return --activeScriptSiteCount; }
 
-    static ThreadContext * GetThreadContextList() { return globalListFirst; }
+    static ThreadContext * GetThreadContextList() {TRACE_IT(37587); return globalListFirst; }
     void ValidateThreadContext();
 
-    bool IsInScript() const { return callRootLevel != 0; }
-    uint GetCallRootLevel() const { return callRootLevel; }
+    bool IsInScript() const {TRACE_IT(37588); return callRootLevel != 0; }
+    uint GetCallRootLevel() const {TRACE_IT(37589); return callRootLevel; }
 
-    PageAllocator * GetPageAllocator() { return &pageAllocator; }
+    PageAllocator * GetPageAllocator() {TRACE_IT(37590); return &pageAllocator; }
 
-    AllocationPolicyManager * GetAllocationPolicyManager() { return allocationPolicyManager; }
+    AllocationPolicyManager * GetAllocationPolicyManager() {TRACE_IT(37591); return allocationPolicyManager; }
 
 #if ENABLE_NATIVE_CODEGEN
-    PreReservedVirtualAllocWrapper * GetPreReservedVirtualAllocator() { return &preReservedVirtualAllocator; }
+    PreReservedVirtualAllocWrapper * GetPreReservedVirtualAllocator() {TRACE_IT(37592); return &preReservedVirtualAllocator; }
 #if DYNAMIC_INTERPRETER_THUNK || defined(ASMJS_PLAT)
-    CustomHeap::InProcCodePageAllocators * GetThunkPageAllocators() { return &thunkPageAllocators; }
+    CustomHeap::InProcCodePageAllocators * GetThunkPageAllocators() {TRACE_IT(37593); return &thunkPageAllocators; }
 #endif
-    CustomHeap::InProcCodePageAllocators * GetCodePageAllocators() { return &codePageAllocators; }
+    CustomHeap::InProcCodePageAllocators * GetCodePageAllocators() {TRACE_IT(37594); return &codePageAllocators; }
 #endif // ENABLE_NATIVE_CODEGEN
 
-    CriticalSection* GetEtwRundownCriticalSection() { return &csEtwRundown; }
+    CriticalSection* GetEtwRundownCriticalSection() {TRACE_IT(37595); return &csEtwRundown; }
 
-    Js::IsConcatSpreadableCache* GetIsConcatSpreadableCache() { return &isConcatSpreadableCache; }
+    Js::IsConcatSpreadableCache* GetIsConcatSpreadableCache() {TRACE_IT(37596); return &isConcatSpreadableCache; }
 
 #ifdef ENABLE_GLOBALIZATION
     Js::DelayLoadWinRtString *GetWinRTStringLibrary();
@@ -870,17 +870,17 @@ public:
 #endif
 #endif
 
-    void SetAbnormalExceptionRecord(EXCEPTION_POINTERS *exceptionInfo) { this->exceptionInfo = *exceptionInfo; }
-    void SetAbnormalExceptionCode(uint32 exceptionInfo) { this->exceptionCode = exceptionInfo; }
-    uint32 GetAbnormalExceptionCode() const { return this->exceptionCode; }
+    void SetAbnormalExceptionRecord(EXCEPTION_POINTERS *exceptionInfo) {TRACE_IT(37597); this->exceptionInfo = *exceptionInfo; }
+    void SetAbnormalExceptionCode(uint32 exceptionInfo) {TRACE_IT(37598); this->exceptionCode = exceptionInfo; }
+    uint32 GetAbnormalExceptionCode() const {TRACE_IT(37599); return this->exceptionCode; }
 
 #ifdef ENABLE_BASIC_TELEMETRY
     GUID activityId;
 #endif
     void *tridentLoadAddress;
 
-    void* GetTridentLoadAddress() const { return tridentLoadAddress;  }
-    void SetTridentLoadAddress(void *loadAddress) { tridentLoadAddress = loadAddress; }
+    void* GetTridentLoadAddress() const {TRACE_IT(37600); return tridentLoadAddress;  }
+    void SetTridentLoadAddress(void *loadAddress) {TRACE_IT(37601); tridentLoadAddress = loadAddress; }
 
 #ifdef ENABLE_DIRECTCALL_TELEMETRY
     DirectCallTelemetry directCallTelemetry;
@@ -891,14 +891,14 @@ public:
     void PushHostScriptContext(HostScriptContext* topProvider);
     HostScriptContext* PopHostScriptContext();
 
-    void SetInterruptPoller(InterruptPoller *poller) { interruptPoller = poller; }
-    InterruptPoller *GetInterruptPoller() const { return interruptPoller; }
-    BOOL HasInterruptPoller() const { return interruptPoller != nullptr; }
+    void SetInterruptPoller(InterruptPoller *poller) {TRACE_IT(37602); interruptPoller = poller; }
+    InterruptPoller *GetInterruptPoller() const {TRACE_IT(37603); return interruptPoller; }
+    BOOL HasInterruptPoller() const {TRACE_IT(37604); return interruptPoller != nullptr; }
     void CheckScriptInterrupt();
     void CheckInterruptPoll();
 
     bool DoInterruptProbe(Js::FunctionBody *const func) const
-    {
+    {TRACE_IT(37605);
         return
             (this->TestThreadContextFlag(ThreadContextFlagCanDisableExecution) &&
              !PHASE_OFF(Js::InterruptProbePhase, func)) ||
@@ -906,7 +906,7 @@ public:
     }
 
     bool DoInterruptProbe() const
-    {
+    {TRACE_IT(37606);
         return
             (this->TestThreadContextFlag(ThreadContextFlagCanDisableExecution) &&
              !PHASE_OFF1(Js::InterruptProbePhase)) ||
@@ -914,42 +914,42 @@ public:
     }
 
     bool EvalDisabled() const
-    {
+    {TRACE_IT(37607);
         return this->TestThreadContextFlag(ThreadContextFlagEvalDisabled);
     }
 
     bool NoJIT() const
-    {
+    {TRACE_IT(37608);
         return this->TestThreadContextFlag(ThreadContextFlagNoJIT);
     }
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     Js::Var GetMemoryStat(Js::ScriptContext* scriptContext);
     void SetAutoProxyName(LPCWSTR objectName);
-    LPCWSTR GetAutoProxyName() const { return recyclableData->autoProxyName; }
+    LPCWSTR GetAutoProxyName() const {TRACE_IT(37609); return recyclableData->autoProxyName; }
     Js::PropertyId handlerPropertyId = Js::Constants::NoProperty;
 #endif
 
     void SetReturnedValueList(Js::ReturnedValueList *returnedValueList)
-    {
+    {TRACE_IT(37610);
         Assert(this->recyclableData != nullptr);
         this->recyclableData->returnedValueList = returnedValueList;
     }
 #if DBG
     void EnsureNoReturnedValueList()
-    {
+    {TRACE_IT(37611);
         Assert(this->recyclableData == nullptr || this->recyclableData->returnedValueList == nullptr);
     }
 #endif
 #if DBG || defined(RUNTIME_DATA_COLLECTION)
-    uint GetScriptContextCount() const { return this->scriptContextCount; }
+    uint GetScriptContextCount() const {TRACE_IT(37612); return this->scriptContextCount; }
 #endif
-    Js::ScriptContext* GetScriptContextList() const { return this->scriptContextList; }
-    bool WasAnyScriptContextEverRegistered() const { return this->scriptContextEverRegistered; }
+    Js::ScriptContext* GetScriptContextList() const {TRACE_IT(37613); return this->scriptContextList; }
+    bool WasAnyScriptContextEverRegistered() const {TRACE_IT(37614); return this->scriptContextEverRegistered; }
 
 #if DBG_DUMP || defined(PROFILE_EXEC)
-    void SetTopLevelScriptSite(ScriptSite* topScriptSite) { this->topLevelScriptSite = topScriptSite; }
-    ScriptSite* GetTopLevelScriptSite () { return this->topLevelScriptSite; }
+    void SetTopLevelScriptSite(ScriptSite* topScriptSite) {TRACE_IT(37615); this->topLevelScriptSite = topScriptSite; }
+    ScriptSite* GetTopLevelScriptSite () {TRACE_IT(37616); return this->topLevelScriptSite; }
 #endif
 #if DBG || defined(PROFILE_EXEC)
     virtual bool AsyncHostOperationStart(void *) override;
@@ -970,7 +970,7 @@ public:
     int32 TTDRootNestingCount;
 
     bool IsRuntimeInTTDMode() const
-    {
+    {TRACE_IT(37617);
         return this->TTDLog != nullptr;
     }
 
@@ -987,7 +987,7 @@ public:
     BOOL ReserveStaticTypeIds(__in int first, __in int last);
     Js::TypeId ReserveTypeIds(int count);
     Js::TypeId CreateTypeId();
-    Js::TypeId GetNextTypeId() { return nextTypeId; }
+    Js::TypeId GetNextTypeId() {TRACE_IT(37618); return nextTypeId; }
 
     // Lookup the well known type registered with a Js::TypeId.
     //  typeId:   The type id to match
@@ -1000,7 +1000,7 @@ public:
     void SetWellKnownHostTypeId(WellKnownHostType wellKnownType, Js::TypeId typeId);
 
     uint32 GetNextPolymorphicCacheState()
-    {
+    {TRACE_IT(37619);
         return ++polymorphicCacheState;
     };
 
@@ -1013,17 +1013,17 @@ public:
     //void ShutdownThreads(Fn callback);
 
     void ShutdownThreads()
-    {
+    {TRACE_IT(37620);
 #if ENABLE_NATIVE_CODEGEN
         if (jobProcessor)
-        {
+        {TRACE_IT(37621);
             jobProcessor->Close();
         }
 
         if (JITManager::GetJITManager()->IsOOPJITEnabled() && m_remoteThreadContextInfo)
-        {
+        {TRACE_IT(37622);
             if (JITManager::GetJITManager()->CleanupThreadContext(&m_remoteThreadContextInfo) == S_OK)
-            {
+            {TRACE_IT(37623);
                 Assert(m_remoteThreadContextInfo == nullptr);
             }
             m_remoteThreadContextInfo = nullptr;
@@ -1031,29 +1031,29 @@ public:
 #endif
 #if ENABLE_CONCURRENT_GC
         if (this->recycler != nullptr)
-        {
+        {TRACE_IT(37624);
             this->recycler->ShutdownThread();
         }
 #endif
     }
 
-    DateTime::HiResTimer * GetHiResTimer() { return &hTimer; }
-    ArenaAllocator* GetThreadAlloc() { return &threadAlloc; }
-    static CriticalSection * GetCriticalSection() { return &s_csThreadContext; }
+    DateTime::HiResTimer * GetHiResTimer() {TRACE_IT(37625); return &hTimer; }
+    ArenaAllocator* GetThreadAlloc() {TRACE_IT(37626); return &threadAlloc; }
+    static CriticalSection * GetCriticalSection() {TRACE_IT(37627); return &s_csThreadContext; }
 
     ThreadContext(AllocationPolicyManager * allocationPolicyManager = nullptr, JsUtil::ThreadService::ThreadServiceCallback threadServiceCallback = nullptr, bool enableExperimentalFeatures = false);
     static void Add(ThreadContext *threadContext);
 
-    ThreadConfiguration const * GetConfig() const { return &configuration; }
+    ThreadConfiguration const * GetConfig() const {TRACE_IT(37628); return &configuration; }
 
 public:
 #ifdef NTBUILD
-    void SetTelemetryBlock(ThreadContextWatsonTelemetryBlock * telemetryBlock) { this->telemetryBlock = telemetryBlock; }
+    void SetTelemetryBlock(ThreadContextWatsonTelemetryBlock * telemetryBlock) {TRACE_IT(37629); this->telemetryBlock = telemetryBlock; }
 #endif
 
     static ThreadContext* GetContextForCurrentThread();
 
-    Recycler* GetRecycler() { return recycler; }
+    Recycler* GetRecycler() {TRACE_IT(37630); return recycler; }
 
     Recycler* EnsureRecycler();
 
@@ -1085,11 +1085,11 @@ public:
     void ForceCleanPropertyMap();
 
     const Js::PropertyRecord * GetOrAddPropertyRecord(JsUtil::CharacterBuffer<char16> propertyName)
-    {
+    {TRACE_IT(37631);
         return GetOrAddPropertyRecordImpl(propertyName, false);
     }
     const Js::PropertyRecord * GetOrAddPropertyRecordBind(JsUtil::CharacterBuffer<char16> propertyName)
-    {
+    {TRACE_IT(37632);
         return GetOrAddPropertyRecordImpl(propertyName, true);
     }
     void AddBuiltInPropertyRecord(const Js::PropertyRecord *propertyRecord);
@@ -1142,28 +1142,28 @@ public:
 #endif
 #endif
 
-    uint NewFunctionNumber() { return ++functionCount; }
-    uint PeekNewFunctionNumber() { return functionCount + 1; }
+    uint NewFunctionNumber() {TRACE_IT(37633); return ++functionCount; }
+    uint PeekNewFunctionNumber() {TRACE_IT(37634); return functionCount + 1; }
 
-    uint NewSourceInfoNumber() { return ++sourceInfoCount; }
+    uint NewSourceInfoNumber() {TRACE_IT(37635); return ++sourceInfoCount; }
 
     void AddCodeSize(size_t newCode)
     {
         ::InterlockedExchangeAdd(&nativeCodeSize, newCode);
         ::InterlockedExchangeAdd(&processNativeCodeSize, newCode);
     }
-    void AddSourceSize(size_t  newCode) { sourceCodeSize += newCode; }
+    void AddSourceSize(size_t  newCode) {TRACE_IT(37636); sourceCodeSize += newCode; }
     void SubCodeSize(size_t  deadCode)
-    {
+    {TRACE_IT(37637);
         Assert(nativeCodeSize >= deadCode);
         Assert(processNativeCodeSize >= deadCode);
         ::InterlockedExchangeSubtract(&nativeCodeSize, deadCode);
         ::InterlockedExchangeSubtract(&processNativeCodeSize, deadCode);
     }
-    void SubSourceSize(size_t deadCode) { Assert(sourceCodeSize >= deadCode); sourceCodeSize -= deadCode; }
-    size_t  GetCodeSize() { return nativeCodeSize; }
-    static size_t  GetProcessCodeSize() { return processNativeCodeSize; }
-    size_t GetSourceSize() { return sourceCodeSize; }
+    void SubSourceSize(size_t deadCode) {TRACE_IT(37638); Assert(sourceCodeSize >= deadCode); sourceCodeSize -= deadCode; }
+    size_t  GetCodeSize() {TRACE_IT(37639); return nativeCodeSize; }
+    static size_t  GetProcessCodeSize() {TRACE_IT(37640); return processNativeCodeSize; }
+    size_t GetSourceSize() {TRACE_IT(37641); return sourceCodeSize; }
 
     bool DoTryRedeferral() const;
     void TryRedeferral();
@@ -1177,27 +1177,27 @@ public:
     uint recoveredBytes;
 #endif
 
-    Js::ScriptEntryExitRecord * GetScriptEntryExit() const { return entryExitRecord; }
+    Js::ScriptEntryExitRecord * GetScriptEntryExit() const {TRACE_IT(37642); return entryExitRecord; }
     void RegisterCodeGenRecyclableData(Js::CodeGenRecyclableData *const codeGenRecyclableData);
     void UnregisterCodeGenRecyclableData(Js::CodeGenRecyclableData *const codeGenRecyclableData);
 #if ENABLE_NATIVE_CODEGEN
     bool IsNativeAddressHelper(void * pCodeAddr, Js::ScriptContext* currentScriptContext);
     BOOL IsNativeAddress(void * pCodeAddr, Js::ScriptContext* currentScriptContext = nullptr);
     JsUtil::JobProcessor *GetJobProcessor();
-    Js::Var * GetBailOutRegisterSaveSpace() const { return bailOutRegisterSaveSpace; }
+    Js::Var * GetBailOutRegisterSaveSpace() const {TRACE_IT(37643); return bailOutRegisterSaveSpace; }
     virtual intptr_t GetBailOutRegisterSaveSpaceAddr() const override { return (intptr_t)bailOutRegisterSaveSpace; }
 #if !FLOATVAR
     CodeGenNumberThreadAllocator * GetCodeGenNumberThreadAllocator() const
-    {
+    {TRACE_IT(37644);
         return codeGenNumberThreadAllocator;
     }
     XProcNumberPageSegmentManager * GetXProcNumberPageSegmentManager() const
-    {
+    {TRACE_IT(37645);
         return this->xProcNumberPageSegmentManager;
     }
 #endif
 #endif
-    void ResetFunctionCount() { Assert(this->GetScriptSiteHolderCount() == 0); this->functionCount = 0; }
+    void ResetFunctionCount() {TRACE_IT(37646); Assert(this->GetScriptSiteHolderCount() == 0); this->functionCount = 0; }
     void PushEntryExitRecord(Js::ScriptEntryExitRecord *);
     void PopEntryExitRecord(Js::ScriptEntryExitRecord *);
     uint EnterScriptStart(Js::ScriptEntryExitRecord *, bool doCleanup);
@@ -1211,7 +1211,7 @@ public:
 
     void PushInterpreterFrame(Js::InterpreterStackFrame *interpreterFrame);
     Js::InterpreterStackFrame *PopInterpreterFrame();
-    Js::InterpreterStackFrame *GetLeafInterpreterFrame() const { return leafInterpreterFrame; }
+    Js::InterpreterStackFrame *GetLeafInterpreterFrame() const {TRACE_IT(37647); return leafInterpreterFrame; }
 
     Js::TempArenaAllocatorObject * GetTemporaryAllocator(LPCWSTR name);
     void ReleaseTemporaryAllocator(Js::TempArenaAllocatorObject * tempAllocator);
@@ -1229,8 +1229,8 @@ public:
     void UnregisterScriptContext(Js::ScriptContext *scriptContext);
 
     // NoScriptScope
-    void SetNoScriptScope(bool noScriptScope) { this->noScriptScope = noScriptScope; }
-    bool IsNoScriptScope() { return this->noScriptScope; }
+    void SetNoScriptScope(bool noScriptScope) {TRACE_IT(37648); this->noScriptScope = noScriptScope; }
+    bool IsNoScriptScope() {TRACE_IT(37649); return this->noScriptScope; }
 
     Js::EntryPointInfo ** RegisterEquivalentTypeCacheEntryPoint(Js::EntryPointInfo * entryPoint);
     void UnregisterEquivalentTypeCacheEntryPoint(Js::EntryPointInfo ** entryPoint);
@@ -1293,12 +1293,12 @@ public:
         AutoDisableExpiration(ThreadContext* threadContext):
             _threadContext(threadContext),
             _oldExpirationDisabled(threadContext->disableExpiration)
-        {
+        {TRACE_IT(37650);
             _threadContext->disableExpiration = true;
         }
 
         ~AutoDisableExpiration()
-        {
+        {TRACE_IT(37651);
             _threadContext->disableExpiration = _oldExpirationDisabled;
         }
 
@@ -1354,15 +1354,15 @@ public:
     void UnregisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertiesScriptContext(Js::ScriptContext ** scriptContext);
     void ClearPrototypeChainEnsuredToHaveOnlyWritableDataPropertiesCaches();
 
-    BOOL HasUnhandledException() const { return hasUnhandledException; }
-    void SetHasUnhandledException() {hasUnhandledException = TRUE; }
-    void ResetHasUnhandledException() {hasUnhandledException = FALSE; }
-    void SetUnhandledExceptionObject(Js::JavascriptExceptionObject* exceptionObject) {recyclableData->unhandledExceptionObject  = exceptionObject; }
-    Js::JavascriptExceptionObject* GetUnhandledExceptionObject() const  { return recyclableData->unhandledExceptionObject; };
+    BOOL HasUnhandledException() const {TRACE_IT(37652); return hasUnhandledException; }
+    void SetHasUnhandledException() {TRACE_IT(37653);hasUnhandledException = TRUE; }
+    void ResetHasUnhandledException() {TRACE_IT(37654);hasUnhandledException = FALSE; }
+    void SetUnhandledExceptionObject(Js::JavascriptExceptionObject* exceptionObject) {TRACE_IT(37655);recyclableData->unhandledExceptionObject  = exceptionObject; }
+    Js::JavascriptExceptionObject* GetUnhandledExceptionObject() const  {TRACE_IT(37656); return recyclableData->unhandledExceptionObject; };
 
     // To temporarily keep throwing exception object alive (thrown but not yet caught)
     Field(Js::JavascriptExceptionObject*)* SaveTempUncaughtException(Js::JavascriptExceptionObject* exceptionObject)
-    {
+    {TRACE_IT(37657);
         // Previous save should have been caught and cleared
         Assert(recyclableData->tempUncaughtException == nullptr);
 
@@ -1370,19 +1370,19 @@ public:
         return &recyclableData->tempUncaughtException;
     }
 
-    bool HasCatchHandler() const { return hasCatchHandler; }
-    void SetHasCatchHandler(bool hasCatchHandler) { this->hasCatchHandler = hasCatchHandler; }
+    bool HasCatchHandler() const {TRACE_IT(37658); return hasCatchHandler; }
+    void SetHasCatchHandler(bool hasCatchHandler) {TRACE_IT(37659); this->hasCatchHandler = hasCatchHandler; }
 
-    bool IsUserCode() const { return this->hasCatchHandlerToUserCode; }
-    void SetIsUserCode(bool set) { this->hasCatchHandlerToUserCode = set; }
+    bool IsUserCode() const {TRACE_IT(37660); return this->hasCatchHandlerToUserCode; }
+    void SetIsUserCode(bool set) {TRACE_IT(37661); this->hasCatchHandlerToUserCode = set; }
 
     void QueueFreeOldEntryPointInfoIfInScript(Js::FunctionEntryPointInfo* oldEntryPointInfo)
-    {
+    {TRACE_IT(37662);
         if (this->IsInScript())
-        {
+        {TRACE_IT(37663);
             // Add it to the list only if it's not already in it
             if (oldEntryPointInfo->nextEntryPoint == nullptr && !oldEntryPointInfo->IsCleanedUp())
-            {
+            {TRACE_IT(37664);
                 oldEntryPointInfo->nextEntryPoint = recyclableData->oldEntryPointInfo;
                 recyclableData->oldEntryPointInfo = oldEntryPointInfo;
             }
@@ -1419,78 +1419,78 @@ public:
 #endif
 
     inline void ClearPendingSOError()
-    {
+    {TRACE_IT(37665);
         this->GetPendingSOErrorObject()->ClearError();
     }
 
     inline void ClearPendingOOMError()
-    {
+    {TRACE_IT(37666);
         this->GetPendingOOMErrorObject()->ClearError();
     }
 
     Js::JavascriptExceptionObject *GetPendingSOErrorObject()
-    {
+    {TRACE_IT(37667);
         Assert(recyclableData->soErrorObject.IsPendingExceptionObject());
         return &recyclableData->soErrorObject;
     }
 
     Js::JavascriptExceptionObject *GetPendingOOMErrorObject()
-    {
+    {TRACE_IT(37668);
         Assert(recyclableData->oomErrorObject.IsPendingExceptionObject());
         return &recyclableData->oomErrorObject;
     }
 
     Js::JavascriptExceptionObject *GetPendingTerminatedErrorObject()
-    {
+    {TRACE_IT(37669);
         return &recyclableData->terminatedErrorObject;
     }
 
     Js::JavascriptExceptionObject* GetRecordedException()
-    {
+    {TRACE_IT(37670);
         return recyclableData->exceptionObject;
     }
 
     bool GetPropagateException()
-    {
+    {TRACE_IT(37671);
         return recyclableData->propagateException;
     }
 
     void SetHasThrownPendingException()
-    {
+    {TRACE_IT(37672);
         Assert(this->IsInScript());
         this->hasThrownPendingException = true;
     }
 
     void SetRecordedException(Js::JavascriptExceptionObject* exceptionObject, bool propagateToDebugger = false)
-    {
+    {TRACE_IT(37673);
         this->recyclableData->exceptionObject = exceptionObject;
         this->recyclableData->propagateException = propagateToDebugger;
     }
 
 #ifdef ENABLE_CUSTOM_ENTROPY
     Entropy& GetEntropy()
-    {
+    {TRACE_IT(37674);
         return entropy;
     }
 #endif
 
     Js::ImplicitCallFlags * GetAddressOfImplicitCallFlags()
-    {
+    {TRACE_IT(37675);
         return &implicitCallFlags;
     }
 
     DisableImplicitFlags * GetAddressOfDisableImplicitFlags()
-    {
+    {TRACE_IT(37676);
         return &disableImplicitFlags;
     }
 
     Js::ImplicitCallFlags GetImplicitCallFlags()
-    {
+    {TRACE_IT(37677);
         return implicitCallFlags;
     }
 
     void SetImplicitCallFlags(Js::ImplicitCallFlags flags)
-    {
+    {TRACE_IT(37678);
         //Note: this action is inlined into JITed code in Lowerer::GenerateCallProfiling.
         //   if you change this, you might want to add it there too.
         implicitCallFlags = flags;
@@ -1500,7 +1500,7 @@ public:
     void ClearImplicitCallFlags(Js::ImplicitCallFlags flags);
 
     void AddImplicitCallFlags(Js::ImplicitCallFlags flags)
-    {
+    {TRACE_IT(37679);
         SetImplicitCallFlags((Js::ImplicitCallFlags)(implicitCallFlags | flags));
     }
 
@@ -1508,7 +1508,7 @@ public:
 
     template <class Fn>
     inline Js::Var ExecuteImplicitCall(Js::RecyclableObject * function, Js::ImplicitCallFlags flags, Fn implicitCall)
-    {
+    {TRACE_IT(37680);
         // For now, we will not allow Function that is marked as HasNoSideEffect to be called, and we will just bailout.
         // These function may still throw exceptions, so we will need to add checks with RecordImplicitException
         // so that we don't throw exception when disableImplicitCall is set before we allow these function to be called
@@ -1519,7 +1519,7 @@ public:
         // we can hoist out const method if we know the function doesn't have side effect,
         // and the value can be hoisted.
         if (this->HasNoSideEffect(function, attributes))
-        {
+        {TRACE_IT(37681);
             // Has no side effect means the function does not change global value or
             // will check for implicit call flags
             return implicitCall();
@@ -1527,7 +1527,7 @@ public:
 
         // Don't call the implicit call if disable implicit call
         if (IsDisableImplicitCall())
-        {
+        {TRACE_IT(37682);
             AddImplicitCallFlags(flags);
             // Return "undefined" just so we have a valid var, in case subsequent instructions are executed
             // before we bail out.
@@ -1535,7 +1535,7 @@ public:
         }
 
         if ((attributes & Js::FunctionInfo::HasNoSideEffect) != 0)
-        {
+        {TRACE_IT(37683);
             // Has no side effect means the function does not change global value or
             // will check for implicit call flags
             return implicitCall();
@@ -1551,12 +1551,12 @@ public:
     bool HasNoSideEffect(Js::RecyclableObject * function) const;
     bool HasNoSideEffect(Js::RecyclableObject * function, Js::FunctionInfo::Attributes attr) const;
     bool RecordImplicitException();
-    DisableImplicitFlags GetDisableImplicitFlags() const { return disableImplicitFlags; }
-    void SetDisableImplicitFlags(DisableImplicitFlags flags) { disableImplicitFlags = flags; }
-    bool IsDisableImplicitCall() const { return (disableImplicitFlags & DisableImplicitCallFlag) != 0; }
-    bool IsDisableImplicitException() const { return (disableImplicitFlags & DisableImplicitExceptionFlag) != 0; }
-    void DisableImplicitCall() { disableImplicitFlags = (DisableImplicitFlags)(disableImplicitFlags | DisableImplicitCallFlag); }
-    void ClearDisableImplicitFlags() { disableImplicitFlags = DisableImplicitNoFlag; }
+    DisableImplicitFlags GetDisableImplicitFlags() const {TRACE_IT(37684); return disableImplicitFlags; }
+    void SetDisableImplicitFlags(DisableImplicitFlags flags) {TRACE_IT(37685); disableImplicitFlags = flags; }
+    bool IsDisableImplicitCall() const {TRACE_IT(37686); return (disableImplicitFlags & DisableImplicitCallFlag) != 0; }
+    bool IsDisableImplicitException() const {TRACE_IT(37687); return (disableImplicitFlags & DisableImplicitExceptionFlag) != 0; }
+    void DisableImplicitCall() {TRACE_IT(37688); disableImplicitFlags = (DisableImplicitFlags)(disableImplicitFlags | DisableImplicitCallFlag); }
+    void ClearDisableImplicitFlags() {TRACE_IT(37689); disableImplicitFlags = DisableImplicitNoFlag; }
 
     virtual uint GetRandomNumber() override;
     virtual bool DoSpecialMarkOnScanStack() override { return this->DoRedeferFunctionBodies(); }
@@ -1590,10 +1590,10 @@ public:
     void * GetDynamicObjectEnumeratorCache(Js::DynamicType const * dynamicType);
     void AddDynamicObjectEnumeratorCache(Js::DynamicType const * dynamicType, void * cache);
 public:
-    bool IsScriptActive() const { return isScriptActive; }
-    void SetIsScriptActive(bool isActive) { isScriptActive = isActive; }
+    bool IsScriptActive() const {TRACE_IT(37690); return isScriptActive; }
+    void SetIsScriptActive(bool isActive) {TRACE_IT(37691); isScriptActive = isActive; }
     bool IsExecutionDisabled() const
-    {
+    {TRACE_IT(37692);
         return this->GetStackLimitForCurrentThread() == Js::Constants::StackLimitForScriptInterrupt;
     }
     void DisableExecution();
@@ -1604,16 +1604,16 @@ public:
 
     void SetForceOneIdleCollection();
 
-    bool IsInThreadServiceCallback() const { return threadService.IsInCallback(); }
+    bool IsInThreadServiceCallback() const {TRACE_IT(37693); return threadService.IsInCallback(); }
 
-    Js::DebugManager * GetDebugManager() const { return this->debugManager; }
+    Js::DebugManager * GetDebugManager() const {TRACE_IT(37694); return this->debugManager; }
 
-    const NativeLibraryEntryRecord::Entry* PeekNativeLibraryEntry() const { return this->nativeLibraryEntry.Peek(); }
-    void PushNativeLibraryEntry(_In_ NativeLibraryEntryRecord::Entry* entry) { this->nativeLibraryEntry.Push(entry); }
-    void PopNativeLibraryEntry() { this->nativeLibraryEntry.Pop(); }
+    const NativeLibraryEntryRecord::Entry* PeekNativeLibraryEntry() const {TRACE_IT(37695); return this->nativeLibraryEntry.Peek(); }
+    void PushNativeLibraryEntry(_In_ NativeLibraryEntryRecord::Entry* entry) {TRACE_IT(37696); this->nativeLibraryEntry.Push(entry); }
+    void PopNativeLibraryEntry() {TRACE_IT(37697); this->nativeLibraryEntry.Pop(); }
 
-    bool IsProfilingUserCode() const { return isProfilingUserCode; }
-    void SetIsProfilingUserCode(bool value) { isProfilingUserCode = value; }
+    bool IsProfilingUserCode() const {TRACE_IT(37698); return isProfilingUserCode; }
+    void SetIsProfilingUserCode(bool value) {TRACE_IT(37699); isProfilingUserCode = value; }
 
 #if DBG_DUMP
     uint scriptSiteCount;
@@ -1631,26 +1631,26 @@ public:
     UnifiedRegex::StandardChars<uint8>* GetStandardChars(__inout_opt uint8* dummy);
     UnifiedRegex::StandardChars<char16>* GetStandardChars(__inout_opt char16* dummy);
 
-    bool IsOptimizedForManyInstances() const { return isOptimizedForManyInstances; }
+    bool IsOptimizedForManyInstances() const {TRACE_IT(37700); return isOptimizedForManyInstances; }
 
     void OptimizeForManyInstances(const bool optimizeForManyInstances)
-    {
+    {TRACE_IT(37701);
         Assert(!recycler || optimizeForManyInstances == isOptimizedForManyInstances); // mode cannot be changed after recycler is created
         isOptimizedForManyInstances = optimizeForManyInstances;
 
     }
 
 #if ENABLE_NATIVE_CODEGEN
-    bool IsBgJitEnabled() const { return bgJit; }
+    bool IsBgJitEnabled() const {TRACE_IT(37702); return bgJit; }
 
     void EnableBgJit(const bool enableBgJit)
-    {
+    {TRACE_IT(37703);
         Assert(!jobProcessor || enableBgJit == bgJit);
         bgJit = enableBgJit;
     }
 #endif
 
-    void* GetJSRTRuntime() const { return jsrtRuntime; }
+    void* GetJSRTRuntime() const {TRACE_IT(37704); return jsrtRuntime; }
     void SetJSRTRuntime(void* runtime);
 
 private:
@@ -1670,47 +1670,47 @@ private:
 
 public:
     bool IsEntryPointToBuiltInOperationIdCacheInitialized()
-    {
+    {TRACE_IT(37705);
         return entryPointToBuiltInOperationIdCache.Count() != 0;
     }
 
     bool GetBuiltInOperationIdFromEntryPoint(Js::JavascriptMethod entryPoint, uint * id)
-    {
+    {TRACE_IT(37706);
         return entryPointToBuiltInOperationIdCache.TryGetValue(entryPoint, id);
     }
 
     void SetBuiltInOperationIdForEntryPoint(Js::JavascriptMethod entryPoint, uint id)
-    {
+    {TRACE_IT(37707);
         entryPointToBuiltInOperationIdCache.Add(entryPoint, id);
     }
 
     void ResetEntryPointToBuiltInOperationIdCache()
-    {
+    {TRACE_IT(37708);
         entryPointToBuiltInOperationIdCache.ResetNoDelete();
     }
 
     uint8 LoopDepth() const
-    {
+    {TRACE_IT(37709);
         return loopDepth;
     }
 
     void SetLoopDepth(const uint8 loopDepth)
-    {
+    {TRACE_IT(37710);
         this->loopDepth = loopDepth;
     }
 
     void IncrementLoopDepth()
-    {
+    {TRACE_IT(37711);
         if(loopDepth != UCHAR_MAX)
-        {
+        {TRACE_IT(37712);
             ++loopDepth;
         }
     }
 
     void DecrementLoopDepth()
-    {
+    {TRACE_IT(37713);
         if(loopDepth != 0)
-        {
+        {TRACE_IT(37714);
             --loopDepth;
         }
     }
@@ -1742,12 +1742,12 @@ public:
     AutoProfilingUserCode(ThreadContext* threadContext, bool isProfilingUserCode) :
         threadContext(threadContext),
         oldIsProfilingUserCode(threadContext->IsProfilingUserCode())
-    {
+    {TRACE_IT(37715);
         threadContext->SetIsProfilingUserCode(isProfilingUserCode);
     }
 
     ~AutoProfilingUserCode()
-    {
+    {TRACE_IT(37716);
         threadContext->SetIsProfilingUserCode(oldIsProfilingUserCode);
     }
 };

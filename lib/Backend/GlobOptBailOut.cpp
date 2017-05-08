@@ -6,15 +6,15 @@
 
 void
 GlobOpt::CaptureCopyPropValue(BasicBlock * block, Sym * sym, Value * val, SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{TRACE_IT(5682);
     if (!sym->IsStackSym())
-    {
+    {TRACE_IT(5683);
         return;
     }
 
     StackSym * copyPropSym = this->GetCopyPropSym(block, sym, val);
     if (copyPropSym != nullptr)
-    {
+    {TRACE_IT(5684);
         bailOutCopySymsIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), copyPropSym);
     }
 }
@@ -23,7 +23,7 @@ void
 GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
     SListBase<ConstantStackSymValue>::EditingIterator & bailOutConstValuesIter,
     SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{TRACE_IT(5685);
     Sym * sym = nullptr;
     Value * value = nullptr;
     ValueInfo * valueInfo = nullptr;
@@ -31,18 +31,18 @@ GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
     block->globOptData.changedSyms->ClearAll();
 
     FOREACH_GLOBHASHTABLE_ENTRY(bucket, block->globOptData.symToValueMap)
-    {
+    {TRACE_IT(5686);
         value = bucket.element;
         valueInfo = value->GetValueInfo();
 
         if (valueInfo->GetSymStore() == nullptr && !valueInfo->HasIntConstantValue())
-        {
+        {TRACE_IT(5687);
             continue;
         }
 
         sym = bucket.value;
         if (sym == nullptr || !sym->IsStackSym() || !(sym->AsStackSym()->HasByteCodeRegSlot()))
-        {
+        {TRACE_IT(5688);
             continue;
         }
         block->globOptData.changedSyms->Set(sym->m_id);
@@ -58,13 +58,13 @@ GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
 
         int intConstantValue;
         if (valueInfo->TryGetIntConstantValue(&intConstantValue))
-        {
+        {TRACE_IT(5689);
             BailoutConstantValue constValue;
             constValue.InitIntConstValue(intConstantValue);
             bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, stackSym, constValue);
         }
         else if (valueInfo->IsVarConstant())
-        {
+        {TRACE_IT(5690);
             BailoutConstantValue constValue;
             constValue.InitVarConstValue(valueInfo->AsVarConstant()->VarValue());
             bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, stackSym, constValue);
@@ -81,7 +81,7 @@ void
 GlobOpt::CaptureValuesIncremental(BasicBlock * block,
     SListBase<ConstantStackSymValue>::EditingIterator & bailOutConstValuesIter,
     SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{TRACE_IT(5691);
     CapturedValues * currCapturedValues = block->globOptData.capturedValues;
     SListBase<ConstantStackSymValue>::Iterator iterConst(currCapturedValues ? &currCapturedValues->constantValues : nullptr);
     SListBase<CopyPropSyms>::Iterator iterCopyPropSym(currCapturedValues ? &currCapturedValues->copyPropSyms : nullptr);
@@ -91,17 +91,17 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
     block->globOptData.changedSyms->Set(Js::Constants::InvalidSymID);
 
     FOREACH_BITSET_IN_SPARSEBV(symId, block->globOptData.changedSyms)
-    {
+    {TRACE_IT(5692);
         Sym * sym = hasConstValue ? iterConst.Data().Key() : nullptr;
         Value * val = nullptr;
         HashBucket<Sym *, Value *> * symIdBucket = nullptr;
 
         // copy unchanged sym to new capturedValues
         while (sym && sym->m_id < symId)
-        {
+        {TRACE_IT(5693);
             Assert(sym->IsStackSym());
             if (!sym->AsStackSym()->HasArgSlotNum())
-            {
+            {TRACE_IT(5694);
                 bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), iterConst.Data().Value());
             }
 
@@ -109,16 +109,16 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             sym = hasConstValue ? iterConst.Data().Key() : nullptr;
         }
         if (sym && sym->m_id == symId)
-        {
+        {TRACE_IT(5695);
             hasConstValue = iterConst.Next();
         }
         if (symId != Js::Constants::InvalidSymID)
-        {
+        {TRACE_IT(5696);
             // recapture changed constant sym
 
             symIdBucket = block->globOptData.symToValueMap->GetBucket(symId);
             if (symIdBucket == nullptr)
-            {
+            {TRACE_IT(5697);
                 continue;
             }
 
@@ -129,19 +129,19 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             ValueInfo* valueInfo = val->GetValueInfo();
 
             if (valueInfo->GetSymStore() != nullptr)
-            {
+            {TRACE_IT(5698);
                 int32 intConstValue;
                 BailoutConstantValue constValue;
 
                 if (valueInfo->TryGetIntConstantValue(&intConstValue))
-                {
+                {TRACE_IT(5699);
                     constValue.InitIntConstValue(intConstValue);
                     bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, symIdSym->AsStackSym(), constValue);
 
                     continue;
                 }
                 else if(valueInfo->IsVarConstant())
-                {
+                {TRACE_IT(5700);
                     constValue.InitVarConstValue(valueInfo->AsVarConstant()->VarValue());
                     bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, symIdSym->AsStackSym(), constValue);
 
@@ -149,7 +149,7 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
                 }
             }
             else if (!valueInfo->HasIntConstantValue())
-            {
+            {TRACE_IT(5701);
                 continue;
             }
         }
@@ -158,22 +158,22 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
 
         // process unchanged sym, but copy sym might have changed
         while (sym && sym->m_id < symId)
-        {
+        {TRACE_IT(5702);
             StackSym * copyPropSym = iterCopyPropSym.Data().Value();
 
             Assert(sym->IsStackSym());
 
             if (!block->globOptData.changedSyms->Test(copyPropSym->m_id))
-            {
+            {TRACE_IT(5703);
                 if (!sym->AsStackSym()->HasArgSlotNum())
-                {
+                {TRACE_IT(5704);
                     bailOutCopySymsIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), copyPropSym);
                 }
             }
             else
-            {
+            {TRACE_IT(5705);
                 if (!sym->AsStackSym()->HasArgSlotNum())
-                {
+                {TRACE_IT(5706);
                     val = FindValue(sym);
                     if (val != nullptr)
                     {
@@ -186,15 +186,15 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             sym = hasCopyPropSym ? iterCopyPropSym.Data().Key() : nullptr;
         }
         if (sym && sym->m_id == symId)
-        {
+        {TRACE_IT(5707);
             hasCopyPropSym = iterCopyPropSym.Next();
         }
         if (symId != Js::Constants::InvalidSymID)
-        {
+        {TRACE_IT(5708);
             // recapture changed copy prop sym
             symIdBucket = block->globOptData.symToValueMap->GetBucket(symId);
             if (symIdBucket != nullptr)
-            {
+            {TRACE_IT(5709);
                 Sym * symIdSym = symIdBucket->value;
                 val = FindValue(symIdSym);
                 if (val != nullptr)
@@ -210,9 +210,9 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
 
 void
 GlobOpt::CaptureValues(BasicBlock *block, BailOutInfo * bailOutInfo)
-{
+{TRACE_IT(5710);
     if (!this->func->DoGlobOptsForGeneratorFunc())
-    {
+    {TRACE_IT(5711);
         // TODO[generators][ianhall]: Enable constprop and copyprop for generator functions; see GlobOpt::CopyProp()
         // Even though CopyProp is disabled for generator functions we must also not put the copy-prop sym into the
         // bailOutInfo so that the bailOutInfo keeps track of the key sym in its byteCodeUpwardExposed list.
@@ -246,7 +246,7 @@ GlobOpt::CaptureValues(BasicBlock *block, BailOutInfo * bailOutInfo)
     bailOutInfo->capturedValues.copyPropSyms = capturedValues.copyPropSyms;
     
     if (!PHASE_OFF(Js::IncrementalBailoutPhase, func))
-    {
+    {TRACE_IT(5712);
         // cache the pointer of current bailout as potential baseline for later bailout in this block
         block->globOptData.capturedValuesCandidate = &bailOutInfo->capturedValues;
 
@@ -259,16 +259,16 @@ void
 GlobOpt::CaptureArguments(BasicBlock *block, BailOutInfo * bailOutInfo, JitArenaAllocator *allocator)
 {
     FOREACH_BITSET_IN_SPARSEBV(id, this->blockData.argObjSyms)
-    {
+    {TRACE_IT(5713);
         StackSym * stackSym = this->func->m_symTable->FindStackSym(id);
         Assert(stackSym != nullptr);
         if (!stackSym->HasByteCodeRegSlot())
-        {
+        {TRACE_IT(5714);
             continue;
         }
 
         if (!bailOutInfo->capturedValues.argObjSyms)
-        {
+        {TRACE_IT(5715);
             bailOutInfo->capturedValues.argObjSyms = JitAnew(allocator, BVSparse<JitArenaAllocator>, allocator);
         }
 
@@ -280,7 +280,7 @@ GlobOpt::CaptureArguments(BasicBlock *block, BailOutInfo * bailOutInfo, JitArena
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed, PropertySym **pPropertySym)
-{
+{TRACE_IT(5716);
     IR::Opnd * src = instr->GetSrc1();
     if (src)
     {
@@ -299,7 +299,7 @@ GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * i
 
     IR::Opnd * dst = instr->GetDst();
     if (dst)
-    {
+    {TRACE_IT(5717);
         StackSym *stackSym = dst->GetStackSym();
 
         // We want stackSym uses: IndirOpnd and SymOpnds of propertySyms.
@@ -318,19 +318,19 @@ GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * i
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::RegOpnd * regOpnd, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed)
-{
+{TRACE_IT(5718);
     // Check JITOptimizedReg to catch case where baseOpnd of indir was optimized.
     if (!regOpnd->GetIsJITOptimizedReg())
-    {
+    {TRACE_IT(5719);
         TrackByteCodeSymUsed(regOpnd->m_sym, instrByteCodeStackSymUsed);
     }
 }
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed, PropertySym **pPropertySym)
-{
+{TRACE_IT(5720);
     if (opnd->GetIsJITOptimizedReg())
-    {
+    {TRACE_IT(5721);
         AssertMsg(!opnd->IsIndirOpnd(), "TrackByteCodeSymUsed doesn't expect IndirOpnd with IsJITOptimizedReg turned on");
         return;
     }
@@ -341,14 +341,14 @@ GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * ins
         TrackByteCodeSymUsed(opnd->AsRegOpnd(), instrByteCodeStackSymUsed);
         break;
     case IR::OpndKindSym:
-        {
+        {TRACE_IT(5722);
             Sym * sym = opnd->AsSymOpnd()->m_sym;
             if (sym->IsStackSym())
-            {
+            {TRACE_IT(5723);
                 TrackByteCodeSymUsed(sym->AsStackSym(), instrByteCodeStackSymUsed);
             }
             else
-            {
+            {TRACE_IT(5724);
                 TrackByteCodeSymUsed(sym->AsPropertySym()->m_stackSym, instrByteCodeStackSymUsed);
                 *pPropertySym = sym->AsPropertySym();
             }
@@ -356,7 +356,7 @@ GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * ins
         break;
     case IR::OpndKindIndir:
         TrackByteCodeSymUsed(opnd->AsIndirOpnd()->GetBaseOpnd(), instrByteCodeStackSymUsed);
-        {
+        {TRACE_IT(5725);
             IR::RegOpnd * indexOpnd = opnd->AsIndirOpnd()->GetIndexOpnd();
             if (indexOpnd)
             {
@@ -369,12 +369,12 @@ GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * ins
 
 void
 GlobOpt::TrackByteCodeSymUsed(StackSym * sym, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed)
-{
+{TRACE_IT(5726);
     // We only care about stack sym that has a corresponding byte code register
     if (sym->HasByteCodeRegSlot())
-    {
+    {TRACE_IT(5727);
         if (sym->IsTypeSpec())
-        {
+        {TRACE_IT(5728);
             // It has to have a var version for byte code regs
             sym = sym->GetVarEquivSym(nullptr);
         }
@@ -384,20 +384,20 @@ GlobOpt::TrackByteCodeSymUsed(StackSym * sym, BVSparse<JitArenaAllocator> * inst
 
 void
 GlobOpt::MarkNonByteCodeUsed(IR::Instr * instr)
-{
+{TRACE_IT(5729);
     IR::Opnd * dst = instr->GetDst();
     if (dst)
-    {
+    {TRACE_IT(5730);
         MarkNonByteCodeUsed(dst);
     }
 
     IR::Opnd * src1 = instr->GetSrc1();
     if (src1)
-    {
+    {TRACE_IT(5731);
         MarkNonByteCodeUsed(src1);
         IR::Opnd * src2 = instr->GetSrc2();
         if (src2)
-        {
+        {TRACE_IT(5732);
             MarkNonByteCodeUsed(src2);
         }
     }
@@ -405,7 +405,7 @@ GlobOpt::MarkNonByteCodeUsed(IR::Instr * instr)
 
 void
 GlobOpt::MarkNonByteCodeUsed(IR::Opnd * opnd)
-{
+{TRACE_IT(5733);
     switch(opnd->GetKind())
     {
     case IR::OpndKindReg:
@@ -413,10 +413,10 @@ GlobOpt::MarkNonByteCodeUsed(IR::Opnd * opnd)
         break;
     case IR::OpndKindIndir:
         opnd->AsIndirOpnd()->GetBaseOpnd()->SetIsJITOptimizedReg(true);
-        {
+        {TRACE_IT(5734);
             IR::RegOpnd * indexOpnd = opnd->AsIndirOpnd()->GetIndexOpnd();
             if (indexOpnd)
-            {
+            {TRACE_IT(5735);
                 indexOpnd->SetIsJITOptimizedReg(true);
             }
         }
@@ -426,9 +426,9 @@ GlobOpt::MarkNonByteCodeUsed(IR::Opnd * opnd)
 
 void
 GlobOpt::CaptureByteCodeSymUses(IR::Instr * instr)
-{
+{TRACE_IT(5736);
     if (this->byteCodeUses)
-    {
+    {TRACE_IT(5737);
         // We already captured it before.
         return;
     }
@@ -442,7 +442,7 @@ GlobOpt::CaptureByteCodeSymUses(IR::Instr * instr)
 
 void
 GlobOpt::TrackCalls(IR::Instr * instr)
-{
+{TRACE_IT(5738);
     // Keep track of out params for bailout
     switch (instr->m_opcode)
     {
@@ -452,7 +452,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         Assert(instr->GetDst()->AsRegOpnd()->m_sym->m_isSingleDef);
 
         if (this->blockData.callSequence == nullptr)
-        {
+        {TRACE_IT(5739);
             this->blockData.callSequence = JitAnew(this->alloc, SListBase<IR::Opnd *>);
             this->currentBlock->globOptData.callSequence = this->blockData.callSequence;
         }
@@ -463,7 +463,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
         break;
     case Js::OpCode::BytecodeArgOutCapture:
-        {
+        {TRACE_IT(5740);
             this->blockData.callSequence->Prepend(this->alloc, instr->GetDst());
             this->currentBlock->globOptData.argOutCount++;
             break;
@@ -475,10 +475,10 @@ GlobOpt::TrackCalls(IR::Instr * instr)
     case Js::OpCode::ArgOut_A_Dynamic:
     case Js::OpCode::ArgOut_A_FromStackArgs:
     case Js::OpCode::ArgOut_A_SpreadArg:
-    {
+    {TRACE_IT(5741);
         IR::Opnd * opnd = instr->GetDst();
         if (opnd->IsSymOpnd())
-        {
+        {TRACE_IT(5742);
             Assert(!this->isCallHelper);
             Assert(!this->blockData.callSequence->Empty());
             StackSym* stackSym = opnd->AsSymOpnd()->m_sym->AsStackSym();
@@ -486,24 +486,24 @@ GlobOpt::TrackCalls(IR::Instr * instr)
             // These scenarios are already tracked using BytecodeArgOutCapture,
             // and we don't want to be tracking ArgOut_A_FixupForStackArgs as these are only visible to the JIT and we should not be restoring them upon bailout.
             if (!stackSym->m_isArgCaptured && instr->m_opcode != Js::OpCode::ArgOut_A_FixupForStackArgs)
-            {
+            {TRACE_IT(5743);
                 this->blockData.callSequence->Prepend(this->alloc, instr->GetDst());
                 this->currentBlock->globOptData.argOutCount++;
             }
             Assert(stackSym->IsArgSlotSym());
             if (stackSym->m_isInlinedArgSlot)
-            {
+            {TRACE_IT(5744);
                 this->currentBlock->globOptData.inlinedArgOutCount++;
                 // We want to update the offsets only once: don't do in prepass.
                 if (!this->IsLoopPrePass() && stackSym->m_offset >= 0)
-                {
+                {TRACE_IT(5745);
                     Func * currentFunc = instr->m_func;
                     stackSym->FixupStackOffset(currentFunc);
                 }
             }
         }
         else
-        {
+        {TRACE_IT(5746);
             // It is a reg opnd if it is a helper call
             // It should be all ArgOut until the CallHelper instruction
             Assert(opnd->IsRegOpnd());
@@ -511,7 +511,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         }
 
         if (instr->m_opcode == Js::OpCode::ArgOut_A_FixupForStackArgs && !this->IsLoopPrePass())
-        {
+        {TRACE_IT(5747);
             instr->m_opcode = Js::OpCode::ArgOut_A_Inline;
         }
         break;
@@ -527,7 +527,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         this->EndTrackCall(instr);
 
         if (DoInlineArgsOpt(instr->m_func))
-        {
+        {TRACE_IT(5748);
             instr->m_func->m_hasInlineArgsOpt = true;
             InlineeFrameInfo* frameInfo = InlineeFrameInfo::New(func->m_alloc);
             instr->m_func->frameInfo = frameInfo;
@@ -553,7 +553,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     case Js::OpCode::InlineeEnd:
         if (instr->m_func->m_hasInlineArgsOpt)
-        {
+        {TRACE_IT(5749);
             RecordInlineeFrameInfo(instr);
         }
         EndTrackingOfArgObjSymsForInlinee();
@@ -563,7 +563,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         break;
 
     case Js::OpCode::InlineeMetaArg:
-    {
+    {TRACE_IT(5750);
         Assert(instr->GetDst()->IsSymOpnd());
         StackSym * stackSym = instr->GetDst()->AsSymOpnd()->m_sym->AsStackSym();
         Assert(stackSym->IsArgSlotSym());
@@ -572,7 +572,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         // TODO: Review this and fix the m_func of InlineeMetaArg to be "inliner" (as for the rest of the ArgOut's)
         // We want to update the offsets only once: don't do in prepass.
         if (!this->IsLoopPrePass())
-        {
+        {TRACE_IT(5751);
             Func * currentFunc = instr->m_func->GetParentFunc();
             stackSym->FixupStackOffset(currentFunc);
         }
@@ -586,14 +586,14 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     case Js::OpCode::InlineNonTrackingBuiltInEnd:
     case Js::OpCode::InlineBuiltInEnd:
-    {
+    {TRACE_IT(5752);
         // If extra bailouts were added for the InlineMathXXX call itself,
         // move InlineeBuiltInStart just above the InlineMathXXX.
         // This is needed so that the function argument has lifetime after all bailouts for InlineMathXXX,
         // otherwise when we bailout we would get wrong function.
         IR::Instr* inlineBuiltInStartInstr = instr->m_prev;
         while (inlineBuiltInStartInstr->m_opcode != Js::OpCode::InlineBuiltInStart)
-        {
+        {TRACE_IT(5753);
             inlineBuiltInStartInstr = inlineBuiltInStartInstr->m_prev;
         }
 
@@ -601,21 +601,21 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         IR::Instr * insertBeforeInstr = instr->m_prev;
         IR::Instr * tmpInstr = insertBeforeInstr;
         while(tmpInstr->m_opcode != Js::OpCode::InlineBuiltInStart )
-        {
+        {TRACE_IT(5754);
             if(tmpInstr->m_opcode == Js::OpCode::ByteCodeUses)
-            {
+            {TRACE_IT(5755);
                 insertBeforeInstr = tmpInstr;
             }
             tmpInstr = tmpInstr->m_prev;
         }
         inlineBuiltInStartInstr->Unlink();
         if(insertBeforeInstr == instr->m_prev)
-        {
+        {TRACE_IT(5756);
             insertBeforeInstr->InsertBefore(inlineBuiltInStartInstr);
         }
 
         else
-        {
+        {TRACE_IT(5757);
             insertBeforeInstr->m_prev->InsertBefore(inlineBuiltInStartInstr);
         }
 
@@ -625,12 +625,12 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         // byte code register holding the function object needs to be restored on bailout.
         IR::Instr *const insertByteCodeUsesAfterInstr = inlineBuiltInStartInstr->m_prev;
         if(byteCodeUsesInstr != insertByteCodeUsesAfterInstr)
-        {
+        {TRACE_IT(5758);
             // The InlineBuiltInStart instruction was moved, look for its ByteCodeUses instructions that also need to be moved
             while(
                 byteCodeUsesInstr->IsByteCodeUsesInstr() &&
                 byteCodeUsesInstr->AsByteCodeUsesInstr()->GetByteCodeOffset() == inlineBuiltInStartInstr->GetByteCodeOffset())
-            {
+            {TRACE_IT(5759);
                 IR::Instr *const instrToMove = byteCodeUsesInstr;
                 byteCodeUsesInstr = byteCodeUsesInstr->m_prev;
                 instrToMove->Unlink();
@@ -645,7 +645,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
         // Do not track calls for InlineNonTrackingBuiltInEnd, as it is already tracked for InlineArrayPop
         if(instr->m_opcode == Js::OpCode::InlineBuiltInEnd)
-        {
+        {TRACE_IT(5760);
             this->EndTrackCall(instr);
         }
 
@@ -657,7 +657,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
     }
 
     case Js::OpCode::InlineArrayPop:
-    {
+    {TRACE_IT(5761);
         // EndTrackCall should be called here as the Post-op BailOutOnImplicitCalls will bail out to the instruction after the Pop function call instr.
         // This bailout shouldn't be tracking the call sequence as it will then erroneously reserve stack space for arguments when the call would have already happened
         // Can't wait till InlineBuiltinEnd like we do for other InlineMathXXX because by then we would have filled bailout info for the BailOutOnImplicitCalls for InlineArrayPop.
@@ -667,10 +667,10 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     default:
         if (OpCodeAttr::CallInstr(instr->m_opcode))
-        {
+        {TRACE_IT(5762);
             this->EndTrackCall(instr);
             if (this->inInlinedBuiltIn && instr->m_opcode == Js::OpCode::CallDirect)
-            {
+            {TRACE_IT(5763);
                 // We can end up in this situation when a built-in apply target is inlined to a CallDirect. We have the following IR:
                 //
                 // StartCall
@@ -696,14 +696,14 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 }
 
 void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
-{
+{TRACE_IT(5764);
     if (this->IsLoopPrePass())
-    {
+    {TRACE_IT(5765);
         return;
     }
     InlineeFrameInfo* frameInfo = inlineeEnd->m_func->frameInfo;
     if (frameInfo->isRecorded)
-    {
+    {TRACE_IT(5766);
         Assert(frameInfo->function.type != InlineeFrameInfoValueType_None);
         // Due to Cmp peeps in flow graph - InlineeEnd can be cloned.
         return;
@@ -711,41 +711,41 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
     inlineeEnd->IterateArgInstrs([=] (IR::Instr* argInstr)
     {
         if (argInstr->m_opcode == Js::OpCode::InlineeStart)
-        {
+        {TRACE_IT(5767);
             Assert(frameInfo->function.type == InlineeFrameInfoValueType_None);
             IR::RegOpnd* functionObject = argInstr->GetSrc1()->AsRegOpnd();
             if (functionObject->m_sym->IsConst())
-            {
+            {TRACE_IT(5768);
                 frameInfo->function = InlineFrameInfoValue(functionObject->m_sym->GetConstValueForBailout());
             }
             else
-            {
+            {TRACE_IT(5769);
                 frameInfo->function = InlineFrameInfoValue(functionObject->m_sym);
             }
         }
         else
-        {
+        {TRACE_IT(5770);
             Js::ArgSlot argSlot = argInstr->GetDst()->AsSymOpnd()->m_sym->AsStackSym()->GetArgSlotNum();
             IR::Opnd* argOpnd = argInstr->GetSrc1();
             InlineFrameInfoValue frameInfoValue;
             StackSym* argSym = argOpnd->GetStackSym();
             if (!argSym)
-            {
+            {TRACE_IT(5771);
                 frameInfoValue = InlineFrameInfoValue(argOpnd->GetConstValue());
             }
             else if (argSym->IsConst())
-            {
+            {TRACE_IT(5772);
                 frameInfoValue = InlineFrameInfoValue(argSym->GetConstValueForBailout());
             }
             else
-            {
+            {TRACE_IT(5773);
                 if (PHASE_ON(Js::CopyPropPhase, func))
-                {
+                {TRACE_IT(5774);
                     Value* value = FindValue(argSym);
 
                     StackSym * copyPropSym = this->GetCopyPropSym(this->currentBlock, argSym, value);
                     if (copyPropSym)
-                    {
+                    {TRACE_IT(5775);
                         argSym = copyPropSym;
                     }
                 }
@@ -753,37 +753,37 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
                 GlobOptBlockData& globOptData = this->currentBlock->globOptData;
 
                 if (frameInfo->intSyms->TestEmpty() && frameInfo->intSyms->Test(argSym->m_id))
-                {
+                {TRACE_IT(5776);
                     // Var version of the sym is not live, use the int32 version
                     argSym = argSym->GetInt32EquivSym(nullptr);
                     Assert(argSym);
                 }
                 else if (frameInfo->floatSyms->TestEmpty() && frameInfo->floatSyms->Test(argSym->m_id))
-                {
+                {TRACE_IT(5777);
                     // Var/int32 version of the sym is not live, use the float64 version
                     argSym = argSym->GetFloat64EquivSym(nullptr);
                     Assert(argSym);
                 }
                 // SIMD_JS
                 else if (frameInfo->simd128F4Syms->TestEmpty() && frameInfo->simd128F4Syms->Test(argSym->m_id))
-                {
+                {TRACE_IT(5778);
                     argSym = argSym->GetSimd128F4EquivSym(nullptr);
                 }
                 else if (frameInfo->simd128I4Syms->TestEmpty() && frameInfo->simd128I4Syms->Test(argSym->m_id))
-                {
+                {TRACE_IT(5779);
                     argSym = argSym->GetSimd128I4EquivSym(nullptr);
                 }
                 else
-                {
+                {TRACE_IT(5780);
                     Assert(globOptData.liveVarSyms->Test(argSym->m_id));
                 }
 
                 if (argSym->IsConst())
-                {
+                {TRACE_IT(5781);
                     frameInfoValue = InlineFrameInfoValue(argSym->GetConstValueForBailout());
                 }
                 else
-                {
+                {TRACE_IT(5782);
                     frameInfoValue = InlineFrameInfoValue(argSym);
                 }
             }
@@ -808,21 +808,21 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
 }
 
 void GlobOpt::EndTrackingOfArgObjSymsForInlinee()
-{
+{TRACE_IT(5783);
     Assert(this->blockData.curFunc->GetParentFunc());
     if (this->blockData.curFunc->argObjSyms && TrackArgumentsObject())
-    {
+    {TRACE_IT(5784);
         BVSparse<JitArenaAllocator> * tempBv = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
         tempBv->Minus(this->blockData.curFunc->argObjSyms, this->blockData.argObjSyms);
         if(!tempBv->IsEmpty())
-        {
+        {TRACE_IT(5785);
             // This means there are arguments object symbols in the current function which are not in the current block.
             // This could happen when one of the blocks has a throw and arguments object aliased in it and other blocks don't see it.
             // Rare case, abort stack arguments optimization in this case.
             CannotAllocateArgumentsObjectOnStack();
         }
         else
-        {
+        {TRACE_IT(5786);
             Assert(this->blockData.argObjSyms->OrNew(this->blockData.curFunc->argObjSyms)->Equal(this->blockData.argObjSyms));
             this->blockData.argObjSyms->Minus(this->blockData.curFunc->argObjSyms);
         }
@@ -833,7 +833,7 @@ void GlobOpt::EndTrackingOfArgObjSymsForInlinee()
 }
 
 void GlobOpt::EndTrackCall(IR::Instr* instr)
-{
+{TRACE_IT(5787);
     Assert(instr);
     Assert(OpCodeAttr::CallInstr(instr->m_opcode) || instr->m_opcode == Js::OpCode::InlineeStart || instr->m_opcode == Js::OpCode::InlineBuiltInEnd
         || instr->m_opcode == Js::OpCode::InlineArrayPop || instr->m_opcode == Js::OpCode::EndCallForPolymorphicInlinee);
@@ -846,7 +846,7 @@ void GlobOpt::EndTrackCall(IR::Instr* instr)
     uint origArgOutCount = this->currentBlock->globOptData.argOutCount;
 #endif
     while (this->blockData.callSequence->Head()->GetStackSym()->HasArgSlotNum())
-    {
+    {TRACE_IT(5788);
         this->currentBlock->globOptData.argOutCount--;
         this->blockData.callSequence->RemoveHead(this->alloc);
     }
@@ -872,7 +872,7 @@ void GlobOpt::EndTrackCall(IR::Instr* instr)
 
 void
 GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
-{
+{TRACE_IT(5789);
     AssertMsg(!this->isCallHelper, "Bail out can't be inserted the middle of CallHelper sequence");
 
     bailOutInfo->liveVarSyms = block->globOptData.liveVarSyms->CopyNew(this->func->m_alloc);
@@ -892,10 +892,10 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
     // Save the stack literal init field count so we can null out the uninitialized fields
     StackLiteralInitFldDataMap * stackLiteralInitFldDataMap = block->globOptData.stackLiteralInitFldDataMap;
     if (stackLiteralInitFldDataMap != nullptr)
-    {
+    {TRACE_IT(5790);
         uint stackLiteralInitFldDataCount = stackLiteralInitFldDataMap->Count();
         if (stackLiteralInitFldDataCount != 0)
-        {
+        {TRACE_IT(5791);
             auto stackLiteralBailOutInfo = AnewArray(this->func->m_alloc,
                 BailOutInfo::StackLiteralBailOutInfo, stackLiteralInitFldDataCount);
             uint i = 0;
@@ -915,12 +915,12 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
     }
 
     if (TrackArgumentsObject())
-    {
+    {TRACE_IT(5792);
         this->CaptureArguments(block, bailOutInfo, this->func->m_alloc);
     }
 
     if (block->globOptData.callSequence && !block->globOptData.callSequence->Empty())
-    {
+    {TRACE_IT(5793);
         uint currentArgOutCount = 0;
         uint startCallNumber = block->globOptData.startCallCount;
 
@@ -939,12 +939,12 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
 
         uint argRestoreAdjustCount = 0;
         FOREACH_SLISTBASE_ENTRY(IR::Opnd *, opnd, block->globOptData.callSequence)
-        {
+        {TRACE_IT(5794);
             if(opnd->GetStackSym()->HasArgSlotNum())
-            {
+            {TRACE_IT(5795);
                 StackSym * sym;
                 if(opnd->IsSymOpnd())
-                {
+                {TRACE_IT(5796);
                     sym = opnd->AsSymOpnd()->m_sym->AsStackSym();
                     Assert(sym->IsArgSlotSym());
                     Assert(sym->m_isSingleDef);
@@ -955,7 +955,7 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
                         || sym->m_instrDef->m_opcode == Js::OpCode::ArgOut_A_Dynamic);
                 }
                 else
-                {
+                {TRACE_IT(5797);
                     sym = opnd->GetStackSym();
                     Assert(FindValue(sym));
                     // StackSym args need to be re-captured
@@ -972,7 +972,7 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
                 // Example: StartCall 3, ArgOut1,.. ArgOut2, Bailout,.. Argout3 -> [NULL, ArgOut1, ArgOut2].
             }
             else
-            {
+            {TRACE_IT(5798);
                 Assert(opnd->IsRegOpnd());
                 StackSym * sym = opnd->AsRegOpnd()->m_sym;
                 Assert(!sym->IsArgSlotSym());
@@ -985,26 +985,26 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
                 bailOutInfo->startCallFunc[startCallNumber] = sym->m_instrDef->m_func;
 #ifdef _M_IX86
                 if (this->currentRegion && this->currentRegion->GetType() == RegionTypeTry)
-                {
+                {TRACE_IT(5799);
                     // For a bailout in argument evaluation from an EH region, the esp is offset by the TryCatch helper�s frame. So, the argouts are not actually pushed at the
                     // offsets stored in the bailout record, which are relative to ebp. Need to restore the argouts from the actual value of esp before calling the Bailout helper.
                     // For nested calls, argouts for the outer call need to be restored from an offset of stack-adjustment-done-by-the-inner-call from esp.
                     if (startCallNumber + 1 == bailOutInfo->startCallCount)
-                    {
+                    {TRACE_IT(5800);
                         argRestoreAdjustCount = 0;
                     }
                     else
-                    {
+                    {TRACE_IT(5801);
                         argRestoreAdjustCount = bailOutInfo->startCallInfo[startCallNumber + 1].argRestoreAdjustCount + bailOutInfo->startCallInfo[startCallNumber + 1].argCount;
                         if ((Math::Align<int32>(bailOutInfo->startCallInfo[startCallNumber + 1].argCount * MachPtr, MachStackAlignment) - (bailOutInfo->startCallInfo[startCallNumber + 1].argCount * MachPtr)) != 0)
-                        {
+                        {TRACE_IT(5802);
                             argRestoreAdjustCount++;
                         }
                     }
                 }
 
                 if (sym->m_isInlinedArgSlot)
-                {
+                {TRACE_IT(5803);
                     bailOutInfo->inlinedStartCall->Set(startCallNumber);
                 }
 #endif
@@ -1032,35 +1032,35 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
 
 IR::ByteCodeUsesInstr *
 GlobOpt::InsertByteCodeUses(IR::Instr * instr, bool includeDef)
-{
+{TRACE_IT(5804);
     IR::ByteCodeUsesInstr * byteCodeUsesInstr = nullptr;
     Assert(this->byteCodeUses);
     IR::RegOpnd * dstOpnd = nullptr;
     if (includeDef)
-    {
+    {TRACE_IT(5805);
         IR::Opnd * opnd = instr->GetDst();
         if (opnd && opnd->IsRegOpnd())
-        {
+        {TRACE_IT(5806);
             dstOpnd = opnd->AsRegOpnd();
             if (dstOpnd->GetIsJITOptimizedReg() || !dstOpnd->m_sym->HasByteCodeRegSlot())
-            {
+            {TRACE_IT(5807);
                 dstOpnd = nullptr;
             }
         }
     }
     if (!this->byteCodeUses->IsEmpty() || this->propertySymUse || dstOpnd != nullptr)
-    {
+    {TRACE_IT(5808);
         byteCodeUsesInstr = IR::ByteCodeUsesInstr::New(instr);
         if (!this->byteCodeUses->IsEmpty())
-        {
+        {TRACE_IT(5809);
             byteCodeUsesInstr->SetBV(byteCodeUses->CopyNew(instr->m_func->m_alloc));
         }
         if (dstOpnd != nullptr)
-        {
+        {TRACE_IT(5810);
             byteCodeUsesInstr->SetFakeDst(dstOpnd);
         }
         if (this->propertySymUse)
-        {
+        {TRACE_IT(5811);
             byteCodeUsesInstr->propertySymUse = this->propertySymUse;
         }
         instr->InsertBefore(byteCodeUsesInstr);
@@ -1074,7 +1074,7 @@ GlobOpt::InsertByteCodeUses(IR::Instr * instr, bool includeDef)
 
 IR::ByteCodeUsesInstr *
 GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
-{
+{TRACE_IT(5812);
 #if DBG
     PropertySym *propertySymUseBefore = NULL;
     Assert(this->byteCodeUses == nullptr);
@@ -1085,7 +1085,7 @@ GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
     IR::ByteCodeUsesInstr * byteCodeUsesInstr = this->InsertByteCodeUses(instr, true);
     instr->Remove();
     if (byteCodeUsesInstr)
-    {
+    {TRACE_IT(5813);
         byteCodeUsesInstr->Aggregate();
     }
     return byteCodeUsesInstr;
@@ -1093,7 +1093,7 @@ GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
 
 bool
 GlobOpt::MayNeedBailOut(Loop * loop) const
-{
+{TRACE_IT(5814);
     Assert(this->IsLoopPrePass());
     return loop->CanHoistInvariants() ||
         this->DoFieldCopyProp(loop) || (this->DoFieldHoisting(loop) && !loop->fieldHoistCandidates->IsEmpty());
@@ -1101,7 +1101,7 @@ GlobOpt::MayNeedBailOut(Loop * loop) const
 
 bool
 GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
-{
+{TRACE_IT(5815);
     switch (opnd->GetKind())
     {
     case IR::OpndKindAddr:
@@ -1120,10 +1120,10 @@ GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
             !opnd->AsRegOpnd()->m_sym->IsIntConst();
     case IR::OpndKindSym:
         if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-        {
+        {TRACE_IT(5816);
             IR::PropertySymOpnd* propertySymOpnd = opnd->AsSymOpnd()->AsPropertySymOpnd();
             if (!propertySymOpnd->MayHaveImplicitCall())
-            {
+            {TRACE_IT(5817);
                 return false;
             }
         }
@@ -1135,7 +1135,7 @@ GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
 
 bool
 GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val, Value *src2Val)
-{
+{TRACE_IT(5818);
     Assert(!this->IsLoopPrePass());
 
     return this->IsImplicitCallBailOutCurrentlyNeeded(instr, src1Val, src2Val, this->currentBlock,
@@ -1144,7 +1144,7 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
 
 bool
 GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val, Value *src2Val, BasicBlock * block, bool hasLiveFields, bool mayNeedImplicitCallBailOut, bool isForwardPass)
-{
+{TRACE_IT(5819);
     if (mayNeedImplicitCallBailOut &&
         !instr->CallsAccessor() &&
         (
@@ -1154,14 +1154,14 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
             NeedBailOnImplicitCallForArrayCheckHoist(block, isForwardPass)
         ) &&
         (!instr->HasTypeCheckBailOut() && MayNeedBailOnImplicitCall(instr, src1Val, src2Val)))
-    {
+    {TRACE_IT(5820);
         return true;
     }
 
 #if DBG
     if (Js::Configuration::Global.flags.IsEnabled(Js::BailOutAtEveryImplicitCallFlag) &&
         !instr->HasBailOutInfo() && MayNeedBailOnImplicitCall(instr, nullptr, nullptr))
-    {
+    {TRACE_IT(5821);
         // always add implicit call bailout even if we don't need it, but only on opcode that supports it
         return true;
     }
@@ -1172,7 +1172,7 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
 
 bool
 GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
-{
+{TRACE_IT(5822);
 #if DBG
     IR::Opnd* dst = instr->GetDst();
     IR::Opnd* src1 = instr->GetSrc1();
@@ -1184,12 +1184,12 @@ GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
 
     IR::Opnd * opnd = instr->GetDst();
     if (opnd && opnd->IsSymOpnd() && opnd->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {TRACE_IT(5823);
         return opnd->AsPropertySymOpnd()->IsTypeCheckProtected();
     }
     opnd = instr->GetSrc1();
     if (opnd && opnd->IsSymOpnd() && opnd->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {TRACE_IT(5824);
         return opnd->AsPropertySymOpnd()->IsTypeCheckProtected();
     }
     return false;
@@ -1197,16 +1197,16 @@ GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
 
 bool
 GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *propertySymOpnd, bool isStore, bool* pIsTypeCheckProtected, IR::BailOutKind *pBailOutKind)
-{
+{TRACE_IT(5825);
     if (instr->m_opcode == Js::OpCode::CheckPropertyGuardAndLoadType || instr->m_opcode == Js::OpCode::LdMethodFldPolyInlineMiss)
-    {
+    {TRACE_IT(5826);
         return false;
     }
     // CheckFixedFld always requires a type check and bailout either at the instruction or upstream.
     Assert(instr->m_opcode != Js::OpCode::CheckFixedFld || (propertySymOpnd->UsesFixedValue() && propertySymOpnd->MayNeedTypeCheckProtection()));
 
     if (propertySymOpnd->MayNeedTypeCheckProtection())
-    {
+    {TRACE_IT(5827);
         bool isCheckFixedFld = instr->m_opcode == Js::OpCode::CheckFixedFld;
         AssertMsg(!isCheckFixedFld || !PHASE_OFF(Js::FixedMethodsPhase, instr->m_func) ||
             !PHASE_OFF(Js::UseFixedDataPropsPhase, instr->m_func), "CheckFixedFld with fixed method/data phase disabled?");
@@ -1215,21 +1215,21 @@ GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *prop
         Assert(!isStore || !propertySymOpnd->IsLoadedFromProto());
 
         if (propertySymOpnd->NeedsTypeCheckAndBailOut())
-        {
+        {TRACE_IT(5828);
             *pBailOutKind = propertySymOpnd->HasEquivalentTypeSet() && !propertySymOpnd->MustDoMonoCheck() ?
                 (isCheckFixedFld ? IR::BailOutFailedEquivalentFixedFieldTypeCheck : IR::BailOutFailedEquivalentTypeCheck) :
                 (isCheckFixedFld ? IR::BailOutFailedFixedFieldTypeCheck : IR::BailOutFailedTypeCheck);
             return true;
         }
         else
-        {
+        {TRACE_IT(5829);
             *pIsTypeCheckProtected = propertySymOpnd->IsTypeCheckProtected();
             *pBailOutKind = IR::BailOutInvalid;
             return false;
         }
     }
     else
-    {
+    {TRACE_IT(5830);
         Assert(instr->m_opcode != Js::OpCode::CheckFixedFld);
         *pBailOutKind = IR::BailOutInvalid;
         return false;
@@ -1238,9 +1238,9 @@ GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *prop
 
 bool
 GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Value *src2Val)
-{
+{TRACE_IT(5831);
     if (!instr->HasAnyImplicitCalls())
-    {
+    {TRACE_IT(5832);
         return false;
     }
 
@@ -1248,7 +1248,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     switch (instr->m_opcode)
     {
     case Js::OpCode::LdLen_A:
-    {
+    {TRACE_IT(5833);
         const ValueType baseValueType(instr->GetSrc1()->GetValueType());
         return
             !(
@@ -1267,9 +1267,9 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     case Js::OpCode::StElemI_A:
     case Js::OpCode::StElemI_A_Strict:
     case Js::OpCode::InlineArrayPush:
-    {
+    {TRACE_IT(5834);
         if(!instr->HasBailOutInfo())
-        {
+        {TRACE_IT(5835);
             return true;
         }
 
@@ -1289,7 +1289,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     }
 
     if (OpCodeAttr::HasImplicitCall(instr->m_opcode))
-    {
+    {TRACE_IT(5836);
         // Operation has an implicit call regardless of operand attributes.
         return true;
     }
@@ -1297,7 +1297,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     IR::Opnd * opnd = instr->GetDst();
 
     if (opnd)
-    {
+    {TRACE_IT(5837);
         switch (opnd->GetKind())
         {
         case IR::OpndKindReg:
@@ -1309,15 +1309,15 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
             // become read-only and thus the store field will not take place (or throw in strict mode). Hence, we
             // can't optimize (e.g. copy prop) across such field stores.
             if (opnd->AsSymOpnd()->m_sym->IsStackSym())
-            {
+            {TRACE_IT(5838);
                 return false;
             }
 
             if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-            {
+            {TRACE_IT(5839);
                 IR::PropertySymOpnd* propertySymOpnd = opnd->AsSymOpnd()->AsPropertySymOpnd();
                 if (!propertySymOpnd->MayHaveImplicitCall())
-                {
+                {TRACE_IT(5840);
                     return false;
                 }
             }
@@ -1334,12 +1334,12 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
 
     opnd = instr->GetSrc1();
     if (opnd != nullptr && MaySrcNeedBailOnImplicitCall(opnd, src1Val))
-    {
+    {TRACE_IT(5841);
         return true;
     }
     opnd = instr->GetSrc2();
     if (opnd != nullptr && MaySrcNeedBailOnImplicitCall(opnd, src2Val))
-    {
+    {TRACE_IT(5842);
         return true;
     }
 
@@ -1348,7 +1348,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
 
 void
 GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind kind)
-{
+{TRACE_IT(5843);
     Assert(pInstr);
 
     IR::Instr* instr = *pInstr;
@@ -1358,12 +1358,12 @@ GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind k
     uint32 currentOffset = instr->GetByteCodeOffset();
     while (nextInstr->GetByteCodeOffset() == Js::Constants::NoByteCodeOffset ||
         nextInstr->GetByteCodeOffset() == currentOffset)
-    {
+    {TRACE_IT(5844);
         nextInstr = nextInstr->GetNextRealInstrOrLabel();
     }
     IR::Instr * bailOutInstr = instr->ConvertToBailOutInstr(nextInstr, kind);
     if (this->currentBlock->GetLastInstr() == instr)
-    {
+    {TRACE_IT(5845);
         this->currentBlock->SetLastInstr(bailOutInstr);
     }
     FillBailOutInfo(this->currentBlock, bailOutInstr->GetBailOutInfo());
@@ -1372,7 +1372,7 @@ GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind k
 
 void
 GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKind bailOutKind)
-{
+{TRACE_IT(5846);
     Assert(pInstr);
 
     IR::Instr * instr = *pInstr;
@@ -1382,7 +1382,7 @@ GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKin
 
     IR::Instr * bailOutInstr = instr->ConvertToBailOutInstr(instr, bailOutKind);
     if (this->currentBlock->GetLastInstr() == instr)
-    {
+    {TRACE_IT(5847);
         this->currentBlock->SetLastInstr(bailOutInstr);
     }
     FillBailOutInfo(currentBlock, bailOutInstr->GetBailOutInfo());
@@ -1391,11 +1391,11 @@ GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKin
 
 IR::Instr *
 GlobOpt::EnsureBailTarget(Loop * loop)
-{
+{TRACE_IT(5848);
     BailOutInfo * bailOutInfo = loop->bailOutInfo;
     IR::Instr * bailOutInstr = bailOutInfo->bailOutInstr;
     if (bailOutInstr == nullptr)
-    {
+    {TRACE_IT(5849);
         bailOutInstr = IR::BailOutInstr::New(Js::OpCode::BailTarget, IR::BailOutShared, bailOutInfo, bailOutInfo->bailOutFunc);
         loop->landingPad->InsertAfter(bailOutInstr);
     }

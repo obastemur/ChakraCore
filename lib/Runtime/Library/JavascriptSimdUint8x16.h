@@ -38,7 +38,7 @@ namespace Js
 
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
 
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {TRACE_IT(61570); return value; }
         static const char16* GetTypeName();
         Var  Copy(ScriptContext* requestContext);
     };

@@ -11,11 +11,11 @@ class NoReleaseAllocator
 {
 public:
     NoReleaseAllocator(DECLSPEC_GUARD_OVERFLOW int32 cbFirst = 256, DECLSPEC_GUARD_OVERFLOW int32 cbMax = 0x4000 /*16K*/);
-    ~NoReleaseAllocator(void) { FreeAll(); }
+    ~NoReleaseAllocator(void) {TRACE_IT(28551); FreeAll(); }
 
     void *Alloc(DECLSPEC_GUARD_OVERFLOW int32 cb);
     void FreeAll();
-    void Clear() { FreeAll(); }
+    void Clear() {TRACE_IT(28552); FreeAll(); }
 
 private:
     struct NraBlock

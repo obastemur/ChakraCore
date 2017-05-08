@@ -35,15 +35,15 @@ namespace Js
 
         template <class Fn>
         void Map(Fn fn, uint count) const
-        {
+        {TRACE_IT(48559);
             if (NULL != inlineCaches)
-            {
+            {TRACE_IT(48560);
                 for (uint i =0; i < count; i++)
-                {
+                {TRACE_IT(48561);
                     T* inlineCache = inlineCaches[i];
 
                     if (inlineCache != NULL)
-                    {
+                    {TRACE_IT(48562);
                         fn(inlineCache);
                     }
                 }

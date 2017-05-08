@@ -8,10 +8,10 @@ namespace UnifiedRegex
 {
     template <typename C>
     void TextbookBoyerMooreSetup<C>::Init()
-    {
+    {TRACE_IT(32922);
         Assert(patLen > 0);
         for (uint i = 0; i < MaxCharMapLinearChars; i++)
-        {
+        {TRACE_IT(32923);
             lastOcc[i] = -1;
         }
 
@@ -20,22 +20,22 @@ namespace UnifiedRegex
         // Always put the last character in the first index
         linearChar[0] = pat[patLen - 1];
         for (CharCount i = 0; i < patLen; i++)
-        {
+        {TRACE_IT(32924);
             if (numLinearChars <= MaxCharMapLinearChars)
-            {
+            {TRACE_IT(32925);
                 uint j = 0;
                 for (; j < numLinearChars; j++)
-                {
+                {TRACE_IT(32926);
                     if (linearChar[j] == pat[i])
-                    {
+                    {TRACE_IT(32927);
                         lastOcc[j] = i;
                         break;
                     }
                 }
                 if (j == numLinearChars)
-                {
+                {TRACE_IT(32928);
                     if (numLinearChars < MaxCharMapLinearChars)
-                    {
+                    {TRACE_IT(32929);
                         linearChar[numLinearChars] = pat[i];
                         lastOcc[numLinearChars] = i;
                     }
@@ -44,33 +44,33 @@ namespace UnifiedRegex
             }
 
             if (numLinearChars > MaxCharMapLinearChars)
-            {
+            {TRACE_IT(32930);
                 break;
             }
         }
         if (numLinearChars <= MaxCharMapLinearChars)
-        {
+        {TRACE_IT(32931);
             scheme = LinearScheme;
         }
         else
-        {
+        {TRACE_IT(32932);
             scheme = DefaultScheme;
         }
     }
 
     template <typename C>
     void TextbookBoyerMoore<C>::Setup(ArenaAllocator* allocator, TextbookBoyerMooreSetup<C> const& info)
-    {
+    {TRACE_IT(32933);
         Assert(info.GetScheme() == TextbookBoyerMooreSetup<C>::DefaultScheme);
         this->Setup(allocator, info.pat, info.patLen, 1);
     }
 
     template <typename C>
     void TextbookBoyerMoore<C>::Setup(ArenaAllocator * allocator, const Char * pat, CharCount patLen, int skip)
-    {
+    {TRACE_IT(32934);
         // character c |-> index of last occurrence of c in pat, otherwise -1
         for (CharCount i = 0; i < patLen; i++)
-        {
+        {TRACE_IT(32935);
             for (int j = 0; j < skip; j++)
                 lastOccurrence.Set(allocator, pat[i * skip + j], i);
         }
@@ -79,7 +79,7 @@ namespace UnifiedRegex
 
     template <typename C>
     int32 * TextbookBoyerMooreSetup<C>::GetGoodSuffix(ArenaAllocator* allocator, const Char * pat, CharCount patLen, int skip)
-    {
+    {TRACE_IT(32936);
         // pat offset q |-> longest prefix of pat which is a proper suffix of pat[0..q]
         // (thanks to equivalence classes being in canonical order we only need to look at the first
         //  character of each skip grouping in the pattern)
@@ -87,7 +87,7 @@ namespace UnifiedRegex
         prefix[0] = 0;
         int32 k = 0;
         for (CharCount q = 1; q < patLen; q++)
-        {
+        {TRACE_IT(32937);
             while (k > 0 && pat[k * skip] != pat[q * skip])
                 k = prefix[k - 1];
             if (pat[k * skip] == pat[q * skip])
@@ -100,7 +100,7 @@ namespace UnifiedRegex
         revPrefix[0] = 0;
         k = 0;
         for (CharCount q = 1; q < patLen; q++)
-        {
+        {TRACE_IT(32938);
             while (k > 0 && pat[(patLen - k - 1) * skip] != pat[(patLen - q - 1) * skip])
                 k = revPrefix[k - 1];
             if (pat[(patLen - k - 1) * skip] == pat[(patLen - q - 1) * skip])
@@ -113,7 +113,7 @@ namespace UnifiedRegex
         for (CharCount j = 0; j <= patLen; j++)
             goodSuffix[j] = patLen - prefix[patLen - 1];
         for (CharCount l = 1; l <= patLen; l++)
-        {
+        {TRACE_IT(32939);
             CharCount j = patLen - revPrefix[l - 1];
             int32 s = l - revPrefix[l - 1];
             if (goodSuffix[j] > s)
@@ -131,7 +131,7 @@ namespace UnifiedRegex
 
     template <typename C>
     void TextbookBoyerMoore<C>::FreeBody(ArenaAllocator* allocator, CharCount patLen)
-    {
+    {TRACE_IT(32940);
         if(goodSuffix)
         {
             AdeleteArray(allocator, patLen + 1, PointerValue(goodSuffix));
@@ -147,13 +147,13 @@ namespace UnifiedRegex
 
     template <>
     bool MatchPatternAt<1, 1>(uint inputChar, char16  const* pat, CharCount index)
-    {
+    {TRACE_IT(32941);
         return inputChar == pat[index];
     }
 
     template <>
     bool MatchPatternAt<CaseInsensitive::EquivClassSize, CaseInsensitive::EquivClassSize>(uint inputChar, char16 const * pat, CharCount index)
-    {
+    {TRACE_IT(32942);
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
         return inputChar == pat[index * CaseInsensitive::EquivClassSize]
             || inputChar == pat[index * CaseInsensitive::EquivClassSize + 1]
@@ -163,7 +163,7 @@ namespace UnifiedRegex
 
     template <>
     bool MatchPatternAt<CaseInsensitive::EquivClassSize, 1>(uint inputChar, char16 const * pat, CharCount index)
-    {
+    {TRACE_IT(32943);
         CompileAssert(CaseInsensitive::EquivClassSize == 4);
         return inputChar == pat[index * 4];
     }
@@ -180,7 +180,7 @@ namespace UnifiedRegex
         , RegexStats* stats
 #endif
         ) const
-    {
+    {TRACE_IT(32944);
 
         Assert(input != 0);
         Assert(inputOffset <= inputLength);
@@ -197,13 +197,13 @@ namespace UnifiedRegex
         const CharCount lastPatCharIndex = (patLen - 1);
 
         while (offset < endOffset)
-        {
+        {TRACE_IT(32945);
             // A separate tight loop to find the last character
             while (true)
-            {
+            {TRACE_IT(32946);
                 uint inputChar = Chars<Char>::CTU(input[offset + lastPatCharIndex]);
                 if (MatchPatternAt<equivClassSize, lastPatCharEquivClass>(inputChar, pat, lastPatCharIndex))
-                {
+                {TRACE_IT(32947);
                     // Found a match. Break out of this loop and go to the match pattern loop
                     break;
                 }
@@ -211,12 +211,12 @@ namespace UnifiedRegex
                 // Write the checks so that we have a super tight loop
                 int lastOcc;
                 if (inputChar < localLastOccurrence->GetDirectMapSize())
-                {
+                {TRACE_IT(32948);
                     if (!localLastOccurrence->IsInDirectMap(inputChar))
-                    {
+                    {TRACE_IT(32949);
                         offset += patLen;
                         if (offset >= endOffset)
-                        {
+                        {TRACE_IT(32950);
                             return false;
                         }
                         continue;
@@ -224,10 +224,10 @@ namespace UnifiedRegex
                     lastOcc = localLastOccurrence->GetDirectMap(inputChar);
                 }
                 else if (!localLastOccurrence->GetNonDirect(inputChar, lastOcc))
-                {
+                {TRACE_IT(32951);
                     offset += patLen;
                     if (offset >= endOffset)
-                    {
+                    {TRACE_IT(32952);
                         return false;
                     }
                     continue;
@@ -235,14 +235,14 @@ namespace UnifiedRegex
                 Assert((int)lastPatCharIndex - lastOcc >= localGoodSuffix[lastPatCharIndex]);
                 offset += lastPatCharIndex - lastOcc;
                 if (offset >= endOffset)
-                {
+                {TRACE_IT(32953);
                     return false;
                 }
             }
 
             // CONSIDER: we can remove this check if we stop using TextbookBoyerMoore for one char pattern
             if (lastPatCharIndex == 0)
-            {
+            {TRACE_IT(32954);
                 inputOffset = offset;
                 return true;
             }
@@ -250,20 +250,20 @@ namespace UnifiedRegex
             // Match the rest of the pattern
             int32 j = lastPatCharIndex - 1;
             while (true)
-            {
+            {TRACE_IT(32955);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 if (stats != 0)
                     stats->numCompares++;
 #endif
                 uint inputChar = Chars<Char>::CTU(input[offset + j]);
                 if (!MatchPatternAt<equivClassSize, equivClassSize>(inputChar, pat, j))
-                {
+                {TRACE_IT(32956);
                     const int32 e = j - localLastOccurrence->Get((Char)inputChar);
                     offset += e > localGoodSuffix[j] ? e : localGoodSuffix[j];
                     break;
                 }
                 if (--j < 0)
-                {
+                {TRACE_IT(32957);
                     inputOffset = offset;
                     return true;
                 }
@@ -275,7 +275,7 @@ namespace UnifiedRegex
     // Specialized linear char map version
     template <typename C>
     void TextbookBoyerMooreWithLinearMap<C>::Setup(ArenaAllocator * allocator, TextbookBoyerMooreSetup<C> const& setup)
-    {
+    {TRACE_IT(32958);
         Assert(setup.GetScheme() == TextbookBoyerMooreSetup<C>::LinearScheme);
         lastOccurrence.Set(setup.numLinearChars, setup.linearChar, setup.lastOcc);
         goodSuffix = TextbookBoyerMooreSetup<C>::GetGoodSuffix(allocator, setup.pat, setup.patLen);
@@ -283,7 +283,7 @@ namespace UnifiedRegex
 
     template <typename C>
     void TextbookBoyerMooreWithLinearMap<C>::FreeBody(ArenaAllocator* allocator, CharCount patLen)
-    {
+    {TRACE_IT(32959);
         if(goodSuffix)
         {
             AdeleteArray(allocator, patLen + 1, goodSuffix);
@@ -305,7 +305,7 @@ namespace UnifiedRegex
         , RegexStats* stats
 #endif
         ) const
-    {
+    {TRACE_IT(32960);
         CompileAssert(equivClassSize == 1);
         Assert(input != 0);
         Assert(inputOffset <= inputLength);
@@ -326,17 +326,17 @@ namespace UnifiedRegex
         Assert(lastPatChar == localLastOccurrence->GetChar(0));
 
         while (offset < endOffset)
-        {
+        {TRACE_IT(32961);
             // A separate tight loop to find the last character
             while (true)
-            {
+            {TRACE_IT(32962);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 if (stats != 0)
                     stats->numCompares++;
 #endif
                 uint inputChar = Chars<Char>::CTU(input[offset + lastPatCharIndex]);
                 if (inputChar == lastPatChar)
-                {
+                {TRACE_IT(32963);
                     // Found a match. Break out of this loop and go to the match pattern loop
                     break;
                 }
@@ -345,14 +345,14 @@ namespace UnifiedRegex
                 Assert(inputChar != localLastOccurrence->GetChar(0));
                 int32 lastOcc;
                 if (localLastOccurrence->GetChar(1) != inputChar)
-                {
+                {TRACE_IT(32964);
                     if (localLastOccurrence->GetChar(2) != inputChar)
-                    {
+                    {TRACE_IT(32965);
                         if (localLastOccurrence->GetChar(3) != inputChar)
-                        {
+                        {TRACE_IT(32966);
                             offset += patLen;
                             if (offset >= endOffset)
-                            {
+                            {TRACE_IT(32967);
                                 return false;
                             }
                             continue;
@@ -360,18 +360,18 @@ namespace UnifiedRegex
                         lastOcc = localLastOccurrence->GetLastOcc(3);
                     }
                     else
-                    {
+                    {TRACE_IT(32968);
                         lastOcc = localLastOccurrence->GetLastOcc(2);
                     }
                 }
                 else
-                {
+                {TRACE_IT(32969);
                     lastOcc = localLastOccurrence->GetLastOcc(1);
                 }
                 Assert((int)lastPatCharIndex - lastOcc >= localGoodSuffix[lastPatCharIndex]);
                 offset += lastPatCharIndex - lastOcc;
                 if (offset >= endOffset)
-                {
+                {TRACE_IT(32970);
                     return false;
                 }
             }
@@ -379,7 +379,7 @@ namespace UnifiedRegex
             // CONSIDER: we can remove this check if we stop using
             // TextbookBoyerMoore for one char pattern
             if (lastPatCharIndex == 0)
-            {
+            {TRACE_IT(32971);
                 inputOffset = offset;
                 return true;
             }
@@ -387,29 +387,29 @@ namespace UnifiedRegex
             // Match the rest of the pattern
             int32 j = lastPatCharIndex - 1;
             while (true)
-            {
+            {TRACE_IT(32972);
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 if (stats != 0)
                     stats->numCompares++;
 #endif
                 uint inputChar = Chars<Char>::CTU(input[offset + j]);
                 if (inputChar != pat[j])
-                {
+                {TRACE_IT(32973);
                     int goodSuffix = localGoodSuffix[j];
                     Assert(patLen <= MaxCharCount);
                     if (goodSuffix == (int)patLen)
-                    {
+                    {TRACE_IT(32974);
                         offset += patLen;
                     }
                     else
-                    {
+                    {TRACE_IT(32975);
                         const int32 e = j - localLastOccurrence->Get(inputChar);
                         offset += e > goodSuffix ? e : goodSuffix;
                     }
                     break;
                 }
                 if (--j < 0)
-                {
+                {TRACE_IT(32976);
                     inputOffset = offset;
                     return true;
                 }

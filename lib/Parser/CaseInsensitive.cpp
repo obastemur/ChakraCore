@@ -37,20 +37,20 @@ namespace UnifiedRegex
 
             template <typename Char>
             inline void Apply(uint c, Char outEquiv[EquivClassSize]) const
-            {
+            {TRACE_IT(28624);
                 Assert(c >= lo && c <= hi);
 
                 outEquiv[0] = Chars<Char>::UTC((lo + 1) % skipCountOfRange == c % skipCountOfRange ? (int)c + delta0 : c);
 
                 CompileAssert(CaseInsensitive::EquivClassSize == 4);
                 if (lo  % skipCountOfRange == c % skipCountOfRange)
-                {
+                {TRACE_IT(28625);
                     outEquiv[1] = Chars<Char>::ITC((int)c + delta1);
                     outEquiv[2] = Chars<Char>::ITC((int)c + delta2);
                     outEquiv[3] = Chars<Char>::ITC((int)c + delta3);
                 }
                 else
-                {
+                {TRACE_IT(28626);
                     outEquiv[1] = outEquiv[2] = outEquiv[3] = Chars<Char>::UTC(c);
                 }
             }
@@ -581,26 +581,26 @@ END {
 
         template <typename Char, typename Fn>
         bool RangeToEquivClass(uint& tblidx, uint l, uint h, uint& acth, Char equivl[EquivClassSize], Fn acceptSource)
-        {
+        {TRACE_IT(28627);
             Assert(l <= h);
 
             if (lastTransform.hi >= l)
-            {
+            {TRACE_IT(28628);
                 // Skip transforms which come completely before l
                 while (tblidx < numTransforms && (transforms[tblidx].hi < l || !acceptSource(transforms[tblidx].source)))
-                {
+                {TRACE_IT(28629);
                     tblidx++;
                 }
 
                 if (tblidx < numTransforms)
-                {
+                {TRACE_IT(28630);
                     // Does current transform intersect the desired range?
                     uint interl = max(l, static_cast<uint>(transforms[tblidx].lo));
                     uint interh = min(h, static_cast<uint>(transforms[tblidx].skipCountOfRange == 1 ? transforms[tblidx].hi : interl));
                     if (interl <= interh)
-                    {
+                    {TRACE_IT(28631);
                         if (l < interl)
-                        {
+                        {TRACE_IT(28632);
                             // Part of input range comes before next table range, so that sub-range has trivial equivalence class
                             acth = interl - 1;
                             for (int i = 0; i < EquivClassSize; i++)
@@ -608,7 +608,7 @@ END {
                             return false; // trivial
                         }
                         else
-                        {
+                        {TRACE_IT(28633);
                             // Input range begins at a table range, so map the character range
                             acth = interh;
                             transforms[tblidx].Apply(interl, equivl);
@@ -622,28 +622,28 @@ END {
 
             acth = h;
             for (int i = 0; i < EquivClassSize; i++)
-            {
+            {TRACE_IT(28634);
                 equivl[i] = Chars<Char>::UTC(l);
             }
             return false; // trivial
         }
 
         bool RangeToEquivClass(uint & tblidx, uint l, uint h, uint & acth, __out_ecount(EquivClassSize) char16 equivl[EquivClassSize])
-        {
+        {TRACE_IT(28635);
             return RangeToEquivClass(tblidx, l, h, acth, equivl, [](MappingSource source) {
                 return source == MappingSource::UnicodeData;
             });
         }
 
         bool RangeToEquivClass(uint & tblidx, uint l, uint h, uint & acth, __out_ecount(EquivClassSize) codepoint_t equivl[EquivClassSize])
-        {
+        {TRACE_IT(28636);
             return RangeToEquivClass(tblidx, l, h, acth, equivl, [](MappingSource source) {
                 return source == MappingSource::CaseFolding || source == MappingSource::UnicodeData;
             });
         }
 
         bool RangeToEquivClassOnlyInSource(MappingSource mappingSource, uint& tblidx, uint l, uint h, uint& acth, __out_ecount(EquivClassSize) char16 equivl[EquivClassSize])
-        {
+        {TRACE_IT(28637);
             return RangeToEquivClass(tblidx, l, h, acth, equivl, [&](MappingSource actualSource) {
                 return mappingSource == actualSource;
             });

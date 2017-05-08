@@ -31,14 +31,14 @@ LeakReport::UrlRecord * LeakReport::urlRecordTail = nullptr;
 
 void
 LeakReport::StartRedirectOutput()
-{
+{TRACE_IT(24639);
     if (!EnsureLeakReportFile())
-    {
+    {TRACE_IT(24640);
         return;
     }
     s_cs.Enter();
     if (nestedRedirectOutputCount == 0)
-    {
+    {TRACE_IT(24641);
         Assert(oldFile == nullptr);
         oldFile = Output::SetFile(file);
     }
@@ -47,16 +47,16 @@ LeakReport::StartRedirectOutput()
 
 void
 LeakReport::EndRedirectOutput()
-{
+{TRACE_IT(24642);
     if (nestedRedirectOutputCount == 0)
-    {
+    {TRACE_IT(24643);
         return;
     }
     Assert(file != nullptr);
     nestedRedirectOutputCount--;
 
     if (nestedRedirectOutputCount == 0)
-    {
+    {TRACE_IT(24644);
         fflush(file);
         FILE * tmpFile = Output::SetFile(oldFile);
         Assert(tmpFile == file);
@@ -76,10 +76,10 @@ LeakReport::StartSection(char16 const * msg, ...)
 
 void
 LeakReport::StartSection(char16 const * msg, va_list argptr)
-{
+{TRACE_IT(24645);
     s_cs.Enter();
     if (!EnsureLeakReportFile())
-    {
+    {TRACE_IT(24646);
         return;
     }
     nestedSectionCount++;
@@ -93,10 +93,10 @@ LeakReport::StartSection(char16 const * msg, va_list argptr)
 
 void
 LeakReport::EndSection()
-{
+{TRACE_IT(24647);
     s_cs.Leave();
     if (file == nullptr)
-    {
+    {TRACE_IT(24648);
         return;
     }
     nestedSectionCount--;
@@ -107,7 +107,7 @@ LeakReport::Print(char16 const * msg, ...)
 {
     AutoCriticalSection autocs(&s_cs);
     if (!EnsureLeakReportFile())
-    {
+    {TRACE_IT(24649);
         return;
     }
 
@@ -119,14 +119,14 @@ LeakReport::Print(char16 const * msg, ...)
 
 bool
 LeakReport::EnsureLeakReportFile()
-{
+{TRACE_IT(24650);
     AutoCriticalSection autocs(&s_cs);
     if (openReportFileFailed)
-    {
+    {TRACE_IT(24651);
         return false;
     }
     if (file != nullptr)
-    {
+    {TRACE_IT(24652);
         return true;
     }
 
@@ -134,7 +134,7 @@ LeakReport::EnsureLeakReportFile()
     char16 const * openMode = _u("w+");
     char16 defaultFilename[_MAX_PATH];
     if (filename == nullptr)
-    {
+    {TRACE_IT(24653);
         // xplat-todo: Implement swprintf_s in the PAL
 #ifdef _MSC_VER
         swprintf_s(defaultFilename, _u("jsleakreport-%u.txt"), ::GetCurrentProcessId());
@@ -146,7 +146,7 @@ LeakReport::EnsureLeakReportFile()
         openMode = _u("a+");   // append mode
     }
     if (_wfopen_s(&file, filename, openMode) != 0)
-    {
+    {TRACE_IT(24654);
         openReportFileFailed = true;
         return false;
     }
@@ -158,7 +158,7 @@ LeakReport::EnsureLeakReportFile()
 
 LeakReport::UrlRecord *
 LeakReport::LogUrl(char16 const * url, void * globalObject)
-{
+{TRACE_IT(24655);
     UrlRecord * record = NoCheckHeapNewStruct(UrlRecord);
 
     size_t length = wcslen(url) + 1; // Add 1 for the NULL.
@@ -179,13 +179,13 @@ LeakReport::LogUrl(char16 const * url, void * globalObject)
 
     AutoCriticalSection autocs(&s_cs);
     if (LeakReport::urlRecordHead == nullptr)
-    {
+    {TRACE_IT(24656);
         Assert(LeakReport::urlRecordTail == nullptr);
         LeakReport::urlRecordHead = record;
         LeakReport::urlRecordTail = record;
     }
     else
-    {
+    {TRACE_IT(24657);
         LeakReport::urlRecordTail->next = record;
         LeakReport::urlRecordTail = record;
     }
@@ -195,10 +195,10 @@ LeakReport::LogUrl(char16 const * url, void * globalObject)
 
 void
 LeakReport::DumpUrl(DWORD tid)
-{
+{TRACE_IT(24658);
     AutoCriticalSection autocs(&s_cs);
     if (!EnsureLeakReportFile())
-    {
+    {TRACE_IT(24659);
         return;
     }
 
@@ -206,9 +206,9 @@ LeakReport::DumpUrl(DWORD tid)
     UrlRecord ** pprev = &LeakReport::urlRecordHead;
     UrlRecord * curr = *pprev;
     while (curr != nullptr)
-    {
+    {TRACE_IT(24660);
         if (curr->tid == tid)
-        {
+        {TRACE_IT(24661);
             char16 timeStr[26] = _u("00:00");
 
             // xplat-todo: Need to implement _wasctime_s in the PAL
@@ -224,7 +224,7 @@ LeakReport::DumpUrl(DWORD tid)
             NoCheckHeapDelete(curr);
         }
         else
-        {
+        {TRACE_IT(24662);
             pprev = &curr->next;
             prev = curr;
         }
@@ -232,20 +232,20 @@ LeakReport::DumpUrl(DWORD tid)
     }
 
     if (prev == nullptr)
-    {
+    {TRACE_IT(24663);
         LeakReport::urlRecordTail = nullptr;
     }
     else if (prev->next == nullptr)
-    {
+    {TRACE_IT(24664);
         LeakReport::urlRecordTail = prev;
     }
 }
 
 AutoLeakReportSection::AutoLeakReportSection(Js::ConfigFlagsTable& flags, char16 const * msg, ...):
     m_flags(flags)
-{
+{TRACE_IT(24665);
     if (flags.IsEnabled(Js::LeakReportFlag))
-    {
+    {TRACE_IT(24666);
         va_list argptr;
         va_start(argptr, msg);
         LeakReport::StartSection(msg, argptr);
@@ -254,9 +254,9 @@ AutoLeakReportSection::AutoLeakReportSection(Js::ConfigFlagsTable& flags, char16
 }
 
 AutoLeakReportSection::~AutoLeakReportSection()
-{
+{TRACE_IT(24667);
     if (m_flags.IsEnabled(Js::LeakReportFlag))
-    {
+    {TRACE_IT(24668);
         LeakReport::EndSection();
     }
 }

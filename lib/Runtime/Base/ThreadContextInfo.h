@@ -99,7 +99,7 @@ public:
 
     virtual bool IsNumericProperty(Js::PropertyId propertyId) = 0;
 
-    bool CanBeFalsy(Js::TypeId typeId) { return typeId == this->wellKnownHostTypeHTMLAllCollectionTypeId; }
+    bool CanBeFalsy(Js::TypeId typeId) {TRACE_IT(37794); return typeId == this->wellKnownHostTypeHTMLAllCollectionTypeId; }
 
     bool IsCFGEnabled();
     bool IsClosed();
@@ -112,7 +112,7 @@ public:
     Js::DelayLoadWinCoreProcessThreads m_delayLoadWinCoreProcessThreads;
 #endif
 
-    UCrtC99MathApis* GetUCrtC99MathApis() { return &ucrtC99MathApis; }
+    UCrtC99MathApis* GetUCrtC99MathApis() {TRACE_IT(37795); return &ucrtC99MathApis; }
 protected:
 
     UCrtC99MathApis ucrtC99MathApis;
@@ -127,13 +127,13 @@ protected:
 // TODO: OOP JIT, is there any issue when crossing over 2^31/2^63?
 template<typename T>
 intptr_t SHIFT_ADDR(const ThreadContextInfo*const context, T* address)
-{
+{TRACE_IT(37796);
     return SHIFT_ADDR(context, (intptr_t)address);
 }
 
 template<typename T>
 intptr_t SHIFT_CRT_ADDR(const ThreadContextInfo*const context, T* address)
-{
+{TRACE_IT(37797);
     return SHIFT_CRT_ADDR(context, (intptr_t)address);
 }
 

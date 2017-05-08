@@ -11,12 +11,12 @@ namespace Js
         m_set(set),
         m_setIterator(set->GetIterator()),
         m_kind(kind)
-    {
+    {TRACE_IT(61393);
         Assert(type->GetTypeId() == TypeIds_SetIterator);
     }
 
     bool JavascriptSetIterator::Is(Var aValue)
-    {
+    {TRACE_IT(61394);
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_SetIterator;
     }
@@ -41,7 +41,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptSetIterator::Is(thisObj))
-        {
+        {TRACE_IT(61395);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSetIterator, _u("Set Iterator.prototype.next"));
         }
 
@@ -50,7 +50,7 @@ namespace Js
         auto& setIterator = iterator->m_setIterator;
 
         if (set == nullptr || !setIterator.Next())
-        {
+        {TRACE_IT(61396);
             iterator->m_set = nullptr;
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
@@ -59,14 +59,14 @@ namespace Js
         Var result;
 
         if (iterator->m_kind == JavascriptSetIteratorKind::KeyAndValue)
-        {
+        {TRACE_IT(61397);
             JavascriptArray* keyValueTuple = library->CreateArray(2);
             keyValueTuple->SetItem(0, value, PropertyOperation_None);
             keyValueTuple->SetItem(1, value, PropertyOperation_None);
             result = keyValueTuple;
         }
         else
-        {
+        {TRACE_IT(61398);
             Assert(iterator->m_kind == JavascriptSetIteratorKind::Value);
             result = value;
         }

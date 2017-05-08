@@ -35,11 +35,11 @@ namespace Js {
 
         static void DumpFloat64x2Reg(RegSlot reg);
 
-        static void DumpRegReg(RegSlot reg) { DumpReg(reg); }
-        static void DumpIntConstReg(int val) { DumpI4(val); }
-        static void DumpLongConstReg(int64 val) { DumpI8(val); }
-        static void DumpFloatConstReg(float val) { DumpR4(val); }
-        static void DumpDoubleConstReg(double val) { DumpR8(val); }
+        static void DumpRegReg(RegSlot reg) {TRACE_IT(38239); DumpReg(reg); }
+        static void DumpIntConstReg(int val) {TRACE_IT(38240); DumpI4(val); }
+        static void DumpLongConstReg(int64 val) {TRACE_IT(38241); DumpI8(val); }
+        static void DumpFloatConstReg(float val) {TRACE_IT(38242); DumpR4(val); }
+        static void DumpDoubleConstReg(double val) {TRACE_IT(38243); DumpR8(val); }
 
 #define LAYOUT_TYPE(layout) \
     static void Dump##layout(OpCodeAsmJs op, const unaligned OpLayout##layout* data, FunctionBody * dumpFunction, ByteCodeReader& reader);

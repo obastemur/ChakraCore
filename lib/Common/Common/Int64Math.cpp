@@ -28,7 +28,7 @@
 // Returns true if we overflowed, false if we didn't
 bool
 Int64Math::Mul(int64 left, int64 right, int64 *pResult)
-{
+{TRACE_IT(18845);
 #if __has_builtin(__builtin_mul_overflow) && !(defined(_ARM_) && defined(__clang__))
     return IntMathCommon<int64>::Mul(left, right, pResult);
 #else
@@ -47,21 +47,21 @@ Int64Math::Mul(int64 left, int64 right, int64 *pResult)
 
 bool
 Int64Math::Shl(int64 left, int64 right, int64 *pResult)
-{
+{TRACE_IT(18846);
     *pResult = left << (right & 63);
     return (left != (int64)((uint64)*pResult >> right));
 }
 
 bool
 Int64Math::Shr(int64 left, int64 right, int64 *pResult)
-{
+{TRACE_IT(18847);
     *pResult = left >> (right & 63);
     return false;
 }
 
 bool
 Int64Math::ShrU(int64 left, int64 right, int64 *pResult)
-{
+{TRACE_IT(18848);
     uint64 uResult = ((uint64)left) >> (right & 63);
     *pResult = uResult;
     return false;

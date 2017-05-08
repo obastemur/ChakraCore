@@ -149,7 +149,7 @@ namespace Js
         template<typename EncodedChar>
         static double StrToDbl(const EncodedChar *psz, const EncodedChar **ppchLim, Js::ScriptContext *const scriptContext);
 
-        const NumberUtilitiesBase* GetNumberUtilitiesBase() const { return static_cast<const NumberUtilitiesBase*>(this); }
+        const NumberUtilitiesBase* GetNumberUtilitiesBase() const {TRACE_IT(19190); return static_cast<const NumberUtilitiesBase*>(this); }
 
     };
 }

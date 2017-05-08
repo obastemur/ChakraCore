@@ -16,7 +16,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {TRACE_IT(35850);
             this->value = 0;
         }
     };

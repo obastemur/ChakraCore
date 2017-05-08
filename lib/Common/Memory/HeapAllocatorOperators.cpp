@@ -20,13 +20,13 @@
 #ifdef NTBUILD
 _Ret_maybenull_ void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-{
+{TRACE_IT(23359);
     return HeapNewNoThrowArray(char, byteSize);
 }
 
 _Ret_maybenull_ void * __cdecl
 operator new[](DECLSPEC_GUARD_OVERFLOW size_t byteSize)
-{
+{TRACE_IT(23360);
     return HeapNewNoThrowArray(char, byteSize);
 }
 

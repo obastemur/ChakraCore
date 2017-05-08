@@ -11,7 +11,7 @@
 VirtualAllocWrapper VirtualAllocWrapper::Instance;  // single instance
 
 LPVOID VirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DWORD allocationType, DWORD protectFlags, bool isCustomHeapAllocation)
-{
+{TRACE_IT(27100);
     LPVOID address = nullptr;
 
 #if defined(ENABLE_JIT_CLAMP)
@@ -19,11 +19,11 @@ LPVOID VirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DWORD allocat
 
     if ((isCustomHeapAllocation) ||
         (protectFlags & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
-    {
+    {TRACE_IT(27101);
         makeExecutable = true;
     }
     else
-    {
+    {TRACE_IT(27102);
         makeExecutable = false;
     }
 
@@ -33,40 +33,40 @@ LPVOID VirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DWORD allocat
 #if defined(_CONTROL_FLOW_GUARD)
     DWORD oldProtectFlags = 0;
     if (AutoSystemInfo::Data.IsCFGEnabled() && isCustomHeapAllocation)
-    {
+    {TRACE_IT(27103);
         //We do the allocation in two steps - CFG Bitmap in kernel will be created only on allocation with EXECUTE flag.
         //We again call VirtualProtect to set to the requested protectFlags.
         DWORD allocProtectFlags = 0;
         if (AutoSystemInfo::Data.IsCFGEnabled())
-        {
+        {TRACE_IT(27104);
             allocProtectFlags = PAGE_EXECUTE_RW_TARGETS_INVALID;
         }
         else
-        {
+        {TRACE_IT(27105);
             allocProtectFlags = PAGE_EXECUTE_READWRITE;
         }
 
         address = VirtualAlloc(lpAddress, dwSize, allocationType, allocProtectFlags);
         if (address == nullptr)
-        {
+        {TRACE_IT(27106);
             MemoryOperationLastError::RecordLastError();
             return nullptr;
         }
         else if ((allocationType & MEM_COMMIT) == MEM_COMMIT) // The access protection value can be set only on committed pages.
-        {
+        {TRACE_IT(27107);
             BOOL result = VirtualProtect(address, dwSize, protectFlags, &oldProtectFlags);
             if (result == FALSE)
-            {
+            {TRACE_IT(27108);
                 CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
             }
         }
     }
     else
 #endif
-    {
+    {TRACE_IT(27109);
         address = VirtualAlloc(lpAddress, dwSize, allocationType, protectFlags);
         if (address == nullptr)
-        {
+        {TRACE_IT(27110);
             MemoryOperationLastError::RecordLastError();
             return nullptr;
         }
@@ -76,7 +76,7 @@ LPVOID VirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DWORD allocat
 }
 
 BOOL VirtualAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType)
-{
+{TRACE_IT(27111);
     AnalysisAssert(dwFreeType == MEM_RELEASE || dwFreeType == MEM_DECOMMIT);
     size_t bytes = (dwFreeType == MEM_RELEASE)? 0 : dwSize;
 #pragma warning(suppress: 28160) // Calling VirtualFreeEx without the MEM_RELEASE flag frees memory but not address descriptors (VADs)
@@ -94,19 +94,19 @@ uint PreReservedVirtualAllocWrapper::numPreReservedSegment = 0;
 PreReservedVirtualAllocWrapper::PreReservedVirtualAllocWrapper() :
     preReservedStartAddress(nullptr),
     cs(4000)
-{
+{TRACE_IT(27112);
     freeSegments.SetAll();
 }
 
 PreReservedVirtualAllocWrapper::~PreReservedVirtualAllocWrapper()
-{
+{TRACE_IT(27113);
     if (IsPreReservedRegionPresent())
-    {
+    {TRACE_IT(27114);
         BOOL success = VirtualFree(preReservedStartAddress, 0, MEM_RELEASE);
         PreReservedHeapTrace(_u("MEM_RELEASE the PreReservedSegment. Start Address: 0x%p, Size: 0x%x * 0x%x bytes"), preReservedStartAddress, PreReservedAllocationSegmentCount,
             AutoSystemInfo::Data.GetAllocationGranularityPageSize());
         if (!success)
-        {
+        {TRACE_IT(27115);
             // OOP JIT TODO: check if we need to cleanup the context related to this content process
         }
 
@@ -119,26 +119,26 @@ PreReservedVirtualAllocWrapper::~PreReservedVirtualAllocWrapper()
 
 bool
 PreReservedVirtualAllocWrapper::IsPreReservedRegionPresent()
-{
+{TRACE_IT(27116);
     return preReservedStartAddress != nullptr;
 }
 
 bool
 PreReservedVirtualAllocWrapper::IsInRange(void * address)
-{
+{TRACE_IT(27117);
     if (!this->IsPreReservedRegionPresent())
-    {
+    {TRACE_IT(27118);
         return false;
     }
     bool isInRange = IsInRange(GetPreReservedStartAddress(), address);
 #if DBG
     if (isInRange)
-    {
+    {TRACE_IT(27119);
         //Check if the region is in MEM_COMMIT state.
         MEMORY_BASIC_INFORMATION memBasicInfo;
         size_t bytes = VirtualQuery(address, &memBasicInfo, sizeof(memBasicInfo));
         if (bytes == 0)
-        {
+        {TRACE_IT(27120);
             return false;
         }
         AssertMsg(memBasicInfo.State == MEM_COMMIT, "Memory not committed? Checking for uncommitted address region?");
@@ -150,13 +150,13 @@ PreReservedVirtualAllocWrapper::IsInRange(void * address)
 /* static */
 bool
 PreReservedVirtualAllocWrapper::IsInRange(void * regionStart, void * address)
-{
+{TRACE_IT(27121);
     if (!regionStart)
-    {
+    {TRACE_IT(27122);
         return false;
     }
     if (address >= regionStart && address < GetPreReservedEndAddress(regionStart))
-    {
+    {TRACE_IT(27123);
         return true;
     }
 
@@ -166,13 +166,13 @@ PreReservedVirtualAllocWrapper::IsInRange(void * regionStart, void * address)
 
 LPVOID
 PreReservedVirtualAllocWrapper::GetPreReservedStartAddress()
-{
+{TRACE_IT(27124);
     return preReservedStartAddress;
 }
 
 LPVOID
 PreReservedVirtualAllocWrapper::GetPreReservedEndAddress()
-{
+{TRACE_IT(27125);
     Assert(IsPreReservedRegionPresent());
     return GetPreReservedEndAddress(preReservedStartAddress);
 }
@@ -180,16 +180,16 @@ PreReservedVirtualAllocWrapper::GetPreReservedEndAddress()
 /* static */
 LPVOID
 PreReservedVirtualAllocWrapper::GetPreReservedEndAddress(void * regionStart)
-{
+{TRACE_IT(27126);
     return (char*)regionStart + (PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageCount() * AutoSystemInfo::PageSize);
 }
 
 
 LPVOID PreReservedVirtualAllocWrapper::EnsurePreReservedRegion()
-{
+{TRACE_IT(27127);
     LPVOID startAddress = preReservedStartAddress;
     if (startAddress != nullptr)
-    {
+    {TRACE_IT(27128);
         return startAddress;
     }
 
@@ -200,17 +200,17 @@ LPVOID PreReservedVirtualAllocWrapper::EnsurePreReservedRegion()
 }
 
 LPVOID PreReservedVirtualAllocWrapper::EnsurePreReservedRegionInternal()
-{
+{TRACE_IT(27129);
     LPVOID startAddress = preReservedStartAddress;
     if (startAddress != nullptr)
-    {
+    {TRACE_IT(27130);
         return startAddress;
     }
 
     //PreReserve a (bigger) segment
     size_t bytes = PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageSize();
     if (PHASE_FORCE1(Js::PreReservedHeapAllocPhase))
-    {
+    {TRACE_IT(27131);
         //This code is used where CFG is not available, but still PreReserve optimization for CFG can be tested
         startAddress = VirtualAlloc(NULL, bytes, MEM_RESERVE, PAGE_READWRITE);
         PreReservedHeapTrace(_u("Reserving PreReservedSegment For the first time(CFG Non-Enabled). Address: 0x%p\n"), preReservedStartAddress);
@@ -229,7 +229,7 @@ LPVOID PreReservedVirtualAllocWrapper::EnsurePreReservedRegionInternal()
     // It doesn't affect functionally, and it should be OK if we exceed.
 
     if (PreReservedVirtualAllocWrapper::numPreReservedSegment > PreReservedVirtualAllocWrapper::MaxPreReserveSegment)
-    {
+    {TRACE_IT(27132);
         supportPreReservedRegion = false;
     }
 #else
@@ -239,14 +239,14 @@ LPVOID PreReservedVirtualAllocWrapper::EnsurePreReservedRegionInternal()
 #endif
 
     if (AutoSystemInfo::Data.IsCFGEnabled() && supportPreReservedRegion)
-    {
+    {TRACE_IT(27133);
         startAddress = VirtualAlloc(NULL, bytes, MEM_RESERVE, PAGE_READWRITE);
         PreReservedHeapTrace(_u("Reserving PreReservedSegment For the first time(CFG Enabled). Address: 0x%p\n"), preReservedStartAddress);
         preReservedStartAddress = startAddress;
 
 #if !_M_X64_OR_ARM64
         if (startAddress)
-        {
+        {TRACE_IT(27134);
             InterlockedIncrement(&PreReservedVirtualAllocWrapper::numPreReservedSegment);
         }
 #endif
@@ -270,11 +270,11 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
     AssertMsg(AutoSystemInfo::Data.IsCFGEnabled() || PHASE_FORCE1(Js::PreReservedHeapAllocPhase), "PreReservation without CFG ?");
     Assert(dwSize != 0);
 
-    {
+    {TRACE_IT(27135);
         AutoCriticalSection autocs(&this->cs);
         //Return nullptr, if no space to Reserve
         if (EnsurePreReservedRegionInternal() == nullptr)
-        {
+        {TRACE_IT(27136);
             PreReservedHeapTrace(_u("No space to pre-reserve memory with %d pages. Returning NULL\n"), PreReservedAllocationSegmentCount * AutoSystemInfo::Data.GetAllocationGranularityPageCount());
             return nullptr;
         }
@@ -286,17 +286,17 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
         Assert(requestedNumOfSegments <= MAXUINT32);
 
         if (lpAddress == nullptr)
-        {
+        {TRACE_IT(27137);
             Assert(requestedNumOfSegments != 0);
             AssertMsg(dwSize % AutoSystemInfo::Data.GetAllocationGranularityPageSize() == 0, "dwSize should be aligned with Allocation Granularity");
 
             do
-            {
+            {TRACE_IT(27138);
                 freeSegmentsBVIndex = freeSegments.GetNextBit(freeSegmentsBVIndex + 1);
                 //Return nullptr, if we don't have free/decommit pages to allocate
                 if ((freeSegments.Length() - freeSegmentsBVIndex < requestedNumOfSegments) ||
                     freeSegmentsBVIndex == BVInvalidIndex)
-                {
+                {TRACE_IT(27139);
                     PreReservedHeapTrace(_u("No more space to commit in PreReserved Memory region.\n"));
                     return nullptr;
                 }
@@ -309,18 +309,18 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
             MEMORY_BASIC_INFORMATION memBasicInfo;
             size_t bytes = VirtualQuery(addressToReserve, &memBasicInfo, sizeof(memBasicInfo));
             if (bytes == 0) 
-            {
+            {TRACE_IT(27140);
                 MemoryOperationLastError::RecordLastError();
             }
             if (bytes == 0
                 || memBasicInfo.RegionSize < requestedNumOfSegments * AutoSystemInfo::Data.GetAllocationGranularityPageSize()
                 || memBasicInfo.State == MEM_COMMIT)
-            {
+            {TRACE_IT(27141);
                 CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
             }
         }
         else
-        {
+        {TRACE_IT(27142);
             //Check If the lpAddress is within the range of the preReserved Memory Region
             Assert(((char*) lpAddress) >= (char*) preReservedStartAddress || ((char*) lpAddress + dwSize) < GetPreReservedEndAddress());
 
@@ -341,60 +341,60 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
         bool failedToProtectPages = false;
 
         if ((allocationType & MEM_COMMIT) != 0)
-        {
+        {TRACE_IT(27143);
 #if defined(ENABLE_JIT_CLAMP)
             AutoEnableDynamicCodeGen enableCodeGen;
 #endif
 
 #if defined(_CONTROL_FLOW_GUARD)
             if (AutoSystemInfo::Data.IsCFGEnabled())
-            {
+            {TRACE_IT(27144);
                 DWORD oldProtect = 0;
                 DWORD allocProtectFlags = 0;
 
                 if (AutoSystemInfo::Data.IsCFGEnabled())
-                {
+                {TRACE_IT(27145);
                     allocProtectFlags = PAGE_EXECUTE_RW_TARGETS_INVALID;
                 }
                 else
-                {
+                {TRACE_IT(27146);
                     allocProtectFlags = PAGE_EXECUTE_READWRITE;
                 }
 
                 allocatedAddress = (char *)VirtualAlloc(addressToReserve, dwSize, MEM_COMMIT, allocProtectFlags);
                 if (allocatedAddress != nullptr)
-                {
+                {TRACE_IT(27147);
                     BOOL result = VirtualProtect(allocatedAddress, dwSize, protectFlags, &oldProtect);
                     if (result == FALSE)
-                    {
+                    {TRACE_IT(27148);
                         CustomHeap_BadPageState_fatal_error((ULONG_PTR)this);
                     }
                     AssertMsg(oldProtect == (PAGE_EXECUTE_READWRITE), "CFG Bitmap gets allocated and bits will be set to invalid only upon passing these flags.");
                 }
                 else
-                {
+                {TRACE_IT(27149);
                     MemoryOperationLastError::RecordLastError();
                 }
             }
             else
 #endif
-            {
+            {TRACE_IT(27150);
                 allocatedAddress = (char *)VirtualAlloc(addressToReserve, dwSize, MEM_COMMIT, protectFlags);
                 if (allocatedAddress == nullptr)
-                {
+                {TRACE_IT(27151);
                     MemoryOperationLastError::RecordLastError();
                 }
             }
         }
         else
-        {
+        {TRACE_IT(27152);
             // Just return the uncommitted address if we didn't ask to commit it.
             allocatedAddress = addressToReserve;
         }
 
         // Keep track of the committed pages within the preReserved Memory Region
         if (lpAddress == nullptr && allocatedAddress != nullptr)
-        {
+        {TRACE_IT(27153);
             Assert(allocatedAddress == addressToReserve);
             Assert(requestedNumOfSegments != 0);
             freeSegments.ClearRange(freeSegmentsBVIndex, static_cast<uint>(requestedNumOfSegments));
@@ -402,7 +402,7 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
 
         PreReservedHeapTrace(_u("MEM_COMMIT: StartAddress: 0x%p of size: 0x%x * 0x%x bytes \n"), allocatedAddress, requestedNumOfSegments, AutoSystemInfo::Data.GetAllocationGranularityPageSize());
         if (failedToProtectPages)
-        {
+        {TRACE_IT(27154);
             return nullptr;
         }
         return allocatedAddress;
@@ -418,18 +418,18 @@ LPVOID PreReservedVirtualAllocWrapper::Alloc(LPVOID lpAddress, size_t dwSize, DW
 
 BOOL
 PreReservedVirtualAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFreeType)
-{
-    {
+{TRACE_IT(27155);
+    {TRACE_IT(27156);
         AutoCriticalSection autocs(&this->cs);
 
         if (dwSize == 0)
-        {
+        {TRACE_IT(27157);
             Assert(false);
             return FALSE;
         }
 
         if (preReservedStartAddress == nullptr)
-        {
+        {TRACE_IT(27158);
             Assert(false);
             return FALSE;
         }
@@ -442,12 +442,12 @@ PreReservedVirtualAllocWrapper::Free(LPVOID lpAddress, size_t dwSize, DWORD dwFr
         Assert(requestedNumOfSegments <= MAXUINT32);
 
         if (success)
-        {
+        {TRACE_IT(27159);
             PreReservedHeapTrace(_u("MEM_DECOMMIT: Address: 0x%p of size: 0x%x bytes\n"), lpAddress, dwSize);
         }
 
         if (success && (dwFreeType & MEM_RELEASE) != 0)
-        {
+        {TRACE_IT(27160);
             Assert((uintptr_t) lpAddress >= (uintptr_t) preReservedStartAddress);
             AssertMsg(((uintptr_t)lpAddress & (AutoSystemInfo::Data.GetAllocationGranularityPageCount() - 1)) == 0, "Not aligned with Allocation Granularity?");
             AssertMsg(dwSize % AutoSystemInfo::Data.GetAllocationGranularityPageSize() == 0, "Release size should match the allocation granularity size");
@@ -484,9 +484,9 @@ CriticalSection AutoEnableDynamicCodeGen::processPolicyCS;
 volatile bool AutoEnableDynamicCodeGen::processPolicyObtained = false;
 
 AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
-{
+{TRACE_IT(27161);
     if (enable == false)
-    {
+    {TRACE_IT(27162);
         return;
     }
 
@@ -497,17 +497,17 @@ AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
     //
 
     if (processPolicyObtained == false)
-    {
+    {TRACE_IT(27163);
         AutoCriticalSection autocs(&processPolicyCS);
 
         if (processPolicyObtained == false)
-        {
+        {TRACE_IT(27164);
             PGET_PROCESS_MITIGATION_POLICY_PROC GetProcessMitigationPolicyProc = nullptr;
 
             HMODULE module = GetModuleHandleW(_u("api-ms-win-core-processthreads-l1-1-3.dll"));
 
             if (module != nullptr)
-            {
+            {TRACE_IT(27165);
                 GetProcessMitigationPolicyProc = (PGET_PROCESS_MITIGATION_POLICY_PROC) GetProcAddress(module, "GetProcessMitigationPolicy");
                 SetThreadInformationProc = (PSET_THREAD_INFORMATION_PROC) GetProcAddress(module, "SetThreadInformation");
                 GetThreadInformationProc = (PGET_THREAD_INFORMATION_PROC) GetProcAddress(module, "GetThreadInformation");
@@ -515,7 +515,7 @@ AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
 
             if ((GetProcessMitigationPolicyProc == nullptr) ||
                 (!GetProcessMitigationPolicyProc(GetCurrentProcess(), ProcessDynamicCodePolicy, (PPROCESS_MITIGATION_DYNAMIC_CODE_POLICY) &processPolicy, sizeof(processPolicy))))
-            {
+            {TRACE_IT(27166);
                 processPolicy.ProhibitDynamicCode = 0;
             }
 
@@ -533,12 +533,12 @@ AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
     //
 
     if ((processPolicy.ProhibitDynamicCode == 0) || (processPolicy.AllowThreadOptOut == 0))
-    {
+    {TRACE_IT(27167);
         return;
     }
 
     if (SetThreadInformationProc == nullptr || GetThreadInformationProc == nullptr)
-    {
+    {TRACE_IT(27168);
         return;
     }
 
@@ -550,7 +550,7 @@ AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
 
     if ((GetThreadInformationProc(GetCurrentThread(), ThreadDynamicCodePolicy, &threadPolicy, sizeof(DWORD))) &&
         (threadPolicy == THREAD_DYNAMIC_CODE_ALLOW))
-    {
+    {TRACE_IT(27169);
         return;
     }
 
@@ -563,9 +563,9 @@ AutoEnableDynamicCodeGen::AutoEnableDynamicCodeGen(bool enable) : enabled(false)
 }
 
 AutoEnableDynamicCodeGen::~AutoEnableDynamicCodeGen()
-{
+{TRACE_IT(27170);
     if (enabled)
-    {
+    {TRACE_IT(27171);
         DWORD threadPolicy = 0;
 
         BOOL result = SetThreadInformationProc(GetCurrentThread(), ThreadDynamicCodePolicy, &threadPolicy, sizeof(DWORD));

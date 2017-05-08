@@ -45,7 +45,7 @@ namespace Js
         public:
             Setup(ScriptFunction * function, Arguments& args, bool bailout = false, bool inlinee = false);
             Setup(ScriptFunction * function, Var * inParams, int inSlotsCount);
-            size_t GetAllocationVarCount() const { return varAllocCount; }
+            size_t GetAllocationVarCount() const {TRACE_IT(49487); return varAllocCount; }
 
             InterpreterStackFrame * AllocateAndInitialize(bool doProfile, bool * releaseAlloc);
 
@@ -54,7 +54,7 @@ namespace Js
 #else
             InterpreterStackFrame * InitializeAllocation(__in_ecount(varAllocCount) Var * allocation, bool initParams, bool profileParams, Var loopHeaderArray, DWORD_PTR stackAddr);
 #endif
-            uint GetLocalCount() const { return localCount; }
+            uint GetLocalCount() const {TRACE_IT(49488); return localCount; }
 
         private:
             template <class Fn>
@@ -165,7 +165,7 @@ namespace Js
 #endif
 
         //This class must have an empty ctor (otherwise it will break the code in InterpreterStackFrame::InterpreterThunk
-        inline InterpreterStackFrame() { }
+        inline InterpreterStackFrame() {TRACE_IT(49489); }
 
         void ProcessTryFinally(const byte* ip, Js::JumpOffset jumpOffset, Js::RegSlot regException = Js::Constants::NoRegister, Js::RegSlot regOffset = Js::Constants::NoRegister, bool hasYield = false);
     public:
@@ -190,7 +190,7 @@ namespace Js
         FrameDisplay * GetLocalFrameDisplay() const;
         FrameDisplay * GetFrameDisplayForNestedFunc() const;
         Var InnerScopeFromRegSlot(RegSlot reg) const;
-        void SetClosureInitDone(bool done) { closureInitDone = done; }
+        void SetClosureInitDone(bool done) {TRACE_IT(49490); closureInitDone = done; }
 
         void ValidateRegValue(Var value, bool allowStackVar = false, bool allowStackVarOnDisabledStackNestedFunc = true) const;
         int OP_GetMemorySize();
@@ -240,18 +240,18 @@ namespace Js
 
         Var GetNonVarReg(RegSlot localRegisterID) const;
         void SetNonVarReg(RegSlot localRegisterID, void * bValue);
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        ScriptContext* GetScriptContext() const {TRACE_IT(49491); return scriptContext; }
         Var GetRootObject() const;
-        ScriptFunction* GetJavascriptFunction() const { return function; }
-        FunctionBody * GetFunctionBody() const { return m_functionBody; }
-        ByteCodeReader* GetReader() { return &m_reader;}
-        uint GetCurrentLoopNum() const { return currentLoopNum; }
-        InterpreterStackFrame* GetPreviousFrame() const {return previousInterpreterFrame;}
-        void SetPreviousFrame(InterpreterStackFrame *interpreterFrame) {previousInterpreterFrame = interpreterFrame;}
-        Var GetArgumentsObject() const { return m_arguments; }
-        void SetArgumentsObject(Var args) { m_arguments = args; }
-        UINT16 GetFlags() const { return m_flags; }
-        void OrFlags(UINT16 addTo) { m_flags |= addTo; }
+        ScriptFunction* GetJavascriptFunction() const {TRACE_IT(49492); return function; }
+        FunctionBody * GetFunctionBody() const {TRACE_IT(49493); return m_functionBody; }
+        ByteCodeReader* GetReader() {TRACE_IT(49494); return &m_reader;}
+        uint GetCurrentLoopNum() const {TRACE_IT(49495); return currentLoopNum; }
+        InterpreterStackFrame* GetPreviousFrame() const {TRACE_IT(49496);return previousInterpreterFrame;}
+        void SetPreviousFrame(InterpreterStackFrame *interpreterFrame) {TRACE_IT(49497);previousInterpreterFrame = interpreterFrame;}
+        Var GetArgumentsObject() const {TRACE_IT(49498); return m_arguments; }
+        void SetArgumentsObject(Var args) {TRACE_IT(49499); m_arguments = args; }
+        UINT16 GetFlags() const {TRACE_IT(49500); return m_flags; }
+        void OrFlags(UINT16 addTo) {TRACE_IT(49501); m_flags |= addTo; }
         bool IsInCatchOrFinallyBlock();
         static bool IsDelayDynamicInterpreterThunk(JavascriptMethod entryPoint);
 
@@ -265,23 +265,23 @@ namespace Js
         Var CreateHeapArguments(ScriptContext* scriptContext);
 
         bool IsCurrentLoopNativeAddr(void * codeAddr) const;
-        void * GetReturnAddress() { return returnAddress; }
+        void * GetReturnAddress() {TRACE_IT(49502); return returnAddress; }
 
-        static uint32 GetOffsetOfLocals() { return offsetof(InterpreterStackFrame, m_localSlots); }
-        static uint32 GetOffsetOfArguments() { return offsetof(InterpreterStackFrame, m_arguments); }
-        static uint32 GetOffsetOfInParams() { return offsetof(InterpreterStackFrame, m_inParams); }
-        static uint32 GetOffsetOfInSlotsCount() { return offsetof(InterpreterStackFrame, m_inSlotsCount); }
-        static uint32 GetOffsetOfStackNestedFunctions() { return offsetof(InterpreterStackFrame, stackNestedFunctions); }
-        static uint32 GetOffsetOfForInEnumerators() { return offsetof(InterpreterStackFrame, forInObjectEnumerators); }
+        static uint32 GetOffsetOfLocals() {TRACE_IT(49503); return offsetof(InterpreterStackFrame, m_localSlots); }
+        static uint32 GetOffsetOfArguments() {TRACE_IT(49504); return offsetof(InterpreterStackFrame, m_arguments); }
+        static uint32 GetOffsetOfInParams() {TRACE_IT(49505); return offsetof(InterpreterStackFrame, m_inParams); }
+        static uint32 GetOffsetOfInSlotsCount() {TRACE_IT(49506); return offsetof(InterpreterStackFrame, m_inSlotsCount); }
+        static uint32 GetOffsetOfStackNestedFunctions() {TRACE_IT(49507); return offsetof(InterpreterStackFrame, stackNestedFunctions); }
+        static uint32 GetOffsetOfForInEnumerators() {TRACE_IT(49508); return offsetof(InterpreterStackFrame, forInObjectEnumerators); }
 
-        static uint32 GetStartLocationOffset() { return offsetof(InterpreterStackFrame, m_reader) + ByteCodeReader::GetStartLocationOffset(); }
-        static uint32 GetCurrentLocationOffset() { return offsetof(InterpreterStackFrame, m_reader) + ByteCodeReader::GetCurrentLocationOffset(); }
+        static uint32 GetStartLocationOffset() {TRACE_IT(49509); return offsetof(InterpreterStackFrame, m_reader) + ByteCodeReader::GetStartLocationOffset(); }
+        static uint32 GetCurrentLocationOffset() {TRACE_IT(49510); return offsetof(InterpreterStackFrame, m_reader) + ByteCodeReader::GetCurrentLocationOffset(); }
 
-        bool IsParamScopeDone() const { return isParamScopeDone; }
-        void SetIsParamScopeDone(bool value) { isParamScopeDone = value; }
+        bool IsParamScopeDone() const {TRACE_IT(49511); return isParamScopeDone; }
+        void SetIsParamScopeDone(bool value) {TRACE_IT(49512); isParamScopeDone = value; }
 
         static bool IsBrLong(OpCode op, const byte * ip)
-        {
+        {TRACE_IT(49513);
 #ifdef BYTECODE_BRANCH_ISLAND
             CompileAssert(Js::OpCodeInfo<Js::OpCode::BrLong>::IsExtendedOpcode);
             return (op == OpCode::ExtendedOpcodePrefix) && ((OpCode)(ByteCodeReader::PeekExtOp(ip)) == OpCode::BrLong);
@@ -400,7 +400,7 @@ namespace Js
 #endif
 #endif
 
-        bool IsInDebugMode() const { return this->GetFunctionBody()->IsInDebugMode(); }
+        bool IsInDebugMode() const {TRACE_IT(49514); return this->GetFunctionBody()->IsInDebugMode(); }
 
         // This will be called for reseting outs when resume from break on error happened
         void ResetOut();
@@ -433,7 +433,7 @@ namespace Js
         void OP_StartCall(uint outParamCount);
         template <class T> void OP_CallCommon(const unaligned T *playout, RecyclableObject * aFunc, unsigned flags, const Js::AuxArray<uint32> *spreadIndices = nullptr);
         void OP_CallAsmInternal( RecyclableObject * function);
-        template <class T> void OP_I_AsmCall(const unaligned T* playout) { OP_CallAsmInternal((ScriptFunction*)OP_CallGetFunc(GetRegAllowStackVar(playout->Function))); }
+        template <class T> void OP_I_AsmCall(const unaligned T* playout) {TRACE_IT(49515); OP_CallAsmInternal((ScriptFunction*)OP_CallGetFunc(GetRegAllowStackVar(playout->Function))); }
 
         template <class T> void OP_CallCommonI(const unaligned T *playout, RecyclableObject * aFunc, unsigned flags);
         template <class T> void OP_ProfileCallCommon(const unaligned T *playout, RecyclableObject * aFunc, unsigned flags, ProfileId profileId, InlineCacheIndex inlineCacheIndex = Js::Constants::NoInlineCacheIndex, const Js::AuxArray<uint32> *spreadIndices = nullptr);
@@ -446,7 +446,7 @@ namespace Js
         template <class T> void OP_CallI(const unaligned T* playout, unsigned flags) { OP_CallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags); }
         template <class T> void OP_CallIExtended(const unaligned T* playout, unsigned flags) { OP_CallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
         template <class T> void OP_CallIExtendedFlags(const unaligned T* playout, unsigned flags) { OP_CallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
-        template <class T> void OP_CallIFlags(const unaligned T* playout, unsigned flags) { playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_CallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags); }
+        template <class T> void OP_CallIFlags(const unaligned T* playout, unsigned flags) {TRACE_IT(49516); playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_CallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags); }
 
         template <class T> void OP_ProfiledCallI(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId); }
         template <class T> void OP_ProfiledCallIExtended(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId, Js::Constants::NoInlineCacheIndex, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
@@ -454,12 +454,12 @@ namespace Js
         template <class T> void OP_ProfiledCallIWithICIndex(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId, playout->inlineCacheIndex); }
         template <class T> void OP_ProfiledCallIExtendedWithICIndex(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId, playout->inlineCacheIndex, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
         template <class T> void OP_ProfiledCallIExtendedFlagsWithICIndex(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId, playout->inlineCacheIndex, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
-        template <class T> void OP_ProfiledCallIFlags(const unaligned T* playout, unsigned flags) { playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId); }
+        template <class T> void OP_ProfiledCallIFlags(const unaligned T* playout, unsigned flags) {TRACE_IT(49517); playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_ProfileCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId); }
 
         template <class T> void OP_ProfiledReturnTypeCallI(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileReturnTypeCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId); }
         template <class T> void OP_ProfiledReturnTypeCallIExtended(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileReturnTypeCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags, playout->profileId, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
         template <class T> void OP_ProfiledReturnTypeCallIExtendedFlags(const unaligned OpLayoutDynamicProfile<T>* playout, unsigned flags) { OP_ProfileReturnTypeCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId, (playout->Options & CallIExtended_SpreadArgs) ? m_reader.ReadAuxArray<uint32>(playout->SpreadAuxOffset, this->GetFunctionBody()) : nullptr); }
-        template <class T> void OP_ProfiledReturnTypeCallIFlags(const unaligned T* playout, unsigned flags) { playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_ProfileReturnTypeCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId); }
+        template <class T> void OP_ProfiledReturnTypeCallIFlags(const unaligned T* playout, unsigned flags) {TRACE_IT(49518); playout->callFlags == Js::CallFlags::CallFlags_NewTarget ? OP_CallPutCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function))) : OP_ProfileReturnTypeCallCommon(playout, OP_CallGetFunc(GetRegAllowStackVar(playout->Function)), flags | playout->callFlags, playout->profileId); }
 
         // Patching Fastpath Operations
         template <class T> void OP_GetRootProperty(unaligned T* playout);
@@ -696,7 +696,7 @@ namespace Js
         Var ProfiledNewScObject_Helper(Var target, ArgSlot ArgCount, ProfileId profileId, InlineCacheIndex inlineCacheIndex, const Js::AuxArray<uint32> *spreadIndices = nullptr);
         template <class T, bool Profiled, bool ICIndex> Var OP_NewScObjectNoArg_Impl(const unaligned T *playout, InlineCacheIndex inlineCacheIndex = Js::Constants::NoInlineCacheIndex);
         void OP_NewScObject_A_Impl(const unaligned OpLayoutAuxiliary * playout, RegSlot *target = nullptr);
-        void OP_NewScObject_A(const unaligned OpLayoutAuxiliary * playout) { return OP_NewScObject_A_Impl(playout); }
+        void OP_NewScObject_A(const unaligned OpLayoutAuxiliary * playout) {TRACE_IT(49519); return OP_NewScObject_A_Impl(playout); }
         void OP_InitCachedFuncs(const unaligned OpLayoutAuxNoReg * playout);
         Var OP_GetCachedFunc(Var instance, int32 index);
         void OP_CommitScope();
@@ -774,22 +774,22 @@ namespace Js
         public:
             PushPopFrameHelper(InterpreterStackFrame *interpreterFrame, void *returnAddress, void *addressOfReturnAddress)
                 : m_threadContext(interpreterFrame->GetScriptContext()->GetThreadContext()), m_interpreterFrame(interpreterFrame), m_isHiddenFrame(false)
-            {
+            {TRACE_IT(49520);
                 interpreterFrame->returnAddress = returnAddress; // Ensure these are set before pushing to interpreter frame list
                 interpreterFrame->addressOfReturnAddress = addressOfReturnAddress;
                 if (interpreterFrame->GetFunctionBody()->GetIsAsmJsFunction())
-                {
+                {TRACE_IT(49521);
                     m_isHiddenFrame = true;
                 }
                 else
-                {
+                {TRACE_IT(49522);
                     m_threadContext->PushInterpreterFrame(interpreterFrame);
                 }
             }
             ~ PushPopFrameHelper()
-            {
+            {TRACE_IT(49523);
                 if (!m_isHiddenFrame)
-                {
+                {TRACE_IT(49524);
                     Js::InterpreterStackFrame *interpreterFrame = m_threadContext->PopInterpreterFrame();
                     AssertMsg(interpreterFrame == m_interpreterFrame,
                         "Interpreter frame chain corrupted?");
@@ -802,7 +802,7 @@ namespace Js
         };
 
         inline InlineCache* GetInlineCache(uint cacheIndex)
-        {
+        {TRACE_IT(49525);
             Assert(this->inlineCaches != nullptr);
             Assert(cacheIndex < this->inlineCacheCount);
 
@@ -810,12 +810,12 @@ namespace Js
         }
 
         inline IsInstInlineCache* GetIsInstInlineCache(uint cacheIndex)
-        {
+        {TRACE_IT(49526);
             return m_functionBody->GetIsInstInlineCache(cacheIndex);
         }
 
         inline PropertyId GetPropertyIdFromCacheId(uint cacheIndex)
-        {
+        {TRACE_IT(49527);
             return m_functionBody->GetPropertyIdFromCacheId(cacheIndex);
         }
 
@@ -838,9 +838,9 @@ namespace Js
     class InterpreterThunkStackCountTracker
     {
     public:
-        InterpreterThunkStackCountTracker()  { ++s_count; }
-        ~InterpreterThunkStackCountTracker() { --s_count; }
-        static int GetCount() { return s_count; }
+        InterpreterThunkStackCountTracker()  {TRACE_IT(49528); ++s_count; }
+        ~InterpreterThunkStackCountTracker() {TRACE_IT(49529); --s_count; }
+        static int GetCount() {TRACE_IT(49530); return s_count; }
     private:
         THREAD_LOCAL static int s_count;
     };

@@ -57,7 +57,7 @@ namespace DateTime
         uint32 lastTimeZoneUpdateTickCount;
 
         void UpdateTimeZoneInfo();
-        UtilityPlatformData(): lastTimeZoneUpdateTickCount(0) { }
+        UtilityPlatformData(): lastTimeZoneUpdateTickCount(0) {TRACE_IT(27236); }
     };
 
     class HiresTimerPlatformData
@@ -75,9 +75,9 @@ namespace DateTime
 
         HiresTimerPlatformData(): fInit(false), dBaseTime(0),
         baseMsCount(0),  fHiResAvailable(true),
-        dLastTime(0), dAdjustFactor(1), fReset(true) {}
+        dLastTime(0), dAdjustFactor(1), fReset(true) {TRACE_IT(27237);}
 
-        void Reset() { fReset = true; }
+        void Reset() {TRACE_IT(27238); fReset = true; }
     };
 
 #else // ! _WIN32
@@ -99,8 +99,8 @@ namespace DateTime
         ULONGLONG cacheTick;
         ULONGLONG previousDifference;
 
-        HiresTimerPlatformData():cacheSysTime(0), cacheTick(-1), previousDifference(0) { }
-        void Reset() { /* dummy method for interface compatiblity */ }
+        HiresTimerPlatformData():cacheSysTime(0), cacheTick(-1), previousDifference(0) {TRACE_IT(27239); }
+        void Reset() {TRACE_IT(27240); /* dummy method for interface compatiblity */ }
     };
 
 #endif // ! _WIN32

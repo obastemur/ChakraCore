@@ -37,32 +37,32 @@ AutoSystemInfo AutoSystemInfo::Data INIT_PRIORITY(300);
 #if DBG
 bool
 AutoSystemInfo::IsInitialized()
-{
+{TRACE_IT(20534);
     return AutoSystemInfo::Data.initialized;
 }
 #endif
 
 bool
 AutoSystemInfo::ShouldQCMoreFrequently()
-{
+{TRACE_IT(20535);
     return Data.shouldQCMoreFrequently;
 }
 
 bool
 AutoSystemInfo::SupportsOnlyMultiThreadedCOM()
-{
+{TRACE_IT(20536);
     return Data.supportsOnlyMultiThreadedCOM;
 }
 
 bool
 AutoSystemInfo::IsLowMemoryDevice()
-{
+{TRACE_IT(20537);
     return Data.isLowMemoryDevice;
 }
 
 void
 AutoSystemInfo::Initialize()
-{
+{TRACE_IT(20538);
     Assert(!initialized);
 #ifndef _WIN32
     PAL_InitializeChakraCore();
@@ -101,11 +101,11 @@ AutoSystemInfo::Initialize()
 
     WCHAR DisableDebugScopeCaptureFlag[MAX_PATH];
     if (::GetEnvironmentVariable(_u("JS_DEBUG_SCOPE"), DisableDebugScopeCaptureFlag, _countof(DisableDebugScopeCaptureFlag)) != 0)
-    {
+    {TRACE_IT(20539);
         disableDebugScopeCapture = true;
     }
     else
-    {
+    {TRACE_IT(20540);
         disableDebugScopeCapture = false;
     }
 
@@ -126,7 +126,7 @@ AutoSystemInfo::Initialize()
 
 bool
 AutoSystemInfo::InitPhysicalProcessorCount()
-{
+{TRACE_IT(20541);
     DWORD countPhysicalProcessor = 0;
 #ifdef _WIN32
     DWORD size = 0;
@@ -145,33 +145,33 @@ AutoSystemInfo::InitPhysicalProcessorCount()
     bResult = GetLogicalProcessorInformation(NULL, &size);
 
     if (bResult || GetLastError() != ERROR_INSUFFICIENT_BUFFER || !size)
-    {
+    {TRACE_IT(20542);
         return false;
     }
 
     DWORD count = (size) / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
     if (size != count * sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION))
-    {
+    {TRACE_IT(20543);
         Assert(false);
         return false;
     }
 
     pBufferCurrent = pBufferStart = NoCheckHeapNewArray(SYSTEM_LOGICAL_PROCESSOR_INFORMATION, (size_t)count);
     if (!pBufferCurrent)
-    {
+    {TRACE_IT(20544);
         return false;
     }
 
     bResult = GetLogicalProcessorInformation(pBufferCurrent, &size);
     if (!bResult)
-    {
+    {TRACE_IT(20545);
         return false;
     }
 
     while (pBufferCurrent < (pBufferStart + count))
-    {
+    {TRACE_IT(20546);
         if (pBufferCurrent->Relationship == RelationProcessorCore)
-        {
+        {TRACE_IT(20547);
             countPhysicalProcessor++;
         }
         pBufferCurrent++;
@@ -183,11 +183,11 @@ AutoSystemInfo::InitPhysicalProcessorCount()
     sysctlbyname("hw.physicalcpu", &countPhysicalProcessor, &szCount, nullptr, 0);
 
     if (countPhysicalProcessor < 1)
-    {
+    {TRACE_IT(20548);
         int nMIB[2] = {CTL_HW, HW_NCPU}; // fallback. Depracated on latest OS
         sysctl(nMIB, 2, &countPhysicalProcessor, &szCount, nullptr, 0);
         if (countPhysicalProcessor < 1)
-        {
+        {TRACE_IT(20549);
             countPhysicalProcessor = 1;
         }
     }
@@ -207,27 +207,27 @@ AutoSystemInfo::InitPhysicalProcessorCount()
 #if SYSINFO_IMAGE_BASE_AVAILABLE
 bool
 AutoSystemInfo::IsJscriptModulePointer(void * ptr)
-{
+{TRACE_IT(20550);
     return ((UINT_PTR)ptr >= Data.dllLoadAddress && (UINT_PTR)ptr < Data.dllHighAddress);
 }
 
 UINT_PTR
 AutoSystemInfo::GetChakraBaseAddr() const
-{
+{TRACE_IT(20551);
     return dllLoadAddress;
 }
 #endif
 
 uint
 AutoSystemInfo::GetAllocationGranularityPageCount() const
-{
+{TRACE_IT(20552);
     Assert(initialized);
     return this->allocationGranularityPageCount;
 }
 
 uint
 AutoSystemInfo::GetAllocationGranularityPageSize() const
-{
+{TRACE_IT(20553);
     Assert(initialized);
     return this->allocationGranularityPageCount * PageSize;
 }
@@ -235,7 +235,7 @@ AutoSystemInfo::GetAllocationGranularityPageSize() const
 #if defined(_M_IX86) || defined(_M_X64)
 bool
 AutoSystemInfo::VirtualSseAvailable(const int sseLevel) const
-{
+{TRACE_IT(20554);
     #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         return CONFIG_FLAG(Sse) < 0 || CONFIG_FLAG(Sse) >= sseLevel;
     #else
@@ -246,7 +246,7 @@ AutoSystemInfo::VirtualSseAvailable(const int sseLevel) const
 
 BOOL
 AutoSystemInfo::SSE2Available() const
-{
+{TRACE_IT(20555);
     Assert(initialized);
 
 #if defined(_M_X64) || defined(_M_ARM32_OR_ARM64)
@@ -265,35 +265,35 @@ AutoSystemInfo::SSE2Available() const
 #if defined(_M_IX86) || defined(_M_X64)
 BOOL
 AutoSystemInfo::SSE3Available() const
-{
+{TRACE_IT(20556);
     Assert(initialized);
     return VirtualSseAvailable(3) && (CPUInfo[2] & 0x1);
 }
 
 BOOL
 AutoSystemInfo::SSE4_1Available() const
-{
+{TRACE_IT(20557);
     Assert(initialized);
     return VirtualSseAvailable(4) && (CPUInfo[2] & (0x1 << 19));
 }
 
 BOOL
 AutoSystemInfo::SSE4_2Available() const
-{
+{TRACE_IT(20558);
     Assert(initialized);
     return VirtualSseAvailable(4) && (CPUInfo[2] & (0x1 << 20));
 }
 
 BOOL
 AutoSystemInfo::PopCntAvailable() const
-{
+{TRACE_IT(20559);
     Assert(initialized);
     return VirtualSseAvailable(4) && (CPUInfo[2] & (1 << 23));
 }
 
 BOOL
 AutoSystemInfo::LZCntAvailable() const
-{
+{TRACE_IT(20560);
     Assert(initialized);
     int CPUInfo[4];
     get_cpuid(CPUInfo, 0x80000001);
@@ -303,7 +303,7 @@ AutoSystemInfo::LZCntAvailable() const
 
 BOOL
 AutoSystemInfo::TZCntAvailable() const
-{
+{TRACE_IT(20561);
     Assert(initialized);
     int CPUInfo[4];
     get_cpuid(CPUInfo, 7);
@@ -313,13 +313,13 @@ AutoSystemInfo::TZCntAvailable() const
 
 bool
 AutoSystemInfo::IsAtomPlatform() const
-{
+{TRACE_IT(20562);
     return isAtom;
 }
 
 bool
 AutoSystemInfo::CheckForAtom() const
-{
+{TRACE_IT(20563);
     int CPUInfo[4];
     const int GENUINE_INTEL_0 = 0x756e6547,
               GENUINE_INTEL_1 = 0x49656e69,
@@ -349,7 +349,7 @@ AutoSystemInfo::CheckForAtom() const
             ((PLATFORM_MASK & platformSignature) == ATOM_PLATFORM_D) ||
             ((PLATFORM_MASK & platformSignature) == ATOM_PLATFORM_E) ||
             ((PLATFORM_MASK & platformSignature) == ATOM_PLATFORM_F))
-        {
+        {TRACE_IT(20564);
             return true;
         }
 
@@ -360,7 +360,7 @@ AutoSystemInfo::CheckForAtom() const
 
 bool
 AutoSystemInfo::IsCFGEnabled()
-{
+{TRACE_IT(20565);
 #if defined(_CONTROL_FLOW_GUARD)
     return true
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
@@ -374,42 +374,42 @@ AutoSystemInfo::IsCFGEnabled()
 
 bool
 AutoSystemInfo::IsWin8OrLater()
-{
+{TRACE_IT(20566);
     return isWindows8OrGreater;
 }
 
 #if defined(_CONTROL_FLOW_GUARD)
 bool
 AutoSystemInfo::IsWinThresholdOrLater()
-{
+{TRACE_IT(20567);
     return IsWindowsThresholdOrGreater();
 }
 #endif
 
 DWORD AutoSystemInfo::SaveModuleFileName(HANDLE hMod)
-{
+{TRACE_IT(20568);
     return ::GetModuleFileNameW((HMODULE)hMod, Data.binaryName, MAX_PATH);
 }
 
 LPCWSTR AutoSystemInfo::GetJscriptDllFileName()
-{
+{TRACE_IT(20569);
     return (LPCWSTR)Data.binaryName;
 }
 
 bool AutoSystemInfo::IsLowMemoryProcess()
-{
+{TRACE_IT(20570);
     ULONG64 commit = ULONG64(-1);
     this->GetAvailableCommit(&commit);
     return commit <= CONFIG_FLAG(LowMemoryCap);
 }
 
 BOOL AutoSystemInfo::GetAvailableCommit(ULONG64 *pCommit)
-{
+{TRACE_IT(20571);
     Assert(initialized);
 
     // Non-zero value indicates we've been here before.
     if (this->availableCommit == 0)
-    {
+    {TRACE_IT(20572);
         return false;
     }
 
@@ -418,7 +418,7 @@ BOOL AutoSystemInfo::GetAvailableCommit(ULONG64 *pCommit)
 }
 
 void AutoSystemInfo::SetAvailableCommit(ULONG64 commit)
-{
+{TRACE_IT(20573);
     ::InterlockedCompareExchange64((volatile LONG64 *)&this->availableCommit, commit, 0);
 }
 
@@ -427,10 +427,10 @@ void AutoSystemInfo::SetAvailableCommit(ULONG64 commit)
 // and returned without any system calls to find the version number.
 //
 HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorVersion, DWORD *buildDateHash, DWORD *buildTimeHash)
-{
+{TRACE_IT(20574);
     HRESULT hr = E_FAIL;
     if(AutoSystemInfo::Data.majorVersion == 0 && AutoSystemInfo::Data.minorVersion == 0)
-    {
+    {TRACE_IT(20575);
         // uninitialized state  - call the system API to get the version info.
         LPCWSTR jscriptDllName = GetJscriptDllFileName();
         hr = GetVersionInfo(jscriptDllName, majorVersion, minorVersion);
@@ -439,7 +439,7 @@ HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorV
         AutoSystemInfo::Data.minorVersion = *minorVersion;
     }
     else if(AutoSystemInfo::Data.majorVersion != INVALID_VERSION)
-    {
+    {TRACE_IT(20576);
         // if the cached copy is valid, use it and return S_OK.
         *majorVersion = AutoSystemInfo::Data.majorVersion;
         *minorVersion = AutoSystemInfo::Data.minorVersion;
@@ -447,12 +447,12 @@ HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorV
     }
 
     if (buildDateHash)
-    {
+    {TRACE_IT(20577);
         *buildDateHash = AutoSystemInfo::Data.buildDateHash;
     }
 
     if (buildTimeHash)
-    {
+    {TRACE_IT(20578);
         *buildTimeHash = AutoSystemInfo::Data.buildTimeHash;
     }
     return hr;
@@ -462,7 +462,7 @@ HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorV
 // Returns the major and minor version of the binary passed as argument.
 //
 HRESULT AutoSystemInfo::GetVersionInfo(__in LPCWSTR pszPath, DWORD* majorVersion, DWORD* minorVersion)
-{
+{TRACE_IT(20579);
 #ifdef _WIN32
     DWORD   dwTemp;
     DWORD   cbVersionSz;
@@ -471,40 +471,40 @@ HRESULT AutoSystemInfo::GetVersionInfo(__in LPCWSTR pszPath, DWORD* majorVersion
     VS_FIXEDFILEINFO* pFileInfo = NULL;
     cbVersionSz = GetFileVersionInfoSizeEx(FILE_VER_GET_LOCALISED, pszPath, &dwTemp);
     if(cbVersionSz > 0)
-    {
+    {TRACE_IT(20580);
         pVerBuffer = NoCheckHeapNewArray(BYTE, cbVersionSz);
         if(pVerBuffer)
-        {
+        {TRACE_IT(20581);
             if(GetFileVersionInfoEx(FILE_VER_GET_LOCALISED|FILE_VER_GET_NEUTRAL, pszPath, 0, cbVersionSz, pVerBuffer))
-            {
+            {TRACE_IT(20582);
                 UINT    uiSz = sizeof(VS_FIXEDFILEINFO);
                 if(!VerQueryValue(pVerBuffer, _u("\\"), (LPVOID*)&pFileInfo, &uiSz))
-                {
+                {TRACE_IT(20583);
                     hr = HRESULT_FROM_WIN32(GetLastError());
                 }
                 else
-                {
+                {TRACE_IT(20584);
                     hr = S_OK;
                 }
             }
             else
-            {
+            {TRACE_IT(20585);
                 hr = HRESULT_FROM_WIN32(GetLastError());
             }
         }
         else
-        {
+        {TRACE_IT(20586);
             hr = E_OUTOFMEMORY;
         }
     }
 
     if(SUCCEEDED(hr))
-    {
+    {TRACE_IT(20587);
         *majorVersion = pFileInfo->dwFileVersionMS;
         *minorVersion = pFileInfo->dwFileVersionLS;
     }
     else
-    {
+    {TRACE_IT(20588);
         *majorVersion = INVALID_VERSION;
         *minorVersion = INVALID_VERSION;
     }

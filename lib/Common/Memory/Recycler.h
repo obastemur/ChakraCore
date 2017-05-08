@@ -36,7 +36,7 @@ class AutoBooleanToggle
 public:
     AutoBooleanToggle(bool * b, bool value = true, bool valueMayChange = false)
         : b(b)
-    {
+    {TRACE_IT(26074);
         Assert(!(*b));
         *b = value;
 #if DBG
@@ -46,16 +46,16 @@ public:
     }
 
     ~AutoBooleanToggle()
-    {
+    {TRACE_IT(26075);
         if (b)
-        {
+        {TRACE_IT(26076);
             Assert(valueMayChange || *b == value);
             *b = false;
         }
     }
 
     void Leave()
-    {
+    {TRACE_IT(26077);
         Assert(valueMayChange || *b == value);
         *b = false;
         b = nullptr;
@@ -75,7 +75,7 @@ class AutoRestoreValue
 public:
     AutoRestoreValue(T* var, const T& val):
         variable(var)
-    {
+    {TRACE_IT(26078);
         Assert(var);
         oldValue = (*variable);
         (*variable) = val;
@@ -85,7 +85,7 @@ public:
     }
 
     ~AutoRestoreValue()
-    {
+    {TRACE_IT(26079);
         Assert((*variable) == debugSetValue);
         (*variable) = oldValue;
     }
@@ -104,7 +104,7 @@ class Recycler;
 class RecyclerScanMemoryCallback
 {
 public:
-    RecyclerScanMemoryCallback(Recycler* recycler) : recycler(recycler) {}
+    RecyclerScanMemoryCallback(Recycler* recycler) : recycler(recycler) {TRACE_IT(26080);}
     void operator()(void** obj, size_t byteCount);
 private:
     Recycler* recycler;
@@ -215,12 +215,12 @@ struct InfoBitsWrapper{};
 #ifdef RECYCLER_TRACE
 #define RecyclerVerboseTrace(flags, ...) \
     if (flags.Verbose && flags.Trace.IsEnabled(Js::RecyclerPhase)) \
-        { \
+        {TRACE_IT(26081); \
         Output::Print(__VA_ARGS__); \
         }
 #define AllocationVerboseTrace(flags, ...) \
     if (flags.Verbose && flags.Trace.IsEnabled(Js::MemoryAllocationPhase)) \
-        { \
+        {TRACE_IT(26082); \
         Output::Print(__VA_ARGS__); \
         }
 
@@ -228,12 +228,12 @@ struct InfoBitsWrapper{};
     if (flags.Verbose && \
         (flags.Trace.IsEnabled(Js::MemoryAllocationPhase) || \
          flags.Trace.IsEnabled(Js::LargeMemoryAllocationPhase))) \
-        { \
+        {TRACE_IT(26083); \
         Output::Print(__VA_ARGS__); \
         }
 #define PageAllocatorAllocationVerboseTrace(flags, ...) \
     if (flags.Verbose && flags.Trace.IsEnabled(Js::PageAllocatorAllocPhase)) \
-        { \
+        {TRACE_IT(26084); \
         Output::Print(__VA_ARGS__); \
         }
 
@@ -333,7 +333,7 @@ class RecyclerCollectionWrapper
 public:
     RecyclerCollectionWrapper() :
         _isScriptContextCloseGCPending(FALSE)
-    { }
+    {TRACE_IT(26085); }
 
     typedef BOOL (Recycler::*CollectionFunction)(CollectionFlags flags);
     virtual void PreCollectionCallBack(CollectionFlags flags) = 0;
@@ -364,17 +364,17 @@ public:
 #endif
 
     BOOL GetIsScriptContextCloseGCPending()
-    {
+    {TRACE_IT(26086);
         return _isScriptContextCloseGCPending;
     }
 
     void ClearIsScriptContextCloseGCPending()
-    {
+    {TRACE_IT(26087);
         _isScriptContextCloseGCPending = FALSE;
     }
 
     void SetIsScriptContextCloseGCPending()
-    {
+    {TRACE_IT(26088);
         _isScriptContextCloseGCPending = TRUE;
     }
 
@@ -511,10 +511,10 @@ struct RecyclerCollectionStats
 };
 #define RECYCLER_STATS_INC_IF(cond, r, f) if (cond) { RECYCLER_STATS_INC(r, f); }
 #define RECYCLER_STATS_INC(r, f) ++r->collectionStats.f
-#define RECYCLER_STATS_INTERLOCKED_INC(r, f) { InterlockedIncrement((LONG *)&r->collectionStats.f); }
+#define RECYCLER_STATS_INTERLOCKED_INC(r, f) {TRACE_IT(26089); InterlockedIncrement((LONG *)&r->collectionStats.f); }
 #define RECYCLER_STATS_DEC(r, f) --r->collectionStats.f
 #define RECYCLER_STATS_ADD(r, f, v) r->collectionStats.f += (v)
-#define RECYCLER_STATS_INTERLOCKED_ADD(r, f, v) { InterlockedAdd((LONG *)&r->collectionStats.f, (LONG)(v)); }
+#define RECYCLER_STATS_INTERLOCKED_ADD(r, f, v) {TRACE_IT(26090); InterlockedAdd((LONG *)&r->collectionStats.f, (LONG)(v)); }
 #define RECYCLER_STATS_SUB(r, f, v) r->collectionStats.f -= (v)
 #define RECYCLER_STATS_SET(r, f, v) r->collectionStats.f = v
 #else
@@ -561,11 +561,11 @@ public:
         concurrentWorkReadyEvent(NULL),
         concurrentWorkDoneEvent(NULL),
         concurrentThread(NULL)
-    {
+    {TRACE_IT(26091);
     }
 
     ~RecyclerParallelThread()
-    {
+    {TRACE_IT(26092);
         Assert(concurrentThread == NULL);
         Assert(concurrentWorkReadyEvent == NULL);
         Assert(concurrentWorkDoneEvent == NULL);
@@ -655,7 +655,7 @@ public:
     public:
         AutoEnterExternalStackSkippingGCMode(Recycler* recycler):
             _recycler(recycler)
-        {
+        {TRACE_IT(26093);
             // Setting this in a re-entrant mode is not allowed
             Assert(!recycler->isExternalStackSkippingGC);
 
@@ -665,7 +665,7 @@ public:
         }
 
         ~AutoEnterExternalStackSkippingGCMode()
-        {
+        {TRACE_IT(26094);
 #if DBG
             _recycler->isExternalStackSkippingGC = false;
 #endif
@@ -685,7 +685,7 @@ private:
 public:
     template<typename Action>
     void ForEachPageAllocator(Action action)
-    {        
+    {TRACE_IT(26095);        
         action(&this->recyclerPageAllocator);
         action(&this->recyclerLargeBlockPageAllocator);
 #ifdef RECYCLER_WRITE_BARRIER_ALLOC_SEPARATE_PAGE
@@ -700,12 +700,12 @@ private:
         AutoSwitchCollectionStates(Recycler* recycler, CollectionState entryState, CollectionState exitState):
             _recycler(recycler),
             _exitState(exitState)
-        {
+        {TRACE_IT(26096);
             _recycler->collectionState = entryState;
         }
 
         ~AutoSwitchCollectionStates()
-        {
+        {TRACE_IT(26097);
             _recycler->collectionState = _exitState;
         }
 
@@ -723,20 +723,20 @@ private:
     struct PinRecord
     {
 #ifdef STACK_BACK_TRACE
-        PinRecord() : refCount(0), stackBackTraces(nullptr) {}
+        PinRecord() : refCount(0), stackBackTraces(nullptr) {TRACE_IT(26098);}
 #else
-        PinRecord() : refCount(0) {}
+        PinRecord() : refCount(0) {TRACE_IT(26099);}
 #endif
         PinRecord& operator=(uint newRefCount)
-        {
+        {TRACE_IT(26100);
 #ifdef STACK_BACK_TRACE
             Assert(stackBackTraces == nullptr);
 #endif
             Assert(newRefCount == 0); refCount = 0; return *this;
         }
-        PinRecord& operator++() { ++refCount; return *this; }
-        PinRecord& operator--() { --refCount; return *this; }
-        operator uint() const { return refCount; }
+        PinRecord& operator++() {TRACE_IT(26101); ++refCount; return *this; }
+        PinRecord& operator--() {TRACE_IT(26102); --refCount; return *this; }
+        operator uint() const {TRACE_IT(26103); return refCount; }
 #ifdef STACK_BACK_TRACE
         StackBackTraceNode * stackBackTraces;
 #endif
@@ -764,7 +764,7 @@ private:
     {
         GuestArenaAllocator(__in_z char16 const*  name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)())
             : ArenaAllocator(name, pageAllocator, outOfMemoryFunc), pendingDelete(false)
-        {
+        {TRACE_IT(26104);
         }
         bool pendingDelete;
     };
@@ -772,16 +772,16 @@ private:
     DListBase<ArenaData*> externalGuestArenaList;    // guest arenas are scanned for roots
 
 #ifdef RECYCLER_PAGE_HEAP
-    inline bool IsPageHeapEnabled() const { return isPageHeapEnabled; }
+    inline bool IsPageHeapEnabled() const {TRACE_IT(26105); return isPageHeapEnabled; }
     template<ObjectInfoBits attributes>
     bool IsPageHeapEnabled(size_t size);
-    inline bool ShouldCapturePageHeapAllocStack() const { return capturePageHeapAllocStack; }
+    inline bool ShouldCapturePageHeapAllocStack() const {TRACE_IT(26106); return capturePageHeapAllocStack; }
     bool isPageHeapEnabled;
     bool capturePageHeapAllocStack;
     bool capturePageHeapFreeStack;
 #else
-    inline const bool IsPageHeapEnabled() const { return false; }
-    inline bool ShouldCapturePageHeapAllocStack() const { return false; }
+    inline const bool IsPageHeapEnabled() const {TRACE_IT(26107); return false; }
+    inline bool ShouldCapturePageHeapAllocStack() const {TRACE_IT(26108); return false; }
 #endif
 
 
@@ -820,8 +820,8 @@ private:
     PagePool parallelMarkPagePool3;
 
     bool IsMarkStackEmpty();
-    bool HasPendingMarkObjects() const { return markContext.HasPendingMarkObjects() || parallelMarkContext1.HasPendingMarkObjects() || parallelMarkContext2.HasPendingMarkObjects() || parallelMarkContext3.HasPendingMarkObjects(); }
-    bool HasPendingTrackObjects() const { return markContext.HasPendingTrackObjects() || parallelMarkContext1.HasPendingTrackObjects() || parallelMarkContext2.HasPendingTrackObjects() || parallelMarkContext3.HasPendingTrackObjects(); }
+    bool HasPendingMarkObjects() const {TRACE_IT(26109); return markContext.HasPendingMarkObjects() || parallelMarkContext1.HasPendingMarkObjects() || parallelMarkContext2.HasPendingMarkObjects() || parallelMarkContext3.HasPendingMarkObjects(); }
+    bool HasPendingTrackObjects() const {TRACE_IT(26110); return markContext.HasPendingTrackObjects() || parallelMarkContext1.HasPendingTrackObjects() || parallelMarkContext2.HasPendingTrackObjects() || parallelMarkContext3.HasPendingTrackObjects(); }
 
     RecyclerCollectionWrapper * collectionWrapper;
 
@@ -846,12 +846,12 @@ private:
         }
 
         void** GetRegisters()
-        {
+        {TRACE_IT(26111);
             return registers;
         }
 
         void*  GetStackTop()
-        {
+        {TRACE_IT(26112);
             // By convention, our register-saving routine will always
             // save the stack pointer as the first item in the array
             return registers[0];
@@ -1071,19 +1071,19 @@ public:
 #endif
         );
 
-    Js::ConfigFlagsTable& GetRecyclerFlagsTable() const { return this->recyclerFlagsTable; }
+    Js::ConfigFlagsTable& GetRecyclerFlagsTable() const {TRACE_IT(26113); return this->recyclerFlagsTable; }
     void SetMemProtectMode();
     bool IsMemProtectMode();
     size_t GetUsedBytes();
     void LogMemProtectHeapSize(bool fromGC);
     char* Realloc(void* buffer, DECLSPEC_GUARD_OVERFLOW size_t existingBytes, DECLSPEC_GUARD_OVERFLOW size_t requestedBytes, bool truncate = true);
 #ifdef NTBUILD
-    void SetTelemetryBlock(RecyclerWatsonTelemetryBlock * telemetryBlock) { this->telemetryBlock = telemetryBlock; }
+    void SetTelemetryBlock(RecyclerWatsonTelemetryBlock * telemetryBlock) {TRACE_IT(26114); this->telemetryBlock = telemetryBlock; }
 #endif
 
     void Prime();
-    void* GetOwnerContext() { return (void*) this->collectionWrapper; }
-    PageAllocator * GetPageAllocator() { return threadPageAllocator; }
+    void* GetOwnerContext() {TRACE_IT(26115); return (void*) this->collectionWrapper; }
+    PageAllocator * GetPageAllocator() {TRACE_IT(26116); return threadPageAllocator; }
     bool NeedOOMRescan() const;
     void SetNeedOOMRescan();
     void ClearNeedOOMRescan();
@@ -1093,9 +1093,9 @@ public:
     BOOL IsSweeping() const;
 
 #ifdef RECYCLER_PAGE_HEAP
-    inline bool ShouldCapturePageHeapFreeStack() const { return capturePageHeapFreeStack; }
+    inline bool ShouldCapturePageHeapFreeStack() const {TRACE_IT(26117); return capturePageHeapFreeStack; }
 #else
-    inline bool ShouldCapturePageHeapFreeStack() const { return false; }
+    inline bool ShouldCapturePageHeapFreeStack() const {TRACE_IT(26118); return false; }
 #endif
 
     void SetIsThreadBound();
@@ -1111,11 +1111,11 @@ public:
     IdleDecommitPageAllocator * GetRecyclerWithBarrierPageAllocator();
 #endif
 
-    BOOL IsShuttingDown() const { return this->isShuttingDown; }
+    BOOL IsShuttingDown() const {TRACE_IT(26119); return this->isShuttingDown; }
 #if ENABLE_CONCURRENT_GC
 #if DBG
-    BOOL IsConcurrentMarkEnabled() const { return enableConcurrentMark; }
-    BOOL IsConcurrentSweepEnabled() const { return enableConcurrentSweep; }
+    BOOL IsConcurrentMarkEnabled() const {TRACE_IT(26120); return enableConcurrentMark; }
+    BOOL IsConcurrentSweepEnabled() const {TRACE_IT(26121); return enableConcurrentSweep; }
 #endif
     template <CollectionFlags flags>
     BOOL FinishConcurrent();
@@ -1141,19 +1141,19 @@ public:
     void TryMarkNonInterior(void* candidate, void* parentReference = nullptr);
     void TryMarkInterior(void *candidate, void* parentReference = nullptr);
 
-    bool InCacheCleanupCollection() { return inCacheCleanupCollection; }
-    void ClearCacheCleanupCollection() { Assert(inCacheCleanupCollection); inCacheCleanupCollection = false; }
+    bool InCacheCleanupCollection() {TRACE_IT(26122); return inCacheCleanupCollection; }
+    void ClearCacheCleanupCollection() {TRACE_IT(26123); Assert(inCacheCleanupCollection); inCacheCleanupCollection = false; }
 
     // Finalizer support
     void SetExternalRootMarker(ExternalRootMarker fn, void * context);
     ArenaAllocator * CreateGuestArena(char16 const * name, void (*outOfMemoryFunc)());
     void DeleteGuestArena(ArenaAllocator * arenaAllocator);
     ArenaData ** RegisterExternalGuestArena(ArenaData* guestArena)
-    {
+    {TRACE_IT(26124);
         return externalGuestArenaList.PrependNode(&NoThrowHeapAllocator::Instance, guestArena);
     }
     void UnregisterExternalGuestArena(ArenaData* guestArena)
-    {
+    {TRACE_IT(26125);
         externalGuestArenaList.Remove(&NoThrowHeapAllocator::Instance, guestArena);
 
         // Any time a root is removed during a GC, it indicates that an exhaustive
@@ -1163,7 +1163,7 @@ public:
     }
 
     void UnregisterExternalGuestArena(ArenaData** guestArena)
-    {
+    {TRACE_IT(26126);
         externalGuestArenaList.RemoveElement(&NoThrowHeapAllocator::Instance, guestArena);
 
         // Any time a root is removed during a GC, it indicates that an exhaustive
@@ -1177,8 +1177,8 @@ public:
 #endif
 
     void SetCollectionWrapper(RecyclerCollectionWrapper * wrapper);
-    static size_t GetAlignedSize(size_t size) { return HeapInfo::GetAlignedSize(size); }
-    HeapInfo* GetAutoHeap() { return &autoHeap; }
+    static size_t GetAlignedSize(size_t size) {TRACE_IT(26127); return HeapInfo::GetAlignedSize(size); }
+    HeapInfo* GetAutoHeap() {TRACE_IT(26128); return &autoHeap; }
     template <CollectionFlags flags>
     BOOL CollectNow();
 
@@ -1188,7 +1188,7 @@ public:
 
     void AddExternalMemoryUsage(size_t size);
 
-    bool NeedDispose() { return this->hasDisposableObject; }
+    bool NeedDispose() {TRACE_IT(26129); return this->hasDisposableObject; }
 
     template <CollectionFlags flags>
     bool FinishDisposeObjectsNow();
@@ -1199,7 +1199,7 @@ public:
 #ifdef TRACE_OBJECT_LIFETIME
 #define DEFINE_RECYCLER_ALLOC_TRACE(AllocFunc, AllocWithAttributesFunc, attributes) \
     inline char* AllocFunc##Trace(size_t size) \
-    { \
+    {TRACE_IT(26130); \
         return AllocWithAttributesFunc<(ObjectInfoBits)(attributes | TraceBit), /* nothrow = */ false>(size); \
     }
 #else
@@ -1207,22 +1207,22 @@ public:
 #endif
 #define DEFINE_RECYCLER_ALLOC_BASE(AllocFunc, AllocWithAttributesFunc, attributes) \
     inline char * AllocFunc(DECLSPEC_GUARD_OVERFLOW size_t size) \
-    { \
+    {TRACE_IT(26131); \
         return AllocWithAttributesFunc<attributes, /* nothrow = */ false>(size); \
     } \
     __forceinline char * AllocFunc##Inlined(DECLSPEC_GUARD_OVERFLOW size_t size) \
-    { \
+    {TRACE_IT(26132); \
         return AllocWithAttributesFunc##Inlined<attributes, /* nothrow = */ false>(size);  \
     } \
     DEFINE_RECYCLER_ALLOC_TRACE(AllocFunc, AllocWithAttributesFunc, attributes);
 
 #define DEFINE_RECYCLER_NOTHROW_ALLOC_BASE(AllocFunc, AllocWithAttributesFunc, attributes) \
     inline char * NoThrow##AllocFunc(DECLSPEC_GUARD_OVERFLOW size_t size) \
-    { \
+    {TRACE_IT(26133); \
         return AllocWithAttributesFunc<attributes, /* nothrow = */ true>(size); \
     } \
     inline char * NoThrow##AllocFunc##Inlined(DECLSPEC_GUARD_OVERFLOW size_t size) \
-    { \
+    {TRACE_IT(26134); \
         return AllocWithAttributesFunc##Inlined<attributes, /* nothrow = */ true>(size);  \
     } \
     DEFINE_RECYCLER_ALLOC_TRACE(AllocFunc, AllocWithAttributesFunc, attributes);
@@ -1266,7 +1266,7 @@ public:
 
     template <ObjectInfoBits enumClass>
     char * AllocEnumClass(DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26135);
         Assert((enumClass & EnumClassMask) != 0);
         //Assert((enumClass & ~EnumClassMask & ~WithBarrierBit) == 0);
         return AllocWithAttributes<(ObjectInfoBits)(enumClass), /* nothrow = */ false>(size);
@@ -1274,13 +1274,13 @@ public:
 
     template <ObjectInfoBits infoBits>
     char * AllocWithInfoBits(DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26136);
         return AllocWithAttributes<infoBits, /* nothrow = */ false>(size);
     }
 
     template<typename T>
     RecyclerWeakReference<T>* CreateWeakReferenceHandle(T* pStrongReference);
-    uint GetWeakReferenceCleanupId() const { return weakReferenceCleanupId; }
+    uint GetWeakReferenceCleanupId() const {TRACE_IT(26137); return weakReferenceCleanupId; }
 
     template<typename T>
     bool FindOrCreateWeakReferenceHandle(T* pStrongReference, RecyclerWeakReference<T> **ppWeakRef);
@@ -1290,21 +1290,21 @@ public:
 
     template <ObjectInfoBits attributes>
     char* GetAddressOfAllocator(size_t sizeCat)
-    {
+    {TRACE_IT(26138);
         Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
         return (char*)this->autoHeap.GetBucket<attributes>(sizeCat).GetAllocator();
     }
 
     template <ObjectInfoBits attributes>
     uint32 GetEndAddressOffset(size_t sizeCat)
-    {
+    {TRACE_IT(26139);
         Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
         return this->autoHeap.GetBucket<attributes>(sizeCat).GetAllocator()->GetEndAddressOffset();
     }
 
     template <ObjectInfoBits attributes>
     uint32 GetFreeObjectListOffset(size_t sizeCat)
-    {
+    {TRACE_IT(26140);
         Assert(HeapInfo::IsAlignedSmallObjectSize(sizeCat));
         return this->autoHeap.GetBucket<attributes>(sizeCat).GetAllocator()->GetFreeObjectListOffset();
     }
@@ -1315,7 +1315,7 @@ public:
     static void TrackNativeAllocatedMemoryBlock(Recycler * recycler, void * memBlock, size_t sizeCat);
 
     void Free(void* buffer, size_t size)
-    {
+    {TRACE_IT(26141);
         Assert(false);
     }
 
@@ -1334,7 +1334,7 @@ public:
     void SetExplicitFreeBitOnSmallBlock(HeapBlock* heapBlock, size_t sizeCat, void* buffer, ObjectInfoBits attributes);
 
     char* HeapAllocR(HeapInfo* eHeap, DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26142);
         return RealAlloc<LeafBit, /* nothrow = */ false>(eHeap, size);
     }
 
@@ -1369,14 +1369,14 @@ public:
 #endif
 
 #ifdef PROFILE_EXEC
-    Js::Profiler * GetProfiler() const { return this->profiler; }
+    Js::Profiler * GetProfiler() const {TRACE_IT(26143); return this->profiler; }
     ArenaAllocator * AddBackgroundProfilerArena();
     void ReleaseBackgroundProfilerArena(ArenaAllocator * arena);
     void SetProfiler(Js::Profiler * profiler, Js::Profiler * backgroundProfiler);
 #endif
 #ifdef RECYCLER_MEMORY_VERIFY
-    BOOL VerifyEnabled() const { return verifyEnabled; }
-    uint GetVerifyPad() const { return verifyPad; }
+    BOOL VerifyEnabled() const {TRACE_IT(26144); return verifyEnabled; }
+    uint GetVerifyPad() const {TRACE_IT(26145); return verifyPad; }
     void Verify(Js::Phase phase);
 
     static void VerifyCheck(BOOL cond, char16 const * msg, void * address, void * corruptedAddress);
@@ -1408,7 +1408,7 @@ public:
     void CheckLeaksOnProcessDetach(char16 const * header);
 #endif
 #ifdef RECYCLER_TRACE
-    void SetDomCollect(bool isDomCollect) { collectionParam.domCollect = isDomCollect; }
+    void SetDomCollect(bool isDomCollect) {TRACE_IT(26146); collectionParam.domCollect = isDomCollect; }
     void CaptureCollectionParam(CollectionFlags flags, bool repeat = false);
 #endif
 
@@ -1452,7 +1452,7 @@ private:
     inline char * AllocWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size);
     template <ObjectInfoBits attributes, bool nothrow>
     char * AllocWithAttributes(DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26147);
         return AllocWithAttributesInlined<attributes, nothrow>(size);
     }
 
@@ -1461,12 +1461,12 @@ private:
 
     template <ObjectInfoBits attributes, bool nothrow>
     char* AllocZeroWithAttributes(DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26148);
         return AllocZeroWithAttributesInlined<attributes, nothrow>(size);
     }
 
     char* AllocWeakReferenceEntry(DECLSPEC_GUARD_OVERFLOW size_t size)
-    {
+    {TRACE_IT(26149);
         return AllocWithAttributes<WeakReferenceEntryBits, /* nothrow = */ false>(size);
     }
 #if DBG
@@ -1475,7 +1475,7 @@ private:
 #endif
 
     bool NeedDisposeTimed()
-    {
+    {TRACE_IT(26150);
         DWORD ticks = ::GetTickCount();
         return (ticks > tickCountNextDispose && this->hasDisposableObject);
     }
@@ -1530,7 +1530,7 @@ private:
     void ProcessMarkContext(MarkContext * markContext);
 
 public:
-    bool IsObjectMarked(void* candidate) { return this->heapBlockMap.IsMarked(candidate); }
+    bool IsObjectMarked(void* candidate) {TRACE_IT(26151); return this->heapBlockMap.IsMarked(candidate); }
 #ifdef RECYCLER_STRESS
     bool StressCollectNow();
 #endif
@@ -1542,7 +1542,7 @@ private:
         FindBlockCache():
             heapBlock(nullptr),
             candidate(nullptr)
-        {
+        {TRACE_IT(26152);
         }
 
         HeapBlock* heapBlock;
@@ -1554,7 +1554,7 @@ private:
     template <bool doSpecialMark>
     inline void ScanMemoryInline(void ** obj, size_t byteCount);
     template <bool doSpecialMark>
-    void ScanMemory(void ** obj, size_t byteCount) { if (byteCount != 0) { ScanMemoryInline<doSpecialMark>(obj, byteCount); } }
+    void ScanMemory(void ** obj, size_t byteCount) {TRACE_IT(26153); if (byteCount != 0) { ScanMemoryInline<doSpecialMark>(obj, byteCount); } }
     bool AddMark(void * candidate, size_t byteCount);
 
     // Sweep
@@ -1608,12 +1608,12 @@ private:
 #endif
 
     BOOL IsAllocatableCallbackState()
-    {
+    {TRACE_IT(26154);
         return (collectionState & (Collection_PostSweepRedeferralCallback | Collection_PostCollectionCallback));
     }
 #if ENABLE_CONCURRENT_GC
     // Concurrent GC
-    BOOL IsConcurrentEnabled() const { return this->enableConcurrentMark || this->enableParallelMark || this->enableConcurrentSweep; }
+    BOOL IsConcurrentEnabled() const {TRACE_IT(26155); return this->enableConcurrentMark || this->enableParallelMark || this->enableConcurrentSweep; }
     BOOL IsConcurrentMarkState() const;
     BOOL IsConcurrentMarkExecutingState() const;
     BOOL IsConcurrentResetMarksState() const;
@@ -1622,7 +1622,7 @@ private:
     BOOL IsConcurrentSweepExecutingState() const;
     BOOL IsConcurrentState() const;
     BOOL InConcurrentSweep()
-    {
+    {TRACE_IT(26156);
         return ((collectionState & Collection_ConcurrentSweep) == Collection_ConcurrentSweep);
     }
 #if DBG
@@ -1843,8 +1843,8 @@ public:
     bool FindImplicitRootObject(void* candidate, RecyclerHeapObjectInfo& heapObject);
     bool FindHeapObject(void* candidate, FindHeapObjectFlags flags, RecyclerHeapObjectInfo& heapObject);
     bool FindHeapObjectWithClearedAllocators(void* candidate, RecyclerHeapObjectInfo& heapObject);
-    bool IsCollectionDisabled() const { return isCollectionDisabled; }
-    bool IsHeapEnumInProgress() const { Assert(isHeapEnumInProgress ? isCollectionDisabled : true); return isHeapEnumInProgress; }
+    bool IsCollectionDisabled() const {TRACE_IT(26157); return isCollectionDisabled; }
+    bool IsHeapEnumInProgress() const {TRACE_IT(26158); Assert(isHeapEnumInProgress ? isCollectionDisabled : true); return isHeapEnumInProgress; }
 
 #if DBG
     // There are limited cases that we have to allow allocation during heap enumeration. GC is explicitly
@@ -1852,19 +1852,19 @@ public:
     // The only case of allocation right now is allocating property record for string based type handler
     // so we can use the propertyId as the relation Id.
     // Allocation during enumeration is still frown upon and should still be avoid if possible.
-    bool AllowAllocationDuringHeapEnum() const { return allowAllocationDuringHeapEnum; }
+    bool AllowAllocationDuringHeapEnum() const {TRACE_IT(26159); return allowAllocationDuringHeapEnum; }
     class AutoAllowAllocationDuringHeapEnum : public AutoBooleanToggle
     {
     public:
-        AutoAllowAllocationDuringHeapEnum(Recycler * recycler) : AutoBooleanToggle(&recycler->allowAllocationDuringHeapEnum) {};
+        AutoAllowAllocationDuringHeapEnum(Recycler * recycler) : AutoBooleanToggle(&recycler->allowAllocationDuringHeapEnum) {TRACE_IT(26160);};
     };
 
 #ifdef ENABLE_PROJECTION
-    bool IsInRefCountTrackingForProjection() const { return isInRefCountTrackingForProjection;}
+    bool IsInRefCountTrackingForProjection() const {TRACE_IT(26161); return isInRefCountTrackingForProjection;}
     class AutoIsInRefCountTrackingForProjection : public AutoBooleanToggle
     {
     public:
-        AutoIsInRefCountTrackingForProjection(Recycler * recycler) : AutoBooleanToggle(&recycler->isInRefCountTrackingForProjection) {};
+        AutoIsInRefCountTrackingForProjection(Recycler * recycler) : AutoBooleanToggle(&recycler->isInRefCountTrackingForProjection) {TRACE_IT(26162);};
     };
 #endif
 #endif
@@ -1888,7 +1888,7 @@ public:
     PostHeapEnumScanCallback pfPostHeapEnumScanCallback;
     void *postHeapEnunScanData;
     void PostHeapEnumScan(PostHeapEnumScanCallback callback, void*data);
-    bool IsPostEnumHeapValidationInProgress() const { return pfPostHeapEnumScanCallback != NULL; }
+    bool IsPostEnumHeapValidationInProgress() const {TRACE_IT(26163); return pfPostHeapEnumScanCallback != NULL; }
 #endif
 
 private:
@@ -1898,8 +1898,8 @@ private:
 
 #if defined(RECYCLER_DUMP_OBJECT_GRAPH) || defined(LEAK_REPORT) || defined(CHECK_MEMORY_LEAK)
 public:
-    bool IsInDllCanUnloadNow() const { return inDllCanUnloadNow; }
-    bool IsInDetachProcess() const { return inDetachProcess; }
+    bool IsInDllCanUnloadNow() const {TRACE_IT(26164); return inDllCanUnloadNow; }
+    bool IsInDetachProcess() const {TRACE_IT(26165); return inDetachProcess; }
     void SetInDllCanUnloadNow();
     void SetInDetachProcess();
 private:
@@ -1923,7 +1923,7 @@ public:
         ObjectBeforeCollectCallbackWrapper callbackWrapper,
         void* threadContext);
     void ClearObjectBeforeCollectCallbacks();
-    bool IsInObjectBeforeCollectCallback() const { return objectBeforeCollectCallbackState != ObjectBeforeCollectCallback_None; }
+    bool IsInObjectBeforeCollectCallback() const {TRACE_IT(26166); return objectBeforeCollectCallbackState != ObjectBeforeCollectCallback_None; }
 private:
     struct ObjectBeforeCollectCallbackData
     {
@@ -1932,9 +1932,9 @@ private:
         void* threadContext;
         ObjectBeforeCollectCallbackWrapper callbackWrapper;
 
-        ObjectBeforeCollectCallbackData() {}
+        ObjectBeforeCollectCallbackData() {TRACE_IT(26167);}
         ObjectBeforeCollectCallbackData(ObjectBeforeCollectCallbackWrapper callbackWrapper, ObjectBeforeCollectCallback callback, void* callbackState, void* threadContext) :
-            callbackWrapper(callbackWrapper), callback(callback), callbackState(callbackState), threadContext(threadContext) {}
+            callbackWrapper(callbackWrapper), callback(callback), callbackState(callbackState), threadContext(threadContext) {TRACE_IT(26168);}
     };
     typedef JsUtil::BaseDictionary<void*, ObjectBeforeCollectCallbackData, HeapAllocator,
         PrimeSizePolicy, RecyclerPointerComparer, JsUtil::SimpleDictionaryEntry, JsUtil::NoResizeLock> ObjectBeforeCollectCallbackMap;
@@ -1965,7 +1965,7 @@ private:
     Recycler* next;
 public:
     static void WBSetBitJIT(char* addr)
-    {
+    {TRACE_IT(26169);
         return WBSetBit(addr);
     }
     static void WBSetBit(char* addr);
@@ -1995,24 +1995,24 @@ class RecyclerHeapObjectInfo
 
 
 public:
-    RecyclerHeapObjectInfo() : m_address(NULL), m_recycler(NULL), m_heapBlock(NULL), m_attributes(NULL) {}
+    RecyclerHeapObjectInfo() : m_address(NULL), m_recycler(NULL), m_heapBlock(NULL), m_attributes(NULL) {TRACE_IT(26170);}
     RecyclerHeapObjectInfo(void* address, Recycler * recycler, HeapBlock* heapBlock, byte * attributes) :
-        m_address(address), m_recycler(recycler), m_heapBlock(heapBlock), m_attributes(attributes) { }
+        m_address(address), m_recycler(recycler), m_heapBlock(heapBlock), m_attributes(attributes) {TRACE_IT(26171); }
 
-    void* GetObjectAddress() const { return m_address; }
+    void* GetObjectAddress() const {TRACE_IT(26172); return m_address; }
 
 #ifdef RECYCLER_PAGE_HEAP
     bool IsPageHeapAlloc()
-    {
+    {TRACE_IT(26173);
         return isUsingLargeHeapBlock && ((LargeHeapBlock*)m_heapBlock)->InPageHeapMode();
     }
 #endif
 
     bool IsLeaf() const
-    {
+    {TRACE_IT(26174);
 #if LARGEHEAPBLOCK_ENCODING
         if (isUsingLargeHeapBlock)
-        {
+        {TRACE_IT(26175);
             return (m_largeHeapBlockHeader->GetAttributes(m_recycler->Cookie) & LeafBit) != 0;
         }
 #endif
@@ -2020,22 +2020,22 @@ public:
     }
 
     bool IsImplicitRoot() const
-    {
+    {TRACE_IT(26176);
 #if LARGEHEAPBLOCK_ENCODING
         if (isUsingLargeHeapBlock)
-        {
+        {TRACE_IT(26177);
             return (m_largeHeapBlockHeader->GetAttributes(m_recycler->Cookie) & ImplicitRootBit) != 0;
         }
 #endif
         return (*m_attributes & ImplicitRootBit) != 0;
     }
-    bool IsObjectMarked() const { Assert(m_recycler); return m_recycler->heapBlockMap.IsMarked(m_address); }
-    void SetObjectMarked()  { Assert(m_recycler); m_recycler->heapBlockMap.SetMark(m_address); }
+    bool IsObjectMarked() const {TRACE_IT(26178); Assert(m_recycler); return m_recycler->heapBlockMap.IsMarked(m_address); }
+    void SetObjectMarked()  {TRACE_IT(26179); Assert(m_recycler); m_recycler->heapBlockMap.SetMark(m_address); }
     ObjectInfoBits GetAttributes() const
-    {
+    {TRACE_IT(26180);
 #if LARGEHEAPBLOCK_ENCODING
         if (isUsingLargeHeapBlock)
-        {
+        {TRACE_IT(26181);
             return (ObjectInfoBits)m_largeHeapBlockHeader->GetAttributes(m_recycler->Cookie);
         }
 #endif
@@ -2045,18 +2045,18 @@ public:
 
 #if LARGEHEAPBLOCK_ENCODING
     void SetLargeHeapBlockHeader(LargeObjectHeader * largeHeapBlockHeader)
-    {
+    {TRACE_IT(26182);
         m_largeHeapBlockHeader = largeHeapBlockHeader;
         isUsingLargeHeapBlock = true;
     }
 #endif
 
     bool SetMemoryProfilerHasEnumerated()
-    {
+    {TRACE_IT(26183);
         Assert(m_heapBlock);
 #if LARGEHEAPBLOCK_ENCODING
         if (isUsingLargeHeapBlock)
-        {
+        {TRACE_IT(26184);
             return SetMemoryProfilerHasEnumeratedForLargeHeapBlock();
         }
 #endif
@@ -2066,7 +2066,7 @@ public:
     }
 
     bool ClearImplicitRootBit()
-    {
+    {TRACE_IT(26185);
         // This can only be called on the main thread for non-finalizable block
         // As finalizable block requires that the bit not be change during concurrent mark
         // since the background thread change the NewTrackBit
@@ -2075,15 +2075,15 @@ public:
 #ifdef RECYCLER_PAGE_HEAP
         Recycler* recycler = this->m_recycler;
         if (recycler->IsPageHeapEnabled() && recycler->ShouldCapturePageHeapFreeStack())
-        {
+        {TRACE_IT(26186);
             Assert(recycler->IsPageHeapEnabled());
 
 #ifdef STACK_BACK_TRACE
             if (this->isUsingLargeHeapBlock)
-            {
+            {TRACE_IT(26187);
                 LargeHeapBlock* largeHeapBlock = (LargeHeapBlock*)this->m_heapBlock;
                 if (largeHeapBlock->InPageHeapMode())
-                {
+                {TRACE_IT(26188);
                     largeHeapBlock->CapturePageHeapFreeStack();
                 }
             }
@@ -2093,7 +2093,7 @@ public:
 
 #if LARGEHEAPBLOCK_ENCODING
         if (isUsingLargeHeapBlock)
-        {
+        {TRACE_IT(26189);
             return ClearImplicitRootBitsForLargeHeapBlock();
         }
 #endif
@@ -2105,13 +2105,13 @@ public:
     }
 
     void ExplicitFree()
-    {
+    {TRACE_IT(26190);
         if (*m_attributes == ObjectInfoBits::LeafBit)
-        {
+        {TRACE_IT(26191);
             m_recycler->ExplicitFreeLeaf(m_address, GetSize());
         }
         else
-        {
+        {TRACE_IT(26192);
             Assert(*m_attributes == ObjectInfoBits::NoBit);
             m_recycler->ExplicitFreeNonLeaf(m_address, GetSize());
         }
@@ -2119,7 +2119,7 @@ public:
 
 #if LARGEHEAPBLOCK_ENCODING
     bool ClearImplicitRootBitsForLargeHeapBlock()
-    {
+    {TRACE_IT(26193);
         Assert(m_largeHeapBlockHeader);
         byte attributes = m_largeHeapBlockHeader->GetAttributes(m_recycler->Cookie);
         bool wasImplicitRoot = (attributes & ImplicitRootBit) != 0;
@@ -2128,7 +2128,7 @@ public:
     }
 
     bool SetMemoryProfilerHasEnumeratedForLargeHeapBlock()
-    {
+    {TRACE_IT(26194);
         Assert(m_largeHeapBlockHeader);
         byte attributes = m_largeHeapBlockHeader->GetAttributes(m_recycler->Cookie);
         bool wasMemoryProfilerOldObject = (attributes & MemoryProfilerOldObjectBit) != 0;
@@ -2175,7 +2175,7 @@ public:
 private:
 
     CollectedRecyclerWeakRefHeapBlock() : HeapBlock(BlockTypeCount)
-    {
+    {TRACE_IT(26195);
 #if ENABLE_CONCURRENT_GC
         isPendingConcurrentSweep = false;
 #endif
@@ -2185,8 +2185,8 @@ private:
 class AutoIdleDecommit
 {
 public:
-    AutoIdleDecommit(Recycler * recycler) : recycler(recycler) { recycler->EnterIdleDecommit(); }
-    ~AutoIdleDecommit() { recycler->LeaveIdleDecommit(); }
+    AutoIdleDecommit(Recycler * recycler) : recycler(recycler) {TRACE_IT(26196); recycler->EnterIdleDecommit(); }
+    ~AutoIdleDecommit() {TRACE_IT(26197); recycler->LeaveIdleDecommit(); }
 private:
     Recycler * recycler;
 };
@@ -2194,21 +2194,21 @@ private:
 template <typename SmallHeapBlockAllocatorType>
 void
 Recycler::AddSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t sizeCat)
-{
+{TRACE_IT(26198);
     autoHeap.AddSmallAllocator(allocator, sizeCat);
 }
 
 template <typename SmallHeapBlockAllocatorType>
 void
 Recycler::RemoveSmallAllocator(SmallHeapBlockAllocatorType * allocator, size_t sizeCat)
-{
+{TRACE_IT(26199);
     autoHeap.RemoveSmallAllocator(allocator, sizeCat);
 }
 
 template <ObjectInfoBits attributes, typename SmallHeapBlockAllocatorType>
 char *
 Recycler::SmallAllocatorAlloc(SmallHeapBlockAllocatorType * allocator, DECLSPEC_GUARD_OVERFLOW size_t sizeCat, size_t size)
-{
+{TRACE_IT(26200);
     return autoHeap.SmallAllocatorAlloc<attributes>(this, allocator, sizeCat, size);
 }
 
@@ -2232,17 +2232,17 @@ public:
     typedef bool (Recycler::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(26201);
         return &Recycler::AllocLeaf;
     }
 
     static AllocFuncType GetAllocZeroFunc()
-    {
+    {TRACE_IT(26202);
         return &Recycler::AllocLeafZero;
     }
 
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(26203);
         return &Recycler::ExplicitFreeLeaf;
     }
 };
@@ -2255,17 +2255,17 @@ public:
     typedef bool (Recycler::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(26204);
         return &Recycler::Alloc;
     }
 
     static AllocFuncType GetAllocZeroFunc()
-    {
+    {TRACE_IT(26205);
         return &Recycler::AllocZero;
     }
 
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(26206);
         return &Recycler::ExplicitFreeNonLeaf;
     }
 };
@@ -2279,17 +2279,17 @@ public:
     typedef bool (Recycler::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(26207);
         return &Recycler::AllocWithBarrier;
     }
 
     static AllocFuncType GetAllocZeroFunc()
-    {
+    {TRACE_IT(26208);
         return &Recycler::AllocZeroWithBarrier;
     }
 
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(26209);
         return &Recycler::ExplicitFreeNonLeaf;
     }
 };
@@ -2337,18 +2337,18 @@ public:
     typedef bool (Recycler::*FreeFuncType)(void*, size_t);
 
     static AllocFuncType GetAllocFunc()
-    {
+    {TRACE_IT(26210);
         return isLeaf ? &Recycler::AllocLeaf : &Recycler::Alloc;
     }
 
     static FreeFuncType GetFreeFunc()
-    {
+    {TRACE_IT(26211);
         if (isLeaf)
-        {
+        {TRACE_IT(26212);
             return &Recycler::ExplicitFreeLeaf;
         }
         else
-        {
+        {TRACE_IT(26213);
             return &Recycler::ExplicitFreeNonLeaf;
         }
     }
@@ -2437,14 +2437,14 @@ struct ForceLeafAllocator<RecyclerNonLeafAllocator>
 // access the same profiler object from multiple GC threads which shares one recyler object,
 // but profiler object is not thread safe
 #if defined(PROFILE_EXEC) && 0
-#define RECYCLER_PROFILE_EXEC_BEGIN(recycler, phase) if (recycler->profiler != nullptr) { recycler->profiler->Begin(phase); }
-#define RECYCLER_PROFILE_EXEC_END(recycler, phase) if (recycler->profiler != nullptr) { recycler->profiler->End(phase); }
+#define RECYCLER_PROFILE_EXEC_BEGIN(recycler, phase) if (recycler->profiler != nullptr) {TRACE_IT(26214); recycler->profiler->Begin(phase); }
+#define RECYCLER_PROFILE_EXEC_END(recycler, phase) if (recycler->profiler != nullptr) {TRACE_IT(26215); recycler->profiler->End(phase); }
 
-#define RECYCLER_PROFILE_EXEC_BEGIN2(recycler, phase1, phase2) if (recycler->profiler != nullptr) { recycler->profiler->Begin(phase1); recycler->profiler->Begin(phase2);}
-#define RECYCLER_PROFILE_EXEC_END2(recycler, phase1, phase2) if (recycler->profiler != nullptr) { recycler->profiler->End(phase1); recycler->profiler->End(phase2);}
-#define RECYCLER_PROFILE_EXEC_CHANGE(recycler, phase1, phase2) if  (recycler->profiler != nullptr) { recycler->profiler->End(phase1); recycler->profiler->Begin(phase2); }
-#define RECYCLER_PROFILE_EXEC_BACKGROUND_BEGIN(recycler, phase) if (recycler->backgroundProfiler != nullptr) { recycler->backgroundProfiler->Begin(phase); }
-#define RECYCLER_PROFILE_EXEC_BACKGROUND_END(recycler, phase) if (recycler->backgroundProfiler != nullptr) { recycler->backgroundProfiler->End(phase); }
+#define RECYCLER_PROFILE_EXEC_BEGIN2(recycler, phase1, phase2) if (recycler->profiler != nullptr) {TRACE_IT(26216); recycler->profiler->Begin(phase1); recycler->profiler->Begin(phase2);}
+#define RECYCLER_PROFILE_EXEC_END2(recycler, phase1, phase2) if (recycler->profiler != nullptr) {TRACE_IT(26217); recycler->profiler->End(phase1); recycler->profiler->End(phase2);}
+#define RECYCLER_PROFILE_EXEC_CHANGE(recycler, phase1, phase2) if  (recycler->profiler != nullptr) {TRACE_IT(26218); recycler->profiler->End(phase1); recycler->profiler->Begin(phase2); }
+#define RECYCLER_PROFILE_EXEC_BACKGROUND_BEGIN(recycler, phase) if (recycler->backgroundProfiler != nullptr) {TRACE_IT(26219); recycler->backgroundProfiler->Begin(phase); }
+#define RECYCLER_PROFILE_EXEC_BACKGROUND_END(recycler, phase) if (recycler->backgroundProfiler != nullptr) {TRACE_IT(26220); recycler->backgroundProfiler->End(phase); }
 
 #define RECYCLER_PROFILE_EXEC_THREAD_BEGIN(background, recycler, phase) if (background) { RECYCLER_PROFILE_EXEC_BACKGROUND_BEGIN(recycler, phase); } else { RECYCLER_PROFILE_EXEC_BEGIN(recycler, phase); }
 #define RECYCLER_PROFILE_EXEC_THREAD_END(background, recycler, phase) if (background) { RECYCLER_PROFILE_EXEC_BACKGROUND_END(recycler, phase); } else { RECYCLER_PROFILE_EXEC_END(recycler, phase); }
@@ -2463,30 +2463,30 @@ struct ForceLeafAllocator<RecyclerNonLeafAllocator>
 
 _Ret_notnull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, Recycler * alloc, HeapInfo * heapInfo)
-{
+{TRACE_IT(26221);
     return alloc->HeapAllocR(heapInfo, byteSize);
 }
 
 inline void __cdecl
 operator delete(void * obj, Recycler * alloc, HeapInfo * heapInfo)
-{
+{TRACE_IT(26222);
     alloc->HeapFree(heapInfo, obj);
 }
 
 template<ObjectInfoBits infoBits>
 _Ret_notnull_ inline void * __cdecl
 operator new(DECLSPEC_GUARD_OVERFLOW size_t byteSize, Recycler * recycler, const InfoBitsWrapper<infoBits>&)
-{
+{TRACE_IT(26223);
     AssertCanHandleOutOfMemory();
     Assert(byteSize != 0);
     void * buffer;
     
     if (infoBits & EnumClass_1_Bit)
-    {
+    {TRACE_IT(26224);
         buffer = recycler->AllocEnumClass<infoBits>(byteSize);
     }
     else
-    {
+    {TRACE_IT(26225);
         buffer = recycler->AllocWithInfoBits<infoBits>(byteSize);
     }
     // All of our allocation should throw on out of memory

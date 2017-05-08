@@ -44,12 +44,12 @@ namespace Js
         static BOOL Is(Var aValue);
 
         static inline DataView* FromVar(Var aValue)
-        {
+        {TRACE_IT(54878);
             Assert(DataView::Is(aValue));
             return static_cast<DataView*>(aValue);
         }
 
-        uint32 GetByteOffset() const { return byteOffset; }
+        uint32 GetByteOffset() const {TRACE_IT(54879); return byteOffset; }
 
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryGetInt8(RecyclableObject* function, CallInfo callInfo, ...);
@@ -86,26 +86,26 @@ namespace Js
         template<typename TypeName>
         void SwapRoutine(TypeName* input, TypeName* dest);
 
-        template<> void SwapRoutine(int8* input, int8* dest) {*dest =  *input; }
-        template<> void SwapRoutine(uint8* input, uint8* dest) {*dest =  *input; }
-        template<> void SwapRoutine(int16* input, int16* dest) {*dest =  RtlUshortByteSwap(*input); }
-        template<> void SwapRoutine(uint16* input, uint16* dest) {*dest =  RtlUshortByteSwap(*input);}
-        template<> void SwapRoutine(int32* input, int32* dest) {*dest =  RtlUlongByteSwap(*input);}
-        template<> void SwapRoutine(uint32* input, uint32* dest) {*dest =  RtlUlongByteSwap(*input);}
+        template<> void SwapRoutine(int8* input, int8* dest) {TRACE_IT(54880);*dest =  *input; }
+        template<> void SwapRoutine(uint8* input, uint8* dest) {TRACE_IT(54881);*dest =  *input; }
+        template<> void SwapRoutine(int16* input, int16* dest) {TRACE_IT(54882);*dest =  RtlUshortByteSwap(*input); }
+        template<> void SwapRoutine(uint16* input, uint16* dest) {TRACE_IT(54883);*dest =  RtlUshortByteSwap(*input);}
+        template<> void SwapRoutine(int32* input, int32* dest) {TRACE_IT(54884);*dest =  RtlUlongByteSwap(*input);}
+        template<> void SwapRoutine(uint32* input, uint32* dest) {TRACE_IT(54885);*dest =  RtlUlongByteSwap(*input);}
         // we don't want type conversion here, we just want to swap the bytes.
-        template<> void SwapRoutine(float* input, float* dest) { *((uint32*)dest) = RtlUlongByteSwap(*((uint32*)input)); }
-        template<> void SwapRoutine(double* input, double* dest) {*((uint64*)dest) = RtlUlonglongByteSwap(*((uint64*)input)); }
+        template<> void SwapRoutine(float* input, float* dest) {TRACE_IT(54886); *((uint32*)dest) = RtlUlongByteSwap(*((uint32*)input)); }
+        template<> void SwapRoutine(double* input, double* dest) {TRACE_IT(54887);*((uint64*)dest) = RtlUlonglongByteSwap(*((uint64*)input)); }
 
         template<typename TypeName>
         Var GetValue(uint32 byteOffset, const char16* funcName, BOOL isLittleEndian = FALSE)
-        {
+        {TRACE_IT(54888);
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {TRACE_IT(54889);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {TRACE_IT(54890);
                 TypeName item;
                 TypeName* typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
@@ -113,33 +113,33 @@ namespace Js
                     SwapRoutine<TypeName>(typedBuffer, &item);
                 }
                 else
-                {
+                {TRACE_IT(54891);
                     item = *typedBuffer;
                 }
                 return JavascriptNumber::ToVar(item, GetScriptContext());
             }
             else
-            {
+            {TRACE_IT(54892);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DataView_InvalidOffset);
             }
         }
 
         template<typename TypeName>
         inline Var GetValueWithCheck(uint32 byteOffset, const char16* funcName, BOOL isLittleEndian = FALSE)
-        {
+        {TRACE_IT(54893);
             return GetValueWithCheck<TypeName, TypeName*>(byteOffset, isLittleEndian, funcName);
         }
 
         template<typename TypeName, typename PointerAccessTypeName>
         Var GetValueWithCheck(uint32 byteOffset, BOOL isLittleEndian, const char16* funcName)
-        {
+        {TRACE_IT(54894);
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {TRACE_IT(54895);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {TRACE_IT(54896);
                 TypeName item;
                 TypeName *typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
@@ -147,13 +147,13 @@ namespace Js
                     SwapRoutine<TypeName>(typedBuffer, &item);
                 }
                 else
-                {
+                {TRACE_IT(54897);
                     item = *static_cast<PointerAccessTypeName>(typedBuffer);
                 }
                 return JavascriptNumber::ToVarWithCheck(item, GetScriptContext());
             }
             else
-            {
+            {TRACE_IT(54898);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DataView_InvalidOffset);
             }
         }
@@ -166,26 +166,26 @@ namespace Js
 
         template<typename TypeName, typename PointerAccessTypeName>
         void SetValue(uint32 byteOffset, TypeName value, BOOL isLittleEndian, const char16 *funcName)
-        {
+        {TRACE_IT(54899);
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {TRACE_IT(54900);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {TRACE_IT(54901);
                 TypeName* typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
                 {
                     SwapRoutine<TypeName>(&value, typedBuffer);
                 }
                 else
-                {
+                {TRACE_IT(54902);
                     *static_cast<PointerAccessTypeName>(typedBuffer) = value;
                 }
             }
             else
-            {
+            {TRACE_IT(54903);
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DataView_InvalidOffset);
             }
         }

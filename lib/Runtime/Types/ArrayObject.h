@@ -25,12 +25,12 @@ namespace Js
 
         ArrayObject(DynamicType * type, bool initSlots = true, uint32 length = 0)
             : DynamicObject(type, initSlots), length(length)
-        {
+        {TRACE_IT(65312);
         }
 
         ArrayObject(DynamicType * type, ScriptContext * scriptContext)
             : DynamicObject(type, scriptContext), length(0)
-        {
+        {TRACE_IT(65313);
         }
 
         // For boxing stack instance
@@ -40,8 +40,8 @@ namespace Js
         void VerifySetItemAttributes(PropertyId propId, PropertyAttributes attributes);
 
     public:
-        uint32 GetLength() const { return length; }
-        static uint32 GetOffsetOfLength() { return offsetof(ArrayObject, length); }
+        uint32 GetLength() const {TRACE_IT(65314); return length; }
+        static uint32 GetOffsetOfLength() {TRACE_IT(65315); return offsetof(ArrayObject, length); }
 
         // objectArray support
         virtual BOOL SetItemWithAttributes(uint32 index, Var value, PropertyAttributes attributes) = 0;

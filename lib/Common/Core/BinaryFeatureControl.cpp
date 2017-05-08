@@ -24,7 +24,7 @@ __in SIZE_T nLength
 
 bool
 BinaryFeatureControl::RecyclerTest()
-{
+{TRACE_IT(19628);
 #ifdef RECYCLER_TEST
     return true;
 #else
@@ -35,7 +35,7 @@ BinaryFeatureControl::RecyclerTest()
 #ifdef _WIN32
 BOOL
 BinaryFeatureControl::GetMitigationPolicyForProcess(__in HANDLE hProcess, __in PROCESS_MITIGATION_POLICY MitigationPolicy, __out_bcount(nLength) PVOID lpBuffer, __in SIZE_T nLength)
-{
+{TRACE_IT(19629);
 #if !defined(DELAYLOAD_SET_CFG_TARGET)
     return GetProcessMitigationPolicy(hProcess, MitigationPolicy, lpBuffer, nLength);
 #else

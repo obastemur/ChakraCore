@@ -8,7 +8,7 @@
 template <class TBlockAttributes>
 void
 SmallHeapBlockT<TBlockAttributes>::SetAttributes(void * address, unsigned char attributes)
-{
+{TRACE_IT(23636);
     Assert(this->address != nullptr);
     Assert(this->segment != nullptr);
     ushort index = GetAddressIndex(address);
@@ -20,7 +20,7 @@ SmallHeapBlockT<TBlockAttributes>::SetAttributes(void * address, unsigned char a
 inline
 IdleDecommitPageAllocator*
 HeapBlock::GetPageAllocator(Recycler* recycler)
-{
+{TRACE_IT(23637);
     switch (this->GetHeapBlockType())
     {
     case SmallLeafBlockType:
@@ -48,13 +48,13 @@ HeapBlock::GetPageAllocator(Recycler* recycler)
 template <class TBlockAttributes>
 template <class Fn>
 void SmallHeapBlockT<TBlockAttributes>::ForEachAllocatedObject(Fn fn)
-{
+{TRACE_IT(23638);
     uint const objectBitDelta = this->GetObjectBitDelta();
     SmallHeapBlockBitVector * free = this->EnsureFreeBitVector();
     char * address = this->GetAddress();
     uint objectSize = this->GetObjectSize();
     for (uint i = 0; i < objectCount; i++)
-    {
+    {TRACE_IT(23639);
         if (!free->Test(i * objectBitDelta))
         {
             fn(i, address + i * objectSize);
@@ -65,7 +65,7 @@ void SmallHeapBlockT<TBlockAttributes>::ForEachAllocatedObject(Fn fn)
 template <class TBlockAttributes>
 template <typename Fn>
 void SmallHeapBlockT<TBlockAttributes>::ForEachAllocatedObject(ObjectInfoBits attributes, Fn fn)
-{
+{TRACE_IT(23640);
     ForEachAllocatedObject([=](uint index, void * objectAddress)
     {
         if ((ObjectInfo(index) & attributes) != 0)
@@ -78,7 +78,7 @@ void SmallHeapBlockT<TBlockAttributes>::ForEachAllocatedObject(ObjectInfoBits at
 template <class TBlockAttributes>
 template <typename Fn>
 void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
-{
+{TRACE_IT(23641);
     uint const localObjectCount = this->objectCount;
 
     // NOTE: we no longer track the mark count as we mark.  So this value
@@ -86,7 +86,7 @@ void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
     // plus any subsequent new implicit root scan.
     uint localMarkCount = this->markCount;
     if (localMarkCount == localObjectCount)
-    {
+    {TRACE_IT(23642);
         // The block is full when we first do the initial implicit root scan
         // So there can't be any new implicit roots
         return;
@@ -96,7 +96,7 @@ void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
     HeapBlockMap& map = this->GetRecycler()->heapBlockMap;
     ushort newlyMarkedCountForPage[TBlockAttributes::PageCount];
     for (uint i = 0; i < TBlockAttributes::PageCount; i++)
-    {
+    {TRACE_IT(23643);
         newlyMarkedCountForPage[i] = 0;
     }
 #endif
@@ -108,10 +108,10 @@ void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
     char * address = this->GetAddress();
 
     for (uint i = 0; i < localObjectCount; i++)
-    {
+    {TRACE_IT(23644);
         if ((this->ObjectInfo(i) & ImplicitRootBit) != 0
             && !mark->TestAndSet(i * localObjectBitDelta))
-        {
+        {TRACE_IT(23645);
             uint objectOffset = i * localObjectSize;
             localMarkCount++;
 #if DBG
@@ -127,7 +127,7 @@ void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
 #if DBG
     // Add newly marked count
     for (uint i = 0; i < TBlockAttributes::PageCount; i++)
-    {
+    {TRACE_IT(23646);
         char* pageAddress = address + (AutoSystemInfo::PageSize * i);
         ushort oldPageMarkCount = map.GetPageMarkCount(pageAddress);
         map.SetPageMarkCount(pageAddress, oldPageMarkCount + newlyMarkedCountForPage[i]);
@@ -140,11 +140,11 @@ void SmallHeapBlockT<TBlockAttributes>::ScanNewImplicitRootsBase(Fn fn)
 template <class TBlockAttributes>
 bool
 SmallHeapBlockT<TBlockAttributes>::FindImplicitRootObject(void* candidate, Recycler* recycler, RecyclerHeapObjectInfo& heapObject)
-{
+{TRACE_IT(23647);
     ushort index = GetAddressIndex(candidate);
 
     if (index == InvalidAddressBit)
-    {
+    {TRACE_IT(23648);
         return false;
     }
 
@@ -156,40 +156,40 @@ SmallHeapBlockT<TBlockAttributes>::FindImplicitRootObject(void* candidate, Recyc
 template <bool doSpecialMark, typename Fn>
 bool
 HeapBlock::UpdateAttributesOfMarkedObjects(MarkContext * markContext, void * objectAddress, size_t objectSize, unsigned char attributes, Fn fn)
-{
+{TRACE_IT(23649);
     bool noOOMDuringMark = true;
 
     if (attributes & TrackBit)
-    {
+    {TRACE_IT(23650);
         FinalizableObject * trackedObject = (FinalizableObject *)objectAddress;
 
 #if ENABLE_PARTIAL_GC
         if (!markContext->GetRecycler()->inPartialCollectMode)
 #endif
-        {
+        {TRACE_IT(23651);
 #if ENABLE_CONCURRENT_GC
             if (markContext->GetRecycler()->DoQueueTrackedObject())
-            {
+            {TRACE_IT(23652);
                 if (!markContext->AddTrackedObject(trackedObject))
-                {
+                {TRACE_IT(23653);
                     noOOMDuringMark = false;
                 }
             }
             else
 #endif
-            {
+            {TRACE_IT(23654);
                 // Process the tracked object right now
                 markContext->MarkTrackedObject(trackedObject);
             }
         }
 
         if (noOOMDuringMark)
-        {
+        {TRACE_IT(23655);
             // Object has been successfully processed, so clear NewTrackBit
             attributes &= ~NewTrackBit;
         }
         else
-        {
+        {TRACE_IT(23656);
             // Set the NewTrackBit, so that the main thread will redo tracking
             attributes |= NewTrackBit;
             noOOMDuringMark = false;
@@ -199,18 +199,18 @@ HeapBlock::UpdateAttributesOfMarkedObjects(MarkContext * markContext, void * obj
 
     // only need to scan non-leaf objects
     if ((attributes & LeafBit) == 0)
-    {
+    {TRACE_IT(23657);
         if (!markContext->AddMarkedObject(objectAddress, objectSize))
-        {
+        {TRACE_IT(23658);
             noOOMDuringMark = false;
         }
     }
 
     // Special mark-time behavior for finalizable objects on certain GC's
     if (doSpecialMark)
-    {
+    {TRACE_IT(23659);
         if (attributes & FinalizeBit)
-        {
+        {TRACE_IT(23660);
             FinalizableObject * trackedObject = (FinalizableObject *)objectAddress;
             trackedObject->OnMark();
         }
@@ -222,14 +222,14 @@ HeapBlock::UpdateAttributesOfMarkedObjects(MarkContext * markContext, void * obj
 
     // Don't count track or finalize it if we still have to process it in thread because of OOM
     if ((attributes & (TrackBit | NewTrackBit)) != (TrackBit | NewTrackBit))
-    {
+    {TRACE_IT(23661);
         // Only count those we have queued, so we don't double count
         if (attributes & TrackBit)
-        {
+        {TRACE_IT(23662);
             RECYCLER_STATS_INTERLOCKED_INC(markContext->GetRecycler(), trackCount);
         }
         if (attributes & FinalizeBit)
-        {
+        {TRACE_IT(23663);
             // we counted the finalizable object here,
             // turn off the new bit so we don't count it again
             // on Rescan

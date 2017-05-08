@@ -12,7 +12,7 @@ namespace Js
     const uint ByteCodeWriter::LongBranchSize = OpCodeUtil::EncodedSize(Js::OpCode::BrLong, SmallLayout) + sizeof(OpLayoutBrLong);
 
     void ByteCodeWriter::Create()
-    {
+    {TRACE_IT(41150);
         m_loopNest = 0;
         m_byteCodeCount = 0;
         m_byteCodeWithoutLDACount = 0;
@@ -26,7 +26,7 @@ namespace Js
     }
 
     void ByteCodeWriter::InitData(ArenaAllocator* alloc, int32 initCodeBufferSize)
-    {
+    {TRACE_IT(41151);
         Assert(!isInUse);
         Assert(!isInitialized);
         DebugOnly(isInitialized = true);
@@ -67,7 +67,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     void ByteCodeWriter::Begin(FunctionBody* functionWrite, ArenaAllocator* alloc, bool doJitLoopBodies, bool hasLoop, bool inDebugMode)
-    {
+    {TRACE_IT(41152);
         Assert(!isInUse);
         AssertMsg(m_functionWrite == nullptr, "Cannot nest Begin() calls");
         AssertMsg(functionWrite != nullptr, "Must have valid function to write");
@@ -84,7 +84,7 @@ namespace Js
 
     template <typename T>
     void ByteCodeWriter::PatchJumpOffset(JsUtil::List<JumpInfo, ArenaAllocator> * jumpOffset, byte * byteBuffer, uint byteCount)
-    {
+    {TRACE_IT(41153);
         jumpOffset->Map([=](int index, JumpInfo& jumpInfo)
         {
             //
@@ -202,9 +202,9 @@ namespace Js
         m_functionWrite->AllocateForInCache();
 
         if (!PHASE_OFF(Js::ScriptFunctionWithInlineCachePhase, m_functionWrite) && !PHASE_OFF(Js::InlineApplyTargetPhase, m_functionWrite))
-        {
+        {TRACE_IT(41154);
             if (m_functionWrite->CanFunctionObjectHaveInlineCaches())
-            {
+            {TRACE_IT(41155);
                 m_functionWrite->SetInlineCachesOnFunctionObject(true);
             }
         }
@@ -212,7 +212,7 @@ namespace Js
         if (this->DoJitLoopBodies() &&
             !this->m_functionWrite->GetFunctionBody()->GetHasFinally() &&
             !(this->m_functionWrite->GetFunctionBody()->GetHasTry() && PHASE_OFF(Js::JITLoopBodyInTryCatchPhase, this->m_functionWrite)))
-        {
+        {TRACE_IT(41156);
             AllocateLoopHeaders();
         }
 
@@ -231,7 +231,7 @@ namespace Js
 #ifdef LOG_BYTECODE_AST_RATIO
         // log the bytecode AST ratio
         if (currentAstSize == maxAstSize)
-        {
+        {TRACE_IT(41157);
             float astBytecodeRatio = (float)currentAstSize / (float)byteCount;
             Output::Print(_u("\tAST Bytecode ratio: %f\n"), astBytecodeRatio);
         }
@@ -246,7 +246,7 @@ namespace Js
     }
 
     void ByteCodeWriter::AllocateLoopHeaders()
-    {
+    {TRACE_IT(41158);
         m_functionWrite->AllocateLoopHeaders();
         m_loopHeaders->Map([this](int index, ByteCodeWriter::LoopHeaderData& data)
         {
@@ -265,7 +265,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     void ByteCodeWriter::Reset()
-    {
+    {TRACE_IT(41159);
         DebugOnly(isInUse = false);
         Assert(isInitialized);
         m_byteCodeData.Reset();
@@ -294,19 +294,19 @@ namespace Js
     }
 
     inline Js::RegSlot ByteCodeWriter::ConsumeReg(Js::RegSlot reg)
-    {
+    {TRACE_IT(41160);
         CheckReg(reg);
         Assert(this->m_functionWrite);
         return this->m_functionWrite->MapRegSlot(reg);
     }
 
     void ByteCodeWriter::CheckOpen()
-    {
+    {TRACE_IT(41161);
         AssertMsg(m_functionWrite != nullptr, "Must Begin() a function to write byte-code into");
     }
 
     inline void ByteCodeWriter::CheckOp(OpCode op, OpLayoutType layoutType)
-    {
+    {TRACE_IT(41162);
         AssertMsg(OpCodeUtil::IsValidByteCodeOpcode(op), "Ensure valid OpCode");
 #if ENABLE_NATIVE_CODEGEN
         AssertMsg(!OpCodeAttr::BackEndOnly(op), "Can't write back end only OpCode");
@@ -315,13 +315,13 @@ namespace Js
     }
 
     void ByteCodeWriter::CheckLabel(ByteCodeLabel labelID)
-    {
+    {TRACE_IT(41163);
         AssertMsg(labelID < m_labelOffsets->Count(),
             "Label must be previously defined before being marked in the byte-code");
     }
 
     inline void ByteCodeWriter::CheckReg(RegSlot registerID)
-    {
+    {TRACE_IT(41164);
         AssertMsg(registerID != Js::Constants::NoRegister, "bad register");
         if (registerID == Js::Constants::NoRegister)
             Js::Throw::InternalError();
@@ -337,17 +337,17 @@ namespace Js
 
 #define MULTISIZE_LAYOUT_WRITE(layout, ...) \
     if (!TryWrite##layout<SmallLayoutSizePolicy>(__VA_ARGS__) && !TryWrite##layout<MediumLayoutSizePolicy>(__VA_ARGS__)) \
-    { \
+    {TRACE_IT(41165); \
         bool success = TryWrite##layout<LargeLayoutSizePolicy>(__VA_ARGS__); \
         Assert(success); \
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg1(OpCode op, RegSlot R0)
-    {
+    {TRACE_IT(41166);
         OpLayoutT_Reg1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0))
-        {
+        {TRACE_IT(41167);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -367,14 +367,14 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2WithICIndex(OpCode op, RegSlot R0, RegSlot R1, uint32 inlineCacheIndex, bool isRootLoad)
-    {
+    {TRACE_IT(41168);
         OpLayoutT_Reg2WithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex))
-        {
+        {TRACE_IT(41169);
             uint offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {TRACE_IT(41170);
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_Reg2WithICIndex<SizePolicy>));
                 uint inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_Reg2WithICIndex<SizePolicy>, inlineCacheIndex);
@@ -388,10 +388,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2(OpCode op, RegSlot R0, RegSlot R1)
-    {
+    {TRACE_IT(41171);
         OpLayoutT_Reg2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1))
-        {
+        {TRACE_IT(41172);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -407,9 +407,9 @@ namespace Js
         if (DoDynamicProfileOpcode(CheckThisPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {TRACE_IT(41173);
             if (op == OpCode::StrictLdThis)
-            {
+            {TRACE_IT(41174);
                 op = OpCode::ProfiledStrictLdThis;
             }
         }
@@ -429,7 +429,7 @@ namespace Js
 
         if (op == Js::OpCode::BeginSwitch && DoDynamicProfileOpcode(SwitchOptPhase) &&
             this->m_functionWrite->AllocProfiledSwitch(&profileId))
-        {
+        {TRACE_IT(41175);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
@@ -444,7 +444,7 @@ namespace Js
                 DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
                 DoDynamicProfileOpcode(ArrayCheckHoistPhase))
             && this->m_functionWrite->AllocProfiledLdElemId(&profileId))
-        {
+        {TRACE_IT(41176);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
@@ -459,10 +459,10 @@ namespace Js
         }
 
         if (isProfiled)
-        {
+        {TRACE_IT(41177);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {TRACE_IT(41178);
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -470,10 +470,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2)
-    {
+    {TRACE_IT(41179);
         OpLayoutT_Reg3<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2))
-        {
+        {TRACE_IT(41180);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -494,25 +494,25 @@ namespace Js
         bool isProfiled = false;
         if ((DoDynamicProfileOpcode(FloatTypeSpecPhase) && (op == Js::OpCode::Div_A || op == Js::OpCode::Rem_A)) &&
             this->m_functionWrite->AllocProfiledDivOrRem(&profileId))
-        {
+        {TRACE_IT(41181);
             isProfiled = true;
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
         }
 
         MULTISIZE_LAYOUT_WRITE(Reg3, op, R0, R1, R2);
         if (isProfiled)
-        {
+        {TRACE_IT(41182);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3C(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, CacheId cacheId)
-    {
+    {TRACE_IT(41183);
         OpLayoutT_Reg3C<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {TRACE_IT(41184);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -534,11 +534,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg4(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, RegSlot R3)
-    {
+    {TRACE_IT(41185);
         OpLayoutT_Reg4<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.R3, R3))
-        {
+        {TRACE_IT(41186);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -561,10 +561,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2B1(OpCode op, RegSlot R0, RegSlot R1, uint8 B2)
-    {
+    {TRACE_IT(41187);
         OpLayoutT_Reg2B1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.B2, B2))
-        {
+        {TRACE_IT(41188);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -585,11 +585,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3B1(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, uint8 B3)
-    {
+    {TRACE_IT(41189);
         OpLayoutT_Reg3B1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.B3, B3))
-        {
+        {TRACE_IT(41190);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -611,11 +611,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg5(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, RegSlot R3, RegSlot R4)
-    {
+    {TRACE_IT(41191);
         OpLayoutT_Reg5<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.R3, R3) && SizePolicy::Assign(layout.R4, R4))
-        {
+        {TRACE_IT(41192);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -639,10 +639,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteUnsigned1(OpCode op, uint C1)
-    {
+    {TRACE_IT(41193);
         OpLayoutT_Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.C1, C1))
-        {
+        {TRACE_IT(41194);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -659,7 +659,7 @@ namespace Js
     }
 
     void ByteCodeWriter::ArgIn0(RegSlot reg)
-    {
+    {TRACE_IT(41195);
         AssertMsg(0 < m_functionWrite->GetInParamsCount(),
             "Ensure source arg was declared in prologue");
 
@@ -671,10 +671,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteArg(OpCode op, ArgSlot arg, RegSlot reg)
-    {
+    {TRACE_IT(41196);
         OpLayoutT_Arg<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Arg, arg) && SizePolicy::Assign(layout.Reg, reg))
-        {
+        {TRACE_IT(41197);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -683,7 +683,7 @@ namespace Js
 
     template <bool isVar>
     void ByteCodeWriter::ArgOut(ArgSlot arg, RegSlot reg, ProfileId callSiteId)
-    {
+    {TRACE_IT(41198);
         CheckOpen();
         Assert(OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_A) && OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_ANonVar));
 
@@ -692,11 +692,11 @@ namespace Js
 
         OpCode op;
         if (isVar)
-        {
+        {TRACE_IT(41199);
             op = OpCode::ArgOut_A;
         }
         else
-        {
+        {TRACE_IT(41200);
             op = OpCode::ArgOut_ANonVar;
             MULTISIZE_LAYOUT_WRITE(Arg, op, arg, reg);
             return;
@@ -708,7 +708,7 @@ namespace Js
             && callSiteId != Js::Constants::NoProfileId
             && !m_isInDebugMode // We don't inline in debug mode, so no need to emit ProfiledArgOut_A
             )
-        {
+        {TRACE_IT(41201);
             Assert((reg > FunctionBody::FirstRegSlot && reg < m_functionWrite->GetConstantCount()));
             MULTISIZE_LAYOUT_WRITE(Arg, Js::OpCode::ProfiledArgOut_A, arg, reg);
             m_byteCodeData.Encode(&callSiteId, sizeof(Js::ProfileId));
@@ -722,10 +722,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteArgNoSrc(OpCode op, ArgSlot arg)
-    {
+    {TRACE_IT(41202);
         OpLayoutT_ArgNoSrc<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Arg, arg))
-        {
+        {TRACE_IT(41203);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -733,7 +733,7 @@ namespace Js
     }
 
     void ByteCodeWriter::ArgOutEnv(ArgSlot arg)
-    {
+    {TRACE_IT(41204);
         CheckOpen();
         Assert(OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_Env));
 
@@ -741,7 +741,7 @@ namespace Js
     }
 
     void ByteCodeWriter::Br(ByteCodeLabel labelID)
-    {
+    {TRACE_IT(41205);
         Br(OpCode::Br, labelID);
     }
 
@@ -779,10 +779,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg1(OpCode op, ByteCodeLabel labelID, RegSlot R1)
-    {
+    {TRACE_IT(41206);
         OpLayoutT_BrReg1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1))
-        {
+        {TRACE_IT(41207);
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg1<SizePolicy>) - offsetof(OpLayoutT_BrReg1<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -805,10 +805,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg1Unsigned1(OpCode op, ByteCodeLabel labelID, RegSlot R1, uint C2)
-    {
+    {TRACE_IT(41208);
         OpLayoutT_BrReg1Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.C2, C2))
-        {
+        {TRACE_IT(41209);
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg2<SizePolicy>) - offsetof(OpLayoutT_BrReg2<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -832,10 +832,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg2(OpCode op, ByteCodeLabel labelID, RegSlot R1, RegSlot R2)
-    {
+    {TRACE_IT(41210);
         OpLayoutT_BrReg2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2))
-        {
+        {TRACE_IT(41211);
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg2<SizePolicy>) - offsetof(OpLayoutT_BrReg2<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -911,10 +911,10 @@ namespace Js
     }
 
     bool ByteCodeWriter::DoDynamicProfileOpcode(Phase tag, bool noHeuristics) const
-    {
+    {TRACE_IT(41212);
 #if ENABLE_PROFILE_INFO
         if (!DynamicProfileInfo::IsEnabled(tag, this->m_functionWrite))
-        {
+        {TRACE_IT(41213);
             return false;
         }
 
@@ -939,11 +939,11 @@ namespace Js
     }
 
     bool ByteCodeWriter::ShouldIncrementCallSiteId(OpCode op)
-    {
+    {TRACE_IT(41214);
         if ((DoProfileCallOp(op) && DoDynamicProfileOpcode(InlinePhase)) ||
             (DoProfileNewScObjArrayOp(op) && (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true))) ||
             (DoProfileNewScObjectOp(op) && (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true))))
-        {
+        {TRACE_IT(41215);
             return true;
         }
         return false;
@@ -961,12 +961,12 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtended(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, uint32 spreadArgsOffset)
-    {
+    {TRACE_IT(41216);
         OpLayoutT_CallIExtended<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.Options, options)
             && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset))
-        {
+        {TRACE_IT(41217);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -975,16 +975,16 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallIExtendedOptions options, uint32 spreadArgsOffset)
-    {
+    {TRACE_IT(41218);
         OpLayoutT_CallIExtendedWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.Options, options) && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset))
-        {
+        {TRACE_IT(41219);
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {TRACE_IT(41220);
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIExtendedWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIExtendedWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -998,12 +998,12 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedFlags(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, uint32 spreadArgsOffset, CallFlags callFlags)
-    {
+    {TRACE_IT(41221);
         OpLayoutT_CallIExtendedFlags<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.Options, options)
             && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset) && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {TRACE_IT(41222);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1012,17 +1012,17 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedFlagsWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallIExtendedOptions options, uint32 spreadArgsOffset, CallFlags callFlags)
-    {
+    {TRACE_IT(41223);
         OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.Options, options) && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset)
             && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {TRACE_IT(41224);
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {TRACE_IT(41225);
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1035,7 +1035,7 @@ namespace Js
     }
 
     void ByteCodeWriter::CallIExtended(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, const void *buffer, uint byteCount, ProfileId callSiteId, CallFlags callFlags)
-    {
+    {TRACE_IT(41226);
         CheckOpen();
         bool hasCallFlags = !(callFlags == CallFlags_None);
         if (hasCallFlags)
@@ -1051,7 +1051,7 @@ namespace Js
         // givenArgCount could be <, ==, or > than Function's "InParams" count
 
         if (returnValueRegister != Js::Constants::NoRegister)
-        {
+        {TRACE_IT(41227);
             returnValueRegister = ConsumeReg(returnValueRegister);
         }
         functionRegister = ConsumeReg(functionRegister);
@@ -1067,16 +1067,16 @@ namespace Js
         bool isCallWithICIndex = false;
 
         if (DoProfileCallOp(op))
-        {
+        {TRACE_IT(41228);
             if (DoDynamicProfileOpcode(InlinePhase) &&
                 callSiteId != Js::Constants::NoProfileId)
-            {
+            {TRACE_IT(41229);
                 op = Js::OpCodeUtil::ConvertCallOpToProfiled(op);
                 isProfiled = true;
             }
             else if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 this->m_functionWrite->AllocProfiledReturnTypeId(&profileId))
-            {
+            {TRACE_IT(41230);
                 op = Js::OpCodeUtil::ConvertCallOpToProfiledReturnType(op);
                 isProfiled = true;
             }
@@ -1085,27 +1085,27 @@ namespace Js
             (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true)) &&
             callSiteId != Js::Constants::NoProfileId &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId2))
-        {
+        {TRACE_IT(41231);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
             isProfiled2 = true;
         }
         else if (DoProfileNewScObjectOp(op) && (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true)) &&
             callSiteId != Js::Constants::NoProfileId)
-        {
+        {TRACE_IT(41232);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
 
         uint spreadArgsOffset = 0;
         if (options & CallIExtended_SpreadArgs)
-        {
+        {TRACE_IT(41233);
             Assert(buffer != nullptr && byteCount > 0);
             spreadArgsOffset = InsertAuxiliaryData(buffer, byteCount);
         }
 
         if (isCallWithICIndex)
-        {
+        {TRACE_IT(41234);
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIExtendedFlagsWithICIndex, op, returnValueRegister, functionRegister, givenArgCount, unit.cacheId, unit.isRootObjectCache, options, spreadArgsOffset, callFlags);
@@ -1116,7 +1116,7 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(41235);
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIExtendedFlags, op, returnValueRegister, functionRegister, givenArgCount, options, spreadArgsOffset, callFlags);
@@ -1128,10 +1128,10 @@ namespace Js
         }
 
         if (isProfiled)
-        {
+        {TRACE_IT(41236);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {TRACE_IT(41237);
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -1139,15 +1139,15 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad)
-    {
+    {TRACE_IT(41238);
         OpLayoutT_CallIWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex))
-        {
+        {TRACE_IT(41239);
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {TRACE_IT(41240);
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1161,16 +1161,16 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIFlagsWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallFlags callFlags)
-    {
+    {TRACE_IT(41241);
         OpLayoutT_CallIFlagsWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {TRACE_IT(41242);
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {TRACE_IT(41243);
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIFlagsWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIFlagsWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1184,11 +1184,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallI(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount)
-    {
+    {TRACE_IT(41244);
         OpLayoutT_CallI<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount))
-        {
+        {TRACE_IT(41245);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1197,11 +1197,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIFlags(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallFlags callFlags)
-    {
+    {TRACE_IT(41246);
         OpLayoutT_CallIFlags<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {TRACE_IT(41247);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1209,7 +1209,7 @@ namespace Js
     }
 
     void ByteCodeWriter::RemoveEntryForRegSlotFromCacheIdMap(RegSlot regSlot)
-    {
+    {TRACE_IT(41248);
         regSlot = ConsumeReg(regSlot);
 
         CacheIdUnit unit;
@@ -1218,7 +1218,7 @@ namespace Js
     }
 
     void ByteCodeWriter::CallI(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, ProfileId callSiteId, CallFlags callFlags)
-    {
+    {TRACE_IT(41249);
         CheckOpen();
 
         bool hasCallFlags = !(callFlags == CallFlags_None);
@@ -1235,7 +1235,7 @@ namespace Js
         // givenArgCount could be <, ==, or > than Function's "InParams" count
 
         if (returnValueRegister != Js::Constants::NoRegister)
-        {
+        {TRACE_IT(41250);
             returnValueRegister = ConsumeReg(returnValueRegister);
         }
         functionRegister = ConsumeReg(functionRegister);
@@ -1250,17 +1250,17 @@ namespace Js
         unit.cacheId = Js::Constants::NoInlineCacheIndex;
         callRegToLdFldCacheIndexMap->TryGetValueAndRemove(functionRegister, &unit);
         if (DoProfileCallOp(op))
-        {
+        {TRACE_IT(41251);
             if (DoDynamicProfileOpcode(InlinePhase) &&
                 callSiteId != Js::Constants::NoProfileId)
-            {
+            {TRACE_IT(41252);
                 if (unit.cacheId == Js::Constants::NoInlineCacheIndex)
-                {
+                {TRACE_IT(41253);
                     op = Js::OpCodeUtil::ConvertCallOpToProfiled(op);
                     isProfiled = true;
                 }
                 else
-                {
+                {TRACE_IT(41254);
                     isCallWithICIndex = true;
                     op = Js::OpCodeUtil::ConvertCallOpToProfiled(op, true);
                     isProfiled = true;
@@ -1268,7 +1268,7 @@ namespace Js
             }
             else if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 this->m_functionWrite->AllocProfiledReturnTypeId(&profileId))
-            {
+            {TRACE_IT(41255);
                 op = Js::OpCodeUtil::ConvertCallOpToProfiledReturnType(op);
                 isProfiled = true;
             }
@@ -1277,7 +1277,7 @@ namespace Js
             (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true)) &&
             callSiteId != Js::Constants::NoProfileId &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId2))
-        {
+        {TRACE_IT(41256);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
             isProfiled2 = true;
@@ -1285,14 +1285,14 @@ namespace Js
         else if (DoProfileNewScObjectOp(op) &&
             (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true)) &&
             callSiteId != Js::Constants::NoProfileId)
-        {
+        {TRACE_IT(41257);
             if (unit.cacheId == Js::Constants::NoInlineCacheIndex)
-            {
+            {TRACE_IT(41258);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 isProfiled = true;
             }
             else
-            {
+            {TRACE_IT(41259);
                 isCallWithICIndex = true;
                 OpCodeUtil::ConvertNonCallOpToProfiledWithICIndex(op);
                 isProfiled = true;
@@ -1300,7 +1300,7 @@ namespace Js
         }
 
         if (isCallWithICIndex)
-        {
+        {TRACE_IT(41260);
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIFlagsWithICIndex, op, returnValueRegister, functionRegister, givenArgCount, unit.cacheId, unit.isRootObjectCache, callFlags);
@@ -1311,7 +1311,7 @@ namespace Js
             }
         }
         else
-        {
+        {TRACE_IT(41261);
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIFlags, op, returnValueRegister, functionRegister, givenArgCount, callFlags);
@@ -1322,10 +1322,10 @@ namespace Js
             }
         }
         if (isProfiled)
-        {
+        {TRACE_IT(41262);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {TRACE_IT(41263);
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -1333,11 +1333,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementI(OpCode op, RegSlot Value, RegSlot Instance, RegSlot Element)
-    {
+    {TRACE_IT(41264);
         OpLayoutT_ElementI<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, Value) && SizePolicy::Assign(layout.Instance, Instance)
             && SizePolicy::Assign(layout.Element, Element))
-        {
+        {TRACE_IT(41265);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1355,9 +1355,9 @@ namespace Js
         Element = ConsumeReg(Element);
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {TRACE_IT(41266);
             if (op == OpCode::DeleteElemI_A)
-            {
+            {TRACE_IT(41267);
                 op = OpCode::DeleteElemIStrict_A;
             }
         }
@@ -1369,14 +1369,14 @@ namespace Js
             DoDynamicProfileOpcode(FloatTypeSpecPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {TRACE_IT(41268);
             OpCode newop;
             switch (op)
             {
             case OpCode::LdElemI_A:
                 newop = OpCode::ProfiledLdElemI_A;
                 if (this->m_functionWrite->AllocProfiledLdElemId(&profileId))
-                {
+                {TRACE_IT(41269);
                     isProfiledLayout = true;
                     op = newop;
                 }
@@ -1390,7 +1390,7 @@ namespace Js
                 newop = OpCode::ProfiledStElemI_A_Strict;
 StoreCommon:
                 if (this->m_functionWrite->AllocProfiledStElemId(&profileId))
-                {
+                {TRACE_IT(41270);
                     isProfiledLayout = true;
                     op = newop;
                 }
@@ -1400,7 +1400,7 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementI, op, Value, Instance, Element);
         if (isProfiledLayout)
-        {
+        {TRACE_IT(41271);
             Assert(profileId != Js::Constants::NoProfileId);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
@@ -1408,11 +1408,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementUnsigned1(OpCode op, RegSlot Value, RegSlot Instance, uint32 Element)
-    {
+    {TRACE_IT(41272);
         OpLayoutT_ElementUnsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, Value) && SizePolicy::Assign(layout.Instance, Instance)
             && SizePolicy::Assign(layout.Element, Element))
-        {
+        {TRACE_IT(41273);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1433,11 +1433,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedC(OpCode op, RegSlot value, PropertyIdIndexType propertyIdIndex)
-    {
+    {TRACE_IT(41274);
         OpLayoutT_ElementScopedC<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex))
-        {
+        {TRACE_IT(41275);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1468,9 +1468,9 @@ StoreCommon:
 #endif
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {TRACE_IT(41276);
             if (op == OpCode::ScopedDeleteFld)
-            {
+            {TRACE_IT(41277);
                 op = OpCode::ScopedDeleteFldStrict;
             }
         }
@@ -1480,11 +1480,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementC(OpCode op, RegSlot value, RegSlot instance, PropertyIdIndexType propertyIdIndex)
-    {
+    {TRACE_IT(41278);
         OpLayoutT_ElementC<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex))
-        {
+        {TRACE_IT(41279);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1521,13 +1521,13 @@ StoreCommon:
 #endif
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {TRACE_IT(41280);
             if (op == OpCode::DeleteFld)
-            {
+            {TRACE_IT(41281);
                 op = OpCode::DeleteFldStrict;
             }
             else if (op == OpCode::DeleteRootFld)
-            {
+            {TRACE_IT(41282);
                 // We will reach here when in the language service mode, since in that mode we have skipped that error.
                 op = OpCode::DeleteRootFldStrict;
             }
@@ -1538,11 +1538,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlot(OpCode op, RegSlot value, RegSlot instance, int32 slotId)
-    {
+    {TRACE_IT(41283);
         OpLayoutT_ElementSlot<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.SlotIndex, slotId))
-        {
+        {TRACE_IT(41284);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1594,7 +1594,7 @@ StoreCommon:
         case OpCode::LdObjSlot:
             if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 profileId != Constants::NoProfileId)
-            {
+            {TRACE_IT(41285);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1606,18 +1606,18 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlot, op, value, instance, slotId);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {TRACE_IT(41286);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlotI1(OpCode op, RegSlot value, int32 slotId)
-    {
+    {TRACE_IT(41287);
         OpLayoutT_ElementSlotI1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.SlotIndex, slotId))
-        {
+        {TRACE_IT(41288);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1644,7 +1644,7 @@ StoreCommon:
             case OpCode::StParamSlotChkUndecl:
             case OpCode::StLocalObjSlotChkUndecl:
             case OpCode::StParamObjSlotChkUndecl:
-            {
+            {TRACE_IT(41289);
                 break;
             }
 
@@ -1675,7 +1675,7 @@ StoreCommon:
             case OpCode::LdParamObjSlot:
                 if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                     profileId != Constants::NoProfileId)
-                {
+                {TRACE_IT(41290);
                     OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 }
                 break;
@@ -1688,19 +1688,19 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlotI1, op, value, slotId);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {TRACE_IT(41291);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlotI2(OpCode op, RegSlot value, int32 slotId1, int32 slotId2)
-    {
+    {TRACE_IT(41292);
         OpLayoutT_ElementSlotI2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.SlotIndex1, slotId1)
             && SizePolicy::Assign(layout.SlotIndex2, slotId2))
-        {
+        {TRACE_IT(41293);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1728,7 +1728,7 @@ StoreCommon:
             case OpCode::StEnvObjSlotChkUndecl:
             case OpCode::StModuleSlot:
             case OpCode::LdModuleSlot:
-            {
+            {TRACE_IT(41294);
                 break;
             }
 
@@ -1760,7 +1760,7 @@ StoreCommon:
             case OpCode::LdModuleSlot:
                 if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                     profileId != Constants::NoProfileId)
-                {
+                {TRACE_IT(41295);
                     OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 }
                 break;
@@ -1774,17 +1774,17 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlotI2, op, value, slotId1, slotId2);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {TRACE_IT(41296);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementU(OpCode op, RegSlot instance, PropertyIdIndexType index)
-    {
+    {TRACE_IT(41297);
         OpLayoutT_ElementU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Instance, instance) && SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {TRACE_IT(41298);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1804,10 +1804,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedU(OpCode op, PropertyIdIndexType index)
-    {
+    {TRACE_IT(41299);
         OpLayoutT_ElementScopedU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {TRACE_IT(41300);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1825,10 +1825,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementRootU(OpCode op, PropertyIdIndexType index)
-    {
+    {TRACE_IT(41301);
         OpLayoutT_ElementRootU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {TRACE_IT(41302);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1846,11 +1846,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementRootCP(OpCode op, RegSlot value, uint cacheId, bool isLoadMethod, bool isStore)
-    {
+    {TRACE_IT(41303);
         Assert(!isLoadMethod || !isStore);
         OpLayoutT_ElementRootCP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {TRACE_IT(41304);
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_ElementRootCP<SizePolicy>));
@@ -1885,13 +1885,13 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {TRACE_IT(41305);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
         case OpCode::LdRootMethodFld:
             if (registerCacheIdForCall)
-            {
+            {TRACE_IT(41306);
                 CacheIdUnit unit(cacheId, true);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1902,7 +1902,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {TRACE_IT(41307);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1919,11 +1919,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementP(OpCode op, RegSlot value, CacheId cacheId)
-    {
+    {TRACE_IT(41308);
         OpLayoutT_ElementP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {TRACE_IT(41309);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1948,9 +1948,9 @@ StoreCommon:
 
         case OpCode::LdLocalFld:
             if (isCtor) // The symbol loaded by this LdFld will be used as a constructor
-            {
+            {TRACE_IT(41310);
                 if (registerCacheIdForCall)
-                {
+                {TRACE_IT(41311);
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1961,14 +1961,14 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {TRACE_IT(41312);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
 
         case OpCode::LdLocalMethodFld:
             if (registerCacheIdForCall)
-            {
+            {TRACE_IT(41313);
                 CacheIdUnit unit(cacheId);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1979,7 +1979,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {TRACE_IT(41314);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1999,12 +1999,12 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementPIndexed(OpCode op, RegSlot value, uint32 scopeIndex, CacheId cacheId)
-    {
+    {TRACE_IT(41315);
         OpLayoutT_ElementPIndexed<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId)
             && SizePolicy::Assign(layout.scopeIndex, scopeIndex))
-        {
+        {TRACE_IT(41316);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2038,11 +2038,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementCP(OpCode op, RegSlot value, RegSlot instance, CacheId cacheId)
-    {
+    {TRACE_IT(41317);
         OpLayoutT_ElementCP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {TRACE_IT(41318);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2063,9 +2063,9 @@ StoreCommon:
         case OpCode::LdFldForTypeOf:
         case OpCode::LdFld:
             if (isCtor) // The symbol loaded by this LdFld will be used as a constructor
-            {
+            {TRACE_IT(41319);
                 if (registerCacheIdForCall)
-                {
+                {TRACE_IT(41320);
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2077,13 +2077,13 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {TRACE_IT(41321);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
         case OpCode::LdMethodFld:
             if (registerCacheIdForCall)
-            {
+            {TRACE_IT(41322);
                 CacheIdUnit unit(cacheId);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2095,7 +2095,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {TRACE_IT(41323);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2114,11 +2114,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementC2(OpCode op, RegSlot value, RegSlot instance, PropertyIdIndexType propertyIdIndex, RegSlot value2)
-    {
+    {TRACE_IT(41324);
         OpLayoutT_ElementC2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex) && SizePolicy::Assign(layout.Value2, value2))
-        {
+        {TRACE_IT(41325);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2139,9 +2139,9 @@ StoreCommon:
         {
         case OpCode::LdSuperFld:
             if (isCtor) // The symbol loaded by this LdSuperFld will be used as a constructor
-            {
+            {TRACE_IT(41326);
                 if (registerCacheIdForCall)
-                {
+                {TRACE_IT(41327);
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2152,7 +2152,7 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {TRACE_IT(41328);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2160,7 +2160,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {TRACE_IT(41329);
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2174,11 +2174,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedC2(OpCode op, RegSlot value, PropertyIdIndexType propertyIdIndex, RegSlot value2)
-    {
+    {TRACE_IT(41330);
         OpLayoutT_ElementScopedC2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex) && SizePolicy::Assign(layout.Value2, value2))
-        {
+        {TRACE_IT(41331);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2209,10 +2209,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteClass(OpCode op, RegSlot constructor, RegSlot extends)
-    {
+    {TRACE_IT(41332);
         OpLayoutT_Class<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Constructor, constructor) && SizePolicy::Assign(layout.Extends, extends))
-        {
+        {TRACE_IT(41333);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2220,7 +2220,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::InitClass(RegSlot constructor, RegSlot extends)
-    {
+    {TRACE_IT(41334);
         Assert(OpCodeAttr::HasMultiSizeLayout(Js::OpCode::InitClass));
 
         CheckOpen();
@@ -2228,7 +2228,7 @@ StoreCommon:
         constructor = ConsumeReg(constructor);
 
         if (extends != Js::Constants::NoRegister)
-        {
+        {TRACE_IT(41335);
             extends = ConsumeReg(extends);
         }
 
@@ -2236,7 +2236,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::NewFunction(RegSlot destinationRegister, uint index, bool isGenerator)
-    {
+    {TRACE_IT(41336);
         CheckOpen();
 
         destinationRegister = ConsumeReg(destinationRegister);
@@ -2250,7 +2250,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::NewInnerFunction(RegSlot destinationRegister, uint index, RegSlot environmentRegister, bool isGenerator)
-    {
+    {TRACE_IT(41337);
         CheckOpen();
 
         destinationRegister = ConsumeReg(destinationRegister);
@@ -2266,10 +2266,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg1Unsigned1(OpCode op, RegSlot R0, uint C1)
-    {
+    {TRACE_IT(41338);
         OpLayoutT_Reg1Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.C1, C1))
-        {
+        {TRACE_IT(41339);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2292,12 +2292,12 @@ StoreCommon:
                 this->m_functionWrite->AllocProfiledForInLoopCount(&profileId));
 
         if (isProfiled)
-        {
+        {TRACE_IT(41340);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
         }
         MULTISIZE_LAYOUT_WRITE(Reg1Unsigned1, op, R0, C1);
         if (isProfiled)
-        {
+        {TRACE_IT(41341);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
@@ -2330,10 +2330,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2Int1(OpCode op, RegSlot R0, RegSlot R1, int C1)
-    {
+    {TRACE_IT(41342);
         OpLayoutT_Reg2Int1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.C1, C1))
-        {
+        {TRACE_IT(41343);
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2349,9 +2349,9 @@ StoreCommon:
         if (DoDynamicProfileOpcode(CheckThisPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {TRACE_IT(41344);
             if (op == OpCode::LdThis)
-            {
+            {TRACE_IT(41345);
                 op = OpCode::ProfiledLdThis;
             }
         }
@@ -2372,7 +2372,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::AuxNoReg(OpCode op, const void* buffer, int byteCount, int C1)
-    {
+    {TRACE_IT(41346);
         CheckOpen();
 
         //
@@ -2395,7 +2395,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AuxNoReg(OpCode op, uint byteOffset, int C1)
-    {
+    {TRACE_IT(41347);
         CheckOpen();
 
         //
@@ -2412,7 +2412,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::Auxiliary(OpCode op, RegSlot destinationRegister, const void* buffer, int byteCount, int C1)
-    {
+    {TRACE_IT(41348);
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
 
@@ -2431,7 +2431,7 @@ StoreCommon:
         if (DoProfileNewScArrayOp(op) &&
             DoDynamicProfileOpcode(NativeArrayPhase, true) &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId))
-        {
+        {TRACE_IT(41349);
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
 
             OpLayoutDynamicProfile<OpLayoutAuxiliary> data;
@@ -2443,7 +2443,7 @@ StoreCommon:
             m_byteCodeData.Encode(op, &data, sizeof(data), this);
         }
         else
-        {
+        {TRACE_IT(41350);
             OpLayoutAuxiliary data;
             data.R0 = destinationRegister;
             data.Offset = currentOffset;
@@ -2456,7 +2456,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Auxiliary(OpCode op, RegSlot destinationRegister, uint byteOffset, int C1)
-    {
+    {TRACE_IT(41351);
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
 
@@ -2475,7 +2475,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::Reg2Aux(OpCode op, RegSlot R0, RegSlot R1, const void* buffer, int byteCount, int C1)
-    {
+    {TRACE_IT(41352);
         CheckOpen();
         R0 = ConsumeReg(R0);
         R1 = ConsumeReg(R1);
@@ -2502,7 +2502,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Reg2Aux(OpCode op, RegSlot R0, RegSlot R1, uint byteOffset, int C1)
-    {
+    {TRACE_IT(41353);
         CheckOpen();
         R0 = ConsumeReg(R0);
         R1 = ConsumeReg(R1);
@@ -2523,7 +2523,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AuxiliaryContext(OpCode op, RegSlot destinationRegister, const void* buffer, int byteCount, Js::RegSlot C1)
-    {
+    {TRACE_IT(41354);
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
         C1 = ConsumeReg(C1);
@@ -2534,7 +2534,7 @@ StoreCommon:
 
         int currentOffset = m_auxContextData.GetCurrentOffset();
         if (byteCount > 0)
-        {
+        {TRACE_IT(41355);
             m_auxContextData.Encode(buffer, byteCount);
         }
 
@@ -2551,10 +2551,10 @@ StoreCommon:
     }
 
     uint ByteCodeWriter::InsertAuxiliaryData(const void* buffer, uint byteCount)
-    {
+    {TRACE_IT(41356);
         uint offset = m_auxiliaryData.GetCurrentOffset();
         if (byteCount > 0)
-        {
+        {TRACE_IT(41357);
             m_auxiliaryData.Encode(buffer, byteCount);
         }
 
@@ -2562,10 +2562,10 @@ StoreCommon:
     }
 
     ByteCodeLabel ByteCodeWriter::DefineLabel()
-    {
+    {TRACE_IT(41358);
 #if defined(_M_X64_OR_ARM64)
         if (m_labelOffsets->Count() == INT_MAX)
-        {
+        {TRACE_IT(41359);
             // Reach our limit
             Js::Throw::OutOfMemory();
         }
@@ -2584,13 +2584,13 @@ StoreCommon:
     }
 
     void ByteCodeWriter::MarkLabel(ByteCodeLabel labelID)
-    {
+    {TRACE_IT(41360);
         CheckOpen();
         CheckLabel(labelID);
 
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {TRACE_IT(41361);
             // If we are going to emit a branch island, it should be before the label.
             EnsureLongBranch(Js::OpCode::Label);
         }
@@ -2604,7 +2604,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AddJumpOffset(Js::OpCode op, ByteCodeLabel labelId, uint fieldByteOffsetFromEnd) // Offset of "Offset" field in OpLayout, in bytes
-    {
+    {TRACE_IT(41362);
         AssertMsg(fieldByteOffsetFromEnd < 100, "Ensure valid field offset");
         CheckOpen();
         CheckLabel(labelId);
@@ -2612,7 +2612,7 @@ StoreCommon:
         uint jumpByteOffset = m_byteCodeData.GetCurrentOffset() - fieldByteOffsetFromEnd;
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {TRACE_IT(41363);
             // Any Jump might need a long jump, account for that emit the branch island earlier.
             // Even if it is a back edge and we are going to emit a long jump, we will still
             // emit a branch around any way.
@@ -2620,12 +2620,12 @@ StoreCommon:
 
             uint labelOffset = m_labelOffsets->Item(labelId);
             if (labelOffset != UINT_MAX)
-            {
+            {TRACE_IT(41364);
                 // Back branch, see if it needs to be long
                 Assert(labelOffset < m_byteCodeData.GetCurrentOffset());
                 LongJumpOffset jumpOffset = labelOffset - m_byteCodeData.GetCurrentOffset();
                 if (jumpOffset < -GetBranchLimit())
-                {
+                {TRACE_IT(41365);
                     // Create the long jump label and add the original jump offset to the list first
                     ByteCodeLabel longJumpLabel = this->DefineLabel();
                     JumpInfo jumpInfo = { longJumpLabel, jumpByteOffset };
@@ -2634,7 +2634,7 @@ StoreCommon:
                     // Emit the jump around (if necessary)
                     ByteCodeLabel jumpAroundLabel = (ByteCodeLabel)-1;
                     if (OpCodeAttr::HasFallThrough(op))
-                    {
+                    {TRACE_IT(41366);
                         // emit jump around.
                         jumpAroundLabel = this->DefineLabel();
                         this->Br(jumpAroundLabel);
@@ -2645,7 +2645,7 @@ StoreCommon:
                     this->BrLong(Js::OpCode::BrLong, labelId);
 
                     if (jumpAroundLabel != (ByteCodeLabel)-1)
-                    {
+                    {TRACE_IT(41367);
                         this->MarkLabel(jumpAroundLabel);
                     }
                     return;
@@ -2667,10 +2667,10 @@ StoreCommon:
 
 #ifdef BYTECODE_BRANCH_ISLAND
     int32 ByteCodeWriter::GetBranchLimit()
-    {
+    {TRACE_IT(41368);
 #ifdef BYTECODE_TESTING
         if (Js::Configuration::Global.flags.IsEnabled(Js::ByteCodeBranchLimitFlag))
-        {
+        {TRACE_IT(41369);
             // minimum 64
             return min(max(Js::Configuration::Global.flags.ByteCodeBranchLimit, 64), SHRT_MAX + 1);
         }
@@ -2680,7 +2680,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AddLongJumpOffset(ByteCodeLabel labelId, uint fieldByteOffsetFromEnd) // Offset of "Offset" field in OpLayout, in bytes
-    {
+    {TRACE_IT(41370);
         Assert(useBranchIsland);
         AssertMsg(fieldByteOffsetFromEnd < 100, "Ensure valid field offset");
 
@@ -2698,7 +2698,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::BrLong(OpCode op, ByteCodeLabel labelID)
-    {
+    {TRACE_IT(41371);
         Assert(useBranchIsland);
         CheckOpen();
         CheckOp(op, OpLayoutType::BrLong);
@@ -2715,7 +2715,7 @@ StoreCommon:
 
 
     void ByteCodeWriter::UpdateNextBranchIslandOffset(uint firstUnknownJumpInfo, uint firstUnknownJumpOffset)
-    {
+    {TRACE_IT(41372);
         this->firstUnknownJumpInfo = firstUnknownJumpInfo;
 
         // We will need to emit the next branch from the first branch + branch limit.
@@ -2726,13 +2726,13 @@ StoreCommon:
     }
 
     void ByteCodeWriter::EnsureLongBranch(Js::OpCode op)
-    {
+    {TRACE_IT(41373);
         Assert(useBranchIsland);
         int currentOffset = this->m_byteCodeData.GetCurrentOffset();
 
         // See if we need to emit branch island yet, and avoid recursion.
         if (currentOffset < this->nextBranchIslandOffset || this->inEnsureLongBranch)
-        {
+        {TRACE_IT(41374);
             lastOpcode = op;
             return;
         }
@@ -2746,7 +2746,7 @@ StoreCommon:
         // Except at label or StatementBoundary, we always want to emit before them.
         if ((needBranchAround && !OpCodeAttr::HasFallThrough(op))
             && op != Js::OpCode::StatementBoundary && op != Js::OpCode::Label)
-        {
+        {TRACE_IT(41375);
             return;
         }
 
@@ -2767,7 +2767,7 @@ StoreCommon:
             // See if the label has bee marked yet.
             uint const labelByteOffset = m_labelOffsets->Item(labelID);
             if (labelByteOffset != UINT_MAX)
-            {
+            {TRACE_IT(41376);
                 // If a label is already defined, then it should be short
                 // (otherwise we should have emitted a branch island for it already).
                 Assert((int)labelByteOffset - (int)jumpByteOffset < GetBranchLimit()
@@ -2780,13 +2780,13 @@ StoreCommon:
             // as many jump around of branch island.
             int flushNextBranchIslandOffset = this->nextBranchIslandOffset - GetBranchLimit() / 2;
             if (currentOffset < flushNextBranchIslandOffset)
-            {
+            {TRACE_IT(41377);
                 // No need to for long branch yet. Terminate the loop.
                 return true;
             }
 
             if (labelID == branchAroundLabel)
-            {
+            {TRACE_IT(41378);
                 // Let's not flush the branchAroundLabel.
                 // Should happen very rarely and mostly when the branch limit is very small.
 
@@ -2808,7 +2808,7 @@ StoreCommon:
 
             // Emit the branch around if it hasn't been emitted already
             if (branchAroundLabel == (Js::ByteCodeLabel)-1 && needBranchAround)
-            {
+            {TRACE_IT(41379);
                 branchAroundLabel = this->DefineLabel();
                 this->Br(Js::OpCode::Br, branchAroundLabel);
 
@@ -2831,13 +2831,13 @@ StoreCommon:
         });
 
         if (!foundUnknown)
-        {
+        {TRACE_IT(41380);
             // Nothing is found, just set the next branch island from the current offset
             this->UpdateNextBranchIslandOffset(this->m_jumpOffsets->Count(), currentOffset);
         }
 
         if (branchAroundLabel != (Js::ByteCodeLabel)-1)
-        {
+        {TRACE_IT(41381);
             // Make the branch around label if we needed one
             this->MarkLabel(branchAroundLabel);
         }
@@ -2845,18 +2845,18 @@ StoreCommon:
 #endif
 
     void ByteCodeWriter::StartStatement(ParseNode* node, uint32 tmpRegCount)
-    {
+    {TRACE_IT(41382);
         if (m_pMatchingNode)
-        {
+        {TRACE_IT(41383);
             if (m_pMatchingNode == node)
-            {
+            {TRACE_IT(41384);
                 m_matchingNodeRefCount++;
             }
             return;
         }
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {TRACE_IT(41385);
             // If we are going to emit a branch island, it should be before the statement start
             this->EnsureLongBranch(Js::OpCode::StatementBoundary);
         }
@@ -2865,7 +2865,7 @@ StoreCommon:
         m_beginCodeSpan = m_byteCodeData.GetCurrentOffset();
 
         if (m_isInDebugMode && m_tmpRegCount != tmpRegCount)
-        {
+        {TRACE_IT(41386);
             Unsigned1(OpCode::EmitTmpRegCount, tmpRegCount);
             m_tmpRegCount = tmpRegCount;
         }
@@ -2875,23 +2875,23 @@ StoreCommon:
     {
         AssertMsg(m_pMatchingNode, "EndStatement unmatched to StartStatement");
         if (m_pMatchingNode != node)
-        {
+        {TRACE_IT(41387);
             return;
         }
         else if (m_matchingNodeRefCount > 0)
-        {
+        {TRACE_IT(41388);
             m_matchingNodeRefCount--;
             return;
         }
 
         if (m_byteCodeData.GetCurrentOffset() != m_beginCodeSpan)
-        {
+        {TRACE_IT(41389);
             if (m_isInDebugMode)
-            {
+            {TRACE_IT(41390);
                 FunctionBody::StatementMap* pCurrentStatement = FunctionBody::StatementMap::New(this->m_functionWrite->GetScriptContext()->GetRecycler());
 
                 if (pCurrentStatement)
-                {
+                {TRACE_IT(41391);
                     pCurrentStatement->sourceSpan.begin = node->ichMin;
                     pCurrentStatement->sourceSpan.end = node->ichLim;
 
@@ -2902,7 +2902,7 @@ StoreCommon:
                 }
             }
             else
-            {
+            {TRACE_IT(41392);
                 StatementData currentStatement;
 
                 currentStatement.sourceBegin = node->ichMin;
@@ -2915,9 +2915,9 @@ StoreCommon:
     }
 
     void ByteCodeWriter::StartSubexpression(ParseNode* node)
-    {
+    {TRACE_IT(41393);
         if (!m_isInDebugMode || !m_pMatchingNode) // Subexpression not in debug mode or not enclosed in regular statement
-        {
+        {TRACE_IT(41394);
             return;
         }
 #ifdef BYTECODE_BRANCH_ISLAND
@@ -2928,18 +2928,18 @@ StoreCommon:
     }
 
     void ByteCodeWriter::EndSubexpression(ParseNode* node)
-    {
+    {TRACE_IT(41395);
         if (!m_isInDebugMode || m_subexpressionNodesStack->Empty() || m_subexpressionNodesStack->Peek().node != node)
-        {
+        {TRACE_IT(41396);
             return;
         }
 
         if (m_byteCodeData.GetCurrentOffset() != m_beginCodeSpan)
-        {
+        {TRACE_IT(41397);
             FunctionBody::StatementMap* pCurrentStatement = FunctionBody::StatementMap::New(this->m_functionWrite->GetScriptContext()->GetRecycler());
 
             if (pCurrentStatement)
-            {
+            {TRACE_IT(41398);
                 pCurrentStatement->sourceSpan.begin = node->ichMin;
                 pCurrentStatement->sourceSpan.end = node->ichLim;
 
@@ -2957,7 +2957,7 @@ StoreCommon:
     // what the current scope is for tracking of let/const initialization offsets (for detecting
     // dead zones).
     void ByteCodeWriter::PushDebuggerScope(Js::DebuggerScope* debuggerScope)
-    {
+    {TRACE_IT(41399);
         Assert(debuggerScope);
 
         debuggerScope->SetParentScope(m_currentDebuggerScope);
@@ -2967,20 +2967,20 @@ StoreCommon:
 
     // Pops the current debugger scope from the stack.
     void ByteCodeWriter::PopDebuggerScope()
-    {
+    {TRACE_IT(41400);
         Assert(m_currentDebuggerScope);
 
         OUTPUT_VERBOSE_TRACE(Js::DebuggerPhase, _u("PopDebuggerScope() - Popped scope 0x%p of type %d.\n"), m_currentDebuggerScope, m_currentDebuggerScope->scopeType);
         if (m_currentDebuggerScope != nullptr)
-        {
+        {TRACE_IT(41401);
             m_currentDebuggerScope = m_currentDebuggerScope->GetParentScope();
         }
     }
 
     DebuggerScope* ByteCodeWriter::RecordStartScopeObject(DiagExtraScopesType scopeType, RegSlot scopeLocation, int* index)
-    {
+    {TRACE_IT(41402);
         if (scopeLocation != Js::Constants::NoRegister)
-        {
+        {TRACE_IT(41403);
             scopeLocation = ConsumeReg(scopeLocation);
         }
         DebuggerScope* debuggerScope = m_functionWrite->RecordStartScopeObject(scopeType, m_byteCodeData.GetCurrentOffset(), scopeLocation, index);
@@ -2995,13 +2995,13 @@ StoreCommon:
         bool shouldConsumeRegister /*= true*/,
         DebuggerScopePropertyFlags flags /*= DebuggerScopePropertyFlags_None*/,
         bool isFunctionDeclaration /*= false*/)
-    {
+    {TRACE_IT(41404);
         Assert(debuggerScope);
 
         // Activation object doesn't use register and slot array location represents the
         // index in the array. Only need to consume for register slots.
         if (shouldConsumeRegister)
-        {
+        {TRACE_IT(41405);
             Assert(location != Js::Constants::NoRegister);
             location = ConsumeReg(location);
         }
@@ -3011,7 +3011,7 @@ StoreCommon:
         // Only need to update properties in debug mode (even for slot array, which is tracked in non-debug mode,
         // since the offset is only used for debugging).
         if (this->m_isInDebugMode && isFunctionDeclaration)
-        {
+        {TRACE_IT(41406);
             AssertMsg(this->m_currentDebuggerScope, "Function declarations can only be added in a block scope.");
             AssertMsg(debuggerScope == this->m_currentDebuggerScope
                 || debuggerScope == this->m_currentDebuggerScope->siblingScope,
@@ -3030,7 +3030,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::RecordEndScopeObject()
-    {
+    {TRACE_IT(41407);
         Assert(this->m_currentDebuggerScope);
 
         m_functionWrite->RecordEndScopeObject(this->m_currentDebuggerScope, m_byteCodeData.GetCurrentOffset() - 1);
@@ -3044,7 +3044,7 @@ StoreCommon:
         bool shouldConsumeRegister/* = true*/,
         int byteCodeOffset/* = Constants::InvalidOffset*/,
         bool isFunctionDeclaration /*= false*/)
-    {
+    {TRACE_IT(41408);
 #if DBG
         bool isInDebugMode = m_isInDebugMode
 #if DBG_DUMP
@@ -3058,13 +3058,13 @@ StoreCommon:
         Assert(currentDebuggerScope);
 
         if (shouldConsumeRegister)
-        {
+        {TRACE_IT(41409);
             Assert(location != Js::Constants::NoRegister);
             location = ConsumeReg(location);
         }
 
         if (byteCodeOffset == Constants::InvalidOffset)
-        {
+        {TRACE_IT(41410);
             // Use the current offset if no offset is passed in.
             byteCodeOffset = this->m_byteCodeData.GetCurrentOffset();
         }
@@ -3072,9 +3072,9 @@ StoreCommon:
         // Search through the scope chain starting with the current up through the parents to see if the
         // property can be found and updated.
         while (currentDebuggerScope != nullptr)
-        {
+        {TRACE_IT(41411);
             if (currentDebuggerScope->UpdatePropertyInitializationOffset(location, propertyId, byteCodeOffset, isFunctionDeclaration))
-            {
+            {TRACE_IT(41412);
                 break;
             }
 
@@ -3083,46 +3083,46 @@ StoreCommon:
     }
 
     void ByteCodeWriter::RecordFrameDisplayRegister(RegSlot slot)
-    {
+    {TRACE_IT(41413);
         slot = ConsumeReg(slot);
         m_functionWrite->RecordFrameDisplayRegister(slot);
     }
 
     void ByteCodeWriter::RecordObjectRegister(RegSlot slot)
-    {
+    {TRACE_IT(41414);
         slot = ConsumeReg(slot);
         m_functionWrite->RecordObjectRegister(slot);
     }
 
     void ByteCodeWriter::RecordStatementAdjustment(FunctionBody::StatementAdjustmentType type)
-    {
+    {TRACE_IT(41415);
         if (m_isInDebugMode)
-        {
+        {TRACE_IT(41416);
             m_functionWrite->RecordStatementAdjustment(m_byteCodeData.GetCurrentOffset(), type);
         }
     }
 
     void ByteCodeWriter::RecordCrossFrameEntryExitRecord(bool isEnterBlock)
-    {
+    {TRACE_IT(41417);
         if (m_isInDebugMode)
-        {
+        {TRACE_IT(41418);
             m_functionWrite->RecordCrossFrameEntryExitRecord(m_byteCodeData.GetCurrentOffset(), isEnterBlock);
         }
     }
 
     void ByteCodeWriter::RecordForInOrOfCollectionScope()
-    {
+    {TRACE_IT(41419);
         if (m_isInDebugMode && this->m_currentDebuggerScope != nullptr)
-        {
+        {TRACE_IT(41420);
             this->m_currentDebuggerScope->UpdatePropertiesInForInOrOfCollectionScope();
         }
     }
 
     uint ByteCodeWriter::EnterLoop(Js::ByteCodeLabel loopEntrance)
-    {
+    {TRACE_IT(41421);
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {TRACE_IT(41422);
             // If we are going to emit a branch island, it should be before the loop header
             this->EnsureLongBranch(Js::OpCode::StatementBoundary);
         }
@@ -3138,7 +3138,7 @@ StoreCommon:
         Js::OpCode loopBodyOpcode = Js::OpCode::LoopBodyStart;
 #if ENABLE_PROFILE_INFO
         if (Js::DynamicProfileInfo::EnableImplicitCallFlags(GetFunctionWrite()))
-        {
+        {TRACE_IT(41423);
             this->Unsigned1(Js::OpCode::ProfiledLoopStart, loopId);
             loopBodyOpcode = Js::OpCode::ProfiledLoopBodyStart;
         }
@@ -3146,7 +3146,7 @@ StoreCommon:
 
         this->MarkLabel(loopEntrance);
         if (this->DoJitLoopBodies() || this->DoInterruptProbes())
-        {
+        {TRACE_IT(41424);
             this->Unsigned1(loopBodyOpcode, loopId);
         }
 
@@ -3154,10 +3154,10 @@ StoreCommon:
     }
 
     void ByteCodeWriter::ExitLoop(uint loopId)
-    {
+    {TRACE_IT(41425);
 #if ENABLE_PROFILE_INFO
         if (Js::DynamicProfileInfo::EnableImplicitCallFlags(GetFunctionWrite()))
-        {
+        {TRACE_IT(41426);
             this->Unsigned1(Js::OpCode::ProfiledLoopEnd, loopId);
         }
 #endif
@@ -3167,16 +3167,16 @@ StoreCommon:
     }
 
     void ByteCodeWriter::IncreaseByteCodeCount()
-    {
+    {TRACE_IT(41427);
         m_byteCodeCount++;
         if (m_loopNest > 0)
-        {
+        {TRACE_IT(41428);
             m_byteCodeInLoopCount++;
         }
     }
 
     void ByteCodeWriter::Data::Create(uint initSize, ArenaAllocator* tmpAlloc)
-    {
+    {TRACE_IT(41429);
         //
         // Allocate the initial byte-code block to write into.
         //
@@ -3189,11 +3189,11 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::Reset()
-    {
+    {TRACE_IT(41430);
         currentOffset = 0;
         DataChunk* currentChunk = head;
         while (currentChunk)
-        {
+        {TRACE_IT(41431);
             // reset to the starting point
             currentChunk->Reset();
             currentChunk = currentChunk->nextChunk;
@@ -3203,30 +3203,30 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::SetCurrent(uint offset, DataChunk* currChunk)
-    {
+    {TRACE_IT(41432);
         this->current = currChunk;
         this->currentOffset = offset;
     }
 
     /// Copies its contents to a final contiguous section of memory.
     void ByteCodeWriter::Data::Copy(Recycler* alloc, ByteBlock ** finalBlock)
-    {
+    {TRACE_IT(41433);
         AssertMsg(finalBlock != nullptr, "Must have valid storage");
 
         uint cbFinalData = GetCurrentOffset();
         if (cbFinalData == 0)
-        {
+        {TRACE_IT(41434);
             *finalBlock = nullptr;
         }
         else
-        {
+        {TRACE_IT(41435);
             ByteBlock* finalByteCodeBlock = ByteBlock::New(alloc, /*initialContent*/nullptr, cbFinalData);
 
             DataChunk* currentChunk = head;
             size_t bytesLeftToCopy = cbFinalData;
             byte* currentDest = finalByteCodeBlock->GetBuffer();
             while (true)
-            {
+            {TRACE_IT(41436);
                 if (bytesLeftToCopy <= currentChunk->GetSize())
                 {
                     js_memcpy_s(currentDest, bytesLeftToCopy, currentChunk->GetBuffer(), bytesLeftToCopy);
@@ -3249,15 +3249,15 @@ StoreCommon:
     void ByteCodeWriter::Data::EncodeOpCode<SmallLayout>(
         uint16 op,
         ByteCodeWriter* writer)
-    {
+    {TRACE_IT(41437);
         DebugOnly(const uint offset = currentOffset);
         if (op <= (uint16)Js::OpCode::MaxByteSizedOpcodes)
-        {
+        {TRACE_IT(41438);
             byte byteop = (byte)op;
             Write(&byteop, sizeof(byte));
         }
         else
-        {
+        {TRACE_IT(41439);
             byte byteop = (byte)Js::OpCode::ExtendedOpcodePrefix;
             Write(&byteop, sizeof(byte));
             Write(&op, sizeof(uint16));
@@ -3268,19 +3268,19 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     void ByteCodeWriter::Data::EncodeOpCode(uint16 op, ByteCodeWriter* writer)
-    {
+    {TRACE_IT(41440);
         CompileAssert(layoutSize != SmallLayout);
         DebugOnly(const uint offset = currentOffset);
 
         if (op <= (uint16)Js::OpCode::MaxByteSizedOpcodes)
-        {
+        {TRACE_IT(41441);
             const byte exop = (byte)(layoutSize == LargeLayout ? Js::OpCode::LargeLayoutPrefix : Js::OpCode::MediumLayoutPrefix);
             Write(&exop, sizeof(byte));
             byte byteop = (byte)op;
             Write(&byteop, sizeof(byte));
         }
         else
-        {
+        {TRACE_IT(41442);
             const byte exop = (byte)(layoutSize == LargeLayout ? Js::OpCode::ExtendedLargeLayoutPrefix : Js::OpCode::ExtendedMediumLayoutPrefix);
             Write(&exop, sizeof(byte));
             Write(&op, sizeof(uint16));
@@ -3290,10 +3290,10 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     inline uint ByteCodeWriter::Data::EncodeT(OpCode op, ByteCodeWriter* writer)
-    {
+    {TRACE_IT(41443);
 #ifdef BYTECODE_BRANCH_ISLAND
         if (writer->useBranchIsland)
-        {
+        {TRACE_IT(41444);
             writer->EnsureLongBranch(op);
         }
 #endif
@@ -3306,7 +3306,7 @@ StoreCommon:
         EncodeOpCode<layoutSize>((uint16)op, writer);
 
         if (op != Js::OpCode::Ld_A)
-        {
+        {TRACE_IT(41445);
             writer->m_byteCodeWithoutLDACount++;
         }
         writer->IncreaseByteCodeCount();
@@ -3315,7 +3315,7 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     inline uint ByteCodeWriter::Data::EncodeT(OpCode op, const void* rawData, int byteSize, ByteCodeWriter* writer)
-    {
+    {TRACE_IT(41446);
         AssertMsg((rawData != nullptr) && (byteSize < 100), "Ensure valid data for opcode");
 
         uint offset = EncodeT<layoutSize>(op, writer);
@@ -3324,17 +3324,17 @@ StoreCommon:
     }
 
     inline void ByteCodeWriter::Data::Encode(const void* rawData, int byteSize)
-    {
+    {TRACE_IT(41447);
         AssertMsg(rawData != nullptr, "Ensure valid data for opcode");
         Write(rawData, byteSize);
     }
 
     void ByteCodeWriter::Data::Write(__in_bcount(byteSize) const void* data, __in uint byteSize)
-    {
+    {TRACE_IT(41448);
         // Simple case where the current chunk has enough space.
         uint bytesFree = current->RemainingBytes();
         if (bytesFree >= byteSize)
-        {
+        {TRACE_IT(41449);
             current->WriteUnsafe(data, byteSize);
         }
         else
@@ -3347,21 +3347,21 @@ StoreCommon:
 
     /// Requires buffer extension.
     _NOINLINE void ByteCodeWriter::Data::SlowWrite(__in_bcount(byteSize) const void* data, __in uint byteSize)
-    {
+    {TRACE_IT(41450);
         AssertMsg(byteSize > current->RemainingBytes(), "We should not need an extension if there is enough space in the current chunk");
         uint bytesLeftToWrite = byteSize;
         byte* dataToBeWritten = (byte*)data;
         // the next chunk may already be created in the case that we are patching bytecode.
         // If so, we want to move the pointer to the beginning of the buffer
         if (current->nextChunk)
-        {
+        {TRACE_IT(41451);
             current->nextChunk->SetCurrentOffset(0);
         }
         while (true)
-        {
+        {TRACE_IT(41452);
             uint bytesFree = current->RemainingBytes();
             if (bytesFree >= bytesLeftToWrite)
-            {
+            {TRACE_IT(41453);
                 current->WriteUnsafe(dataToBeWritten, bytesLeftToWrite);
                 break;
             }
@@ -3372,7 +3372,7 @@ StoreCommon:
 
             // Create a new chunk when needed
             if (!current->nextChunk)
-            {
+            {TRACE_IT(41454);
                 AddChunk(bytesLeftToWrite);
             }
             current = current->nextChunk;
@@ -3380,7 +3380,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::AddChunk(uint byteSize)
-    {
+    {TRACE_IT(41455);
         AssertMsg(current->nextChunk == nullptr, "Do we really need to grow?");
 
         // For some data elements i.e. bytecode we have a good initial size and
@@ -3393,17 +3393,17 @@ StoreCommon:
 
 #if DBG_DUMP
     uint ByteCodeWriter::ByteCodeDataSize()
-    {
+    {TRACE_IT(41456);
         return m_byteCodeData.GetCurrentOffset();
     }
 
     uint ByteCodeWriter::AuxiliaryDataSize()
-    {
+    {TRACE_IT(41457);
         return m_auxiliaryData.GetCurrentOffset();
     }
 
     uint ByteCodeWriter::AuxiliaryContextDataSize()
-    {
+    {TRACE_IT(41458);
         return m_auxContextData.GetCurrentOffset();
     }
 

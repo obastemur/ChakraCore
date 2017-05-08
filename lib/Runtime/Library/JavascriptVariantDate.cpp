@@ -7,7 +7,7 @@
 namespace Js
 {
     bool JavascriptVariantDate::Is(Var aValue)
-    {
+    {TRACE_IT(62206);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_VariantDate;
     }
 
@@ -19,28 +19,28 @@ namespace Js
     }
 
     Var JavascriptVariantDate::GetTypeOfString(ScriptContext* requestContext)
-    {
+    {TRACE_IT(62207);
         return requestContext->GetLibrary()->GetVariantDateTypeDisplayString();
     }
 
     JavascriptString* JavascriptVariantDate::GetValueString(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(62208);
         return DateImplementation::ConvertVariantDateToString(this->value, scriptContext);
     }
 
     BOOL JavascriptVariantDate::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62209);
         BOOL ret;
 
         ENTER_PINNED_SCOPE(JavascriptString, resultString);
         resultString = DateImplementation::ConvertVariantDateToString(this->value, GetScriptContext());
         if (resultString != nullptr)
-        {
+        {TRACE_IT(62210);
             stringBuilder->Append(resultString->GetString(), resultString->GetLength());
             ret = TRUE;
         }
         else
-        {
+        {TRACE_IT(62211);
             ret = FALSE;
         }
 
@@ -50,27 +50,27 @@ namespace Js
     }
 
     BOOL JavascriptVariantDate::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62212);
         stringBuilder->AppendCppLiteral(_u("Date")); // For whatever reason in IE8 jscript, typeof returns "date"
                                                   // while the debugger displays "Date" for the type
         return TRUE;
     }
 
     RecyclableObject * JavascriptVariantDate::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(62213);
         return requestContext->GetLibrary()->CreateVariantDate(value);
     }
 
     RecyclableObject* JavascriptVariantDate::ToObject(ScriptContext* requestContext)
-    {
+    {TRACE_IT(62214);
         // WOOB 1124298: Just return a new object when converting to object.
         return requestContext->GetLibrary()->CreateObject(true);
     }
 
     BOOL JavascriptVariantDate::GetProperty(Js::Var originalInstance, Js::PropertyId propertyId, Js::Var* value, PropertyValueInfo* info, Js::ScriptContext* requestContext)
-    {
+    {TRACE_IT(62215);
         if (requestContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(62216);
             JavascriptError::ThrowTypeError(requestContext, JSERR_Property_VarDate, requestContext->GetPropertyName(propertyId)->GetBuffer());
         }
         *value = nullptr;
@@ -78,9 +78,9 @@ namespace Js
     };
 
     BOOL JavascriptVariantDate::GetProperty(Js::Var originalInstance, Js::JavascriptString* propertyNameString, Js::Var* value, PropertyValueInfo* info, Js::ScriptContext* requestContext)
-    {
+    {TRACE_IT(62217);
         if (requestContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(62218);
             JavascriptError::ThrowTypeError(requestContext, JSERR_Property_VarDate, propertyNameString);
         }
         *value = nullptr;
@@ -88,9 +88,9 @@ namespace Js
     };
 
     BOOL JavascriptVariantDate::GetPropertyReference(Js::Var originalInstance, Js::PropertyId propertyId, Js::Var* value, PropertyValueInfo* info, Js::ScriptContext* requestContext)
-    {
+    {TRACE_IT(62219);
         if (requestContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(62220);
             JavascriptError::ThrowTypeError(requestContext, JSERR_Property_VarDate, requestContext->GetPropertyName(propertyId)->GetBuffer());
         }
         *value = nullptr;
@@ -98,70 +98,70 @@ namespace Js
     };
 
     BOOL JavascriptVariantDate::SetProperty(Js::PropertyId propertyId, Js::Var value, Js::PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(62221);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, scriptContext->GetPropertyName(propertyId)->GetBuffer());
     };
 
     BOOL JavascriptVariantDate::SetProperty(Js::JavascriptString* propertyNameString, Js::Var value, Js::PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {TRACE_IT(62222);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, propertyNameString->GetSz());
     };
 
     BOOL JavascriptVariantDate::InitProperty(Js::PropertyId propertyId, Js::Var value, PropertyOperationFlags flags, Js::PropertyValueInfo* info)
-    {
+    {TRACE_IT(62223);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, scriptContext->GetPropertyName(propertyId)->GetBuffer());
     };
 
     BOOL JavascriptVariantDate::DeleteProperty(Js::PropertyId propertyId, Js::PropertyOperationFlags flags)
-    {
+    {TRACE_IT(62224);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, scriptContext->GetPropertyName(propertyId)->GetBuffer());
     };
 
     BOOL JavascriptVariantDate::DeleteProperty(JavascriptString *propertyNameString, Js::PropertyOperationFlags flags)
-    {
+    {TRACE_IT(62225);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, propertyNameString->GetString());
     };
 
     BOOL JavascriptVariantDate::GetItemReference(Js::Var originalInstance, uint32 index, Js::Var* value, Js::ScriptContext * scriptContext)
-    {
+    {TRACE_IT(62226);
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, JavascriptNumber::ToStringRadix10(index, scriptContext)->GetSz());
     };
 
     BOOL JavascriptVariantDate::GetItem(Js::Var originalInstance, uint32 index, Js::Var* value, Js::ScriptContext * scriptContext)
-    {
+    {TRACE_IT(62227);
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, JavascriptNumber::ToStringRadix10(index, scriptContext)->GetSz());
     };
 
     BOOL JavascriptVariantDate::SetItem(uint32 index, Js::Var value, Js::PropertyOperationFlags flags)
-    {
+    {TRACE_IT(62228);
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, JavascriptNumber::ToStringRadix10(index, scriptContext)->GetSz());
     };
 
     BOOL JavascriptVariantDate::ToPrimitive(JavascriptHint hint, Var* result, ScriptContext * requestContext)
-    {
+    {TRACE_IT(62229);
         if (hint == JavascriptHint::HintString)
-        {
+        {TRACE_IT(62230);
             JavascriptString* resultString = this->GetValueString(requestContext);
             if (resultString != nullptr)
-            {
+            {TRACE_IT(62231);
                 (*result) = resultString;
                 return TRUE;
             }
             Assert(false);
         }
         else if (hint == JavascriptHint::HintNumber)
-        {
+        {TRACE_IT(62232);
             *result = JavascriptNumber::ToVarNoCheck(DateImplementation::JsUtcTimeFromVarDate(value, requestContext), requestContext);
             return TRUE;
         }
         else
-        {
+        {TRACE_IT(62233);
             Assert(hint == JavascriptHint::None);
             *result = this;
             return TRUE;
@@ -170,7 +170,7 @@ namespace Js
     }
 
     BOOL JavascriptVariantDate::Equals(Var other, BOOL *value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(62234);
         // Calling .Equals on a VT_DATE variant at least gives the "[property name] is null or not An object error"
         *value = FALSE;
         return TRUE;

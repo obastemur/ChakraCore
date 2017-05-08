@@ -17,7 +17,7 @@ namespace PlatformAgnostic
 namespace DateTime
 {
     const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {TRACE_IT(65106);
         AssertMsg(ymd != NULL, "xplat needs DateTime::YMD is defined for this call");
         double tv = Js::DateUtilities::TvFromDate(ymd->year, ymd->mon, ymd->mday, ymd->time);
         int64_t absoluteTime = tv / 1000;
@@ -41,13 +41,13 @@ namespace DateTime
     }
 
     const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {TRACE_IT(65107);
         // xplat only gets the actual zone name for the given date
         return GetStandardName(nameLength, ymd);
     }
 
     static time_t IsDST(double tv, int *offset)
-    {
+    {TRACE_IT(65108);
         CFTimeZoneRef timeZone = CFTimeZoneCopySystem();
         int64_t absoluteTime = tv / 1000;
         absoluteTime -= kCFAbsoluteTimeIntervalSince1970;
@@ -59,7 +59,7 @@ namespace DateTime
     }
 
     static void YMDLocalToUtc(double localtv, YMD *utc)
-    {
+    {TRACE_IT(65109);
         int mOffset = 0;
         bool isDST = IsDST(localtv, &mOffset);
         localtv -= DateTimeTicks_PerSecond * mOffset;
@@ -68,7 +68,7 @@ namespace DateTime
 
     static void YMDUtcToLocal(double utctv, YMD *local,
                           int &bias, int &offset, bool &isDaylightSavings)
-    {
+    {TRACE_IT(65110);
         int mOffset = 0;
         bool isDST = IsDST(utctv, &mOffset);
         utctv += DateTimeTicks_PerSecond * mOffset;
@@ -81,7 +81,7 @@ namespace DateTime
     // DaylightTimeHelper ******
     double DaylightTimeHelper::UtcToLocal(double utcTime, int &bias,
                                           int &offset, bool &isDaylightSavings)
-    {
+    {TRACE_IT(65111);
         YMD local;
         YMDUtcToLocal(utcTime, &local, bias, offset, isDaylightSavings);
 
@@ -89,7 +89,7 @@ namespace DateTime
     }
 
     double DaylightTimeHelper::LocalToUtc(double localTime)
-    {
+    {TRACE_IT(65112);
         YMD utc;
         YMDLocalToUtc(localTime, &utc);
 

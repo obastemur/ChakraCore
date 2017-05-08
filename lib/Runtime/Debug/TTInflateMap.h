@@ -101,19 +101,19 @@ namespace TTD
 
         template <typename T>
         bool IsPromiseInfoDefined(TTD_PTR_ID ptrId) const
-        {
+        {TRACE_IT(44177);
             return this->m_promiseDataMap.ContainsKey(ptrId);
         }
 
         template <typename T>
         void AddInflatedPromiseInfo(TTD_PTR_ID ptrId, T* data)
-        {
+        {TRACE_IT(44178);
             this->m_promiseDataMap.AddNew(ptrId, data);
         }
 
         template <typename T>
         T* LookupInflatedPromiseInfo(TTD_PTR_ID ptrId) const
-        {
+        {TRACE_IT(44179);
             return (T*)this->m_promiseDataMap.Item(ptrId);
         }
     };

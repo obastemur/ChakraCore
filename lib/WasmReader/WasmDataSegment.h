@@ -12,7 +12,7 @@ class WasmDataSegment
 {
 public:
     WasmDataSegment(ArenaAllocator * alloc, WasmNode initExpr, uint32 _source_size, const byte* _data);
-    WasmNode GetOffsetExpr() const { return m_initExpr; }
+    WasmNode GetOffsetExpr() const {TRACE_IT(68397); return m_initExpr; }
     uint32 GetSourceSize() const;
     const byte* GetData() const;
 

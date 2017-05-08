@@ -79,16 +79,16 @@ public:
 
     template<typename THandler>
     static void GetArenaMemoryUsage(THandler handler)
-    {
+    {TRACE_IT(20502);
         ForEachProfiler([&] (MemoryProfiler * memoryProfiler)
         {
             memoryProfiler->WithArenaUsageSummary(true, [&] (int count, _In_reads_(count) LPWSTR * name, _In_reads_(count) ArenaMemoryDataSummary * summaries)
             {
                 for (int i = 0; i < count; i++)
-                {
+                {TRACE_IT(20503);
                     ArenaMemoryDataSummary * data = summaries[i];
                     if (data == nullptr)
-                    {
+                    {TRACE_IT(20504);
                         continue;
                     }
                     handler(name[i], data);
@@ -106,10 +106,10 @@ private:
 
     template<typename THandler>
     static void ForEachProfiler(THandler handler)
-    {
+    {TRACE_IT(20505);
         MemoryProfiler * memoryProfiler = MemoryProfiler::profilers;
         while (memoryProfiler != nullptr)
-        {
+        {TRACE_IT(20506);
             handler(memoryProfiler);
             memoryProfiler = memoryProfiler->next;
         }
@@ -143,7 +143,7 @@ private:
 template<typename THandler>
 void
 MemoryProfiler::WithArenaUsageSummary(bool liveOnly, THandler handler)
-{
+{TRACE_IT(20507);
     // This is debug only code, we don't care if we catch the right exception
     AUTO_NESTED_HANDLED_EXCEPTION_TYPE(ExceptionType_DisableCheck);
 

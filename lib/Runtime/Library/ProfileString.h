@@ -40,7 +40,7 @@ namespace Js
             uint countUnicode;
 
             void Accumulate( RequiredEncoding encoding )
-            {
+            {TRACE_IT(62693);
                 switch(encoding)
                 {
                 case ASCII7bit:
@@ -56,14 +56,14 @@ namespace Js
             }
 
             uint Total() const
-            {
+            {TRACE_IT(62694);
                 return this->count7BitASCII +
                     this->count8BitASCII +
                     this->countUnicode;
             }
 
             void Accumulate(StringMetrics& rhs)
-            {
+            {TRACE_IT(62695);
                 this->count7BitASCII += rhs.count7BitASCII;
                 this->count8BitASCII += rhs.count8BitASCII;
                 this->countUnicode   += rhs.countUnicode;
@@ -77,16 +77,16 @@ namespace Js
             uint bufferStringBuilderCount;
             uint unknownCount;
 
-            ConcatMetrics() {}
+            ConcatMetrics() {TRACE_IT(62696);}
 
             ConcatMetrics(ConcatType concatType)
                 : compoundStringCount(0), concatTreeCount(0), bufferStringBuilderCount(0), unknownCount(0)
-            {
+            {TRACE_IT(62697);
                 this->Accumulate(concatType);
             }
 
             void Accumulate(ConcatType concatType)
-            {
+            {TRACE_IT(62698);
                 switch(concatType)
                 {
                 case ConcatType_CompoundString:
@@ -104,7 +104,7 @@ namespace Js
                 }
             }
             uint Total() const
-            {
+            {TRACE_IT(62699);
                 return this->compoundStringCount +
                     this->concatTreeCount +
                     this->bufferStringBuilderCount +
@@ -127,12 +127,12 @@ namespace Js
             uint second;
 
             bool operator==(UintUintPair const& other) const
-            {
+            {TRACE_IT(62700);
                 return this->first == other.first && this->second == other.second;
             }
 
             operator uint() const
-            {
+            {TRACE_IT(62701);
                 return this->first | (this->second << 16);
             }
         };

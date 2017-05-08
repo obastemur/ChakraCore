@@ -83,7 +83,7 @@ public:
         size_t retValue = 0;
 
         if(Js::Configuration::Global.flags.Trace.IsEnabled(phase))
-        {
+        {TRACE_IT(20273);
             va_list argptr;
             va_start(argptr, form);
             retValue = Output::Print(_u("%s:"), Js::PhaseNames[static_cast<int>(phase)]);
@@ -109,7 +109,7 @@ public:
     static FILE*    GetFile();
     static void     SetOutputFile(FILE *);
     static FILE*    GetOutputFile();
-    static void     UseDebuggerWindow() { s_useDebuggerWindow = true; }
+    static void     UseDebuggerWindow() {TRACE_IT(20274); s_useDebuggerWindow = true; }
     static void     Flush();
 
     static WORD     SetConsoleForeground(WORD color);

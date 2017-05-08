@@ -38,11 +38,11 @@ private:
     static const uint L1Count = 4096;
     static const uint L2Count = 256;
     static uint GetLevel1Id(void * address)
-    {
+    {TRACE_IT(26826);
         return ::Math::PointerCastToIntegralTruncate<uint>(address) / L2Count / AutoSystemInfo::PageSize;
     }
     static uint GetLevel2Id(void * address)
-    {
+    {TRACE_IT(26827);
         return ::Math::PointerCastToIntegralTruncate<uint>(address) % (L2Count * AutoSystemInfo::PageSize) / AutoSystemInfo::PageSize;
     }
 
@@ -90,7 +90,7 @@ private:
 
     struct Node
     {
-        Node(__in char * startAddress) : map(startAddress) { }
+        Node(__in char * startAddress) : map(startAddress) {TRACE_IT(26828); }
 
         uint nodeIndex;
         Node * next;
@@ -106,17 +106,17 @@ private:
     Node * list;
 
     static uint GetNodeIndex(void * address)
-    {
+    {TRACE_IT(26829);
         return GetNodeIndex((ULONG64)address);
     }
 
     static uint GetNodeIndex(ULONG64 address)
-    {
+    {TRACE_IT(26830);
         return (uint)((ULONG64)address >> 32);
     }
 
     static char * GetNodeStartAddress(void * address)
-    {
+    {TRACE_IT(26831);
         return (char *)(((size_t)address) & ~(SectionMap32::TotalSize - 1));
     }
 
@@ -172,12 +172,12 @@ public:
     LPVOID      GetPreReservedEndAddress();
     static LPVOID GetPreReservedEndAddress(void * regionStart);
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
-    static int  NumPreReservedSegment() { return numPreReservedSegment; }
+    static int  NumPreReservedSegment() {TRACE_IT(26832); return numPreReservedSegment; }
 #endif
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
     bool        IsPreReservedEndAddress(LPVOID address)
-    {
+    {TRACE_IT(26833);
         return IsPreReservedRegionPresent() && address == GetPreReservedEndAddress();
     }
 #endif

@@ -27,7 +27,7 @@ public:
         xdataTotal(0),
         pdataIndex(0),
         savedScratchReg(false)
-    {
+    {TRACE_IT(17767);
     }
 
     void Init(Func * func);
@@ -35,99 +35,99 @@ public:
     DWORD EmitLongUnwindInfoChunk(DWORD remainingLength);
 
     void SetFunc(Func *func)
-    {
+    {TRACE_IT(17768);
         Assert(this->func == NULL);
         this->func = func;
     }
     Func * GetFunc() const
-    {
+    {TRACE_IT(17769);
         return this->func;
     }
 
     void SetFragmentStart(size_t pStart)
-    {
+    {TRACE_IT(17770);
         this->fragmentStart = pStart;
     }
     size_t GetFragmentStart() const
-    {
+    {TRACE_IT(17771);
         return this->fragmentStart;
     }
 
     void SetEpilogEndOffset(DWORD offset)
-    {
+    {TRACE_IT(17772);
         Assert(this->epilogEndOffset == 0);
         this->epilogEndOffset = offset;
     }
     DWORD GetEpilogEndOffset() const
-    {
+    {TRACE_IT(17773);
         return this->epilogEndOffset;
     }
 
     void SetPrologOffset(DWORD offset)
-    {
+    {TRACE_IT(17774);
         Assert(this->prologOffset == 0);
         this->prologOffset = offset;
     }
     DWORD GetPrologOffset() const
-    {
+    {TRACE_IT(17775);
         return this->prologOffset;
     }
 
     void SetFragmentLength(DWORD length)
-    {
+    {TRACE_IT(17776);
         this->fragmentLength = length;
     }
     DWORD GetFragmentLength() const
-    {
+    {TRACE_IT(17777);
         return this->fragmentLength;
     }
 
     void SetHomedParamCount(BYTE count)
-    {
+    {TRACE_IT(17778);
         Assert(this->homedParamCount == 0);
         this->homedParamCount = count;
     }
     DWORD GetHomedParamCount() const
-    {
+    {TRACE_IT(17779);
         return this->homedParamCount;
     }
 
     void SetStackDepth(DWORD depth)
-    {
+    {TRACE_IT(17780);
         Assert(this->stackDepth == 0);
         this->stackDepth = depth;
     }
     DWORD GetStackDepth() const
-    {
+    {TRACE_IT(17781);
         return this->stackDepth;
     }
 
     void SetHasCalls(bool has)
-    {
+    {TRACE_IT(17782);
         this->hasCalls = has;
     }
     bool GetHasCalls() const
-    {
+    {TRACE_IT(17783);
         return this->hasCalls;
     }
 
     void SetPrologStartLabel(DWORD id)
-    {
+    {TRACE_IT(17784);
         Assert(this->prologLabelId == 0);
         this->prologLabelId = id;
     }
     DWORD GetPrologStartLabel() const
-    {
+    {TRACE_IT(17785);
         return this->prologLabelId;
     }
 
     void SetEpilogEndLabel(DWORD id)
-    {
+    {TRACE_IT(17786);
         Assert(this->epilogEndLabelId == 0);
         this->epilogEndLabelId = id;
     }
     DWORD GetEpilogEndLabel() const
-    {
+    {TRACE_IT(17787);
         return this->epilogEndLabelId;
     }
 
@@ -142,8 +142,8 @@ public:
     static BYTE GetLastSavedReg(DWORD mask);
     static BYTE GetFirstSavedReg(DWORD mask);
 
-    void SetSavedScratchReg(bool value) { savedScratchReg = value; }
-    bool GetSavedScratchReg() { return savedScratchReg; }
+    void SetSavedScratchReg(bool value) {TRACE_IT(17788); savedScratchReg = value; }
+    bool GetSavedScratchReg() {TRACE_IT(17789); return savedScratchReg; }
 
 private:
 

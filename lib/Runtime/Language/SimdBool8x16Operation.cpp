@@ -8,10 +8,10 @@
 namespace Js
 {
     SIMDValue SIMDBool8x16Operation::OpBool8x16(bool b[])
-    {
+    {TRACE_IT(52181);
         SIMDValue result;
         for (uint i = 0; i < 16; i++)
-        {
+        {TRACE_IT(52182);
             result.i8[i] = b[i] ? -1 : 0;
         }
 
@@ -19,7 +19,7 @@ namespace Js
     }
 
     SIMDValue SIMDBool8x16Operation::OpBool8x16(const SIMDValue& v)
-    {
+    {TRACE_IT(52183);
         // overload function with input parameter as SIMDValue for completeness
         SIMDValue result;
         result = v;

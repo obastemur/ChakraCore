@@ -13,20 +13,20 @@ namespace Js
 
     template<typename Func>
     void SegmentBTree::Walk(Func& func) const
-    {
+    {TRACE_IT(57922);
         if (!IsLeaf())
-        {
+        {TRACE_IT(57923);
             children[0].Walk(func);
         }
 
         for (unsigned int i = 0; i < segmentCount; i++)
-        {
+        {TRACE_IT(57924);
             Assert(keys[i] == segments[i]->left);
 
             func(segments[i]);
 
             if (!IsLeaf())
-            {
+            {TRACE_IT(57925);
                 children[i + 1].Walk(func);
             }
         }
@@ -35,22 +35,22 @@ namespace Js
     template <typename Fn>
     SparseArraySegmentBase *
     JavascriptArray::ForEachSegment(Fn fn) const
-    {
+    {TRACE_IT(57926);
         return ForEachSegment(this->head, fn);
     }
 
     template <typename Fn>
     SparseArraySegmentBase *
     JavascriptArray::ForEachSegment(SparseArraySegmentBase * segment, Fn fn)
-    {
+    {TRACE_IT(57927);
         DebugOnly(uint32 lastindex = segment? segment->left : 0);
         SparseArraySegmentBase * current = segment;
         while (current)
-        {
+        {TRACE_IT(57928);
             // Verify that all the segment are sorted
             Assert(current->left >= lastindex);
             if (fn(current))
-            {
+            {TRACE_IT(57929);
                 break;
             }
             DebugOnly(lastindex = current->left + current->length);
@@ -64,9 +64,9 @@ namespace Js
     //
     template<>
     inline void JavascriptArray::LinkSegments(SparseArraySegment<int>* prev, SparseArraySegment<int>* current)
-    {
+    {TRACE_IT(57930);
         if (prev && prev->next == nullptr && SparseArraySegmentBase::IsLeafSegment(prev, this->GetScriptContext()->GetRecycler()))
-        {
+        {TRACE_IT(57931);
             prev = this->ReallocNonLeafSegment(prev, current);
         }
         else
@@ -77,9 +77,9 @@ namespace Js
 
     template<>
     inline void JavascriptArray::LinkSegments(SparseArraySegment<double>* prev, SparseArraySegment<double>* current)
-    {
+    {TRACE_IT(57932);
         if (prev && prev->next == nullptr && SparseArraySegmentBase::IsLeafSegment(prev, this->GetScriptContext()->GetRecycler()))
-        {
+        {TRACE_IT(57933);
             prev = this->ReallocNonLeafSegment(prev, current);
         }
         else
@@ -96,13 +96,13 @@ namespace Js
 
     template<typename T>
     inline SparseArraySegment<T>* JavascriptArray::ReallocNonLeafSegment(SparseArraySegment<T> *seg, SparseArraySegmentBase* nextSeg)
-    {
+    {TRACE_IT(57934);
         // Find the segment prior to seg.
         SparseArraySegmentBase *prior = nullptr;
         if (seg != this->head)
-        {
+        {TRACE_IT(57935);
             for (prior = this->head; prior->next != seg; prior = prior->next)
-            {
+            {TRACE_IT(57936);
                 Assert(prior->next);
             }
         }
@@ -113,12 +113,12 @@ namespace Js
         LinkSegmentsCommon(prior, newSeg);
         LinkSegmentsCommon(newSeg, nextSeg);
         if (GetLastUsedSegment() == seg)
-        {
+        {TRACE_IT(57937);
             SetLastUsedSegment(newSeg);
         }
         SegmentBTree * segmentMap = GetSegmentMap();
         if (segmentMap)
-        {
+        {TRACE_IT(57938);
             segmentMap->SwapSegment(seg->left, seg, newSeg);
         }
         return newSeg;
@@ -131,20 +131,20 @@ namespace Js
         const uint32 length,
         const uint32 size,
         const bool wasZeroAllocated)
-    {
+    {TRACE_IT(57939);
         Assert(!array->HasSegmentMap());
         SparseArraySegment<typename T::TElement>* head =
             DetermineInlineHeadSegmentPointer<T, InlinePropertySlots, false>(array);
         if(wasZeroAllocated)
-        {
+        {TRACE_IT(57940);
             if(length != 0)
-            {
+            {TRACE_IT(57941);
                 head->length = length;
             }
             head->size = size;
         }
         else
-        {
+        {TRACE_IT(57942);
             new(head) SparseArraySegment<typename T::TElement>(0, length, size);
         }
         array->SetHeadAndLastUsedSegment(head);
@@ -154,7 +154,7 @@ namespace Js
 
     template<typename unitType, typename className>
     inline className * JavascriptArray::New(Recycler * recycler, DynamicType * type)
-    {
+    {TRACE_IT(57943);
         size_t allocationPlusSize;
         uint alignedInlineElementSlots;
         DetermineAllocationSizeForArrayObjects<className, 0>(
@@ -167,12 +167,12 @@ namespace Js
     /*static*/
     template<typename unitType, typename className, uint inlineSlots>
     className* JavascriptArray::New(uint32 length, DynamicType* arrayType, Recycler* recycler)
-    {
+    {TRACE_IT(57944);
         CompileAssert(static_cast<PropertyIndex>(inlineSlots) == inlineSlots);
         Assert(DynamicTypeHandler::RoundUpInlineSlotCapacity(static_cast<PropertyIndex>(inlineSlots)) == inlineSlots);
 
         if(length > SparseArraySegmentBase::HEAD_CHUNK_SIZE)
-        {
+        {TRACE_IT(57945);
             // Use empty segment until we try to store something.  Call AllocateHead() at that point.
             return RecyclerNew(recycler, className, length, arrayType);
         }
@@ -198,13 +198,13 @@ namespace Js
     /*static*/
     template<typename unitType, typename className, uint inlineSlots>
     className* JavascriptArray::NewLiteral(uint32 length, DynamicType* arrayType, Recycler* recycler)
-    {
+    {TRACE_IT(57946);
         CompileAssert(static_cast<PropertyIndex>(inlineSlots) == inlineSlots);
         Assert(DynamicTypeHandler::RoundUpInlineSlotCapacity(static_cast<PropertyIndex>(inlineSlots)) == inlineSlots);
 
         className* array;
         if(HasInlineHeadSegment(length))
-        {
+        {TRACE_IT(57947);
             size_t allocationPlusSize;
             uint alignedInlineElementSlots;
             if(!length)
@@ -268,7 +268,7 @@ namespace Js
     /*static*/
     template<typename unitType, typename className, uint inlineSlots>
     className* JavascriptArray::NewCopyOnAccessLiteral(DynamicType* arrayType, ArrayCallSiteInfo *arrayInfo, FunctionBody *functionBody, const Js::AuxArray<int32> *ints, Recycler* recycler)
-    {
+    {TRACE_IT(57948);
         CompileAssert(static_cast<PropertyIndex>(inlineSlots) == inlineSlots);
         Assert(DynamicTypeHandler::RoundUpInlineSlotCapacity(static_cast<PropertyIndex>(inlineSlots)) == inlineSlots);
         Assert(arrayInfo->IsNativeIntArray());
@@ -279,16 +279,16 @@ namespace Js
         SparseArraySegment<unitType> *seg;
 
         if (JavascriptLibrary::IsCachedCopyOnAccessArrayCallSite(functionBody->GetScriptContext()->GetLibrary() , arrayInfo))
-        {
+        {TRACE_IT(57949);
             seg = lib->cacheForCopyOnAccessArraySegments->GetSegmentByIndex(arrayInfo->copyOnAccessArrayCacheIndex);
         }
         else
-        {
+        {TRACE_IT(57950);
             seg = SparseArraySegment<unitType>::AllocateLiteralHeadSegment(recycler, ints->count);
         }
 
         if (!JavascriptLibrary::IsCachedCopyOnAccessArrayCallSite(lib, arrayInfo))
-        {
+        {TRACE_IT(57951);
             JavascriptOperators::AddIntsToArraySegment(seg, ints);
             arrayInfo->copyOnAccessArrayCacheIndex = lib->cacheForCopyOnAccessArraySegments->AddSegment(seg);
         }
@@ -296,7 +296,7 @@ namespace Js
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::CopyOnAccessArrayPhase))
-        {
+        {TRACE_IT(57952);
             Output::Print(_u("Create copy-on-access array: func(#%2d) index(%d) length(%d)\n"),
                 functionBody->GetFunctionNumber(), lib->cacheForCopyOnAccessArraySegments->GetCount(), ints->count);
             Output::Flush();
@@ -312,27 +312,27 @@ namespace Js
         void *const stackAllocationPointer,
         const uint32 length,
         DynamicType *const arrayType)
-    {
+    {TRACE_IT(57953);
         Assert(arrayType);
 
         if(stackAllocationPointer)
-        {
+        {TRACE_IT(57954);
             bool isSufficientSpaceForInlinePropertySlots;
             const uint availableInlineElementSlots =
                 DetermineAvailableInlineElementSlots<T, InlinePropertySlots>(
                     T::StackAllocationSize,
                     &isSufficientSpaceForInlinePropertySlots);
             if(isSufficientSpaceForInlinePropertySlots)
-            {
+            {TRACE_IT(57955);
                 T *const array = new(stackAllocationPointer) T(length, arrayType);
                 if(length <= availableInlineElementSlots)
-                {
+                {TRACE_IT(57956);
                     SparseArraySegment<typename T::TElement> *const head =
                         InitArrayAndHeadSegment<T, InlinePropertySlots>(array, 0, availableInlineElementSlots, false);
                     head->FillSegmentBuffer(0, availableInlineElementSlots);
                 }
                 else
-                {
+                {TRACE_IT(57957);
                     // Not enough room to allocate all required element slots inline. Leave the head segment as the empty
                     // segment and let it be allocated as necessary.
                 }
@@ -349,21 +349,21 @@ namespace Js
         void *const stackAllocationPointer,
         const uint32 length,
         DynamicType *const arrayType)
-    {
+    {TRACE_IT(57958);
         Assert(arrayType);
 
         if(stackAllocationPointer)
-        {
+        {TRACE_IT(57959);
             bool isSufficientSpaceForInlinePropertySlots;
             const uint availableInlineElementSlots =
                 DetermineAvailableInlineElementSlots<T, InlinePropertySlots>(
                     T::StackAllocationSize,
                     &isSufficientSpaceForInlinePropertySlots);
             if(isSufficientSpaceForInlinePropertySlots)
-            {
+            {TRACE_IT(57960);
                 T *const array = new(stackAllocationPointer) T(length, arrayType);
                 if(length <= availableInlineElementSlots)
-                {
+                {TRACE_IT(57961);
                     SparseArraySegment<typename T::TElement> *const head =
                         InitArrayAndHeadSegment<T, InlinePropertySlots>(array, length, availableInlineElementSlots, false);
                     head->FillSegmentBuffer(length, availableInlineElementSlots);
@@ -385,7 +385,7 @@ namespace Js
 
     template<typename T>
     inline void JavascriptArray::DirectSetItemAt(uint32 itemIndex, T newValue)
-    {
+    {TRACE_IT(57962);
         Assert(itemIndex < InvalidIndex); // Otherwise the code below could overflow and set length = 0
 
         SparseArraySegment<T> *seg = (SparseArraySegment<T>*)this->GetLastUsedSegment();
@@ -400,7 +400,7 @@ namespace Js
 
     template<typename T>
     inline void JavascriptArray::DirectSetItemInLastUsedSegmentAt(const uint32 offset, const T newValue)
-    {
+    {TRACE_IT(57963);
         SparseArraySegment<T> *const seg = (SparseArraySegment<T>*)GetLastUsedSegment();
         Assert(seg);
         Assert(offset < seg->size);
@@ -414,21 +414,21 @@ namespace Js
         DebugOnly(VerifyNotNeedMarshal(newValue));
         seg->elements[offset] = newValue;
         if (offset >= seg->length)
-        {
+        {TRACE_IT(57964);
             if(offset > seg->length && seg == head)
-            {
+            {TRACE_IT(57965);
                 SetHasNoMissingValues(false);
             }
 
             seg->length = offset + 1;
             const uint32 itemIndex = seg->left + offset;
             if (this->length <= itemIndex)
-            {
+            {TRACE_IT(57966);
                 this->length = itemIndex  + 1;
             }
         }
         else if(scanForMissingValues)
-        {
+        {TRACE_IT(57967);
             ScanForMissingValues<T>();
         }
     }
@@ -439,7 +439,7 @@ namespace Js
         const uint32 offset,
         const T newValue,
         StElemInfo *const stElemInfo)
-    {
+    {TRACE_IT(57968);
         SparseArraySegment<T> *const seg = SparseArraySegment<T>::From(head);
         Assert(seg);
         Assert(offset < seg->size);
@@ -454,21 +454,21 @@ namespace Js
         DebugOnly(VerifyNotNeedMarshal(newValue));
         seg->elements[offset] = newValue;
         if (offset >= seg->length)
-        {
+        {TRACE_IT(57969);
             if(offset > seg->length)
-            {
+            {TRACE_IT(57970);
                 SetHasNoMissingValues(false);
             }
 
             seg->length = offset + 1;
             const uint32 itemIndex = seg->left + offset;
             if (this->length <= itemIndex)
-            {
+            {TRACE_IT(57971);
                 this->length = itemIndex  + 1;
             }
         }
         else if(scanForMissingValues)
-        {
+        {TRACE_IT(57972);
             ScanForMissingValues<T>();
         }
     }
@@ -476,13 +476,13 @@ namespace Js
 
     template<typename T>
     inline BOOL JavascriptArray::DirectGetItemAt(uint32 index, T* outVal)
-    {
+    {TRACE_IT(57973);
 #ifdef VALIDATE_ARRAY
         ValidateArray();
 #endif
 
         if (index >= length)
-        {
+        {TRACE_IT(57974);
             return false;
         }
 
@@ -495,17 +495,17 @@ namespace Js
         SparseArraySegmentBase* nextSeg;
         SegmentBTreeRoot * segmentMap = GetSegmentMap();
         if (segmentMap)
-        {
+        {TRACE_IT(57975);
             SparseArraySegmentBase* matchOrNextSeg;
             segmentMap->Find(index, nextSeg, matchOrNextSeg);
 
             if (!nextSeg)
-            {
+            {TRACE_IT(57976);
                 nextSeg = matchOrNextSeg;
             }
         }
         else
-        {
+        {TRACE_IT(57977);
 #ifdef VALIDATE_ARRAY
 SECOND_PASS:
 #endif
@@ -513,10 +513,10 @@ SECOND_PASS:
         }
         uint probeCost = 0;
         while (nextSeg != nullptr && nextSeg->left <= index)
-        {
+        {TRACE_IT(57978);
             uint32 limit =  nextSeg->left + nextSeg->length;
             if (index < limit)
-            {
+            {TRACE_IT(57979);
                 const T * v = AddressOf(((SparseArraySegment<T>*)nextSeg)->elements[index - nextSeg->left]);
 
                 this->SetLastUsedSegment(nextSeg);
@@ -524,19 +524,19 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
                 Assert(segmentMap == GetSegmentMap());
                 if (segmentMap && first_pass)
-                {
+                {TRACE_IT(57980);
                     v_btree = *v;
                     seg_btree= nextSeg;
                     first_pass = false;
                     goto SECOND_PASS;
                 }
                 else if (segmentMap && !first_pass)
-                {
+                {TRACE_IT(57981);
                     Assert(seg_btree == nextSeg);
                 }
 #endif
                 if (SparseArraySegment<T>::IsMissingItem(v))
-                {
+                {TRACE_IT(57982);
                     Assert(!(HasNoMissingValues() && nextSeg == head));
                     return false;
                 }
@@ -546,10 +546,10 @@ SECOND_PASS:
             nextSeg = nextSeg->next;
             Assert(segmentMap == GetSegmentMap());
             if (!segmentMap)
-            {
+            {TRACE_IT(57983);
                 probeCost++;
                 if (probeCost > SegmentBTree::GetLazyCrossOverLimit() && this->head != EmptySegment)
-                {
+                {TRACE_IT(57984);
                     // Build a SegmentMap
                     segmentMap = BuildSegmentMap();
 
@@ -557,7 +557,7 @@ SECOND_PASS:
                     SparseArraySegmentBase* matchOrNextSeg;
                     segmentMap->Find(index, nextSeg, matchOrNextSeg);
                     if (!nextSeg)
-                    {
+                    {TRACE_IT(57985);
                         nextSeg = matchOrNextSeg;
                     }
                 }
@@ -567,14 +567,14 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
         Assert(segmentMap == GetSegmentMap());
         if (segmentMap && first_pass)
-        {
+        {TRACE_IT(57986);
             v_btree = NULL;
             seg_btree= nullptr;
             first_pass = false;
             goto SECOND_PASS;
         }
         else if (segmentMap && !first_pass)
-        {
+        {TRACE_IT(57987);
             Assert(v_btree == NULL && seg_btree == nullptr);
         }
 #endif
@@ -584,28 +584,28 @@ SECOND_PASS:
 
     template<typename T>
     void JavascriptArray::EnsureHead()
-    {
+    {TRACE_IT(57988);
         if (this->head == EmptySegment)
-        {
+        {TRACE_IT(57989);
             this->AllocateHead<T>();
         }
     }
 
     template<typename T>
     void JavascriptArray::AllocateHead()
-    {
+    {TRACE_IT(57990);
         Recycler* recycler = GetRecycler();
         uint32 allocLength;
 
         Assert(this->head == EmptySegment);
 
         if (this->length)
-        {
+        {TRACE_IT(57991);
             allocLength = this->length <= MaxInitialDenseLength ? this->length : SparseArraySegmentBase::HEAD_CHUNK_SIZE;
             this->head = SparseArraySegment<T>::AllocateSegment(recycler, 0, 0, allocLength, nullptr);
         }
         else
-        {
+        {TRACE_IT(57992);
             allocLength = SparseArraySegmentBase::HEAD_CHUNK_SIZE;
             this->head = SparseArraySegment<T>::AllocateSegment(recycler, 0, 0, allocLength, nullptr);
         }
@@ -615,20 +615,20 @@ SECOND_PASS:
 
     template<typename T>
     SparseArraySegment<T>* JavascriptArray::PrepareSegmentForMemOp(uint32 startIndex, uint32 length)
-    {
+    {TRACE_IT(57993);
         uint32 endIndex;
         if(UInt32Math::Add(startIndex, length - 1, &endIndex))
-        {
+        {TRACE_IT(57994);
             return nullptr;
         }
         if (endIndex >= this->length)
-        {
+        {TRACE_IT(57995);
             if (endIndex < JavascriptArray::InvalidIndex)
-            {
+            {TRACE_IT(57996);
                 this->length = endIndex + 1;
             }
             else
-            {
+            {TRACE_IT(57997);
                 return nullptr;
             }
         }
@@ -649,46 +649,46 @@ SECOND_PASS:
         const auto FindStartAndEndSegment = [&]()
         {
             if (endIndex >= current->left + current->size)
-            {
+            {TRACE_IT(57998);
                 current = SparseArraySegment<T>::From(head);
             }
             else
-            {
+            {TRACE_IT(57999);
                 startSeg = endSeg = current;
                 current = nullptr;
             }
 
             while (current != nullptr)
-            {
+            {TRACE_IT(58000);
                 startOffset = startIndex - current->left;
                 endOffset = endIndex - current->left;
                 if (!startSeg)
-                {
+                {TRACE_IT(58001);
                     if (startIndex <= current->left)
-                    {
+                    {TRACE_IT(58002);
                         startPrev = prev;
                         startSeg = current;
                     }
                     else if (startOffset <= current->size)
-                    {
+                    {TRACE_IT(58003);
                         if ((nullptr == current->next) || (startIndex < current->next->left))
-                        {
+                        {TRACE_IT(58004);
                             startPrev = prev;
                             startSeg = current;
                         }
                     }
                 }
                 if (!endSeg)
-                {
+                {TRACE_IT(58005);
                     if (endIndex <= current->left)
-                    {
+                    {TRACE_IT(58006);
                         endSeg = current;
                         break;
                     }
                     else if (endOffset <= current->size)
-                    {
+                    {TRACE_IT(58007);
                         if ((nullptr == current->next) || (endIndex < current->next->left))
-                        {
+                        {TRACE_IT(58008);
                             endSeg = current;
                             break;
                         }
@@ -698,7 +698,7 @@ SECOND_PASS:
                 current = SparseArraySegment<T>::From(current->next);
             }
             if (!startSeg && !endSeg)
-            {
+            {TRACE_IT(58009);
                 startPrev = prev;
             }
         };
@@ -712,20 +712,20 @@ SECOND_PASS:
                 && !head->next                                                  // There is only one head segment in the array
                 && startIndex - head->size <= MergeSegmentsLengthHeuristics     // Distance to next index is relatively small
                 )
-            {
+            {TRACE_IT(58010);
                 current = SparseArraySegment<T>::From(head)->GrowByMin(recycler, startIndex + length - head->size);
                 current->length = endIndex + 1;
                 head = current;
                 SetHasNoMissingValues(false);
             }
             else
-            {
+            {TRACE_IT(58011);
                 //itemIndex is greater than the (left + size) of last segment in the linked list
                 current = SparseArraySegment<T>::AllocateSegment(recycler, startIndex, length, (SparseArraySegment<T> *)nullptr);
                 LinkSegments((Js::SparseArraySegment<T>*)startPrev, current);
                 current->length = length;
                 if (current == head)
-                {
+                {TRACE_IT(58012);
                     Assert(startIndex == 0);
                     Assert(current->length == length);
                     SetHasNoMissingValues();
@@ -737,18 +737,18 @@ SECOND_PASS:
         {
             startOffset = startIndex - startSeg->left;
             if ((startIndex >= startSeg->left) && (startOffset < startSeg->size))
-            {
+            {TRACE_IT(58013);
                 // startIndex is within startSeg
                 if ((startOffset + length) > startSeg->size)
-                {
+                {TRACE_IT(58014);
                     // if we don't have enough space in startSeg
                     growby = length - (startSeg->size - startOffset);
                     current = ((Js::SparseArraySegment<T>*)startSeg)->GrowByMin(recycler, growby);
                     LinkSegments((Js::SparseArraySegment<T>*)startPrev, current);
                     if (current == head)
-                    {
+                    {TRACE_IT(58015);
                         if (startIndex > current->length)
-                        {
+                        {TRACE_IT(58016);
                             // if it's the head segment and memset starts after the segment length, missing value is introduced
                             SetHasNoMissingValues(false);
                         }
@@ -756,7 +756,7 @@ SECOND_PASS:
                         {
                             // Have we overwritten all the missing values?
                             if (!ScanForMissingValues<T>(0, startOffset))
-                            {
+                            {TRACE_IT(58017);
                                 SetHasNoMissingValues();
                             }
                         }
@@ -764,13 +764,13 @@ SECOND_PASS:
                     current->length = startOffset + length;
                 }
                 else
-                {
+                {TRACE_IT(58018);
                     // if we have enough space in the startseg
                     current = (Js::SparseArraySegment<T>*)startSeg;
                     if (current == head)
-                    {
+                    {TRACE_IT(58019);
                         if (startIndex > current->length)
-                        {
+                        {TRACE_IT(58020);
                             // if it's the head segment and memset starts after the segment length, missing value is introduced
                             SetHasNoMissingValues(false);
                         }
@@ -778,7 +778,7 @@ SECOND_PASS:
                         {
                             // Have we overwritten all the missing values?
                             if (!ScanForMissingValues<T>(0, startOffset))
-                            {
+                            {TRACE_IT(58021);
                                 SetHasNoMissingValues();
                             }
                         }
@@ -787,36 +787,36 @@ SECOND_PASS:
                 }
             }
             else if ((startIndex + 1) <= startSeg->left)
-            {
+            {TRACE_IT(58022);
                 if (startIndex + 1 == startSeg->left && startPrev == head)
-                {
+                {TRACE_IT(58023);
                     current = SparseArraySegment<T>::From(head)->GrowByMin(recycler, startIndex + length - head->size);
                     current->length = endIndex + 1;
                     head = current;
                 }
                 else
-                {
+                {TRACE_IT(58024);
                     // startIndex is in between prev and startIndex
                     current = SparseArraySegment<T>::AllocateSegment(recycler, startIndex, length, (SparseArraySegment<T> *)nullptr);
                     LinkSegments((Js::SparseArraySegment<T>*)startPrev, current);
                     if (current == head)
-                    {
+                    {TRACE_IT(58025);
                         SetHasNoMissingValues();
                     }
                     current->length = length;
                 }
             }
             else
-            {
+            {TRACE_IT(58026);
                 Assert(startIndex == startSeg->left + startSeg->size);
 
                 current = ((Js::SparseArraySegment<T>*)startSeg)->GrowByMin(recycler, length);
                 LinkSegments((Js::SparseArraySegment<T>*)startPrev, current);
 
                 if (current == head)
-                {
+                {TRACE_IT(58027);
                     if (startIndex > current->length)
-                    {
+                    {TRACE_IT(58028);
 
                         // if it's the head segment and memset starts after the segment length, missing value is introduced
                         SetHasNoMissingValues(false);
@@ -831,22 +831,22 @@ SECOND_PASS:
         const auto AppendLeftOverItemsFromEndSegment = [&]()
         {
             if (!endSeg)
-            {
+            {TRACE_IT(58029);
                 // end is beyond the length of the array
                 Assert(endIndex == (current->left + current->length - 1));
                 current->next = nullptr;
             }
             else
-            {
+            {TRACE_IT(58030);
                 endOffset = endIndex - endSeg->left;
                 startOffset = startIndex - current->left;
                 if ((endIndex >= endSeg->left) && (endOffset < endSeg->size))
-                {
+                {TRACE_IT(58031);
                     // endIndex is within endSeg
                     if (endSeg->length - 1 > endOffset)
-                    {
+                    {TRACE_IT(58032);
                         if (startSeg != endSeg)
-                        {
+                        {TRACE_IT(58033);
                             // we have some leftover items on endseg
                             growby = (endSeg->length - endOffset - 1);
                             current = current->GrowByMin(recycler, growby);
@@ -856,9 +856,9 @@ SECOND_PASS:
                             current->length = startOffset + length + growby;
                         }
                         if (current == head && HasNoMissingValues())
-                        {
+                        {TRACE_IT(58034);
                             if (ScanForMissingValues<T>(startOffset + length, current->length))
-                            {
+                            {TRACE_IT(58035);
                                 SetHasNoMissingValues(false);
                             }
                         }
@@ -866,10 +866,10 @@ SECOND_PASS:
                     current->next = endSeg->next;
                 }
                 else if ((endIndex + 1) <= endSeg->left)
-                {
+                {TRACE_IT(58036);
                     // endIndex is between endSeg and the segment before
                     if (endIndex + 1 == endSeg->left && current == head)
-                    {
+                    {TRACE_IT(58037);
 
                         // extend current to hold endSeg
                         growby = endSeg->length;
@@ -878,9 +878,9 @@ SECOND_PASS:
                             ((Js::SparseArraySegment<T>*)endSeg)->elements, endSeg->length);
                         LinkSegments((Js::SparseArraySegment<T>*)startPrev, current);
                         if (HasNoMissingValues())
-                        {
+                        {TRACE_IT(58038);
                             if (ScanForMissingValues<T>(endIndex + 1, endIndex + growby))
-                            {
+                            {TRACE_IT(58039);
                                 SetHasNoMissingValues(false);
                             }
                         }
@@ -888,12 +888,12 @@ SECOND_PASS:
                         current->next = endSeg->next;
                     }
                     else
-                    {
+                    {TRACE_IT(58040);
                         current->next = endSeg;
                     }
                 }
                 else
-                {
+                {TRACE_IT(58041);
                     //endIndex is at the boundary of endSeg segment at the left + size
                     Assert(endIndex == endSeg->left + endSeg->size);
                     current->next = endSeg->next;
@@ -902,12 +902,12 @@ SECOND_PASS:
         };
         FindStartAndEndSegment();
         if (startSeg == nullptr)
-        {
+        {TRACE_IT(58042);
             // if start index is greater than array length then we can add a new segment (or extend the last segment based on some heuristics)
             ResizeArrayIfStartIsOutsideArrayLength();
         }
         else
-        {
+        {TRACE_IT(58043);
             // once we found the start segment we extend the start segment until startIndex+length . We don't care about what was there
             // as they will be overwritten by the memset/ memcopy. Then we need to append items from the (startIndex+length) to array.length
             // from the end segment to the new array
@@ -923,15 +923,15 @@ SECOND_PASS:
 
     template<typename T>
     bool JavascriptArray::DirectSetItemAtRangeFromArray(uint32 toStartIndex, uint32 length, JavascriptArray *fromArray, uint32 fromStartIndex)
-    {
+    {TRACE_IT(58044);
         if (length == 0)
-        {
+        {TRACE_IT(58045);
             return true;
         }
 
         // Do not do a memcopy from an array that has missing values
         if (fromArray == nullptr || fromArray == this || !fromArray->HasNoMissingValues())
-        {
+        {TRACE_IT(58046);
             return false;
         }
 
@@ -941,12 +941,12 @@ SECOND_PASS:
         isBtree = Js::Configuration::Global.flags.ForceArrayBTree;
 #endif
         if (GetSegmentMap() || fromArray->GetSegmentMap() || isBtree)
-        {
+        {TRACE_IT(58047);
             for (uint i = 0; i < length; i++)
-            {
+            {TRACE_IT(58048);
                 T val;
                 if (!fromArray->DirectGetItemAt(fromStartIndex + i, &val))
-                {
+                {TRACE_IT(58049);
                     return false;
                 }
                 DirectSetItem_Full(toStartIndex + i, val);
@@ -954,7 +954,7 @@ SECOND_PASS:
             return true;
         }
 
-        const auto isSegmentValid = [length](Js::SparseArraySegment<T>* segment, uint32 startIndex) {
+        const auto isSegmentValid = [length](Js::SparseArraySegment<T>* segment, uint32 startIndex) {TRACE_IT(58050);
             uint32 end, segmentEnd;
             // Check the segment is int32 enough
             return (
@@ -969,14 +969,14 @@ SECOND_PASS:
         //Find the segment where itemIndex is present or is at the boundary
         Js::SparseArraySegment<T>* fromSegment = (Js::SparseArraySegment<T>*)fromArray->GetBeginLookupSegment(fromStartIndex, false);
         if (!isSegmentValid(fromSegment, fromStartIndex))
-        {
+        {TRACE_IT(58051);
             return false;
         }
 
         // Check the from segment first so we don't prepare the toSegment in case it is invalid
         SparseArraySegment<T> *toSegment = PrepareSegmentForMemOp<T>(toStartIndex, length);
         if (!isSegmentValid(toSegment, toStartIndex))
-        {
+        {TRACE_IT(58052);
             return false;
         }
         Assert(GetSegmentMap() == nullptr && fromArray->GetSegmentMap() == nullptr);
@@ -997,7 +997,7 @@ SECOND_PASS:
         this->SetLastUsedSegment(toSegment);
 #if DBG
         if (Js::Configuration::Global.flags.MemOpMissingValueValidate)
-        {
+        {TRACE_IT(58053);
             if (toSegment == head)
             {
                 Assert(ScanForMissingValues<T>(0, this->length) != HasNoMissingValues());
@@ -1009,14 +1009,14 @@ SECOND_PASS:
 
     template<typename T>
     bool JavascriptArray::DirectSetItemAtRange(uint32 startIndex, uint32 length, T newValue)
-    {
+    {TRACE_IT(58054);
         bool isBtree = false;
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         isBtree = Js::Configuration::Global.flags.ForceArrayBTree;
 #endif
         if (GetSegmentMap() || isBtree)
-        {
+        {TRACE_IT(58055);
             for (uint i = startIndex; i < startIndex + length; i++)
             {
                 DirectSetItem_Full<T>(i, newValue);
@@ -1025,30 +1025,30 @@ SECOND_PASS:
         }
 
         if (startIndex == 0 && head != EmptySegment && length < head->size)
-        {
+        {TRACE_IT(58056);
             CopyValueToSegmentBuferNoCheck(SparseArraySegment<T>::From(head)->elements, length, newValue);
 
             if (length > this->length)
-            {
+            {TRACE_IT(58057);
                 this->length = length;
             }
 
             if (length > head->length)
-            {
+            {TRACE_IT(58058);
                 head->length = length;
             }
 
             if (!HasNoMissingValues())
             {
                 if (ScanForMissingValues<T>(length, head->length) == false)
-                {
+                {TRACE_IT(58059);
                     SetHasNoMissingValues(true);
                 }
             }
             this->SetLastUsedSegment(head);
         }
         else if (startIndex == 0 && length > this->length && (head == EmptySegment || length > head->size))
-        {
+        {TRACE_IT(58060);
 
             Recycler *recycler = GetRecycler();
             this->length = length;
@@ -1076,16 +1076,16 @@ SECOND_PASS:
 
     template<typename T>
     bool JavascriptArray::DirectSetItemAtRangeFull(uint32 startIndex, uint32 length, T newValue)
-    {
+    {TRACE_IT(58061);
         if (length == 0)
-        {
+        {TRACE_IT(58062);
             return true;
         }
         Assert(!GetSegmentMap());
 
         SparseArraySegment<T> *current = PrepareSegmentForMemOp<T>(startIndex, length);
         if (current == nullptr)
-        {
+        {TRACE_IT(58063);
             return false;
         }
         Assert(current->left + current->length >= startIndex + length);
@@ -1094,7 +1094,7 @@ SECOND_PASS:
         this->SetLastUsedSegment(current);
 #if DBG
         if (Js::Configuration::Global.flags.MemOpMissingValueValidate)
-        {
+        {TRACE_IT(58064);
             if (current == head)
             {
                 Assert(ScanForMissingValues<T>(0, this->length) != HasNoMissingValues());
@@ -1106,7 +1106,7 @@ SECOND_PASS:
 
     template<typename T>
     void JavascriptArray::DirectSetItem_Full(uint32 itemIndex, T newValue)
-    {
+    {TRACE_IT(58065);
         DebugOnly(VerifyNotNeedMarshal(newValue));
         this->EnsureHead<T>();
         AnalysisAssert(head);
@@ -1116,13 +1116,13 @@ SECOND_PASS:
 #endif
 
         if (itemIndex >= this->length)
-        {
+        {TRACE_IT(58066);
             if (itemIndex != JavascriptArray::InvalidIndex)
-            {
+            {TRACE_IT(58067);
                 this->length = itemIndex + 1;
             }
             else
-            {
+            {TRACE_IT(58068);
                 JavascriptError::ThrowRangeError(this->GetScriptContext(), JSERR_ArrayLengthAssignIncorrect);
             }
         }
@@ -1134,7 +1134,7 @@ SECOND_PASS:
         // If it doesn't fit in current chunk (watch for overflow), start from beginning as we'll
         // need the prev
         if (current->left + current->size > current->left || itemIndex >= current->left + current->size)
-        {
+        {TRACE_IT(58069);
             current = SparseArraySegment<T>::From(head);
         }
         SparseArraySegmentBase* prev = nullptr;
@@ -1147,23 +1147,23 @@ SECOND_PASS:
 
         SegmentBTreeRoot * segmentMap = GetSegmentMap();
         if (segmentMap)
-        {
+        {TRACE_IT(58070);
             SparseArraySegmentBase* prevSeg = nullptr;
             SparseArraySegmentBase* currentBase = current;
             segmentMap->Find(itemIndex, prevSeg, currentBase);
             current = (SparseArraySegment<T>*)currentBase;
             Assert(!prevSeg || prevSeg->next == current);
             if (prevSeg)
-            {
+            {TRACE_IT(58071);
                 bool noExactMatch = !current || itemIndex < current->left;
                 Assert(prevSeg->left + prevSeg->size >= prevSeg->left);
                 bool extendPrevSeg = itemIndex <= prevSeg->left + prevSeg->size;
                 if (noExactMatch && extendPrevSeg)
-                {
+                {TRACE_IT(58072);
                     current = SparseArraySegment<T>::From(head);
                     prev = nullptr;
                     if (prevSeg != head)
-                    {
+                    {TRACE_IT(58073);
                         // Since we are going to extend prevSeg we need the
                         // address of it's left neighbor's next pointer
                         currentBase = current;
@@ -1174,12 +1174,12 @@ SECOND_PASS:
                     }
                 }
                 else
-                {
+                {TRACE_IT(58074);
                     prev = prevSeg;
                 }
             }
             else
-            {
+            {TRACE_IT(58075);
                 Assert(current == head);
             }
         }
@@ -1187,12 +1187,12 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
 SECOND_PASS:
         if (!first_pass)
-        {
+        {TRACE_IT(58076);
             current = (SparseArraySegment<T>*)this->GetBeginLookupSegment(itemIndex, false);
             // If it doesn't fit in current chunk (watch for overflow), start from beginning as we'll
             // need the prev
             if (current->left + current->size > current->left || itemIndex >= current->left + current->size)
-            {
+            {TRACE_IT(58077);
                 current = SparseArraySegment<T>::From(head);
             }
             prev = nullptr;
@@ -1201,16 +1201,16 @@ SECOND_PASS:
 
         uint probeCost = 0;
         while(current != nullptr)
-        {
+        {TRACE_IT(58078);
             uint32 offset = itemIndex - current->left;
             if (itemIndex < current->left)
-            {
+            {TRACE_IT(58079);
                 break;
             }
             else if (offset <= current->size)
-            {
+            {TRACE_IT(58080);
                 if ((nullptr == current->next) || (itemIndex < current->next->left))
-                {
+                {TRACE_IT(58081);
                     break;
                 }
             }
@@ -1218,10 +1218,10 @@ SECOND_PASS:
             current = SparseArraySegment<T>::From(current->next);
             Assert(segmentMap == GetSegmentMap());
             if (!segmentMap)
-            {
+            {TRACE_IT(58082);
                 probeCost++;
                 if (probeCost > SegmentBTree::GetLazyCrossOverLimit())
-                {
+                {TRACE_IT(58083);
                     // Build a SegmentMap
                     segmentMap = BuildSegmentMap();
 
@@ -1231,16 +1231,16 @@ SECOND_PASS:
                     current = (SparseArraySegment<T>*)currentBase;
                     Assert(prevSeg->next == current);
                     if (prevSeg)
-                    {
+                    {TRACE_IT(58084);
                         bool noExactMatch = !current || itemIndex < current->left;
                         Assert(prevSeg->left + prevSeg->size >= prevSeg->left);
                         bool extendPrevSeg = itemIndex <= prevSeg->left + prevSeg->size;
                         if (noExactMatch && extendPrevSeg)
-                        {
+                        {TRACE_IT(58085);
                             current = SparseArraySegment<T>::From(head);
                             prev = nullptr;
                             if (prevSeg != head)
-                            {
+                            {TRACE_IT(58086);
                                 // Since we are going to extend prevSeg we need the
                                 // address of its left neighbor's next pointer
                                 currentBase = current;
@@ -1251,12 +1251,12 @@ SECOND_PASS:
                             }
                         }
                         else
-                        {
+                        {TRACE_IT(58087);
                             prev = prevSeg;
                         }
                     }
                     else
-                    {
+                    {TRACE_IT(58088);
                         Assert(current == head);
                     }
                 }
@@ -1266,24 +1266,24 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
         Assert(segmentMap == GetSegmentMap());
         if (segmentMap && first_pass)
-        {
+        {TRACE_IT(58089);
             current_btree = current;
             prev_btree = prev;
             first_pass = false;
             goto SECOND_PASS;
         }
         else if (segmentMap)
-        {
+        {TRACE_IT(58090);
             Assert(current_btree == current && prev_btree == prev);
         }
 #endif
 
 
         if (current != nullptr)
-        {
+        {TRACE_IT(58091);
             uint32 offset = itemIndex - current->left;
             if ((itemIndex >= current->left) && (offset < current->size))
-            {
+            {TRACE_IT(58092);
                 //itemIndex lies in the segment
                 Assert(!(HasNoMissingValues() &&
                          offset < current->length &&
@@ -1291,7 +1291,7 @@ SECOND_PASS:
                          current == head));
 
                 if(offset > current->length && current == head)
-                {
+                {TRACE_IT(58093);
                     SetHasNoMissingValues(false);
                 }
 
@@ -1300,12 +1300,12 @@ SECOND_PASS:
                 ((SparseArraySegment<T>*)current)->SetElement(recycler, itemIndex, newValue);
 
                 if(scanForMissingValues)
-                {
+                {TRACE_IT(58094);
                     ScanForMissingValues<T>();
                 }
             }
             else if ((itemIndex + 1) < current->left)
-            {
+            {TRACE_IT(58095);
                 //itemIndex lies in between current and previous segment
                 SparseArraySegment<T>* newSeg = SparseArraySegment<T>::AllocateSegment(recycler, prev, itemIndex);
                 newSeg->SetElement(recycler, itemIndex, newValue);
@@ -1318,7 +1318,7 @@ SECOND_PASS:
                 Assert(current != head);
             }
             else
-            {
+            {TRACE_IT(58096);
                 //itemIndex is at boundary of current segment either at the left + size or at left - 1;
                 Assert((itemIndex == current->left + current->size) || (itemIndex + 1 == current->left));
 
@@ -1326,7 +1326,7 @@ SECOND_PASS:
 
                 Assert(segmentMap == GetSegmentMap());
                 if (!segmentMap && next != nullptr && (itemIndex + 1) == next->left)
-                {
+                {TRACE_IT(58097);
                     // Don't merge segments if we are using a segmentMap
 
                     //Special case where we need to merge two segments. itemIndex is on the size boundary
@@ -1342,7 +1342,7 @@ SECOND_PASS:
                     LinkSegments((SparseArraySegment<T>*)prev, current);
 
                     if(HasNoMissingValues() && current == head)
-                    {
+                    {TRACE_IT(58098);
                         // We just merged the head segment and its next segment and filled the only missing value in-between the
                         // two segments. We already know that the previous head segment does not have any missing values. If the
                         // previous head segment was full, scan the new head segment starting from the merge point for missing
@@ -1350,15 +1350,15 @@ SECOND_PASS:
                         // missing values.
                         SetHasNoMissingValues(false);
                         if(currentWasFull)
-                        {
+                        {TRACE_IT(58099);
                             ScanForMissingValues<T>(offset + 1);
                         }
                     }
                 }
                 else
-                {
+                {TRACE_IT(58100);
                     if(offset > current->length && current == head)
-                    {
+                    {TRACE_IT(58101);
                         SetHasNoMissingValues(false);
                     }
 
@@ -1369,7 +1369,7 @@ SECOND_PASS:
                     current = current->SetElementGrow(recycler, prev, itemIndex, newValue);
                     Assert(segmentMap == GetSegmentMap());
                     if (segmentMap)
-                    {
+                    {TRACE_IT(58102);
                         segmentMap->SwapSegment(originalKey, oldSegment, current);
                     }
 
@@ -1377,14 +1377,14 @@ SECOND_PASS:
 
                     // Scan for missing values when the current segment was grown at the beginning and made the head segment
                     if(!currentWasHead && current == head)
-                    {
+                    {TRACE_IT(58103);
                         ScanForMissingValues<T>();
                     }
                 }
             }
         }
         else
-        {
+        {TRACE_IT(58104);
             // Reallocate head if need it meets a heuristics
             Assert(itemIndex >= head->size);
             if (prev == head                                    // prev segment is the head segment
@@ -1392,7 +1392,7 @@ SECOND_PASS:
                 && !segmentMap                                  // There is no segmentMap which makes sure that array is not highly fragmented.
                 && itemIndex - head->size <= MergeSegmentsLengthHeuristics  // Distance to next index is relatively small
                )
-            {
+            {TRACE_IT(58105);
                 current = SparseArraySegment<T>::From(head)->GrowByMin(recycler, itemIndex + 1 - head->size);
                 current->elements[itemIndex] = newValue;
                 current->length =  itemIndex + 1;
@@ -1402,7 +1402,7 @@ SECOND_PASS:
                 SetHasNoMissingValues(false);
             }
             else
-            {
+            {TRACE_IT(58106);
                 //itemIndex is greater than the (left + size) of last segment in the linked list
                 current = SparseArraySegment<T>::AllocateSegment(recycler, itemIndex, 1, (SparseArraySegment<T> *)nullptr);
                 current->SetElement(recycler, itemIndex, newValue);
@@ -1410,7 +1410,7 @@ SECOND_PASS:
                 TryAddToSegmentMap(recycler, current);
 
                 if(current == head)
-                {
+                {TRACE_IT(58107);
                     Assert(itemIndex == 0);
                     Assert(current->length == 1);
                     SetHasNoMissingValues();
@@ -1427,7 +1427,7 @@ SECOND_PASS:
 
     template<typename T>
     bool JavascriptArray::NeedScanForMissingValuesUponSetItem(SparseArraySegment<T> *const segment, const uint32 offset) const
-    {
+    {TRACE_IT(58108);
         Assert(segment);
 
         // Scan for missing values upon SetItem when a missing value is being filled and the surrounding values are not missing,
@@ -1442,7 +1442,7 @@ SECOND_PASS:
 
     template<typename T>
     void JavascriptArray::ScanForMissingValues(const uint startIndex)
-    {
+    {TRACE_IT(58109);
         Assert(head);
         Assert(!HasNoMissingValues());
 
@@ -1450,9 +1450,9 @@ SECOND_PASS:
         const uint segmentLength = segment->length;
         const Field(T) * const segmentElements = segment->elements;
         for(uint i = startIndex; i < segmentLength; ++i)
-        {
+        {TRACE_IT(58110);
             if(SparseArraySegment<T>::IsMissingItem(&segmentElements[i]))
-            {
+            {TRACE_IT(58111);
                 return;
             }
         }
@@ -1462,16 +1462,16 @@ SECOND_PASS:
 
     template<typename T>
     bool JavascriptArray::ScanForMissingValues(const uint startIndex, const uint endIndex)
-    {
+    {TRACE_IT(58112);
         Assert(head);
         //Assert(!HasNoMissingValues());
 
         SparseArraySegment<T> *const segment = SparseArraySegment<T>::From(head);
         const Field(T) *const segmentElements = segment->elements;
         for (uint i = startIndex; i < endIndex; ++i)
-        {
+        {TRACE_IT(58113);
             if (SparseArraySegment<T>::IsMissingItem(&segmentElements[i]))
-            {
+            {TRACE_IT(58114);
                 return true;
             }
         }
@@ -1479,7 +1479,7 @@ SECOND_PASS:
     }
 
     inline void JavascriptArray::DirectSetItemIfNotExist(uint32 index, Var newValue)
-    {
+    {TRACE_IT(58115);
         Assert(VirtualTableInfo<JavascriptArray>::HasVirtualTable(this));
         Var oldValue;
         if (!DirectGetItemAt(index, &oldValue))
@@ -1491,7 +1491,7 @@ SECOND_PASS:
     //Grow the array head and try to set at the boundary
     template<typename unitType, typename classname>
     inline BOOL JavascriptArray::TryGrowHeadSegmentAndSetItem(uint32 indexInt, unitType iValue)
-    {
+    {TRACE_IT(58116);
         SparseArraySegment<unitType> *current = SparseArraySegment<unitType>::From(head);
 
         if (indexInt == current->length               // index is at the boundary of size & length
@@ -1499,7 +1499,7 @@ SECOND_PASS:
             && !current->next                         // There is only head segment.
             && current->length == current->size       // Why did we miss the fastpath?
             && !SparseArraySegment<unitType>::IsMissingItem(&iValue))      // value to set is not a missing value.
-        {
+        {TRACE_IT(58117);
             current= current->GrowByMin(this->GetRecycler(), indexInt + 1);
 
             DebugOnly(VerifyNotNeedMarshal(iValue));
@@ -1513,7 +1513,7 @@ SECOND_PASS:
             SetHeadAndLastUsedSegment(current);
 
             if (this->length <= indexInt)
-            {
+            {TRACE_IT(58118);
                 this->length = indexInt + 1;
             }
 
@@ -1530,31 +1530,31 @@ SECOND_PASS:
     //
     template<>
     inline Var JavascriptArray::IndexTrace<uint32>::ToNumber(const uint32& index, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58119);
         return JavascriptNumber::ToVar(index, scriptContext);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<uint32>::GetItem(JavascriptArray* arr, const uint32& index, Var* outVal)
-    {
+    {TRACE_IT(58120);
         return arr->DirectGetItemAt(index, outVal);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<uint32>::SetItem(JavascriptArray* arr, const uint32& index, Var newValue)
-    {
+    {TRACE_IT(58121);
         return arr->SetItem(index, newValue, PropertyOperation_None);
     }
 
     template<>
     inline void JavascriptArray::IndexTrace<uint32>::SetItemIfNotExist(JavascriptArray* arr, const uint32& index, Var newValue)
-    {
+    {TRACE_IT(58122);
         arr->DirectSetItemIfNotExist(index, newValue);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<uint32>::DeleteItem(JavascriptArray* arr, const uint32& index)
-    {
+    {TRACE_IT(58123);
         switch (arr->GetTypeId())
         {
         case TypeIds_Array:
@@ -1574,14 +1574,14 @@ SECOND_PASS:
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<uint32>::SetItem(RecyclableObject* obj, const uint32& index, Var newValue, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(58124);
         ScriptContext* requestContext = obj->GetScriptContext();
         return JavascriptOperators::SetItem(obj, obj, index, newValue, requestContext, flags);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<uint32>::DeleteItem(RecyclableObject* obj, const uint32& index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(58125);
         return JavascriptOperators::DeleteItem(obj, index, flags);
     }
 
@@ -1590,43 +1590,43 @@ SECOND_PASS:
     //
     template<>
     inline Var JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::ToNumber(const JavascriptArray::BigIndex& index, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58126);
         return index.ToNumber(scriptContext);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::GetItem(JavascriptArray* arr, const JavascriptArray::BigIndex& index, Var* outVal)
-    {
+    {TRACE_IT(58127);
         return index.GetItem(arr, outVal);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::SetItem(JavascriptArray* arr, const JavascriptArray::BigIndex& index, Var newValue)
-    {
+    {TRACE_IT(58128);
         return index.SetItem(arr, newValue);
     }
 
     template<>
     inline void JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::SetItemIfNotExist(JavascriptArray* arr, const JavascriptArray::BigIndex& index, Var newValue)
-    {
+    {TRACE_IT(58129);
         index.SetItemIfNotExist(arr, newValue);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::DeleteItem(JavascriptArray* arr, const JavascriptArray::BigIndex& index)
-    {
+    {TRACE_IT(58130);
         return index.DeleteItem(arr);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::SetItem(RecyclableObject* obj, const JavascriptArray::BigIndex& index, Var newValue, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(58131);
         return index.SetItem(obj, newValue, flags);
     }
 
     template<>
     inline BOOL JavascriptArray::IndexTrace<JavascriptArray::BigIndex>::DeleteItem(RecyclableObject* obj, const JavascriptArray::BigIndex& index, PropertyOperationFlags flags)
-    {
+    {TRACE_IT(58132);
         return index.DeleteItem(obj, flags);
     }
 
@@ -1635,7 +1635,7 @@ SECOND_PASS:
         const uint inlineElementSlots,
         size_t *const allocationPlusSizeRef,
         uint *const alignedInlineElementSlotsRef)
-    {
+    {TRACE_IT(58133);
         CompileAssert(static_cast<PropertyIndex>(InlinePropertySlots) == InlinePropertySlots);
         Assert(
             DynamicTypeHandler::RoundUpInlineSlotCapacity(static_cast<PropertyIndex>(InlinePropertySlots)) ==
@@ -1656,11 +1656,11 @@ SECOND_PASS:
     #endif
 
         if(allocationPlusSizeRef)
-        {
+        {TRACE_IT(58134);
             *allocationPlusSizeRef = totalSize - sizeof(T);
         }
         if(alignedInlineElementSlotsRef)
-        {
+        {TRACE_IT(58135);
             const size_t alignedInlineElementSlots = (totalSize - objectSize) / sizeof(typename T::TElement);
             *alignedInlineElementSlotsRef = static_cast<uint>(alignedInlineElementSlots);
             Assert(*alignedInlineElementSlotsRef == alignedInlineElementSlots); // ensure no truncation above
@@ -1671,10 +1671,10 @@ SECOND_PASS:
 
     template<class ArrayType>
     void JavascriptArray::EnsureCalculationOfAllocationBuckets()
-    {
+    {TRACE_IT(58136);
         uint temp;
         for (uint8 i = 0;i < ArrayType::AllocationBucketsCount;i++)
-        {
+        {TRACE_IT(58137);
             ArrayType::allocationBuckets[i][AllocationSizeIndex] = (uint)DetermineAllocationSize<ArrayType, 0>(ArrayType::allocationBuckets[i][AllocationBucketIndex], nullptr, &temp);
             ArrayType::allocationBuckets[i][MissingElementsCountIndex] = temp;
         }
@@ -1685,15 +1685,15 @@ SECOND_PASS:
         const uint inlineElementSlots,
         size_t *const allocationPlusSizeRef,
         uint *const alignedInlineElementSlotsRef)
-    {
+    {TRACE_IT(58138);
         uint8 bucketsCount = ArrayType::AllocationBucketsCount;
 
         EnsureCalculationOfAllocationBuckets<ArrayType>();
 
         if (inlineElementSlots >= 0 && inlineElementSlots <= ArrayType::allocationBuckets[bucketsCount - 1][AllocationBucketIndex])
-        {
+        {TRACE_IT(58139);
             for (uint8 i = 0;i < bucketsCount;i++)
-            {
+            {TRACE_IT(58140);
                 uint elementsCountToInitialize = ArrayType::allocationBuckets[i][MissingElementsCountIndex];
                 uint allocationSize = ArrayType::allocationBuckets[i][AllocationSizeIndex];
 
@@ -1702,13 +1702,13 @@ SECOND_PASS:
                 Assert(allocationSize > 0 && allocationSize <= ArrayType::allocationBuckets[bucketsCount - 1][AllocationSizeIndex]);
 
                 if (inlineElementSlots <= ArrayType::allocationBuckets[i][AllocationBucketIndex])
-                {
+                {TRACE_IT(58141);
                     if (alignedInlineElementSlotsRef)
-                    {
+                    {TRACE_IT(58142);
                         *alignedInlineElementSlotsRef = elementsCountToInitialize;
                     }
                     if (allocationPlusSizeRef)
-                    {
+                    {TRACE_IT(58143);
                         *allocationPlusSizeRef = allocationSize - sizeof(ArrayType);
                     }
                     return allocationSize;
@@ -1724,7 +1724,7 @@ SECOND_PASS:
     inline uint JavascriptArray::DetermineAvailableInlineElementSlots(
         const size_t allocationSize,
         bool *const isSufficientSpaceForInlinePropertySlotsRef)
-    {
+    {TRACE_IT(58144);
         CompileAssert(static_cast<PropertyIndex>(InlinePropertySlots) == InlinePropertySlots);
         Assert(
             DynamicTypeHandler::RoundUpInlineSlotCapacity(static_cast<PropertyIndex>(InlinePropertySlots)) ==
@@ -1749,7 +1749,7 @@ SECOND_PASS:
 
     template<class T, uint ConstInlinePropertySlots, bool UseDynamicInlinePropertySlots>
     inline SparseArraySegment<typename T::TElement> *JavascriptArray::DetermineInlineHeadSegmentPointer(T *const array)
-    {
+    {TRACE_IT(58145);
         Assert(array);
         Assert(VirtualTableInfo<T>::HasVirtualTable(array) || VirtualTableInfo<CrossSiteObject<T>>::HasVirtualTable(array));
         Assert(!UseDynamicInlinePropertySlots || ConstInlinePropertySlots == 0);
@@ -1771,24 +1771,24 @@ SECOND_PASS:
     //
     template<>
     inline uint32 JavascriptArray::ItemTrace<JavascriptArray>::GetLength(JavascriptArray* obj, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58146);
         return obj->GetLength();
     }
     template<>
     inline BOOL JavascriptArray::ItemTrace<JavascriptArray>::GetItem(JavascriptArray* obj, uint32 index, Var* outVal, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58147);
         Assert(JavascriptArray::IsDirectAccessArray(obj));
         return obj->DirectGetItemAtFull(index, outVal); // Note this does prototype lookup
     }
 
     template<>
     inline uint32 JavascriptArray::ItemTrace<RecyclableObject>::GetLength(RecyclableObject* obj, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58148);
         return JavascriptConversion::ToUInt32(JavascriptOperators::OP_GetLength(obj, scriptContext), scriptContext);
     }
     template<>
     inline BOOL JavascriptArray::ItemTrace<RecyclableObject>::GetItem(RecyclableObject* obj, uint32 index, Var* outVal, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(58149);
         return JavascriptOperators::GetItem(obj, index, outVal, scriptContext);
     }
 

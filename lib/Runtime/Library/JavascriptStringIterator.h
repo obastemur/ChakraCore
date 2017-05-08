@@ -31,6 +31,6 @@ namespace Js
         static Var EntryNext(RecyclableObject* function, CallInfo callInfo, ...);
 
     public:
-        JavascriptString* GetStringForHeapEnum() { return m_string; }
+        JavascriptString* GetStringForHeapEnum() {TRACE_IT(62063); return m_string; }
     };
 } // namespace Js

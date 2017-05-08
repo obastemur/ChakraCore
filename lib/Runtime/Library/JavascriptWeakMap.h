@@ -49,8 +49,8 @@ namespace Js
         WeakMapKeyMap* GetWeakMapKeyMapFromKey(DynamicObject* key) const;
         WeakMapKeyMap* AddWeakMapKeyMapToKey(DynamicObject* key);
 
-        WeakMapId GetWeakMapId() const { return (void*)(((uintptr_t)this) | 1); }
-        static JavascriptWeakMap* GetWeakMapFromId(WeakMapId id) { return reinterpret_cast<JavascriptWeakMap*>((uintptr_t)id & (~1)); }
+        WeakMapId GetWeakMapId() const {TRACE_IT(62279); return (void*)(((uintptr_t)this) | 1); }
+        static JavascriptWeakMap* GetWeakMapFromId(WeakMapId id) {TRACE_IT(62280); return reinterpret_cast<JavascriptWeakMap*>((uintptr_t)id & (~1)); }
 
         bool KeyMapGet(WeakMapKeyMap* map, Var* value) const;
 
@@ -92,10 +92,10 @@ namespace Js
 
     public:
         // For diagnostics and heap enum provide size and allow enumeration of key value pairs
-        int Size() { keySet.Clean(); return keySet.Count(); }
+        int Size() {TRACE_IT(62281); keySet.Clean(); return keySet.Count(); }
         template <typename Fn>
         void Map(Fn fn)
-        {
+        {TRACE_IT(62282);
             return keySet.Map([&](DynamicObject* key, bool, const RecyclerWeakReference<DynamicObject>*)
             {
                 Var value = nullptr;

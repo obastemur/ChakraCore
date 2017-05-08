@@ -46,17 +46,17 @@ namespace Js
     public:
         PropertyCache const * GetPropertyCache() const;
         void ClearPropertyCache();
-        Js::PropertyRecord const * GetPropertyRecord() const { return m_propertyRecord; }
+        Js::PropertyRecord const * GetPropertyRecord() const {TRACE_IT(62713); return m_propertyRecord; }
         static PropertyString* New(StaticType* type, const Js::PropertyRecord* propertyRecord, Recycler *recycler);
         static PropertyString* New(StaticType* type, const Js::PropertyRecord* propertyRecord, ArenaAllocator *arena);
         void UpdateCache(Type * type, uint16 dataSlotIndex, bool isInlineSlot, bool isStoreFieldEnabled);
-        void ClearCache() { propCache->type = nullptr; }
+        void ClearCache() {TRACE_IT(62714); propCache->type = nullptr; }
 
         virtual void const * GetOriginalStringReference() override;
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
-        virtual bool IsArenaAllocPropertyString() { return false; }
+        virtual bool IsArenaAllocPropertyString() {TRACE_IT(62715); return false; }
 
-        static uint32 GetOffsetOfPropertyCache() { return offsetof(PropertyString, propCache); }
+        static uint32 GetOffsetOfPropertyCache() {TRACE_IT(62716); return offsetof(PropertyString, propCache); }
 
 #if ENABLE_TTD
         //Get the associated property id for this string if there is on (e.g. it is a propertystring otherwise return Js::PropertyIds::_none)

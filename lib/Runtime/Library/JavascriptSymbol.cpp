@@ -7,7 +7,7 @@
 namespace Js
 {
     bool JavascriptSymbol::Is(Var aValue)
-    {
+    {TRACE_IT(62136);
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Symbol;
     }
 
@@ -36,18 +36,18 @@ namespace Js
             || JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch);
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {TRACE_IT(62137);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Symbol"));
         }
 
         JavascriptString* description;
 
         if (args.Info.Count > 1 && !JavascriptOperators::IsUndefined(args[1]))
-        {
+        {TRACE_IT(62138);
             description = JavascriptConversion::ToString(args[1], scriptContext);
         }
         else
-        {
+        {TRACE_IT(62139);
             description = scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -65,15 +65,15 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (JavascriptSymbol::Is(args[0]))
-        {
+        {TRACE_IT(62140);
             return args[0];
         }
         else if (JavascriptSymbolObject::Is(args[0]))
-        {
+        {TRACE_IT(62141);
             return scriptContext->GetLibrary()->CreateSymbol(JavascriptSymbolObject::FromVar(args[0])->GetValue());
         }
         else
-        {
+        {TRACE_IT(62142);
             return TryInvokeRemotelyOrThrow(EntryValueOf, scriptContext, args, JSERR_This_NeedSymbol, _u("Symbol.prototype.valueOf"));
         }
     }
@@ -92,15 +92,15 @@ namespace Js
         const PropertyRecord* val;
         Var aValue = args[0];
         if (JavascriptSymbol::Is(aValue))
-        {
+        {TRACE_IT(62143);
             val = JavascriptSymbol::FromVar(aValue)->GetValue();
         }
         else if (JavascriptSymbolObject::Is(aValue))
-        {
+        {TRACE_IT(62144);
             val = JavascriptSymbolObject::FromVar(aValue)->GetValue();
         }
         else
-        {
+        {TRACE_IT(62145);
             return TryInvokeRemotelyOrThrow(EntryToString, scriptContext, args, JSERR_This_NeedSymbol, _u("Symbol.prototype.toString"));
         }
 
@@ -121,11 +121,11 @@ namespace Js
 
         JavascriptString* key;
         if (args.Info.Count > 1)
-        {
+        {TRACE_IT(62146);
             key = JavascriptConversion::ToString(args[1], scriptContext);
         }
         else
-        {
+        {TRACE_IT(62147);
             key = library->GetUndefinedDisplayString();
         }
 
@@ -138,7 +138,7 @@ namespace Js
         // This is the only place we add new PropertyRecords to the map, so we should never have multiple PropertyRecords in the
         // map with the same string key value (since we would return the one we found above instead of creating a new one).
         if (propertyRecord == nullptr)
-        {
+        {TRACE_IT(62148);
             propertyRecord = scriptContext->GetThreadContext()->AddSymbolToRegistrationMap(key->GetString(), key->GetLength());
         }
 
@@ -160,7 +160,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptSymbol::Is(args[1]))
-        {
+        {TRACE_IT(62149);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSymbol, _u("Symbol.keyFor"));
         }
 
@@ -176,7 +176,7 @@ namespace Js
         // If the two are different, it means the symbol passed to keyFor has the same description as a symbol registered via
         // Symbol.for _but_ is not the symbol returned from Symbol.for.
         if (propertyRecord != nullptr && propertyRecord == sym->GetValue())
-        {
+        {TRACE_IT(62150);
             return JavascriptString::NewCopyBuffer(key, sym->GetValue()->GetLength(), scriptContext);
         }
 
@@ -194,57 +194,57 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (JavascriptSymbol::Is(args[0]))
-        {
+        {TRACE_IT(62151);
             return args[0];
         }
         else if (JavascriptSymbolObject::Is(args[0]))
-        {
+        {TRACE_IT(62152);
             return scriptContext->GetLibrary()->CreateSymbol(JavascriptSymbolObject::FromVar(args[0])->GetValue());
         }
         else
-        {
+        {TRACE_IT(62153);
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSymbol, _u("Symbol[Symbol.toPrimitive]"));
         }
     }
 
     RecyclableObject * JavascriptSymbol::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {TRACE_IT(62154);
         // PropertyRecords are per-ThreadContext so we can just create a new primitive wrapper
         // around the PropertyRecord stored in this symbol via the other context library.
         return requestContext->GetLibrary()->CreateSymbol(this->GetValue());
     }
 
     Var JavascriptSymbol::TryInvokeRemotelyOrThrow(JavascriptMethod entryPoint, ScriptContext * scriptContext, Arguments & args, int32 errorCode, PCWSTR varName)
-    {
+    {TRACE_IT(62155);
         if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-        {
+        {TRACE_IT(62156);
             Var result;
             if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(entryPoint, args, &result))
-            {
+            {TRACE_IT(62157);
                 return result;
             }
         }
         // Don't error if we disabled implicit calls
         if (scriptContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(62158);
             JavascriptError::ThrowTypeError(scriptContext, errorCode, varName);
         }
         else
-        {
+        {TRACE_IT(62159);
             return scriptContext->GetLibrary()->GetUndefined();
         }
     }
 
     BOOL JavascriptSymbol::Equals(Var other, BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(62160);
         return JavascriptSymbol::Equals(this, other, value, requestContext);
     }
 
     BOOL JavascriptSymbol::Equals(JavascriptSymbol* left, Var right, BOOL* value, ScriptContext * requestContext)
-    {
+    {TRACE_IT(62161);
         TypeId typeId = JavascriptOperators::GetTypeId(right);
         if (typeId != TypeIds_Symbol && typeId != TypeIds_SymbolObject)
-        {
+        {TRACE_IT(62162);
             right = JavascriptConversion::ToPrimitive(right, JavascriptHint::None, requestContext);
             typeId = JavascriptOperators::GetTypeId(right);
         }
@@ -266,9 +266,9 @@ namespace Js
     }
 
     BOOL JavascriptSymbol::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62163);
         if (this->GetValue())
-        {
+        {TRACE_IT(62164);
             stringBuilder->AppendCppLiteral(_u("Symbol("));
             stringBuilder->Append(this->GetValue()->GetBuffer(), this->GetValue()->GetLength());
             stringBuilder->Append(_u(')'));
@@ -277,25 +277,25 @@ namespace Js
     }
 
     BOOL JavascriptSymbol::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {TRACE_IT(62165);
         stringBuilder->AppendCppLiteral(_u("Symbol"));
         return TRUE;
     }
 
     RecyclableObject* JavascriptSymbol::ToObject(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62166);
         return requestContext->GetLibrary()->CreateSymbolObject(this);
     }
 
     Var JavascriptSymbol::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62167);
         return requestContext->GetLibrary()->GetSymbolTypeDisplayString();
     }
 
     JavascriptString* JavascriptSymbol::ToString(ScriptContext * requestContext)
-    {
+    {TRACE_IT(62168);
         if (requestContext->GetThreadContext()->RecordImplicitException())
-        {
+        {TRACE_IT(62169);
             JavascriptError::ThrowTypeError(requestContext, VBSERR_OLENoPropOrMethod, _u("ToString"));
         }
 
@@ -303,7 +303,7 @@ namespace Js
     }
 
     JavascriptString* JavascriptSymbol::ToString(const PropertyRecord* propertyRecord, ScriptContext * requestContext)
-    {
+    {TRACE_IT(62170);
         const char16* description = propertyRecord->GetBuffer();
         uint len = propertyRecord->GetLength();
         CompoundString* str = CompoundString::NewWithCharCapacity(len + _countof(_u("Symbol()")), requestContext->GetLibrary());

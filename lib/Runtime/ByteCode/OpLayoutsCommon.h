@@ -47,7 +47,7 @@ namespace Js {
         typedef uint32 UnsignedType;
         static const LayoutSize LayoutEnum = LargeLayout;
         template <typename T>
-        static bool Assign(T& dst, T src) { dst = src; return true; }
+        static bool Assign(T& dst, T src) {TRACE_IT(41804); dst = src; return true; }
     };
 
     typedef LayoutSizePolicy<LargeLayout> LargeLayoutSizePolicy;
@@ -65,11 +65,11 @@ namespace Js {
 
         template <typename T1, typename T2>
         static bool Assign(T1& dst, T2 src)
-        {
+        {TRACE_IT(41805);
 #ifdef BYTECODE_TESTING
             if (Configuration::Global.flags.LargeByteCodeLayout
                 || Configuration::Global.flags.MediumByteCodeLayout)
-            {
+            {TRACE_IT(41806);
                 return false;
             }
 #endif
@@ -93,10 +93,10 @@ namespace Js {
 
         template <typename T1, typename T2>
         static bool Assign(T1& dst, T2 src)
-        {
+        {TRACE_IT(41807);
 #ifdef BYTECODE_TESTING
             if (Configuration::Global.flags.LargeByteCodeLayout)
-            {
+            {TRACE_IT(41808);
                 return false;
             }
 #endif

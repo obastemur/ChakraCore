@@ -11,8 +11,8 @@ public:
     static bool Initialize();
     static bool Uninitialize();
 
-    static bool IsEnabled() { return enabled; }
-    static bool DoCollectInfo() { return collectInfo; }
+    static bool IsEnabled() {TRACE_IT(48117); return enabled; }
+    static bool DoCollectInfo() {TRACE_IT(48118); return collectInfo; }
 
     template <typename Fn>
     static Js::SourceDynamicProfileManager * Load(__in_z char16 const * filename, Fn loadFn);
@@ -52,10 +52,10 @@ private:
     static DWORD const FileFormatVersion;
 #ifdef _WIN32
     typedef DWORD TimeType;
-    static inline TimeType GetCreationTime() { return _time32(NULL); }
+    static inline TimeType GetCreationTime() {TRACE_IT(48119); return _time32(NULL); }
 #else
     typedef time_t TimeType;
-    static inline TimeType GetCreationTime() { return time(NULL); }
+    static inline TimeType GetCreationTime() {TRACE_IT(48120); return time(NULL); }
 #endif
     static TimeType creationTime;
     static int32 lastOffset;
@@ -88,24 +88,24 @@ private:
 template <class Fn>
 Js::SourceDynamicProfileManager *
 DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
-{
+{TRACE_IT(48121);
     Assert(DynamicProfileStorage::IsEnabled());
     AutoCriticalSection autocs(&cs);
     if (useCacheDir && AcquireLock())
-    {
+    {TRACE_IT(48122);
         LoadCacheCatalog(); // refresh the cache catalog
     }
     StorageInfo * info;
     if (!infoMap.TryGetReference(filename, &info))
-    {
+    {TRACE_IT(48123);
         if (useCacheDir)
-        {
+        {TRACE_IT(48124);
             ReleaseLock();
         }
 #if !DBG || !defined(_M_AMD64)
         char16 const * messageType = GetMessageType();
         if (messageType)
-        {
+        {TRACE_IT(48125);
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data not found for '%s'\n"), messageType, filename);
             Output::Flush();
         }
@@ -114,16 +114,16 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
     }
     char const * record;
     if (info->isFileStorage)
-    {
+    {TRACE_IT(48126);
         Assert(useCacheDir);
         Assert(locked);
         record = info->ReadRecord();
         ReleaseLock();
         if (record == nullptr)
-        {
+        {TRACE_IT(48127);
 #if DBG_DUMP
             if (DynamicProfileStorage::DoTrace())
-            {
+            {TRACE_IT(48128);
                 Output::Print(_u("TRACE: DynamicProfileStorage: Faile to load from cache dir for '%s'"), filename);
                 Output::Flush();
             }
@@ -132,28 +132,28 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
         }
     }
     else
-    {
+    {TRACE_IT(48129);
         record = info->record;
     }
     Js::SourceDynamicProfileManager * sourceDynamicProfileManager = loadFn(GetRecordBuffer(record), GetRecordSize(record));
     if (info->isFileStorage)
-    {
+    {TRACE_IT(48130);
         // The data is backed by a file, we can delete the memory
         Assert(useCacheDir);
         DeleteRecord(record);
     }
 #if DBG_DUMP
     if (DynamicProfileStorage::DoTrace() && sourceDynamicProfileManager)
-    {
+    {TRACE_IT(48131);
         Output::Print(_u("TRACE: DynamicProfileStorage: Dynamic Profile Data Loaded: '%s'\n"), filename);
     }
 #endif
 
     if (sourceDynamicProfileManager == nullptr)
-    {
+    {TRACE_IT(48132);
         char16 const * messageType = GetMessageType();
         if (messageType)
-        {
+        {TRACE_IT(48133);
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data corrupted: '%s'\n"), messageType, filename);
             Output::Flush();
         }

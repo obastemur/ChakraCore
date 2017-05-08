@@ -19,9 +19,9 @@ Value **pSrc1Val,
 Value **pSrc2Val,
 Value **pDstVal
 )
-{
+{TRACE_IT(6775);
     if (func->GetJITFunctionBody()->IsAsmJsMode() || SIMD128_TYPE_SPEC_FLAG == false)
-    {
+    {TRACE_IT(6776);
         // no type-spec for ASMJS code or flag is off.
         return false;
     }
@@ -30,10 +30,10 @@ Value **pDstVal
     {
     case Js::OpCode::ArgOut_A_InlineBuiltIn:
         if (instr->GetSrc1()->IsRegOpnd())
-        {
+        {TRACE_IT(6777);
             StackSym *sym = instr->GetSrc1()->AsRegOpnd()->m_sym;
             if (IsSimd128TypeSpecialized(sym, this->currentBlock))
-            {
+            {TRACE_IT(6778);
                 ValueType valueType = (*pSrc1Val)->GetValueInfo()->Type();
                 Assert(valueType.IsSimd128());
                 ToTypeSpecUse(instr, instr->GetSrc1(), this->currentBlock, *pSrc1Val, nullptr, GetIRTypeFromValueType(valueType), GetBailOutKindFromValueType(valueType));
@@ -45,19 +45,19 @@ Value **pDstVal
 
     case Js::OpCode::Ld_A:
         if (instr->GetSrc1()->IsRegOpnd())
-        {
+        {TRACE_IT(6779);
             StackSym *sym = instr->GetSrc1()->AsRegOpnd()->m_sym;
             IRType type = TyIllegal;
             if (IsSimd128F4TypeSpecialized(sym, this->currentBlock))
-            {
+            {TRACE_IT(6780);
                 type = TySimd128F4;
             }
             else if (IsSimd128I4TypeSpecialized(sym, this->currentBlock))
-            {
+            {TRACE_IT(6781);
                 type = TySimd128I4;
             }
             else
-            {
+            {TRACE_IT(6782);
                 return false;
             }
             ToTypeSpecUse(instr, instr->GetSrc1(), this->currentBlock, *pSrc1Val, nullptr, type, IR::BailOutSimd128F4Only /*not used for Ld_A*/);
@@ -70,7 +70,7 @@ Value **pDstVal
     case Js::OpCode::ExtendArg_A:
 
         if (Simd128DoTypeSpec(instr, *pSrc1Val, *pSrc2Val, *pDstVal))
-        {
+        {TRACE_IT(6783);
             Assert(instr->m_opcode == Js::OpCode::ExtendArg_A);
             Assert(instr->GetDst()->GetType() == TyVar);
             ValueType valueType = instr->GetDst()->GetValueType();
@@ -84,13 +84,13 @@ Value **pDstVal
     }
 
     if (!Js::IsSimd128Opcode(instr->m_opcode))
-    {
+    {TRACE_IT(6784);
         return false;
     }
 
     // Simd instr
     if (Simd128DoTypeSpec(instr, *pSrc1Val, *pSrc2Val, *pDstVal))
-    {
+    {TRACE_IT(6785);
         ThreadContext::SimdFuncSignature simdFuncSignature;
         instr->m_func->GetScriptContext()->GetThreadContext()->GetSimdFuncSignatureFromOpcode(instr->m_opcode, simdFuncSignature);
         // type-spec logic
@@ -98,7 +98,7 @@ Value **pDstVal
         // special handling for load/store
         // OptArraySrc will type-spec the array and the index. We type-spec the value here.
         if (Js::IsSimd128Load(instr->m_opcode))
-        {
+        {TRACE_IT(6786);
             TypeSpecializeSimd128Dst(GetIRTypeFromValueType(simdFuncSignature.returnType), instr, nullptr, *pSrc1Val, pDstVal);
             Simd128SetIndirOpndType(instr->GetSrc1()->AsIndirOpnd(), instr->m_opcode);
             return true;
@@ -112,7 +112,7 @@ Value **pDstVal
 
         // For op with ExtendArg. All sources are already type-specialized, just type-specialize dst
         if (simdFuncSignature.argCount <= 2)
-        {
+        {TRACE_IT(6787);
             Assert(instr->GetSrc1());
             ToTypeSpecUse(instr, instr->GetSrc1(), this->currentBlock, *pSrc1Val, nullptr, GetIRTypeFromValueType(simdFuncSignature.args[0]), GetBailOutKindFromValueType(simdFuncSignature.args[0]));
 
@@ -122,16 +122,16 @@ Value **pDstVal
             }
         }
         if (instr->GetDst())
-        {
+        {TRACE_IT(6788);
             TypeSpecializeSimd128Dst(GetIRTypeFromValueType(simdFuncSignature.returnType), instr, nullptr, *pSrc1Val, pDstVal);
         }
         return true;
     }
     else
-    {
+    {TRACE_IT(6789);
         // We didn't type-spec
         if (!IsLoopPrePass())
-        {
+        {TRACE_IT(6790);
             // Emit bailout if not loop prepass.
             // The inliner inserts bytecodeUses of original args after the instruction. Bailout is safe.
             IR::Instr * bailoutInstr = IR::BailOutInstr::New(Js::OpCode::BailOnNoSimdTypeSpec, IR::BailOutNoSimdTypeSpec, instr, instr->m_func);
@@ -140,20 +140,20 @@ Value **pDstVal
 
             instr->m_opcode = Js::OpCode::Nop;
             if (instr->GetSrc1())
-            {
+            {TRACE_IT(6791);
                 instr->FreeSrc1();
                 if (instr->GetSrc2())
-                {
+                {TRACE_IT(6792);
                     instr->FreeSrc2();
                 }
             }
             if (instr->GetDst())
-            {
+            {TRACE_IT(6793);
                 instr->FreeDst();
             }
 
             if (this->byteCodeUses)
-            {
+            {TRACE_IT(6794);
                 // All inlined SIMD ops have jitOptimizedReg srcs
                 Assert(this->byteCodeUses->IsEmpty());
                 JitAdelete(this->alloc, this->byteCodeUses);
@@ -168,22 +168,22 @@ Value **pDstVal
 
 bool
 GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *src2Val, const Value *dstVal)
-{
+{TRACE_IT(6795);
     bool doTypeSpec = true;
 
     // TODO: Some operations require additional opnd constraints (e.g. shuffle/swizzle).
     if (Js::IsSimd128Opcode(instr->m_opcode))
-    {
+    {TRACE_IT(6796);
         ThreadContext::SimdFuncSignature simdFuncSignature;
         instr->m_func->GetScriptContext()->GetThreadContext()->GetSimdFuncSignatureFromOpcode(instr->m_opcode, simdFuncSignature);
         if (!simdFuncSignature.valid)
-        {
+        {TRACE_IT(6797);
             // not implemented yet.
             return false;
         }
         // special handling for Load/Store
         if (Js::IsSimd128Load(instr->m_opcode) || Js::IsSimd128Store(instr->m_opcode))
-        {
+        {TRACE_IT(6798);
             return Simd128DoTypeSpecLoadStore(instr, src1Val, src2Val, dstVal, &simdFuncSignature);
         }
 
@@ -199,7 +199,7 @@ GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *
             doTypeSpec = doTypeSpec && Simd128CanTypeSpecOpnd(src1Val->GetValueInfo()->Type(), simdFuncSignature.args[0]) && Simd128ValidateIfLaneIndex(instr, instr->GetSrc1(), 0);
             break;
         default:
-        {
+        {TRACE_IT(6799);
             // extended args
             Assert(argCount > 2);
             // Check if all args have been type specialized.
@@ -208,7 +208,7 @@ GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *
             IR::Instr * eaInstr = GetExtendedArg(instr);
 
             while (arg>=0)
-            {
+            {TRACE_IT(6800);
                 Assert(eaInstr);
                 Assert(eaInstr->m_opcode == Js::OpCode::ExtendArg_A);
 
@@ -219,45 +219,45 @@ GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *
                 // In Forward Prepass: Check liveness through liveness bits, not IR type, since in prepass no actual type-spec happens.
                 // In the Forward Pass: Check IRType since Sym can be null, because of const prop.
                 if (expectedType.IsSimd128Float32x4())
-                {
+                {TRACE_IT(6801);
                     if (sym && !IsSimd128F4TypeSpecialized(sym, &currentBlock->globOptData) ||
                         !sym && opnd->GetType() != TySimd128F4)
-                    {
+                    {TRACE_IT(6802);
                         return false;
                     }
                 }
                 else if (expectedType.IsSimd128Int32x4())
-                {
+                {TRACE_IT(6803);
                     if (sym && !IsSimd128I4TypeSpecialized(sym, &currentBlock->globOptData) ||
                         !sym && opnd->GetType() != TySimd128I4)
-                    {
+                    {TRACE_IT(6804);
                         return false;
                     }
                 }
                 else if (expectedType.IsFloat())
-                {
+                {TRACE_IT(6805);
                     if (sym && !IsFloat64TypeSpecialized(sym, &currentBlock->globOptData) ||
                         !sym&& opnd->GetType() != TyFloat64)
-                    {
+                    {TRACE_IT(6806);
                         return false;
                     }
 
                 }
                 else if (expectedType.IsInt())
-                {
+                {TRACE_IT(6807);
                     if ((sym && !IsInt32TypeSpecialized(sym, &currentBlock->globOptData) && !currentBlock->globOptData.liveLossyInt32Syms->Test(sym->m_id)) ||
                         !sym && opnd->GetType() != TyInt32)
-                    {
+                    {TRACE_IT(6808);
                         return false;
                     }
                     // Extra check if arg is a lane index
                     if (!Simd128ValidateIfLaneIndex(instr, opnd, arg))
-                    {
+                    {TRACE_IT(6809);
                         return false;
                     }
                 }
                 else
-                {
+                {TRACE_IT(6810);
                     Assert(UNREACHED);
                 }
 
@@ -270,7 +270,7 @@ GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *
         }
     }
     else
-    {
+    {TRACE_IT(6811);
         Assert(instr->m_opcode == Js::OpCode::ExtendArg_A);
         // For ExtendArg, the expected type is encoded in the dst(link) operand.
         doTypeSpec = doTypeSpec && Simd128CanTypeSpecOpnd(src1Val->GetValueInfo()->Type(), instr->GetDst()->GetValueType());
@@ -281,7 +281,7 @@ GlobOpt::Simd128DoTypeSpec(IR::Instr *instr, const Value *src1Val, const Value *
 
 bool
 GlobOpt::Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, const Value *src2Val, const Value *dstVal, const ThreadContext::SimdFuncSignature *simdFuncSignature)
-{
+{TRACE_IT(6812);
     IR::Opnd *baseOpnd = nullptr, *indexOpnd = nullptr, *valueOpnd = nullptr;
     IR::Opnd *src, *dst;
 
@@ -294,14 +294,14 @@ GlobOpt::Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, cons
     Assert(dst && src && !instr->GetSrc2());
 
     if (Js::IsSimd128Load(instr->m_opcode))
-    {
+    {TRACE_IT(6813);
         Assert(src->IsIndirOpnd());
         baseOpnd = instr->GetSrc1()->AsIndirOpnd()->GetBaseOpnd();
         indexOpnd = instr->GetSrc1()->AsIndirOpnd()->GetIndexOpnd();
         valueOpnd = instr->GetDst();
     }
     else if (Js::IsSimd128Store(instr->m_opcode))
-    {
+    {TRACE_IT(6814);
         Assert(dst->IsIndirOpnd());
         baseOpnd = instr->GetDst()->AsIndirOpnd()->GetBaseOpnd();
         indexOpnd = instr->GetDst()->AsIndirOpnd()->GetIndexOpnd();
@@ -311,7 +311,7 @@ GlobOpt::Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, cons
         doTypeSpec = doTypeSpec && Simd128CanTypeSpecOpnd(FindValue(valueOpnd->AsRegOpnd()->m_sym)->GetValueInfo()->Type(), simdFuncSignature->args[2]);
     }
     else
-    {
+    {TRACE_IT(6815);
         Assert(UNREACHED);
     }
 
@@ -320,20 +320,20 @@ GlobOpt::Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, cons
     ValueType baseOpndType = FindValue(baseOpnd->AsRegOpnd()->m_sym)->GetValueInfo()->Type();
     
     if (IsLoopPrePass())
-    {
+    {TRACE_IT(6816);
         doTypeSpec = doTypeSpec && (baseOpndType.IsObject() && baseOpndType.IsTypedArray());
         // indexOpnd might be missing if loading from [0]
         if (indexOpnd != nullptr)
-        {
+        {TRACE_IT(6817);
             ValueType indexOpndType = FindValue(indexOpnd->AsRegOpnd()->m_sym)->GetValueInfo()->Type();
             doTypeSpec = doTypeSpec && indexOpndType.IsLikelyInt();
         }
     }
     else
-    {
+    {TRACE_IT(6818);
         doTypeSpec = doTypeSpec && (baseOpndType.IsObject() && baseOpndType.IsTypedArray());
         if (indexOpnd != nullptr)
-        {
+        {TRACE_IT(6819);
             ValueType indexOpndType = FindValue(indexOpnd->AsRegOpnd()->m_sym)->GetValueInfo()->Type();
             doTypeSpec = doTypeSpec && indexOpndType.IsInt();
         }
@@ -349,16 +349,16 @@ GlobOpt::Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, cons
 // Opnd type is Object. e.g. possibly result of merging different SIMD types. We specialize because we don't know which pass is dynamically taken.
 
 bool GlobOpt::Simd128CanTypeSpecOpnd(const ValueType opndType, ValueType expectedType)
-{
+{TRACE_IT(6820);
     if (!opndType.IsSimd128() && !expectedType.IsSimd128())
-    {
+    {TRACE_IT(6821);
         // Non-Simd types can be coerced or we bailout by a FromVar.
         return true;
     }
 
     // Simd type
     if (opndType.HasBeenNull() || opndType.HasBeenUndefined())
-    {
+    {TRACE_IT(6822);
         return false;
     }
 
@@ -366,7 +366,7 @@ bool GlobOpt::Simd128CanTypeSpecOpnd(const ValueType opndType, ValueType expecte
             (opndType.IsLikelyObject() && opndType.ToDefiniteObject() == expectedType) ||
             (opndType.IsLikelyObject() && opndType.GetObjectType() == ObjectType::Object)
        )
-    {
+    {TRACE_IT(6823);
         return true;
     }
     return false;
@@ -376,7 +376,7 @@ bool GlobOpt::Simd128CanTypeSpecOpnd(const ValueType opndType, ValueType expecte
 Given an instr, opnd and the opnd position. Return true if opnd is a lane index and valid, or not a lane index all-together..
 */
 bool GlobOpt::Simd128ValidateIfLaneIndex(const IR::Instr * instr, IR::Opnd * opnd, uint argPos)
-{
+{TRACE_IT(6824);
     Assert(instr);
     Assert(opnd);
 
@@ -410,7 +410,7 @@ bool GlobOpt::Simd128ValidateIfLaneIndex(const IR::Instr * instr, IR::Opnd * opn
 
     // arg in lane index pos of operation ?
     if (argPos < argPosLo || argPos > argPosHi)
-    {
+    {TRACE_IT(6825);
         return true; // not a lane index
     }
 
@@ -418,14 +418,14 @@ bool GlobOpt::Simd128ValidateIfLaneIndex(const IR::Instr * instr, IR::Opnd * opn
 
     // Arg is Int constant (literal or const prop'd) ?
     if (!opnd->IsIntConstOpnd())
-    {
+    {TRACE_IT(6826);
         return false;
     }
     laneIndex = (uint) opnd->AsIntConstOpnd()->GetValue();
 
     // In range ?
     if (laneIndex < laneIndexLo|| laneIndex > laneIndexHi)
-    {
+    {TRACE_IT(6827);
         return false;
     }
 
@@ -433,28 +433,28 @@ bool GlobOpt::Simd128ValidateIfLaneIndex(const IR::Instr * instr, IR::Opnd * opn
 }
 
 IR::Instr * GlobOpt::GetExtendedArg(IR::Instr *instr)
-{
+{TRACE_IT(6828);
     IR::Opnd *src1, *src2;
 
     src1 = instr->GetSrc1();
     src2 = instr->GetSrc2();
 
     if (instr->m_opcode == Js::OpCode::ExtendArg_A)
-    {
+    {TRACE_IT(6829);
         if (src2)
-        {
+        {TRACE_IT(6830);
             // mid chain
             Assert(src2->GetStackSym()->IsSingleDef());
             return src2->GetStackSym()->GetInstrDef();
         }
         else
-        {
+        {TRACE_IT(6831);
             // end of chain
             return nullptr;
         }
     }
     else
-    {
+    {TRACE_IT(6832);
         // start of chain
         Assert(Js::IsSimd128Opcode(instr->m_opcode));
         Assert(src1);
@@ -466,28 +466,28 @@ IR::Instr * GlobOpt::GetExtendedArg(IR::Instr *instr)
 #endif
 
 IRType GlobOpt::GetIRTypeFromValueType(const ValueType &valueType)
-{
+{TRACE_IT(6833);
     if (valueType.IsFloat())
-    {
+    {TRACE_IT(6834);
         return TyFloat64;
     }
     else if (valueType.IsInt())
-    {
+    {TRACE_IT(6835);
         return TyInt32;
     }
     else if (valueType.IsSimd128Float32x4())
-    {
+    {TRACE_IT(6836);
         return TySimd128F4;
     }
     else
-    {
+    {TRACE_IT(6837);
         Assert(valueType.IsSimd128Int32x4());
         return TySimd128I4;
     }
 }
 
 ValueType GlobOpt::GetValueTypeFromIRType(const IRType &type)
-{
+{TRACE_IT(6838);
     switch (type)
     {
     case TyInt32:
@@ -507,22 +507,22 @@ ValueType GlobOpt::GetValueTypeFromIRType(const IRType &type)
 }
 
 IR::BailOutKind GlobOpt::GetBailOutKindFromValueType(const ValueType &valueType)
-{
+{TRACE_IT(6839);
     if (valueType.IsFloat())
-    {
+    {TRACE_IT(6840);
         // if required valueType is Float, then allow coercion from any primitive except String.
         return IR::BailOutPrimitiveButString;
     }
     else if (valueType.IsInt())
-    {
+    {TRACE_IT(6841);
         return IR::BailOutIntOnly;
     }
     else if (valueType.IsSimd128Float32x4())
-    {
+    {TRACE_IT(6842);
         return IR::BailOutSimd128F4Only;
     }
     else
-    {
+    {TRACE_IT(6843);
         Assert(valueType.IsSimd128Int32x4());
         return IR::BailOutSimd128I4Only;
     }
@@ -531,9 +531,9 @@ IR::BailOutKind GlobOpt::GetBailOutKindFromValueType(const ValueType &valueType)
 #ifdef ENABLE_SIMDJS
 void
 GlobOpt::UpdateBoundCheckHoistInfoForSimd(ArrayUpperBoundCheckHoistInfo &upperHoistInfo, ValueType arrValueType, const IR::Instr *instr)
-{
+{TRACE_IT(6844);
     if (!upperHoistInfo.HasAnyInfo())
-    {
+    {TRACE_IT(6845);
         return;
     }
 
@@ -543,15 +543,15 @@ GlobOpt::UpdateBoundCheckHoistInfoForSimd(ArrayUpperBoundCheckHoistInfo &upperHo
 #endif
 int
 GlobOpt::GetBoundCheckOffsetForSimd(ValueType arrValueType, const IR::Instr *instr, const int oldOffset /* = -1 */)
-{
+{TRACE_IT(6846);
 #ifdef ENABLE_SIMDJS
     if (!(Js::IsSimd128LoadStore(instr->m_opcode)))
-    {
+    {TRACE_IT(6847);
         return oldOffset;
     }
 
     if (!arrValueType.IsTypedArray())
-    {
+    {TRACE_IT(6848);
         // no need to adjust for other array types, we will not type-spec (see Simd128DoTypeSpecLoadStore)
         return oldOffset;
     }
@@ -577,7 +577,7 @@ GlobOpt::GetBoundCheckOffsetForSimd(ValueType arrValueType, const IR::Instr *ins
 #ifdef ENABLE_SIMDJS
 void
 GlobOpt::Simd128SetIndirOpndType(IR::IndirOpnd *indirOpnd, Js::OpCode opcode)
-{
+{TRACE_IT(6849);
     switch (opcode)
     {
     case Js::OpCode::Simd128_LdArr_F4:

@@ -25,7 +25,7 @@ protected:
             ValueStructureKind::IntBounded),
         bounds(bounds),
         wasNegativeZeroPreventedByBailout(wasNegativeZeroPreventedByBailout)
-    {
+    {TRACE_IT(6734);
         Assert(type.IsLikelyInt());
         Assert(Type().IsLikelyInt());
         Assert(Type().IsInt() == type.IsInt());
@@ -46,25 +46,25 @@ public:
         const IntBounds *const bounds,
         const bool wasNegativeZeroPreventedByBailout,
         JitArenaAllocator *const allocator)
-    {
+    {TRACE_IT(6735);
         Assert(allocator);
         return JitAnew(allocator, IntBoundedValueInfo, type, bounds, wasNegativeZeroPreventedByBailout);
     }
 
     IntBoundedValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {TRACE_IT(6736);
         Assert(allocator);
         return JitAnew(allocator, IntBoundedValueInfo, *this);
     }
 
 public:
     const IntBounds *Bounds() const
-    {
+    {TRACE_IT(6737);
         return bounds;
     }
 
     bool WasNegativeZeroPreventedByBailout() const
-    {
+    {TRACE_IT(6738);
         return wasNegativeZeroPreventedByBailout;
     }
 };
@@ -87,7 +87,7 @@ private:
 public:
     LoopCount(StackSym *const leftSym, StackSym *const rightSym, const int offset, const int minMagnitudeChange)
         : leftSym(leftSym), rightSym(rightSym), offset(offset), minMagnitudeChange(minMagnitudeChange), hasBeenGenerated(false), loopCountSym(nullptr)
-    {
+    {TRACE_IT(6739);
         Assert(leftSym || rightSym);
         Assert(!leftSym || leftSym->GetType() == TyInt32 || leftSym->GetType() == TyUint32);
         Assert(!rightSym || rightSym->GetType() == TyInt32 || rightSym->GetType() == TyUint32);
@@ -95,7 +95,7 @@ public:
     }
 
     LoopCount(StackSym *const loopCountMinusOneSym) : loopCountMinusOneSym(loopCountMinusOneSym), hasBeenGenerated(true), loopCountSym(nullptr)
-    {
+    {TRACE_IT(6740);
         Assert(loopCountMinusOneSym);
     }
 
@@ -103,66 +103,66 @@ public:
         loopCountMinusOneSym(loopCountMinusOneSym),
         loopCountSym(loopCountSym),
         hasBeenGenerated(true)
-    {
+    {TRACE_IT(6741);
         Assert(loopCountMinusOneSym);
     }
 
     LoopCount(const int loopCountMinusOneConstantValue)
         : loopCountMinusOneSym(nullptr), loopCountMinusOneConstantValue(loopCountMinusOneConstantValue), hasBeenGenerated(true), loopCountSym(nullptr)
-    {
+    {TRACE_IT(6742);
         Assert(loopCountMinusOneConstantValue >= 0);
     }
 
 public:
     bool HasBeenGenerated() const
-    {
+    {TRACE_IT(6743);
         return hasBeenGenerated;
     }
 
     bool HasGeneratedLoopCountSym() const
-    {
+    {TRACE_IT(6744);
         // Consider loop count sym generated if there is no loopCountMinusOneSym and it has been generated
         return hasBeenGenerated && (loopCountSym != nullptr || loopCountMinusOneSym == nullptr);
     }
 
     StackSym *LeftSym() const
-    {
+    {TRACE_IT(6745);
         Assert(!HasBeenGenerated());
         return leftSym;
     }
 
     StackSym *RightSym() const
-    {
+    {TRACE_IT(6746);
         Assert(!HasBeenGenerated());
         return rightSym;
     }
 
     int Offset() const
-    {
+    {TRACE_IT(6747);
         Assert(!HasBeenGenerated());
         return offset;
     }
 
     int MinMagnitudeChange() const
-    {
+    {TRACE_IT(6748);
         Assert(!HasBeenGenerated());
         return minMagnitudeChange;
     }
 
     StackSym *LoopCountMinusOneSym() const
-    {
+    {TRACE_IT(6749);
         Assert(HasBeenGenerated());
         return loopCountMinusOneSym;
     }
 
     StackSym *LoopCountSym() const
-    {
+    {TRACE_IT(6750);
         Assert(HasGeneratedLoopCountSym());
         return loopCountSym;
     }
 
     void SetLoopCountSym(StackSym *const loopCountSym)
-    {
+    {TRACE_IT(6751);
         Assert(HasBeenGenerated());
         Assert(loopCountSym);
 
@@ -170,7 +170,7 @@ public:
     }
 
     void SetLoopCountMinusOneSym(StackSym *const loopCountMinusOneSym)
-    {
+    {TRACE_IT(6752);
         Assert(!HasBeenGenerated());
         Assert(loopCountMinusOneSym);
 
@@ -179,7 +179,7 @@ public:
     }
 
     int LoopCountMinusOneConstantValue() const
-    {
+    {TRACE_IT(6753);
         Assert(!LoopCountMinusOneSym());
         return loopCountMinusOneConstantValue;
     }
@@ -195,35 +195,35 @@ private:
 
 public:
     AddSubConstantInfo() : srcSym(nullptr)
-    {
+    {TRACE_IT(6754);
     }
 
 public:
     bool HasInfo() const
-    {
+    {TRACE_IT(6755);
         return !!srcSym;
     }
 
     StackSym *SrcSym() const
-    {
+    {TRACE_IT(6756);
         Assert(HasInfo());
         return srcSym;
     }
 
     Value *SrcValue() const
-    {
+    {TRACE_IT(6757);
         Assert(HasInfo());
         return srcValue;
     }
 
     bool SrcValueIsLikelyConstant() const
-    {
+    {TRACE_IT(6758);
         Assert(HasInfo());
         return srcValueIsLikelyConstant;
     }
 
     int32 Offset() const
-    {
+    {TRACE_IT(6759);
         Assert(HasInfo());
         return offset;
     }
@@ -254,78 +254,78 @@ protected:
 
 public:
     ArrayLowerBoundCheckHoistInfo() : compatibleBoundCheckBlock(nullptr), loop(nullptr)
-    {
+    {TRACE_IT(6760);
     }
 
 public:
     bool HasAnyInfo() const
-    {
+    {TRACE_IT(6761);
         return CompatibleBoundCheckBlock() || Loop();
     }
 
     BasicBlock *CompatibleBoundCheckBlock() const
-    {
+    {TRACE_IT(6762);
         Assert(!(compatibleBoundCheckBlock && loop));
         return compatibleBoundCheckBlock;
     }
 
     Loop *Loop() const
-    {
+    {TRACE_IT(6763);
         Assert(!(compatibleBoundCheckBlock && loop));
         return loop;
     }
 
     StackSym *IndexSym() const
-    {
+    {TRACE_IT(6764);
         Assert(HasAnyInfo());
         return indexSym;
     }
 
     int Offset() const
-    {
+    {TRACE_IT(6765);
         Assert(HasAnyInfo());
         return offset;
     }
 
     void UpdateOffset(int newOffset)
-    {
+    {TRACE_IT(6766);
         Assert(HasAnyInfo());
         offset = newOffset;
     }
 
     ValueNumber IndexValueNumber() const
-    {
+    {TRACE_IT(6767);
         Assert(HasAnyInfo());
         Assert(IndexSym());
         return indexValueNumber;
     }
 
     Value *IndexValue() const
-    {
+    {TRACE_IT(6768);
         Assert(Loop());
         return indexValue;
     }
 
     const IntConstantBounds &IndexConstantBounds() const
-    {
+    {TRACE_IT(6769);
         Assert(Loop() || CompatibleBoundCheckBlock() && !IndexSym());
         return indexConstantBounds;
     }
 
     bool IsLoopCountBasedBound() const
-    {
+    {TRACE_IT(6770);
         Assert(Loop());
         return isLoopCountBasedBound;
     }
 
     LoopCount *LoopCount() const
-    {
+    {TRACE_IT(6771);
         Assert(Loop());
         return loopCount;
     }
 
     int MaxMagnitudeChange() const
-    {
+    {TRACE_IT(6772);
         Assert(LoopCount());
         return maxMagnitudeChange;
     }
@@ -364,13 +364,13 @@ public:
 
 public:
     Value *HeadSegmentLengthValue() const
-    {
+    {TRACE_IT(6773);
         Assert(Loop());
         return headSegmentLengthValue;
     }
 
     const IntConstantBounds &HeadSegmentLengthConstantBounds() const
-    {
+    {TRACE_IT(6774);
         Assert(Loop());
         return headSegmentLengthConstantBounds;
     }

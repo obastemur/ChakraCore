@@ -16,23 +16,23 @@ namespace Js
         DetachedStateBase(TypeId typeId)
             : typeId(typeId),
             hasBeenClaimed(false)
-        {
+        {TRACE_IT(45597);
         }
 
         virtual ~DetachedStateBase()
-        {
+        {TRACE_IT(45598);
         }
 
-        TypeId GetTypeId() { return typeId; }
+        TypeId GetTypeId() {TRACE_IT(45599); return typeId; }
 
-        bool HasBeenClaimed() { return hasBeenClaimed; }
+        bool HasBeenClaimed() {TRACE_IT(45600); return hasBeenClaimed; }
 
-        void MarkAsClaimed() { hasBeenClaimed = true; }
+        void MarkAsClaimed() {TRACE_IT(45601); hasBeenClaimed = true; }
 
         void CleanUp()
-        {
+        {TRACE_IT(45602);
             if (!hasBeenClaimed)
-            {
+            {TRACE_IT(45603);
                 DiscardState();
             }
             ClearSelfOnly();
@@ -62,7 +62,7 @@ namespace Js
             buffer(buffer),
             bufferLength(bufferLength),
             allocationType(allocationType)
-        {}
+        {TRACE_IT(45604);}
 
     };
 }

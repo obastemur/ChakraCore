@@ -55,11 +55,11 @@ namespace Js
 
 #ifndef IsJsDiag
     JSONString* JSONString::New(JavascriptString* originalString, charcount_t start, charcount_t extraChars)
-    {
+    {TRACE_IT(55969);
         Assert(extraChars > 0);
         charcount_t length = UInt32Math::Add(originalString->GetLength(), UInt32Math::Add(extraChars, /*quotes*/ 2));
         if (!IsValidCharCount(length))
-        {
+        {TRACE_IT(55970);
             Js::Throw::OutOfMemory();
         }
         JSONString* result = RecyclerNew(originalString->GetRecycler(), JSONString, originalString, start, length);
@@ -70,12 +70,12 @@ namespace Js
         JavascriptString(originalString->GetScriptContext()->GetLibrary()->GetStringTypeStatic(), length, nullptr),
         m_originalString(originalString),
         m_start(start)
-    {
+    {TRACE_IT(55971);
         Assert(m_originalString->GetLength() < length);
     }
 
     const char16* JSONString::GetSz()
-    {
+    {TRACE_IT(55972);
         Assert(!this->IsFinalized());
         charcount_t length = this->GetLength() + /*terminating null*/1;
         WCHAR* buffer = RecyclerNewArrayLeaf(this->GetRecycler(), WCHAR, length);
@@ -91,14 +91,14 @@ namespace Js
     }
 
     void WritableStringBuffer::Append(const char16 * str, charcount_t countNeeded)
-    {
+    {TRACE_IT(55973);
         JavascriptString::CopyHelper(m_pszCurrentPtr, str, countNeeded);
         this->m_pszCurrentPtr += countNeeded;
         Assert(this->GetCount() <= m_length);
     }
 
     void WritableStringBuffer::Append(char16 c)
-    {
+    {TRACE_IT(55974);
         *m_pszCurrentPtr = c;
         this->m_pszCurrentPtr++;
         Assert(this->GetCount() <= m_length);

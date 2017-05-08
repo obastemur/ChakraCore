@@ -16,18 +16,18 @@ private:
 
 public:
     AutoAllocatorObjectPtr(T* ptr, AllocatorType* allocator) : BasePtr<T>(ptr), m_allocator(allocator)
-    {
+    {TRACE_IT(22964);
         Assert(allocator);
     }
 
     ~AutoAllocatorObjectPtr()
-    {
+    {TRACE_IT(22965);
         Clear();
     }
 
 private:
     void Clear()
-    {
+    {TRACE_IT(22966);
         if (this->ptr != nullptr)
         {
             DeleteObject<TAllocator>(m_allocator, this->ptr);
@@ -47,12 +47,12 @@ protected:
 
 public:
     AutoAllocatorArrayPtr(T * ptr, size_t elementCount, AllocatorType* allocator) : BasePtr(ptr), m_elementCount(elementCount), m_allocator(allocator)
-    {
+    {TRACE_IT(22967);
         Assert(allocator);
     }
 
     ~AutoAllocatorArrayPtr()
-    {
+    {TRACE_IT(22968);
         Clear();
     }
 
@@ -60,7 +60,7 @@ public:
 
 private:
     void Clear()
-    {
+    {TRACE_IT(22969);
         if (ptr != nullptr)
         {
             DeleteArray<TAllocator>(m_allocator, m_elementCount, ptr);
@@ -85,11 +85,11 @@ class AutoAllocatorObjectArrayPtr : public AutoAllocatorArrayPtr<T*, ArrayAlloca
 public:
     AutoAllocatorObjectArrayPtr(T** ptr, size_t elementCount, typename Base::AllocatorType* allocator) :
         AutoAllocatorArrayPtr(ptr, elementCount, allocator)
-    {
+    {TRACE_IT(22970);
     }
 
     ~AutoAllocatorObjectArrayPtr()
-    {
+    {TRACE_IT(22971);
         Clear();
     }
 
@@ -97,11 +97,11 @@ public:
 
 private:
     void Clear()
-    {
+    {TRACE_IT(22972);
         if (ptr != nullptr)
-        {
+        {TRACE_IT(22973);
             for (size_t i = 0; i < m_elementCount; i++)
-            {
+            {TRACE_IT(22974);
                 if (ptr[i] != nullptr)
                 {
                     DeleteObject<TAllocator>(m_allocator, ptr[i]);

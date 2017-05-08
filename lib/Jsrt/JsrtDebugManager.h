@@ -59,7 +59,7 @@ public:
     JsDiagBreakOnExceptionAttributes GetBreakOnException();
 
     JsDiagDebugEvent GetDebugEventFromStopType(Js::StopType stopType);
-    ThreadContext* GetThreadContext() const { return this->threadContext; }
+    ThreadContext* GetThreadContext() const {TRACE_IT(28144); return this->threadContext; }
 private:
     ThreadContext* threadContext;
     JsDiagDebugEventCallback debugEventCallback;
@@ -83,9 +83,9 @@ private:
     virtual bool IsFirstChanceExceptionEnabled();
 
     // HostDebugContext overrides
-    virtual void Delete() {}
-    DWORD_PTR GetHostSourceContext(Js::Utf8SourceInfo* sourceInfo) { return Js::Constants::NoHostSourceContext; }
-    HRESULT SetThreadDescription(__in LPCWSTR url) { return S_OK; }
+    virtual void Delete() {TRACE_IT(28145);}
+    DWORD_PTR GetHostSourceContext(Js::Utf8SourceInfo* sourceInfo) {TRACE_IT(28146); return Js::Constants::NoHostSourceContext; }
+    HRESULT SetThreadDescription(__in LPCWSTR url) {TRACE_IT(28147); return S_OK; }
     HRESULT DbgRegisterFunction(Js::ScriptContext* scriptContext, Js::FunctionBody* functionBody, DWORD_PTR dwDebugSourceContext, LPCWSTR title);
-    void ReParentToCaller(Js::Utf8SourceInfo* sourceInfo) {}
+    void ReParentToCaller(Js::Utf8SourceInfo* sourceInfo) {TRACE_IT(28148);}
 };

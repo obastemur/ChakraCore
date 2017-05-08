@@ -6,12 +6,12 @@
 namespace Memory
 {
 
-#define VerboseHeapTrace(...) { \
+#define VerboseHeapTrace(...) {TRACE_IT(23149); \
     OUTPUT_VERBOSE_TRACE(Js::CustomHeapPhase, __VA_ARGS__); \
 }
 
 
-#define HeapTrace(...) { \
+#define HeapTrace(...) {TRACE_IT(23150); \
     Output::Print(__VA_ARGS__); \
     Output::Flush(); \
 }
@@ -44,17 +44,17 @@ struct Page
     BucketId     currentBucket;
 
     bool HasNoSpace()
-    {
+    {TRACE_IT(23151);
         return freeBitVector.IsEmpty();
     }
 
     bool IsEmpty()
-    {
+    {TRACE_IT(23152);
         return freeBitVector.IsFull();
     }
 
     bool CanAllocate(BucketId targetBucket)
-    {
+    {TRACE_IT(23153);
         return freeBitVector.FirstStringOfOnes(targetBucket + 1) != BVInvalidIndex;
     }
 
@@ -65,7 +65,7 @@ struct Page
       freeBitVector(0xFFFFFFFF),
     isDecommitted(false),
     inFullList(false)
-    {
+    {TRACE_IT(23154);
     }
 
     // Each bit in the bit vector corresponds to 128 bytes of memory
@@ -89,8 +89,8 @@ struct Allocation
     __field_bcount(size) char* address;
     size_t size;
 
-    bool IsLargeAllocation() const { return size > Page::MaxAllocationSize; }
-    size_t GetPageCount() const { Assert(this->IsLargeAllocation()); return size / AutoSystemInfo::PageSize; }
+    bool IsLargeAllocation() const {TRACE_IT(23155); return size > Page::MaxAllocationSize; }
+    size_t GetPageCount() const {TRACE_IT(23156); Assert(this->IsLargeAllocation()); return size / AutoSystemInfo::PageSize; }
 
 #if DBG
     // Initialized to false, this is set to true when the allocation
@@ -103,14 +103,14 @@ struct Allocation
 #if PDATA_ENABLED
     XDataAllocation xdata;
     XDataAllocator* GetXDataAllocator()
-    {
+    {TRACE_IT(23157);
         XDataAllocator* allocator;
         if (!this->IsLargeAllocation())
-        {
+        {TRACE_IT(23158);
             allocator = static_cast<XDataAllocator*>(((Segment*)(this->page->segment))->GetSecondaryAllocator());
         }
         else
-        {
+        {TRACE_IT(23159);
             allocator = static_cast<XDataAllocator*>(((Segment*) (largeObjectAllocation.segment))->GetSecondaryAllocator());
         }
         return allocator;
@@ -130,7 +130,7 @@ public:
         cs(4000),
         secondaryAllocStateChangedCount(0),
         processHandle(processHandle)
-    {
+    {TRACE_IT(23160);
 #if DBG
         this->preReservedHeapAllocator.ClearConcurrentThreadId();
         this->pageAllocator.ClearConcurrentThreadId();
@@ -144,7 +144,7 @@ public:
         cs(4000),
         secondaryAllocStateChangedCount(0),
         processHandle(processHandle)
-    {
+    {TRACE_IT(23161);
 #if DBG
         this->preReservedHeapAllocator.ClearConcurrentThreadId();
         this->pageAllocator.ClearConcurrentThreadId();
@@ -153,37 +153,37 @@ public:
 #endif
 
     bool AllocXdata()
-    {
+    {TRACE_IT(23162);
         // Simple immutable data access, no need for lock
         return preReservedHeapAllocator.AllocXdata();
     }
 
     bool IsPreReservedSegment(void * segment)
-    {
+    {TRACE_IT(23163);
         // Simple immutable data access, no need for lock
         Assert(segment);
         return reinterpret_cast<SegmentBaseCommon*>(segment)->IsInPreReservedHeapPageAllocator();
     }
 
     bool IsInNonPreReservedPageAllocator(__in void *address)
-    {
+    {TRACE_IT(23164);
         Assert(this->cs.IsLocked());
         return this->pageAllocator.IsAddressFromAllocator(address);
     }
 
     char * Alloc(size_t * pages, void ** segment, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode, bool * isAllJITCodeInPreReservedRegion)
-    {
+    {TRACE_IT(23165);
         Assert(this->cs.IsLocked());
         char* address = nullptr;
         if (canAllocInPreReservedHeapPageSegment)
-        {
+        {TRACE_IT(23166);
             address = this->preReservedHeapAllocator.Alloc(pages, (SegmentBase<TPreReservedAlloc>**)(segment));
         }
 
         if (address == nullptr)
-        {
+        {TRACE_IT(23167);
             if (isAnyJittedCode)
-            {
+            {TRACE_IT(23168);
                 *isAllJITCodeInPreReservedRegion = false;
             }
             address = this->pageAllocator.Alloc(pages, (SegmentBase<TAlloc>**)segment);
@@ -195,29 +195,29 @@ public:
     void FreeLocal(char * addr, void * segment);
 
     char * AllocPages(DECLSPEC_GUARD_OVERFLOW uint pages, void ** pageSegment, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode, bool * isAllJITCodeInPreReservedRegion)
-    {
+    {TRACE_IT(23169);
         Assert(this->cs.IsLocked());
         char * address = nullptr;
         if (canAllocInPreReservedHeapPageSegment)
-        {
+        {TRACE_IT(23170);
             address = this->preReservedHeapAllocator.AllocPages(pages, (PageSegmentBase<TPreReservedAlloc>**)pageSegment);
 
             if (address == nullptr)
-            {
+            {TRACE_IT(23171);
                 VerboseHeapTrace(_u("PRE-RESERVE: PreReserved Segment CANNOT be allocated \n"));
             }
         }
 
         if (address == nullptr)    // if no space in Pre-reserved Page Segment, then allocate in regular ones.
-        {
+        {TRACE_IT(23172);
             if (isAnyJittedCode)
-            {
+            {TRACE_IT(23173);
                 *isAllJITCodeInPreReservedRegion = false;
             }
             address = this->pageAllocator.AllocPages(pages, (PageSegmentBase<TAlloc>**)pageSegment);
         }
         else
-        {
+        {TRACE_IT(23174);
             VerboseHeapTrace(_u("PRE-RESERVE: Allocing new page in PreReserved Segment \n"));
         }
 
@@ -225,66 +225,66 @@ public:
     }
 
     void ReleasePages(void* pageAddress, uint pageCount, __in void* segment)
-    {
+    {TRACE_IT(23175);
         Assert(this->cs.IsLocked());
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23176);
             this->GetPreReservedPageAllocator(segment)->ReleasePages(pageAddress, pageCount, segment);
         }
         else
-        {
+        {TRACE_IT(23177);
             this->GetPageAllocator(segment)->ReleasePages(pageAddress, pageCount, segment);
         }
     }
 
     BOOL ProtectPages(__in char* address, size_t pageCount, __in void* segment, DWORD dwVirtualProtectFlags, DWORD desiredOldProtectFlag)
-    {
+    {TRACE_IT(23178);
         // This is merely a wrapper for VirtualProtect, no need to synchornize, and doesn't touch any data.
         // No need to assert locked.
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23179);
             return this->GetPreReservedPageAllocator(segment)->ProtectPages(address, pageCount, segment, dwVirtualProtectFlags, desiredOldProtectFlag);
         }
         else
-        {
+        {TRACE_IT(23180);
             return this->GetPageAllocator(segment)->ProtectPages(address, pageCount, segment, dwVirtualProtectFlags, desiredOldProtectFlag);
         }
     }
 
     void TrackDecommittedPages(void * address, uint pageCount, __in void* segment)
-    {
+    {TRACE_IT(23181);
         Assert(this->cs.IsLocked());
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23182);
             this->GetPreReservedPageAllocator(segment)->TrackDecommittedPages(address, pageCount, segment);
         }
         else
-        {
+        {TRACE_IT(23183);
             this->GetPageAllocator(segment)->TrackDecommittedPages(address, pageCount, segment);
         }
     }
 
     void ReleaseSecondary(const SecondaryAllocation& allocation, void* segment)
-    {
+    {TRACE_IT(23184);
         Assert(this->cs.IsLocked());
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23185);
             secondaryAllocStateChangedCount += (uint)this->GetPreReservedPageAllocator(segment)->ReleaseSecondary(allocation, segment);
         }
         else
-        {
+        {TRACE_IT(23186);
             secondaryAllocStateChangedCount += (uint)this->GetPageAllocator(segment)->ReleaseSecondary(allocation, segment);
         }
     }
 
     bool HasSecondaryAllocStateChanged(uint * lastSecondaryAllocStateChangedCount)
-    {
+    {TRACE_IT(23187);
         if (secondaryAllocStateChangedCount != *lastSecondaryAllocStateChangedCount)
-        {
+        {TRACE_IT(23188);
             *lastSecondaryAllocStateChangedCount = secondaryAllocStateChangedCount;
             return true;
         }
@@ -292,60 +292,60 @@ public:
     }
 
     void DecommitPages(__in char* address, size_t pageCount, void* segment)
-    {
+    {TRACE_IT(23189);
         // This is merely a wrapper for VirtualFree, no need to synchornize, and doesn't touch any data.
         // No need to assert locked.
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23190);
             this->GetPreReservedPageAllocator(segment)->DecommitPages(address, pageCount);
         }
         else
-        {
+        {TRACE_IT(23191);
             this->GetPageAllocator(segment)->DecommitPages(address, pageCount);
         }
     }
 
     bool AllocSecondary(void* segment, ULONG_PTR functionStart, size_t functionSize_t, ushort pdataCount, ushort xdataSize, SecondaryAllocation* allocation)
-    {
+    {TRACE_IT(23192);
         Assert(this->cs.IsLocked());
         Assert(functionSize_t <= MAXUINT32);
         DWORD functionSize = static_cast<DWORD>(functionSize_t);
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23193);
             return this->GetPreReservedPageAllocator(segment)->AllocSecondary(segment, functionStart, functionSize, pdataCount, xdataSize, allocation);
         }
         else
-        {
+        {TRACE_IT(23194);
             return this->GetPageAllocator(segment)->AllocSecondary(segment, functionStart, functionSize, pdataCount, xdataSize, allocation);
         }
     }
 
     void Release(void * address, size_t pageCount, void * segment)
-    {
+    {TRACE_IT(23195);
         Assert(this->cs.IsLocked());
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23196);
             this->GetPreReservedPageAllocator(segment)->Release(address, pageCount, segment);
         }
         else
-        {
+        {TRACE_IT(23197);
             this->GetPageAllocator(segment)->Release(address, pageCount, segment);
         }
     }
 
     void ReleaseDecommitted(void * address, size_t pageCount, __in void *  segment)
-    {
+    {TRACE_IT(23198);
         Assert(this->cs.IsLocked());
         Assert(segment);
         if (IsPreReservedSegment(segment))
-        {
+        {TRACE_IT(23199);
             this->GetPreReservedPageAllocator(segment)->ReleaseDecommitted(address, pageCount, segment);
         }
         else
-        {
+        {TRACE_IT(23200);
             this->GetPageAllocator(segment)->ReleaseDecommitted(address, pageCount, segment);
         }
     }
@@ -360,7 +360,7 @@ private:
     }
 
     HeapPageAllocator<TAlloc>* GetPageAllocator(void * segmentParam)
-    {
+    {TRACE_IT(23201);
         SegmentBase<TAlloc> * segment = (SegmentBase<TAlloc>*)segmentParam;
         AssertMsg(segment, "Why is segment null?");
         Assert((HeapPageAllocator<TAlloc>*)(segment->GetAllocator()) == &this->pageAllocator);
@@ -368,7 +368,7 @@ private:
     }
 
     HeapPageAllocator<TPreReservedAlloc>* GetPreReservedPageAllocator(void * segmentParam)
-    {
+    {TRACE_IT(23202);
         SegmentBase<TPreReservedAlloc> * segment = (SegmentBase<TPreReservedAlloc>*)segmentParam;
         AssertMsg(segment, "Why is segment null?");
         Assert((HeapPageAllocator<TPreReservedAlloc>*)(segment->GetAllocator()) == &this->preReservedHeapAllocator);
@@ -416,7 +416,7 @@ public:
     // 1. It does not have any space
     // 2. Parent segment cannot allocate any more XDATA
     bool ShouldBeInFullList(Page* page)
-    {
+    {TRACE_IT(23203);
         return page->HasNoSpace() || (codePageAllocators->AllocXdata() && !((Segment*)(page->segment))->CanAllocSecondary());
     }
 
@@ -435,16 +435,16 @@ private:
      * Inline methods
      */
     inline unsigned int GetChunkSizeForBytes(DECLSPEC_GUARD_OVERFLOW size_t bytes)
-    {
+    {TRACE_IT(23204);
         return (bytes > Page::Alignment ? static_cast<unsigned int>(bytes) / Page::Alignment : 1);
     }
 
     inline size_t GetNumPagesForSize(DECLSPEC_GUARD_OVERFLOW size_t bytes)
-    {
+    {TRACE_IT(23205);
         size_t allocSize = AllocSizeMath::Add(bytes, AutoSystemInfo::PageSize);
 
         if (allocSize == (size_t) -1)
-        {
+        {TRACE_IT(23206);
             return 0;
         }
 
@@ -452,7 +452,7 @@ private:
     }
 
     inline BVIndex GetFreeIndexForPage(Page* page, DECLSPEC_GUARD_OVERFLOW size_t bytes)
-    {
+    {TRACE_IT(23207);
         unsigned int length = GetChunkSizeForBytes(bytes);
         BVIndex index = page->freeBitVector.FirstStringOfOnes(length);
 
@@ -479,7 +479,7 @@ private:
 
     template<DWORD readWriteFlags>
     DWORD EnsurePageReadWrite(Page* page)
-    {
+    {TRACE_IT(23208);
         Assert(!page->isDecommitted);
         this->codePageAllocators->ProtectPages(page->address, 1, page->segment, readWriteFlags, PAGE_EXECUTE);
         return PAGE_EXECUTE;
@@ -488,14 +488,14 @@ private:
     template<DWORD readWriteFlags>
 
     DWORD EnsureAllocationReadWrite(Allocation* allocation)
-    {
+    {TRACE_IT(23209);
         if (allocation->IsLargeAllocation())
-        {
+        {TRACE_IT(23210);
             this->ProtectAllocation(allocation, readWriteFlags, PAGE_EXECUTE);
             return PAGE_EXECUTE;
         }
         else
-        {
+        {TRACE_IT(23211);
             return EnsurePageReadWrite<readWriteFlags>(allocation->page);
         }
     }

@@ -13,7 +13,7 @@ public:
     static void RegisterDumper(type_info const * typeinfo, DumpFunction dumperFunction);
     static void DumpObject(type_info const * typeinfo, bool isArray, void * objectAddress);
 private:
-    RecyclerObjectDumper() {}
+    RecyclerObjectDumper() {TRACE_IT(26357);}
     ~RecyclerObjectDumper();
     static RecyclerObjectDumper Instance;
     static BOOL EnsureDumpFunctionMap();
@@ -29,7 +29,7 @@ public:
     static AutoRegisterRecyclerObjectDumper Instance;
 private:
     AutoRegisterRecyclerObjectDumper()
-    {
+    {TRACE_IT(26358);
         RecyclerObjectDumper::RegisterDumper(&typeid(T), dumpFunction);
     }
 };

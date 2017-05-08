@@ -34,7 +34,7 @@
 
 void
 StackProber::Initialize()
-{
+{TRACE_IT(36887);
     // NumGuardPages is 2 on x86/x86-64
     // 1 MEM_RESERVE page at the bottom of the stack
     // 1 PAGE_GUARD | PAGE_READWRITE page that serves as the guard page

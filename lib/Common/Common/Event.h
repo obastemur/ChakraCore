@@ -14,33 +14,33 @@ public:
 
 private:
     Event(const Event &) : handle(0)
-    {
+    {TRACE_IT(18833);
     }
 
     Event &operator =(const Event &)
-    {
+    {TRACE_IT(18834);
         return *this;
     }
 
 public:
     ~Event()
-    {
+    {TRACE_IT(18835);
         CloseHandle(handle);
     }
 
 public:
     HANDLE Handle() const
-    {
+    {TRACE_IT(18836);
         return handle;
     }
 
     void Set() const
-    {
+    {TRACE_IT(18837);
         SetEvent(handle);
     }
 
     void Reset() const
-    {
+    {TRACE_IT(18838);
         ResetEvent(handle);
     }
 

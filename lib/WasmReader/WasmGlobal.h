@@ -16,11 +16,11 @@ namespace Wasm
             m_type(type),
             m_isMutable(isMutable),
             m_init(init)
-        {};
-        WasmTypes::WasmType GetType() const { return m_type; }
-        bool IsMutable() const { return m_isMutable; }
-        uint GetOffset() const { return m_offset; }
-        GlobalReferenceTypes::Type GetReferenceType() const { return m_rType; }
+        {TRACE_IT(68429);};
+        WasmTypes::WasmType GetType() const {TRACE_IT(68430); return m_type; }
+        bool IsMutable() const {TRACE_IT(68431); return m_isMutable; }
+        uint GetOffset() const {TRACE_IT(68432); return m_offset; }
+        GlobalReferenceTypes::Type GetReferenceType() const {TRACE_IT(68433); return m_rType; }
 
         WasmConstLitNode GetConstInit() const;
         uint32 GetGlobalIndexInit() const;

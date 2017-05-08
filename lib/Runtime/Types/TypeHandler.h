@@ -28,9 +28,9 @@ namespace Js
         bool isWritable;
 
         PropertyEquivalenceInfo():
-            slotIndex(Constants::NoSlot), isAuxSlot(false), isWritable(false) {}
+            slotIndex(Constants::NoSlot), isAuxSlot(false), isWritable(false) {TRACE_IT(67837);}
         PropertyEquivalenceInfo(PropertyIndex slotIndex, bool isAuxSlot, bool isWritable):
-            slotIndex(slotIndex), isAuxSlot(isAuxSlot), isWritable(isWritable) {}
+            slotIndex(slotIndex), isAuxSlot(isAuxSlot), isWritable(isWritable) {TRACE_IT(67838);}
     };
 
     struct EquivalentPropertyEntry
@@ -83,7 +83,7 @@ namespace Js
             offsetOfInlineSlots(typeHandler->offsetOfInlineSlots),
             isNotPathTypeHandlerOrHasUserDefinedCtor(typeHandler->isNotPathTypeHandlerOrHasUserDefinedCtor),
             unusedBytes(typeHandler->unusedBytes)
-        {
+        {TRACE_IT(67839);
         }
 
     public:
@@ -110,12 +110,12 @@ namespace Js
 
         // UnusedBytes is a tagged value to prevent GC false references
         uint16 GetUnusedBytesValue() const
-        {
+        {TRACE_IT(67840);
             return unusedBytes >> 1;
         }
 
         void SetUnusedBytesValue(uint16 value)
-        {
+        {TRACE_IT(67841);
             // Tagging to prevent a GC false reference
             this->unusedBytes = ((value << 1) | 1);
         }
@@ -139,20 +139,20 @@ namespace Js
     public:
         static int RoundUpSlotCapacity(const int slotCapacity, const PropertyIndex inlineSlotCapacity);
 
-        uint16 GetInlineSlotCapacity() const { return this->inlineSlotCapacity; }
-        int GetSlotCapacity() const { return this->slotCapacity; }
+        uint16 GetInlineSlotCapacity() const {TRACE_IT(67842); return this->inlineSlotCapacity; }
+        int GetSlotCapacity() const {TRACE_IT(67843); return this->slotCapacity; }
 
         size_t GetInlineSlotsSize() const
-        {
+        {TRACE_IT(67844);
             PropertyIndex inlineSlotsToAllocate = GetInlineSlotCapacity();
             if(IsObjectHeaderInlinedTypeHandler())
-            {
+            {TRACE_IT(67845);
                 inlineSlotsToAllocate -= GetObjectHeaderInlinableSlotCapacity();
             }
             return inlineSlotsToAllocate * sizeof(Var);
         }
 
-        uint16 GetOffsetOfInlineSlots() const { return this->offsetOfInlineSlots; }
+        uint16 GetOffsetOfInlineSlots() const {TRACE_IT(67846); return this->offsetOfInlineSlots; }
 
         void EnsureSlots(DynamicObject * instance, int oldCount, int newCount, ScriptContext * scriptContext, DynamicTypeHandler * newTypeHandler = nullptr);
 
@@ -186,46 +186,46 @@ namespace Js
 
     public:
         inline PropertyIndex AdjustSlotIndexForInlineSlots(PropertyIndex slotIndex)
-        {
+        {TRACE_IT(67847);
             return slotIndex != Constants::NoSlot ? AdjustValidSlotIndexForInlineSlots(slotIndex) : Constants::NoSlot;
         }
 
         inline PropertyIndex AdjustValidSlotIndexForInlineSlots(PropertyIndex slotIndex)
-        {
+        {TRACE_IT(67848);
             Assert(slotIndex != Constants::NoSlot);
             return slotIndex < inlineSlotCapacity ?
                 slotIndex + (offsetOfInlineSlots / sizeof(Var)) : slotIndex - (PropertyIndex)inlineSlotCapacity;
         }
 
         inline void PropertyIndexToInlineOrAuxSlotIndex(PropertyIndex propertyIndex, PropertyIndex * inlineOrAuxSlotIndex, bool * isInlineSlot) const
-        {
+        {TRACE_IT(67849);
             if (propertyIndex < inlineSlotCapacity)
-            {
+            {TRACE_IT(67850);
                 *inlineOrAuxSlotIndex = propertyIndex + (offsetOfInlineSlots / sizeof(Var));
                 *isInlineSlot = true;
             }
             else
-            {
+            {TRACE_IT(67851);
                 *inlineOrAuxSlotIndex = propertyIndex - (PropertyIndex)inlineSlotCapacity;
                 *isInlineSlot = false;
             }
         }
 
         PropertyIndex InlineOrAuxSlotIndexToPropertyIndex(PropertyIndex inlineOrAuxSlotIndex, bool isInlineSlot) const
-        {
+        {TRACE_IT(67852);
             if (isInlineSlot)
-            {
+            {TRACE_IT(67853);
                 return inlineOrAuxSlotIndex - (offsetOfInlineSlots / sizeof(Var));
             }
             else
-            {
+            {TRACE_IT(67854);
                 return inlineOrAuxSlotIndex + (PropertyIndex)inlineSlotCapacity;
             }
         }
 
     protected:
         void SetFlags(BYTE values)
-        {
+        {TRACE_IT(67855);
             // Don't set a shared flag if the type handler isn't locked.
             Assert((this->flags & IsLockedFlag) != 0 || (values & IsLockedFlag) != 0 || (values & IsSharedFlag) == 0);
 
@@ -247,7 +247,7 @@ namespace Js
         }
 
         void ClearFlags(BYTE values)
-        {
+        {TRACE_IT(67856);
             // Don't clear the locked, shared or prototype flags.
             Assert((values & IsLockedFlag) == 0 && (values & IsSharedFlag) == 0 && (values & IsPrototypeFlag) == 0);
 
@@ -255,12 +255,12 @@ namespace Js
         }
 
         void SetFlags(BYTE selector, BYTE values)
-        {
+        {TRACE_IT(67857);
             SetFlags(selector & values);
         }
 
         void ChangeFlags(BYTE selector, BYTE values)
-        {
+        {TRACE_IT(67858);
             // Don't clear the locked, shared or prototype flags.
             Assert((this->flags & IsLockedFlag) == 0 || (selector & IsLockedFlag) == 0 || (values & IsLockedFlag) != 0);
             Assert((this->flags & IsSharedFlag) == 0 || (selector & IsSharedFlag) == 0 || (values & IsSharedFlag) != 0);
@@ -287,7 +287,7 @@ namespace Js
         }
 
         void SetPropertyTypes(PropertyTypes selector, PropertyTypes values)
-        {
+        {TRACE_IT(67859);
             Assert((selector & PropertyTypesReserved) == 0);
             Assert((this->propertyTypes & PropertyTypesReserved) != 0);
             this->propertyTypes |= (selector & values);
@@ -295,7 +295,7 @@ namespace Js
         }
 
         void ClearPropertyTypes(PropertyTypes selector, PropertyTypes values)
-        {
+        {TRACE_IT(67860);
             Assert((selector & PropertyTypesReserved) == 0);
             Assert((this->propertyTypes & PropertyTypesReserved) != 0);
             this->propertyTypes |= (selector & ~values);
@@ -303,7 +303,7 @@ namespace Js
         }
 
         void CopyPropertyTypes(PropertyTypes selector, PropertyTypes values)
-        {
+        {TRACE_IT(67861);
             Assert((selector & PropertyTypesReserved) == 0);
             Assert((this->propertyTypes & PropertyTypesReserved) != 0);
             this->propertyTypes = (selector & values) | (~selector & this->propertyTypes);
@@ -311,7 +311,7 @@ namespace Js
         }
 
         void CopyClearedPropertyTypes(PropertyTypes selector, PropertyTypes values)
-        {
+        {TRACE_IT(67862);
             Assert((selector & PropertyTypesReserved) == 0);
             Assert((this->propertyTypes & PropertyTypesReserved) != 0);
             this->propertyTypes = (selector & (values & this->propertyTypes)) | (~selector & this->propertyTypes);
@@ -320,39 +320,39 @@ namespace Js
 
         static bool CanBeSingletonInstance(DynamicObject * instance);
     public:
-        BYTE GetFlags() const { return this->flags; }
-        static int GetOffsetOfFlags() { return offsetof(DynamicTypeHandler, flags); }
-        static int GetOffsetOfOffsetOfInlineSlots() { return offsetof(DynamicTypeHandler, offsetOfInlineSlots); }
+        BYTE GetFlags() const {TRACE_IT(67863); return this->flags; }
+        static int GetOffsetOfFlags() {TRACE_IT(67864); return offsetof(DynamicTypeHandler, flags); }
+        static int GetOffsetOfOffsetOfInlineSlots() {TRACE_IT(67865); return offsetof(DynamicTypeHandler, offsetOfInlineSlots); }
 
-        bool GetIsLocked() const { return (this->flags & IsLockedFlag) != 0; }
-        bool GetIsShared() const { return (this->flags & IsSharedFlag) != 0; }
-        bool GetMayBecomeShared() const { return (this->flags & MayBecomeSharedFlag) != 0; }
-        bool GetIsOrMayBecomeShared() const { return (this->flags & (MayBecomeSharedFlag | IsSharedFlag)) != 0; }
-        bool GetHasKnownSlot0() const { return (this->flags & HasKnownSlot0Flag) != 0; }
-        bool GetIsPrototype() const { return (this->flags & IsPrototypeFlag) != 0; }
-        bool GetIsInlineSlotCapacityLocked() const { return (this->propertyTypes & PropertyTypesInlineSlotCapacityLocked) != 0; }
+        bool GetIsLocked() const {TRACE_IT(67866); return (this->flags & IsLockedFlag) != 0; }
+        bool GetIsShared() const {TRACE_IT(67867); return (this->flags & IsSharedFlag) != 0; }
+        bool GetMayBecomeShared() const {TRACE_IT(67868); return (this->flags & MayBecomeSharedFlag) != 0; }
+        bool GetIsOrMayBecomeShared() const {TRACE_IT(67869); return (this->flags & (MayBecomeSharedFlag | IsSharedFlag)) != 0; }
+        bool GetHasKnownSlot0() const {TRACE_IT(67870); return (this->flags & HasKnownSlot0Flag) != 0; }
+        bool GetIsPrototype() const {TRACE_IT(67871); return (this->flags & IsPrototypeFlag) != 0; }
+        bool GetIsInlineSlotCapacityLocked() const {TRACE_IT(67872); return (this->propertyTypes & PropertyTypesInlineSlotCapacityLocked) != 0; }
 
-        void LockTypeHandler() { Assert(IsLockable()); SetFlags(IsLockedFlag); }
+        void LockTypeHandler() {TRACE_IT(67873); Assert(IsLockable()); SetFlags(IsLockedFlag); }
 
         void ShareTypeHandler(ScriptContext* scriptContext)
-        {
+        {TRACE_IT(67874);
             Assert(IsSharable());
             Assert(GetMayBecomeShared());
             LockTypeHandler();
             if ((GetFlags() & IsSharedFlag) == 0)
-            {
+            {TRACE_IT(67875);
                 DoShareTypeHandler(scriptContext);
             }
             SetFlags(IsSharedFlag);
         }
 
         void SetMayBecomeShared()
-        {
+        {TRACE_IT(67876);
             SetFlags(MayBecomeSharedFlag);
         }
 
         void SetHasKnownSlot0()
-        {
+        {TRACE_IT(67877);
             SetFlags(HasKnownSlot0Flag);
         }
 
@@ -362,17 +362,17 @@ namespace Js
             SetPropertyTypes(PropertyTypesInlineSlotCapacityLocked, PropertyTypesInlineSlotCapacityLocked);
         }
 
-        PropertyTypes GetPropertyTypes() { Assert((propertyTypes & PropertyTypesReserved) != 0); return propertyTypes; }
-        bool GetHasOnlyWritableDataProperties() { return (GetPropertyTypes() & PropertyTypesWritableDataOnly) == PropertyTypesWritableDataOnly; }
+        PropertyTypes GetPropertyTypes() {TRACE_IT(67878); Assert((propertyTypes & PropertyTypesReserved) != 0); return propertyTypes; }
+        bool GetHasOnlyWritableDataProperties() {TRACE_IT(67879); return (GetPropertyTypes() & PropertyTypesWritableDataOnly) == PropertyTypesWritableDataOnly; }
         // Do not use this method.  It's here only for the __proto__ performance workaround.
-        void SetHasOnlyWritableDataProperties() { SetHasOnlyWritableDataProperties(true); }
-        void ClearHasOnlyWritableDataProperties() { SetHasOnlyWritableDataProperties(false); };
+        void SetHasOnlyWritableDataProperties() {TRACE_IT(67880); SetHasOnlyWritableDataProperties(true); }
+        void ClearHasOnlyWritableDataProperties() {TRACE_IT(67881); SetHasOnlyWritableDataProperties(false); };
 
     private:
         void SetHasOnlyWritableDataProperties(bool value)
-        {
+        {TRACE_IT(67882);
             if (value != GetHasOnlyWritableDataProperties())
-            {
+            {TRACE_IT(67883);
                 propertyTypes ^= PropertyTypesWritableDataOnly;
             }
 
@@ -382,21 +382,21 @@ namespace Js
         }
 
     public:
-        void ClearWritableDataOnlyDetectionBit() { Assert((propertyTypes & PropertyTypesReserved) != 0); propertyTypes &= ~PropertyTypesWritableDataOnlyDetection; }
+        void ClearWritableDataOnlyDetectionBit() {TRACE_IT(67884); Assert((propertyTypes & PropertyTypesReserved) != 0); propertyTypes &= ~PropertyTypesWritableDataOnlyDetection; }
         bool IsWritableDataOnlyDetectionBitSet()
-        {
+        {TRACE_IT(67885);
             return (GetPropertyTypes() & PropertyTypesWritableDataOnlyDetection) == PropertyTypesWritableDataOnlyDetection;
         }
 
-        BOOL Freeze(DynamicObject *instance, bool isConvertedType = false)  { return FreezeImpl(instance, isConvertedType); }
-        bool GetIsNotPathTypeHandlerOrHasUserDefinedCtor() const { return this->isNotPathTypeHandlerOrHasUserDefinedCtor; }
+        BOOL Freeze(DynamicObject *instance, bool isConvertedType = false)  {TRACE_IT(67886); return FreezeImpl(instance, isConvertedType); }
+        bool GetIsNotPathTypeHandlerOrHasUserDefinedCtor() const {TRACE_IT(67887); return this->isNotPathTypeHandlerOrHasUserDefinedCtor; }
 
-        virtual BOOL IsStringTypeHandler() const { return false; }
+        virtual BOOL IsStringTypeHandler() const {TRACE_IT(67888); return false; }
 
-        virtual BOOL AllPropertiesAreEnumerable() { return false; }
+        virtual BOOL AllPropertiesAreEnumerable() {TRACE_IT(67889); return false; }
         virtual BOOL IsLockable() const = 0;
         virtual BOOL IsSharable() const = 0;
-        virtual void DoShareTypeHandler(ScriptContext* scriptContext) {};
+        virtual void DoShareTypeHandler(ScriptContext* scriptContext) {TRACE_IT(67890);};
 
         virtual int GetPropertyCount() = 0;
         virtual PropertyId GetPropertyId(ScriptContext* scriptContext, PropertyIndex index) = 0;
@@ -410,7 +410,7 @@ namespace Js
         virtual bool IsObjTypeSpecEquivalent(const Type* type, const Js::TypeEquivalenceRecord& record, uint& failedPropertyIndex) = 0;
         virtual bool IsObjTypeSpecEquivalent(const Type* type, const EquivalentPropertyEntry* entry) = 0;
 
-        virtual bool EnsureObjectReady(DynamicObject* instance) { return true; }
+        virtual bool EnsureObjectReady(DynamicObject* instance) {TRACE_IT(67891); return true; }
         virtual BOOL HasProperty(DynamicObject* instance, PropertyId propertyId, __out_opt bool *pNoRedecl = nullptr) = 0;
         virtual BOOL HasProperty(DynamicObject* instance, JavascriptString* propertyNameString) = 0;
         virtual BOOL GetProperty(DynamicObject* instance, Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext) = 0;
@@ -433,24 +433,24 @@ namespace Js
         // Each of these will throw InternalFatalError because they should not be called on type handlers other than
         // SimpleDictionary and Dictionary, both of which provide overrides.
         //
-        virtual PropertyIndex GetRootPropertyIndex(PropertyRecord const* propertyRecord) { Throw::FatalInternalError(); }
+        virtual PropertyIndex GetRootPropertyIndex(PropertyRecord const* propertyRecord) {TRACE_IT(67892); Throw::FatalInternalError(); }
 
-        virtual BOOL HasRootProperty(DynamicObject* instance, PropertyId propertyId, __out_opt bool *pNoRedecl = nullptr, __out_opt bool *pDeclaredProperty = nullptr, __out_opt bool *pNonconfigurableProperty = nullptr) { Throw::FatalInternalError(); }
-        virtual BOOL GetRootProperty(DynamicObject* instance, Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext) { Throw::FatalInternalError(); }
-        virtual BOOL SetRootProperty(DynamicObject* instance, PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info) { Throw::FatalInternalError(); }
-        virtual DescriptorFlags GetRootSetter(DynamicObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) { Throw::FatalInternalError(); }
-        virtual BOOL DeleteRootProperty(DynamicObject* instance, PropertyId propertyId, PropertyOperationFlags flags) { Throw::FatalInternalError(); }
+        virtual BOOL HasRootProperty(DynamicObject* instance, PropertyId propertyId, __out_opt bool *pNoRedecl = nullptr, __out_opt bool *pDeclaredProperty = nullptr, __out_opt bool *pNonconfigurableProperty = nullptr) {TRACE_IT(67893); Throw::FatalInternalError(); }
+        virtual BOOL GetRootProperty(DynamicObject* instance, Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext) {TRACE_IT(67894); Throw::FatalInternalError(); }
+        virtual BOOL SetRootProperty(DynamicObject* instance, PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info) {TRACE_IT(67895); Throw::FatalInternalError(); }
+        virtual DescriptorFlags GetRootSetter(DynamicObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) {TRACE_IT(67896); Throw::FatalInternalError(); }
+        virtual BOOL DeleteRootProperty(DynamicObject* instance, PropertyId propertyId, PropertyOperationFlags flags) {TRACE_IT(67897); Throw::FatalInternalError(); }
 
 #if DBG
-        virtual bool IsLetConstGlobal(DynamicObject* instance, PropertyId propertyId) { Throw::FatalInternalError(); }
+        virtual bool IsLetConstGlobal(DynamicObject* instance, PropertyId propertyId) {TRACE_IT(67898); Throw::FatalInternalError(); }
 #endif
         // Would be nicer to simply pass in lambda callbacks to a Map function here, but virtual methods
         // cannot be templatized and we do not have std::function<> so cannot specify a parameter that will
         // accept lambdas.
-        virtual bool NextLetConstGlobal(int& index, RootObjectBase* instance, const PropertyRecord** propertyRecord, Var* value, bool* isConst) { Throw::FatalInternalError(); }
+        virtual bool NextLetConstGlobal(int& index, RootObjectBase* instance, const PropertyRecord** propertyRecord, Var* value, bool* isConst) {TRACE_IT(67899); Throw::FatalInternalError(); }
         // ===================================================================================================================
 
-        virtual BOOL IsFixedProperty(const DynamicObject* instance, PropertyId propertyId) { return false; };
+        virtual BOOL IsFixedProperty(const DynamicObject* instance, PropertyId propertyId) {TRACE_IT(67900); return false; };
         virtual BOOL IsEnumerable(DynamicObject* instance, PropertyId propertyId) = 0;
         virtual BOOL IsWritable(DynamicObject* instance, PropertyId propertyId) = 0;
         virtual BOOL IsConfigurable(DynamicObject* instance, PropertyId propertyId) = 0;
@@ -468,29 +468,29 @@ namespace Js
         virtual DescriptorFlags GetItemSetter(DynamicObject* instance, uint32 index, Var* setterValue, ScriptContext* requestContext);
 
         virtual BOOL SetAccessors(DynamicObject* instance, PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags = PropertyOperation_None) = 0;
-        virtual BOOL GetAccessors(DynamicObject* instance, PropertyId propertyId, Var* getter, Var* setter) { return false; };
+        virtual BOOL GetAccessors(DynamicObject* instance, PropertyId propertyId, Var* getter, Var* setter) {TRACE_IT(67901); return false; };
 
         virtual BOOL PreventExtensions(DynamicObject *instance) = 0;
         virtual BOOL Seal(DynamicObject *instance) = 0;
-        virtual BOOL IsSealed(DynamicObject *instance) { return false; }
-        virtual BOOL IsFrozen(DynamicObject *instance) { return false; }
+        virtual BOOL IsSealed(DynamicObject *instance) {TRACE_IT(67902); return false; }
+        virtual BOOL IsFrozen(DynamicObject *instance) {TRACE_IT(67903); return false; }
         virtual BOOL SetPropertyWithAttributes(DynamicObject* instance, PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags = PropertyOperation_None, SideEffects possibleSideEffects = SideEffects_Any) = 0;
         virtual BOOL SetAttributes(DynamicObject* instance, PropertyId propertyId, PropertyAttributes attributes) = 0;
         virtual BOOL GetAttributesWithPropertyIndex(DynamicObject * instance, PropertyId propertyId, BigPropertyIndex index, PropertyAttributes * attributes) = 0;
 
-        virtual void ShrinkSlotAndInlineSlotCapacity() { VerifyInlineSlotCapacityIsLocked(); };
-        virtual void LockInlineSlotCapacity() { VerifyInlineSlotCapacityIsLocked(); }
-        virtual void EnsureInlineSlotCapacityIsLocked() { VerifyInlineSlotCapacityIsLocked(); }
-        virtual void VerifyInlineSlotCapacityIsLocked() { Assert(GetIsInlineSlotCapacityLocked()); }
+        virtual void ShrinkSlotAndInlineSlotCapacity() {TRACE_IT(67904); VerifyInlineSlotCapacityIsLocked(); };
+        virtual void LockInlineSlotCapacity() {TRACE_IT(67905); VerifyInlineSlotCapacityIsLocked(); }
+        virtual void EnsureInlineSlotCapacityIsLocked() {TRACE_IT(67906); VerifyInlineSlotCapacityIsLocked(); }
+        virtual void VerifyInlineSlotCapacityIsLocked() {TRACE_IT(67907); Assert(GetIsInlineSlotCapacityLocked()); }
 
         // ES5Array type handler specific methods. Only implemented by ES5ArrayTypeHandlers.
-        virtual bool IsLengthWritable() const { Assert(false); return false; }
-        virtual void SetLength(ES5Array* arr, uint32 newLen, PropertyOperationFlags propertyOperationFlags) { Assert(false); }
-        virtual BOOL IsObjectArrayFrozen(ES5Array* arr) { Assert(false); return FALSE; }
-        virtual BOOL IsItemEnumerable(ES5Array* arr, uint32 index) { Assert(false); return FALSE; }
-        virtual BOOL IsValidDescriptorToken(void * descriptorValidationToken) const { Assert(false); return FALSE; }
-        virtual uint32 GetNextDescriptor(uint32 key, IndexPropertyDescriptor** descriptor, void ** descriptorValidationToken) { Assert(false); return 0; }
-        virtual BOOL GetDescriptor(uint32 index, IndexPropertyDescriptor **ppDescriptor) { Assert(false); return FALSE; }
+        virtual bool IsLengthWritable() const {TRACE_IT(67908); Assert(false); return false; }
+        virtual void SetLength(ES5Array* arr, uint32 newLen, PropertyOperationFlags propertyOperationFlags) {TRACE_IT(67909); Assert(false); }
+        virtual BOOL IsObjectArrayFrozen(ES5Array* arr) {TRACE_IT(67910); Assert(false); return FALSE; }
+        virtual BOOL IsItemEnumerable(ES5Array* arr, uint32 index) {TRACE_IT(67911); Assert(false); return FALSE; }
+        virtual BOOL IsValidDescriptorToken(void * descriptorValidationToken) const {TRACE_IT(67912); Assert(false); return FALSE; }
+        virtual uint32 GetNextDescriptor(uint32 key, IndexPropertyDescriptor** descriptor, void ** descriptorValidationToken) {TRACE_IT(67913); Assert(false); return 0; }
+        virtual BOOL GetDescriptor(uint32 index, IndexPropertyDescriptor **ppDescriptor) {TRACE_IT(67914); Assert(false); return FALSE; }
 
         // Convert instance type/typeHandler to support SetItem with attribute/getter/setter
         virtual DynamicTypeHandler* ConvertToTypeWithItemAttributes(DynamicObject* instance) = 0;
@@ -512,48 +512,48 @@ namespace Js
         virtual void SetAllPropertiesToUndefined(DynamicObject* instance, bool invalidateFixedFields) = 0;
         virtual void MarshalAllPropertiesToScriptContext(DynamicObject* instance, ScriptContext* targetScriptContext, bool invalidateFixedFields) = 0;
 
-        virtual BOOL IsDeferredTypeHandler() const { return FALSE; }
-        virtual BOOL IsPathTypeHandler() const { return FALSE; }
-        virtual BOOL IsSimpleDictionaryTypeHandler() const {return FALSE; }
-        virtual BOOL IsDictionaryTypeHandler() const {return FALSE;}
+        virtual BOOL IsDeferredTypeHandler() const {TRACE_IT(67915); return FALSE; }
+        virtual BOOL IsPathTypeHandler() const {TRACE_IT(67916); return FALSE; }
+        virtual BOOL IsSimpleDictionaryTypeHandler() const {TRACE_IT(67917);return FALSE; }
+        virtual BOOL IsDictionaryTypeHandler() const {TRACE_IT(67918);return FALSE;}
 
-        static bool IsolatePrototypes() { return CONFIG_FLAG(IsolatePrototypes); }
-        static bool ChangeTypeOnProto() { return CONFIG_FLAG(ChangeTypeOnProto); }
-        static bool ShouldFixMethodProperties() { return !PHASE_OFF1(FixMethodPropsPhase); }
-        static bool ShouldFixDataProperties() { return !PHASE_OFF1(FixDataPropsPhase); }
-        static bool ShouldFixAccessorProperties() { return !PHASE_OFF1(FixAccessorPropsPhase); }
-        static bool ShouldFixAnyProperties() { return ShouldFixDataProperties() || ShouldFixMethodProperties() || ShouldFixAccessorProperties(); }
-        static bool AreSingletonInstancesNeeded() { return ShouldFixAnyProperties(); }
+        static bool IsolatePrototypes() {TRACE_IT(67919); return CONFIG_FLAG(IsolatePrototypes); }
+        static bool ChangeTypeOnProto() {TRACE_IT(67920); return CONFIG_FLAG(ChangeTypeOnProto); }
+        static bool ShouldFixMethodProperties() {TRACE_IT(67921); return !PHASE_OFF1(FixMethodPropsPhase); }
+        static bool ShouldFixDataProperties() {TRACE_IT(67922); return !PHASE_OFF1(FixDataPropsPhase); }
+        static bool ShouldFixAccessorProperties() {TRACE_IT(67923); return !PHASE_OFF1(FixAccessorPropsPhase); }
+        static bool ShouldFixAnyProperties() {TRACE_IT(67924); return ShouldFixDataProperties() || ShouldFixMethodProperties() || ShouldFixAccessorProperties(); }
+        static bool AreSingletonInstancesNeeded() {TRACE_IT(67925); return ShouldFixAnyProperties(); }
 
         virtual void SetIsPrototype(DynamicObject* instance) = 0;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return false; }
-        virtual bool RespectsIsolatePrototypes() const { return true; }
-        virtual bool RespectsChangeTypeOnProto() const { return true; }
+        virtual bool SupportsPrototypeInstances() const {TRACE_IT(67926); return false; }
+        virtual bool RespectsIsolatePrototypes() const {TRACE_IT(67927); return true; }
+        virtual bool RespectsChangeTypeOnProto() const {TRACE_IT(67928); return true; }
 #endif
 
-        virtual bool HasSingletonInstance() const { return false; }
+        virtual bool HasSingletonInstance() const {TRACE_IT(67929); return false; }
         virtual bool TryUseFixedProperty(PropertyRecord const* propertyRecord, Var* pProperty, FixedPropertyKind propertyType, ScriptContext * requestContext);
         virtual bool TryUseFixedAccessor(PropertyRecord const* propertyRecord, Var* pAccessor, FixedPropertyKind propertyType, bool getter, ScriptContext * requestContext);
 
 #if DBG
-        virtual bool CanStorePropertyValueDirectly(const DynamicObject* instance, PropertyId propertyId, bool allowLetConst) { return false; }
-        virtual bool CheckFixedProperty(PropertyRecord const * propertyRecord, Var * pProperty, ScriptContext * requestContext) { return false; };
-        virtual bool HasAnyFixedProperties() const { return false; }
+        virtual bool CanStorePropertyValueDirectly(const DynamicObject* instance, PropertyId propertyId, bool allowLetConst) {TRACE_IT(67930); return false; }
+        virtual bool CheckFixedProperty(PropertyRecord const * propertyRecord, Var * pProperty, ScriptContext * requestContext) {TRACE_IT(67931); return false; };
+        virtual bool HasAnyFixedProperties() const {TRACE_IT(67932); return false; }
 #endif
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-        virtual void DumpFixedFields() const {};
+        virtual void DumpFixedFields() const {TRACE_IT(67933);};
 #endif
 
     public:
-        virtual RecyclerWeakReference<DynamicObject>* GetSingletonInstance() const { return nullptr; }
+        virtual RecyclerWeakReference<DynamicObject>* GetSingletonInstance() const {TRACE_IT(67934); return nullptr; }
 
         bool SetSingletonInstanceIfNeeded(DynamicObject* instance)
-        {
+        {TRACE_IT(67935);
             if (AreSingletonInstancesNeeded() && CanBeSingletonInstance(instance))
-            {
+            {TRACE_IT(67936);
                 SetSingletonInstance(instance->CreateWeakReferenceToSelf());
                 return true;
             }
@@ -561,21 +561,21 @@ namespace Js
         }
 
         void SetSingletonInstanceIfNeeded(RecyclerWeakReference<DynamicObject>* instance)
-        {
+        {TRACE_IT(67937);
             if (AreSingletonInstancesNeeded())
-            {
+            {TRACE_IT(67938);
                 SetSingletonInstance(instance);
             }
         }
 
         void SetSingletonInstance(RecyclerWeakReference<DynamicObject>* instance)
-        {
+        {TRACE_IT(67939);
             Assert(AreSingletonInstancesNeeded());
             SetSingletonInstanceUnchecked(instance);
         }
 
-        virtual void SetSingletonInstanceUnchecked(RecyclerWeakReference<DynamicObject>* instance) { Assert(false); }
-        virtual void ClearSingletonInstance() { Assert(false); }
+        virtual void SetSingletonInstanceUnchecked(RecyclerWeakReference<DynamicObject>* instance) {TRACE_IT(67940); Assert(false); }
+        virtual void ClearSingletonInstance() {TRACE_IT(67941); Assert(false); }
 
     public:
         static void AdjustSlots_Jit(DynamicObject *const object, const PropertyIndex newInlineSlotCapacity, const int newAuxSlotCapacity);
@@ -592,10 +592,10 @@ namespace Js
         PropertyId TMapKey_GetPropertyId(ScriptContext* scriptContext, JavascriptString* key);
         bool VerifyIsExtensible(ScriptContext* scriptContext, bool alwaysThrow);
 
-        void SetOffsetOfInlineSlots(const uint16 offsetOfInlineSlots) { this->offsetOfInlineSlots = offsetOfInlineSlots; }
+        void SetOffsetOfInlineSlots(const uint16 offsetOfInlineSlots) {TRACE_IT(67942); this->offsetOfInlineSlots = offsetOfInlineSlots; }
 
-        void SetInlineSlotCapacity(int16 newInlineSlotCapacity) { this->inlineSlotCapacity = newInlineSlotCapacity; }
-        void SetSlotCapacity(int newSlotCapacity) { this->slotCapacity = newSlotCapacity; }
+        void SetInlineSlotCapacity(int16 newInlineSlotCapacity) {TRACE_IT(67943); this->inlineSlotCapacity = newInlineSlotCapacity; }
+        void SetSlotCapacity(int newSlotCapacity) {TRACE_IT(67944); this->slotCapacity = newSlotCapacity; }
 
     private:
         virtual BOOL FreezeImpl(DynamicObject *instance, bool isConvertedType) = 0;
@@ -607,7 +607,7 @@ namespace Js
 
          //Return true if the mark should visit the given property id (we want to skip most internal property ids)
          static bool ShouldMarkPropertyId_TTD(Js::PropertyId pid)
-         {
+         {TRACE_IT(67945);
              //Use bitwise operators to allow compiler to reorder these operations since both conditions are cheap and we call in a tight loop
              return ((pid != Js::Constants::NoProperty) & (!Js::IsInternalPropertyId(pid)));
          }

@@ -29,7 +29,7 @@ namespace Js
     {
         ByteCodeGenerator* byteCodeGenerator;
         ScriptContext *scriptContext;
-        ExclusiveContext( ByteCodeGenerator *_byteCodeGenerator, ScriptContext * _scriptContext ) :byteCodeGenerator( _byteCodeGenerator ), scriptContext( _scriptContext ){};
+        ExclusiveContext( ByteCodeGenerator *_byteCodeGenerator, ScriptContext * _scriptContext ) :byteCodeGenerator( _byteCodeGenerator ), scriptContext( _scriptContext ){TRACE_IT(45817);};
     };
 
     class AsmJSCompiler

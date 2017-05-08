@@ -23,7 +23,7 @@ namespace Js
         nextBreakPointId(0),
         localsDisplayFlags(LocalsDisplayFlags_None),
         dispatchHaltFrameAddress(nullptr)
-    {
+    {TRACE_IT(42221);
         Assert(_pThreadContext != nullptr);
 #if DBG
         // diagnosticPageAllocator may be used in multiple thread, but it's usage is synchronized.
@@ -33,11 +33,11 @@ namespace Js
     }
 
     void DebugManager::Close()
-    {
+    {TRACE_IT(42222);
         this->diagnosticPageAllocator.Close();
 
         if (this->pConsoleScope)
-        {
+        {TRACE_IT(42223);
             this->pConsoleScope.Unroot(this->pThreadContext->GetRecycler());
         }
 #if DBG
@@ -47,37 +47,37 @@ namespace Js
     }
 
     DebugManager::~DebugManager()
-    {
+    {TRACE_IT(42224);
         Assert(this->pThreadContext == nullptr);
     }
 
     DebuggingFlags* DebugManager::GetDebuggingFlags()
-    {
+    {TRACE_IT(42225);
         return &this->debuggingFlags;
     }
 
     intptr_t DebugManager::GetDebuggingFlagsAddr() const
-    {
+    {TRACE_IT(42226);
         return (intptr_t)&this->debuggingFlags;
     }
 
     ReferencedArenaAdapter* DebugManager::GetDiagnosticArena()
-    {
+    {TRACE_IT(42227);
         if (pCurrentInterpreterLocation)
-        {
+        {TRACE_IT(42228);
             return pCurrentInterpreterLocation->referencedDiagnosticArena;
         }
         return nullptr;
     }
 
     DWORD_PTR DebugManager::AllocateSecondaryHostSourceContext()
-    {
+    {TRACE_IT(42229);
         Assert(secondaryCurrentSourceContext < ULONG_MAX);
         return secondaryCurrentSourceContext++; // The context is not valid, use the secondary context for identify the function body for further use.
     }
 
     void DebugManager::SetCurrentInterpreterLocation(InterpreterHaltState* pHaltState)
-    {
+    {TRACE_IT(42230);
         Assert(pHaltState);
         Assert(!pCurrentInterpreterLocation);
 
@@ -95,14 +95,14 @@ namespace Js
     }
 
     void DebugManager::UnsetCurrentInterpreterLocation()
-    {
+    {TRACE_IT(42231);
         Assert(pCurrentInterpreterLocation);
 
         if (pCurrentInterpreterLocation)
-        {
+        {TRACE_IT(42232);
             // pCurrentInterpreterLocation->referencedDiagnosticArena could be null if we ran out of memory during SetCurrentInterpreterLocation
             if (pCurrentInterpreterLocation->referencedDiagnosticArena)
-            {
+            {TRACE_IT(42233);
                 pThreadContext->GetRecycler()->UnregisterExternalGuestArena(pCurrentInterpreterLocation->referencedDiagnosticArena->Arena());
                 pCurrentInterpreterLocation->referencedDiagnosticArena->DeleteArena();
                 pCurrentInterpreterLocation->referencedDiagnosticArena->Release();
@@ -113,7 +113,7 @@ namespace Js
     }
 
     bool DebugManager::IsMatchTopFrameStackAddress(DiagStackFrame* frame) const
-    {
+    {TRACE_IT(42234);
         return (frame != nullptr) && 
             (this->pCurrentInterpreterLocation != nullptr) &&
             (this->pCurrentInterpreterLocation->topFrame != nullptr) &&
@@ -122,18 +122,18 @@ namespace Js
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
     MutationBreakpoint* DebugManager::GetActiveMutationBreakpoint() const
-    {
+    {TRACE_IT(42235);
         Assert(this->pCurrentInterpreterLocation);
         return this->pCurrentInterpreterLocation->activeMutationBP;
     }
 #endif
 
     DynamicObject* DebugManager::GetConsoleScope(ScriptContext* scriptContext)
-    {
+    {TRACE_IT(42236);
         Assert(scriptContext);
 
         if (!this->pConsoleScope)
-        {
+        {TRACE_IT(42237);
             this->pConsoleScope.Root(scriptContext->GetLibrary()->CreateConsoleScopeActivationObject(), this->pThreadContext->GetRecycler());
         }
 
@@ -141,7 +141,7 @@ namespace Js
     }
 
     FrameDisplay *DebugManager::GetFrameDisplay(ScriptContext* scriptContext, DynamicObject* scopeAtZero, DynamicObject* scopeAtOne)
-    {
+    {TRACE_IT(42238);
         // The scope chain for console eval looks like:
         //  - dummy empty object - new vars, let, consts, functions get added here
         //  - Active scope object containing all globals visible at this break (if at break)
@@ -154,7 +154,7 @@ namespace Js
         environment = JavascriptOperators::OP_LdFrameDisplay(scriptContext->GetGlobalObject()->ToThis(), environment, scriptContext);
 
         if (scopeAtOne != nullptr)
-        {
+        {TRACE_IT(42239);
             environment = JavascriptOperators::OP_LdFrameDisplay((Var)scopeAtOne, environment, scriptContext);
         }
 
@@ -163,18 +163,18 @@ namespace Js
     }
 
     void DebugManager::UpdateConsoleScope(DynamicObject* copyFromScope, ScriptContext* scriptContext)
-    {
+    {TRACE_IT(42240);
         Assert(copyFromScope != nullptr);
         DynamicObject* consoleScope = this->GetConsoleScope(scriptContext);
         Js::RecyclableObject* recyclableObject = Js::RecyclableObject::FromVar(copyFromScope);
 
         uint32 newPropCount = recyclableObject->GetPropertyCount();
         for (uint32 i = 0; i < newPropCount; i++)
-        {
+        {TRACE_IT(42241);
             Js::PropertyId propertyId = recyclableObject->GetPropertyId((Js::PropertyIndex)i);
             // For deleted properties we won't have a property id
             if (propertyId != Js::Constants::NoProperty)
-            {
+            {TRACE_IT(42242);
                 Js::PropertyValueInfo propertyValueInfo;
                 Var propertyValue;
                 BOOL gotPropertyValue = recyclableObject->GetProperty(recyclableObject, propertyId, &propertyValue, &propertyValueInfo, scriptContext);
@@ -192,13 +192,13 @@ namespace Js
 
 #if DBG
     void DebugManager::ValidateDebugAPICall()
-    {
+    {TRACE_IT(42243);
         Js::JavascriptStackWalker walker(this->pThreadContext->GetScriptEntryExit()->scriptContext);
         Js::JavascriptFunction* javascriptFunction = nullptr;
         if (walker.GetCaller(&javascriptFunction))
-        {
+        {TRACE_IT(42244);
             if (javascriptFunction != nullptr)
-            {
+            {TRACE_IT(42245);
                 void *topJsFrameAddr = (void *)walker.GetCurrentArgv();
                 Assert(this->dispatchHaltFrameAddress != nullptr);
                 if (topJsFrameAddr < this->dispatchHaltFrameAddress)
@@ -215,7 +215,7 @@ namespace Js
 AutoSetDispatchHaltFlag::AutoSetDispatchHaltFlag(Js::ScriptContext *scriptContext, ThreadContext *threadContext) :
     m_scriptContext(scriptContext),
     m_threadContext(threadContext)
-{
+{TRACE_IT(42246);
     Assert(m_scriptContext != nullptr);
     Assert(m_threadContext != nullptr);
 
@@ -226,7 +226,7 @@ AutoSetDispatchHaltFlag::AutoSetDispatchHaltFlag(Js::ScriptContext *scriptContex
     m_scriptContext->GetDebugContext()->GetProbeContainer()->SetIsPrimaryBrokenToDebuggerContext(true);
 }
 AutoSetDispatchHaltFlag::~AutoSetDispatchHaltFlag()
-{
+{TRACE_IT(42247);
     Assert(m_threadContext->GetDebugManager()->IsAtDispatchHalt());
     m_threadContext->GetDebugManager()->SetDispatchHalt(false);
 

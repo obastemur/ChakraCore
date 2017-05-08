@@ -16,7 +16,7 @@ namespace TemplateParameter
     {
     private:
         static void Constrain(T *const t)
-        {
+        {TRACE_IT(27261);
 CLANG_WNO_BEGIN("-Wunused-variable")
 #pragma warning(suppress: 4189) // C4189: local variable is initialized but not referenced
             Base *const b = t;
@@ -25,7 +25,7 @@ CLANG_WNO_END
 
     public:
         SameOrDerivedFrom()
-        {
+        {TRACE_IT(27262);
 CLANG_WNO_BEGIN("-Wunused-variable")
 #pragma warning(suppress: 4189) // C4189: local variable is initialized but not referenced
             void (*const p)(T *const t) = Constrain;

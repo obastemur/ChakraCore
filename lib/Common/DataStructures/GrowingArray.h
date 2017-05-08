@@ -27,12 +27,12 @@ namespace JsUtil
             alloc(allocator),
             count(0),
             length(_length)
-        {
+        {TRACE_IT(21479);
             EnsureArray();
         }
 
         ~GrowingArray()
-        {
+        {TRACE_IT(21480);
             if (buffer != nullptr)
             {
                 AllocatorFree(alloc, (TypeAllocatorFunc<AllocatorType, int>::GetFreeFunc()), buffer, UInt32Math::Mul(length, sizeof(TValue)));
@@ -40,9 +40,9 @@ namespace JsUtil
         }
 
         TValue ItemInBuffer(uint32 index) const
-        {
+        {TRACE_IT(21481);
             if (index >= count)
-            {
+            {TRACE_IT(21482);
                 return (TValue)0;
             }
 
@@ -50,30 +50,30 @@ namespace JsUtil
         }
 
         void ItemInBuffer(uint32 index, TValue item)
-        {
+        {TRACE_IT(21483);
             EnsureArray();
             Assert(index < count);
             buffer[index] = item;
         }
 
         void Add(TValue item)
-        {
+        {TRACE_IT(21484);
             EnsureArray();
             buffer[count] = item;
             count++;
         }
 
-        uint32 Count() const { return count; }
-        void SetCount(uint32 _count) { count = _count; }
-        uint32 GetLength() const { return length; }
-        TValue* GetBuffer() const { return buffer; }
+        uint32 Count() const {TRACE_IT(21485); return count; }
+        void SetCount(uint32 _count) {TRACE_IT(21486); count = _count; }
+        uint32 GetLength() const {TRACE_IT(21487); return length; }
+        TValue* GetBuffer() const {TRACE_IT(21488); return buffer; }
 
         GrowingArray * Clone()
-        {
+        {TRACE_IT(21489);
             GrowingArray * pNewArray = AllocatorNew(AllocatorType, alloc, GrowingArray, alloc, length);
             pNewArray->count = count;
             if (buffer)
-            {
+            {TRACE_IT(21490);
                 pNewArray->buffer = AllocateArray<AllocatorType, TValue, false>(
                     TRACK_ALLOC_INFO(alloc, TValue, AllocatorType, 0, length),
                     TypeAllocatorFunc<AllocatorType, TValue>::GetAllocFunc(),
@@ -91,9 +91,9 @@ namespace JsUtil
         FieldNoBarrier(AllocatorType*) alloc;
 
         void EnsureArray()
-        {
+        {TRACE_IT(21491);
             if (buffer == nullptr)
-            {
+            {TRACE_IT(21492);
                 buffer = AllocateArray<AllocatorType, TValue, false>(
                     TRACK_ALLOC_INFO(alloc, TValue, AllocatorType, 0, length),
                     TypeAllocatorFunc<AllocatorType, TValue>::GetAllocFunc(),
@@ -101,7 +101,7 @@ namespace JsUtil
                 count = 0;
             }
             else if (count == length)
-            {
+            {TRACE_IT(21493);
                 uint32 newLength = UInt32Math::AddMul<1, 2>(length);
                 TValue * newbuffer = AllocateArray<AllocatorType, TValue, false>(
                     TRACK_ALLOC_INFO(alloc, TValue, AllocatorType, 0, newLength),
@@ -112,7 +112,7 @@ namespace JsUtil
                 listFreeAmount += length;
 #endif
                 if (length != 0)
-                {
+                {TRACE_IT(21494);
                     const size_t lengthByteSize = UInt32Math::Mul(length, sizeof(TValue));
                     AllocatorFree(alloc, (TypeAllocatorFunc<AllocatorType, int>::GetFreeFunc()), buffer, lengthByteSize);
                 }

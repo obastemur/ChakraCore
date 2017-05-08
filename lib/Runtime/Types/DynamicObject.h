@@ -10,7 +10,7 @@ namespace Js
 #if ENABLE_TTD
 #define DEFINE_TTD_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T) \
     virtual void MarshalCrossSite_TTDInflate() \
-    { \
+    {TRACE_IT(65962); \
         AssertMsg(VirtualTableInfo<T>::HasVirtualTable(this), "Derived class need to define marshal"); \
         VirtualTableInfo<Js::CrossSiteObject<T>>::SetVirtualTable(this); \
     }
@@ -22,7 +22,7 @@ namespace Js
 #define DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T) \
     friend class Js::CrossSiteObject<T>; \
     virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext) \
-    { \
+    {TRACE_IT(65963); \
         Assert(this->GetScriptContext() != scriptContext); \
         AssertMsg(VirtualTableInfo<T>::HasVirtualTable(this), "Derived class need to define marshal to script context"); \
         VirtualTableInfo<Js::CrossSiteObject<T>>::SetVirtualTable(this); \
@@ -30,7 +30,7 @@ namespace Js
     DEFINE_TTD_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T)
 #else
 #define DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T)  \
-        virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext)  {Assert(FALSE);}
+        virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext)  {TRACE_IT(65964);Assert(FALSE);}
 #endif
 
 #if DBG
@@ -158,7 +158,7 @@ namespace Js
 
     public:
         bool HasNonEmptyObjectArray() const;
-        DynamicType * GetDynamicType() const { return (DynamicType *)this->GetType(); }
+        DynamicType * GetDynamicType() const {TRACE_IT(65965); return (DynamicType *)this->GetType(); }
 
         // Check if a typeId is of any array type (JavascriptArray or ES5Array).
         static bool IsAnyArrayTypeId(TypeId typeId);
@@ -167,29 +167,29 @@ namespace Js
         static bool IsAnyArray(const Var aValue);
 
         bool UsesObjectArrayOrFlagsAsFlags() const
-        {
+        {TRACE_IT(65966);
             return !!(arrayFlags & DynamicObjectFlags::ObjectArrayFlagsTag);
         }
 
         ArrayObject* GetObjectArray() const
-        {
+        {TRACE_IT(65967);
             return HasObjectArray() ? GetObjectArrayOrFlagsAsArray() : nullptr;
         }
 
         bool HasObjectArray() const
-        {
+        {TRACE_IT(65968);
             // Only JavascriptArray uses the objectArrayOrFlags as flags.
             Assert(DynamicObject::IsAnyArray((Var)this) || !UsesObjectArrayOrFlagsAsFlags() || IsObjectHeaderInlinedTypeHandler());
             return ((objectArray != nullptr) && !UsesObjectArrayOrFlagsAsFlags() && !IsObjectHeaderInlinedTypeHandler());
         }
 
         ArrayObject* GetObjectArrayUnchecked() const
-        {
+        {TRACE_IT(65969);
             return HasObjectArrayUnchecked() ? GetObjectArrayOrFlagsAsArray() : nullptr;
         }
 
         bool HasObjectArrayUnchecked() const
-        {
+        {TRACE_IT(65970);
             return ((objectArray != nullptr) && !UsesObjectArrayOrFlagsAsFlags() && !IsObjectHeaderInlinedTypeHandlerUnchecked());
         }
 
@@ -215,7 +215,7 @@ namespace Js
         bool GetIsExtensible() const;
         bool GetHasNoEnumerableProperties();
         bool SetHasNoEnumerableProperties(bool value);
-        virtual bool HasReadOnlyPropertiesInvisibleToTypeHandler() { return false; }
+        virtual bool HasReadOnlyPropertiesInvisibleToTypeHandler() {TRACE_IT(65971); return false; }
 
         void InitSlots(DynamicObject* instance);
         virtual int GetPropertyCount() override;
@@ -274,7 +274,7 @@ namespace Js
         virtual void AddToPrototype(ScriptContext * requestContext) override;
         virtual void SetPrototype(RecyclableObject* newPrototype) override;
 
-        virtual BOOL IsCrossSiteObject() const { return FALSE; }
+        virtual BOOL IsCrossSiteObject() const {TRACE_IT(65972); return FALSE; }
 
         virtual DynamicType* DuplicateType();
         static bool IsTypeHandlerCompatibleForObjectHeaderInlining(DynamicTypeHandler * oldTypeHandler, DynamicTypeHandler * newTypeHandler);
@@ -313,7 +313,7 @@ namespace Js
         static DynamicObject * BoxStackInstance(DynamicObject * instance);
     private:
         ArrayObject* EnsureObjectArray();
-        ArrayObject* GetObjectArrayOrFlagsAsArray() const { return objectArray; }
+        ArrayObject* GetObjectArrayOrFlagsAsArray() const {TRACE_IT(65973); return objectArray; }
 
         template <PropertyId propertyId>
         BOOL ToPrimitiveImpl(Var* result, ScriptContext * requestContext);

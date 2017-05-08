@@ -5,31 +5,31 @@
 #include "RuntimeByteCodePch.h"
 
 bool Scope::IsGlobalEvalBlockScope() const
-{
+{TRACE_IT(41811);
     return this->scopeType == ScopeType_GlobalEvalBlock;
 }
 
 bool Scope::IsBlockScope(FuncInfo *funcInfo)
-{
+{TRACE_IT(41812);
     return this != funcInfo->GetBodyScope() && this != funcInfo->GetParamScope();
 }
 
 int Scope::AddScopeSlot()
-{
+{TRACE_IT(41813);
     int slot = scopeSlotCount++;
     if (scopeSlotCount == Js::ScopeSlots::MaxEncodedSlotCount)
-    {
+    {TRACE_IT(41814);
         this->GetEnclosingFunc()->SetHasMaybeEscapedNestedFunc(DebugOnly(_u("TooManySlots")));
     }
     return slot;
 }
 
 void Scope::ForceAllSymbolNonLocalReference(ByteCodeGenerator *byteCodeGenerator)
-{
+{TRACE_IT(41815);
     this->ForEachSymbol([this, byteCodeGenerator](Symbol *const sym)
     {
         if (!sym->GetIsArguments())
-        {
+        {TRACE_IT(41816);
             sym->SetHasNonLocalReference();
             byteCodeGenerator->ProcessCapturedSym(sym);
             this->GetFunc()->SetHasLocalInClosure(true);
@@ -38,21 +38,21 @@ void Scope::ForceAllSymbolNonLocalReference(ByteCodeGenerator *byteCodeGenerator
 }
 
 bool Scope::IsEmpty() const
-{
+{TRACE_IT(41817);
     if (GetFunc()->bodyScope == this || (GetFunc()->IsGlobalFunction() && this->IsGlobalEvalBlockScope()))
-    {
+    {TRACE_IT(41818);
         return Count() == 0 && !GetFunc()->isThisLexicallyCaptured;
     }
     else
-    {
+    {TRACE_IT(41819);
         return Count() == 0;
     }
 }
 
 void Scope::SetIsObject()
-{
+{TRACE_IT(41820);
     if (this->isObject)
-    {
+    {TRACE_IT(41821);
         return;
     }
 
@@ -64,11 +64,11 @@ void Scope::SetIsObject()
     // as these are now assigned to a scope object.
     FuncInfo * funcInfo = this->GetFunc();
     if (funcInfo && !funcInfo->HasMaybeEscapedNestedFunc())
-    {
+    {TRACE_IT(41822);
         this->ForEachSymbolUntil([funcInfo](Symbol * const sym)
         {
             if (sym->GetHasFuncAssignment())
-            {
+            {TRACE_IT(41823);
                 funcInfo->SetHasMaybeEscapedNestedFunc(DebugOnly(_u("DelayedObjectScopeAssignment")));
                 return true;
             }
@@ -78,20 +78,20 @@ void Scope::SetIsObject()
 
     if (this->GetScopeType() == ScopeType_FunctionBody && funcInfo && !funcInfo->IsBodyAndParamScopeMerged()
          && funcInfo->paramScope && !funcInfo->paramScope->GetIsObject())
-    {
+    {TRACE_IT(41824);
         // If this is split scope then mark the param scope also as an object
         funcInfo->paramScope->SetIsObject();
     }
 }
 
 void Scope::MergeParamAndBodyScopes(ParseNode *pnodeScope)
-{
+{TRACE_IT(41825);
     Assert(pnodeScope->sxFnc.funcInfo);
     Scope *paramScope = pnodeScope->sxFnc.pnodeScopes->sxBlock.scope;
     Scope *bodyScope = pnodeScope->sxFnc.pnodeBodyScope->sxBlock.scope;
 
     if (paramScope->Count() == 0)
-    {
+    {TRACE_IT(41826);
         return;
     }
 
@@ -102,21 +102,21 @@ void Scope::MergeParamAndBodyScopes(ParseNode *pnodeScope)
     });
 
     if (paramScope->GetIsObject())
-    {
+    {TRACE_IT(41827);
         bodyScope->SetIsObject();
     }
     if (paramScope->GetMustInstantiate())
-    {
+    {TRACE_IT(41828);
         bodyScope->SetMustInstantiate(true);
     }
     if (paramScope->GetHasOwnLocalInClosure())
-    {
+    {TRACE_IT(41829);
         bodyScope->SetHasOwnLocalInClosure(true);
     }
 }
 
 void Scope::RemoveParamScope(ParseNode *pnodeScope)
-{
+{TRACE_IT(41830);
     Assert(pnodeScope->sxFnc.funcInfo);
     Scope *paramScope = pnodeScope->sxFnc.pnodeScopes->sxBlock.scope;
     Scope *bodyScope = pnodeScope->sxFnc.pnodeBodyScope->sxBlock.scope;
