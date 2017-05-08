@@ -537,14 +537,14 @@ namespace Js
     }
 
     DynamicObjectFlags DynamicObject::GetArrayFlags() const
-    {TRACE_IT(65909);
+    {
         Assert(IsAnyArray(const_cast<DynamicObject *>(this)));
         Assert(UsesObjectArrayOrFlagsAsFlags()); // an array object never has another internal array
         return arrayFlags & DynamicObjectFlags::AllArrayFlags;
     }
 
     DynamicObjectFlags DynamicObject::GetArrayFlags_Unchecked() const // do not use except in extreme circumstances
-    {TRACE_IT(65910);
+    {
         return arrayFlags & DynamicObjectFlags::AllArrayFlags;
     }
 

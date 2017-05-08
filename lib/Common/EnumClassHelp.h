@@ -64,14 +64,14 @@
     } \
     \
     inline TEnum operator --(TEnum &e, const int) \
-    {TRACE_IT(22472); \
+    { \
         const TEnum old = e; \
         --e; \
         return old; \
     } \
     \
     inline TEnum operator &(const TEnum e0, const TEnum e1) \
-    {TRACE_IT(22473); \
+    { \
         return static_cast<TEnum>(static_cast<TUnderlying>(e0) & static_cast<TUnderlying>(e1)); \
     } \
     \
@@ -91,12 +91,12 @@
     } \
     \
     inline TEnum operator |(const TEnum e0, const TEnum e1) \
-    {TRACE_IT(22477); \
+    { \
         return static_cast<TEnum>(static_cast<TUnderlying>(e0) | static_cast<TUnderlying>(e1)); \
     } \
     \
     inline TEnum &operator |=(TEnum &e0, const TEnum e1) \
-    {TRACE_IT(22478); \
+    { \
         return e0 = e0 | e1; \
     } \
     \
@@ -121,7 +121,7 @@
     } \
     \
     inline TEnum operator ~(const TEnum e) \
-    {TRACE_IT(22483); \
+    { \
         return static_cast<TEnum>(~static_cast<TUnderlying>(e)); \
     } \
     \
@@ -136,7 +136,7 @@
     } \
     \
     inline bool operator !(const TEnum e) \
-    {TRACE_IT(22486); \
+    { \
         return !static_cast<TUnderlying>(e); \
     } \
 

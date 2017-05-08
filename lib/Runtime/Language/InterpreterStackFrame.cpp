@@ -7579,7 +7579,7 @@ const byte * InterpreterStackFrame::OP_ProfiledLoopBodyStart(const byte * ip)
     }
 
     void InterpreterStackFrame::ValidateRegValue(Var value, bool allowStackVar, bool allowStackVarOnDisabledStackNestedFunc) const
-    {TRACE_IT(49300);
+    {
 #if DBG
         if (value != nullptr && !TaggedNumber::Is(value))
         {TRACE_IT(49301);
@@ -7595,7 +7595,7 @@ const byte * InterpreterStackFrame::OP_ProfiledLoopBodyStart(const byte * ip)
 
     template <typename RegSlotType>
     Var InterpreterStackFrame::GetReg(RegSlotType localRegisterID) const
-    {TRACE_IT(49303);
+    {
         Var value = m_localSlots[localRegisterID];
         ValidateRegValue(value);
         return value;
@@ -7603,7 +7603,7 @@ const byte * InterpreterStackFrame::OP_ProfiledLoopBodyStart(const byte * ip)
 
     template <typename RegSlotType>
     void InterpreterStackFrame::SetReg(RegSlotType localRegisterID, Var value)
-    {TRACE_IT(49304);
+    {
         Assert(localRegisterID == 0 || localRegisterID >= m_functionBody->GetConstantCount());
         ValidateRegValue(value);
         m_localSlots[localRegisterID] = value;

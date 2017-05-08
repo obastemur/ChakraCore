@@ -107,7 +107,7 @@ ValueType ValueType::Verify(const Bits bits)
 }
 
 ValueType ValueType::Verify(const ValueType valueType)
-{TRACE_IT(52988);
+{
     Assert(valueType.bits);
     Assert(!valueType.OneOn(Bits::Object) || valueType.GetObjectType() < ObjectType::Count);
     Assert(
@@ -122,12 +122,12 @@ ValueType ValueType::Verify(const ValueType valueType)
 }
 
 bool ValueType::OneOn(const Bits b) const
-{TRACE_IT(52989);
+{
     return AnyOn(b);
 }
 
 bool ValueType::AnyOn(const Bits b) const
-{TRACE_IT(52990);
+{
     Assert(b);
     return !!(bits & b);
 }

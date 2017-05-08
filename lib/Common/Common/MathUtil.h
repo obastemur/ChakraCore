@@ -30,14 +30,14 @@ public:
     // Explicit cast to integral (may truncate).  Avoids warning C4302 'type cast': truncation
     template <typename T>
     static T PointerCastToIntegralTruncate(void * pointer)
-    {TRACE_IT(19095);
+    {
         return (T)(uintptr_t)pointer;
     }
 
     // Explicit cast to integral. Assert that it doesn't truncate.  Avoids warning C4302 'type cast': truncation
     template <typename T>
     static T PointerCastToIntegral(void * pointer)
-    {TRACE_IT(19096);
+    {
         T value = PointerCastToIntegralTruncate<T>(pointer);
         Assert((uintptr_t)value == (uintptr_t)pointer);
         return value;
@@ -96,7 +96,7 @@ public:
 
     template <typename T>
     static T Align(T size, T alignment)
-    {TRACE_IT(19105);
+    {
         return ((size + (alignment-1)) & ~(alignment-1));
     }
 

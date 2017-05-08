@@ -86,7 +86,7 @@ enum VirtualTableInfoCtorEnum
 class VirtualTableInfoBase
 {
 public:
-    static INT_PTR GetVirtualTable(void * ptr) {TRACE_IT(19558); return (*(INT_PTR*)ptr); }
+    static INT_PTR GetVirtualTable(void * ptr) { return (*(INT_PTR*)ptr); }
 protected:
     static void SetVirtualTable(void * ptr, INT_PTR vt) {TRACE_IT(19559); *(INT_PTR*)ptr = vt; }
 };
@@ -98,7 +98,7 @@ public:
     static INT_PTR const Address;
     static INT_PTR RegisterVirtualTable();
     static void SetVirtualTable(void * ptr);
-    static bool HasVirtualTable(void * ptr) {TRACE_IT(19560); return GetVirtualTable(ptr) == Address; }
+    static bool HasVirtualTable(void * ptr) { return GetVirtualTable(ptr) == Address; }
 };
 
 #if !defined(USED_IN_STATIC_LIB)
