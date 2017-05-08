@@ -137,7 +137,7 @@ namespace Js
         static const Var MissingItem;
         template<typename T> static T GetMissingItem();
 
-        SparseArraySegmentBase * GetHead() const {TRACE_IT(57873); return head; }
+        SparseArraySegmentBase * GetHead() const { return head; }
         SparseArraySegmentBase * GetLastUsedSegment() const;
     public:
         JavascriptArray(DynamicType * type);
@@ -621,7 +621,7 @@ namespace Js
 
                 if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                 {TRACE_IT(57884);
-                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                     // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                     if (JavascriptArray::Is(arr))
                     {TRACE_IT(57885);
@@ -648,7 +648,7 @@ namespace Js
 
                     if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                     {TRACE_IT(57889);
-                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                         // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                         if (JavascriptArray::Is(arr))
                         {TRACE_IT(57890);

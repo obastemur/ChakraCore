@@ -524,12 +524,12 @@ namespace Js
     }
 
     DynamicObjectFlags JavascriptArray::GetFlags() const
-    {TRACE_IT(56071);
+    {
         return GetArrayFlags();
     }
 
     DynamicObjectFlags JavascriptArray::GetFlags_Unchecked() const // do not use except in extreme circumstances
-    {TRACE_IT(56072);
+    {
         return GetArrayFlags_Unchecked();
     }
 
@@ -2460,7 +2460,7 @@ namespace Js
         }
     }
     bool JavascriptArray::HasSegmentMap() const
-    {TRACE_IT(56361);
+    {
         return !!(GetFlags() & DynamicObjectFlags::HasSegmentMap);
     }
 
@@ -12706,33 +12706,33 @@ Case0:
     }
 
     bool JavascriptNativeIntArray::Is(Var aValue)
-    {TRACE_IT(57864);
+    {
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return JavascriptNativeIntArray::Is(typeId);
     }
 
 #if ENABLE_COPYONACCESS_ARRAY
     bool JavascriptCopyOnAccessNativeIntArray::Is(Var aValue)
-    {TRACE_IT(57865);
+    {
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return JavascriptCopyOnAccessNativeIntArray::Is(typeId);
     }
 #endif
 
     bool JavascriptNativeIntArray::Is(TypeId typeId)
-    {TRACE_IT(57866);
+    {
         return typeId == TypeIds_NativeIntArray;
     }
 
 #if ENABLE_COPYONACCESS_ARRAY
     bool JavascriptCopyOnAccessNativeIntArray::Is(TypeId typeId)
-    {TRACE_IT(57867);
+    {
         return typeId == TypeIds_CopyOnAccessNativeIntArray;
     }
 #endif
 
     bool JavascriptNativeIntArray::IsNonCrossSite(Var aValue)
-    {TRACE_IT(57868);
+    {
         bool ret = !TaggedInt::Is(aValue) && VirtualTableInfo<JavascriptNativeIntArray>::HasVirtualTable(aValue);
         Assert(ret == (JavascriptNativeIntArray::Is(aValue) && !JavascriptNativeIntArray::FromVar(aValue)->IsCrossSiteObject()));
         return ret;

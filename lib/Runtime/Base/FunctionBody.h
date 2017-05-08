@@ -3476,7 +3476,7 @@ namespace Js
         bool HasExecutionDynamicProfileInfo() const {TRACE_IT(35628); return hasExecutionDynamicProfileInfo; }
         bool HasDynamicProfileInfo() const {TRACE_IT(35629); return dynamicProfileInfo != nullptr; }
         bool NeedEnsureDynamicProfileInfo() const;
-        DynamicProfileInfo * GetDynamicProfileInfo() const {TRACE_IT(35630); Assert(HasExecutionDynamicProfileInfo()); return dynamicProfileInfo; }
+        DynamicProfileInfo * GetDynamicProfileInfo() const { Assert(HasExecutionDynamicProfileInfo()); return dynamicProfileInfo; }
         DynamicProfileInfo * GetAnyDynamicProfileInfo() const {TRACE_IT(35631); Assert(HasDynamicProfileInfo()); return dynamicProfileInfo; }
         DynamicProfileInfo * EnsureDynamicProfileInfo();
         DynamicProfileInfo * AllocateDynamicProfile();

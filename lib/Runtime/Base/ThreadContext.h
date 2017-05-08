@@ -1485,12 +1485,12 @@ public:
     }
 
     Js::ImplicitCallFlags GetImplicitCallFlags()
-    {TRACE_IT(37677);
+    {
         return implicitCallFlags;
     }
 
     void SetImplicitCallFlags(Js::ImplicitCallFlags flags)
-    {TRACE_IT(37678);
+    {
         //Note: this action is inlined into JITed code in Lowerer::GenerateCallProfiling.
         //   if you change this, you might want to add it there too.
         implicitCallFlags = flags;
@@ -1500,7 +1500,7 @@ public:
     void ClearImplicitCallFlags(Js::ImplicitCallFlags flags);
 
     void AddImplicitCallFlags(Js::ImplicitCallFlags flags)
-    {TRACE_IT(37679);
+    {
         SetImplicitCallFlags((Js::ImplicitCallFlags)(implicitCallFlags | flags));
     }
 

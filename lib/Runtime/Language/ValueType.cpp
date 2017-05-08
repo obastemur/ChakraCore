@@ -21,7 +21,7 @@ void ValueType::Initialize()
 }
 
 inline ValueType::Bits ValueType::BitPattern(const TSize onCount)
-{TRACE_IT(52976);
+{
     CompileAssert(sizeof(TSize) <= sizeof(size_t));
     Assert(onCount && onCount <= sizeof(TSize) * 8);
 
@@ -80,7 +80,7 @@ ValueType ValueType::GetSimd128(const ObjectType objectType)
 }
 
 inline ValueType ValueType::GetArray(const ObjectType objectType)
-{TRACE_IT(52984);
+{
     // Should typically use GetObject instead. This function should only be used for performance, when the array info is
     // guaranteed to be updated correctly by the caller.
 
@@ -92,7 +92,7 @@ inline ValueType ValueType::GetArray(const ObjectType objectType)
 }
 
 ValueType::ValueType() : bits(Uninitialized.bits)
-{TRACE_IT(52985);
+{
     CompileAssert(sizeof(ValueType) == sizeof(TSize));
     CompileAssert(sizeof(ObjectType) == sizeof(TSize));
 }
@@ -133,7 +133,7 @@ bool ValueType::AnyOn(const Bits b) const
 }
 
 bool ValueType::AllEqual(const Bits b, const Bits e) const
-{TRACE_IT(52991);
+{
     Assert(b);
     return (bits & b) == e;
 }
@@ -843,13 +843,13 @@ bool ValueType::IsLikelySimd128Float64x2() const
 #endif
 
 ObjectType ValueType::GetObjectType() const
-{TRACE_IT(53103);
+{
     Assert(OneOn(Bits::Object));
     return _objectType;
 }
 
 void ValueType::SetObjectType(const ObjectType objectType)
-{TRACE_IT(53104);
+{
     Assert(OneOn(Bits::Object));
     Assert(objectType < ObjectType::Count);
 
@@ -871,7 +871,7 @@ bool ValueType::HasNoMissingValues() const
 }
 
 ValueType ValueType::SetHasNoMissingValues(const bool noMissingValues) const
-{TRACE_IT(53107);
+{
     Assert(IsLikelyArrayOrObjectWithArray());
 
     if(noMissingValues)
@@ -898,19 +898,19 @@ bool ValueType::HasIntElements() const
 }
 
 bool ValueType::HasFloatElements() const
-{TRACE_IT(53111);
+{
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOnOneOff(Bits::NonInts, Bits::NonFloats);
 }
 
 bool ValueType::HasVarElements() const
-{TRACE_IT(53112);
+{
     Assert(IsLikelyArrayOrObjectWithArray());
     return AllOn(Bits::NonInts | Bits::NonFloats);
 }
 
 ValueType ValueType::SetArrayTypeId(const Js::TypeId typeId) const
-{TRACE_IT(53113);
+{
     using namespace Js;
     Assert(IsLikelyArrayOrObjectWithArray());
     Assert(JavascriptArray::Is(typeId));
@@ -1117,12 +1117,12 @@ ValueType ValueType::ToDefiniteObject() const
 }
 
 ValueType ValueType::ToLikely() const
-{TRACE_IT(53128);
+{
     return Verify(bits | Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 ValueType ValueType::ToArray() const
-{TRACE_IT(53129);
+{
     Assert(GetObjectType() == ObjectType::ObjectWithArray);
 
     ValueType valueType(*this);
@@ -1131,7 +1131,7 @@ ValueType ValueType::ToArray() const
 }
 
 ValueType ValueType::ToPrimitiveOrObject() const
-{TRACE_IT(53130);
+{
     // When an object type is merged with a non-object type, the PrimitiveOrObject bit is set in the merged type by converting
     // the object type to a PrimitiveOrObject type (preserving only the common bits other than Object) and merging it with the
     // non-object type. The PrimitiveOrObject type will not have the Object bit set, so that it can still be queried for whether
@@ -1141,7 +1141,7 @@ ValueType ValueType::ToPrimitiveOrObject() const
 }
 
 ValueType ValueType::MergeWithObject(const ValueType other) const
-{TRACE_IT(53131);
+{
     ValueType merged(bits | other.bits);
     Assert(merged.OneOn(Bits::Object));
 
@@ -1191,7 +1191,7 @@ ValueType ValueType::MergeWithObject(const ValueType other) const
 }
 
 ValueType ValueType::Merge(const Js::Var var) const
-{TRACE_IT(53136);
+{
     using namespace Js;
     Assert(var);
 
@@ -1437,12 +1437,12 @@ ValueType ValueType::FromTypeId(const Js::TypeId typeId, bool useVirtual)
 }
 
 ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
-{TRACE_IT(53148);
+{
     using namespace Js;
     Assert(recyclableObject);
     const TypeId typeId = recyclableObject->GetTypeId();
     if (typeId < _countof(TypeIdToBits))
-    {TRACE_IT(53149);
+    {
         const Bits bits = TypeIdToBits[typeId];
         if (!!bits)
         {TRACE_IT(53150);
@@ -1496,7 +1496,7 @@ ValueType ValueType::FromArray(
     const ObjectType objectType,
     Js::JavascriptArray *const array,
     const Js::TypeId arrayTypeId)
-{TRACE_IT(53154);
+{
     Assert(array);
     Assert(array->GetTypeId() == arrayTypeId);
 

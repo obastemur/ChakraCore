@@ -1388,7 +1388,7 @@ namespace Js
     // FunctionProxy methods
     ScriptContext*
     FunctionProxy::GetScriptContext() const
-    {TRACE_IT(33980);
+    {
         return m_scriptContext;
     }
 
@@ -2158,7 +2158,7 @@ namespace Js
 
         {
             AutoRestoreFunctionInfo autoRestoreFunctionInfo(this, DefaultEntryThunk);
-            
+
 
             // If m_hasBeenParsed = true, one of the following things happened things happened:
             // - We had multiple function objects which were all defer-parsed, but with the same function body and one of them
@@ -6270,7 +6270,7 @@ namespace Js
         this->SetConstTable(nullptr);
         this->byteCodeBlock = nullptr;
 
-        // Also, remove the function body from the source info to prevent any further processing 
+        // Also, remove the function body from the source info to prevent any further processing
         // of the function such as attempts to set breakpoints.
         if (GetIsFuncRegistered())
         {TRACE_IT(34587);

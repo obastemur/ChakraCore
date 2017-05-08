@@ -971,7 +971,7 @@ namespace Js
     }
 
     FldInfoFlags DynamicProfileInfo::MergeFldInfoFlags(FldInfoFlags oldFlags, FldInfoFlags newFlags)
-    {TRACE_IT(47624);
+    {
         return static_cast<FldInfoFlags>(oldFlags | newFlags);
     }
 

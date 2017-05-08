@@ -184,7 +184,7 @@ Js::Var Js::InterpreterStackFrame::INTERPRETERLOOPNAME()
     // track the ip.
     const byte* ip = m_reader.GetIP();
     while (true)
-    {TRACE_IT(48576);
+    {
         INTERPRETER_OPCODE op = READ_OP(ip);
 
 #ifdef ENABLE_BASIC_TELEMETRY

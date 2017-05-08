@@ -115,7 +115,7 @@ public:
 #endif
 
 public:
-    static bool IsSmallObject(size_t nBytes) {TRACE_IT(24212); return nBytes <= HeapConstants::MaxSmallObjectSize; }
+    static bool IsSmallObject(size_t nBytes) { return nBytes <= HeapConstants::MaxSmallObjectSize; }
     static bool IsMediumObject(size_t nBytes)
     {TRACE_IT(24213);
 #ifdef BUCKETIZE_MEDIUM_ALLOCATIONS

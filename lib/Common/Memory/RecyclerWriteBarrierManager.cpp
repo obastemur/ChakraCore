@@ -482,7 +482,7 @@ RecyclerWriteBarrierManager::Initialize()
 
 uintptr_t
 RecyclerWriteBarrierManager::GetCardTableIndex(void *address)
-{TRACE_IT(26669);
+{
     return ((uintptr_t)address) / s_BytesPerCard;
 }
 

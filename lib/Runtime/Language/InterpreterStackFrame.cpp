@@ -2469,7 +2469,7 @@ namespace Js
 
     template<typename OpCodeType, Js::OpCode (ReadOpFunc)(const byte*&), void (TracingFunc)(InterpreterStackFrame*, OpCodeType)>
     OpCodeType InterpreterStackFrame::ReadOp(const byte *& ip)
-    {TRACE_IT(48761);
+    {
 #if DBG || DBG_DUMP
         //
         // For debugging byte-code, store the current offset before the instruction is read:

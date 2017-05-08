@@ -19,7 +19,7 @@ namespace Js
     {TRACE_IT(59984);
         return GetEmptyString();
     }
-    
+
     // Specialization for single-char strings
     template<> inline JavascriptString* JavascriptLibrary::CreateStringFromCppLiteral(const char16(&value)[2]) const
     {TRACE_IT(59985);
@@ -45,9 +45,9 @@ namespace Js
 #if ENABLE_COPYONACCESS_ARRAY
     template <>
     inline void JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray(const Var instance)
-    {TRACE_IT(59989);
+    {
         if (instance && JavascriptCopyOnAccessNativeIntArray::Is(instance))
-        {TRACE_IT(59990);
+        {
             JavascriptCopyOnAccessNativeIntArray::FromVar(instance)->ConvertCopyOnAccessSegment();
         }
     }
