@@ -361,8 +361,10 @@ struct DefaultComparer<ValueType> : public ValueTypeComparer
 
 __forceinline ValueType ValueType::Merge(const ValueType other) const
 {
+#ifdef DEBUG
     Verify(*this);
     Verify(other);
+#endif
 
     if (*this == other)
         return *this;
