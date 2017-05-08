@@ -131,7 +131,7 @@ static void PRINTLOG() {
   LOG_COUNT = -1;
 
   for(long i = 0; i < 1e6; i++) {
-    if (IDS[i] > 150000 || IDS_COUNT[i] > 2500 || i == 20957) {
+    if (IDS[i] > 150000 || IDS_COUNT[i] > 30000) {
       printf("%lu: TC:%lu TT:%lu\n", i, IDS_COUNT[i], IDS[i]);
     }
   }

@@ -7,21 +7,21 @@
 namespace Js
 {
     __forceinline TypeId JavascriptOperators::GetTypeId(const Var aValue)
-    {TRACE_IT(51549);
+    {
         AssertMsg(aValue != nullptr, "GetTypeId aValue is null");
 
         if (TaggedInt::Is(aValue))
-        {TRACE_IT(51550);
+        {
             return TypeIds_Integer;
         }
 #if FLOATVAR
         else if (JavascriptNumber::Is_NoTaggedIntCheck(aValue))
-        {TRACE_IT(51551);
+        {
             return TypeIds_Number;
         }
 #endif
         else
-        {TRACE_IT(51552);
+        {
             auto typeId = RecyclableObject::FromVar(aValue)->GetTypeId();
 #if DBG
             auto isExternal = RecyclableObject::FromVar(aValue)->CanHaveInterceptors();

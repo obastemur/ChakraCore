@@ -240,10 +240,10 @@ namespace Js
 
         Var GetNonVarReg(RegSlot localRegisterID) const;
         void SetNonVarReg(RegSlot localRegisterID, void * bValue);
-        ScriptContext* GetScriptContext() const {TRACE_IT(49491); return scriptContext; }
+        ScriptContext* GetScriptContext() const { return scriptContext; }
         Var GetRootObject() const;
         ScriptFunction* GetJavascriptFunction() const {TRACE_IT(49492); return function; }
-        FunctionBody * GetFunctionBody() const {TRACE_IT(49493); return m_functionBody; }
+        FunctionBody * GetFunctionBody() const { return m_functionBody; }
         ByteCodeReader* GetReader() {TRACE_IT(49494); return &m_reader;}
         uint GetCurrentLoopNum() const {TRACE_IT(49495); return currentLoopNum; }
         InterpreterStackFrame* GetPreviousFrame() const {TRACE_IT(49496);return previousInterpreterFrame;}

@@ -144,7 +144,7 @@ namespace Js
     }
 
     OpCode ByteCodeReader::ReadByteOp(const byte*& ip)
-    {TRACE_IT(40744);
+    {
         return (OpCode)*ip++;
     }
 
@@ -184,7 +184,7 @@ namespace Js
         return GetLayout<OpLayout##layout>(); \
     } \
     const unaligned OpLayout##layout * ByteCodeReader::layout(const byte*& ip) \
-    {TRACE_IT(40751); \
+    { \
         return GetLayout<OpLayout##layout>(ip); \
     }
 #include "LayoutTypes.h"

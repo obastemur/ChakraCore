@@ -62,12 +62,12 @@ namespace Js
 
         template<bool acceptNegZero = false>
         static bool TryGetInt32Value(const double value, int32 *const int32Value)
-        {TRACE_IT(60301);
+        {
             Assert(int32Value);
 
             const int32 i = static_cast<int32>(value);
             if (static_cast<double>(i) != value || (!acceptNegZero && IsNegZero(value)))
-            {TRACE_IT(60302);
+            {
                 return false;
             }
 
@@ -199,7 +199,7 @@ namespace Js
     // A float can have all 14 bits 0 iff it was a NaN in the first place. Since
     // we can only produce NaNs with top 13 bits set (see k_Nan) - this cannot happen.
     inline bool JavascriptNumber::Is_NoTaggedIntCheck(Var aValue)
-    {TRACE_IT(60308);
+    {
         return ((uint64)aValue >> 50) != 0;
     }
 
