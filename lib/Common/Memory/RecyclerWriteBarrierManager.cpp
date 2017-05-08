@@ -310,7 +310,7 @@ RecyclerWriteBarrierManager::OnSegmentFree(_In_ char* segmentAddress, size_t num
 
 void
 RecyclerWriteBarrierManager::WriteBarrier(void * address)
-{TRACE_IT(26644);
+{
 #ifdef RECYCLER_WRITE_BARRIER_BYTE
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     VerifyIsBarrierAddress(address);
@@ -334,7 +334,7 @@ RecyclerWriteBarrierManager::WriteBarrier(void * address)
 
 void
 RecyclerWriteBarrierManager::WriteBarrier(void * address, size_t bytes)
-{TRACE_IT(26646);
+{
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     VerifyIsBarrierAddress(address, bytes);
 #endif

@@ -131,7 +131,7 @@ static void PRINTLOG() {
   LOG_COUNT = -1;
 
   for(long i = 0; i < 1e6; i++) {
-    if (IDS[i] > 150000 || IDS_COUNT[i] > 2500) {
+    if (IDS_COUNT[i] > 49000) {
       printf("%lu: TC:%lu TT:%lu\n", i, IDS_COUNT[i], IDS[i]);
     }
   }
@@ -156,10 +156,10 @@ void TRACE_IT(long ID) {
 
   start_tick = rdtsc();
 
-  if (LOG_COUNT >= 9e5) {
-    printf("LOGS REACHED BEYOND BUFFER\n");
-    PRINTLOG();
-  }
+  // if (LOG_COUNT >= 9e5) {
+  //   printf("LOGS REACHED BEYOND BUFFER\n");
+  //   PRINTLOG();
+  // }
 }
 
 // ***** LOGGING IMPL. ENDS *****

@@ -102,7 +102,7 @@ ValueType::ValueType(const Bits bits) : bits(bits)
 }
 
 ValueType ValueType::Verify(const Bits bits)
-{TRACE_IT(52987);
+{
     return Verify(ValueType(bits));
 }
 

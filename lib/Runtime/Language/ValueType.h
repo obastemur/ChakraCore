@@ -360,7 +360,7 @@ struct DefaultComparer<ValueType> : public ValueTypeComparer
 };
 
 __forceinline ValueType ValueType::Merge(const ValueType other) const
-{TRACE_IT(53211);
+{
     Verify(*this);
     Verify(other);
 

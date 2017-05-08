@@ -51,7 +51,7 @@ namespace Js
 
     template<typename LayoutType>
     const unaligned LayoutType * ByteCodeReader::GetLayout(const byte*& ip)
-    {TRACE_IT(40734);
+    {
         size_t layoutSize = sizeof(LayoutType);
 
         AssertMsg((layoutSize > 0) && (layoutSize < 100), "Ensure valid layout size");
