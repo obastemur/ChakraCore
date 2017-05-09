@@ -562,7 +562,6 @@ namespace Js
         static void GrowArrayHeadHelperForUnshift(JavascriptArray* pArr, uint32 unshiftElements, ScriptContext * scriptContext);
 
         static int64 GetFromLastIndex(Var arg, int64 length, ScriptContext *scriptContext);
-        static JavascriptString* JoinToString(Var value, ScriptContext* scriptContext);
         static JavascriptString* JoinHelper(Var thisArg, JavascriptString* separatorStr, ScriptContext* scriptContext);
         template <typename T>
         static JavascriptString* JoinArrayHelper(T * arr, JavascriptString* separatorStr, ScriptContext* scriptContext);
@@ -640,7 +639,7 @@ namespace Js
 
                 if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                 {
-                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                     // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                     if (JavascriptArray::Is(arr))
                     {
@@ -667,7 +666,7 @@ namespace Js
 
                     if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                     {
-                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                         // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                         if (JavascriptArray::Is(arr))
                         {

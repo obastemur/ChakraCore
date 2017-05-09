@@ -4268,19 +4268,6 @@ namespace Js
         JS_REENTRANT_UNLOCK(jsReentLock, return JoinHelper(args[0], separator, scriptContext));
     }
 
-    JavascriptString* JavascriptArray::JoinToString(Var value, ScriptContext* scriptContext)
-    {
-        TypeId typeId = JavascriptOperators::GetTypeId(value);
-        if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
-            return scriptContext->GetLibrary()->GetEmptyString();
-        }
-        else
-        {
-            return JavascriptConversion::ToString(value, scriptContext);
-        }
-    }
-
     JavascriptString* JavascriptArray::JoinHelper(Var thisArg, JavascriptString* separator, ScriptContext* scriptContext)
     {
         JS_REENTRANCY_LOCK(jsReentLock, scriptContext->GetThreadContext());
@@ -4401,7 +4388,7 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, gotItem = TemplatedGetItem(arr, 0u, &item, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(item, scriptContext)));
+                    JS_REENTRANT(jsReentLock, cs->Append(JavascriptConversion::ToString(item, scriptContext)));
                 }
 
                 for (uint32 i = 1; i < arrLength; i++)
@@ -4414,7 +4401,7 @@ CaseDefault:
                     JS_REENTRANT(jsReentLock, gotItem = TryTemplatedGetItem(arr, i, &item, scriptContext));
                     if (gotItem)
                     {
-                        JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(item, scriptContext)));
+                        JS_REENTRANT(jsReentLock, cs->Append(JavascriptConversion::ToString(item, scriptContext)));
                     }
                 }
                 return cs;
@@ -4435,12 +4422,12 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, gotItem = TemplatedGetItem(arr, 0u, &item, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, res = JavascriptArray::JoinToString(item, scriptContext));
+                    JS_REENTRANT(jsReentLock, res = JavascriptConversion::ToString(item, scriptContext));
                 }
                 JS_REENTRANT(jsReentLock, gotItem = TryTemplatedGetItem(arr, 1u, &item, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, JavascriptString *const itemString = JavascriptArray::JoinToString(item, scriptContext));
+                    JS_REENTRANT(jsReentLock, JavascriptString *const itemString = JavascriptConversion::ToString(item, scriptContext));
                     return res ? ConcatString::New(res, itemString) : itemString;
                 }
 
@@ -4459,7 +4446,7 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, gotItem = TemplatedGetItem(arr, 0u, &item, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT_UNLOCK(jsReentLock, return JavascriptArray::JoinToString(item, scriptContext));
+                    JS_REENTRANT_UNLOCK(jsReentLock, return JavascriptConversion::ToString(item, scriptContext));
                 }
                 // fall through
             }
@@ -4497,7 +4484,7 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, gotItem = JavascriptOperators::GetItem(object, 0u, &value, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(value, scriptContext)));
+                    JS_REENTRANT(jsReentLock, cs->Append(JavascriptConversion::ToString(value, scriptContext)));
                 }
                 for (uint32 i = 1; i < cSrcLength; i++)
                 {
@@ -4508,7 +4495,7 @@ CaseDefault:
                     JS_REENTRANT(jsReentLock, gotItem = JavascriptOperators::GetItem(object, i, &value, scriptContext));
                     if (gotItem)
                     {
-                        JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(value, scriptContext)));
+                        JS_REENTRANT(jsReentLock, cs->Append(JavascriptConversion::ToString(value, scriptContext)));
                     }
                 }
                 return cs;
@@ -4528,12 +4515,12 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, gotItem = JavascriptOperators::GetItem(object, 0u, &value, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, res = JavascriptArray::JoinToString(value, scriptContext));
+                    JS_REENTRANT(jsReentLock, res = JavascriptConversion::ToString(value, scriptContext));
                 }
                 JS_REENTRANT(jsReentLock, gotItem = JavascriptOperators::GetItem(object, 1u, &value, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, JavascriptString *const valueString = JavascriptArray::JoinToString(value, scriptContext));
+                    JS_REENTRANT(jsReentLock, JavascriptString *const valueString = JavascriptConversion::ToString(value, scriptContext));
                     return res ? ConcatString::New(res, valueString) : valueString;
                 }
                 if(res)
@@ -4549,7 +4536,7 @@ CaseDefault:
                 JS_REENTRANT(jsReentLock, BOOL gotItem = JavascriptOperators::GetItem(object, 0u, &value, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT_UNLOCK(jsReentLock, return JavascriptArray::JoinToString(value, scriptContext));
+                    JS_REENTRANT_UNLOCK(jsReentLock, return JavascriptConversion::ToString(value, scriptContext));
                 }
                 // fall through
             }
