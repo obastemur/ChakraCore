@@ -43,7 +43,7 @@ namespace Js
     typedef JsUtil::BaseDictionary<JavascriptMethod, JavascriptFunction*, Recycler, PowerOf2SizePolicy> BuiltInLibraryFunctionMap;
 
     // valid if object!= NULL
-    struct EnumeratedObjectCache 
+    struct EnumeratedObjectCache
     {
         static const int kMaxCachedPropStrings = 16;
         Field(DynamicObject*) object;
@@ -612,10 +612,10 @@ namespace Js
 
         void Initialize(ScriptContext* scriptContext, GlobalObject * globalObject);
         void Uninitialize();
-        GlobalObject* GetGlobalObject() const {TRACE_IT(59729); return globalObject; }
-        ScriptContext* GetScriptContext() const {TRACE_IT(59730); return scriptContext; }
+        GlobalObject* GetGlobalObject() const { return globalObject; }
+        ScriptContext* GetScriptContext() const { return scriptContext; }
 
-        Recycler * GetRecycler() const {TRACE_IT(59731); return recycler; }
+        Recycler * GetRecycler() const { return recycler; }
         Var GetPI() {TRACE_IT(59732); return pi; }
         Var GetNaN() {TRACE_IT(59733); return nan; }
         Var GetNegativeInfinite() {TRACE_IT(59734); return negativeInfinite; }
@@ -1224,7 +1224,7 @@ namespace Js
         void SetArrayObjectHasUserDefinedSpecies(bool val) {TRACE_IT(59977); arrayObjectHasUserDefinedSpecies = val; }
 
         FunctionBody* GetFakeGlobalFuncForUndefer()const {TRACE_IT(59978); return this->fakeGlobalFuncForUndefer; }
-        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) {TRACE_IT(59979); this->fakeGlobalFuncForUndefer = functionBody; }        
+        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) {TRACE_IT(59979); this->fakeGlobalFuncForUndefer = functionBody; }
 
         ModuleRecordList* EnsureModuleRecordList();
         SourceTextModuleRecord* GetModuleRecord(uint moduleId);
