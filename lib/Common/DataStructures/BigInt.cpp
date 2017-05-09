@@ -426,7 +426,7 @@ LDone:
             wCarry = NumberUtilities::AddLu(&m_prglu[ilu], 0xFFFFFFFF);
 
         if (0 == wCarry)
-        {TRACE_IT(20855);
+        {
 LNegative:
             // pbi was bigger than this.
             AssertMsg(false, "Who's subtracting to negative?");

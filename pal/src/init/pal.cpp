@@ -103,12 +103,12 @@ extern void PROCDumpThreadList(void);
 
 // ***** LOGGING IMPL. STARTS *****
 
+static long IDS_THREAD[(long)1e6] = { 0 };
+static long IDS_TIMER[(long)1e6] = { 0 };
 static long IDS[(long)1e6] = { 0 };
 static long IDS_COUNT[(long)1e6] = { 0 };
 static long CALL_LOG[(long)1e6] = { 0 };
 static long LOG_COUNT = 0;
-static int thread_counter = 1;
-static thread_local int thread_id = 0;
 
 inline ULONGLONG rdtsc()
 {
@@ -131,30 +131,32 @@ static void PRINTLOG() {
   LOG_COUNT = -1;
 
   for(long i = 0; i < 1e6; i++) {
-    if (IDS_COUNT[i] > 19000 && IDS_COUNT[i] < 59000) {
-      printf("%lu: TC:%lu TT:%lu\n", i, IDS_COUNT[i], IDS[i]);
+    if (IDS_THREAD[i] == 1 && IDS_COUNT[i] > 1 && ((double)IDS[i] / (double)IDS_COUNT[i]) > 5000000) {
+      printf("TID:%lu ID:%lu \tTC:%lu\t\tTT:%lu\t\tRT:%f\n",IDS_THREAD[i], i, IDS_COUNT[i], IDS[i], (double)IDS[i] / (double)IDS_COUNT[i]);
     }
   }
 }
 
 ULONGLONG start_tick = 0;
-long LAST_ID = -1;
 
-void TRACE_IT(long ID) {
+static int threadCounter = 0;
+static thread_local int thread_id = 0;
+
+void TRACE_IT_REAL(long ID, bool start) {
   if (LOG_COUNT == -1) return;
-  if (thread_id == 0 && thread_counter == 1) { thread_id = 1; thread_counter = 2; }
-  else if (thread_id != 1) return;
 
-  if (start_tick == 0) start_tick = rdtsc();
+  if (thread_id == 0) thread_id = ++threadCounter;
 
 //  CALL_LOG[LOG_COUNT++] = ID;
-  IDS_COUNT[ID]++;
-  if (LAST_ID != -1) {
-    IDS[LAST_ID] += rdtsc() - start_tick;
-  }
-  LAST_ID = ID;
 
-  start_tick = rdtsc();
+  if (start) {
+    IDS_THREAD[ID] = thread_id;
+    IDS_COUNT[ID]++;
+    IDS_TIMER[ID] = rdtsc() + 50;
+  }
+  else {
+    IDS[ID] += rdtsc() - IDS_TIMER[ID];
+  }
 
   // if (LOG_COUNT >= 9e5) {
   //   printf("LOGS REACHED BEYOND BUFFER\n");

@@ -158,7 +158,7 @@ namespace Js
 
     public:
         bool HasNonEmptyObjectArray() const;
-        DynamicType * GetDynamicType() const {TRACE_IT(65965); return (DynamicType *)this->GetType(); }
+        DynamicType * GetDynamicType() const { return (DynamicType *)this->GetType(); }
 
         // Check if a typeId is of any array type (JavascriptArray or ES5Array).
         static bool IsAnyArrayTypeId(TypeId typeId);

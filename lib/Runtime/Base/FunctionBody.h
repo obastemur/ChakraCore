@@ -2251,15 +2251,15 @@ namespace Js
             FieldWithBarrier(CounterT) counters;
 
             uint32 GetCountField(FunctionBody::CounterFields fieldEnum) const
-            {TRACE_IT(35415);
+            {
                 return counters.Get(fieldEnum);
             }
             uint32 SetCountField(FunctionBody::CounterFields fieldEnum, uint32 val)
-            {TRACE_IT(35416);
+            {
                 return counters.Set(fieldEnum, val, this);
             }
             uint32 IncreaseCountField(FunctionBody::CounterFields fieldEnum)
-            {TRACE_IT(35417);
+            {
                 return counters.Increase(fieldEnum, this);
             }
 

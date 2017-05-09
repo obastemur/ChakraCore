@@ -95,17 +95,17 @@ namespace Js
     }
 
     DynamicObject * DynamicObject::New(Recycler * recycler, DynamicType * type)
-    {TRACE_IT(65840);
+    {
         return NewObject<DynamicObject>(recycler, type);
     }
 
     bool DynamicObject::Is(Var aValue)
-    {TRACE_IT(65841);
+    {
         return RecyclableObject::Is(aValue) && (RecyclableObject::FromVar(aValue)->GetTypeId() == TypeIds_Object);
     }
 
     DynamicObject* DynamicObject::FromVar(Var aValue)
-    {TRACE_IT(65842);
+    {
         RecyclableObject* obj = RecyclableObject::FromVar(aValue);
         AssertMsg(obj->DbgIsDynamicObject(), "Ensure instance is actually a DynamicObject");
         Assert(DynamicType::Is(obj->GetTypeId()));

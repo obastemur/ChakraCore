@@ -65,7 +65,21 @@ namespace std {
 #endif
 #endif // __APPLE__ ?
 
-void TRACE_IT(long id);
+#ifdef  __cplusplus
+void TRACE_IT_REAL(long x, bool start);
+class TraceIt {
+  long id;
+public:
+  TraceIt(long x) {
+    id = x;
+    TRACE_IT_REAL(x, true);
+  }
+  ~TraceIt() {
+    TRACE_IT_REAL(id, false);
+  }
+};
+#define TRACE_IT(x) TraceIt ti##x (x)
+#endif
 
 #ifdef __ANDROID__
 #define S_IREAD   0000400

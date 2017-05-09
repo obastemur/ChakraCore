@@ -3435,7 +3435,7 @@ CommonNumber:
 #endif
 
         if (TaggedInt::Is(index))
-        {TRACE_IT(50444);
+        {
         TaggedIntIndex:
             switch (JavascriptOperators::GetTypeId(instance))
             {
@@ -4330,7 +4330,7 @@ CommonNumber:
         else
         {TRACE_IT(50610);
             if (TaggedInt::Is(index))
-            {TRACE_IT(50611);
+            {
             TaggedIntIndex:
                 switch (instanceType)
                 {

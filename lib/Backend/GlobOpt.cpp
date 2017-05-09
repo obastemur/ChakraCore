@@ -4735,7 +4735,7 @@ GlobOpt::CollectMemOpInfo(IR::Instr *instr, Value *src1Val, Value *src2Val)
         isIncr = false;
     case Js::OpCode::Add_A:
     case Js::OpCode::Add_I4:
-    {TRACE_IT(3488);
+    {
 MemOpCheckInductionVariable:
         StackSym *sym = instr->GetSrc1()->GetStackSym();
         if (!sym)
@@ -8182,7 +8182,7 @@ GlobOpt::ValueNumberLdElemDst(IR::Instr **pInstr, Value *srcVal)
     case ObjectType::Float64MixedArray:
     Float64Array:
         Assert(dst->IsRegOpnd());
-        
+
         // If float type spec is disabled, don't load float64 values
         if (!this->DoFloatTypeSpec())
         {TRACE_IT(3939);

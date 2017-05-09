@@ -724,7 +724,7 @@ typename Scanner<EncodingPolicy>::EncodedCharPtr Scanner<EncodingPolicy>::FScanN
         }
     }
     else
-    {TRACE_IT(32644);
+    {
 LFloat:
         *pdbl = Js::NumberUtilities::StrToDbl(p, &pchT, likelyInt);
         Assert(pchT == p || !Js::NumberUtilities::IsNan(*pdbl));
@@ -815,7 +815,7 @@ BOOL Scanner<EncodingPolicy>::oFScanNumber(double *pdbl, bool& likelyInt)
         }
     }
     else
-    {TRACE_IT(32650);
+    {
 LFloat:
         // Let StrToDbl do all the work.
 
@@ -1512,7 +1512,7 @@ LEcmaEscapeLineBreak:
 
             case 0:
                 if (p >= last)
-                {TRACE_IT(32703);
+                {
                     errorType = (uint)ERRnoStrEnd;
 
 ReturnScanError:

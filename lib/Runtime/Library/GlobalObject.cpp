@@ -1515,7 +1515,7 @@ LTwoHexDigits:
             else if ((chT -= 'A' - '0') <= 5 || (chT -= 'a' - 'A') <= 5)
                 chw += chT + 10;
             else
-            {TRACE_IT(55437);
+            {
 LHexError:
                 pchSrc = pchMin;
                 chw = '%';

@@ -137,6 +137,16 @@ namespace Js
         }
         return value;
     }
+    
+    Var CrossSite::MarshalStringVar(ScriptContext* scriptContext, Var value, bool fRequestWrapper)
+    {
+        Js::RecyclableObject* object =  RecyclableObject::FromVar(value);
+        if (value && (fRequestWrapper || scriptContext != object->GetScriptContext()))
+        {
+            return MarshalVarInner(scriptContext, object, fRequestWrapper);
+        }
+        return value;
+    }
 
     bool CrossSite::DoRequestWrapper(Js::RecyclableObject* object, bool fRequestWrapper)
     {TRACE_IT(33557);

@@ -290,7 +290,7 @@ LblDone:
     // True if the value is a tagged number representation (for x64 - float & integers) - otherwise false.
     //
     inline bool TaggedNumber::Is(const Var aValue)
-    {TRACE_IT(52974);
+    {
         bool isTaggedNumber;
 #if FLOATVAR
         // If we add another tagged representation that is not numerical - this will not work.

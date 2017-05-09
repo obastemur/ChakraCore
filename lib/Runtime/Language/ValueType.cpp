@@ -179,13 +179,13 @@ bool ValueType::AnyOnOthersOff(const Bits b, const Bits ignore) const
 }
 
 bool ValueType::AllOnOthersOff(const Bits b) const
-{TRACE_IT(52999);
+{
     Assert(b);
     return bits == b;
 }
 
 bool ValueType::AllOnOthersOff(const Bits b, const Bits ignore) const
-{TRACE_IT(53000);
+{
     Assert(b);
     Assert(ignore);
     Assert(!(b & ignore));
@@ -200,7 +200,7 @@ bool ValueType::AnyOnExcept(const Bits b) const
 }
 
 bool ValueType::IsUninitialized() const
-{TRACE_IT(53002);
+{
     return AllOnOthersOff(Bits::Likely, Bits::CanBeTaggedValue);
 }
 

@@ -593,7 +593,7 @@ LDigit3:
             m_luError++;
     }
     else
-    {TRACE_IT(19243);
+    {
         if (0 != (rglu[2] & 0x80000000) &&
             (0 != (rglu[3] & 1) || 0 != (rglu[2] & 0x7FFFFFFF) ||
             0 != rglu[1] || 0 != rglu[0]))
@@ -938,7 +938,7 @@ LRestart:
     case 'I':
         // Check for the special case of [+|-]Infinity.
         if (pch[1] == 'n' && pch[2] == 'f' && pch[3] == 'i' && pch[4] == 'n' && pch[5] == 'i' && pch[6] == 't' && pch[7] == 'y')
-        {TRACE_IT(19269);
+        {
             *ppchLim = pch + 8;
             Js::NumberUtilities::LuHiDbl(dbl) = 0x7FF00000;
             Js::NumberUtilities::LuLoDbl(dbl) = 0;
@@ -977,7 +977,7 @@ LRestart:
 LGetLeft:
     // Get digits to the left of the decimal point
     if (Js::NumberUtilities::IsDigit(*pch))
-    {TRACE_IT(19270);
+    {
 LGetLeftDig:
         pchMinDig = pch;
         for (cchDig = 1; Js::NumberUtilities::IsDigit(*++pch); cchDig++)
@@ -998,13 +998,13 @@ LGetRight:
     likelyInt = false;
     pch++;
     if (NULL == pchMinDig)
-    {TRACE_IT(19271);
+    {
         for ( ; *pch == '0'; pch++)
             lwAdj--;
         pchMinDig = pch;
     }
     for( ; Js::NumberUtilities::IsDigit(*pch); pch++)
-    {TRACE_IT(19272);
+    {
         cchDig++;
         lwAdj--;
     }
@@ -1038,7 +1038,7 @@ LGetExp:
 
 LGetExpDigits:
     for( ; Js::NumberUtilities::IsDigit(*pch); pch++)
-    {TRACE_IT(19273);
+    {
         lwExp = lwExp * 10 + (*pch - '0');
         if (lwExp > 100000000)
             lwExp = 100000000;
@@ -1047,7 +1047,7 @@ LGetExpDigits:
 LEnd:
     *ppchLim = pch;
     if (cchDig == 0)
-    {TRACE_IT(19274);
+    {
         dbl = 0;
         goto LDone;
     }
@@ -1060,7 +1060,7 @@ LEnd:
 
     // Limit to kcchMaxSig digits.
     if (cchDig > kcchMaxSig)
-    {TRACE_IT(19275);
+    {
         // cchDig - number of digits from the first nonzero digit in the input
         // pchLimDig - at this point, this points to the character after the last digit in the input, and after the decimal
         //             point if the number ends with a decimal point
@@ -1079,7 +1079,7 @@ LEnd:
         // pchLimDig would only need to jump over a decimal point if it exists.
         if (-lwAdj <= numExcessiveDigits &&
             (lwAdj != 0 || pchLimDig[-1] == _u('.')))
-        {TRACE_IT(19276);
+        {
             // Need to jump over the decimal point
             --pchLimDig;
         }
@@ -1511,7 +1511,7 @@ static BOOL FDblToRgbPrecise(double dbl, __out_ecount(kcbMaxRgb) byte *prgb, int
 
         // if (biNum + biHi > biDen)
         if (w2 > 0)
-        {TRACE_IT(19313);
+        {
             // Round up and be done with it.
             if (bT != 9)
             {TRACE_IT(19314);

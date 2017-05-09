@@ -70,7 +70,7 @@ namespace Js
 
     ScriptContext *
     Type::GetScriptContext() const
-    {TRACE_IT(67671);
+    {
         return GetLibrary()->GetScriptContext();
     }
 

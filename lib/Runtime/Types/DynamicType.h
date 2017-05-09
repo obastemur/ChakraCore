@@ -34,12 +34,12 @@ namespace Js
 #endif
 
     protected:
-        DynamicType(DynamicType * type) : Type(type), typeHandler(type->typeHandler), isLocked(false), isShared(false) {TRACE_IT(66100);}
+        DynamicType(DynamicType * type) : Type(type), typeHandler(type->typeHandler), isLocked(false), isShared(false) { }
         DynamicType(DynamicType * type, DynamicTypeHandler *typeHandler, bool isLocked, bool isShared);
         DynamicType(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint, DynamicTypeHandler * typeHandler, bool isLocked, bool isShared);
 
     public:
-        DynamicTypeHandler * GetTypeHandler() const {TRACE_IT(66101); return typeHandler; }
+        DynamicTypeHandler * GetTypeHandler() const { return typeHandler; }
 
         void SetPrototype(RecyclableObject* newPrototype) {TRACE_IT(66102); this->prototype = newPrototype; }
         bool GetIsLocked() const {TRACE_IT(66103); return this->isLocked; }

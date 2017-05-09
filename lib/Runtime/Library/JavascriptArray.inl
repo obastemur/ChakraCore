@@ -505,7 +505,7 @@ namespace Js
             }
         }
         else
-        {TRACE_IT(57977);
+        {
 #ifdef VALIDATE_ARRAY
 SECOND_PASS:
 #endif
@@ -516,7 +516,7 @@ SECOND_PASS:
         {TRACE_IT(57978);
             uint32 limit =  nextSeg->left + nextSeg->length;
             if (index < limit)
-            {TRACE_IT(57979);
+            {
                 const T * v = AddressOf(((SparseArraySegment<T>*)nextSeg)->elements[index - nextSeg->left]);
 
                 this->SetLastUsedSegment(nextSeg);
@@ -524,19 +524,19 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
                 Assert(segmentMap == GetSegmentMap());
                 if (segmentMap && first_pass)
-                {TRACE_IT(57980);
+                {
                     v_btree = *v;
                     seg_btree= nextSeg;
                     first_pass = false;
                     goto SECOND_PASS;
                 }
                 else if (segmentMap && !first_pass)
-                {TRACE_IT(57981);
+                {
                     Assert(seg_btree == nextSeg);
                 }
 #endif
                 if (SparseArraySegment<T>::IsMissingItem(v))
-                {TRACE_IT(57982);
+                {
                     Assert(!(HasNoMissingValues() && nextSeg == head));
                     return false;
                 }
@@ -546,7 +546,7 @@ SECOND_PASS:
             nextSeg = nextSeg->next;
             Assert(segmentMap == GetSegmentMap());
             if (!segmentMap)
-            {TRACE_IT(57983);
+            {
                 probeCost++;
                 if (probeCost > SegmentBTree::GetLazyCrossOverLimit() && this->head != EmptySegment)
                 {TRACE_IT(57984);
@@ -567,7 +567,7 @@ SECOND_PASS:
 #ifdef VALIDATE_ARRAY
         Assert(segmentMap == GetSegmentMap());
         if (segmentMap && first_pass)
-        {TRACE_IT(57986);
+        {
             v_btree = NULL;
             seg_btree= nullptr;
             first_pass = false;

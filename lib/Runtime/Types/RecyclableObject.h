@@ -47,16 +47,16 @@ namespace Js {
             cacheInfoFlag(CacheInfoFlag::defaultInfoFlags), inlineCache(NULL), polymorphicInlineCache(NULL), functionBody(NULL),
             inlineCacheIndex(Constants::NoInlineCacheIndex),
             allowResizingPolymorphicInlineCache(true)
-        {TRACE_IT(66931);
+        {
         }
 
-        RecyclableObject* GetInstance() const       {TRACE_IT(66932); return m_instance; }
-        PropertyIndex GetPropertyIndex() const      {TRACE_IT(66933); return m_propertyIndex; }
+        RecyclableObject* GetInstance() const       { return m_instance; }
+        PropertyIndex GetPropertyIndex() const      { return m_propertyIndex; }
         bool IsWritable() const                     {TRACE_IT(66934); return (m_attributes & PropertyWritable) != 0; }
         bool IsEnumerable() const                   {TRACE_IT(66935); return (m_attributes & PropertyEnumerable) != 0; }
         bool IsNoCache() const                      {TRACE_IT(66936); return m_instance && m_propertyIndex == Constants::NoSlot; }
         void AddFlags(InlineCacheFlags newFlag)     {TRACE_IT(66937); flags = (InlineCacheFlags)(flags | newFlag); }
-        InlineCacheFlags GetFlags() const           {TRACE_IT(66938); return flags; }
+        InlineCacheFlags GetFlags() const           { return flags; }
         PropertyAttributes GetAttributes() const    {TRACE_IT(66939); return m_attributes; }
 
         // Set property index and IsWritable cache info
@@ -75,17 +75,17 @@ namespace Js {
         static void ClearCacheInfo(PropertyValueInfo* info);
 
         inline InlineCache * GetInlineCache() const
-        {TRACE_IT(66942);
+        {
             return this->inlineCache;
         }
 
         inline PolymorphicInlineCache * GetPolymorphicInlineCache() const
-        {TRACE_IT(66943);
+        {
             return this->polymorphicInlineCache;
         }
 
         inline FunctionBody * GetFunctionBody() const
-        {TRACE_IT(66944);
+        {
             return this->functionBody;
         }
 

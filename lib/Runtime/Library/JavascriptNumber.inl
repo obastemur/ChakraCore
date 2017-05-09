@@ -146,7 +146,7 @@ namespace Js
 #endif
 
     inline Var JavascriptNumber::ToVar(double value)
-    {TRACE_IT(60340);
+    {
         uint64 val = *(uint64*)&value;
         AssertMsg(!IsNan(value) || ToSpecial(value) == k_Nan || ToSpecial(value) == 0x7FF8000000000000ull, "We should only produce a NaN with this value");
         return reinterpret_cast<Var>(val ^ FloatTag_Value);
@@ -154,13 +154,13 @@ namespace Js
 
 #else
     inline bool JavascriptNumber::Is(Var aValue)
-    {TRACE_IT(60341);
+    {;
         return !TaggedInt::Is(aValue) && Is_NoTaggedIntCheck(aValue);
     }
 
 #if !defined(USED_IN_STATIC_LIB)
     inline bool JavascriptNumber::Is_NoTaggedIntCheck(Var aValue)
-    {TRACE_IT(60342);
+    {
         RecyclableObject* object = RecyclableObject::FromVar(aValue);
         AssertMsg((object->GetTypeId() == TypeIds_Number) == VirtualTableInfo<JavascriptNumber>::HasVirtualTable(object), "JavascriptNumber has no unique VTABLE?");
         return VirtualTableInfo<JavascriptNumber>::HasVirtualTable(object);
