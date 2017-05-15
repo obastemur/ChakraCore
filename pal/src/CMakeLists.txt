@@ -90,6 +90,7 @@ set(SOURCES
   cruntime/mbstring.cpp
   cruntime/misc.cpp
   cruntime/misctls.cpp
+  cruntime/memstream.cpp
   cruntime/path.cpp
   cruntime/printf.cpp
   cruntime/printfcpp.cpp

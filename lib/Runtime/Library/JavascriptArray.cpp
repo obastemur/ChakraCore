@@ -4408,33 +4408,62 @@ namespace Js
             {
 CaseDefault:
                 bool hasSeparator = (separator->GetLength() != 0);
+#ifdef _WIN32
                 const charcount_t estimatedAppendCount =
                     min(
                         Join_MaxEstimatedAppendCount,
                         static_cast<charcount_t>(arrLength + (hasSeparator ? arrLength - 1 : 0)));
                 CompoundString *const cs =
                     CompoundString::NewWithPointerCapacity(estimatedAppendCount, scriptContext->GetLibrary());
+#else
+                CCMemoryStream stream;
+#endif
                 Var item;
                 BOOL gotItem;
                 JS_REENTRANT(jsReentLock, gotItem = TemplatedGetItem(arr, 0u, &item, scriptContext));
                 if (gotItem)
                 {
-                    JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(item, scriptContext)));
+                    JS_REENTRANT(jsReentLock, JavascriptString* jstring = JavascriptArray::JoinToString(item, scriptContext));
+#ifndef _WIN32
+                    stream.Write((const char*)jstring->GetString(), jstring->GetLength() * 2);
+#else
+                   JS_REENTRANT(jsReentLock, cs->Append(jstring));
+#endif
                 }
 
+#ifndef _WIN32
+                const char16* sep = separator->GetString();
+                size_t sepLength = separator->GetLength();
+#endif
                 for (uint32 i = 1; i < arrLength; i++)
                 {
                     if (hasSeparator)
                     {
+#ifdef _WIN32
                         cs->Append(separator);
+#else
+                        stream.Write((const char*)sep, sepLength * 2);
+#endif
                     }
 
                     JS_REENTRANT(jsReentLock, gotItem = TryTemplatedGetItem(arr, i, &item, scriptContext));
                     if (gotItem)
                     {
-                        JS_REENTRANT(jsReentLock, cs->Append(JavascriptArray::JoinToString(item, scriptContext)));
+                        JS_REENTRANT(jsReentLock, JavascriptString* jstring = JavascriptArray::JoinToString(item, scriptContext));
+#ifndef _WIN32
+                        stream.Write((const char*)jstring->GetString(), jstring->GetLength() * 2);
+#else
+                        JS_REENTRANT(jsReentLock, cs->Append(jstring));
+#endif
                     }
                 }
+
+#ifndef _WIN32
+                const size_t length = stream.GetLength() / 2;
+                CompoundString *const cs =
+                     CompoundString::NewWithPointerCapacity(length, scriptContext->GetLibrary());
+                cs->AppendChars((const char16*)stream.GetString(), length);
+#endif
                 return cs;
             }
 

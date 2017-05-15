@@ -6880,4 +6880,6 @@ ULONG_PTR __stdcall GetCurrentSP();
 }
 #endif
 
+#include "memstream.h"
+
 #endif // __PAL_H__
