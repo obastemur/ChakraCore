@@ -127,6 +127,131 @@ public:
     bool IsInPreReservedHeapPageAllocator() const;
 };
 
+#include <pthread.h>
+class CCMutex
+{
+private:
+    pthread_mutex_t lock;
+    bool locked;
+
+public:
+    CCMutex()
+    {
+        locked = false;
+        pthread_mutex_init(&lock, NULL); // check success
+    }
+
+    CCMutex( const CCMutex& other ) = delete;
+    CCMutex& operator=( const CCMutex& ) = delete;
+
+    void Lock(const int operation_id)
+    {
+        if (locked) {
+          printf("x-");
+        }
+        pthread_mutex_lock(&lock);
+        locked = true;
+    }
+
+    void Unlock()
+    {
+        locked = false;
+        pthread_mutex_unlock(&lock);
+    }
+
+    ~CCMutex()
+    {
+        pthread_mutex_destroy(&lock);
+    }
+};
+
+template <class T>
+class ThreadSafe
+{
+    T value;
+    CCMutex spin;
+public:
+    ThreadSafe()
+    {
+        value = T();
+    }
+
+    void Set(T val)
+    {
+        spin.Lock(1);
+        value = val;
+        spin.Unlock();
+    }
+
+    bool BiggerThan(T val)
+    {
+        bool isBigger = false;
+        spin.Lock(2);
+        isBigger = value > val;
+        spin.Unlock();
+        return isBigger;
+    }
+
+    bool BiggerThanEqualTo(T val)
+    {
+        bool isBiggerThanEqualTo = false;
+        spin.Lock(3);
+        isBiggerThanEqualTo = value >= val;
+        spin.Unlock();
+        return isBiggerThanEqualTo;
+    }
+
+    bool LowerThan(T val)
+    {
+        bool isLowerThan = false;
+        spin.Lock(4);
+        isLowerThan = value < val;
+        spin.Unlock();
+        return isLowerThan;
+    }
+
+    bool LowerThanEqualTo(T val)
+    {
+        bool isLowerThanEqualTo = false;
+        spin.Lock(5);
+        isLowerThanEqualTo = value <= val;
+        spin.Unlock();
+        return isLowerThanEqualTo;
+    }
+
+    bool EqualTo(T val)
+    {
+        bool isEqualTo = false;
+        spin.Lock(6);
+        isEqualTo = value == val;
+        spin.Unlock();
+        return isEqualTo;
+    }
+
+    void ExchangeIfBigger(T val)
+    {
+        spin.Lock(7);
+        if (value > val) value = val;
+        spin.Unlock();
+    }
+
+    void ExchangeIfLower(T val)
+    {
+        spin.Lock(8);
+        if (value < val) value = val;
+        spin.Unlock();
+    }
+
+    T Get()
+    {
+        T val;
+        spin.Lock(9);
+        val = value;
+        spin.Unlock();
+        return val;
+    }
+};
+
 /*
  * A segment is a collection of pages. A page corresponds to the concept of an
  * OS memory page. Segments allocate memory using the OS VirtualAlloc call.
@@ -835,7 +960,7 @@ protected:
 
     uint maxAllocPageCount;
     DWORD allocFlags;
-    uint maxFreePageCount;
+    ThreadSafe<uint> maxFreePageCount;
     size_t freePageCount;
     uint secondaryAllocPageCount;
     bool isClosed;
@@ -861,7 +986,7 @@ protected:
 
     // Idle Decommit
     bool isUsed;
-    size_t minFreePageCount;
+    ThreadSafe<size_t> minFreePageCount;
     uint idleDecommitEnterCount;
 
     void UpdateMinFreePageCount();
@@ -1034,7 +1159,7 @@ public:
 
     // Release pages that has already been decommitted
     void    ReleaseDecommitted(void * address, size_t pageCount, __in void * segment);
-    bool IsAddressFromAllocator(__in void* address);    
+    bool IsAddressFromAllocator(__in void* address);
     bool    AllocXdata() { return allocXdata; }
 
 private:

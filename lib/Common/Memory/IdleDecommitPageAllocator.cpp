@@ -10,7 +10,7 @@ IdleDecommitPageAllocator::IdleDecommitPageAllocator(AllocationPolicyManager * p
 #endif
     uint maxFreePageCount, uint maxIdleFreePageCount,
     bool zeroPages,
-#if ENABLE_BACKGROUND_PAGE_FREEING 
+#if ENABLE_BACKGROUND_PAGE_FREEING
     BackgroundPageQueue *  backgroundPageQueue,
 #endif
     uint maxAllocPageCount, bool enableWriteBarrier) :
@@ -26,13 +26,13 @@ IdleDecommitPageAllocator::IdleDecommitPageAllocator(AllocationPolicyManager * p
     type, maxFreePageCount, zeroPages,
 #if ENABLE_BACKGROUND_PAGE_FREEING
     backgroundPageQueue,
-#endif        
+#endif
     maxAllocPageCount, 0, false, false, GetCurrentProcess(), enableWriteBarrier),
     maxIdleDecommitFreePageCount(maxIdleFreePageCount),
     maxNonIdleDecommitFreePageCount(maxFreePageCount)
 {
     // if maxIdle is the same as max free, disable idleDecommit but setting the entry count to 1
-    this->idleDecommitEnterCount = (maxIdleFreePageCount == maxFreePageCount);
+    this->idleDecommitEnterCount = maxFreePageCount == maxIdleFreePageCount;
 #ifdef IDLE_DECOMMIT_ENABLED
 #if DBG_DUMP
     idleDecommitCount = 0;
@@ -40,14 +40,13 @@ IdleDecommitPageAllocator::IdleDecommitPageAllocator(AllocationPolicyManager * p
 #endif
 }
 
-
-void
+bool
 IdleDecommitPageAllocator::EnterIdleDecommit()
 {
     this->idleDecommitEnterCount++;
     if (this->idleDecommitEnterCount != 1)
     {
-        return;
+        return false;
     }
 #ifdef IDLE_DECOMMIT_ENABLED
     cs.Enter();
@@ -58,33 +57,33 @@ IdleDecommitPageAllocator::EnterIdleDecommit()
     if (hasDecommitTimer)
     {
         // Cancel the decommit timer
-        Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
+        // Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
         hasDecommitTimer = false;
         PAGE_ALLOC_TRACE(_u("Cancel Decommit Timer"));
     }
     else
     {
         // Switch to maxIdleDecommitFreePageCount
-        Assert(this->maxFreePageCount == maxNonIdleDecommitFreePageCount);
-        Assert(minFreePageCount == 0);
-        this->maxFreePageCount = maxIdleDecommitFreePageCount;
+        // Assert(this->maxFreePageCount == maxNonIdleDecommitFreePageCount);
+        // Assert(minFreePageCount == 0);
+        this->maxFreePageCount.Set(maxIdleDecommitFreePageCount);
     }
 
     cs.Leave();
 
     Assert(!hasDecommitTimer);
 #else
-    Assert(this->maxFreePageCount == maxNonIdleDecommitFreePageCount);
-    this->maxFreePageCount = maxIdleDecommitFreePageCount;
+    // Assert(this->maxFreePageCount == maxNonIdleDecommitFreePageCount);
+    this->maxFreePageCount.Set(maxIdleDecommitFreePageCount);
 #endif
+    return true;
 }
 
 IdleDecommitSignal
 IdleDecommitPageAllocator::LeaveIdleDecommit(bool allowTimer)
 {
-
-    Assert(this->idleDecommitEnterCount > 0);
-    Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
+    // Assert(this->idleDecommitEnterCount > 0);
+    // Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
 
 #ifdef IDLE_DECOMMIT_ENABLED
     Assert(!hasDecommitTimer);
@@ -99,25 +98,24 @@ IdleDecommitPageAllocator::LeaveIdleDecommit(bool allowTimer)
 #ifdef IDLE_DECOMMIT_ENABLED
     if (allowTimer)
     {
-        cs.Enter();
 
+//        cs.Enter();
         PAGE_ALLOC_VERBOSE_TRACE(_u("LeaveIdleDecommit"));
         Assert(maxIdleDecommitFreePageCount != maxNonIdleDecommitFreePageCount);
 
         IdleDecommitSignal idleDecommitSignal = IdleDecommitSignal_None;
         if (freePageCount == 0 && !isUsed && !hadDecommitTimer)
         {
-            Assert(minFreePageCount == 0);
-            Assert(minFreePageCount == debugMinFreePageCount);
+            // Assert(minFreePageCount == 0);
+            // Assert(minFreePageCount == debugMinFreePageCount);
 
             // Nothing to decommit, it isn't used, and there was no timer before.
             // Just switch it back to non idle decommit mode
-            this->maxFreePageCount = maxNonIdleDecommitFreePageCount;
+            this->maxFreePageCount.Set(maxNonIdleDecommitFreePageCount);
         }
         else
         {
             UpdateMinFreePageCount();
-
             hasDecommitTimer = true;
             idleDecommitSignal = IdleDecommitSignal_NeedTimer;
 
@@ -139,11 +137,12 @@ IdleDecommitPageAllocator::LeaveIdleDecommit(bool allowTimer)
             }
 
         }
-        cs.Leave();
+//        cs.Leave();
         return idleDecommitSignal;
     }
 #endif
-    this->maxFreePageCount = maxNonIdleDecommitFreePageCount;
+
+    this->maxFreePageCount.Set(maxNonIdleDecommitFreePageCount);
     __super::DecommitNow();
     ClearMinFreePageCount();
     return IdleDecommitSignal_None;
@@ -157,7 +156,7 @@ IdleDecommitPageAllocator::DecommitNow(bool all)
 
     // If we are in non-idle-decommit mode, then always decommit all.
     // Otherwise, we will end up with some un-decommitted pages and get confused later.
-    if (maxFreePageCount == maxNonIdleDecommitFreePageCount)
+    if (maxFreePageCount.EqualTo(maxNonIdleDecommitFreePageCount))
         all = true;
 
     __super::DecommitNow(all);
@@ -167,14 +166,14 @@ IdleDecommitPageAllocator::DecommitNow(bool all)
         if (this->hasDecommitTimer)
         {
             Assert(idleDecommitEnterCount == 0);
-            Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
+            // Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
             this->hasDecommitTimer = false;
-            this->maxFreePageCount = maxNonIdleDecommitFreePageCount;
+            this->maxFreePageCount.Set(maxNonIdleDecommitFreePageCount);
         }
         else
         {
-            Assert((idleDecommitEnterCount > 0? maxIdleDecommitFreePageCount : maxNonIdleDecommitFreePageCount)
-                == this->maxFreePageCount);
+            // Assert((idleDecommitEnterCount > 0? maxIdleDecommitFreePageCount : maxNonIdleDecommitFreePageCount)
+            //     == this->maxFreePageCount);
         }
         ClearMinFreePageCount();
     }
@@ -214,8 +213,8 @@ IdleDecommitPageAllocator::IdleDecommit()
     DWORD waitTime = INFINITE;
     if (hasDecommitTimer)
     {
-        Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
-        int timediff = (int)(decommitTime - ::GetTickCount());
+        // Assert(this->maxFreePageCount == maxIdleDecommitFreePageCount);
+        int timediff = ((int)(decommitTime - ::GetTickCount()));
         if (timediff >= 20)   // Ignore time diff is it is < 20 since the system timer doesn't have that high of precision anyways
         {
             waitTime = (DWORD)timediff;
@@ -230,7 +229,7 @@ IdleDecommitPageAllocator::IdleDecommit()
             __super::DecommitNow();
             hasDecommitTimer = false;
             ClearMinFreePageCount();
-            this->maxFreePageCount = maxNonIdleDecommitFreePageCount;
+            this->maxFreePageCount.Set(maxNonIdleDecommitFreePageCount);
         }
     }
     cs.Leave();

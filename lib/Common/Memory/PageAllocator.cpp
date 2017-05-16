@@ -641,7 +641,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::PageAllocatorBase(Allo
 #ifndef JD_PRIVATE
     pageAllocatorFlagTable(flagTable),
 #endif
-    maxFreePageCount(maxFreePageCount),
+    // maxFreePageCount(maxFreePageCount),
     freePageCount(0),
     allocFlags(0),
     zeroPages(zeroPages),
@@ -650,7 +650,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::PageAllocatorBase(Allo
     hasZeroQueuedPages(false),
     backgroundPageQueue(backgroundPageQueue),
 #endif
-    minFreePageCount(0),
+    // minFreePageCount(0),
     isUsed(false),
     idleDecommitEnterCount(1),
     isClosed(false),
@@ -666,6 +666,8 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::PageAllocatorBase(Allo
     , processHandle(processHandle)
     , enableWriteBarrier(enableWriteBarrier)
 {
+    this->maxFreePageCount.Set(maxFreePageCount);
+    this->minFreePageCount.Set(0);
     AssertMsg(Math::IsPow2(maxAllocPageCount + secondaryAllocPageCount), "Illegal maxAllocPageCount: Why is this not a power of 2 aligned?");
 
     this->maxAllocPageCount = maxAllocPageCount;
@@ -1273,14 +1275,16 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::AllocInternal(size_t *
 template<typename TVirtualAlloc, typename TSegment, typename TPageSegment>
 void PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::UpdateMinFreePageCount()
 {
-    UpdateMinimum(minFreePageCount, freePageCount);
-    Assert(debugMinFreePageCount == minFreePageCount);
+    // UpdateMinimum(minFreePageCount, freePageCount);
+    minFreePageCount.ExchangeIfBigger(freePageCount);
+    // Assert(debugMinFreePageCount == minFreePageCount);
 }
 
 template<typename TVirtualAlloc, typename TSegment, typename TPageSegment>
 void PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::ResetMinFreePageCount()
 {
-    minFreePageCount = freePageCount;
+    // minFreePageCount = freePageCount;
+    minFreePageCount.Set(freePageCount);
 #if DBG
     debugMinFreePageCount = freePageCount;
 #endif
@@ -1289,7 +1293,8 @@ void PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::ResetMinFreePageC
 template<typename TVirtualAlloc, typename TSegment, typename TPageSegment>
 void PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::ClearMinFreePageCount()
 {
-    minFreePageCount = 0;
+    // minFreePageCount = 0;
+    minFreePageCount.Set(0);
 #if DBG
     debugMinFreePageCount = 0;
 #endif
@@ -1412,7 +1417,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::SnailAllocPages(uint p
 
     Assert(pages == nullptr);
     Assert(maxAllocPageCount >= pageCount);
-    if (maxAllocPageCount != pageCount && (maxFreePageCount < maxAllocPageCount - pageCount + freePageCount))
+    if (maxAllocPageCount != pageCount && (maxFreePageCount.LowerThan(maxAllocPageCount - pageCount + freePageCount)))
     {
         // If we exceed the number of max free page count, allocate from a new fully decommit block
         TPageSegment * decommitSegment = AllocPageSegment(
@@ -1590,7 +1595,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::ReleasePages(__in void
      *  Now that we've either decommitted or freed the pages in the segment,
      *  move the segment to the right segment list
      */
-    if (this->freePageCount + pageCount > maxFreePageCount)
+    if (maxFreePageCount.LowerThan(this->freePageCount + pageCount))
     {
         // Release a whole segment if possible to reduce the number of VirtualFree and fragmentation
         if (!ZeroPages() && !emptySegments.Empty())
@@ -2002,8 +2007,8 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::DecommitNow(bool all)
     else
     {
         // Decommit half the min free page count since last partial decommit
-        Assert(this->minFreePageCount <= this->freePageCount);
-        newFreePageCount = this->freePageCount - (this->minFreePageCount / 2);
+        // Assert(this->minFreePageCount <= this->freePageCount);
+        newFreePageCount = this->freePageCount - (this->minFreePageCount.Get() / 2);
 
         // Ensure we don't decommit down to fewer than our partial decommit minimum
         newFreePageCount = max(newFreePageCount, static_cast<size_t>(MinPartialDecommitFreePageCount));
@@ -2415,8 +2420,8 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::DumpStats() const
     Output::Print(_u("  Full/Partial/Empty/Decommit/Large Segments: %4d %4d %4d %4d %4d\n"),
         fullSegments.Count(), segments.Count(), emptySegments.Count(), decommitSegments.Count(), largeSegments.Count());
 
-    Output::Print(_u("  Free/Decommit/Min Free Pages              : %4d %4d %4d\n"),
-        this->freePageCount, this->decommitPageCount, this->minFreePageCount);
+    // Output::Print(_u("  Free/Decommit/Min Free Pages              : %4d %4d %4d\n"),
+    //     this->freePageCount, this->decommitPageCount, this->minFreePageCount);
 }
 #endif
 

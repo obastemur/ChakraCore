@@ -27,7 +27,7 @@ public:
         uint maxAllocPageCount = PageAllocator::DefaultMaxAllocPageCount,
         bool enableWriteBarrier = false);
 
-    void EnterIdleDecommit();
+    bool EnterIdleDecommit();
     IdleDecommitSignal LeaveIdleDecommit(bool allowTimer);
     void Prime(uint primePageCount);
 
