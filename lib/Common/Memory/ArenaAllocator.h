@@ -932,7 +932,7 @@ public:
 // Strong references should be short lived
 class ReferencedArenaAdapter : public RefCounted
 {
-    CRITICAL_SECTION adapterLock;
+    CriticalSection adapterLock;
     uint32 strongRefCount;
     ArenaAllocator* arena;
     bool deleteFlag;
@@ -944,7 +944,6 @@ public:
         {
             HeapDelete(this->arena);
         }
-        DeleteCriticalSection(&adapterLock);
     }
 
     ReferencedArenaAdapter(ArenaAllocator* _arena)
@@ -952,13 +951,12 @@ public:
           strongRefCount(0),
           arena(_arena),
           deleteFlag(false)
-    {
-        InitializeCriticalSection(&adapterLock);
-    }
+    { }
 
     bool AddStrongReference()
     {
-        EnterCriticalSection(&adapterLock);
+        bool retval = false;
+        adapterLock.Enter();
 
         if (deleteFlag)
         {
@@ -969,21 +967,22 @@ public:
                 HeapDelete(this->arena);
                 this->arena = nullptr;
             }
-            LeaveCriticalSection(&adapterLock);
-            return false;
         }
         else
         {
             // Succeed at acquiring a Strong Reference into the Arena
             strongRefCount++;
-            LeaveCriticalSection(&adapterLock);
-            return true;
+            retval = true;
         }
+
+        adapterLock.Leave();
+
+        return retval;
     }
 
     void ReleaseStrongReference()
     {
-        EnterCriticalSection(&adapterLock);
+        adapterLock.Enter();
         strongRefCount--;
 
         if (deleteFlag && this->arena && 0 == strongRefCount)
@@ -993,13 +992,13 @@ public:
             this->arena = NULL;
         }
 
-        LeaveCriticalSection(&adapterLock);
+        adapterLock.Leave();
     }
 
     void DeleteArena()
     {
         deleteFlag = true;
-        if (TryEnterCriticalSection(&adapterLock))
+        if (adapterLock.TryEnter())
         {
             if (0 == strongRefCount)
             {
@@ -1007,7 +1006,7 @@ public:
                 HeapDelete(this->arena);
                 this->arena = NULL;
             }
-            LeaveCriticalSection(&adapterLock);
+            adapterLock.Leave();
         }
     }
 

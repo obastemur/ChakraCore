@@ -779,16 +779,11 @@ TLSInitialize(
     );
 
 VOID
-TLSCleanup(
-    void
-    );
-
-VOID
 WaitForEndingThreads(
     void
     );
 
-extern int free_threads_spinlock;
+extern CCSpinLock free_threads_spinlock;
 
 extern PAL_ActivationFunction g_activationFunction;
 extern PAL_SafeActivationCheckFunction g_safeActivationCheckFunction;
