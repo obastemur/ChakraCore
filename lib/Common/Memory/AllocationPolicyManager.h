@@ -132,7 +132,7 @@ private:
             {
                 memoryAllocationCallback(context, MemoryAllocateEvent::MemoryFailure, byteCount);
             }
-            
+
             // oopjit number allocator allocated pages, we can't stop it from allocating so just increase the usage number
             if (externalAlloc)
             {

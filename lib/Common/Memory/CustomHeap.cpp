@@ -115,7 +115,7 @@ void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
 
     DListBase<Allocation>::EditingIterator i(&this->largeObjectAllocations);
     while (i.Next())
-    { 
+    {
         Allocation& allocation = i.Data();
         Assert(!allocation.largeObjectAllocation.isDecommitted);
 
@@ -520,7 +520,6 @@ DWORD Heap<TAlloc, TPreReservedAlloc>::EnsureAllocationExecuteWriteable(Allocati
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeLargeObjects()
 {
-    AutoCriticalSection autoLock(&this->codePageAllocators->cs);
     FOREACH_DLISTBASE_ENTRY_EDITING(Allocation, allocation, &this->largeObjectAllocations, largeObjectIter)
     {
         EnsureAllocationWriteable(&allocation);
@@ -809,7 +808,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
     if (page->inFullList)
     {
         VerboseHeapTrace(_u("Recycling page 0x%p because address 0x%p of size %d was freed\n"), page->address, object->address, object->size);
-       
+
         // If the object being freed is equal to the page size, we're
         // going to remove it anyway so don't add it to a bucket
         if (object->size != pageSize)
@@ -832,7 +831,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
 
             void* pageAddress = page->address;
 
-            this->fullPages[page->currentBucket].RemoveElement(this->auxiliaryAllocator, page);            
+            this->fullPages[page->currentBucket].RemoveElement(this->auxiliaryAllocator, page);
 
             // The page is not in any bucket- just update the stats, free the allocation
             // and dump the page- we don't need to update free object size since the object
@@ -1020,7 +1019,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::UpdateFullPages()
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeXdata(XDataAllocation* xdata, void* segment)
 {
-    Assert(!xdata->IsFreed()); 
+    Assert(!xdata->IsFreed());
     {
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         this->codePageAllocators->ReleaseSecondary(*xdata, segment);

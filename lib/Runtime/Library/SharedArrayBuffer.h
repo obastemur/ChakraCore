@@ -42,7 +42,7 @@ namespace Js
 #if DBG
             , allowedAgents(nullptr)
 #endif
-        { 
+        {
         }
     };
 
@@ -157,4 +157,3 @@ namespace Js
         CriticalSection csForAccess;
     };
 }
-

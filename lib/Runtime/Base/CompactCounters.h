@@ -13,7 +13,7 @@ namespace Js
     struct CompactCounters
     {
         friend class FunctionBody;
-            
+
         struct Fields {
             union {
                 uint8 u8Fields[static_cast<size_t>(CountT::Max)];
@@ -146,7 +146,7 @@ namespace Js
         template<typename FieldT>
         void AllocCounters(T* host)
         {
-            // only allow expanding in foreground thread. while function body cleanup 
+            // only allow expanding in foreground thread. while function body cleanup
             // we may set counters to 0 but that would not lead to expanding
             Assert(ThreadContext::GetContextForCurrentThread());
             Assert(host->GetRecycler() != nullptr);

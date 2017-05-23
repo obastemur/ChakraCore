@@ -937,7 +937,7 @@ private:
         }
 #endif
 
-        void SetHasUsedInlineCache(bool value) 
+        void SetHasUsedInlineCache(bool value)
         {
             hasUsedInlineCache = value;
 #if DBG

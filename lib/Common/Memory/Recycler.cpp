@@ -574,7 +574,6 @@ Recycler::~Recycler()
         });
         NoCheckHeapDelete(this->trackerDictionary);
         this->trackerDictionary = nullptr;
-        ::DeleteCriticalSection(&trackerCriticalSection);
     }
 #endif
 
@@ -7590,7 +7589,6 @@ Recycler::InitializeProfileAllocTracker()
         trackerDictionary = NoCheckHeapNew(TypeInfotoTrackerItemMap, &NoCheckHeapAllocator::Instance, 163);
 
 #pragma prefast(suppress:6031, "InitializeCriticalSectionAndSpinCount always succeed since Vista. No need to check return value");
-        InitializeCriticalSectionAndSpinCount(&trackerCriticalSection, 1000);
     }
 
     nextAllocData.Clear();
@@ -7673,9 +7671,9 @@ void* Recycler::TrackAlloc(void* object, size_t size, const TrackAllocData& trac
     if (this->trackerDictionary != nullptr)
     {
         Assert(nextAllocData.IsEmpty()); // should have been cleared
-        EnterCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Enter();
         TrackAllocCore(object, size, trackAllocData);
-        LeaveCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Leave();
     }
     return object;
 }
@@ -7686,7 +7684,7 @@ Recycler::TrackIntegrate(__in_ecount(blockSize) char * blockAddress, size_t bloc
     if (this->trackerDictionary != nullptr)
     {
         Assert(nextAllocData.IsEmpty()); // should have been cleared
-        EnterCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Enter();
 
         char * address = blockAddress;
         char * blockEnd = blockAddress + blockSize;
@@ -7696,7 +7694,7 @@ Recycler::TrackIntegrate(__in_ecount(blockSize) char * blockAddress, size_t bloc
             address += allocSize;
         }
 
-        LeaveCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Leave();
     }
 }
 
@@ -7704,7 +7702,7 @@ BOOL Recycler::TrackFree(const char* address, size_t size)
 {
     if (this->trackerDictionary != nullptr)
     {
-        EnterCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Enter();
         TrackerData * data = GetTrackerData((char *)address);
         if (data != nullptr)
         {
@@ -7736,7 +7734,7 @@ BOOL Recycler::TrackFree(const char* address, size_t size)
                 Assert(false);
             }
         }
-        LeaveCriticalSection(&trackerCriticalSection);
+        trackerCriticalSection.Leave();
     }
     return true;
 }
@@ -7765,14 +7763,14 @@ Recycler::TrackUnallocated(__in char* address, __in  char *endAddress, size_t si
     {
         if (this->trackerDictionary != nullptr)
         {
-            EnterCriticalSection(&trackerCriticalSection);
+            trackerCriticalSection.Enter();
             while (address + sizeCat <= endAddress)
             {
                 Assert(GetTrackerData(address) == nullptr);
                 SetTrackerData(address, &TrackerData::EmptyData);
                 address += sizeCat;
             }
-            LeaveCriticalSection(&trackerCriticalSection);
+            trackerCriticalSection.Leave();
         }
     }
 }
@@ -8009,7 +8007,7 @@ Recycler::VerifyMarkStack()
     }
 }
 
-bool 
+bool
 Recycler::VerifyMark(void * target)
 {
     return VerifyMark(nullptr, target);

@@ -1010,7 +1010,7 @@ public:
 
     // Release pages that has already been decommitted
     void    ReleaseDecommitted(void * address, size_t pageCount, __in void * segment);
-    bool IsAddressFromAllocator(__in void* address);    
+    bool IsAddressFromAllocator(__in void* address);
     bool    AllocXdata() { return allocXdata; }
 
 private:
