@@ -5,6 +5,13 @@
 #pragma once
 
 class CriticalSection
+#ifndef _WIN32
+: public CCSpinLock
+{
+public:
+    CriticalSection(DWORD spincount = 0): CCSpinLock(true) { }
+};
+#else // _WIN32
 {
 public:
     CriticalSection(DWORD spincount = 0)
@@ -23,6 +30,7 @@ public:
 private:
     CRITICAL_SECTION cs;
 };
+#endif
 
 //FakeCriticalSection mimics CriticalSection apis
 class FakeCriticalSection
@@ -103,4 +111,3 @@ public:
 private:
     SyncObject * cs;
 };
-
