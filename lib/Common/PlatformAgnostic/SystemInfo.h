@@ -33,6 +33,7 @@ namespace PlatformAgnostic
         }
 
         static bool GetMaxVirtualMemory(size_t *totalAS);
+        static void GetBinaryLocation(char *path, const unsigned size);
     };
 } // namespace PlatformAgnostic
 
