@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------------------------------------------
 
 #include "RuntimePlatformAgnosticPch.h"
-#include "..\..\Common\PlatformAgnostic\SystemInfo.h"
+#include "../../Common/PlatformAgnostic/SystemInfo.h"
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h> // _NSGetExecutablePath
