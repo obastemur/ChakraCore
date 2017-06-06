@@ -6,6 +6,11 @@
 #include "RuntimePlatformAgnosticPch.h"
 #include "Common.h"
 #include "ChakraPlatform.h"
+#if defined(__APPLE__)
+#include <mach-o/dyld.h> // _NSGetExecutablePath
+#elif defined(__linux__)
+#include <unistd.h> // readlink
+#endif
 
 namespace PlatformAgnostic
 {
