@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 //-------------------------------------------------------------------------------------------------------
 
-#include "Common.h"
-#include "ChakraPlatform.h"
+#include "RuntimePlatformAgnosticPch.h"
+
 #if defined(__APPLE__)
 #include <mach-o/dyld.h> // _NSGetExecutablePath
 #elif defined(__linux__)
