@@ -5,6 +5,7 @@
 
 #include "RuntimePlatformAgnosticPch.h"
 #include "../../Common/PlatformAgnostic/SystemInfo.h"
+#include "../../Common/Core/CommonTypedefs.h"
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h> // _NSGetExecutablePath
@@ -12,13 +13,13 @@
 #include <unistd.h> // readlink
 #endif
 
-namespace PlatformAgnostic
-{
 #define SET_BINARY_PATH_ERROR_MESSAGE(path, msg) \
     str_len = (int) strlen(msg);                 \
     memcpy(path, msg, (size_t)str_len);          \
     path[str_len] = char(0)
 
+namespace PlatformAgnostic
+{
     void SystemInfo::GetBinaryLocation(char *path, const unsigned size)
     {
         AssertMsg(path != nullptr, "Path can not be nullptr");
