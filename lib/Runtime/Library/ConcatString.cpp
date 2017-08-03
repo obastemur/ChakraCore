@@ -187,13 +187,34 @@ namespace Js
         return sz;
     }
 
+    void ConcatStringBuilder::SetItemAt(int index, JavascriptString* str)
+    {
+        Assert(index < this->GetLength() && str != nullptr);
+        Assert(m_slots[index] == nullptr);
+        str = CompoundString::GetImmutableOrScriptUnreferencedString(str);
+        m_slots[index] = str;
+        this->SetLength(this->GetLength() + str->GetLength());
+    }
+
+    void ConcatStringBuilder::AppendSkip(int skipCount)
+    {
+        // Note: we are quite lucky here because we always add 1 (no more) string to us.
+        Assert(m_count + skipCount < m_slotCount);
+#ifdef DEBUG
+        for (int i = 0; i < skipCount; i++)
+        {
+            m_slots[i] = nullptr;
+        }
+#endif
+        m_count += skipCount;
+    }
+
     // Append/concat a new string to us.
     // The idea is that we will grow/realloc current slot if new size fits into MAX chunk size (c_maxChunkSlotCount).
     // Otherwise we will create a new chunk.
     void ConcatStringBuilder::Append(JavascriptString* str)
     {
         // Note: we are quite lucky here because we always add 1 (no more) string to us.
-
         Assert(str);
         charcount_t len = this->GetLength(); // This is len of all chunks.
 

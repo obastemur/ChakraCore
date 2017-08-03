@@ -11,6 +11,14 @@
 static const int JSONspaceSize = 10; //ES5 defined limit on the indentation space
 using namespace Js;
 
+#if defined(ITEMS_PER_STRINGIFY_MEMBEROBJECT) || (ITEMS_PER_STRINGIFY_WITHTAG)
+  || (ITEMS_PER_STRINGIFY_NOTAG)
+#error "This shouldn't happen!"
+#endif
+
+#define ITEMS_PER_STRINGIFY_MEMBEROBJECT 4
+#define ITEMS_PER_STRINGIFY_WITHTAG      6
+#define ITEMS_PER_STRINGIFY_NOTAG        2
 
 namespace JSON
 {
@@ -584,18 +592,22 @@ namespace JSON
         Js::JavascriptString* memberSeparator = NULL;       // comma  or comma+linefeed+indent
         Js::JavascriptString* indentString = NULL;          // gap*indent
         Js::RecyclableObject* object = Js::RecyclableObject::FromVar(value);
-        Js::JavascriptString* result = NULL;
+        Js::ConcatStringBuilder* result = NULL;
+        int extraSize = this->gap ? 6 : 2;
+        int skipCount = this->gap ? 3 : 1;
 
         if(ReplacerArray == this->replacerType)
         {
-            result = Js::ConcatStringBuilder::New(this->scriptContext, this->replacer.propertyList.length); // Reserve initial slots for properties.
-
+            extraSize += this->replacer.propertyList.length * ITEMS_PER_STRINGIFY_MEMBEROBJECT;
+            result = Js::ConcatStringBuilder::New(this->scriptContext, this->replacer.propertyList.length + extraSize); // Reserve initial slots for properties.
+            result->AppendSkip(skipCount);
             for (uint k = 0; k < this->replacer.propertyList.length;  k++)
             {
                 propertyName = replacer.propertyList.propertyNames[k].propName;
                 id = replacer.propertyList.propertyNames[k].propRecord->GetPropertyId();
 
-                StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember,  isEmpty);
+                StringifyMemberObject(propertyName, id, value, result, indentString,
+                  memberSeparator, isFirstMember,  isEmpty);
             }
         }
         else
@@ -607,7 +619,9 @@ namespace JSON
 
                 // filter enumerable keys
                 uint32 resultLength = proxyResult->GetLength();
-                result = Js::ConcatStringBuilder::New(this->scriptContext, resultLength);    // Reserve initial slots for properties.
+                extraSize += resultLength * ITEMS_PER_STRINGIFY_MEMBEROBJECT;
+                result = Js::ConcatStringBuilder::New(this->scriptContext, resultLength + extraSize);    // Reserve initial slots for properties.
+                result->AppendSkip(skipCount);
                 Var element;
                 for (uint32 i = 0; i < resultLength; i++)
                 {
@@ -623,7 +637,8 @@ namespace JSON
                     {
                         if (propertyDescriptor.IsEnumerable())
                         {
-                            StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember, isEmpty);
+                            StringifyMemberObject(propertyName, id, value, result,
+                              indentString, memberSeparator, isFirstMember, isEmpty);
                         }
                     }
                 }
@@ -641,20 +656,27 @@ namespace JSON
                         precisePropertyCount = propertyCount;
                     }
 
-                    result = Js::ConcatStringBuilder::New(this->scriptContext, propertyCount);    // Reserve initial slots for properties.
-
+                    // +1 due to enumerator ends up + 1
+                    extraSize += (propertyCount + 1) * ITEMS_PER_STRINGIFY_MEMBEROBJECT;
+                    result = Js::ConcatStringBuilder::New(this->scriptContext, propertyCount + extraSize + 1);    // Reserve initial slots for properties.
+                    result->AppendSkip(skipCount);
                     if (ReplacerFunction != replacerType)
                     {
+#ifdef DEBUG
+                        int enumPropertyCount = 0;
+#endif
                         enumerator.Reset();
                         while ((propertyName = enumerator.MoveAndGetNext(id)) != NULL)
                         {
-                             if (id == Js::Constants::NoProperty)
+                            Assert (++enumPropertyCount <= propertyCount);
+                            if (id == Js::Constants::NoProperty)
                             {
                                 //if unsuccessful get propertyId from the string
                                 scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propRecord);
                                 id = propRecord->GetPropertyId();
                             }
-                            StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember, isEmpty);
+                            StringifyMemberObject(propertyName, id, value,
+                              result, indentString, memberSeparator, isFirstMember, isEmpty);
                         }
                     }
                     else // case: ES5 && ReplacerFunction == replacerType.
@@ -694,7 +716,8 @@ namespace JSON
                                 propertyName = Js::JavascriptString::FromVar(nameTable[k]);
                                 scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propRecord);
                                 id = propRecord->GetPropertyId();
-                                StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember, isEmpty);
+                                StringifyMemberObject(propertyName, id, value,
+                                  result, indentString, memberSeparator, isFirstMember, isEmpty);
                             }
                         }
                         RELEASE_TEMP_GUEST_ALLOCATOR(nameTableAlloc, scriptContext);
@@ -706,36 +729,40 @@ namespace JSON
 
         if(isEmpty)
         {
-            result = scriptContext->GetLibrary()->GetEmptyObjectString();
+            this->indent = stepBackIndent;
+            return scriptContext->GetLibrary()->GetEmptyObjectString();
         }
         else
         {
+            JavascriptLibrary *library = scriptContext->GetLibrary();
+#ifdef DEBUG
+            int oldCount = result->GetItemCount();
+#endif
             if(this->gap)
             {
-                JavascriptLibrary *library = scriptContext->GetLibrary();
                 if(!indentString)
                 {
                     indentString = GetIndentString(this->indent);
                 }
                 // Note: it's better to use strings with length = 1 as the are cached/new instances are not created every time.
-                Js::ConcatStringN<7>* retVal = Js::ConcatStringN<7>::New(this->scriptContext);
-                retVal->SetItem(0, library->GetOpenBracketString());
-                retVal->SetItem(1, library->GetNewLineString());
-                retVal->SetItem(2, indentString);
-                retVal->SetItem(3, result);
-                retVal->SetItem(4, library->GetNewLineString());
-                retVal->SetItem(5, GetIndentString(stepBackIndent));
-                retVal->SetItem(6, library->GetCloseBracketString());
-                result = retVal;
+                result->SetItemAt(0, library->GetOpenBracketString());
+                result->SetItemAt(1, library->GetNewLineString());
+                result->SetItemAt(2, indentString);
+                result->Append(library->GetNewLineString());
+                result->Append(GetIndentString(stepBackIndent));
+                result->Append(library->GetCloseBracketString());
+                Assert(result->GetItemCount() == oldCount + (ITEMS_PER_STRINGIFY_WITHTAG / 2));
             }
             else
             {
-                result = Js::ConcatStringWrapping<_u('{'), _u('}')>::New(result);
+                result->SetItemAt(0, library->GetOpenBracketString());
+                result->Append(library->GetCloseBracketString());
+                Assert(result->GetItemCount() == oldCount + (ITEMS_PER_STRINGIFY_NOTAG / 2));
             }
-        }
 
-        this->indent = stepBackIndent;
-        return result;
+            this->indent = stepBackIndent;
+            return result;
+        }
     }
 
     Js::JavascriptString* StringifySession::GetArrayElementString(uint32 index, Js::Var arrayVar)
@@ -764,25 +791,33 @@ namespace JSON
         }
         else
         {
-            int64 len = Js::JavascriptConversion::ToLength(Js::JavascriptOperators::OP_GetLength(value, scriptContext), scriptContext);
+            int64 len = Js::JavascriptConversion::ToLength(
+              Js::JavascriptOperators::OP_GetLength(value, scriptContext), scriptContext);
             if (MaxCharCount <= len)
             {
-                // If the length goes more than MaxCharCount we will eventually fail (as OOM) in ConcatStringBuilder - so failing early.
+                // If the length goes more than MaxCharCount we will eventually
+                // fail (as OOM) in ConcatStringBuilder - so failing early.
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_OutOfBoundString);
             }
             length = (uint32)len;
         }
 
-        Js::JavascriptString* result;
         if (length == 0)
         {
-            result = scriptContext->GetLibrary()->GetEmptyArrayString();
+            this->indent = stepBackIndent;
+            return scriptContext->GetLibrary()->GetEmptyArrayString();
         }
         else
         {
+            int extraSize = this->gap ? 6 : 2;
+            int skipCount = this->gap ? 3 : 1;
+            Js::ConcatStringBuilder* result = Js::ConcatStringBuilder::New(this->scriptContext,
+              extraSize + (length * 2 - 1));
+            result->AppendSkip(skipCount);
+
             if (length == 1)
             {
-                result = GetArrayElementString(0, value);
+                result->Append(GetArrayElementString(0, value));
             }
             else
             {
@@ -795,44 +830,46 @@ namespace JSON
                 bool isFirstMember = true;
 
                 // Total node count: number of array elements (N = length) + indents [including member separators] (N = length - 1).
-                result = Js::ConcatStringBuilder::New(this->scriptContext, length * 2 - 1);
                 for (uint32 k = 0; k < length; k++)
                 {
                     if (!isFirstMember)
                     {
-                        ((Js::ConcatStringBuilder*)result)->Append(memberSeparator);
+                        result->Append(memberSeparator);
                     }
                     Js::JavascriptString* arrayElementString = GetArrayElementString(k, value);
-                    ((Js::ConcatStringBuilder*)result)->Append(arrayElementString);
+                    result->Append(arrayElementString);
                     isFirstMember = false;
                 }
             }
 
+            JavascriptLibrary *library = scriptContext->GetLibrary();
+#ifdef DEBUG
+            int oldCount = result->GetItemCount();
+#endif
             if (this->gap)
             {
-                JavascriptLibrary *library = scriptContext->GetLibrary();
                 if (!indentString)
                 {
                     indentString = GetIndentString(this->indent);
                 }
-                Js::ConcatStringN<7>* retVal = Js::ConcatStringN<7>::New(this->scriptContext);
-                retVal->SetItem(0, library->GetOpenSBracketString());
-                retVal->SetItem(1, library->GetNewLineString());
-                retVal->SetItem(2, indentString);
-                retVal->SetItem(3, result);
-                retVal->SetItem(4, library->GetNewLineString());
-                retVal->SetItem(5, GetIndentString(stepBackIndent));
-                retVal->SetItem(6, library->GetCloseSBracketString());
-                result = retVal;
+                result->SetItemAt(0, library->GetOpenSBracketString());
+                result->SetItemAt(1, library->GetNewLineString());
+                result->SetItemAt(2, indentString);
+                result->Append(library->GetNewLineString());
+                result->Append(GetIndentString(stepBackIndent));
+                result->Append(library->GetCloseSBracketString());
+                Assert(result->GetItemCount() == oldCount + (ITEMS_PER_STRINGIFY_WITHTAG / 2));
             }
             else
             {
-                result = Js::ConcatStringWrapping<_u('['), _u(']')>::New(result);
+                result->SetItemAt(0, library->GetOpenSBracketString());
+                result->Append(library->GetCloseSBracketString());
+                Assert(result->GetItemCount() == oldCount + (ITEMS_PER_STRINGIFY_NOTAG / 2));
             }
-        }
 
-        this->indent = stepBackIndent;
-        return result;
+            this->indent = stepBackIndent;
+            return result;
+        }
     }
 
     Js::JavascriptString* StringifySession::GetPropertySeparator()
@@ -883,8 +920,9 @@ namespace JSON
         Js::Var propertyObjectString = Str(propertyName, id, value);
         if(!Js::JavascriptOperators::IsUndefinedObject(propertyObjectString, scriptContext))
         {
-            int slotIndex = 0;
-            Js::ConcatStringN<4>* tempResult = Js::ConcatStringN<4>::New(this->scriptContext);   // We may use 3 or 4 slots.
+#ifdef DEBUG
+            int oldCount = result->GetItemCount();
+#endif
             if(!isFirstMember)
             {
                 if(!indentString)
@@ -892,13 +930,14 @@ namespace JSON
                     indentString = GetIndentString(this->indent);
                     memberSeparator = GetMemberSeparator(indentString);
                 }
-                tempResult->SetItem(slotIndex++, memberSeparator);
+                result->Append(memberSeparator);
             }
-            tempResult->SetItem(slotIndex++, Quote(propertyName));
-            tempResult->SetItem(slotIndex++, this->GetPropertySeparator());
-            tempResult->SetItem(slotIndex++, Js::JavascriptString::FromVar(propertyObjectString));
+            result->Append(Quote(propertyName));
+            result->Append(this->GetPropertySeparator());
+            result->Append(Js::JavascriptString::FromVar(propertyObjectString));
 
-            result->Append(tempResult);
+            Assert(result->GetItemCount() - oldCount <= ITEMS_PER_STRINGIFY_MEMBEROBJECT);
+            // result->Append(tempResult);
             isFirstMember = false;
             isEmpty = false;
         }
@@ -954,3 +993,7 @@ namespace JSON
         return Js::JSONString::Escape<Js::EscapingOperation_NotEscape>(value);
     }
 } // namespace JSON
+
+#undef ITEMS_PER_STRINGIFY_MEMBEROBJECT
+#undef ITEMS_PER_STRINGIFY_WITHTAG
+#undef ITEMS_PER_STRINGIFY_NOTAG

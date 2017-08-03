@@ -148,11 +148,13 @@ namespace Js
         static ConcatStringBuilder* New(ScriptContext* scriptContext, int initialSlotCount);
         const char16 * GetSz() override sealed;
         void Append(JavascriptString* str);
+        void AppendSkip(int skipCount);
+        void SetItemAt(int index, JavascriptString* str);
+        int GetItemCount() const;
 
     private:
         // MAX number of slots in one chunk. Until we fit into this, we realloc, otherwise create new chunk.
         static const int c_maxChunkSlotCount = 1024;
-        int GetItemCount() const;
 
         Field(Field(JavascriptString*)*) m_slots; // Array of child nodes.
         Field(int) m_slotCount;   // Number of allocated slots (1 slot holds 1 item) in this chunk.
@@ -264,5 +266,3 @@ namespace Js
         }
     };
 }
-
-
