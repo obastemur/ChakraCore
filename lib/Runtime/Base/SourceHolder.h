@@ -75,7 +75,8 @@ namespace Js
         virtual int GetHashCode() override
         {
             Assert(byteLength < MAXUINT32);
-            return JsUtil::CharacterBuffer<utf8char_t>::StaticGetHashCode(source, (charcount_t)byteLength);
+            JsUtil::CharacterBuffer<unsigned char> pBuffer(source, (charcount_t)byteLength);
+            return pBuffer.GetHashCode();
         }
 
         virtual void Finalize(bool isShutdown) override

@@ -279,10 +279,12 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
     return opObject;
 }
 
-Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
+Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptContext, const WCHAR *propertyName, size_t len)
 {
     Js::PropertyRecord const *propertyRecord;
-    scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
+    if (len == 0) len = wcslen(propertyName);
+    JsUtil::CharacterBuffer<WCHAR> propertyBuffer(propertyName, len);
+    scriptContext->GetOrAddPropertyRecord(propertyBuffer, &propertyRecord);
     Js::PropertyId propertyId = propertyRecord->GetPropertyId();
 
     return propertyId;
@@ -296,7 +298,7 @@ void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, const char16 *prop
         return;
     }
 
-    Js::PropertyId id = CreateProperty(obj->GetScriptContext(), propertyName);
+    Js::PropertyId id = CreateProperty(obj->GetScriptContext(), propertyName, len);
     SetProperty(obj, id, value);
 }
 

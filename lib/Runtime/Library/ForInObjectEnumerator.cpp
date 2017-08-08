@@ -152,7 +152,7 @@ namespace Js
     }
 
     JavascriptString * ForInObjectEnumerator::MoveAndGetNext(PropertyId& propertyId)
-    {        
+    {
         PropertyRecord const * propRecord;
         PropertyAttributes attributes = PropertyNone;
 
@@ -194,7 +194,8 @@ namespace Js
                     else
                     {
                         ScriptContext* scriptContext = currentIndex->GetScriptContext();
-                        scriptContext->GetOrAddPropertyRecord(currentIndex->GetString(), currentIndex->GetLength(), &propRecord);
+                        JsUtil::CharacterBuffer<WCHAR> pBuffer(currentIndex->GetString(), currentIndex->GetLength());
+                        scriptContext->GetOrAddPropertyRecord(pBuffer, &propRecord);
                         propertyId = propRecord->GetPropertyId();
 
                         // We keep the track of what is enumerated using a bit vector of propertyID.
@@ -220,7 +221,7 @@ namespace Js
 
                 RecyclableObject * object;
                 if (!this->enumeratingPrototype)
-                {  
+                {
                     this->enumeratingPrototype = true;
                     object = this->shadowData->firstPrototype;
                     this->shadowData->currentObject = object;

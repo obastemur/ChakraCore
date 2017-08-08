@@ -2484,7 +2484,8 @@ namespace Js
                                         else
                                         {
                                             const PropertyRecord* propertyRecord;
-                                            objectContext->GetOrAddPropertyRecord(obj->GetSz(), obj->GetLength(), &propertyRecord);
+                                            JsUtil::CharacterBuffer<WCHAR> propName(obj->GetSz(), obj->GetLength());
+                                            objectContext->GetOrAddPropertyRecord(propName, &propertyRecord);
                                             propertyId = propertyRecord->GetPropertyId();
                                         }
                                     }

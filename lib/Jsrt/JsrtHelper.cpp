@@ -86,8 +86,8 @@ void JsrtCallbackState::ObjectBeforeCallectCallbackWrapper(JsObjectBeforeCollect
 #if !defined(_WIN32) || defined(CHAKRA_STATIC_LIBRARY)
     void ChakraBinaryAutoSystemInfoInit(AutoSystemInfo * autoSystemInfo)
     {
-        autoSystemInfo->buildDateHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__DATE__, _countof(__DATE__));
-        autoSystemInfo->buildTimeHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__TIME__, _countof(__TIME__));
+        autoSystemInfo->buildDateHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__DATE__, _countof(__DATE__) - 1);
+        autoSystemInfo->buildTimeHash = JsUtil::CharacterBuffer<char>::StaticGetHashCode(__TIME__, _countof(__TIME__) - 1);
     }
 
 #ifndef _WIN32

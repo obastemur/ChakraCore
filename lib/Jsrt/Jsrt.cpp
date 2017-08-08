@@ -2814,18 +2814,17 @@ CHAKRA_API JsIsRuntimeExecutionDisabled(_In_ JsRuntimeHandle runtimeHandle, _Out
     return JsNoError;
 }
 
-CHAKRA_API JsGetPropertyIdFromName(_In_z_ const WCHAR *name, _Out_ JsPropertyIdRef *propertyId)
+CHAKRA_API JsGetPropertyIdFromName(_In_z_ const WCHAR *name, size_t cPropertyNameLength, _Out_ JsPropertyIdRef *propertyId)
 {
     return ContextAPINoScriptWrapper_NoRecord([&](Js::ScriptContext * scriptContext) -> JsErrorCode {
         PARAM_NOT_NULL(name);
         PARAM_NOT_NULL(propertyId);
         *propertyId = nullptr;
 
-        size_t cPropertyNameLength = wcslen(name);
-
         if (cPropertyNameLength <= INT_MAX)
         {
-            scriptContext->GetOrAddPropertyRecord(name, static_cast<int>(cPropertyNameLength), (Js::PropertyRecord const **)propertyId);
+            JsUtil::CharacterBuffer<WCHAR> propertyBuffer(name, cPropertyNameLength);
+            scriptContext->GetOrAddPropertyRecord(propertyBuffer, (Js::PropertyRecord const **)propertyId);
 
             return JsNoError;
         }
@@ -4420,7 +4419,7 @@ CHAKRA_API JsCreatePropertyId(
         return JsErrorOutOfMemory;
     }
 
-    return JsGetPropertyIdFromName(wname, propertyId);
+    return JsGetPropertyIdFromName(wname, wname.Length(), propertyId);
 }
 
 CHAKRA_API JsCopyPropertyId(

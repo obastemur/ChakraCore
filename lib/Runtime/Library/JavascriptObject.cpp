@@ -1536,8 +1536,8 @@ namespace Js
             if (nextKey == Constants::NoProperty)
             {
                 PropertyRecord const * propertyRecord = nullptr;
-
-                scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName->GetString(), propertyName->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
                 nextKey = propertyRecord->GetPropertyId();
             }
 
@@ -1689,7 +1689,8 @@ namespace Js
         {
             if (propId == Constants::NoProperty) //try current property id query first
             {
-                scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName->GetString(), propertyName->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
                 propId = propertyRecord->GetPropertyId();
             }
             else

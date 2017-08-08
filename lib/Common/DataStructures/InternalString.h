@@ -42,7 +42,8 @@ namespace Js
 
         inline static hash_t GetHashCode(InternalString const& str)
         {
-            return JsUtil::CharacterBuffer<char16>::StaticGetHashCode(str.GetBuffer(), str.GetLength());
+            JsUtil::CharacterBuffer<char16> pBuffer(str.GetBuffer(), str.GetLength());
+            return pBuffer.GetHashCode();
         }
     };
 }

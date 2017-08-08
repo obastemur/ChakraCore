@@ -314,14 +314,16 @@ CommonNumber:
                 }
                 else
                 {
-                    scriptContext->GetOrAddPropertyRecord(propName->GetString(), propName->GetLength(), propertyRecord);
+                    JsUtil::CharacterBuffer<WCHAR> pBuffer(propName->GetString(), propName->GetLength());
+                    scriptContext->GetOrAddPropertyRecord(pBuffer, propertyRecord);
                     PropertyString * propStr = scriptContext->GetPropertyString((*propertyRecord)->GetPropertyId());
                     str->SetPropertyString(propStr);
                 }
             }
             else
             {
-                scriptContext->GetOrAddPropertyRecord(propName->GetString(), propName->GetLength(), propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(propName->GetString(), propName->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, propertyRecord);
             }
         }
     }

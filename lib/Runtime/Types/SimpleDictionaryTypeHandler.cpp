@@ -63,7 +63,8 @@ namespace Js
         }
         else
         {
-            scriptContext->GetOrAddPropertyRecord(key->GetString(), key->GetLength(), &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(key->GetString(), key->GetLength());
+            scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         }
         return propertyRecord;
     }
@@ -101,7 +102,8 @@ namespace Js
         }
         else
         {
-            threadContext->GetOrAddPropertyId(key->GetString(), key->GetLength(), &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(key->GetSz(), key->GetLength());
+            threadContext->GetOrAddPropertyId(pBuffer, &propertyRecord);
         }
         return propertyRecord;
     }
@@ -1229,7 +1231,8 @@ namespace Js
         // or we have to add it to the dictionary, in which case we need to get or create a PropertyRecord.
         // Thus, just get or create one and call the PropertyId overload of SetProperty.
         PropertyRecord const * propertyRecord;
-        instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        instance->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return SimpleDictionaryTypeHandlerBase<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::SetProperty(instance, propertyRecord->GetPropertyId(), value, flags, info);
     }
 

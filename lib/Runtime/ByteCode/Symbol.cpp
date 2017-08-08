@@ -177,7 +177,7 @@ void Symbol::RestoreHasFuncAssignment()
     }
 }
 
-Symbol * Symbol::GetFuncScopeVarSym() const
+Symbol * Symbol::GetFuncScopeVarSym()
 {
     if (!this->GetIsBlockVar())
     {

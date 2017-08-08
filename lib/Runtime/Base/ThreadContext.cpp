@@ -386,7 +386,8 @@ void ThreadContext::GlobalInitialize()
 {
     for (int i = 0; i < _countof(builtInPropertyRecords); i++)
     {
-        builtInPropertyRecords[i]->SetHash(JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(builtInPropertyRecords[i]->GetBuffer(), builtInPropertyRecords[i]->GetLength()));
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(builtInPropertyRecords[i]->GetBuffer(), builtInPropertyRecords[i]->GetLength());
+        builtInPropertyRecords[i]->SetHash(pBuffer.GetHashCode());
     }
 }
 
@@ -881,17 +882,10 @@ ThreadContext::GetPropertyNameImpl(Js::PropertyId propertyId)
 }
 
 void
-ThreadContext::FindPropertyRecord(Js::JavascriptString *pstName, Js::PropertyRecord const ** propertyRecord)
-{
-    LPCWSTR psz = pstName->GetSz();
-    FindPropertyRecord(psz, pstName->GetLength(), propertyRecord);
-}
-
-void
-ThreadContext::FindPropertyRecord(__in LPCWSTR propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord)
+ThreadContext::FindPropertyRecord(JsUtil::CharacterBuffer<WCHAR> &propertyBuffer, Js::PropertyRecord const ** propertyRecord)
 {
     EnterPinnedScope((volatile void **)propertyRecord);
-    *propertyRecord = FindPropertyRecord(propertyName, propertyNameLength);
+    *propertyRecord = FindPropertyRecord(propertyBuffer);
     LeavePinnedScope();
 }
 
@@ -908,27 +902,21 @@ ThreadContext::IsNumericProperty(Js::PropertyId propertyId)
 }
 
 const Js::PropertyRecord *
-ThreadContext::FindPropertyRecord(const char16 * propertyName, int propertyNameLength)
+ThreadContext::FindPropertyRecord(JsUtil::CharacterBuffer<WCHAR> &propertyBuffer)
 {
     Js::PropertyRecord const * propertyRecord = nullptr;
 
-    if (IsDirectPropertyName(propertyName, propertyNameLength))
+    if (IsDirectPropertyName(propertyBuffer))
     {
-        propertyRecord = propertyNamesDirect[propertyName[0]];
-        Assert(propertyRecord == propertyMap->LookupWithKey(Js::HashedCharacterBuffer<char16>(propertyName, propertyNameLength)));
+        propertyRecord = propertyNamesDirect[propertyBuffer.GetBuffer()[0]];
+        Assert(propertyRecord == propertyMap->LookupWithKey(propertyBuffer));
     }
     else
     {
-        propertyRecord = propertyMap->LookupWithKey(Js::HashedCharacterBuffer<char16>(propertyName, propertyNameLength));
+        propertyRecord = propertyMap->LookupWithKey(propertyBuffer);
     }
 
     return propertyRecord;
-}
-
-Js::PropertyRecord const *
-ThreadContext::UncheckedAddPropertyId(__in LPCWSTR propertyName, __in int propertyNameLength, bool bind, bool isSymbol)
-{
-    return UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR>(propertyName, propertyNameLength), bind, isSymbol);
 }
 
 void ThreadContext::InitializePropertyMaps()
@@ -976,9 +964,9 @@ void ThreadContext::UncheckedAddBuiltInPropertyId()
 }
 
 bool
-ThreadContext::IsDirectPropertyName(const char16 * propertyName, int propertyNameLength)
+ThreadContext::IsDirectPropertyName(JsUtil::CharacterBuffer<char16>& propertyName)
 {
-    return ((propertyNameLength == 1) && ((propertyName[0] & 0xFF80) == 0));
+    return ((propertyName.GetLength() == 1) && ((propertyName.GetBuffer()[0] & 0xFF80) == 0));
 }
 
 RecyclerWeakReference<const Js::PropertyRecord> *
@@ -1000,7 +988,7 @@ ThreadContext::CreatePropertyRecordWeakRef(const Js::PropertyRecord * propertyRe
 }
 
 Js::PropertyRecord const *
-ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& propertyName, bool bind, bool isSymbol)
+ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR>& propertyName, bool bind, bool isSymbol)
 {
 #if ENABLE_TTD
     if(isSymbol & this->IsRuntimeInTTDMode())
@@ -1026,7 +1014,7 @@ ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& prop
 
     // Automatically bind direct (single-character) property names, so that they can be
     // stored in the direct property table
-    if (IsDirectPropertyName(propertyName.GetBuffer(), propertyName.GetLength()))
+    if (IsDirectPropertyName(propertyName))
     {
         bind = true;
     }
@@ -1041,12 +1029,12 @@ ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& prop
     Js::PropertyRecord * propertyRecord;
     if (bind)
     {
-        propertyRecord = AnewPlus(GetThreadAlloc(), allocLength, Js::PropertyRecord, propertyName.GetBuffer(), length, bytelength, isSymbol);
+        propertyRecord = AnewPlus(GetThreadAlloc(), allocLength, Js::PropertyRecord, propertyName, bytelength, isSymbol);
         propertyRecord->isBound = true;
     }
     else
     {
-        propertyRecord = RecyclerNewFinalizedLeafPlus(recycler, allocLength, Js::PropertyRecord, propertyName.GetBuffer(), length, bytelength, isSymbol);
+        propertyRecord = RecyclerNewFinalizedLeafPlus(recycler, allocLength, Js::PropertyRecord, propertyName, bytelength, isSymbol);
     }
 
     Js::PropertyId propertyId = this->GetNextPropertyId();
@@ -1079,13 +1067,14 @@ ThreadContext::AddPropertyRecordInternal(const Js::PropertyRecord * propertyReco
 
     Assert(propertyId == GetNextPropertyId());
     Assert(!IsActivePropertyId(propertyId));
+    JsUtil::CharacterBuffer<char16> pBuffer(propertyName, propertyNameLength);
 
 #if DBG
     // Only Assert we can't find the property if we are not adding a symbol.
     // For a symbol, the propertyName is not used and may collide with something in the map already.
     if (!propertyRecord->IsSymbol())
     {
-        Assert(FindPropertyRecord(propertyName, propertyNameLength) == nullptr);
+        Assert(FindPropertyRecord(pBuffer) == nullptr);
     }
 #endif
 
@@ -1114,7 +1103,7 @@ ThreadContext::AddPropertyRecordInternal(const Js::PropertyRecord * propertyReco
 
     // Do not store the pid for symbols in the direct property name table.
     // We don't want property ids for symbols to be searchable anyway.
-    if (!propertyRecord->IsSymbol() && IsDirectPropertyName(propertyName, propertyNameLength))
+    if (!propertyRecord->IsSymbol() && IsDirectPropertyName(pBuffer))
     {
         // Store the pids for single character properties in the propertyNamesDirect array.
         // This property record should have been created as bound by the caller.
@@ -1134,7 +1123,7 @@ ThreadContext::AddPropertyRecordInternal(const Js::PropertyRecord * propertyReco
     // For a symbol, the propertyName is not used and we won't be able to look the pid up via name.
     if (!propertyRecord->IsSymbol())
     {
-        Assert(FindPropertyRecord(propertyName, propertyNameLength) == propertyRecord);
+        Assert(FindPropertyRecord(pBuffer) == propertyRecord);
     }
     // We will still be able to lookup the symbol property by the property id, so go ahead and check that.
     Assert(GetPropertyName(propertyRecord->GetPropertyId()) == propertyRecord);
@@ -1183,12 +1172,7 @@ ThreadContext::BindPropertyRecord(const Js::PropertyRecord * propertyRecord)
     }
 }
 
-void ThreadContext::GetOrAddPropertyId(__in LPCWSTR propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord)
-{
-    GetOrAddPropertyId(JsUtil::CharacterBuffer<WCHAR>(propertyName, propertyNameLength), propertyRecord);
-}
-
-void ThreadContext::GetOrAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& propertyName, Js::PropertyRecord const ** propRecord)
+void ThreadContext::GetOrAddPropertyId(JsUtil::CharacterBuffer<WCHAR>& propertyName, Js::PropertyRecord const ** propRecord)
 {
     EnterPinnedScope((volatile void **)propRecord);
     *propRecord = GetOrAddPropertyRecord(propertyName);
@@ -1196,13 +1180,13 @@ void ThreadContext::GetOrAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& pro
 }
 
 const Js::PropertyRecord *
-ThreadContext::GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<char16> propertyName, bool bind)
+ThreadContext::GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<char16>& propertyName, bool bind)
 {
     // Make sure the recycler is around so that we can take weak references to the property strings
     EnsureRecycler();
 
     const Js::PropertyRecord * propertyRecord;
-    FindPropertyRecord(propertyName.GetBuffer(), propertyName.GetLength(), &propertyRecord);
+    FindPropertyRecord(propertyName, &propertyRecord);
 
     if (propertyRecord == nullptr)
     {
@@ -1311,13 +1295,7 @@ void ThreadContext::CreateNoCasePropertyMap()
 }
 
 JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>*
-ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, LPCWSTR propertyName, int propertyNameLength)
-{
-    return ThreadContext::FindPropertyIdNoCase(scriptContext, JsUtil::CharacterBuffer<WCHAR>(propertyName,  propertyNameLength));
-}
-
-JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>*
-ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<WCHAR> const& propertyName)
+ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<WCHAR>& propertyName)
 {
     if (caseInvariantPropertySet == nullptr)
     {
@@ -1332,7 +1310,7 @@ ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::C
 }
 
 bool
-ThreadContext::FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<WCHAR> const& propertyName, Js::CaseInvariantPropertyListWithHashCode** list)
+ThreadContext::FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<WCHAR>& propertyName, Js::CaseInvariantPropertyListWithHashCode** list)
 {
     Js::CaseInvariantPropertyListWithHashCode* l = this->caseInvariantPropertySet->LookupWithKey(propertyName);
 
@@ -4274,35 +4252,34 @@ void ThreadContext::EnsureSymbolRegistrationMap()
     }
 }
 
-const Js::PropertyRecord* ThreadContext::GetSymbolFromRegistrationMap(const char16* stringKey, charcount_t stringLength)
+const Js::PropertyRecord* ThreadContext::GetSymbolFromRegistrationMap(JsUtil::CharacterBuffer<WCHAR> &propertyBuffer)
 {
     this->EnsureSymbolRegistrationMap();
 
-    Js::HashedCharacterBuffer<char16> propertyName = Js::HashedCharacterBuffer<char16>(stringKey, stringLength);
-
-    return this->recyclableData->symbolRegistrationMap->LookupWithKey(&propertyName, nullptr);
+    return this->recyclableData->symbolRegistrationMap->LookupWithKey(&propertyBuffer, nullptr);
 }
 
-const Js::PropertyRecord* ThreadContext::AddSymbolToRegistrationMap(const char16* stringKey, charcount_t stringLength)
+const Js::PropertyRecord* ThreadContext::AddSymbolToRegistrationMap(JsUtil::CharacterBuffer<WCHAR> &propertyBuffer)
 {
     this->EnsureSymbolRegistrationMap();
 
-    const Js::PropertyRecord* propertyRecord = this->UncheckedAddPropertyId(stringKey, stringLength, /*bind*/false, /*isSymbol*/true);
+    const Js::PropertyRecord* propertyRecord = this->UncheckedAddPropertyId(propertyBuffer, /*bind*/false, /*isSymbol*/true);
 
     Assert(propertyRecord);
 
     // We need to support null characters in the Symbol names. For e.g. "A\0Z" is a valid symbol name and is different than "A\0Y".
     // However, as the key contains a null character we need to hash the symbol name past the null character. The default implementation terminates
-    // at the null character, so we use the Js::HashedCharacterBuffer as key. We allocate the key in the recycler memory as it needs to be around
+    // at the null character, so we use the JsUtil::CharacterBuffer as key. We allocate the key in the recycler memory as it needs to be around
     // for the lifetime of the map.
-    Js::HashedCharacterBuffer<char16> * propertyName = RecyclerNew(GetRecycler(), Js::HashedCharacterBuffer<char16>, propertyRecord->GetBuffer(), propertyRecord->GetLength());
+    JsUtil::CharacterBuffer<char16> * propertyName = RecyclerNew(GetRecycler(), JsUtil::CharacterBuffer<char16>, propertyRecord->GetBuffer(), propertyRecord->GetLength());
+    propertyName->SetHashCode(propertyRecord->GetHashCode());
     this->recyclableData->symbolRegistrationMap->Add(propertyName, propertyRecord);
 
     return propertyRecord;
 }
 
 #if ENABLE_TTD
-JsUtil::BaseDictionary<Js::HashedCharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* ThreadContext::GetSymbolRegistrationMap_TTD()
+JsUtil::BaseDictionary<JsUtil::CharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* ThreadContext::GetSymbolRegistrationMap_TTD()
 {
     //This adds a little memory but makes simplifies other logic -- maybe revise later
     this->EnsureSymbolRegistrationMap();

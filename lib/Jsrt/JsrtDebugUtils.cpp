@@ -125,7 +125,8 @@ void JsrtDebugUtils::AddVarPropertyToObject(Js::DynamicObject * object, const ch
     const Js::PropertyRecord* propertyRecord;
 
     // propertyName is the DEBUGOBJECTPROPERTY from JsrtDebugPropertiesEnum so it can't have embedded null, ok to use wcslen
-    scriptContext->GetOrAddPropertyRecord(propertyName, static_cast<int>(wcslen(propertyName)), &propertyRecord);
+    JsUtil::CharacterBuffer<WCHAR> propertyBuffer(propertyName, wcslen(propertyName));
+    scriptContext->GetOrAddPropertyRecord(propertyBuffer, &propertyRecord);
 
     Js::Var marshaledObj = Js::CrossSite::MarshalVar(scriptContext, value);
 
@@ -414,7 +415,8 @@ bool JsrtDebugUtils::HasProperty(Js::DynamicObject * object, JsrtDebugPropertyId
     const char16* propertyName = GetDebugPropertyName(propertyId);
 
     const Js::PropertyRecord* propertyRecord;
-    scriptContext->FindPropertyRecord(propertyName, static_cast<int>(wcslen(propertyName)), &propertyRecord);
+    JsUtil::CharacterBuffer<char16> pBuffer(propertyName, static_cast<int>(wcslen(propertyName)));
+    scriptContext->FindPropertyRecord(pBuffer, &propertyRecord);
 
     if (propertyRecord == nullptr)
     {

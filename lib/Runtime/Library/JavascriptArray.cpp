@@ -2580,7 +2580,8 @@ namespace Js
     {
         DescriptorFlags flags;
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetSetterBuiltIns(propertyRecord->GetPropertyId(), info, &flags))
         {
@@ -2907,7 +2908,8 @@ namespace Js
     Var JavascriptArray::DirectGetItem(JavascriptString *propName, ScriptContext* scriptContext)
     {
         PropertyRecord const * propertyRecord;
-        scriptContext->GetOrAddPropertyRecord(propName->GetString(), propName->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propName->GetString(), propName->GetLength());
+        scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return JavascriptOperators::GetProperty(this, propertyRecord->GetPropertyId(), scriptContext, NULL);
     }
 
@@ -5336,7 +5338,7 @@ Case0:
             {
                 RecyclableObject* protoObj = prototype;
 
-                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj)) 
+                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj))
                     || JavascriptProxy::Is(protoObj)
                     || protoObj->IsExternal())
                 {
@@ -12244,7 +12246,8 @@ Case0:
             "Numeric property names should have been converted to uint or PropertyRecord*");
 
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value))
         {
@@ -12391,7 +12394,8 @@ Case0:
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(this);
 #endif
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && propertyRecord->GetPropertyId() == PropertyIds::length)
         {

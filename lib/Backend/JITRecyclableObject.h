@@ -80,6 +80,7 @@ struct DefaultComparer<JITJavascriptString*>
 
     inline static uint GetHashCode(JITJavascriptString * pStr)
     {
-        return JsUtil::CharacterBuffer<char16>::StaticGetHashCode(pStr->GetString(), pStr->GetLength());
+        JsUtil::CharacterBuffer<char16> pBuffer(pStr->GetString(), pStr->GetLength());
+        return pBuffer.GetHashCode();
     }
 };

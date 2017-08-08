@@ -788,7 +788,8 @@ namespace Js
         Var indexNumber = JavascriptNumber::New(index, scriptContext);
         JavascriptString* indexPropertyName = JavascriptConversion::ToString(indexNumber, scriptContext);
         PropertyRecord const * propertyRecord;
-        scriptContext->GetOrAddPropertyRecord(indexPropertyName->GetString(), indexPropertyName->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(indexPropertyName->GetString(), indexPropertyName->GetLength());
+        scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return this->IsEnumerable(propertyRecord->GetPropertyId());
     }
 

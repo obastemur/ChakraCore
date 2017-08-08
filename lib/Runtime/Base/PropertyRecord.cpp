@@ -21,16 +21,18 @@ namespace Js
     {
     }
 
-    PropertyRecord::PropertyRecord(const WCHAR* buffer, const int length, DWORD bytelength, bool isSymbol)
+    PropertyRecord::PropertyRecord(JsUtil::CharacterBuffer<WCHAR>& propertyName, DWORD bytelength, bool isSymbol)
         : pid(Js::Constants::NoProperty), isSymbol(isSymbol), byteCount(bytelength)
     {
-        Assert(length >= 0 && buffer != nullptr);
+        Assert(propertyName.GetLength() >= 0 && propertyName.GetBuffer() != nullptr);
 
         WCHAR* target = (WCHAR*)((PropertyRecord*)this + 1);
+        hash = propertyName.GetHashCode(); // hash must be cached so far
+        const WCHAR* buffer = propertyName.GetBuffer();
+        const charcount_t length = propertyName.GetLength();
         isNumeric = (isSymbol || length > 10 || length <= 0) ? false : true;
-        hash = 0;
 
-        for (int i = 0; i < length; i++)
+        for (charcount_t i = 0; i < length; i++)
         {
             const WCHAR byte = buffer[i];
             if (isNumeric)
@@ -38,8 +40,6 @@ namespace Js
                 if (byte < _u('0') || byte > _u('9'))
                   isNumeric = false;
             }
-
-            CC_HASH_LOGIC(hash, byte);
             target[i] = byte;
         }
         target[length] = WCHAR(0);

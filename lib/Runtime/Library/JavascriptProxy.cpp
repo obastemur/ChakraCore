@@ -564,7 +564,8 @@ namespace Js
         };
         auto getPropertyId = [&]()->PropertyId{
             const PropertyRecord* propertyRecord;
-            requestContext->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+            requestContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
             return propertyRecord->GetPropertyId();
         };
         PropertyDescriptor result;
@@ -588,7 +589,7 @@ namespace Js
         }
         return FALSE;
     }
-  
+
     BOOL JavascriptProxy::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
     {
         PropertyDescriptor result;
@@ -669,7 +670,7 @@ namespace Js
         }
         else
         {
-            // ES2017 Spec'ed (9.1.9.1): 
+            // ES2017 Spec'ed (9.1.9.1):
             // If existingDescriptor is not undefined, then
             //    If IsAccessorDescriptor(existingDescriptor) is true, return false.
             //    If existingDescriptor.[[Writable]] is false, return false.
@@ -693,7 +694,8 @@ namespace Js
     BOOL JavascriptProxy::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
     {
         const PropertyRecord* propertyRecord;
-        GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
     }
 
@@ -1799,7 +1801,8 @@ namespace Js
     BOOL JavascriptProxy::SetPropertyTrap(Var receiver, SetPropertyTrapKind setPropertyTrapKind, Js::JavascriptString * propertyNameString, Var newValue, ScriptContext* requestContext)
     {
         const PropertyRecord* propertyRecord;
-        requestContext->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        requestContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return SetPropertyTrap(receiver, setPropertyTrapKind, propertyRecord->GetPropertyId(), newValue, requestContext);
 
     }
@@ -1982,11 +1985,12 @@ namespace Js
 
     void JavascriptProxy::PropertyIdFromInt(uint32 index, PropertyRecord const** propertyRecord)
     {
-        char16 buffer[20];
+        char16 buffer[22];
 
-        ::_i64tow_s(index, buffer, sizeof(buffer) / sizeof(char16), 10);
+        int pos = TaggedInt::ToBuffer(index, buffer, 22);
 
-        GetScriptContext()->GetOrAddPropertyRecord((LPCWSTR)buffer, static_cast<int>(wcslen(buffer)), propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(buffer + index, 22 - index);
+        GetScriptContext()->GetOrAddPropertyRecord(pBuffer, propertyRecord);
     }
 
     Var JavascriptProxy::GetName(ScriptContext* requestContext, PropertyId propertyId)
@@ -2021,8 +2025,9 @@ namespace Js
                 autoProxyName = Js::Configuration::Global.flags.autoProxy;
             }
 
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(autoProxyName, static_cast<charcount_t>(wcslen(autoProxyName)));
             threadContext->handlerPropertyId = threadContext->GetOrAddPropertyRecordBind(
-                JsUtil::CharacterBuffer<WCHAR>(autoProxyName, static_cast<charcount_t>(wcslen(autoProxyName))))->GetPropertyId();
+                pBuffer)->GetPropertyId();
         }
         return threadContext->handlerPropertyId;
     }

@@ -165,7 +165,8 @@ struct DefaultComparer<Js::ByteBuffer*>
 
     static hash_t GetHashCode(Js::ByteBuffer const * str)
     {
-        return JsUtil::CharacterBuffer<char>::StaticGetHashCode(str->s8, str->byteCount);
+        JsUtil::CharacterBuffer<char> pBuffer(str->s8, str->byteCount);
+        return pBuffer.GetHashCodeNoCache();
     }
 };
 
@@ -747,7 +748,8 @@ public:
         auto buffer = propertyRecord->GetBuffer();
 #if DBG
         const PropertyRecord * propertyRecordCheck;
-        scriptContext->FindPropertyRecord(buffer, propertyRecord->GetLength(), &propertyRecordCheck);
+        JsUtil::CharacterBuffer<char16> pBuffer(buffer, propertyRecord->GetLength());
+        scriptContext->FindPropertyRecord(pBuffer, &propertyRecordCheck);
         Assert(propertyRecordCheck == propertyRecord);
 #endif
         auto bb = Anew(alloc, ByteBuffer, (uint32)byteCount, (void*)buffer);
@@ -2763,7 +2765,8 @@ public:
             if (isPropertyString)
             {
                 PropertyRecord const * propertyRecord;
-                scriptContext->GetOrAddPropertyRecord(string, len, &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> propName(string, len);
+                scriptContext->GetOrAddPropertyRecord(propName, &propertyRecord);
                 str = scriptContext->GetPropertyString(propertyRecord->GetPropertyId());
             }
             else
@@ -2784,7 +2787,8 @@ public:
             if (isPropertyString)
             {
                 PropertyRecord const * propertyRecord;
-                scriptContext->GetOrAddPropertyRecord(string, len, &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> propName(string, len);
+                scriptContext->GetOrAddPropertyRecord(propName, &propertyRecord);
                 str = scriptContext->GetPropertyString(propertyRecord->GetPropertyId());
             }
             else
@@ -4120,15 +4124,18 @@ void ByteCodeCache::PopulateLookupPropertyId(ScriptContext * scriptContext, int 
     {
         auto propertyNameLength = reader->GetString16LengthById(idInCache);
 
-        const Js::PropertyRecord * propertyRecord = scriptContext->GetThreadContext()->GetOrAddPropertyRecordBind(
-            JsUtil::CharacterBuffer<char16>(propertyName, propertyNameLength));
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyName, propertyNameLength);
+        const Js::PropertyRecord * propertyRecord =
+            scriptContext->GetThreadContext()->GetOrAddPropertyRecordBind(pBuffer);
 
         propertyIds[realOffset] = propertyRecord->GetPropertyId();
     }
 }
 
 // Serialize function body
-HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext, ArenaAllocator * alloc, DWORD sourceByteLength, LPCUTF8 utf8Source, FunctionBody * function, SRCINFO const* srcInfo, bool allocateBuffer, byte ** buffer, DWORD * bufferBytes, DWORD dwFlags)
+HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext,
+  ArenaAllocator * alloc, DWORD sourceByteLength, LPCUTF8 utf8Source, FunctionBody * function,
+  SRCINFO const* srcInfo, bool allocateBuffer, byte ** buffer, DWORD * bufferBytes, DWORD dwFlags)
 {
 
     int builtInPropertyCount = (dwFlags & GENERATE_BYTE_CODE_BUFFER_LIBRARY) != 0 ?  PropertyIds::_countJSOnlyProperty : TotalNumberOfBuiltInProperties;

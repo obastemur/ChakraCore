@@ -15,13 +15,15 @@ Var GetImportVariable(Wasm::WasmImport* wi, ScriptContext* ctx, Var ffi)
     PropertyRecord const * modPropertyRecord = nullptr;
     const char16* modName = wi->modName;
     uint32 modNameLen = wi->modNameLen;
-    ctx->GetOrAddPropertyRecord(modName, modNameLen, &modPropertyRecord);
+    JsUtil::CharacterBuffer<WCHAR> pBufferMod(modName, modNameLen);
+    ctx->GetOrAddPropertyRecord(pBufferMod, &modPropertyRecord);
     Var modProp = JavascriptOperators::OP_GetProperty(ffi, modPropertyRecord->GetPropertyId(), ctx);
 
     const char16* name = wi->importName;
     uint32 nameLen = wi->importNameLen;
     PropertyRecord const * propertyRecord = nullptr;
-    ctx->GetOrAddPropertyRecord(name, nameLen, &propertyRecord);
+    JsUtil::CharacterBuffer<WCHAR> pBuffer(name, nameLen);
+    ctx->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
 
     if (!RecyclableObject::Is(modProp))
     {
@@ -241,7 +243,8 @@ Var WebAssemblyInstance::BuildObject(WebAssemblyModule * wasmModule, ScriptConte
         if (wasmExport)
         {
             PropertyRecord const * propertyRecord = nullptr;
-            scriptContext->GetOrAddPropertyRecord(wasmExport->name, wasmExport->nameLength, &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(wasmExport->name, wasmExport->nameLength);
+            scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
 
             Var obj = scriptContext->GetLibrary()->GetUndefined();
             switch (wasmExport->kind)
@@ -431,7 +434,7 @@ void WebAssemblyInstance::LoadGlobals(WebAssemblyModule * wasmModule, ScriptCont
             {
                 JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidGlobalRef);
             }
-            
+
             if (sourceGlobal->GetType() != global->GetType())
             {
                 JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidTypeConversion);

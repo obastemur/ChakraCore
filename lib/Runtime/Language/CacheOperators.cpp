@@ -91,7 +91,7 @@ namespace Js
     void CacheOperators::CachePropertyReadForGetter(
         PropertyValueInfo *info,
         Var originalInstance,
-        JsUtil::CharacterBuffer<WCHAR> const& propertyName,
+        JsUtil::CharacterBuffer<WCHAR>& propertyName,
         ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;

@@ -2533,7 +2533,8 @@ LABEL1:
     {
         DescriptorFlags flags;
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetSetterBuiltIns(propertyRecord->GetPropertyId(), setterValue, info, requestContext, &flags))
         {
@@ -2910,7 +2911,8 @@ LABEL1:
     {
         BOOL result;
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         result = JavascriptConversion::PropertyQueryFlagsToBoolean(DynamicObject::GetPropertyQuery(originalInstance, propertyNameString, value, info, requestContext)) ? TRUE : FALSE;
         if (result)
@@ -3022,7 +3024,8 @@ LABEL1:
     BOOL JavascriptFunction::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
     {
         PropertyRecord const * propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr)
         {

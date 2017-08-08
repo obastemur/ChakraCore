@@ -180,10 +180,11 @@ namespace Js
     }
 
     // TODO remove when refactor
-    Js::PropertyId GlobalObject::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
+    Js::PropertyId GlobalObject::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName, size_t length)
     {
         Js::PropertyRecord const *propertyRecord;
-        scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName, length);
+        scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         Js::PropertyId propertyId = propertyRecord->GetPropertyId();
 
         return propertyId;
@@ -198,7 +199,7 @@ namespace Js
             return;
         }
 
-        Js::PropertyId id = CreateProperty(obj->GetScriptContext(), propertyName);
+        Js::PropertyId id = CreateProperty(obj->GetScriptContext(), propertyName, len);
         SetProperty(obj, id, value);
     }
 
@@ -1799,7 +1800,8 @@ LHexError:
     PropertyQueryFlags GlobalObject::GetPropertyQuery(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        this->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return GlobalObject::GetPropertyQuery(originalInstance, propertyRecord->GetPropertyId(), value, info, requestContext);
     }
 
@@ -2011,7 +2013,8 @@ LHexError:
     BOOL GlobalObject::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
     {
         PropertyRecord const * propertyRecord;
-        this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        this->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return GlobalObject::SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
     }
 
@@ -2096,7 +2099,8 @@ LHexError:
     DescriptorFlags GlobalObject::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        this->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return GlobalObject::GetSetter(propertyRecord->GetPropertyId(), setterValue, info, requestContext);
     }
 

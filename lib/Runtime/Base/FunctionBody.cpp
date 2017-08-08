@@ -951,7 +951,7 @@ namespace Js
         this->MapFunctionObjectTypes([&](ScriptFunctionType* functionType)
         {
             Assert(functionType->GetTypeId() == TypeIds_Function);
-            
+
             if (!CrossSite::IsThunk(functionType->GetEntryPoint()))
             {
                 functionType->SetEntryPoint(GetScriptContext()->DeferredParsingThunk);
@@ -1379,7 +1379,7 @@ namespace Js
     }
 
     PropertyId
-    ParseableFunctionInfo::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName)
+    ParseableFunctionInfo::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR>& propName)
     {
         Assert(this->GetBoundPropertyRecords() != nullptr);
 
@@ -2205,7 +2205,7 @@ namespace Js
 
         {
             AutoRestoreFunctionInfo autoRestoreFunctionInfo(this, DefaultEntryThunk);
-            
+
 
             // If m_hasBeenParsed = true, one of the following things happened things happened:
             // - We had multiple function objects which were all defer-parsed, but with the same function body and one of them
@@ -4212,13 +4212,14 @@ namespace Js
     {
         ScriptContext *scriptContext = this->GetScriptContext();
         PropertyRecord const * propertyRecord;
+        JsUtil::CharacterBuffer<WCHAR> propertyBuffer(psz, cch);
         if (forcePropertyString)
         {
-            scriptContext->GetOrAddPropertyRecord(psz, cch, &propertyRecord);
+            scriptContext->GetOrAddPropertyRecord(propertyBuffer, &propertyRecord);
         }
         else
         {
-            scriptContext->FindPropertyRecord(psz, cch, &propertyRecord);
+            scriptContext->FindPropertyRecord(propertyBuffer, &propertyRecord);
         }
         Var str;
         if (propertyRecord == nullptr)
@@ -4682,7 +4683,7 @@ namespace Js
         });
     }
 
-    void FunctionBody::InsertSymbolToRegSlotList(JsUtil::CharacterBuffer<WCHAR> const& propName, RegSlot reg, RegSlot totalRegsCount)
+    void FunctionBody::InsertSymbolToRegSlotList(JsUtil::CharacterBuffer<WCHAR>& propName, RegSlot reg, RegSlot totalRegsCount)
     {
         if (totalRegsCount > 0)
         {
@@ -6344,7 +6345,7 @@ namespace Js
         this->SetConstTable(nullptr);
         this->byteCodeBlock = nullptr;
 
-        // Also, remove the function body from the source info to prevent any further processing 
+        // Also, remove the function body from the source info to prevent any further processing
         // of the function such as attempts to set breakpoints.
         if (GetIsFuncRegistered())
         {
@@ -7934,7 +7935,7 @@ namespace Js
         this->SetScopeSlotArraySizes(0, 0);
 
         // Manually clear these values to break any circular references
-        // that might prevent the script context from being disposed        
+        // that might prevent the script context from being disposed
         this->auxPtrs = nullptr;
         this->byteCodeBlock = nullptr;
         this->entryPoints = nullptr;
@@ -9791,7 +9792,7 @@ namespace Js
         this->functionProxy->MapFunctionObjectTypes([&](ScriptFunctionType* functionType)
         {
             Assert(functionType->GetTypeId() == TypeIds_Function);
-            
+
             if (functionType->GetEntryPointInfo() == this)
             {
                 functionType->SetEntryPointInfo(entryPoint);

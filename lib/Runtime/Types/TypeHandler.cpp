@@ -565,7 +565,7 @@ namespace Js
         }
     }
 
-    void DynamicTypeHandler::SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<WCHAR> const& propertyName, Var value, SideEffects possibleSideEffects)
+    void DynamicTypeHandler::SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<WCHAR>& propertyName, Var value, SideEffects possibleSideEffects)
     {
         if (possibleSideEffects)
         {
@@ -588,7 +588,8 @@ namespace Js
             else if (instance == scriptContext->GetLibrary()->GetMathObject())
             {
                 PropertyRecord const* propertyRecord;
-                scriptContext->FindPropertyRecord(propertyName.GetBuffer(), propertyName.GetLength(), &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName.GetBuffer(), propertyName.GetLength());
+                scriptContext->FindPropertyRecord(pBuffer, &propertyRecord);
 
                 if (propertyRecord && IsMathLibraryId(propertyRecord->GetPropertyId()))
                 {
@@ -738,13 +739,14 @@ namespace Js
     BOOL DynamicTypeHandler::DeleteProperty(DynamicObject* instance, JavascriptString* propertyNameString, PropertyOperationFlags flags)
     {
         PropertyRecord const *propertyRecord = nullptr;
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
         if (!JavascriptOperators::CanShortcutOnUnknownPropertyName(instance))
         {
-            instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+            instance->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         }
         else
         {
-            instance->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+            instance->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
         }
 
         if (propertyRecord == nullptr)
@@ -767,7 +769,8 @@ namespace Js
 
     PropertyId DynamicTypeHandler::TMapKey_GetPropertyId(ScriptContext* scriptContext, JavascriptString* key)
     {
-        return scriptContext->GetOrAddPropertyIdTracked(key->GetSz(), key->GetLength());
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(key->GetSz(), key->GetLength());
+        return scriptContext->GetOrAddPropertyIdTracked(pBuffer);
     }
 
 #if ENABLE_TTD

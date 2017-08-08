@@ -55,7 +55,8 @@ namespace Js
         IndexType_JavascriptString
     };
 
-    IndexType GetIndexTypeFromString(char16 const * propertyName, charcount_t propertyLength, ScriptContext* scriptContext, uint32* index, PropertyRecord const** propertyRecord, bool createIfNotFound)
+    IndexType GetIndexTypeFromString(char16 const * propertyName, charcount_t propertyLength,
+      ScriptContext* scriptContext, uint32* index, PropertyRecord const** propertyRecord, bool createIfNotFound)
     {
         if (JavascriptOperators::TryConvertToUInt32(propertyName, propertyLength, index) &&
             (*index != JavascriptArray::InvalidIndex))
@@ -64,13 +65,14 @@ namespace Js
         }
         else
         {
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName, propertyLength);
             if (createIfNotFound)
             {
-                scriptContext->GetOrAddPropertyRecord(propertyName, propertyLength, propertyRecord);
+                scriptContext->GetOrAddPropertyRecord(pBuffer, propertyRecord);
             }
             else
             {
-                scriptContext->FindPropertyRecord(propertyName, propertyLength, propertyRecord);
+                scriptContext->FindPropertyRecord(pBuffer, propertyRecord);
             }
             return IndexType_PropertyId;
         }
@@ -94,16 +96,17 @@ namespace Js
                 char16 buffer[20];
                 ::_itow_s(indexInt, buffer, sizeof(buffer) / sizeof(char16), 10);
                 charcount_t length = JavascriptString::GetBufferLength(buffer);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(buffer, length);
                 if (createIfNotFound || preferJavascriptStringOverPropertyRecord)
                 {
                     // When preferring JavascriptString objects, just return a PropertyRecord instead
                     // of creating temporary JavascriptString objects for every negative integer that
                     // comes through here.
-                    scriptContext->GetOrAddPropertyRecord(buffer, length, propertyRecord);
+                    scriptContext->GetOrAddPropertyRecord(pBuffer, propertyRecord);
                 }
                 else
                 {
-                    scriptContext->FindPropertyRecord(buffer, length, propertyRecord);
+                    scriptContext->FindPropertyRecord(pBuffer, propertyRecord);
                 }
                 return IndexType_PropertyId;
             }
@@ -486,7 +489,8 @@ namespace Js
 #if DBG
                     JavascriptString* indexStr = JavascriptConversion::ToString(index, scriptContext);
                     PropertyRecord const * debugPropertyRecord;
-                    scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &debugPropertyRecord);
+                    JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+                    scriptContext->GetOrAddPropertyRecord(pBuffer, &debugPropertyRecord);
                     AssertMsg(!JavascriptOperators::GetProperty(instance, object, debugPropertyRecord->GetPropertyId(), &member, scriptContext), "how did this property come? See OS Bug 2727708 if you see this come from the web");
 #endif
 
@@ -2718,13 +2722,14 @@ CommonNumber:
     bool JavascriptOperators::ShouldTryDeleteProperty(RecyclableObject* instance, JavascriptString *propertyNameString, PropertyRecord const **pPropertyRecord)
     {
         PropertyRecord const *propertyRecord = nullptr;
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
         if (!JavascriptOperators::CanShortcutOnUnknownPropertyName(instance))
         {
-            instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+            instance->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         }
         else
         {
-            instance->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+            instance->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
         }
 
         if (propertyRecord == nullptr)
@@ -3247,7 +3252,8 @@ CommonNumber:
 #if DBG
                 JavascriptString* indexStr = JavascriptConversion::ToString(index, scriptContext);
                 PropertyRecord const * debugPropertyRecord;
-                scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &debugPropertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &debugPropertyRecord);
                 AssertMsg(!JavascriptOperators::HasProperty(object, debugPropertyRecord->GetPropertyId()), "how did this property come? See OS Bug 2727708 if you see this come from the web");
 #endif
 
@@ -3874,7 +3880,8 @@ CommonNumber:
             {
                 JavascriptString* indexStr = JavascriptConversion::ToString(index, scriptContext);
                 PropertyRecord const * debugPropertyRecord;
-                scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &debugPropertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &debugPropertyRecord);
                 AssertMsg(!JavascriptOperators::GetProperty(receiver, object, debugPropertyRecord->GetPropertyId(), &value, scriptContext), "how did this property come? See OS Bug 2727708 if you see this come from the web");
             }
 #endif
@@ -4086,7 +4093,8 @@ CommonNumber:
             {
                 JavascriptString* indexStr = JavascriptConversion::ToString(index, scriptContext);
                 PropertyRecord const * debugPropertyRecord;
-                scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &debugPropertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &debugPropertyRecord);
                 AssertMsg(!JavascriptOperators::GetPropertyReference(instance, object, debugPropertyRecord->GetPropertyId(), &value, scriptContext, NULL),
                           "how did this property come? See OS Bug 2727708 if you see this come from the web");
             }
@@ -4411,7 +4419,8 @@ CommonNumber:
                 propertyString = str->GetPropertyString();
                 if (propertyString == nullptr)
                 {
-                    scriptContext->GetOrAddPropertyRecord(str->GetString(), str->GetLength(), &propertyRecord);
+                    JsUtil::CharacterBuffer<WCHAR> pBuffer(str->GetString(), str->GetLength());
+                    scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
                     propertyString = scriptContext->GetPropertyString(propertyRecord->GetPropertyId());
                     str->SetPropertyString(propertyString);
                 }
@@ -4947,7 +4956,8 @@ CommonNumber:
             {
                 JavascriptString* indexStr = JavascriptConversion::ToString(index, scriptContext);
                 PropertyRecord const * debugPropertyRecord;
-                scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &debugPropertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+                scriptContext->GetOrAddPropertyRecord(pBuffer, &debugPropertyRecord);
                 AssertMsg(JavascriptOperators::DeleteProperty(object, debugPropertyRecord->GetPropertyId(), propertyOperationFlags), "delete should have been true. See OS Bug 2727708 if you see this come from the web");
             }
 #endif
@@ -6611,7 +6621,8 @@ CommonNumber:
         else
         {
             JavascriptString * indexStr = JavascriptConversion::ToString(propertyName, scriptContext);
-            scriptContext->GetOrAddPropertyRecord(indexStr->GetString(), indexStr->GetLength(), &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(indexStr->GetString(), indexStr->GetLength());
+            scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         }
 
         return propertyRecord->GetPropertyId();
@@ -8493,7 +8504,8 @@ CommonNumber:
     {
         char16 buffer[20];
         ::_ui64tow_s(value, buffer, sizeof(buffer)/sizeof(char16), 10);
-        scriptContext->GetOrAddPropertyRecord(buffer, JavascriptString::GetBufferLength(buffer), propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(buffer, JavascriptString::GetBufferLength(buffer));
+        scriptContext->GetOrAddPropertyRecord(pBuffer, propertyRecord);
     }
 
     void JavascriptOperators::GetPropertyIdForInt(uint32 value, ScriptContext* scriptContext, PropertyRecord const ** propertyRecord)

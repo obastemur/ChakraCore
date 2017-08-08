@@ -1821,7 +1821,7 @@ namespace Js
         JavascriptLibrary* library = arrayBufferConstructor->GetLibrary();
         library->AddMember(arrayBufferConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(arrayBufferConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->arrayBufferPrototype, PropertyNone);
-        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);       
+        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
         {
@@ -6436,7 +6436,8 @@ namespace Js
     {
         ENTER_PINNED_SCOPE(const Js::PropertyRecord, propertyRecord);
 
-        propertyRecord = this->scriptContext->GetThreadContext()->UncheckedAddPropertyId(description, descriptionLength, /*bind*/false, /*isSymbol*/true);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(description, descriptionLength);
+        propertyRecord = this->scriptContext->GetThreadContext()->UncheckedAddPropertyId(pBuffer, /*bind*/false, /*isSymbol*/true);
 
         LEAVE_PINNED_SCOPE();
 
@@ -7371,7 +7372,10 @@ namespace Js
 
 #define REG_OBJECTS_DYNAMIC_LIB_FUNC(pwszFunctionName, nFuncNameLen, entryPoint) {\
     Js::PropertyRecord const * propRecord; \
-    this->GetScriptContext()->GetOrAddPropertyRecord(pwszFunctionName, nFuncNameLen, &propRecord); \
+    { \
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(pwszFunctionName, nFuncNameLen); \
+        this->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propRecord); \
+    } \
     REG_LIB_FUNC_CORE(pwszObjectName, pwszFunctionName, propRecord->GetPropertyId(), entryPoint)\
 }
 

@@ -203,7 +203,8 @@ namespace Js
     {
         // Consider: Implement actual string hash lookup
         PropertyRecord const* propertyRecord;
-        instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        instance->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return PathTypeHandlerBase::HasProperty(instance, propertyRecord->GetPropertyId());
     }
 
@@ -241,13 +242,14 @@ namespace Js
         char16 const * propertyName = propertyNameString->GetString();
         charcount_t const propertyNameLength = propertyNameString->GetLength();
 
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName, propertyNameLength);
         if (instance->HasObjectArray())
         {
-            requestContext->GetOrAddPropertyRecord(propertyName, propertyNameLength, &propertyRecord);
+            requestContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         }
         else
         {
-            requestContext->FindPropertyRecord(propertyName, propertyNameLength, &propertyRecord);
+            requestContext->FindPropertyRecord(pBuffer, &propertyRecord);
             if (propertyRecord == nullptr)
             {
                 *value = requestContext->GetMissingPropertyResult();
@@ -266,7 +268,8 @@ namespace Js
     {
         // Consider: Implement actual string hash lookup
         PropertyRecord const* propertyRecord;
-        instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyNameString->GetString(), propertyNameString->GetLength());
+        instance->GetScriptContext()->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
         return PathTypeHandlerBase::SetProperty(instance, propertyRecord->GetPropertyId(), value, flags, info);
     }
 

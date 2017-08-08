@@ -27,7 +27,7 @@ namespace Js
             }
             else
             {
-                hash = TAGHASH((hash_t)str);
+                hash = TAGHASH(str.GetHashCode());
             }
         };
 

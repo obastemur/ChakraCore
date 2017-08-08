@@ -1283,7 +1283,9 @@ Js::RegSlot ByteCodeGenerator::DefineOneFunction(ParseNode *pnodeFnc, FuncInfo *
                 {
                     if (!funcSymbol->IsInSlot(funcInfoParent))
                     {
-                        funcInfoParent->byteCodeFunction->GetFunctionBody()->InsertSymbolToRegSlotList(funcSymbol->GetName(), pnodeFnc->location, funcInfoParent->varRegsCount);
+                        funcInfoParent->byteCodeFunction->GetFunctionBody()
+                          ->InsertSymbolToRegSlotList(funcSymbol->GetName(),
+                            pnodeFnc->location, funcInfoParent->varRegsCount);
                     }
                 }
 
@@ -1426,7 +1428,7 @@ void ByteCodeGenerator::DefineUserVars(FuncInfo *funcInfo)
                             byteCodeFunction->InsertSymbolToRegSlotList(sym->GetName(), reg, funcInfo->varRegsCount);
                         }
                     }
-                }  
+                }
                 sym->SetHasInit(TRUE);
             }
         }
@@ -1996,7 +1998,7 @@ void ByteCodeGenerator::LoadAllConstants(FuncInfo *funcInfo)
     });
 
     // WARNING !!!
-    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail 
+    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail
     // out (unlikely, since opcodes emitted in this function should not correspond to user code, but possible)
     // and the Jit assumes that there cannot be any bailouts before LdHeapArguments (or its equivalent)
 
@@ -3093,7 +3095,7 @@ void ByteCodeGenerator::EmitOneFunction(ParseNode *pnode)
 
     if (deferParseFunction->IsDeferred() || deferParseFunction->CanBeDeferred())
     {
-        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);        
+        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);
     }
 
     if (funcInfo->root->sxFnc.pnodeBody == nullptr)

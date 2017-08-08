@@ -191,7 +191,8 @@ namespace Js
     {
         BOOL result;
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
         {
@@ -305,7 +306,8 @@ namespace Js
     {
         BOOL result;
         PropertyRecord const * propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
         {

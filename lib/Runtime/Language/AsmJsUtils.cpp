@@ -240,8 +240,10 @@ namespace Js
                         RecyclableObject* object = RecyclableObject::FromVar(*origArgs);
                         PropertyRecord const * lowPropRecord = nullptr;
                         PropertyRecord const * highPropRecord = nullptr;
-                        scriptContext->GetOrAddPropertyRecord(_u("low"), (int)wcslen(_u("low")), &lowPropRecord);
-                        scriptContext->GetOrAddPropertyRecord(_u("high"), (int)wcslen(_u("high")), &highPropRecord);
+                        JsUtil::CharacterBuffer<WCHAR> propNameL(_u("low"), wcslen(_u("low")));
+                        JsUtil::CharacterBuffer<WCHAR> propNameH(_u("high"), wcslen(_u("high")));
+                        scriptContext->GetOrAddPropertyRecord(propNameL, &lowPropRecord);
+                        scriptContext->GetOrAddPropertyRecord(propNameH, &highPropRecord);
                         Var low = JavascriptOperators::OP_GetProperty(object, lowPropRecord->GetPropertyId(), scriptContext);
                         Var high = JavascriptOperators::OP_GetProperty(object, highPropRecord->GetPropertyId(), scriptContext);
 

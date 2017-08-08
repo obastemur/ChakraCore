@@ -137,7 +137,8 @@ namespace JSON
             Js::JavascriptString *propertyName = Js::JavascriptString::FromVar(value);
             nameTable[tableLen].propName = propertyName;
             Js::PropertyRecord const * propertyRecord;
-            scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName->GetString(), propertyName->GetLength());
+            scriptContext->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
             nameTable[tableLen].propRecord = propertyRecord;        // Keep the property id alive.
             tableLen++;
         }
@@ -655,10 +656,11 @@ namespace JSON
                         enumerator.Reset();
                         while ((propertyName = enumerator.MoveAndGetNext(id)) != NULL)
                         {
-                             if (id == Js::Constants::NoProperty)
+                            if (id == Js::Constants::NoProperty)
                             {
                                 //if unsuccessful get propertyId from the string
-                                scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propRecord);
+                                JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName->GetString(), propertyName->GetLength());
+                                scriptContext->GetOrAddPropertyRecord(pBuffer, &propRecord);
                                 id = propRecord->GetPropertyId();
                             }
                             StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember, isEmpty);
@@ -701,7 +703,8 @@ namespace JSON
                             for (uint k = 0; k < precisePropertyCount; k++)
                             {
                                 propertyName = Js::JavascriptString::FromVar(nameTable[k]);
-                                scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propRecord);
+                                JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName->GetString(), propertyName->GetLength());
+                                scriptContext->GetOrAddPropertyRecord(pBuffer, &propRecord);
                                 id = propRecord->GetPropertyId();
                                 StringifyMemberObject(propertyName, id, value, (Js::ConcatStringBuilder*)result, indentString, memberSeparator, isFirstMember, isEmpty);
                             }

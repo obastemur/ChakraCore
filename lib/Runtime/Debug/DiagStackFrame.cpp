@@ -77,7 +77,7 @@ namespace Js
         {
             display = this->GetScriptFunction()->GetEnvironment();
         }
- 
+
         return display;
     }
 
@@ -182,7 +182,8 @@ namespace Js
         else
         {
             Js::PropertyRecord const * propRecord;
-            scriptContext->FindPropertyRecord(source, sourceLength, &propRecord);
+            JsUtil::CharacterBuffer<char16> pBuffer(source, sourceLength);
+            scriptContext->FindPropertyRecord(pBuffer, &propRecord);
             if (propRecord != nullptr)
             {
                 ArenaAllocator *arena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena()->Arena();
@@ -312,7 +313,7 @@ namespace Js
         Js::ScriptContext* scriptContext = this->GetScriptContext();
 
         ArenaAllocator *arena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena()->Arena();
-        Js::LocalsWalker *localsWalker = Anew(arena, Js::LocalsWalker, this, 
+        Js::LocalsWalker *localsWalker = Anew(arena, Js::LocalsWalker, this,
             Js::FrameWalkerFlags::FW_EnumWithScopeAlso | Js::FrameWalkerFlags::FW_AllowLexicalThis | Js::FrameWalkerFlags::FW_AllowSuperReference | Js::FrameWalkerFlags::FW_DontAddGlobalsDirectly);
 
         // Store the diag address of a var to the map so that it will be used for editing the value.

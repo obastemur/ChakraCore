@@ -13,9 +13,9 @@ namespace JsUtil
     class CharacterBuffer
     {
     public:
-        CharacterBuffer() : string(nullptr), len((charcount_t)-1) {}
-        CharacterBuffer(T const * string, charcount_t len) : string(string), len(len) {}
-        CharacterBuffer(const CharacterBuffer& other) : string(other.string), len(other.len) {}
+        CharacterBuffer() : string(nullptr), len((charcount_t)-1), hashCode(0) {}
+        CharacterBuffer(T const * string, charcount_t len) : string(string), len(len), hashCode(0) {}
+        CharacterBuffer(const CharacterBuffer& other) : string(other.string), len(other.len), hashCode(0) {}
 
         bool operator==(CharacterBuffer const& other) const
         {
@@ -27,16 +27,42 @@ namespace JsUtil
             return this->string == other.string || StaticEquals(string, other.string, this->len);
         }
 
-        operator hash_t() const
+        bool HasHashCode() const
         {
-            Assert(string != nullptr);
+            return hashCode != 0;
+        }
+
+        void SetHashCode(hash_t code)
+        {
+            AssertMsg(StaticGetHashCode(string, len) == code, "well... hash code is not matching?");
+            hashCode = code;
+        }
+
+        hash_t GetHashCodeNoCache() const
+        {
+            if (hashCode != 0) return hashCode;
             return StaticGetHashCode(string, len);
         }
 
-        int FastHash() const
+        operator hash_t() const
+        {
+            return GetHashCodeNoCache();
+        }
+
+        hash_t GetHashCode()
         {
             Assert(string != nullptr);
-            return InternalGetHashCode<true>(string, len);
+            if (hashCode) return hashCode;
+            hashCode = StaticGetHashCode(string, len);
+            return hashCode;
+        }
+
+        int FastHash()
+        {
+            Assert(string != nullptr);
+            if (hashCode) return hashCode;
+            hashCode = InternalGetHashCode<true>(string, len);
+            return hashCode;
         }
 
         CharacterBuffer& operator=(T const * s)
@@ -53,7 +79,7 @@ namespace JsUtil
         {
             return InternalGetHashCode<false>(s, length);
         }
-
+private:
         // This must be identical to Trident's getHash function in fastDOMCompiler.pl
         template <bool fastHash>
         static int InternalGetHashCode(__in_z T const * s, __in charcount_t length)
@@ -72,12 +98,13 @@ namespace JsUtil
             }
             return hash;
         }
-
+public:
         T const * GetBuffer() const { return string; }
         charcount_t GetLength() const { return len; }
     private:
         Field(T const *) string;
         Field(charcount_t) len;
+        Field(hash_t) hashCode;
     };
 
     template<>

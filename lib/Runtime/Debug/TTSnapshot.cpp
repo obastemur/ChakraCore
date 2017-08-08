@@ -392,7 +392,7 @@ namespace TTD
     uint32 SnapShot::GetDbgScopeCountNonTopLevel() const
     {
         uint32 dbgScopeCount = 0;
-        for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext()) 
+        for(auto iter = this->m_functionBodyList.GetIterator(); iter.IsValid(); iter.MoveNext())
         {
             dbgScopeCount += iter.Current()->ScopeChainInfo.ScopeCount;
         }
@@ -584,15 +584,15 @@ namespace TTD
         }
 
         //reset the threadContext symbol map
-        JsUtil::BaseDictionary<Js::HashedCharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* tcSymbolRegistrationMap = tCtx->GetThreadContext()->GetSymbolRegistrationMap_TTD();
+        JsUtil::BaseDictionary<JsUtil::CharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* tcSymbolRegistrationMap = tCtx->GetThreadContext()->GetSymbolRegistrationMap_TTD();
         tcSymbolRegistrationMap->Clear();
 
         for(auto iter = this->m_tcSymbolRegistrationMapContents.GetIterator(); iter.IsValid(); iter.MoveNext())
         {
             Js::PropertyId pid = *iter.Current();
             const Js::PropertyRecord* pRecord = tCtx->GetThreadContext()->GetPropertyName(pid);
-            Js::HashedCharacterBuffer<char16> * propertyName = RecyclerNew(tCtx->GetThreadContext()->GetRecycler(), Js::HashedCharacterBuffer<char16>, pRecord->GetBuffer(), pRecord->GetLength());
-
+            JsUtil::CharacterBuffer<char16> * propertyName = RecyclerNew(tCtx->GetThreadContext()->GetRecycler(), JsUtil::CharacterBuffer<char16>, pRecord->GetBuffer(), pRecord->GetLength());
+            propertyName->SetHashCode(pRecord->GetHashCode());
             tcSymbolRegistrationMap->Add(propertyName, pRecord);
         }
     }

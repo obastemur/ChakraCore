@@ -624,7 +624,7 @@ namespace Js
 
     protected:
         void SetPropertyUpdateSideEffect(DynamicObject* instance, PropertyId propertyId, Var value, SideEffects possibleSideEffects);
-        void SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<WCHAR> const& propertyName, Var value, SideEffects possibleSideEffects);
+        void SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<WCHAR>& propertyName, Var value, SideEffects possibleSideEffects);
         PropertyId TMapKey_GetPropertyId(ScriptContext* scriptContext, const PropertyId key);
         PropertyId TMapKey_GetPropertyId(ScriptContext* scriptContext, const PropertyRecord* key);
         PropertyId TMapKey_GetPropertyId(ScriptContext* scriptContext, JavascriptString* key);
@@ -653,7 +653,7 @@ namespace Js
          //Use to extract the handler specific information during snapshot
          virtual uint32 ExtractSlotInfo_TTD(TTD::NSSnapType::SnapHandlerPropertyEntry* entryInfo, ThreadContext* threadContext, TTD::SlabAllocator& alloc) const = 0;
 
-         //Use to lookup the slotid for a propertyid 
+         //Use to lookup the slotid for a propertyid
          virtual Js::BigPropertyIndex GetPropertyIndex_EnumerateTTD(const Js::PropertyRecord* pRecord);
 
          //Extract the snap handler info

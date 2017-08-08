@@ -807,22 +807,12 @@ namespace Js
         return this->Cache()->propertyStrings[i]->strLen2[j];
     }
 
-    void ScriptContext::FindPropertyRecord(JavascriptString *pstName, PropertyRecord const ** propertyRecord)
+    void ScriptContext::FindPropertyRecord(JsUtil::CharacterBuffer<char16>& pBuffer, PropertyRecord const ** propertyRecord)
     {
-        threadContext->FindPropertyRecord(pstName, propertyRecord);
+        threadContext->FindPropertyRecord(pBuffer, propertyRecord);
     }
 
-    void ScriptContext::FindPropertyRecord(__in LPCWSTR propertyName, __in int propertyNameLength, PropertyRecord const ** propertyRecord)
-    {
-        threadContext->FindPropertyRecord(propertyName, propertyNameLength, propertyRecord);
-    }
-
-    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* ScriptContext::FindPropertyIdNoCase(__in LPCWSTR propertyName, __in int propertyNameLength)
-    {
-        return threadContext->FindPropertyIdNoCase(this, propertyName, propertyNameLength);
-    }
-
-    PropertyId ScriptContext::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName)
+    PropertyId ScriptContext::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR>& propName)
     {
         Js::PropertyRecord const * propertyRecord = nullptr;
         threadContext->GetOrAddPropertyId(propName, &propertyRecord);
@@ -832,7 +822,7 @@ namespace Js
         return propertyRecord->GetPropertyId();
     }
 
-    void ScriptContext::GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR> const& propertyName, PropertyRecord const ** propertyRecord)
+    void ScriptContext::GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR>& propertyName, PropertyRecord const ** propertyRecord)
     {
         threadContext->GetOrAddPropertyId(propertyName, propertyRecord);
     }
@@ -840,7 +830,8 @@ namespace Js
     PropertyId ScriptContext::GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR propertyName, __in int propertyNameLength)
     {
         Js::PropertyRecord const * propertyRecord = nullptr;
-        threadContext->GetOrAddPropertyId(propertyName, propertyNameLength, &propertyRecord);
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(propertyName, propertyNameLength);
+        threadContext->GetOrAddPropertyId(pBuffer, &propertyRecord);
         if (propertyNameLength == 2)
         {
             CachePropertyString2(propertyRecord);
@@ -848,15 +839,6 @@ namespace Js
         this->TrackPid(propertyRecord);
 
         return propertyRecord->GetPropertyId();
-    }
-
-    void ScriptContext::GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCWSTR propertyName, __in int propertyNameLength, PropertyRecord const ** propertyRecord)
-    {
-        threadContext->GetOrAddPropertyId(propertyName, propertyNameLength, propertyRecord);
-        if (propertyNameLength == 2)
-        {
-            CachePropertyString2(*propertyRecord);
-        }
     }
 
     BOOL ScriptContext::IsNumericPropertyId(PropertyId propertyId, uint32* value)
@@ -5192,7 +5174,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
         dest.str = src.str;
         dest.strict = src.strict;
         dest.moduleID = src.moduleID;
-        dest.hash = TAGHASH((hash_t)dest.str);
+        dest.hash = TAGHASH((hash_t)dest.str.GetHashCode());
     }
 
     void ScriptContext::PrintStats()

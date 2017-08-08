@@ -1042,7 +1042,7 @@ void ByteCodeGenerator::RestoreOneScope(Js::ScopeInfo * scopeInfo, FuncInfo * fu
             func->SetHasCachedScope(scopeInfo->IsCached());
             break;
     }
-    
+
     Assert(!scopeInfo->IsCached() || scope == func->GetBodyScope());
 
     // scopeInfo->scope was created/saved during parsing.
@@ -1126,7 +1126,8 @@ void ByteCodeGenerator::AssignPropertyId(IdentPtr pid)
 {
     if (pid->GetPropertyId() == Js::Constants::NoProperty)
     {
-        Js::PropertyId id = TopFuncInfo()->byteCodeFunction->GetOrAddPropertyIdTracked(SymbolName(pid->Psz(), pid->Cch()));
+        JsUtil::CharacterBuffer<WCHAR> pBuffer(pid->Psz(), pid->Cch());
+        Js::PropertyId id = TopFuncInfo()->byteCodeFunction->GetOrAddPropertyIdTracked(pBuffer);
         pid->SetPropertyId(id);
     }
 }
@@ -2794,7 +2795,7 @@ FuncInfo* PostVisitFunction(ParseNode* pnode, ByteCodeGenerator* byteCodeGenerat
                     byteCodeGenerator->AssignParamSlotsRegister();
                 }
 
-                if (top->GetBodyScope()->ContainsWith() && 
+                if (top->GetBodyScope()->ContainsWith() &&
                     (top->GetBodyScope()->GetHasOwnLocalInClosure() ||
                      (top->GetParamScope()->GetHasOwnLocalInClosure() &&
                       top->IsBodyAndParamScopeMerged())))

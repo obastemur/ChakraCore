@@ -321,15 +321,16 @@ namespace JSON
                     uint currentStrLength = m_scanner.GetCurrentStringLen();
 
                     DynamicType* typeWithoutProperty = object->GetDynamicType();
+                    JsUtil::CharacterBuffer<WCHAR> propertyBuffer(currentStr, currentStrLength);
                     if(IsCaching())
                     {
                         if(!previousCache)
                         {
                             // This is the first property in the list - see if we have an existing cache for it.
-                            currentCache = typeCacheList->LookupWithKey(Js::HashedCharacterBuffer<WCHAR>(currentStr, currentStrLength), nullptr);
+                            currentCache = typeCacheList->LookupWithKey(propertyBuffer, nullptr);
                         }
                         if(currentCache && currentCache->typeWithoutProperty == typeWithoutProperty &&
-                            currentCache->propertyRecord->Equals(JsUtil::CharacterBuffer<WCHAR>(currentStr, currentStrLength)))
+                            currentCache->propertyRecord->Equals(propertyBuffer))
                         {
                             //check and consume ":"
                             if(Scan() != tkColon )
@@ -362,7 +363,7 @@ namespace JSON
 
                     // slow path
                     Js::PropertyRecord const * propertyRecord;
-                    scriptContext->GetOrAddPropertyRecord(currentStr, currentStrLength, &propertyRecord);
+                    scriptContext->GetOrAddPropertyRecord(propertyBuffer, &propertyRecord);
 
                     //check and consume ":"
                     if(Scan() != tkColon )

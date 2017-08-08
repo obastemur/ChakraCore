@@ -1204,24 +1204,24 @@ private:
         PropertyString* AddPropertyString2(const Js::PropertyRecord* propertyRecord);
         PropertyString* CachePropertyString2(const Js::PropertyRecord* propertyRecord);
         PropertyString* GetPropertyString2(char16 ch1, char16 ch2);
-        void FindPropertyRecord(__in LPCWSTR pszPropertyName, __in int propertyNameLength, PropertyRecord const** propertyRecord);
+        void FindPropertyRecord(JsUtil::CharacterBuffer<WCHAR>& propName, PropertyRecord const** propertyRecord);
+        void FindPropertyRecord(JavascriptString * propName, PropertyRecord const** propertyRecord)
+        {
+            JsUtil::CharacterBuffer<WCHAR> pBuffer(propName->GetSz(), propName->GetLength());
+            FindPropertyRecord(pBuffer, propertyRecord);
+        }
+
         JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(__in LPCWSTR pszPropertyName, __in int propertyNameLength);
 
-        void FindPropertyRecord(JavascriptString* pstName, PropertyRecord const** propertyRecord);
         PropertyRecord const * GetPropertyName(PropertyId propertyId);
         PropertyRecord const * GetPropertyNameLocked(PropertyId propertyId);
-        void GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR> const& propName, PropertyRecord const** propertyRecord);
-        template <size_t N> void GetOrAddPropertyRecord(const char16(&propertyName)[N], PropertyRecord const** propertyRecord)
-        {
-            GetOrAddPropertyRecord(propertyName, N - 1, propertyRecord);
-        }
-        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName);
+        void GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR>& propName, PropertyRecord const** propertyRecord);
+        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR>& propName);
+        PropertyId GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR propertyName, __in int propertyNameLength);
         template <size_t N> PropertyId GetOrAddPropertyIdTracked(const char16(&propertyName)[N])
         {
             return GetOrAddPropertyIdTracked(propertyName, N - 1);
         }
-        PropertyId GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR pszPropertyName, __in int propertyNameLength);
-        void GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCWSTR pszPropertyName, __in int propertyNameLength, PropertyRecord const** propertyRecord);
         BOOL IsNumericPropertyId(PropertyId propertyId, uint32* value);
 
         void RegisterWeakReferenceDictionary(JsUtil::IWeakReferenceDictionary* weakReferenceDictionary);
@@ -1432,7 +1432,8 @@ private:
             if (emptyStringPropertyId == Js::PropertyIds::_none)
             {
                 Js::PropertyRecord const * propertyRecord;
-                this->GetOrAddPropertyRecord(_u(""), 0, &propertyRecord);
+                JsUtil::CharacterBuffer<WCHAR> pBuffer(_u(""), 0);
+                this->GetOrAddPropertyRecord(pBuffer, &propertyRecord);
                 emptyStringPropertyId = propertyRecord->GetPropertyId();
             }
             return emptyStringPropertyId;

@@ -37,15 +37,16 @@ namespace TTD
             int32 plen = pRecord->PropertyName.Length;
 
             const Js::PropertyRecord* newPropertyRecord = nullptr;
+            JsUtil::CharacterBuffer<char16> pBuffer(pname, plen);
             if(pRecord->IsSymbol)
             {
                 TTDAssert(pRecord->PropertyId == threadContext->GetNextPropertyId(), "We need to do these in the appropriate order!!!");
 
-                newPropertyRecord = threadContext->UncheckedAddPropertyId(pname, plen, /*bind*/false, /*isSymbol*/true);
+                newPropertyRecord = threadContext->UncheckedAddPropertyId(pBuffer, /*bind*/false, /*isSymbol*/true);
             }
             else
             {
-                const Js::PropertyRecord* foundProperty = threadContext->FindPropertyRecord(pname, plen);
+                const Js::PropertyRecord* foundProperty = threadContext->FindPropertyRecord(pBuffer);
 
                 if(foundProperty != nullptr)
                 {
@@ -57,7 +58,7 @@ namespace TTD
                 {
                     TTDAssert(pRecord->PropertyId == threadContext->GetNextPropertyId(), "We need to do these in the appropriate order to ensure property ids all match!!!");
 
-                    newPropertyRecord = threadContext->UncheckedAddPropertyId(pname, plen, /*bind*/pRecord->IsBound, /*isSymbol*/false);
+                    newPropertyRecord = threadContext->UncheckedAddPropertyId(pBuffer, /*bind*/pRecord->IsBound, /*isSymbol*/false);
                 }
             }
 
@@ -291,7 +292,7 @@ namespace TTD
             reader->ReadRecordEnd();
         }
 
-#if ENABLE_SNAPSHOT_COMPARE 
+#if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapType* t1, const SnapType* t2, TTDCompareMap& compareMap)
         {
             compareMap.DiagnosticAssert(t1->JsTypeId == t2->JsTypeId);

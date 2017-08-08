@@ -10,7 +10,7 @@ namespace Js
     {
     public:
         static void CachePropertyRead(Var startingObject, RecyclableObject * objectWithProperty, const bool isRoot, PropertyId propertyId, const bool isMissing, PropertyValueInfo* info, ScriptContext * requestContext);
-        static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, JsUtil::CharacterBuffer<WCHAR> const& propertyName, ScriptContext* requestContext);
+        static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, JsUtil::CharacterBuffer<WCHAR>& propertyName, ScriptContext* requestContext);
         static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, PropertyId propertyId, ScriptContext* requestContext);
         static void CachePropertyWrite(RecyclableObject * object, const bool isRoot, Type* typeWithoutProperty, PropertyId propertyId, PropertyValueInfo* info, ScriptContext * requestContext);
 

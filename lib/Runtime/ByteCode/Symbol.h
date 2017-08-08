@@ -16,7 +16,7 @@ typedef JsUtil::CharacterBuffer<WCHAR> SymbolName;
 class Symbol
 {
 private:
-    const SymbolName name;
+    SymbolName name;
     IdentPtr pid;
     ParseNode *decl;
     Scope *scope;                   // scope defining this symbol
@@ -420,7 +420,7 @@ public:
     const char16 *GetSymbolTypeName();
 #endif
 
-    const JsUtil::CharacterBuffer<WCHAR>& GetName() const
+    JsUtil::CharacterBuffer<WCHAR>& GetName()
     {
         return this->name;
     }
@@ -431,7 +431,7 @@ public:
 
     static void SaveToPropIdArray(Symbol *sym, Js::PropertyIdArray *propIds, ByteCodeGenerator *byteCodeGenerator, Js::PropertyId *pFirstSlot = nullptr);
 
-    Symbol * GetFuncScopeVarSym() const;
+    Symbol * GetFuncScopeVarSym();
 
     void SetPid(IdentPtr pid)
     {

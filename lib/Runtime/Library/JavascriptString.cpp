@@ -3779,7 +3779,8 @@ case_2:
     PropertyQueryFlags JavascriptString::GetPropertyQuery(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
         {

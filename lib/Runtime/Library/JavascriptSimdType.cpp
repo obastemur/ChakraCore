@@ -53,7 +53,7 @@ namespace Js
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
         }
 
-        //SPEC: The meanings of the optional parameters to this method are defined in the ECMA - 402 specification; 
+        //SPEC: The meanings of the optional parameters to this method are defined in the ECMA - 402 specification;
         //implementations that do not include ECMA - 402 support must not use those parameter positions for anything else.
         //args[1] and args[2] are optional reserved parameters.
         RecyclableObject *obj = nullptr;
@@ -69,12 +69,12 @@ namespace Js
             return JavascriptSIMDObject::FromVar(obj)->ToString(scriptContext);
         }
 
-        //For all other SIMD types, call helper. 
+        //For all other SIMD types, call helper.
         SIMDValue simdValue = SIMDType::FromVar(args[0])->GetValue();
         return SIMDType::CallToLocaleString(*obj, *scriptContext, simdValue, args.Values, args.Info.Count, callInfo);
     }
 
-    // SIMDType.prototype[@@toPrimitive] as described in SIMD spec 
+    // SIMDType.prototype[@@toPrimitive] as described in SIMD spec
     template<typename SIMDType>
     Var JavascriptSIMDType::EntrySymbolToPrimitive(RecyclableObject* function, CallInfo callInfo, ...)
     {
@@ -148,7 +148,8 @@ namespace Js
     PropertyQueryFlags JavascriptSIMDType::GetPropertyQuery(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;
-        this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
+        JsUtil::CharacterBuffer<char16> pBuffer(propertyNameString->GetSz(), propertyNameString->GetLength());
+        this->GetScriptContext()->FindPropertyRecord(pBuffer, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
         {

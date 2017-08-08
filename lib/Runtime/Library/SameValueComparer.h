@@ -86,7 +86,8 @@ namespace Js
             case TypeIds_String:
                 {
                     JavascriptString* v = JavascriptString::FromVar(i);
-                    return JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(v->GetString(), v->GetLength());
+                    JsUtil::CharacterBuffer<WCHAR> pBuffer(v->GetString(), v->GetLength());
+                    return pBuffer.GetHashCode();
                 }
 
             default:

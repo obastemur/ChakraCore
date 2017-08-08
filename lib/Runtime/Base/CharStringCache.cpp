@@ -24,7 +24,8 @@ namespace Js
             PropertyRecord const * propertyRecord;
             char16 wc = c;
             JavascriptLibrary * javascriptLibrary = JavascriptLibrary::FromCharStringCache(this);
-            javascriptLibrary->GetScriptContext()->GetOrAddPropertyRecord(&wc, 1, &propertyRecord);
+            JsUtil::CharacterBuffer<WCHAR> propertyBuffer(&wc, 1);
+            javascriptLibrary->GetScriptContext()->GetOrAddPropertyRecord(propertyBuffer, &propertyRecord);
             str = javascriptLibrary->CreatePropertyString(propertyRecord);
             charStringCacheA[(int)c] = str;
         }
