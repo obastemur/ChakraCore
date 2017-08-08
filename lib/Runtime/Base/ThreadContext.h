@@ -463,9 +463,7 @@ private:
     };
 
 public:
-    typedef JsUtil::BaseHashSet<const Js::PropertyRecord *, HeapAllocator, PrimeSizePolicy, const Js::PropertyRecord *,
-        Js::PropertyRecordStringHashComparer, JsUtil::SimpleHashedEntry, JsUtil::AsymetricResizeLock> PropertyMap;
-    PropertyMap * propertyMap;
+    Js::PropertyManager* propertyManager;
 
     typedef JsUtil::BaseHashSet<Js::CaseInvariantPropertyListWithHashCode*, Recycler, PowerOf2SizePolicy, Js::CaseInvariantPropertyListWithHashCode*, JsUtil::NoCaseComparer, JsUtil::SimpleDictionaryEntry>
         PropertyNoCaseSetType;
@@ -651,7 +649,6 @@ private:
     JsUtil::List<IProjectionContext *, ArenaAllocator>* pendingProjectionContextCloseList;
     Js::ScriptEntryExitRecord * entryExitRecord;
     Js::InterpreterStackFrame* leafInterpreterFrame;
-    const Js::PropertyRecord * propertyNamesDirect[128];
     ArenaAllocator threadAlloc;
     ThreadServiceWrapper* threadServiceWrapper;
     uint functionCount;
@@ -804,7 +801,7 @@ private:
     bool isScriptActive;
 
     // When ETW rundown in background thread which needs to walk scriptContext/functionBody/entryPoint lists,
-    // or when JIT thread is getting auxPtrs from function body, we should not be modifying the list of 
+    // or when JIT thread is getting auxPtrs from function body, we should not be modifying the list of
     // functionBody/entrypoints, or expanding the auxPtrs
     CriticalSection csFunctionBody;
 
@@ -1143,8 +1140,6 @@ public:
     BOOL IsNumericPropertyId(Js::PropertyId propertyId, uint32* value);
     bool IsActivePropertyId(Js::PropertyId pid);
     void InvalidatePropertyRecord(const Js::PropertyRecord * propertyRecord);
-    Js::PropertyId GetNextPropertyId();
-    Js::PropertyId GetMaxPropertyId();
     uint GetHighestPropertyNameIndex() const;
 
     void SetThreadServiceWrapper(ThreadServiceWrapper*);
@@ -1777,7 +1772,7 @@ private:
 extern void(*InitializeAdditionalProperties)(ThreadContext *threadContext);
 
 // This is for protecting a region of code, where we can't recover and be consistent upon failures (mainly due to OOM and SO).
-// FailFast on that. 
+// FailFast on that.
 class AutoDisableInterrupt
 {
 public:

@@ -1040,7 +1040,7 @@ namespace Js
 
     void JavascriptLibrary::InitializeProperties(ThreadContext * threadContext)
     {
-        if ( threadContext->GetMaxPropertyId() < PropertyIds::_countJSOnlyProperty )
+        if ( threadContext->propertyManager->GetMaxPropertyId() < PropertyIds::_countJSOnlyProperty )
         {
             threadContext->UncheckedAddBuiltInPropertyId();
         }
@@ -1821,7 +1821,7 @@ namespace Js
         JavascriptLibrary* library = arrayBufferConstructor->GetLibrary();
         library->AddMember(arrayBufferConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(arrayBufferConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->arrayBufferPrototype, PropertyNone);
-        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);       
+        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
         {

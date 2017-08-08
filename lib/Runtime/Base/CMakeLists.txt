@@ -14,6 +14,7 @@ add_library (Chakra.Runtime.Base OBJECT
     LeaveScriptObject.cpp
     PerfHint.cpp
     PropertyRecord.cpp
+    PropertyManager.cpp
     RuntimeBasePch.cpp
     ScriptContext.cpp
     ScriptContextOptimizationOverrideInfo.cpp
