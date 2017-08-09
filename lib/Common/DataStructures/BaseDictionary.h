@@ -764,7 +764,7 @@ namespace JsUtil
             return SizePolicy::GetBucket(UNTAGHASH(hashCode), bucketCount);
         }
 
-        uint GetBucket(uint hashCode) const
+        uint GetBucket(hash_t hashCode) const
         {
             return GetBucket(hashCode, this->bucketCount);
         }
@@ -843,7 +843,7 @@ namespace JsUtil
             int * localBuckets = buckets;
             if (localBuckets != nullptr)
             {
-                uint hashCode = GetHashCodeWithKey<LookupType>(key);
+                hash_t hashCode = GetHashCodeWithKey<LookupType>(key);
                 *targetBucket = this->GetBucket(hashCode);
                 *last = -1;
                 EntryType * localEntries = entries;
@@ -1045,7 +1045,7 @@ namespace JsUtil
 
                 if (!IsFreeEntry(newEntries[i]))
                 {
-                    uint hashCode = newEntries[i].template GetHashCode<Comparer<TKey>>();
+                    hash_t hashCode = newEntries[i].template GetHashCode<Comparer<TKey>>();
                     int bucket = GetBucket(hashCode, newBucketCount);
                     newEntries[i].next = newBuckets[bucket];
                     newBuckets[bucket] = i;

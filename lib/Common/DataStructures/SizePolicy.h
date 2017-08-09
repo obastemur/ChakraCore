@@ -7,9 +7,9 @@
 
 struct PrimePolicy
 {
-    inline static uint GetBucket(hash_t hashCode, int size)
+    inline static hash_t GetBucket(hash_t hashCode, int size)
     {
-        uint targetBucket = hashCode % size;
+        hash_t targetBucket = hashCode % size;
         return targetBucket;
     }
 
@@ -25,10 +25,10 @@ private:
 
 struct PowerOf2Policy
 {
-    inline static uint GetBucket(hash_t hashCode, int size)
+    inline static hash_t GetBucket(hash_t hashCode, int size)
     {
         AssertMsg(Math::IsPow2(size), "Size is not a power of 2.");
-        uint targetBucket = hashCode & (size-1);
+        hash_t targetBucket = hashCode & (size-1);
         return targetBucket;
     }
 
@@ -60,7 +60,7 @@ struct DictionarySizePolicy
 {
     CompileAssert(growthRateNumerator > growthRateDenominator);
     CompileAssert(growthRateDenominator != 0);
-    inline static uint GetBucket(hash_t hashCode, uint bucketCount)
+    inline static hash_t GetBucket(hash_t hashCode, uint bucketCount)
     {
         return SizePolicy::GetBucket(hashCode, bucketCount);
     }

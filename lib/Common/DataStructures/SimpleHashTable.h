@@ -270,7 +270,7 @@ private:
 
     uint HashKeyToBucket(TKey hashKey, int size)
     {
-        uint hashCode = Comparer<TKey>::GetHashCode(hashKey);
+        hash_t hashCode = Comparer<TKey>::GetHashCode(hashKey);
         return SizePolicy::GetBucket(hashCode, size);
     }
 
