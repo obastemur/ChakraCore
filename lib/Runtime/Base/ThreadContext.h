@@ -480,9 +480,7 @@ private:
     };
 
 public:
-    typedef JsUtil::BaseHashSet<const Js::PropertyRecord *, HeapAllocator, PrimeSizePolicy, const Js::PropertyRecord *,
-        Js::PropertyRecordStringHashComparer, JsUtil::SimpleHashedEntry, JsUtil::AsymetricResizeLock> PropertyMap;
-    PropertyMap * propertyMap;
+    Js::PropertyManager* propertyManager;
 
     typedef JsUtil::BaseHashSet<Js::CaseInvariantPropertyListWithHashCode*, Recycler, PowerOf2SizePolicy, Js::CaseInvariantPropertyListWithHashCode*, JsUtil::NoCaseComparer, JsUtil::SimpleDictionaryEntry>
         PropertyNoCaseSetType;
@@ -668,7 +666,6 @@ private:
     JsUtil::List<IProjectionContext *, ArenaAllocator>* pendingProjectionContextCloseList;
     Js::ScriptEntryExitRecord * entryExitRecord;
     Js::InterpreterStackFrame* leafInterpreterFrame;
-    const Js::PropertyRecord * propertyNamesDirect[128];
     ArenaAllocator threadAlloc;
     ThreadServiceWrapper* threadServiceWrapper;
     uint functionCount;
@@ -1160,8 +1157,6 @@ public:
     BOOL IsNumericPropertyId(Js::PropertyId propertyId, uint32* value);
     bool IsActivePropertyId(Js::PropertyId pid);
     void InvalidatePropertyRecord(const Js::PropertyRecord * propertyRecord);
-    Js::PropertyId GetNextPropertyId();
-    Js::PropertyId GetMaxPropertyId();
     uint GetHighestPropertyNameIndex() const;
 
     void SetThreadServiceWrapper(ThreadServiceWrapper*);

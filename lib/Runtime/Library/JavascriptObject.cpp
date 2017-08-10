@@ -1156,14 +1156,17 @@ namespace Js
             {
                 if (includeSymbolProperties)
                 {
-                    propertyRecord = scriptContext->GetPropertyName(propertyId);
-
-                    if (propertyRecord->IsSymbol())
+                    if (propertyId != -1)
                     {
-                        symbol = scriptContext->GetLibrary()->CreateSymbol(propertyRecord);
-                        // no need to marshal symbol because it is created from scriptContext
-                        newArrForSymbols->DirectSetItemAt(symbolIndex++, symbol);
-                        continue;
+                        propertyRecord = scriptContext->GetPropertyName(propertyId);
+
+                        if (propertyRecord->IsSymbol())
+                        {
+                            symbol = scriptContext->GetLibrary()->CreateSymbol(propertyRecord);
+                            // no need to marshal symbol because it is created from scriptContext
+                            newArrForSymbols->DirectSetItemAt(symbolIndex++, symbol);
+                            continue;
+                        }
                     }
                 }
                 if (includeStringProperties)

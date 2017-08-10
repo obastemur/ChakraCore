@@ -9260,7 +9260,8 @@ CommonNumber:
 
         if (throwOnError)
         {
-            JavascriptError::ThrowTypeError(scriptContext, errorCode, scriptContext->GetThreadContext()->GetPropertyName(propertyId)->GetBuffer());
+            const WCHAR* buffer = propertyId == -1 ? _u("") : scriptContext->GetThreadContext()->GetPropertyName(propertyId)->GetBuffer();
+            JavascriptError::ThrowTypeError(scriptContext, errorCode, buffer);
         }
         return FALSE;
     }
