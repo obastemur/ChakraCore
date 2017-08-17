@@ -25,7 +25,7 @@ function testFunction()
 {
     telemetryLog(`typeof zs: ${typeof(zs)}`, true); //symbol
     telemetryLog(`typeof symObj: ${typeof(symObj)}`, true); //object
-    
+
     telemetryLog(`xs == ys: ${xs == ys}`, true); //true
     telemetryLog(`xs == zs: ${xs == zs}`, true); //false
 

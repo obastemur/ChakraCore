@@ -428,7 +428,9 @@ public:
     {
         if (!emptyStringPropertyRecord)
         {
-            emptyStringPropertyRecord = this->UncheckedAddPropertyId(_u(""), 0);
+            emptyStringPropertyRecord = this->FindPropertyRecord(_u(""), 0);
+            if (!emptyStringPropertyRecord)
+                emptyStringPropertyRecord = this->UncheckedAddPropertyId(_u(""), 0);
         }
         return emptyStringPropertyRecord;
     }

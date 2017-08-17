@@ -916,7 +916,7 @@ ThreadContext::IsNumericProperty(Js::PropertyId propertyId)
 const Js::PropertyRecord *
 ThreadContext::FindPropertyRecord(const char16 * propertyName, int propertyNameLength)
 {
-    if (propertyNameLength == 0) return this->GetEmptyStringPropertyRecord();
+    // if (propertyNameLength == 0) return this->GetEmptyStringPropertyRecord();
     return propertyManager->LookupWithKey(propertyName, propertyNameLength);
 }
 
