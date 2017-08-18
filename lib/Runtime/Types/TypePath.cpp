@@ -53,10 +53,13 @@ namespace Js {
         }
 
         PropertyIndex propIndex = Constants::NoSlot;
-        if (this->GetData()->map.TryGetValue(propId, &propIndex, assignments) &&
-            propIndex < typePathLength)
+        if (this->GetData()->maxPropertyId == 0 || propId <= this->GetData()->maxPropertyId)
         {
-            return propIndex;
+            if (this->GetData()->map.TryGetValue(propId, &propIndex, assignments) &&
+                propIndex < typePathLength)
+            {
+                return propIndex;
+            }
         }
 
         return Constants::NoSlot;
@@ -140,6 +143,7 @@ namespace Js {
         TypePath * clonedPath = TypePath::New(recycler, currentPathLength + 1);
 
         clonedPath->GetData()->pathLength = (uint8)currentPathLength;
+        clonedPath->GetData()->maxPropertyId = this->GetData()->maxPropertyId;
         memcpy(&clonedPath->GetData()->map, &this->GetData()->map, sizeof(TinyDictionary) + currentPathLength);
         CopyArray(clonedPath->assignments, currentPathLength, this->assignments, currentPathLength);
 
@@ -202,6 +206,8 @@ namespace Js {
             AssertMsg(false, "Adding a duplicate to the type path");
         }
 #endif
+        if (propId->GetPropertyId() > maxPropertyId) maxPropertyId = propId->GetPropertyId();
+
         this->map.Add((unsigned int)propId->GetPropertyId(), (byte)currentPathLength);
         assignments[currentPathLength] = propId;
         this->pathLength++;
@@ -331,4 +337,3 @@ namespace Js {
     }
 
 }
-

@@ -354,7 +354,7 @@ namespace Js
         uint count = propIds->count;
         Assert(count <= static_cast<uint>(MaxPropertyIndexSize));
 
-        SimpleDictionaryTypeHandlerBase* typeHandler = SimpleDictionaryTypeHandlerBase::New(recycler, count,
+        SimpleDictionaryTypeHandlerBase* typeHandler = SimpleDictionaryTypeHandlerBase::New(recycler, count * 2,
             type->GetTypeHandler()->GetInlineSlotCapacity(), type->GetTypeHandler()->GetOffsetOfInlineSlots(), true, shareType);
         if (!shareType) typeHandler->SetMayBecomeShared();
 
@@ -2736,7 +2736,6 @@ namespace Js
 
                 return newTypeHandler->AddProperty(instance, propertyKey, value, attributes, info, flags, possibleSideEffects);
             }
-
             typeHandler->EnsureSlotCapacity(instance);
         }
 
