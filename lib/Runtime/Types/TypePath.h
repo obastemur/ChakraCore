@@ -79,7 +79,7 @@ public:
     private:
         struct Data
         {
-            Data(uint8 pathSize) : pathSize(pathSize), pathLength(0), maxPropertyId(0)
+            Data(uint8 pathSize) : pathSize(pathSize), pathLength(0), maxPropertyId(0), externalData(nullptr)
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
                 , maxInitializedLength(0)
 #endif
@@ -97,7 +97,8 @@ public:
 #endif
             Field(uint8)  pathLength;      // Entries in use
             Field(uint8)  pathSize;        // Allocated entries
-            Field(uint16) maxPropertyId;   // biggest propertyId stored
+            Field(unsigned int) maxPropertyId;   // biggest propertyId stored
+            Field(void*)        externalData;
 
             // This map has to be at the end, because TinyDictionary has a zero size array
             Field(TinyDictionary) map;

@@ -72,6 +72,7 @@ namespace Js {
         // Ensure there is at least one free entry in the new path, so we can extend it.
         // TypePath::New will take care of aligning this appropriately.
         TypePath * branchedPath = TypePath::New(recycler, pathLength + 1);
+        branchedPath->GetData()->externalData = this->GetData()->externalData;
 
         for (PropertyIndex i = 0; i < pathLength; i++)
         {
@@ -144,6 +145,7 @@ namespace Js {
 
         clonedPath->GetData()->pathLength = (uint8)currentPathLength;
         clonedPath->GetData()->maxPropertyId = this->GetData()->maxPropertyId;
+        clonedPath->GetData()->externalData = this->GetData()->externalData;
         memcpy(&clonedPath->GetData()->map, &this->GetData()->map, sizeof(TinyDictionary) + currentPathLength);
         CopyArray(clonedPath->assignments, currentPathLength, this->assignments, currentPathLength);
 
@@ -211,6 +213,26 @@ namespace Js {
         this->map.Add((unsigned int)propId->GetPropertyId(), (byte)currentPathLength);
         assignments[currentPathLength] = propId;
         this->pathLength++;
+
+//         static void* last_this = nullptr;
+//         static long last_count = 0;
+//         if (last_this != (void*)this)
+//         {
+//             if (this->pathLength > 8)
+//             {
+// LOG_IT:
+//                 fprintf(stderr, "PLEN > %d - %p | ", this->pathLength, this);
+//                 last_this = this;
+//                 last_count = this->pathLength * 2;
+//             }
+//         }
+//         else
+//         {
+//             if (this->pathLength > last_count)
+//             {
+//                 goto LOG_IT;
+//             }
+//         }
         return currentPathLength;
     }
 
