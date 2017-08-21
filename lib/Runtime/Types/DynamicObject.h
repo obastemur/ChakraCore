@@ -139,6 +139,9 @@ namespace Js
         Var GetSlot(int index);
         Var GetInlineSlot(int index);
         Var GetAuxSlot(int index);
+        
+        void* GetExternalData();
+        void SetExternalData(void* data);
 
 #if DBG
         void SetSlot(PropertyId propertyId, bool allowLetConst, int index, Var value);

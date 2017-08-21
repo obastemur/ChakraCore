@@ -320,6 +320,10 @@ ENTRY(text)
 ENTRY(expected)
 // End Wasm
 
+#ifndef NTBUILD
+ENTRY(ExternalDataObject)
+#endif
+
 // SIMD_JS
 ENTRY(SIMD)
 

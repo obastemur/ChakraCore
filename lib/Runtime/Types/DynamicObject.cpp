@@ -87,6 +87,8 @@ namespace Js
                 auxSlots[i] = instance->auxSlots[i];
 #endif
             }
+            // copy externalData
+            auxSlots[auxSlotCount] = instance->auxSlots[auxSlotCount];
         }
 
 #if ENABLE_OBJECT_SOURCE_TRACKING
@@ -880,6 +882,28 @@ namespace Js
     Js::Var const* DynamicObject::GetAuxSlots_TTD() const
     {
         return AddressOf(this->auxSlots[0]);
+    }
+    
+    void* DynamicObject::GetExternalData()
+    {
+        if (this->auxSlots == nullptr) return nullptr;
+        const int slotCapacity = GetTypeHandler()->GetSlotCapacity();
+        const int inlineSlotCapacity = GetTypeHandler()->GetInlineSlotCapacity();
+        const uint auxSlotCount = slotCapacity - inlineSlotCapacity;
+        
+        if (auxSlotCount == 0) return this->auxSlots;
+        return this->auxSlots[auxSlotCount];
+    }
+    
+    void DynamicObject::SetExternalData(void* data)
+    {
+        const int slotCapacity = GetTypeHandler()->GetSlotCapacity();
+        const int inlineSlotCapacity = GetTypeHandler()->GetInlineSlotCapacity();
+        const uint auxSlotCount = slotCapacity - inlineSlotCapacity;
+        if (auxSlotCount == 0)
+            this->auxSlots = (Field(Var)*)data;
+        else
+            this->auxSlots[auxSlotCount] = data;
     }
 
 #if ENABLE_OBJECT_SOURCE_TRACKING

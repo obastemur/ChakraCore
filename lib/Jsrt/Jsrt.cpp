@@ -2236,16 +2236,32 @@ CHAKRA_API JsStrictEquals(_In_ JsValueRef object1, _In_ JsValueRef object2, _Out
     });
 }
 
+#ifndef NTBUILD
+JsErrorCode JsGetExternalObjectData(
+    _In_     JsValueRef         value,
+    _Out_    void*              *data);
+JsErrorCode JsHasExternalObjectData(
+    _In_     JsValueRef         value,
+    _Out_    bool               *hasExternalObjectData);
+#endif
+
 CHAKRA_API JsHasExternalData(_In_ JsValueRef object, _Out_ bool *value)
 {
     VALIDATE_JSREF(object);
     PARAM_NOT_NULL(value);
 
-    BEGIN_JSRT_NO_EXCEPTION
-    {
-        *value = JsrtExternalObject::Is(object);
-    }
-    END_JSRT_NO_EXCEPTION
+    bool isExternalObject = JsrtExternalObject::Is(object);
+
+#ifndef NTBUILD
+    if (!isExternalObject)
+   {
+        return JsHasExternalObjectData(object, value);
+   }
+#endif
+
+    *value = isExternalObject;
+
+    return JsNoError;
 }
 
 CHAKRA_API JsGetExternalData(_In_ JsValueRef object, _Out_ void **data)
@@ -2253,19 +2269,22 @@ CHAKRA_API JsGetExternalData(_In_ JsValueRef object, _Out_ void **data)
     VALIDATE_JSREF(object);
     PARAM_NOT_NULL(data);
 
-    BEGIN_JSRT_NO_EXCEPTION
+
+    if (JsrtExternalObject::Is(object))
     {
-        if (JsrtExternalObject::Is(object))
-        {
-            *data = JsrtExternalObject::FromVar(object)->GetSlotData();
-        }
-        else
-        {
-            *data = nullptr;
-            RETURN_NO_EXCEPTION(JsErrorInvalidArgument);
-        }
+        *data = JsrtExternalObject::FromVar(object)->GetSlotData();
     }
-    END_JSRT_NO_EXCEPTION
+    else
+    {
+#ifndef NTBUILD
+        return JsGetExternalObjectData(object, data);
+#else
+        *data = nullptr;
+        RETURN_NO_EXCEPTION(JsErrorInvalidArgument);
+#endif
+    }
+
+    return JsNoError;
 }
 
 CHAKRA_API JsSetExternalData(_In_ JsValueRef object, _In_opt_ void *data)
@@ -2280,7 +2299,11 @@ CHAKRA_API JsSetExternalData(_In_ JsValueRef object, _In_opt_ void *data)
         }
         else
         {
+#ifndef NTBUILD
+            return JsSetExternalDataWithCallback(object, data, nullptr);
+#else
             RETURN_NO_EXCEPTION(JsErrorInvalidArgument);
+#endif
         }
     }
     END_JSRT_NO_EXCEPTION
@@ -4844,4 +4867,106 @@ CHAKRA_API JsGetDataViewInfo(
     END_JSRT_NO_EXCEPTION
 }
 
+CHAKRA_API JsSetExternalDataWithCallback(
+    _In_     JsValueRef         value,
+    _In_opt_ void               *data,
+    _In_opt_ JsFinalizeCallback finalizeCallback)
+{
+    return ContextAPIWrapper<true>([&] (Js::ScriptContext *scriptContext,
+        TTDRecorder& _actionEntryPopper) -> JsErrorCode {
+
+        PERFORM_JSRT_TTD_RECORD_ACTION_NOT_IMPLEMENTED(scriptContext);
+
+        PARAM_NOT_NULL(value);
+        VALIDATE_INCOMING_REFERENCE(value, scriptContext);
+
+        if (JsrtExternalObject::Is(value))
+        {
+            JsrtExternalObject *object = JsrtExternalObject::FromVar(value);
+            object->SetSlotData(data);
+            object->GetExternalType()->SetJsFinalizeCallback(finalizeCallback);
+        }
+        else
+        {
+            Js::RecyclableObject *object = Js::RecyclableObject::FromVar(value);
+            JsValueRef externalObject = JsrtExternalObject::Create(data, finalizeCallback, scriptContext);
+
+            if (Js::DynamicObject::Is(object))
+            {
+                Js::DynamicObject* dynamicObject = (Js::DynamicObject*) object;
+                dynamicObject->SetExternalData(externalObject);
+            }
+            else
+            {
+                Js::JavascriptOperators::OP_SetProperty(object, Js::PropertyIds::ExternalDataObject,
+                    externalObject, scriptContext, nullptr, Js::PropertyOperation_None);
+            }
+        }
+        return JsNoError;
+    });
+}
+
+JsErrorCode JsHasExternalObjectData(
+    _In_     JsValueRef         value,
+    _Out_    bool               *hasExternalObjectData)
+{
+    *hasExternalObjectData = false;
+    return ContextAPIWrapper<true>([&] (Js::ScriptContext *scriptContext,
+        TTDRecorder& _actionEntryPopper) -> JsErrorCode {
+
+        PERFORM_JSRT_TTD_RECORD_ACTION_NOT_IMPLEMENTED(scriptContext);
+
+        PARAM_NOT_NULL(value);
+        VALIDATE_INCOMING_REFERENCE(value, scriptContext);
+
+        Js::RecyclableObject *object = Js::RecyclableObject::FromVar(value);
+
+        if (Js::DynamicObject::Is(object))
+        {
+            Js::DynamicObject* dynamicObject = (Js::DynamicObject*) object;
+            *hasExternalObjectData = dynamicObject->GetExternalData() != nullptr;
+        }
+        else
+        {
+            *hasExternalObjectData = Js::JavascriptOperators::OP_HasProperty(object,
+                 Js::PropertyIds::ExternalDataObject, scriptContext) != 0;
+        }
+
+        return JsNoError;
+    });
+}
+
+JsErrorCode JsGetExternalObjectData(
+    _In_     JsValueRef         value,
+    _Out_    void*              *data)
+{
+    *data = nullptr;
+    return ContextAPIWrapper<true>([&] (Js::ScriptContext *scriptContext, TTDRecorder& _actionEntryPopper) -> JsErrorCode {
+        PERFORM_JSRT_TTD_RECORD_ACTION_NOT_IMPLEMENTED(scriptContext);
+
+        PARAM_NOT_NULL(value);
+        VALIDATE_INCOMING_REFERENCE(value, scriptContext);
+
+        Js::RecyclableObject *object = Js::RecyclableObject::FromVar(value);
+        JsValueRef value;
+
+        if (Js::DynamicObject::Is(object))
+        {
+            Js::DynamicObject* dynamicObject = (Js::DynamicObject*) object;
+            value = dynamicObject->GetExternalData();
+        }
+        else
+        {
+            value = Js::JavascriptOperators::OP_GetProperty(object,
+              Js::PropertyIds::ExternalDataObject, scriptContext);
+        }
+
+        if (value)
+        {
+            *data = JsrtExternalObject::FromVar(value)->GetSlotData();
+        }
+
+        return JsNoError;
+    });
+}
 #endif // _CHAKRACOREBUILD

@@ -75,6 +75,9 @@ RUN_CMD () {
 
 # static lib tests
 
+# test-external-object
+RUN "test-external-object"
+
 # test-c98
 RUN "test-c98"
 
