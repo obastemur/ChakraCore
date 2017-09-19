@@ -32,6 +32,7 @@ namespace Js {
         DateImplementation(VirtualTableInfoCtorEnum) { m_modified = false; }
         DateImplementation(double value);
 
+    protected:
         BEGIN_ENUM_BYTE(DateStringFormat)
             Default,
             Locale,
@@ -43,7 +44,7 @@ namespace Js {
             Local             = 1, // Whether tvLcl and tzd are valid.
             YearMonthDayLocal = 2,
             YearMonthDayUTC   = 4,
-            NotNaN            = 8,
+            UTC               = 8,
             END_ENUM_BYTE()
 
             // date data
@@ -71,18 +72,8 @@ namespace Js {
             NoDate = 0x02,
             END_ENUM_BYTE()
 
-        // Time zone descriptor.
-        struct TZD
-        {
-            Field(int) minutes;
-            Field(int) offset;
-
-            // Indicates whether Daylight savings
-            Field(bool) fDst;
-        };
-
         template <class ScriptContext>
-        static double GetTvLcl(double tv, ScriptContext * scriptContext, TZD *ptzd = nullptr);
+        static double GetTvLcl(double tv, ScriptContext * scriptContext);
         template <class ScriptContext>
         static double GetTvUtc(double tv, ScriptContext * scriptContext);
         static bool UtcTimeFromStrCore(
@@ -139,10 +130,10 @@ namespace Js {
         static bool TryParseIsoString(const char16 *const str, const size_t length, double &timeValue, ScriptContext *scriptContext);
 
         static JavascriptString* ConvertVariantDateToString(double variantDateDouble, ScriptContext* scriptContext);
-        static JavascriptString* GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd,DateTimeFlag noDateTime,ScriptContext* scriptContext);
+        static JavascriptString* GetDateDefaultString(DateTime::YMD *pymd, DateTimeFlag noDateTime,ScriptContext* scriptContext);
         static JavascriptString* GetDateGmtString(DateTime::YMD *pymd,ScriptContext* scriptContext);
 #ifdef ENABLE_GLOBALIZATION // todo-xplat: Implement this ICU?
-        static JavascriptString* GetDateLocaleString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime,ScriptContext* scriptContext);
+        static JavascriptString* GetDateLocaleString(DateTime::YMD *pymd, DateTimeFlag noDateTime,ScriptContext* scriptContext);
 #endif
 
         static double DateFncUTC(ScriptContext* scriptContext, Arguments args);
@@ -151,16 +142,10 @@ namespace Js {
 
         bool IsNaN()
         {
-            if (m_grfval & DateValueType::NotNaN)
-            {
-                return false;
-            }
-
             if (JavascriptNumber::IsNan(m_tvUtc))
             {
                 return true;
             }
-            m_grfval |= DateValueType::NotNaN;
             return false;
         }
 
@@ -172,8 +157,21 @@ namespace Js {
         {
             if (!(m_grfval & DateValueType::Local))
             {
-                m_tvLcl = GetTvLcl(m_tvUtc, scriptContext, &m_tzd);
+                m_tvLcl = GetTvLcl(m_tvUtc, scriptContext);
                 m_grfval |= DateValueType::Local;
+            }
+        }
+        
+        ///------------------------------------------------------------------------------
+        ///    Make sure m_tvUtc is valid. (Shared with hybrid debugging, which may use a fake scriptContext.)
+        ///------------------------------------------------------------------------------
+        template <class ScriptContext>
+        inline void EnsureTvUtc(ScriptContext* scriptContext)
+        {
+            if (!(m_grfval & DateValueType::UTC))
+            {
+                m_tvUtc = GetTvUtc(m_tvLcl, scriptContext);
+                m_grfval |= DateValueType::UTC;
             }
         }
 
@@ -195,12 +193,13 @@ namespace Js {
         ///------------------------------------------------------------------------------
         /// Make sure m_ymdUtc is valid.
         ///------------------------------------------------------------------------------
-        inline void EnsureYmdUtc(void)
+        inline void EnsureYmdUtc(ScriptContext* scriptContext)
         {
             if (m_grfval & DateValueType::YearMonthDayUTC)
             {
                 return;
             }
+            EnsureTvUtc(scriptContext);
             GetYmdFromTv(m_tvUtc, &m_ymdUtc);
             m_grfval |= DateValueType::YearMonthDayUTC;
         }
@@ -270,14 +269,13 @@ namespace Js {
         static StringBuilder* ConvertVariantDateToString(double dbl, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder);
 
         template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
-        static StringBuilder* GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder);
+        static StringBuilder* GetDateDefaultString(DateTime::YMD *pymd, DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder);
 
     private:
         Field(double)                   m_tvUtc;
         Field(double)                   m_tvLcl;
         FieldNoBarrier(DateTime::YMD)   m_ymdUtc;
         FieldNoBarrier(DateTime::YMD)   m_ymdLcl;
-        Field(TZD)                      m_tzd;
         Field(uint32)                   m_grfval; // Which fields are valid. m_tvUtc is always valid.
         Field(bool)                     m_modified : 1; // Whether SetDateData was called on this class
 
@@ -288,17 +286,17 @@ namespace Js {
     /// Use tv as the UTC time and return the corresponding local time. (Shared with hybrid debugging, which may use a fake scriptContext.)
     ///
     template <class ScriptContext>
-    double DateImplementation::GetTvLcl(double tv, ScriptContext *scriptContext, TZD *ptzd)
+    double DateImplementation::GetTvLcl(double tv, ScriptContext *scriptContext)
     {
         Assert(scriptContext);
 
         double tvLcl;
 
-        if (nullptr != ptzd)
-        {
-            ptzd->minutes = 0;
-            ptzd->fDst = FALSE;
-        }
+//        if (nullptr != ptzd)
+//        {
+//            ptzd->minutes = 0;
+//            ptzd->fDst = FALSE;
+//        }
 
         // See if we're out of range before conversion (UTC time value must be within this range)
         if (JavascriptNumber::IsNan(tv) || tv < ktvMin || tv > ktvMax)
@@ -306,16 +304,15 @@ namespace Js {
             return JavascriptNumber::NaN;
         }
 
-        int bias;
         int offset;
         bool isDaylightSavings;
-        tvLcl = scriptContext->GetDaylightTimeHelper()->UtcToLocal(tv, bias, offset, isDaylightSavings);
-        if (nullptr != ptzd)
-        {
-            ptzd->minutes = -bias;
-            ptzd->offset = offset;
-            ptzd->fDst = isDaylightSavings;
-        }
+        tvLcl = scriptContext->GetDaylightTimeHelper()->UtcToLocal(tv, offset, isDaylightSavings);
+//        if (nullptr != ptzd)
+//        {
+//            ptzd->minutes = -bias;
+//            ptzd->offset = offset;
+//            ptzd->fDst = isDaylightSavings;
+//        }
         return tvLcl;
     }
 
@@ -363,14 +360,13 @@ namespace Js {
         return GetDateDefaultString<StringBuilder>(&m_ymdLcl, &m_tzd, DateTimeFlag::None, scriptContext, newStringBuilder);
     }
 
+    // expects local time
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
-    StringBuilder* DateImplementation::ConvertVariantDateToString(double dbl, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
+    StringBuilder* DateImplementation::ConvertVariantDateToString(double tv, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
     {
         TZD tzd;
         DateTime::YMD ymd;
-        double tv = GetTvUtc(JsLocalTimeFromVarDate(dbl), scriptContext);
 
-        tv = GetTvLcl(tv, scriptContext, &tzd);
         if (JavascriptNumber::IsNan(tv))
         {
             StringBuilder* bs = newStringBuilder(0);
@@ -389,7 +385,8 @@ namespace Js {
     //  NewStringBuilderFunc: A function that returns a StringBuilder*, used to create a StringBuilder.
     //
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
-    StringBuilder* DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
+    StringBuilder* DateImplementation::GetDateDefaultString(DateTime::YMD *pymd,
+            DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
     {
         int hour, min;
 
@@ -441,8 +438,12 @@ namespace Js {
 
             bs->AppendChars(_u(" GMT"));
 
-            // IE11+
-            min = ptzd->offset;
+            size_t nameLength;
+            int mOffset = 0;
+            bool mIsDst = false;
+            const WCHAR *const dname = scriptContext->GetDaylightInfoYMD(&nameLength, &mOffset, &mIsDst, pymd);
+
+            min = mOffset;
             if (min < 0)
             {
                 bs->AppendChars(_u('-'));
@@ -463,19 +464,7 @@ namespace Js {
 
             bs->AppendChars(_u(" ("));
 
-            // check the IsDaylightSavings?
-            if (ptzd->fDst == false)
-            {
-                size_t nameLength;
-                const WCHAR *const standardName = scriptContext->GetStandardName(&nameLength, pymd);
-                bs->AppendChars(standardName, static_cast<CharCount>(nameLength));
-            }
-            else
-            {
-                size_t nameLength;
-                const WCHAR *const daylightName = scriptContext->GetDaylightName(&nameLength, pymd);
-                bs->AppendChars(daylightName, static_cast<CharCount>(nameLength));
-            }
+            bs->AppendChars(dname, static_cast<CharCount>(nameLength));
 
             bs->AppendChars(_u(')'));
         }

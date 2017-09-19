@@ -57,22 +57,22 @@ namespace DateTime
             return 0;
         }
     }
-
-    const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
+    
+    const WCHAR * Utility::GetDaylightInfoYMD(size_t* nameLength, int* offset,
+                                           bool* isDaylightSavings, const DateTime::YMD *ymd)
     {
-        AssertMsg(ymd != NULL, "xplat needs DateTime::YMD is defined for this call");
         double tv = Js::DateUtilities::TvFromDate(ymd->year, ymd->mon, ymd->mday, ymd->time);
-        bool isDST;
-        int mOffset;
-        data.standardNameLength = GetTZ(tv, data.standardName, &isDST, &mOffset);
-        *nameLength = data.standardNameLength;
-        return data.standardName;
+        return GetDaylightInfoDouble(nameLength, offset, isDaylightSavings, tv);
     }
-
-    const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
+    
+    const WCHAR * Utility::GetDaylightInfoDouble(size_t* nameLength, int* offset,
+                                              bool* isDaylightSavings, double tv)
     {
-        // xplat only gets the actual zone name for the given date
-        return GetStandardName(nameLength, ymd);
+        data.standardNameLength = GetTZ(tv, data.standardName, isDaylightSavings, offset);
+        *nameLength = data.standardNameLength;
+        *offset /= 60;
+        
+        return data.standardName;
     }
 
     static void YMDLocalToUtc(double localtv, YMD *utc)
@@ -84,8 +84,7 @@ namespace DateTime
         Js::DateUtilities::GetYmdFromTv(localtv, utc);
     }
 
-    static void YMDUtcToLocal(double utctv, YMD *local,
-                          int &bias, int &offset, bool &isDaylightSavings)
+    static void YMDUtcToLocal(double utctv, YMD *local, int &offset, bool &isDaylightSavings)
     {
         int mOffset = 0;
         bool isDST;
@@ -93,20 +92,18 @@ namespace DateTime
         utctv += DateTimeTicks_PerSecond * mOffset;
         Js::DateUtilities::GetYmdFromTv(utctv, local);
         isDaylightSavings = isDST;
-        bias = mOffset / 60;
-        offset = bias;
+        offset /= 60;
     }
 
     // DaylightTimeHelper ******
-    double DaylightTimeHelper::UtcToLocal(double utcTime, int &bias,
-                                          int &offset, bool &isDaylightSavings)
+    double DaylightTimeHelper::UtcToLocal(double utcTime, int &offset, bool &isDaylightSavings)
     {
         YMD local;
-        YMDUtcToLocal(utcTime, &local, bias, offset, isDaylightSavings);
+        YMDUtcToLocal(utcTime, &local, offset, isDaylightSavings);
 
         return Js::DateUtilities::TvFromDate(local.year, local.mon, local.mday, local.time);
     }
-
+    
     double DaylightTimeHelper::LocalToUtc(double localTime)
     {
         YMD utc;

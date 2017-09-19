@@ -29,12 +29,11 @@ namespace DateTime
     {
         UtilityPlatformData data;
     public:
-        const WCHAR *GetStandardName(size_t *nameLength,
-                                     // xplat implementation needs an actual
-                                     // date for the zone abbr.
-                                     const DateTime::YMD *ymd = NULL);
-        const WCHAR *GetDaylightName(size_t *nameLength,
-                                     const DateTime::YMD *ymd = NULL);
+        const WCHAR * GetDaylightInfoYMD(size_t* nameLength, int* offset,
+                                      bool* isDaylightSavings, const DateTime::YMD *ymd = NULL);
+        
+        const WCHAR * GetDaylightInfoDouble(size_t* nameLength, int* offset,
+                                         bool* isDaylightSavings, double tv);
     };
 
     // Decomposed date (Year-Month-Date).
@@ -71,7 +70,8 @@ namespace DateTime
     CLANG_WNO_END
 
     public:
-        double UtcToLocal(double utcTime, int &bias, int &offset, bool &isDaylightSavings);
+        double UtcToLocal(double utcTime, int &offset, bool &isDaylightSavings);
+        void   GetDaylightInfo(double time, int* offset, bool* isDaylightSavings);
         double LocalToUtc(double time);
     };
 

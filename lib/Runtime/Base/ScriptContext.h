@@ -811,16 +811,18 @@ private:
         DateTime::Utility dateTimeUtility;
 
 public:
-        inline const WCHAR *const GetStandardName(size_t *nameLength, DateTime::YMD *ymd = NULL)
+        inline const WCHAR * GetDaylightInfoYMD(size_t* nameLength, int* offset,
+                                         bool* isDaylightSavings, const DateTime::YMD *ymd = NULL)
         {
-            return dateTimeUtility.GetStandardName(nameLength, ymd);
+            return dateTimeUtility.GetDaylightInfoYMD(nameLength, offset, isDaylightSavings, ymd);
         }
-
-        inline const WCHAR *const GetDaylightName(size_t *nameLength, DateTime::YMD *ymd = NULL)
+        
+        inline const WCHAR * GetDaylightInfoDouble(size_t* nameLength, int* offset,
+                                                bool* isDaylightSavings, double tv)
         {
-            return dateTimeUtility.GetDaylightName(nameLength, ymd);
+            return dateTimeUtility.GetDaylightInfoDouble(nameLength, offset, isDaylightSavings, tv);
         }
-
+        
 private:
         HostScriptContext * hostScriptContext;
         HaltCallback* scriptEngineHaltCallback;

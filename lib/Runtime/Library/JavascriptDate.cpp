@@ -150,8 +150,9 @@ namespace Js
                 ;
             }
 #endif
-
-            pDate->m_date.SetTvUtc(resTime);
+            // have this local instead?
+            pDate->m_date.m_grfval |= DateImplementation::DateValueType::UTC;
+            pDate->m_date.m_tvUtc = resTime; // resTime is UTC
             return pDate;
         }
 
@@ -190,10 +191,11 @@ namespace Js
         // Date called with two to seven arguments
         //
 
-        const int parameterCount = 7;
-        double values[parameterCount];
+        const int maxParameterCount = 7;
+        double values[maxParameterCount] = {0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0};
+        const int parameterCount = min<int>(args.Info.Count, maxParameterCount + 1);
 
-        for (uint i=1; i < args.Info.Count && i < parameterCount+1; i++)
+        for (uint i = 1; i < parameterCount; i++)
         {
             double curr = JavascriptConversion::ToNumber(args[i], scriptContext);
             values[i-1] = curr;
@@ -204,13 +206,8 @@ namespace Js
             }
         }
 
-        for (uint i=0; i < parameterCount; i++)
+        for (uint i = 0; i < parameterCount; i++)
         {
-            if ( i >= args.Info.Count-1 )
-            {
-                values[i] = ( i == 2 );
-                continue;
-            }
             // MakeTime (ES5 15.9.1.11) && MakeDay (ES5 15.9.1.12) always
             // call ToInteger (which is same as JavascriptConversion::ToInteger) on arguments.
             // All are finite (not Inf or Nan) as we check them explicitly in the previous loop.
@@ -228,7 +225,8 @@ namespace Js
             values[3] * 3600000 + values[4] * 60000 + values[5] * 1000 + values[6]);
 
         // Set the time.
-        pDate->m_date.SetTvLcl(timeValue, scriptContext);
+        pDate->m_date.m_tvLcl = timeValue;
+        pDate->m_date.m_grfval |= DateImplementation::DateValueType::Local;
 
         return pDate;
     }

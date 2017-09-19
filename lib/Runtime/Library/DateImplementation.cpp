@@ -166,7 +166,7 @@ namespace Js {
          {
             default:
                 EnsureYmdLcl(requestContext);
-                return GetDateDefaultString(&m_ymdLcl, &m_tzd, noDateTime, requestContext);
+                return GetDateDefaultString(&m_ymdLcl, noDateTime, requestContext);
 
 #ifdef ENABLE_GLOBALIZATION
             case DateStringFormat::Locale:
@@ -194,7 +194,7 @@ namespace Js {
 #endif
 
             case DateStringFormat::GMT:
-                EnsureYmdUtc();
+                EnsureYmdUtc(requestContext);
                 return GetDateGmtString(&m_ymdUtc, requestContext);
         }
     }
@@ -203,7 +203,7 @@ namespace Js {
     DateImplementation::GetISOString(ScriptContext* requestContext)
     {
         // ES5 15.9.5.43: throw RangeError if time value is not a finite number
-        if (!Js::NumberUtilities::IsFinite(m_tvUtc))
+        if (!Js::NumberUtilities::IsFinite(m_tvLcl))
         {
             JavascriptError::ThrowRangeError(requestContext, JSERR_NeedNumber);
         }
@@ -346,14 +346,11 @@ namespace Js {
         m_tvUtc  = GetTvUtc(tv, requestContext);
     }
 
+    // expects local time
     JavascriptString*
-    DateImplementation::ConvertVariantDateToString(double dbl, ScriptContext* scriptContext)
+    DateImplementation::ConvertVariantDateToString(double tv, ScriptContext* scriptContext)
     {
-        Js::DateImplementation::TZD tzd;
         DateTime::YMD ymd;
-        double tv = Js::DateImplementation::GetTvUtc(Js::DateImplementation::JsLocalTimeFromVarDate(dbl), scriptContext);
-
-        tv = Js::DateImplementation::GetTvLcl(tv, scriptContext, &tzd);
         if (Js::JavascriptNumber::IsNan(tv))
         {
             return JavascriptNumber::ToStringNan(scriptContext);
@@ -361,13 +358,13 @@ namespace Js {
 
         Js::DateImplementation::GetYmdFromTv(tv, &ymd);
 
-        return DateImplementation::GetDateDefaultString(&ymd, &tzd, 0, scriptContext);
+        return DateImplementation::GetDateDefaultString(&ymd, 0, scriptContext);
     }
 
     JavascriptString*
-    DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd,DateTimeFlag noDateTime,ScriptContext* scriptContext)
+    DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, DateTimeFlag noDateTime, ScriptContext* scriptContext)
     {
-        return GetDateDefaultString<CompoundString>(pymd, ptzd, noDateTime, scriptContext,
+        return GetDateDefaultString<CompoundString>(pymd, noDateTime, scriptContext,
             [=](CharCount capacity) -> CompoundString*
         {
             return CompoundString::NewWithCharCapacity(capacity, scriptContext->GetLibrary());
@@ -375,7 +372,7 @@ namespace Js {
     }
 
     JavascriptString*
-    DateImplementation::GetDateGmtString(DateTime::YMD *pymd,ScriptContext* scriptContext)
+    DateImplementation::GetDateGmtString(DateTime::YMD *pymd, ScriptContext* scriptContext)
     {
         // toUTCString() or toGMTString() will return for example:
         //  "Thu, 02 Feb 2012 09:02:03 GMT" for versions IE11 or above
@@ -576,7 +573,7 @@ Error:
 
         if (fUtc)
         {
-            EnsureYmdUtc();
+            EnsureYmdUtc(scriptContext);
             pymd = &m_ymdUtc;
         }
         else
@@ -1704,7 +1701,7 @@ LError:
         {
             if (fUtc)
             {
-                EnsureYmdUtc();
+                EnsureYmdUtc(scriptContext);
                 pymd = &m_ymdUtc;
                 tv = m_tvUtc;
             }
