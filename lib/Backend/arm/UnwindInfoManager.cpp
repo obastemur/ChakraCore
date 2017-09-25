@@ -74,7 +74,7 @@ DWORD UnwindInfoManager::GetPDataCount(DWORD length)
     {
         // The function is too big to be encoded. Encode it in multiple fragments no larger than half
         // the remaining unencoded size (so we don't risk creating a fragment that splits the epilog).
-        DWORD currLength = min(MaxXdataFuncLength, (remainingLength >> 1 ) & (0 - INSTR_ALIGNMENT));
+        DWORD currLength = GET_MIN(MaxXdataFuncLength, (remainingLength >> 1 ) & (0 - INSTR_ALIGNMENT));
         remainingLength -= currLength;
         ++count;
     }
@@ -86,7 +86,7 @@ DWORD UnwindInfoManager::GetPDataCount(DWORD length)
         remainingLength = length - this->GetEpilogEndOffset();
         while(remainingLength > MaxXdataFuncLength)
         {
-            DWORD currLength = min(MaxXdataFuncLength, (remainingLength >> 1 ) & (0 - INSTR_ALIGNMENT));
+            DWORD currLength = GET_MIN(MaxXdataFuncLength, (remainingLength >> 1 ) & (0 - INSTR_ALIGNMENT));
             remainingLength -= currLength;
             ++count;
         }
@@ -147,7 +147,7 @@ DWORD UnwindInfoManager::EmitLongUnwindInfoChunk(DWORD remainingLength)
 
     // The current chunk has no epilog, and subsequent chunks have no prolog.
 
-    DWORD currLength = min(MaxXdataFuncLength, (remainingLength >> 1) & (0 - INSTR_ALIGNMENT));
+    DWORD currLength = GET_MIN(MaxXdataFuncLength, (remainingLength >> 1) & (0 - INSTR_ALIGNMENT));
     this->fragmentHasEpilog = false;
     this->fragmentLength = currLength;
     this->EmitPdata();

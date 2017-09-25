@@ -242,7 +242,7 @@ namespace Js
     {
         if (requestedSlotCount > 0)
         {
-            m_slotCount = min(requestedSlotCount, this->c_maxChunkSlotCount);
+            m_slotCount = GET_MIN(requestedSlotCount, this->c_maxChunkSlotCount);
             m_slots = RecyclerNewArray(this->GetScriptContext()->GetRecycler(), Field(JavascriptString*), m_slotCount);
         }
         else

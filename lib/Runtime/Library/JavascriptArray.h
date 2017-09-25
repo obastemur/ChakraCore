@@ -524,11 +524,11 @@ namespace Js
 
             if (value < 0)
             {
-                fromIndex = addWithLength ? (T)max(0i64, (int64)(value + length)) : 0;
+                fromIndex = addWithLength ? (T)GET_MAX(0i64, (int64)(value + length)) : 0;
             }
             else
             {
-                fromIndex = (T)min(value, (double)length);
+                fromIndex = (T)GET_MIN(value, (double)length);
             }
             return fromIndex;
         }
@@ -649,7 +649,7 @@ namespace Js
 
                 if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                 {
-                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                     // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                     if (JavascriptArray::Is(arr))
                     {
@@ -676,7 +676,7 @@ namespace Js
 
                     if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                     {
-                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                         // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                         if (JavascriptArray::Is(arr))
                         {

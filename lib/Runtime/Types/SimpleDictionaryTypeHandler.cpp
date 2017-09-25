@@ -3352,7 +3352,7 @@ namespace Js
             TTDAssert(descriptor.propertyIndex != NoSlots, "Huh");
 
             uint32 index = descriptor.propertyIndex;
-            maxSlot = max(maxSlot, index);
+            maxSlot = GET_MAX(maxSlot, index);
 
             TMapKey key = iter.CurrentKey();
             const PropertyRecord* pRecord = TMapKey_ConvertKey_TTD<const Js::PropertyRecord*>(threadContext, key);

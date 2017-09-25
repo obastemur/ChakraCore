@@ -1897,7 +1897,7 @@ namespace Js
         executeFunction->IncreaseInterpretedCount();
 #ifdef BGJIT_STATS
         functionScriptContext->interpretedCount++;
-        functionScriptContext->maxFuncInterpret = max(functionScriptContext->maxFuncInterpret, executeFunction->GetInterpretedCount());
+        functionScriptContext->maxFuncInterpret = GET_MAX(functionScriptContext->maxFuncInterpret, executeFunction->GetInterpretedCount());
 #endif
 
         AssertMsg(!executeFunction->IsDeferredParseFunction(),
@@ -3841,7 +3841,7 @@ namespace Js
 #else
 #if _M_X64
         PopOut((ArgSlot)asmInfo->GetArgCount() + 1);
-        
+
 #else
         PopOut((ArgSlot)(argsSize / sizeof(Var)) + 1);
 #endif
@@ -6089,7 +6089,7 @@ const byte * InterpreterStackFrame::OP_ProfiledLoopBodyStart(const byte * ip)
                     // Reset the totalJittedLoopIterations for the next invocation of this loop entry point
                     entryPointInfo->totalJittedLoopIterations =
                         static_cast<uint8>(
-                            min(
+                            GET_MIN(
                                 static_cast<uint>(static_cast<uint8>(CONFIG_FLAG(MinBailOutsBeforeRejit))) *
                                 (Js::LoopEntryPointInfo::GetDecrLoopCountPerBailout() - 1),
                                 entryPointInfo->totalJittedLoopIterations));

@@ -56,10 +56,10 @@ struct StmtNest
     };
     StmtNest *pstmtOuter;           // Enclosing statement.
 
-    OpCode GetNop() const 
-    { 
+    OpCode GetNop() const
+    {
         AnalysisAssert(isDeferred || pnodeStmt != nullptr);
-        return isDeferred ? op : pnodeStmt->nop; 
+        return isDeferred ? op : pnodeStmt->nop;
     }
 };
 
@@ -5088,7 +5088,7 @@ bool Parser::ParseFncDeclHelper(ParseNodePtr pnodeFnc, LPCOLESTR pNameHint, usho
         }
 
         // These are heuristic conditions that prohibit upfront deferral but not redeferral.
-        isTopLevelDeferredFunc = isTopLevelDeferredFunc && !isDeferredFnc && 
+        isTopLevelDeferredFunc = isTopLevelDeferredFunc && !isDeferredFnc &&
             (!isLikelyIIFE || !topLevelStmt || PHASE_FORCE_RAW(Js::DeferParsePhase, m_sourceContextInfo->sourceContextId, pnodeFnc->sxFnc.functionId));
 ;
         if (!fLambda &&
@@ -6180,7 +6180,7 @@ bool Parser::ParseFncNames(ParseNodePtr pnodeFnc, ParseNodePtr pnodeFncParent, u
         {
             // Multiple names. Turn the source into an IdentPtr.
             pnodeFnc->sxFnc.pid = m_phtbl->PidHashNameLen(
-                m_pscan->PchBase() + ichMinNames, 
+                m_pscan->PchBase() + ichMinNames,
                 m_pscan->AdjustedLast(),
                 ichLimNames - ichMinNames);
         }
@@ -6719,7 +6719,7 @@ void Parser::ParseExpressionLambdaBody(ParseNodePtr pnodeLambda)
         pnodeRet->sxStmt.grfnop = 0;
         pnodeRet->sxStmt.pnodeOuter = nullptr;
 
-        pnodeLambda->ichLim = max(pnodeRet->ichLim, lastRParen);
+        pnodeLambda->ichLim = GET_MAX(pnodeRet->ichLim, lastRParen);
         pnodeLambda->sxFnc.cbLim = m_pscan->IecpLimTokPrevious();
         pnodeLambda->sxFnc.pnodeScopes->ichLim = pnodeRet->ichLim;
 
@@ -8332,7 +8332,7 @@ ParseNodePtr Parser::ParseExpr(int oplMin,
 
             ParseDestructuredLiteralWithScopeSave(tkLCurly, false/*isDecl*/, false /*topLevel*/, DIC_ShouldNotParseInitializer);
 
-            // Restore the Block ID at the end of the reparsing so it matches the one at the end of the first pass. We need to do this 
+            // Restore the Block ID at the end of the reparsing so it matches the one at the end of the first pass. We need to do this
             // because we don't parse initializers during reparse and there may be additional blocks (e.g. a class declaration)
             // in the initializers that will cause the next Block ID at the end of the reparsing to be different.
             m_nextBlockId = saveNextBlockId;

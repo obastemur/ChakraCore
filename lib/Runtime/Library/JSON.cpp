@@ -348,7 +348,7 @@ namespace JSON
         {
         case Js::TypeIds_Integer:
             {
-                len = max(0, min(JSONspaceSize, static_cast<int>(Js::TaggedInt::ToInt32(space))));
+                len = GET_MAX(0, GET_MIN(JSONspaceSize, static_cast<int>(Js::TaggedInt::ToInt32(space))));
                 if (len)
                 {
                     gap = Js::JavascriptString::NewCopyBuffer(jsonSpace.Buffer, len, scriptContext);
@@ -360,7 +360,7 @@ namespace JSON
         case Js::TypeIds_Int64Number:
         case Js::TypeIds_UInt64Number:
             {
-                len = max(0, static_cast<int>(min(static_cast<double>(JSONspaceSize), Js::JavascriptConversion::ToInteger(space, scriptContext))));
+                len = GET_MAX(0, static_cast<int>(GET_MIN(static_cast<double>(JSONspaceSize), Js::JavascriptConversion::ToInteger(space, scriptContext))));
                 if (len)
                 {
                     gap = Js::JavascriptString::NewCopyBuffer(jsonSpace.Buffer, len, scriptContext);
@@ -369,7 +369,7 @@ namespace JSON
             }
         case Js::TypeIds_String:
             {
-                len = min(static_cast<charcount_t>(JSONspaceSize), Js::JavascriptString::FromVar(space)->GetLength());
+                len = GET_MIN(static_cast<charcount_t>(JSONspaceSize), Js::JavascriptString::FromVar(space)->GetLength());
                 if(len)
                 {
                     gap = Js::JavascriptString::NewCopyBuffer(Js::JavascriptString::FromVar(space)->GetString(), len, scriptContext);
@@ -381,7 +381,7 @@ namespace JSON
                 Js::Var spaceString = Js::JavascriptConversion::ToString(space, scriptContext);
                 if(Js::JavascriptString::Is(spaceString))
                 {
-                    len = min(static_cast<charcount_t>(JSONspaceSize), Js::JavascriptString::FromVar(spaceString)->GetLength());
+                    len = GET_MIN(static_cast<charcount_t>(JSONspaceSize), Js::JavascriptString::FromVar(spaceString)->GetLength());
                     if(len)
                     {
                         gap = Js::JavascriptString::NewCopyBuffer(Js::JavascriptString::FromVar(spaceString)->GetString(), len, scriptContext);

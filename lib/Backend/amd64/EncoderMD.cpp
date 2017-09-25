@@ -1126,7 +1126,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
                     }
                 }
             }
-                // FALL-THROUGH to MOVD                
+                // FALL-THROUGH to MOVD
 
             case Js::OpCode::MOVD:
                 if (opr2->IsRegOpnd() && REGNUM_ISXMMXREG(opr2->AsRegOpnd()->GetReg()))
@@ -1179,7 +1179,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
                     Assert(instr->GetSrc1()->IsIntConstOpnd() && instr->GetSrc1()->GetType() == TyInt8);
                     unsigned nopSize = instr->GetSrc1()->AsIntConstOpnd()->AsUint32();
                     Assert(nopSize >= 2 && nopSize <= 4);
-                    nopSize = max(2u, min(4u, nopSize)); // satisfy oacr
+                    nopSize = GET_MAX(2u, GET_MIN(4u, nopSize)); // satisfy oacr
                     const BYTE *nopEncoding = Nop[nopSize - 1];
                     opcodeByte = nopEncoding[0];
                     for (unsigned i = 1; i < nopSize; i++)
@@ -1643,7 +1643,7 @@ EncoderMD::ApplyRelocs(size_t codeBufferAddress_, size_t codeSize, uint * buffer
     }
 }
 
-uint 
+uint
 EncoderMD::GetRelocDataSize(EncodeRelocAndLabels *reloc)
 {
     switch (reloc->m_type)
@@ -1670,7 +1670,7 @@ EncoderMD::GetRelocDataSize(EncodeRelocAndLabels *reloc)
     }
 }
 
-BYTE * 
+BYTE *
 EncoderMD::GetRelocBufferAddress(EncodeRelocAndLabels * reloc)
 {
     return (BYTE*)reloc->m_ptr;

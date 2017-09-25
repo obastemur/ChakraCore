@@ -187,17 +187,17 @@ MemoryProfiler::AccumulateData(ArenaMemoryDataSummary * arenaMemoryDataSummary, 
         arenaMemoryDataSummary->total.resetCount += memoryData->resetCount;
     }
 
-    arenaMemoryDataSummary->max.alignmentBytes = max(arenaMemoryDataSummary->max.alignmentBytes, memoryData->alignmentBytes);
-    arenaMemoryDataSummary->max.allocatedBytes = max(arenaMemoryDataSummary->max.allocatedBytes, memoryData->allocatedBytes);
-    arenaMemoryDataSummary->max.freelistBytes = max(arenaMemoryDataSummary->max.freelistBytes, memoryData->freelistBytes);
-    arenaMemoryDataSummary->max.freelistCount = max(arenaMemoryDataSummary->max.freelistCount, memoryData->freelistCount);
-    arenaMemoryDataSummary->max.requestBytes = max(arenaMemoryDataSummary->max.requestBytes, memoryData->requestBytes);
-    arenaMemoryDataSummary->max.requestCount = max(arenaMemoryDataSummary->max.requestCount, memoryData->requestCount);
-    arenaMemoryDataSummary->max.reuseCount = max(arenaMemoryDataSummary->max.reuseCount, memoryData->reuseCount);
-    arenaMemoryDataSummary->max.reuseBytes = max(arenaMemoryDataSummary->max.reuseBytes, memoryData->reuseBytes);
+    arenaMemoryDataSummary->max.alignmentBytes = GET_MAX(arenaMemoryDataSummary->max.alignmentBytes, memoryData->alignmentBytes);
+    arenaMemoryDataSummary->max.allocatedBytes = GET_MAX(arenaMemoryDataSummary->max.allocatedBytes, memoryData->allocatedBytes);
+    arenaMemoryDataSummary->max.freelistBytes = GET_MAX(arenaMemoryDataSummary->max.freelistBytes, memoryData->freelistBytes);
+    arenaMemoryDataSummary->max.freelistCount = GET_MAX(arenaMemoryDataSummary->max.freelistCount, memoryData->freelistCount);
+    arenaMemoryDataSummary->max.requestBytes = GET_MAX(arenaMemoryDataSummary->max.requestBytes, memoryData->requestBytes);
+    arenaMemoryDataSummary->max.requestCount = GET_MAX(arenaMemoryDataSummary->max.requestCount, memoryData->requestCount);
+    arenaMemoryDataSummary->max.reuseCount = GET_MAX(arenaMemoryDataSummary->max.reuseCount, memoryData->reuseCount);
+    arenaMemoryDataSummary->max.reuseBytes = GET_MAX(arenaMemoryDataSummary->max.reuseBytes, memoryData->reuseBytes);
     if (!reset)
     {
-        arenaMemoryDataSummary->max.resetCount = max(arenaMemoryDataSummary->max.resetCount, memoryData->resetCount);
+        arenaMemoryDataSummary->max.resetCount = GET_MAX(arenaMemoryDataSummary->max.resetCount, memoryData->resetCount);
     }
 }
 

@@ -801,7 +801,7 @@ namespace UnifiedRegex
     {
         if (litbufLen - litbufNext < size)
         {
-            CharCount newLen = max(litbufLen, initLitbufSize);
+            CharCount newLen = GET_MAX(litbufLen, initLitbufSize);
             while (newLen < litbufNext + size)
                 newLen *= 2;
             litbuf = (Char*)ctAllocator->Realloc(litbuf, litbufLen * sizeof(Char), newLen * sizeof(Char));

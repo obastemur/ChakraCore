@@ -122,8 +122,8 @@ namespace Js
             {
                 int leftLen = leftList.Count();
                 int rightLen = rightList.Count();
-                int minLen = min(leftLen, rightLen);
-                int maxLen = max(leftLen, rightLen);
+                int minLen = GET_MIN(leftLen, rightLen);
+                int maxLen = GET_MAX(leftLen, rightLen);
                 if (minLen < (maxLen >> TOKENLIST_MAXDIFF_SHIFT))
                 {
                     // Assuming minLen are all matched, distance > 0.875 (7/8). These two nodes shouldn't be a match.

@@ -1265,7 +1265,7 @@ FuncBailOutData::FinalizeLocalOffsets(JitArenaAllocator *allocator, GlobalBailOu
             bool isSimd128B8  = simd128B8Syms->Test(i) != 0;
             bool isSimd128B16 = simd128B16Syms->Test(i) != 0;
 
-            globalBailOutRecordDataTable->AddOrUpdateRow(allocator, bailOutRecordId, i, isFloat, isInt, 
+            globalBailOutRecordDataTable->AddOrUpdateRow(allocator, bailOutRecordId, i, isFloat, isInt,
                 isSimd128F4, isSimd128I4, isSimd128I8, isSimd128I16, isSimd128U4, isSimd128U8, isSimd128U16,
                 isSimd128B4, isSimd128B8, isSimd128B16, localOffsets[i], &((*lastUpdatedRowIndices)[i]));
 #else
@@ -1642,7 +1642,7 @@ LinearScan::FillBailOutRecord(IR::Instr * instr)
         if (func->GetJITFunctionBody()->HasPropIdToFormalsMap())
         {
             Assert(func->GetJITFunctionBody()->GetInParamsCount() > 0);
-            uint32 endIndex = min(func->GetJITFunctionBody()->GetFirstNonTempLocalIndex() + func->GetJITFunctionBody()->GetInParamsCount() - 1, func->GetJITFunctionBody()->GetEndNonTempLocalIndex());
+            uint32 endIndex = GET_MIN(func->GetJITFunctionBody()->GetFirstNonTempLocalIndex() + func->GetJITFunctionBody()->GetInParamsCount() - 1, func->GetJITFunctionBody()->GetEndNonTempLocalIndex());
             for (uint32 index = func->GetJITFunctionBody()->GetFirstNonTempLocalIndex(); index < endIndex; index++)
             {
                 StackSym * stackSym = this->func->m_symTable->FindStackSym(index);
@@ -3654,7 +3654,7 @@ LinearScan::GetSpillCost(Lifetime *lifetime)
     // When comparing 2 lifetimes, we don't really care about the actual length of the lifetimes.
     // What matters is how much longer will they use the register.
     const uint start = currentInstr->GetNumber();
-    uint end = max(start, lifetime->end);
+    uint end = GET_MAX(start, lifetime->end);
     uint lifetimeTotalOpHelperFullVisitedLength = lifetime->totalOpHelperLengthByEnd;
 
     if (this->curLoop && this->curLoop->regAlloc.loopEnd < end && !PHASE_OFF(Js::RegionUseCountPhase, this->func))
@@ -4627,7 +4627,7 @@ uint LinearScan::GetRemainingHelperLength(Lifetime *const lifetime)
     uint helperLength = 0;
     SList<OpHelperBlock>::Iterator it(opHelperBlockIter);
     Assert(it.IsValid());
-    const uint end = max(currentInstr->GetNumber(), lifetime->end);
+    const uint end = GET_MAX(currentInstr->GetNumber(), lifetime->end);
     do
     {
         const OpHelperBlock &helper = it.Data();
@@ -4637,7 +4637,7 @@ uint LinearScan::GetRemainingHelperLength(Lifetime *const lifetime)
             break;
         }
 
-        const uint helperEnd = min(end, helper.opHelperEndInstr->GetNumber());
+        const uint helperEnd = GET_MIN(end, helper.opHelperEndInstr->GetNumber());
         helperLength += helperEnd - helperStart;
         if(helperEnd != helper.opHelperEndInstr->GetNumber() || !helper.opHelperEndInstr->IsLabelInstr())
         {
@@ -4875,7 +4875,7 @@ IR::Instr * LinearScan::GetIncInsertionPoint(IR::Instr *instr)
 }
 
 void LinearScan::DynamicStatsInstrument()
-{    
+{
     {
         IR::Instr *firstInstr = this->func->m_headInstr;
     IR::MemRefOpnd *memRefOpnd = IR::MemRefOpnd::New(this->func->GetJITFunctionBody()->GetCallCountStatsAddr(), TyUint32, this->func);

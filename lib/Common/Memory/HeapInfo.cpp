@@ -89,7 +89,7 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
             ushort pageIndex = (ushort)(objectAddress / AutoSystemInfo::PageSize);
 
             (*blockInfoRow)[pageIndex].pageObjectCount++;
-            (*blockInfoRow)[pageIndex].lastObjectIndexOnPage = max(j, (*blockInfoRow)[pageIndex].lastObjectIndexOnPage);
+            (*blockInfoRow)[pageIndex].lastObjectIndexOnPage = GET_MAX(j, (*blockInfoRow)[pageIndex].lastObjectIndexOnPage);
 
             invalidBitVector->Clear(j * stride);
         }
@@ -100,7 +100,7 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
         for (ushort j = 0; j < maxObjectCountForBucket; j++)
         {
             uint start = j * stride;
-            uint end = min(start + stride, TBlockAttributes::MaxSmallObjectCount);
+            uint end = GET_MIN(start + stride, TBlockAttributes::MaxSmallObjectCount);
             for (uint k = start; k < end; k++)
             {
                 validInteriorPointers[k] = j;

@@ -28,7 +28,7 @@ namespace Js
         {
             // Avoid writing to 'size' for an empty segment. The empty segment is a constant structure and writing to it (even
             // if it's not being changed) may cause an AV.
-            size = min(size, nextLeft - left);
+            size = GET_MIN(size, nextLeft - left);
         }
         AssertOrFailFast(length <= size);
     }

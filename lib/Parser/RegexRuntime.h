@@ -198,8 +198,8 @@ namespace UnifiedRegex
 
         inline void Lub(const CountDomain& other)
         {
-            lower = min(lower, other.lower);
-            upper = upper == CharCountFlag || other.upper == CharCountFlag ? CharCountFlag : max(upper, other.upper);
+            lower = GET_MIN(lower, other.lower);
+            upper = upper == CharCountFlag || other.upper == CharCountFlag ? CharCountFlag : GET_MAX(upper, other.upper);
         }
 
         inline void Add(const CountDomain& other)

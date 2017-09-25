@@ -1079,7 +1079,7 @@ case_2:
             else
             {
                 position = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
-                position = min(max(position, 0), len);  // adjust position within string limits
+                position = GET_MIN(GET_MAX(position, 0), len);  // adjust position within string limits
             }
         }
 
@@ -1188,7 +1188,7 @@ case_2:
                     // No point searching beyond the possible end point.
                     pos = inputLen - searchLen;
                 }
-                position = (charcount_t)min(max(pos, (double)0), (double)inputLen); // adjust position within string limits
+                position = (charcount_t)GET_MIN(GET_MAX(pos, (double)0), (double)inputLen); // adjust position within string limits
             }
         }
 
@@ -1197,7 +1197,7 @@ case_2:
             // No point searching beyond the possible end point.
             position = inputLen - searchLen;
         }
-        const char16* const searchUpperBound = searchLowerBound + min(position, inputLen - 1);
+        const char16* const searchUpperBound = searchLowerBound + GET_MIN(position, inputLen - 1);
 
         // 8. Let searchLen be the number of elements in searchStr.
         // 9. Return the largest possible nonnegative integer k not larger than start such that k + searchLen is
@@ -1826,7 +1826,7 @@ case_2:
 
         if (idxStart < 0)
         {
-            idxStart = max(len + idxStart, 0);
+            idxStart = GET_MAX(len + idxStart, 0);
         }
         else if (idxStart > len)
         {
@@ -1835,7 +1835,7 @@ case_2:
 
         if (idxEnd < 0)
         {
-            idxEnd = max(len + idxEnd, 0);
+            idxEnd = GET_MAX(len + idxEnd, 0);
         }
         else if (idxEnd > len )
         {
@@ -1949,8 +1949,8 @@ case_2:
             }
         }
 
-        idxStart = min(max(idxStart, 0), len);
-        idxEnd = min(max(idxEnd, 0), len);
+        idxStart = GET_MIN(GET_MAX(idxStart, 0), len);
+        idxEnd = GET_MIN(GET_MAX(idxEnd, 0), len);
         if(idxEnd < idxStart)
         {
             //swap
@@ -1995,7 +1995,7 @@ case_2:
         }
         if (idxStart < 0)
         {
-            idxStart = max(len + idxStart, 0);
+            idxStart = GET_MAX(len + idxStart, 0);
         }
         else if (idxStart > len)
         {
@@ -2563,7 +2563,7 @@ case_2:
             if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
             {
                 startPosition = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
-                startPosition = min(max(startPosition, 0), thisStrLen);
+                startPosition = GET_MIN(GET_MAX(startPosition, 0), thisStrLen);
             }
         }
 
@@ -2616,7 +2616,7 @@ case_2:
             if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
             {
                 endPosition = ConvertToIndex(args[2], scriptContext); // this is to adjust corner cases like MAX_VALUE
-                endPosition = min(max(endPosition, 0), thisStrLen);
+                endPosition = GET_MIN(GET_MAX(endPosition, 0), thisStrLen);
             }
         }
 
@@ -3424,7 +3424,7 @@ case_2:
             lMatchedJump = jmpTable[searchFirst].shift;
         }
         WCHAR c;
-        char16 const * p = inputStr + min(len - searchLen, position);
+        char16 const * p = inputStr + GET_MIN(len - searchLen, position);
         while(p >= inputStr)
         {
             // first character match, keep checking
@@ -3567,7 +3567,7 @@ case_2:
         uint string1Len = string1->GetLength();
         uint string2Len = string2->GetLength();
 
-        int result = wmemcmp(string1->GetString(), string2->GetString(), min(string1Len, string2Len));
+        int result = wmemcmp(string1->GetString(), string2->GetString(), GET_MIN(string1Len, string2Len));
 
         return (result == 0) ? (int)(string1Len - string2Len) : result;
     }

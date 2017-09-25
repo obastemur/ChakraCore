@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 /*++
@@ -13,7 +13,7 @@ Module Name:
 
 Abstract:
 
-    Implementation of the multi-byte string functions in the C runtime library that 
+    Implementation of the multi-byte string functions in the C runtime library that
     are Windows specific.
 
 Implementation Notes:
@@ -55,7 +55,7 @@ points to a null character or if a character cannot be formed from the
 string pointed to by this parameter.
 
 --*/
-size_t 
+size_t
 __cdecl
 _mbslen(
         const unsigned char *string)
@@ -180,7 +180,7 @@ _mbsninc(
         ret = (unsigned char *) string;
         if (GetCPInfo(CP_ACP, &cpinfo) && cpinfo.MaxCharSize == 1)
         {
-            ret += min(count, strlen((const char*)string));
+            ret += PAL_MIN(count, strlen((const char*)string));
         }
         else
         {
@@ -218,10 +218,10 @@ current  Pointer to first byte of any multibyte character in the source
          string; current must follow start in the source string
 
 --*/
-unsigned char * 
+unsigned char *
 __cdecl
 _mbsdec(
-        const unsigned char *start, 
+        const unsigned char *start,
         const unsigned char *current)
 {
     unsigned char *ret;

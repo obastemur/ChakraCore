@@ -806,12 +806,12 @@ BOOL Internal_AddPaddingW(LPWSTR *Out, INT Count, LPWSTR In, INT Padding, INT Fl
     }
     if (Flags & PFF_MINUS) /* pad on right */
     {
-        if (wcsncpy_s(*Out, Count, In, min(LengthInStr + 1, Count - 1)) != SAFECRT_SUCCESS)
+        if (wcsncpy_s(*Out, Count, In, PAL_MIN(LengthInStr + 1, Count - 1)) != SAFECRT_SUCCESS)
         {
             return FALSE;
         }
 
-        *Out += min(LengthInStr, Count - 1);
+        *Out += PAL_MIN(LengthInStr, Count - 1);
     }
     if (Padding > 0)
     {
@@ -833,12 +833,12 @@ BOOL Internal_AddPaddingW(LPWSTR *Out, INT Count, LPWSTR In, INT Padding, INT Fl
     if (!(Flags & PFF_MINUS)) /* put 'In' after padding */
     {
         if (wcsncpy_s(*Out, Count - (*Out - OutOriginal), In,
-            min(LengthInStr, Count - (*Out - OutOriginal) - 1)) != SAFECRT_SUCCESS)
+            PAL_MIN(LengthInStr, Count - (*Out - OutOriginal) - 1)) != SAFECRT_SUCCESS)
         {
             return FALSE;
         }
 
-        *Out += min(LengthInStr, Count - (*Out - OutOriginal) - 1);
+        *Out += PAL_MIN(LengthInStr, Count - (*Out - OutOriginal) - 1);
     }
 
     if (LengthInStr + PaddingOriginal > Count - 1)

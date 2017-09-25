@@ -356,7 +356,7 @@ GlobOpt::ForwardPass()
     // functions with constants. There will be a gap in the symbol numbering between the main constants and
     // the inlined ones, so we'll most likely need a new array chunk. Make the min size of the array chunks be 64
     // in case we have a main function with very few constants and a bunch of constants from inlined functions.
-    this->byteCodeConstantValueArray = SparseArray<Value>::New(this->alloc, max(this->func->GetJITFunctionBody()->GetConstCount(), 64U));
+    this->byteCodeConstantValueArray = SparseArray<Value>::New(this->alloc, GET_MAX(this->func->GetJITFunctionBody()->GetConstCount(), 64U));
     this->byteCodeConstantValueNumbersBv = JitAnew(this->alloc, BVSparse<JitArenaAllocator>, this->alloc);
     this->tempBv = JitAnew(this->alloc, BVSparse<JitArenaAllocator>, this->alloc);
     this->prePassCopyPropSym = JitAnew(this->alloc, BVSparse<JitArenaAllocator>, this->alloc);
@@ -3524,7 +3524,7 @@ GlobOpt::OptSrc(IR::Opnd *opnd, IR::Instr * *pInstr, Value **indirIndexValRef, I
         ValueType valueType(val->GetValueInfo()->Type());
 
         // This block uses local profiling data to optimize the case of a native array being passed to a function that fills it with other types. When the function is inlined
-        // into different call paths which use different types this can cause a perf hit by performing unnecessary array conversions, so only perform this optimization when 
+        // into different call paths which use different types this can cause a perf hit by performing unnecessary array conversions, so only perform this optimization when
         // the function is not inlined.
         if (valueType.IsLikelyNativeArray() && !valueType.IsObject() && instr->IsProfiledInstr() && !instr->m_func->IsInlined())
         {
@@ -5433,7 +5433,7 @@ GlobOpt::ValueNumberLdElemDst(IR::Instr **pInstr, Value *srcVal)
     case ObjectType::Float64MixedArray:
     Float64Array:
         Assert(dst->IsRegOpnd());
-        
+
         // If float type spec is disabled, don't load float64 values
         if (!this->DoFloatTypeSpec())
         {
@@ -5830,8 +5830,8 @@ GlobOpt::PropagateIntRangeForNot(int32 minimum, int32 maximum, int32 *pNewMin, i
     Int32Math::Not(minimum, pNewMin);
     *pNewMax = *pNewMin;
     Int32Math::Not(maximum, &tmp);
-    *pNewMin = min(*pNewMin, tmp);
-    *pNewMax = max(*pNewMax, tmp);
+    *pNewMin = GET_MIN(*pNewMin, tmp);
+    *pNewMax = GET_MAX(*pNewMax, tmp);
 }
 
 void
@@ -5848,8 +5848,8 @@ GlobOpt::PropagateIntRangeBinary(IR::Instr *instr, int32 min1, int32 max1,
     case Js::OpCode::Xor_A:
     case Js::OpCode::Or_A:
         // Find range with highest high order bit
-        tmp = ::max((uint32)min1, (uint32)max1);
-        tmp2 = ::max((uint32)min2, (uint32)max2);
+        tmp = GET_MAX((uint32)min1, (uint32)max1);
+        tmp2 = GET_MAX((uint32)min2, (uint32)max2);
 
         if ((uint32)tmp > (uint32)tmp2)
         {
@@ -5884,8 +5884,8 @@ GlobOpt::PropagateIntRangeBinary(IR::Instr *instr, int32 min1, int32 max1,
         }
 
         // Find range with lowest higher bit
-        tmp = ::max((uint32)min1, (uint32)max1);
-        tmp2 = ::max((uint32)min2, (uint32)max2);
+        tmp = GET_MAX((uint32)min1, (uint32)max1);
+        tmp2 = GET_MAX((uint32)min2, (uint32)max2);
 
         if ((uint32)tmp < (uint32)tmp2)
         {
@@ -5961,10 +5961,10 @@ GlobOpt::PropagateIntRangeBinary(IR::Instr *instr, int32 min1, int32 max1,
                 if (max1 > 0)
                 {
                     int32 nrTopBits = (sizeof(int32) * 8) - Math::Log2(max1);
-                    if (nrTopBits < ::min(max2, 30))
+                    if (nrTopBits < GET_MIN(max2, 30))
                         max = INT32_MAX;
                     else
-                        max = ::max((max1 << ::min(max2, 30)) & ~0x80000000, (min1 << min2) & ~0x80000000);
+                        max = GET_MAX((max1 << GET_MIN(max2, 30)) & ~0x80000000, (min1 << min2) & ~0x80000000);
                 }
                 else
                 {
@@ -5974,11 +5974,11 @@ GlobOpt::PropagateIntRangeBinary(IR::Instr *instr, int32 min1, int32 max1,
 
                 if (min1 < 0)
                 {
-                    min = ::min(min1 << max2, max1 << max2);
+                    min = GET_MIN(min1 << max2, max1 << max2);
                 }
                 else
                 {
-                    min = ::min(min1 << min2, max1 << max2);
+                    min = ::GET_MIN(min1 << min2, max1 << max2);
                 }
                 // Turn values like 0x1110 into 0x1000
                 if (min)
@@ -7334,7 +7334,7 @@ GlobOpt::TypeSpecializeInlineBuiltInUnary(IR::Instr **pInstr, Value **pSrc1Val, 
             }
 
             // Account for ::abs(INT_MIN) == INT_MIN (which is less than 0).
-            maxVal = ::max(
+            maxVal = GET_MAX(
                 ::abs(Int32Math::NearestInRangeTo(minVal, INT_MIN + 1, INT_MAX)),
                 ::abs(Int32Math::NearestInRangeTo(maxVal, INT_MIN + 1, INT_MAX)));
             minVal = minVal >= 0 ? minVal : 0;
@@ -7514,14 +7514,14 @@ GlobOpt::TypeSpecializeInlineBuiltInBinary(IR::Instr **pInstr, Value *src1Val, V
                 src2Val->GetValueInfo()->GetIntValMinMax(&min2, &max2, this->DoAggressiveIntTypeSpec());
                 if (instr->m_opcode == Js::OpCode::InlineMathMin)
                 {
-                    newMin = min(min1, min2);
-                    newMax = min(max1, max2);
+                    newMin = GET_MIN(min1, min2);
+                    newMax = GET_MIN(max1, max2);
                 }
                 else
                 {
                     Assert(instr->m_opcode == Js::OpCode::InlineMathMax);
-                    newMin = max(min1, min2);
-                    newMax = max(max1, max2);
+                    newMin = GET_MAX(min1, min2);
+                    newMax = GET_MAX(max1, max2);
                 }
                 // Type specialize to int
                 bool retVal = this->TypeSpecializeIntBinary(pInstr, src1Val, src2Val, pDstVal, newMin, newMax, false /* skipDst */);
@@ -8706,12 +8706,12 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                 if (max1 > 0)
                 {
                     // Take only the positive numerator range
-                    int32 positive_Min1 = max(1, min1);
+                    int32 positive_Min1 = GET_MAX(1, min1);
                     int32 positive_Max1 = max1;
                     if (max2 > 0)
                     {
                         // Take only the positive denominator range
-                        int32 positive_Min2 = max(1, min2);
+                        int32 positive_Min2 = GET_MAX(1, min2);
                         int32 positive_Max2 = max2;
 
                         // Positive / Positive
@@ -8721,15 +8721,15 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                         Assert(1 <= quadrant1_Min && quadrant1_Min <= quadrant1_Max);
 
                         // The result should positive
-                        newMin = min(newMin, quadrant1_Min);
-                        newMax = max(newMax, quadrant1_Max);
+                        newMin = GET_MIN(newMin, quadrant1_Min);
+                        newMax = GET_MAX(newMax, quadrant1_Max);
                     }
 
                     if (min2 < 0)
                     {
                         // Take only the negative denominator range
                         int32 negative_Min2 = min2;
-                        int32 negative_Max2 = min(-1, max2);
+                        int32 negative_Max2 = GET_MIN(-1, max2);
 
                         // Positive / Negative
                         int32 quadrant2_Min = -positive_Max1 >= negative_Max2? -1 : positive_Max1 / negative_Max2;
@@ -8738,20 +8738,20 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                         // The result should negative
                         Assert(quadrant2_Min <= quadrant2_Max && quadrant2_Max <= -1);
 
-                        newMin = min(newMin, quadrant2_Min);
-                        newMax = max(newMax, quadrant2_Max);
+                        newMin = GET_MIN(newMin, quadrant2_Min);
+                        newMax = GET_MAX(newMax, quadrant2_Max);
                     }
                 }
                 if (min1 < 0)
                 {
                     // Take only the native numerator range
                     int32 negative_Min1 = min1;
-                    int32 negative_Max1 = min(-1, max1);
+                    int32 negative_Max1 = GET_MIN(-1, max1);
 
                     if (max2 > 0)
                     {
                         // Take only the positive denominator range
-                        int32 positive_Min2 = max(1, min2);
+                        int32 positive_Min2 = GET_MAX(1, min2);
                         int32 positive_Max2 = max2;
 
                         // Negative / Positive
@@ -8761,8 +8761,8 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                         // The result should negative
                         Assert(quadrant4_Min <= quadrant4_Max && quadrant4_Max <= -1);
 
-                        newMin = min(newMin, quadrant4_Min);
-                        newMax = max(newMax, quadrant4_Max);
+                        newMin = GET_MIN(newMin, quadrant4_Min);
+                        newMax = GET_MAX(newMax, quadrant4_Max);
                     }
 
                     if (min2 < 0)
@@ -8770,7 +8770,7 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
 
                         // Take only the negative denominator range
                         int32 negative_Min2 = min2;
-                        int32 negative_Max2 = min(-1, max2);
+                        int32 negative_Max2 = GET_MIN(-1, max2);
 
                         int32 quadrant3_Min;
                         int32 quadrant3_Max;
@@ -8795,8 +8795,8 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                         // The result should positive
                         Assert(1 <= quadrant3_Min && quadrant3_Min <= quadrant3_Max);
 
-                        newMin = min(newMin, quadrant3_Min);
-                        newMax = max(newMax, quadrant3_Max);
+                        newMin = GET_MIN(newMin, quadrant3_Min);
+                        newMax = GET_MAX(newMax, quadrant3_Max);
                     }
                 }
                 Assert(newMin <= newMax);
@@ -9184,8 +9184,8 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                     bailOutKind |= IR::BailOutOnMulOverflow;
                     tmp = (max1 < 0) ^ (max2 < 0) ? INT32_MIN : INT32_MAX;
                 }
-                newMin = min(newMin, tmp);
-                newMax = max(newMax, tmp);
+                newMin = GET_MIN(newMin, tmp);
+                newMax = GET_MAX(newMax, tmp);
                 if (Int32Math::Mul(min1, max2, &tmp))
                 {
                     if (involesLargeInt32 || !DoAggressiveMulIntTypeSpec() || !DoAggressiveIntTypeSpec())
@@ -9196,8 +9196,8 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                     bailOutKind |= IR::BailOutOnMulOverflow;
                     tmp = (min1 < 0) ^ (max2 < 0) ? INT32_MIN : INT32_MAX;
                 }
-                newMin = min(newMin, tmp);
-                newMax = max(newMax, tmp);
+                newMin = GET_MIN(newMin, tmp);
+                newMax = GET_MAX(newMax, tmp);
                 if (Int32Math::Mul(max1, min2, &tmp))
                 {
                     if (involesLargeInt32 || !DoAggressiveMulIntTypeSpec() || !DoAggressiveIntTypeSpec())
@@ -9208,8 +9208,8 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                     bailOutKind |= IR::BailOutOnMulOverflow;
                     tmp = (max1 < 0) ^ (min2 < 0) ? INT32_MIN : INT32_MAX;
                 }
-                newMin = min(newMin, tmp);
-                newMax = max(newMax, tmp);
+                newMin = GET_MIN(newMin, tmp);
+                newMax = GET_MAX(newMax, tmp);
                 if (bailOutKind & IR::BailOutOnMulOverflow)
                 {
                     // CSE only if two MULs have the same overflow check behavior.
@@ -9305,9 +9305,9 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                     }
                     else
                     {
-                        negMaxAbs2 = -max(abs(min2), abs(max2)) + 1;
+                        negMaxAbs2 = -GET_MAX(abs(min2), abs(max2)) + 1;
                     }
-                    newMin = max(min1, negMaxAbs2);
+                    newMin = GET_MAX(min1, negMaxAbs2);
                 }
                 else
                 {
@@ -9361,10 +9361,10 @@ GlobOpt::TypeSpecializeBinary(IR::Instr **pInstr, Value **pSrc1Val, Value **pSrc
                     }
                     else
                     {
-                        absMax2 = max(abs(min2), abs(max2)) - 1;
+                        absMax2 = GET_MAX(abs(min2), abs(max2)) - 1;
                     }
-                    newMax = min(absMax2, max(max1, 0));
-                    newMax = max(newMin, newMax);
+                    newMax = GET_MIN(absMax2, GET_MAX(max1, 0));
+                    newMax = GET_MAX(newMin, newMax);
                 }
                 opcode = Js::OpCode::Rem_I4;
                 Assert(!instr->GetSrc1()->IsUnsigned());
@@ -9940,10 +9940,10 @@ GlobOpt::TryOptConstFoldBrUnsignedLessThan(
         return false;
     }
 
-    uint uMin1 = (min1 < 0 ? (max1 < 0 ? min((uint)min1, (uint)max1) : 0) : min1);
-    uint uMax1 = max((uint)min1, (uint)max1);
-    uint uMin2 = (min2 < 0 ? (max2 < 0 ? min((uint)min2, (uint)max2) : 0) : min2);
-    uint uMax2 = max((uint)min2, (uint)max2);
+    uint uMin1 = (min1 < 0 ? (max1 < 0 ? GET_MIN((uint)min1, (uint)max1) : 0) : min1);
+    uint uMax1 = GET_MAX((uint)min1, (uint)max1);
+    uint uMin2 = (min2 < 0 ? (max2 < 0 ? GET_MIN((uint)min2, (uint)max2) : 0) : min2);
+    uint uMax2 = GET_MAX((uint)min2, (uint)max2);
 
     if (uMax1 < uMin2)
     {
@@ -9985,10 +9985,10 @@ GlobOpt::TryOptConstFoldBrUnsignedGreaterThan(
         return false;
     }
 
-    uint uMin1 = (min1 < 0 ? (max1 < 0 ? min((uint)min1, (uint)max1) : 0) : min1);
-    uint uMax1 = max((uint)min1, (uint)max1);
-    uint uMin2 = (min2 < 0 ? (max2 < 0 ? min((uint)min2, (uint)max2) : 0) : min2);
-    uint uMax2 = max((uint)min2, (uint)max2);
+    uint uMin1 = (min1 < 0 ? (max1 < 0 ? GET_MIN((uint)min1, (uint)max1) : 0) : min1);
+    uint uMax1 = GET_MAX((uint)min1, (uint)max1);
+    uint uMin2 = (min2 < 0 ? (max2 < 0 ? GET_MIN((uint)min2, (uint)max2) : 0) : min2);
+    uint uMax2 = GET_MAX((uint)min2, (uint)max2);
 
     if (uMin1 > uMax2)
     {
@@ -12227,7 +12227,7 @@ static void SetIsConstFlag(StackSym* dstSym, int value)
     dstSym->SetIsIntConst(value);
 }
 
-static IR::Opnd* CreateIntConstOpnd(IR::Instr* instr, int64 value) 
+static IR::Opnd* CreateIntConstOpnd(IR::Instr* instr, int64 value)
 {
     return (IR::Opnd*)IR::Int64ConstOpnd::New(value, instr->GetDst()->GetType(), instr->m_func);
 }
@@ -12285,7 +12285,7 @@ bool GlobOpt::OptConstFoldBinaryWasm(
     }
 
     T src1IntConstantValue, src2IntConstantValue;
-    if (!src1 || !src1->GetValueInfo()->TryGetIntConstantValue(&src1IntConstantValue, false) || //a bit sketchy: false for int32 means likelyInt = false 
+    if (!src1 || !src1->GetValueInfo()->TryGetIntConstantValue(&src1IntConstantValue, false) || //a bit sketchy: false for int32 means likelyInt = false
         !src2 || !src2->GetValueInfo()->TryGetIntConstantValue(&src2IntConstantValue, false)    //and unsigned = false for int64
         )
     {
@@ -17966,7 +17966,7 @@ GlobOpt::DumpSymVal(int index)
 }
 
 void
-GlobOpt::Trace(BasicBlock * block, bool before) const 
+GlobOpt::Trace(BasicBlock * block, bool before) const
 {
     bool globOptTrace = Js::Configuration::Global.flags.Trace.IsEnabled(Js::GlobOptPhase, this->func->GetSourceContextId(), this->func->GetLocalFunctionId());
     bool typeSpecTrace = Js::Configuration::Global.flags.Trace.IsEnabled(Js::TypeSpecPhase, this->func->GetSourceContextId(), this->func->GetLocalFunctionId());

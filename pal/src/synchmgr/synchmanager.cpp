@@ -565,7 +565,7 @@ namespace CorUnix
             pllfd.fd = ptnwdNativeWaitData->iPipeRd;
             pllfd.events = POLLIN;
             pllfd.revents = 0;
-            iPollTmo = (INFINITE == dwTmo) ? INFTIM : (int)min(INT_MAX,dwTmo);
+            iPollTmo = (INFINITE == dwTmo) ? INFTIM : (int)PAL_MIN(INT_MAX,dwTmo);
 
             iRet = poll(&pllfd, 1, iPollTmo);
 
@@ -1731,7 +1731,7 @@ namespace CorUnix
 
 #else // SYNCHMGR_PIPE_BASED_THREAD_BLOCKING
 
-        dwTmo = min(WorkerThreadTerminationTimeout, INT_MAX);
+        dwTmo = PAL_MIN(WorkerThreadTerminationTimeout, INT_MAX);
 
         do
         {
@@ -4200,7 +4200,7 @@ namespace CorUnix
                   "[error=%d (%s)]\n", iRet, strerror(iRet));
             if (EAGAIN == iRet && MaxUnavailableResourceRetries >= ++iEagains)
             {
-                poll(NULL, 0, min(100,10*iEagains));
+                poll(NULL, 0, PAL_MIN(100,10*iEagains));
                 goto Mutex_retry;
             }
             else if (ENOMEM == iRet)
@@ -4223,7 +4223,7 @@ namespace CorUnix
                   "[error=%d (%s)]\n", iRet, strerror(iRet));
             if (EAGAIN == iRet && MaxUnavailableResourceRetries >= ++iEagains)
             {
-                poll(NULL, 0, min(100,10*iEagains));
+                poll(NULL, 0, PAL_MIN(100,10*iEagains));
                 goto Cond_retry;
             }
             else if (ENOMEM == iRet)
@@ -4377,7 +4377,7 @@ namespace CorUnix
         if (0 < m_lPendingSignalingCount)
         {
             LONG lArrayPendingSignalingCount =
-                min(PendingSignalingsArraySize, m_lPendingSignalingCount);
+                PAL_MIN(PendingSignalingsArraySize, m_lPendingSignalingCount);
             LONG lIdx = 0;
             PAL_ERROR palTempErr;
 

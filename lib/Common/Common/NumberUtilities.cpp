@@ -313,7 +313,7 @@ namespace Js
             return false;
         }
         uint32 val = (uint32)(str[0] - _u('0'));
-        int calcLen = min(length, 9);
+        int calcLen = GET_MIN(length, 9);
         for (int i = 1; i < calcLen; i++)
         {
             if ((str[i] < _u('0'))|| (str[i] > _u('9')))

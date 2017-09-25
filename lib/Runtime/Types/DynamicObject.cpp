@@ -57,7 +57,7 @@ namespace Js
         Assert(typeHandler->IsObjectHeaderInlinedTypeHandler() || !ThreadContext::IsOnStack(this->auxSlots));
         int propertyCount = typeHandler->GetPropertyCount();
         int inlineSlotCapacity = GetTypeHandler()->GetInlineSlotCapacity();
-        int inlineSlotCount = min(inlineSlotCapacity, propertyCount);
+        int inlineSlotCount = GET_MIN(inlineSlotCapacity, propertyCount);
         Var * srcSlots = reinterpret_cast<Var*>(reinterpret_cast<size_t>(instance) + typeHandler->GetOffsetOfInlineSlots());
         Field(Var) * dstSlots = reinterpret_cast<Field(Var)*>(reinterpret_cast<size_t>(this) + typeHandler->GetOffsetOfInlineSlots());
 #if !FLOATVAR

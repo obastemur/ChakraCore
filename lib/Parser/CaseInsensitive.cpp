@@ -595,8 +595,8 @@ END {
                 if (tblidx < numTransforms)
                 {
                     // Does current transform intersect the desired range?
-                    uint interl = max(l, static_cast<uint>(transforms[tblidx].lo));
-                    uint interh = min(h, static_cast<uint>(transforms[tblidx].skipCountOfRange == 1 ? transforms[tblidx].hi : interl));
+                    uint interl = GET_MAX(l, static_cast<uint>(transforms[tblidx].lo));
+                    uint interh = GET_MIN(h, static_cast<uint>(transforms[tblidx].skipCountOfRange == 1 ? transforms[tblidx].hi : interl));
                     if (interl <= interh)
                     {
                         if (l < interl)

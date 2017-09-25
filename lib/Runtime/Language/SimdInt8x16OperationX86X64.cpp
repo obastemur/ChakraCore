@@ -152,7 +152,7 @@ namespace Js
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
         if (AutoSystemInfo::Data.SSE4_1Available())
         {
-            x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  max(a,b) == a
+            x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  GET_MAX(a,b) == a
             x86Result.m128i_value = _mm_cmpeq_epi8(tmpbValue.m128i_value, x86Result.m128i_value); //
         }
         else
@@ -207,7 +207,7 @@ namespace Js
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
         if (AutoSystemInfo::Data.SSE4_1Available())
         {
-            x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  max(a,b) == b
+            x86Result.m128i_value = _mm_max_epi8(tmpaValue.m128i_value, tmpbValue.m128i_value);  //  GET_MAX(a,b) == b
             x86Result.m128i_value = _mm_cmpeq_epi8(tmpaValue.m128i_value, x86Result.m128i_value); //
         }
         else

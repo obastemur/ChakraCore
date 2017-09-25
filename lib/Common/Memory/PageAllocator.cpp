@@ -2020,7 +2020,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::DecommitNow(bool all)
         newFreePageCount = this->freePageCount - (this->minFreePageCount / 2);
 
         // Ensure we don't decommit down to fewer than our partial decommit minimum
-        newFreePageCount = max(newFreePageCount, static_cast<size_t>(MinPartialDecommitFreePageCount));
+        newFreePageCount = GET_MAX(newFreePageCount, static_cast<size_t>(MinPartialDecommitFreePageCount));
 
         PAGE_ALLOC_TRACE_AND_STATS_0(_u("Partial decommit"));
     }
@@ -2302,7 +2302,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::LogAllocSegment(uint s
         this->memoryData->allocSegmentBytes += pageCount * AutoSystemInfo::PageSize;
 
         this->memoryData->currentCommittedPageCount += pageCount;
-        this->memoryData->peakCommittedPageCount = max(this->memoryData->peakCommittedPageCount, this->memoryData->currentCommittedPageCount);
+        this->memoryData->peakCommittedPageCount = GET_MAX(this->memoryData->peakCommittedPageCount, this->memoryData->currentCommittedPageCount);
     }
 #endif
 }
@@ -2402,7 +2402,7 @@ PageAllocatorBase<TVirtualAlloc, TSegment, TPageSegment>::LogCommitPages(size_t 
     if (this->memoryData)
     {
         this->memoryData->currentCommittedPageCount += pageCount;
-        this->memoryData->peakCommittedPageCount = max(this->memoryData->peakCommittedPageCount, this->memoryData->currentCommittedPageCount);
+        this->memoryData->peakCommittedPageCount = GET_MAX(this->memoryData->peakCommittedPageCount, this->memoryData->currentCommittedPageCount);
     }
 #endif
 }

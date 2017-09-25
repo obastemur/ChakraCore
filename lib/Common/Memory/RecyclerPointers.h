@@ -509,23 +509,23 @@ inline void NoWriteBarrierSet(WriteBarrierPtr<T>& dst, const WriteBarrierPtr<T>&
 
 
 template<class T> inline
-const T& min(const T& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
+const T& GET_MIN(const T& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
 
 template<class T> inline
-const T& min(const NoWriteBarrierField<T>& a, const T& b) { return a < b ? a : b; }
+const T& GET_MIN(const NoWriteBarrierField<T>& a, const T& b) { return a < b ? a : b; }
 
 template<class T> inline
-const T& min(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
+const T& GET_MIN(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a < b ? a : b; }
 
 template<class T> inline
-const T& max(const NoWriteBarrierField<T>& a, const T& b) { return a > b ? a : b; }
+const T& GET_MAX(const NoWriteBarrierField<T>& a, const T& b) { return a > b ? a : b; }
 
 // TODO: Add this method back once we figure out why OACR is tripping on it
 template<class T> inline
-const T& max(const T& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
+const T& GET_MAX(const T& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
 
 template<class T> inline
-const T& max(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
+const T& GET_MAX(const NoWriteBarrierField<T>& a, const NoWriteBarrierField<T>& b) { return a > b ? a : b; }
 
 // QuickSort Array content
 //

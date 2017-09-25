@@ -352,7 +352,7 @@ namespace Js
 
             // Reduce by number of bound args
             len = len - this->count;
-            len = max(len, 0);
+            len = GET_MAX(len, 0);
 
             *value = JavascriptNumber::ToVar(len, requestContext);
             *result = true;

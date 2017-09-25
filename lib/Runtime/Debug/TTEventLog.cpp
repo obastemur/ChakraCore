@@ -201,7 +201,7 @@ namespace TTD
 
         for(TTEventListLink* curr = this->m_headBlock; curr != nullptr; curr = curr->Previous)
         {
-            size_t cpos = curr->StartPos; 
+            size_t cpos = curr->StartPos;
             while(cpos != curr->CurrPos)
             {
                 count++;
@@ -649,7 +649,7 @@ namespace TTD
 
         for(auto iter = this->m_propertyRecordList.GetIterator(); iter.IsValid(); iter.MoveNext())
         {
-            maxPid = max(maxPid, iter.Current()->PropertyId);
+            maxPid = GET_MAX(maxPid, iter.Current()->PropertyId);
             pidMap.AddNew(iter.Current()->PropertyId, iter.Current());
         }
 
@@ -753,7 +753,7 @@ namespace TTD
         bool isUtf8 = ((loadFlag & LoadScriptFlag_Utf8Source) == LoadScriptFlag_Utf8Source);
 
         NSSnapValues::ExtractTopLevelLoadedFunctionBodyInfo(fbInfo, fb, fCount, moduleId, sourceContextId, isUtf8, source, sourceLen, loadFlag, this->m_miscSlabAllocator);
-        this->m_sourceInfoCount = max(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
+        this->m_sourceInfoCount = GET_MAX(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
 
         return fbInfo;
     }
@@ -764,7 +764,7 @@ namespace TTD
         uint32 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
 
         NSSnapValues::ExtractTopLevelNewFunctionBodyInfo(fbInfo, fb, fCount, moduleId, source, sourceLen, this->m_miscSlabAllocator);
-        this->m_sourceInfoCount = max(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
+        this->m_sourceInfoCount = GET_MAX(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
 
         return fbInfo;
     }
@@ -775,7 +775,7 @@ namespace TTD
         uint32 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
 
         NSSnapValues::ExtractTopLevelEvalFunctionBodyInfo(fbInfo, fb, fCount, moduleId, source, sourceLen, grfscr, registerDocument, isIndirect, strictMode, this->m_miscSlabAllocator);
-        this->m_sourceInfoCount = max(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
+        this->m_sourceInfoCount = GET_MAX(this->m_sourceInfoCount, fb->GetUtf8SourceInfo()->GetSourceInfoId() + 1);
 
         return fbInfo;
     }
@@ -1297,7 +1297,7 @@ namespace TTD
         }
 
         //Now allocate the arrays for them and do the processing
-        snapEvent->LongLivedRefRootsIdArray = nullptr; 
+        snapEvent->LongLivedRefRootsIdArray = nullptr;
         if(snapEvent->LongLivedRefRootsCount != 0)
         {
             snapEvent->LongLivedRefRootsIdArray = this->m_eventSlabAllocator.SlabAllocateArray<TTD_LOG_PTR_ID>(snapEvent->LongLivedRefRootsCount);
@@ -2092,7 +2092,7 @@ namespace TTD
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTByteBufferAction, NSLogEvents::EventKind::AllocateExternalArrayBufferActionTag>(&cAction);
         cAction->Length = size;
 
-        cAction->Buffer = nullptr; 
+        cAction->Buffer = nullptr;
         if(cAction->Length != 0)
         {
             cAction->Buffer = this->m_eventSlabAllocator.SlabAllocateArray<byte>(cAction->Length);

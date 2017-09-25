@@ -21,7 +21,7 @@ void SourceContextInfo::EnsureInitialized()
     }
 
     // Match the dictionaries resize policy in calculating the amount to grow by
-    uint newFunctionBodyCount = max(this->nextLocalFunctionId, UInt32Math::Add(oldFunctionBodyArraySize, oldFunctionBodyArraySize / 3));
+    uint newFunctionBodyCount = GET_MAX(this->nextLocalFunctionId, UInt32Math::Add(oldFunctionBodyArraySize, oldFunctionBodyArraySize / 3));
 
     if(sourceDynamicProfileManager)
     {
@@ -42,7 +42,7 @@ bool SourceContextInfo::IsSourceProfileLoaded() const
 SourceContextInfo* SourceContextInfo::Clone(Js::ScriptContext* scriptContext) const
 {
     IActiveScriptDataCache* profileCache = NULL;
-    
+
 #if ENABLE_PROFILE_INFO
     if (this->sourceDynamicProfileManager != NULL)
     {

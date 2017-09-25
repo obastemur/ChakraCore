@@ -556,7 +556,7 @@ namespace UnifiedRegex
         {
             if (children[i] == nullptr)
                 // Caution: Part of the range for this child may overlap with direct vector
-                result.SetRange(allocator, UTC(max(base, directSize)), UTC(base + delta - 1));
+                result.SetRange(allocator, UTC(GET_MAX(base, directSize)), UTC(base + delta - 1));
             else
                 children[i]->ToComplement(allocator, level, base, result);
             base += delta;
@@ -1038,7 +1038,7 @@ namespace UnifiedRegex
         {
             if (lowerValue < CharSetNode::directSize)
             {
-                uint maxDirectValue = min(higherValue, CharSetNode::directSize - 1);
+                uint maxDirectValue = GET_MIN(higherValue, CharSetNode::directSize - 1);
                 rep.full.direct.ClearRange(lowerValue, maxDirectValue);
             }
 
@@ -1418,7 +1418,7 @@ namespace UnifiedRegex
         if (!IsCompact())
             return -1;
 
-        uint count = min(max, (uint)(this->GetCompactLength()));
+        uint count = GET_MIN(max, (uint)(this->GetCompactLength()));
         __analysis_assume(count <= max);
         for (uint i = 0; i < count; i++)
         {

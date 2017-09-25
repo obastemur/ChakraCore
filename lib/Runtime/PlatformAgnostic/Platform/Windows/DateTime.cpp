@@ -32,7 +32,7 @@ namespace DateTime
             int dayOfWeekOf1stOfMonth = (yearType + daysUpToMonthLeap[date.wMonth-1] - (int)(!isLeap && date.wMonth >= 3)) % 7;
             int numberOfDaysInThisMonth = daysInMonthLeap[date.wMonth-1] - (int)(!isLeap && date.wMonth == 2);
             int delta = date.wDayOfWeek - dayOfWeekOf1stOfMonth;
-            return min((numberOfDaysInThisMonth - delta - 1) / 7, date.wDay - (int)(delta >= 0)) * 7 + delta + 1;
+            return GET_MIN((numberOfDaysInThisMonth - delta - 1) / 7, date.wDay - (int)(delta >= 0)) * 7 + delta + 1;
         }
         else
         {

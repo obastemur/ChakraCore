@@ -297,7 +297,7 @@ Func::Codegen(JitArenaAllocator *alloc, JITTimeWorkItem * workItem,
     {
         Func func(alloc, workItem, threadContextInfo,
             scriptContextInfo, outputData, epInfo, runtimeInfo,
-            polymorphicInlineCacheInfo, codeGenAllocators, 
+            polymorphicInlineCacheInfo, codeGenAllocators,
 #if !FLOATVAR
             numberAllocator,
 #endif
@@ -581,7 +581,7 @@ Func::TryCodegen()
                 if (CONFIG_FLAG(OOPJITFixupValidate))
                 {
                     // Scan memory to see if there's missing pointer needs to be fixed up
-                    // This can hit false positive if some data field happens to have value 
+                    // This can hit false positive if some data field happens to have value
                     // falls into the NativeCodeData memory range.
                     NativeCodeData::DataChunk *next2 = chunk;
                     while (next2)
@@ -662,14 +662,14 @@ Func::StackAllocate(int size)
 
 #ifdef MD_GROW_LOCALS_AREA_UP
     // Locals have positive offsets and are allocated from bottom to top.
-    m_localStackHeight = Math::Align(m_localStackHeight, min(size, MachStackAlignment));
+    m_localStackHeight = Math::Align(m_localStackHeight, GET_MIN(size, MachStackAlignment));
 
     offset = m_localStackHeight;
     m_localStackHeight += size;
 #else
     // Locals have negative offsets and are allocated from top to bottom.
     m_localStackHeight += size;
-    m_localStackHeight = Math::Align(m_localStackHeight, min(size, MachStackAlignment));
+    m_localStackHeight = Math::Align(m_localStackHeight, GET_MIN(size, MachStackAlignment));
 
     offset = -m_localStackHeight;
 #endif
@@ -727,7 +727,7 @@ Func::EnsureLocalVarSlots()
             // Allocate the slots.
             int32 size = localSlotCount * GetDiagLocalSlotSize();
             m_localVarSlotsOffset = StackAllocate(size);
-            m_hasLocalVarChangedOffset = StackAllocate(max(1, MachStackAlignment)); // Can't alloc less than StackAlignment bytes.
+            m_hasLocalVarChangedOffset = StackAllocate(GET_MAX(1, MachStackAlignment)); // Can't alloc less than StackAlignment bytes.
 
             Assert(m_workItem->Type() == JsFunctionType);
 
@@ -2009,7 +2009,7 @@ void
 Func::UpdateForInLoopMaxDepth(uint forInLoopMaxDepth)
 {
     Assert(this->IsTopFunc());
-    this->m_forInLoopMaxDepth = max(this->m_forInLoopMaxDepth, forInLoopMaxDepth);
+    this->m_forInLoopMaxDepth = GET_MAX(this->m_forInLoopMaxDepth, forInLoopMaxDepth);
 }
 
 int

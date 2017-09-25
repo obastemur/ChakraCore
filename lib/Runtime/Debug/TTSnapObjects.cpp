@@ -82,7 +82,7 @@ namespace TTD
                     Js::Var const* inlineSlots = dynObj->GetInlineSlots_TTD();
 
                     //copy all the properties (if they all fit into the inline slots) otherwise just copy all the inline slot values
-                    uint32 inlineSlotCount = min(sHandler->MaxPropertyIndex, sHandler->InlineSlotCapacity);
+                    uint32 inlineSlotCount = GET_MIN(sHandler->MaxPropertyIndex, sHandler->InlineSlotCapacity);
                     js_memcpy_s(cpyBase, inlineSlotCount * sizeof(TTDVar), inlineSlots, inlineSlotCount * sizeof(Js::Var));
                 }
 
@@ -158,7 +158,7 @@ namespace TTD
                     if(Js::IsInternalPropertyId(pid))
                     {
                         propertyReset.Clear();
-                        return true; 
+                        return true;
                     }
 
                     //someone added a property that is not simple to remove so let's just be safe an recreate contexts

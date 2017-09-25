@@ -2793,7 +2793,7 @@ namespace Js
             T dIndex = descriptor.template GetDataPropertyIndex<false>();
             if(dIndex != NoSlots)
             {
-                maxSlot = max(maxSlot, dIndex);
+                maxSlot = GET_MAX(maxSlot, dIndex);
 
                 TTD::NSSnapType::SnapEntryDataKindTag tag = descriptor.IsInitialized ? TTD::NSSnapType::SnapEntryDataKindTag::Data : TTD::NSSnapType::SnapEntryDataKindTag::Uninitialized;
                 TTD::NSSnapType::ExtractSnapPropertyEntryInfo(entryInfo + dIndex, pid, descriptor.Attributes, tag);
@@ -2805,7 +2805,7 @@ namespace Js
                 T gIndex = descriptor.GetGetterPropertyIndex();
                 if(gIndex != NoSlots)
                 {
-                    maxSlot = max(maxSlot, gIndex);
+                    maxSlot = GET_MAX(maxSlot, gIndex);
 
                     TTD::NSSnapType::SnapEntryDataKindTag tag = TTD::NSSnapType::SnapEntryDataKindTag::Getter;
                     TTD::NSSnapType::ExtractSnapPropertyEntryInfo(entryInfo + gIndex, pid, descriptor.Attributes, tag);
@@ -2814,7 +2814,7 @@ namespace Js
                 T sIndex = descriptor.GetSetterPropertyIndex();
                 if(sIndex != NoSlots)
                 {
-                    maxSlot = max(maxSlot, sIndex);
+                    maxSlot = GET_MAX(maxSlot, sIndex);
 
                     TTD::NSSnapType::SnapEntryDataKindTag tag = TTD::NSSnapType::SnapEntryDataKindTag::Setter;
                     TTD::NSSnapType::ExtractSnapPropertyEntryInfo(entryInfo + sIndex, pid, descriptor.Attributes, tag);

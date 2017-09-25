@@ -874,7 +874,7 @@ namespace JsUtil
         void Initialize(int capacity)
         {
             // minimum capacity is 4
-            int initSize = max(capacity, 4);
+            int initSize = GET_MAX(capacity, 4);
             uint initBucketCount = SizePolicy::GetBucketSize(initSize, &modFunctionIndex);
             AssertMsg(initBucketCount > 0, "Size returned by policy should be greater than 0");
 

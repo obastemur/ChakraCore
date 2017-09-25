@@ -790,7 +790,7 @@ ValueInfo::MergeLikelyIntValueInfo(JitArenaAllocator* alloc, Value *toDataVal, V
         int32 min1, max1, min2, max2;
         toDataValueInfo->GetIntValMinMax(&min1, &max1, false);
         fromDataValueInfo->GetIntValMinMax(&min2, &max2, false);
-        return ValueInfo::NewIntRangeValueInfo(alloc, min(min1, min2), max(max1, max2), wasNegativeZeroPreventedByBailout);
+        return ValueInfo::NewIntRangeValueInfo(alloc, GET_MIN(min1, min2), GET_MAX(max1, max2), wasNegativeZeroPreventedByBailout);
     }
 
     return ValueInfo::New(alloc, newValueType);

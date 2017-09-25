@@ -1968,7 +1968,7 @@ namespace UnifiedRegex
         {
             // Backup at most by backup.upper for new start
             CharCount maxBackup = inputOffset - matchStart;
-            matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
+            matchStart = inputOffset - GET_MIN(maxBackup, (CharCount)backup.upper);
         }
         // else: leave start where it is
 
@@ -2031,7 +2031,7 @@ namespace UnifiedRegex
         {
             // Backup at most by backup.upper for new start
             CharCount maxBackup = inputOffset - matchStart;
-            matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
+            matchStart = inputOffset - GET_MIN(maxBackup, (CharCount)backup.upper);
         }
         // else: leave start where it is
 
@@ -2085,7 +2085,7 @@ namespace UnifiedRegex
         {
             // Set new start at most backup.upper from start of literal
             CharCount maxBackup = inputOffset - matchStart;
-            matchStart = inputOffset - min(maxBackup, (CharCount)backup.upper);
+            matchStart = inputOffset - GET_MIN(maxBackup, (CharCount)backup.upper);
         }
         // else: leave start where it is
 
@@ -2211,7 +2211,7 @@ namespace UnifiedRegex
         {
             // Set new start at most backup.upper from start of literal
             CharCount maxBackup = bestMatchOffset - matchStart;
-            matchStart = bestMatchOffset - min(maxBackup, (CharCount)backup.upper);
+            matchStart = bestMatchOffset - GET_MIN(maxBackup, (CharCount)backup.upper);
         }
         // else: leave start where it is
 
@@ -4286,7 +4286,7 @@ namespace UnifiedRegex
             else
             {
                 // Backtrack to the previous offset where we matched the LoopSet's followFirst
-                // We will be doing one unnecessary match. But, if we wanted to avoid it, we'd have 
+                // We will be doing one unnecessary match. But, if we wanted to avoid it, we'd have
                 // to propagate to the next Inst, that the first character is already matched.
                 // Seems like an overkill to avoid one match.
                 loopInfo->number = loopInfo->offsetsOfFollowFirst->RemoveAtEnd();
@@ -4295,7 +4295,7 @@ namespace UnifiedRegex
 
         // If loopInfo->number now is less than begins->repeats.lower, the loop
         // shouldn't match anything. In that case, stop backtracking.
-        loopInfo->number = max(loopInfo->number, begin->repeats.lower);
+        loopInfo->number = GET_MAX(loopInfo->number, begin->repeats.lower);
 
         // Rewind input
         inputOffset = loopInfo->startInputOffset + loopInfo->number;

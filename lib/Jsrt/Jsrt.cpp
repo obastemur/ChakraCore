@@ -371,7 +371,7 @@ JsErrorCode CreateRuntimeCore(_In_ JsRuntimeAttributes attributes,
             ThreadContextScope scope(threadContext);
             threadContext->EnsureRecycler();
 
-            threadContext->InitTimeTravel(threadContext, *runtimeHandle, snapInterval, max<uint32>(2, snapHistoryLength));
+            threadContext->InitTimeTravel(threadContext, *runtimeHandle, snapInterval, GET_MAX<uint32>(2, snapHistoryLength));
             threadContext->InitHostFunctionsAndTTData(isRecord, isReplay, isDebug, optTTUriCount, optTTUri,
                 openResourceStream, readBytesFromStream, writeBytesToStream, flushAndCloseStream,
                 &CreateExternalObject_TTDCallback, &CreateJsRTContext_TTDCallback, &ReleaseJsRTContext_TTDCallback, &SetActiveJsRTContext_TTDCallback);
@@ -4224,7 +4224,7 @@ JsErrorCode WriteStringCopy(
         return JsErrorInvalidArgument;  // start out of range, no chars written
     }
 
-    size_t count = min(static_cast<size_t>(length), strLength - start);
+    size_t count = GET_MIN(static_cast<size_t>(length), strLength - start);
     if (count == 0)
     {
         return JsNoError;  // no chars written
@@ -4424,7 +4424,7 @@ CHAKRA_API JsCopyPropertyId(
     }
     else
     {
-        size_t count = min(bufferSize, utf8Str.Length());
+        size_t count = GET_MIN(bufferSize, utf8Str.Length());
         // Try to copy whole characters if buffer size insufficient
         auto maxFitChars = utf8::ByteIndexIntoCharacterIndex(
             (LPCUTF8)(const char*)utf8Str, count,

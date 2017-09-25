@@ -1431,7 +1431,7 @@ void ByteCodeGenerator::DefineUserVars(FuncInfo *funcInfo)
                             byteCodeFunction->InsertSymbolToRegSlotList(sym->GetName(), reg, funcInfo->varRegsCount);
                         }
                     }
-                }  
+                }
                 sym->SetHasInit(TRUE);
             }
         }
@@ -2001,7 +2001,7 @@ void ByteCodeGenerator::LoadAllConstants(FuncInfo *funcInfo)
     });
 
     // WARNING !!!
-    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail 
+    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail
     // out (unlikely, since opcodes emitted in this function should not correspond to user code, but possible)
     // and the Jit assumes that there cannot be any bailouts before LdHeapArguments (or its equivalent)
 
@@ -3098,7 +3098,7 @@ void ByteCodeGenerator::EmitOneFunction(ParseNode *pnode)
 
     if (deferParseFunction->IsDeferred() || deferParseFunction->CanBeDeferred())
     {
-        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);        
+        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);
     }
 
     if (funcInfo->root->sxFnc.pnodeBody == nullptr)
@@ -7384,7 +7384,7 @@ Js::ArgSlot EmitArgListEnd(
     BOOL fIsEval = (evalLocation != Js::Constants::NoRegister);
     BOOL fHasNewTarget = (newTargetLocation != Js::Constants::NoRegister);
 
-    static const size_t maxExtraArgSlot = 4;  // max(extraEvalArg, extraArg), where extraEvalArg==2 (moduleRoot,env), extraArg==4 (this, eval, evalInModule, newTarget)
+    static const size_t maxExtraArgSlot = 4;  // GET_MAX(extraEvalArg, extraArg), where extraEvalArg==2 (moduleRoot,env), extraArg==4 (this, eval, evalInModule, newTarget)
     AssertOrFailFastMsg(argIndex < Js::Constants::UShortMaxValue - maxExtraArgSlot, "Number of allowed arguments are already capped at parser level");
 
     Js::ArgSlot argSlotIndex = (Js::ArgSlot) argIndex;

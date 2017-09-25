@@ -499,7 +499,7 @@ namespace JsUtil
             int processorCount = AutoSystemInfo::Data.GetNumberOfPhysicalProcessors();
             //There is 2 threads already in play, one UI (main) thread and a GC thread. So subtract 2 from processorCount to account for the same.
 
-            this->maxThreadCount = max(1, min(processorCount - 2, CONFIG_FLAG(MaxJitThreadCount)));
+            this->maxThreadCount = GET_MAX(1, GET_MIN(processorCount - 2, CONFIG_FLAG(MaxJitThreadCount)));
         }
     }
 

@@ -34,7 +34,7 @@ namespace Js
                     this->descriptorValidationToken = tmpDescriptorValidationToken;
                 }
 
-                index = min(dataIndex, descriptorIndex);
+                index = GET_MIN(dataIndex, descriptorIndex);
                 if (index >= initialLength) // End of array
                 {
                     doneArray = true;

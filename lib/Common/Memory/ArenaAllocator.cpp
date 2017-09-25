@@ -216,7 +216,7 @@ SetCacheBlock(BigBlock * newCacheBlock)
         }
         else
         {
-            largestHole = max(largestHole, static_cast<size_t>(cacheBlockRemainBytes));
+            largestHole = GET_MAX(largestHole, static_cast<size_t>(cacheBlockRemainBytes));
         }
     }
     cacheBlockCurrent = newCacheBlock->GetBytes() + newCacheBlock->currentByte;
@@ -271,7 +271,7 @@ SnailAlloc(size_t nbytes)
 
                 return(p);
             }
-            currentLargestHole = max(currentLargestHole, remainingBytes);
+            currentLargestHole = GET_MAX(currentLargestHole, remainingBytes);
             if (--giveUpAfter == 0)
             {
                 break;
@@ -987,7 +987,7 @@ bool StandAloneFreeListPolicy::TryEnsureFreeListEntry(StandAloneFreeListPolicy *
             Assert(_this->used == _this->allocated);
 
             StandAloneFreeListPolicy * oldThis = _this;
-            uint entries = oldThis->allocated + min(oldThis->allocated, MaxEntriesGrowth);
+            uint entries = oldThis->allocated + GET_MIN(oldThis->allocated, MaxEntriesGrowth);
             StandAloneFreeListPolicy * newThis = NewInternal(entries);
             if (NULL != newThis)
             {
@@ -1154,7 +1154,7 @@ void InlineCacheAllocator::CheckIsAllZero(bool lockdown)
             // will be debug pattern filled (specifically, at least their weak reference slots).
             // All other caches must be zeroed out (again, at least their weak reference slots).
 #ifdef ARENA_MEMORY_VERIFY
-            Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0) 
+            Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0)
                 || IsAll(weakRefBytes, sizeof(cache->weakRefs), InlineCacheFreeListPolicy::DbgFreeMemFill));
 #else
             Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0));

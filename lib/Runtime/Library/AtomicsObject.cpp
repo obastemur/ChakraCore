@@ -191,7 +191,7 @@ namespace Js
             if (!(NumberUtilities::IsNan(t) || JavascriptNumber::IsPosInf(t)))
             {
                 int32 t1 = JavascriptConversion::ToInt32(t);
-                timeout = (uint32)max(0, t1);
+                timeout = (uint32)GET_MAX(0, t1);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Js
             DWORD_PTR agent = (DWORD_PTR)scriptContext;
             Assert(sharedArrayBuffer->GetSharedContents()->IsValidAgent(agent));
             awoken = waiterList->AddAndSuspendWaiter(agent, timeout);
-            if (!awoken) 
+            if (!awoken)
             {
                 waiterList->RemoveWaiter(agent);
             }
@@ -244,7 +244,7 @@ namespace Js
             if (!(NumberUtilities::IsNan(d) || JavascriptNumber::IsPosInf(d)))
             {
                 int32 c = JavascriptConversion::ToInt32(d);
-                count = max(0, c);
+                count = GET_MAX(0, c);
             }
         }
 

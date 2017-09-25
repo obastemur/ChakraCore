@@ -216,7 +216,7 @@ namespace Js
                 PrintOne( length, metrics, totalStringCount );
 
                 cumulative.Accumulate(metrics);
-                maxLength = max( maxLength, length );
+                maxLength = GET_MAX( maxLength, length );
             }
         }
 
@@ -284,8 +284,8 @@ namespace Js
             return;
         }
 
-        lenLeft = min( lenLeft, k_MaxConcatLength );
-        lenRight = min( lenRight, k_MaxConcatLength );
+        lenLeft = GET_MIN( lenLeft, k_MaxConcatLength );
+        lenRight = GET_MIN( lenRight, k_MaxConcatLength );
 
         UintUintPair key = { lenLeft, lenRight };
         ConcatMetrics* metrics;

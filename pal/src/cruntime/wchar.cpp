@@ -1530,7 +1530,7 @@ PAL_wcsncpy( char16_t * strDest, const char16_t *strSource, size_t count )
           strDest, strSource, strSource, (unsigned long) count);
 
     memset( strDest, 0, length );
-    length = min( count, PAL_wcslen( strSource ) ) * sizeof( char16_t );
+    length = PAL_MIN( count, PAL_wcslen( strSource ) ) * sizeof( char16_t );
     memcpy( strDest, strSource, length );
 
     LOGEXIT("wcsncpy returning (char16_t*): %p\n", strDest);

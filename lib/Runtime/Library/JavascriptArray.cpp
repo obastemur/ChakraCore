@@ -2121,7 +2121,7 @@ namespace Js
                     {
                         limit = JavascriptArray::MaxArrayLength;
                     }
-                    seg->size = min(newSize, limit - seg->left);
+                    seg->size = GET_MIN(newSize, limit - seg->left);
                     seg->CheckLengthvsSize();
                 }
             }
@@ -2266,7 +2266,7 @@ namespace Js
     // Note: Spec calls out a few rules for these parameters:
     // 1. if (arg > length) { return length; }
     // clamp to length, not length-1
-    // 2. if (arg < 0) { return max(0, length + arg); }
+    // 2. if (arg < 0) { return GET_MAX(0, length + arg); }
     // treat negative arg as index from the end of the array (with -1 mapping to length-1)
     // Effectively, this function will return a value between 0 and length, inclusive.
     int64 JavascriptArray::GetIndexFromVar(Js::Var arg, int64 length, ScriptContext* scriptContext)
@@ -2279,7 +2279,7 @@ namespace Js
 
             if (intValue < 0)
             {
-                index = max<int64>(0, length + intValue);
+                index = GET_MAX<int64>(0, length + intValue);
             }
             else
             {
@@ -2305,7 +2305,7 @@ namespace Js
 
             if (index < 0)
             {
-                index = max<int64>(0, index + length);
+                index = GET_MAX<int64>(0, index + length);
             }
         }
 
@@ -3716,7 +3716,7 @@ namespace Js
 
             if (intValue >= 0)
             {
-                fromIndex = min<int64>(intValue, length - 1);
+                fromIndex = GET_MIN<int64>(intValue, length - 1);
             }
             else if ((uint32)-intValue > length)
             {
@@ -3733,7 +3733,7 @@ namespace Js
 
             if (value >= 0)
             {
-                fromIndex = (int64)min(value, (double)(length - 1));
+                fromIndex = (int64)GET_MIN(value, (double)(length - 1));
             }
             else if (value + length < 0)
             {
@@ -4456,7 +4456,7 @@ namespace Js
 CaseDefault:
                 bool hasSeparator = (separator->GetLength() != 0);
                 const charcount_t estimatedAppendCount =
-                    min(
+                    GET_MIN(
                         Join_MaxEstimatedAppendCount,
                         static_cast<charcount_t>(arrLength + (hasSeparator ? arrLength - 1 : 0)));
                 CompoundString *const cs =
@@ -4553,7 +4553,7 @@ CaseDefault:
                 bool hasSeparator = (separator->GetLength() != 0);
                 BOOL gotItem;
                 const charcount_t estimatedAppendCount =
-                    min(
+                    GET_MIN(
                         Join_MaxEstimatedAppendCount,
                         static_cast<charcount_t>(cSrcLength + (hasSeparator ? cSrcLength - 1 : 0)));
                 CompoundString *const cs =
@@ -5339,7 +5339,7 @@ Case0:
             {
                 RecyclableObject* protoObj = prototype;
 
-                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj)) 
+                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj))
                     || JavascriptProxy::Is(protoObj)
                     || protoObj->IsExternal())
                 {
@@ -6991,7 +6991,7 @@ Case0:
         uint32 relativeStart    = start - seg->left;  // This will be different from start when head->left is non zero -
                                                       //(Missing elements at the beginning)
 
-        uint32 headDeleteLen    = min(start + deleteLen , seg->left + seg->length) - start;   // actual number of elements to delete in
+        uint32 headDeleteLen    = GET_MIN(start + deleteLen , seg->left + seg->length) - start;   // actual number of elements to delete in
                                                                                               // head if deleteLen overflows the length of head
 
         uint32 newHeadLen       = seg->length - headDeleteLen + insertLen;     // new length of the head after splice
@@ -8622,7 +8622,7 @@ Case0:
         else if (typedArrayBase)
         {
             AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-            uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+            uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
             for (uint32 k = 0; k < end; k++)
             {
@@ -8793,7 +8793,7 @@ Case0:
         else if (typedArrayBase)
         {
             AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-            uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+            uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
             for (uint32 k = 0; k < end; k++)
             {
@@ -8995,7 +8995,7 @@ Case0:
         // Make sure we won't underflow during the count calculation
         Assert(finalVal > fromVal && length > toVal);
 
-        int64 count = min(finalVal - fromVal, length - toVal);
+        int64 count = GET_MIN(finalVal - fromVal, length - toVal);
 
         // We shouldn't have made it here if the count was going to be zero
         Assert(count > 0);
@@ -9168,7 +9168,7 @@ Case0:
 
         if (k < MaxArrayLength)
         {
-            int64 end = min<int64>(finalVal, MaxArrayLength);
+            int64 end = GET_MIN<int64>(finalVal, MaxArrayLength);
             uint32 u32k = static_cast<uint32>(k);
 
             while (u32k < end)
@@ -9417,7 +9417,7 @@ Case0:
             }
 
             Assert(length <= UINT_MAX);
-            uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+            uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
             for (uint32 k = 0; k < end; k++)
             {
@@ -9798,7 +9798,7 @@ Case0:
             else if (typedArrayBase)
             {
                 AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-                uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+                uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
                 for (; k < end && bPresent == false; k++)
                 {
@@ -9866,7 +9866,7 @@ Case0:
         else if (typedArrayBase)
         {
             AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-            uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+            uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
             for (; k < end; k++)
             {
@@ -10016,7 +10016,7 @@ Case0:
             else if (typedArrayBase)
             {
                 AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-                uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+                uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
                 for (; k < end && bPresent == false; k++)
                 {
@@ -10081,7 +10081,7 @@ Case0:
         else if (typedArrayBase)
         {
             AssertAndFailFast(TypedArrayBase::Is(typedArrayBase));
-            uint32 end = (uint32)min(length, (T)typedArrayBase->GetLength());
+            uint32 end = (uint32)GET_MIN(length, (T)typedArrayBase->GetLength());
 
             for (; k < end; k++)
             {
@@ -10626,7 +10626,7 @@ Case0:
     // ArrayElementEnumerator to enumerate array elements (not including elements from prototypes).
     //
     JavascriptArray::ArrayElementEnumerator::ArrayElementEnumerator(JavascriptArray* arr, uint32 start, uint32 end)
-        : start(start), end(min(end, arr->length))
+        : start(start), end(GET_MIN(end, arr->length))
     {
         Init(arr);
     }
@@ -10653,8 +10653,8 @@ Case0:
             else
             {
                 // set index to be at target index - 1, so MoveNext will move to target
-                index = max(seg->left, start) - seg->left - 1;
-                endIndex = min(end - seg->left, seg->length);
+                index = GET_MAX(seg->left, start) - seg->left - 1;
+                endIndex = GET_MIN(end - seg->left, seg->length);
             }
         }
     }
@@ -10688,7 +10688,7 @@ Case0:
                 else
                 {
                     index = static_cast<uint32>(-1);
-                    endIndex = min(end - seg->left, seg->length);
+                    endIndex = GET_MIN(end - seg->left, seg->length);
                 }
             }
         }
@@ -11111,7 +11111,7 @@ Case0:
     //
     void JavascriptArray::CopyArrayElements(JavascriptArray* dstArray, uint32 dstIndex, JavascriptArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start < end)
         {
             Assert(end - start <= MaxArrayLength - dstIndex);
@@ -11147,7 +11147,7 @@ Case0:
     //
     void JavascriptArray::CopyNativeIntArrayElementsToVar(JavascriptArray* dstArray, uint32 dstIndex, JavascriptNativeIntArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start < end)
         {
             Assert(end - start <= MaxArrayLength - dstIndex);
@@ -11157,7 +11157,7 @@ Case0:
 
     bool JavascriptArray::CopyNativeIntArrayElements(JavascriptNativeIntArray* dstArray, uint32 dstIndex, JavascriptNativeIntArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start >= end)
         {
             return false;
@@ -11190,7 +11190,7 @@ Case0:
 
     bool JavascriptArray::CopyNativeIntArrayElementsToFloat(JavascriptNativeFloatArray* dstArray, uint32 dstIndex, JavascriptNativeIntArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start >= end)
         {
             return false;
@@ -11226,7 +11226,7 @@ Case0:
     //
     void JavascriptArray::CopyNativeFloatArrayElementsToVar(JavascriptArray* dstArray, uint32 dstIndex, JavascriptNativeFloatArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start < end)
         {
             Assert(end - start <= MaxArrayLength - dstIndex);
@@ -11236,7 +11236,7 @@ Case0:
 
     bool JavascriptArray::CopyNativeFloatArrayElements(JavascriptNativeFloatArray* dstArray, uint32 dstIndex, JavascriptNativeFloatArray* srcArray, uint32 start, uint32 end)
     {
-        end = min(end, srcArray->length);
+        end = GET_MIN(end, srcArray->length);
         if (start >= end)
         {
             return false;

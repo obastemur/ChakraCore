@@ -659,7 +659,7 @@ namespace Js
 
                 {
                     Js::Number iterationsNeeded = SimpleJitAfter;
-                    ProfilingInterpreter0Limit = min(ProfilingInterpreter0Limit, iterationsNeeded);
+                    ProfilingInterpreter0Limit = GET_MIN(ProfilingInterpreter0Limit, iterationsNeeded);
                     iterationsNeeded -= ProfilingInterpreter0Limit;
                     AutoProfilingInterpreter0Limit = iterationsNeeded;
                     AutoProfilingInterpreter1Limit = 0;
@@ -673,14 +673,14 @@ namespace Js
                     Assert(SimpleJitAfter <= FullJitAfter);
                     Js::Number iterationsNeeded = FullJitAfter - SimpleJitAfter;
                     Js::Number profilingIterationsNeeded =
-                        min(NewSimpleJit
+                        GET_MIN(NewSimpleJit
                                 ? DEFAULT_CONFIG_MinProfileIterations
                                 : DEFAULT_CONFIG_MinProfileIterations_OldSimpleJit,
                             FullJitAfter) -
                         ProfilingInterpreter0Limit;
                     if(NewSimpleJit)
                     {
-                        ProfilingInterpreter1Limit = min(ProfilingInterpreter1Limit, iterationsNeeded);
+                        ProfilingInterpreter1Limit = GET_MIN(ProfilingInterpreter1Limit, iterationsNeeded);
                         iterationsNeeded -= ProfilingInterpreter1Limit;
                         profilingIterationsNeeded -= ProfilingInterpreter1Limit;
                         SimpleJitLimit = iterationsNeeded;
@@ -688,18 +688,18 @@ namespace Js
                     else
                     {
                         SimpleJitLimit = iterationsNeeded;
-                        profilingIterationsNeeded -= min(SimpleJitLimit, profilingIterationsNeeded);
+                        profilingIterationsNeeded -= GET_MIN(SimpleJitLimit, profilingIterationsNeeded);
                         ProfilingInterpreter1Limit = 0;
                     }
 
                     if(profilingIterationsNeeded != 0)
                     {
-                        Js::Number iterationsToMove = min(AutoProfilingInterpreter1Limit, profilingIterationsNeeded);
+                        Js::Number iterationsToMove = GET_MIN(AutoProfilingInterpreter1Limit, profilingIterationsNeeded);
                         AutoProfilingInterpreter1Limit -= iterationsToMove;
                         ProfilingInterpreter0Limit += iterationsToMove;
                         profilingIterationsNeeded -= iterationsToMove;
 
-                        iterationsToMove = min(AutoProfilingInterpreter0Limit, profilingIterationsNeeded);
+                        iterationsToMove = GET_MIN(AutoProfilingInterpreter0Limit, profilingIterationsNeeded);
                         AutoProfilingInterpreter0Limit -= iterationsToMove;
                         ProfilingInterpreter0Limit += iterationsToMove;
                         profilingIterationsNeeded -= iterationsToMove;
@@ -739,23 +739,23 @@ namespace Js
                 Js::Number iterationsNeeded = FullJitAfter;
                 if(NewSimpleJit)
                 {
-                    ProfilingInterpreter1Limit = min(ProfilingInterpreter1Limit, iterationsNeeded);
+                    ProfilingInterpreter1Limit = GET_MIN(ProfilingInterpreter1Limit, iterationsNeeded);
                     iterationsNeeded -= ProfilingInterpreter1Limit;
                 }
                 else
                 {
                     ProfilingInterpreter1Limit = 0;
-                    SimpleJitLimit = min(SimpleJitLimit, iterationsNeeded);
+                    SimpleJitLimit = GET_MIN(SimpleJitLimit, iterationsNeeded);
                     iterationsNeeded -= SimpleJitLimit;
                 }
-                ProfilingInterpreter0Limit = min(ProfilingInterpreter0Limit, iterationsNeeded);
+                ProfilingInterpreter0Limit = GET_MIN(ProfilingInterpreter0Limit, iterationsNeeded);
                 iterationsNeeded -= ProfilingInterpreter0Limit;
                 if(NewSimpleJit)
                 {
-                    SimpleJitLimit = min(SimpleJitLimit, iterationsNeeded);
+                    SimpleJitLimit = GET_MIN(SimpleJitLimit, iterationsNeeded);
                     iterationsNeeded -= SimpleJitLimit;
                 }
-                AutoProfilingInterpreter0Limit = min(AutoProfilingInterpreter0Limit, iterationsNeeded);
+                AutoProfilingInterpreter0Limit = GET_MIN(AutoProfilingInterpreter0Limit, iterationsNeeded);
                 iterationsNeeded -= AutoProfilingInterpreter0Limit;
                 AutoProfilingInterpreter1Limit = iterationsNeeded;
 

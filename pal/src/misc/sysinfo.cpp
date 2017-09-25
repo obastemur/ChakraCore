@@ -350,11 +350,11 @@ PAL_GetLogicalProcessorCacheSizeFromOS()
     size_t cacheSize = 0;
 
 #if HAVE_SYSCONF && defined(__LINUX__) && !defined(__ANDROID__)
-    cacheSize = max(cacheSize, sysconf(_SC_LEVEL1_DCACHE_SIZE));
-    cacheSize = max(cacheSize, sysconf(_SC_LEVEL1_ICACHE_SIZE));
-    cacheSize = max(cacheSize, sysconf(_SC_LEVEL2_CACHE_SIZE));
-    cacheSize = max(cacheSize, sysconf(_SC_LEVEL3_CACHE_SIZE));
-    cacheSize = max(cacheSize, sysconf(_SC_LEVEL4_CACHE_SIZE));
+    cacheSize = PAL_MAX(cacheSize, sysconf(_SC_LEVEL1_DCACHE_SIZE));
+    cacheSize = PAL_MAX(cacheSize, sysconf(_SC_LEVEL1_ICACHE_SIZE));
+    cacheSize = PAL_MAX(cacheSize, sysconf(_SC_LEVEL2_CACHE_SIZE));
+    cacheSize = PAL_MAX(cacheSize, sysconf(_SC_LEVEL3_CACHE_SIZE));
+    cacheSize = PAL_MAX(cacheSize, sysconf(_SC_LEVEL4_CACHE_SIZE));
 #endif
 
     return cacheSize;

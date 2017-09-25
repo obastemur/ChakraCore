@@ -256,7 +256,7 @@ BVFixed::CopyBits(const BVFixed * bv, BVIndex i)
     BVIndex offset = BVUnit::Offset(i);
     BVIndex position = BVUnit::Position(i);
     BVIndex len = bv->WordCount() - position;
-    BVIndex copylen = min(WordCount(), len);
+    BVIndex copylen = GET_MIN(WordCount(), len);
     if (offset == 0)
     {
         js_memcpy_s(&this->data[0], copylen * sizeof(BVUnit), &bv->data[BVUnit::Position(i)], copylen * sizeof(BVUnit));

@@ -304,7 +304,7 @@ double ComputeLongestCommonSubsequenceDistance(Allocator* alloc, int lengthA, in
         ++lcsLength;
     });
 
-    return 1.0 - (double)lcsLength / (double)max(lengthA, lengthB);
+    return 1.0 - (double)lcsLength / (double)GET_MAX(lengthA, lengthB);
 }
 
 //-----------------------------------------------------------------------------
@@ -746,7 +746,7 @@ private:
                     int next;
                     while (index < list.Count() && IsNext(list.Item(index), &next))
                     {
-                        index = max(next, index + 1); // Ensure moves forward (next could be 0, from individual MarkMatched() call).
+                        index = GET_MAX(next, index + 1); // Ensure moves forward (next could be 0, from individual MarkMatched() call).
                     }
                 }
 
@@ -1100,4 +1100,3 @@ private:
         return dict.TryGetValue(a, &value) && value == b;
     }
 };
-

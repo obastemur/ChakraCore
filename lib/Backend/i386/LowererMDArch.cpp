@@ -327,7 +327,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
             // s2 = actual argument count (without counting "this")
             instr = this->lowererMD->LoadInputParamCount(instrArgs, -1);
             IR::Opnd* opndInputParamCount = instr->GetDst();
-            
+
             this->LoadHelperArgument(instrArgs, opndInputParamCount);
 
             // s1 = current function
@@ -833,7 +833,7 @@ LowererMDArch::LowerAsmJsCallI(IR::Instr * callInstr)
     int32 stackAlignment = LowerStartCallAsmJs(startCallInstr, startCallInstr, callInstr);
 
     const uint32 argSlots = argCount + (stackAlignment / 4) + 1;
-    m_func->m_argSlotsForFunctionsCalled = max(m_func->m_argSlotsForFunctionsCalled, argSlots);
+    m_func->m_argSlotsForFunctionsCalled = GET_MAX(m_func->m_argSlotsForFunctionsCalled, argSlots);
 
     IR::Opnd * functionObjOpnd = callInstr->UnlinkSrc1();
 
@@ -1153,7 +1153,7 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
 
     uint32 argSlots;
     argSlots = argCount + (stackAlignment / 4) + 1 + extraArgs; // + 1 for call flags
-    this->m_func->m_argSlotsForFunctionsCalled = max(this->m_func->m_argSlotsForFunctionsCalled, argSlots);
+    this->m_func->m_argSlotsForFunctionsCalled = GET_MAX(this->m_func->m_argSlotsForFunctionsCalled, argSlots);
     return argSlots;
 }
 
@@ -1643,7 +1643,7 @@ LowererMDArch::LowerEntryInstrAsmJs(IR::EntryInstr * entryInstr)
     IR::RegOpnd * ebpOpnd = IR::RegOpnd::New(nullptr, GetRegBlockPointer(), TyMachReg, m_func);
     IR::RegOpnd * espOpnd = IR::RegOpnd::New(nullptr, GetRegStackPointer(), TyMachReg, m_func);
 
-    // Generate PUSH EBP    
+    // Generate PUSH EBP
     IR::Instr * pushEbpInstr = IR::Instr::New(Js::OpCode::PUSH, m_func);
     pushEbpInstr->SetSrc1(ebpOpnd);
     insertInstr->InsertBefore(pushEbpInstr);
@@ -1948,7 +1948,7 @@ LowererMDArch::LowerInt64Assign(IR::Instr * instr)
                 }
             }
         }
-        
+
         instr->Remove();
         return lowLoadInstr->m_prev;
     }

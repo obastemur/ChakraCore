@@ -316,8 +316,8 @@ BackwardPass::ProcessBailOnStackArgsOutOfActualsRange()
 {
     IR::Instr * instr = this->currentInstr;
 
-    if (tag == Js::DeadStorePhase && 
-        (instr->m_opcode == Js::OpCode::LdElemI_A || instr->m_opcode == Js::OpCode::TypeofElem) && 
+    if (tag == Js::DeadStorePhase &&
+        (instr->m_opcode == Js::OpCode::LdElemI_A || instr->m_opcode == Js::OpCode::TypeofElem) &&
         instr->HasBailOutInfo() && !IsPrePass())
     {
         if (instr->DoStackArgsOpt(this->func))
@@ -2546,7 +2546,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
         this->currentInstr = instr;
         this->currentRegion = this->currentBlock->GetFirstInstr()->AsLabelInstr()->GetRegion();
-        
+
         IR::Instr * insertedInstr = TryChangeInstrForStackArgOpt();
         if (insertedInstr != nullptr)
         {
@@ -2556,7 +2556,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
         MarkScopeObjSymUseForStackArgOpt();
         ProcessBailOnStackArgsOutOfActualsRange();
-        
+
         if (ProcessNoImplicitCallUses(instr) || this->ProcessBailOutInfo(instr))
         {
             continue;
@@ -2899,7 +2899,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 #endif
 }
 
-bool 
+bool
 BackwardPass::CanDeadStoreInstrForScopeObjRemoval(Sym *sym) const
 {
     if (tag == Js::DeadStorePhase && this->currentInstr->m_func->IsStackArgsEnabled())
@@ -3055,7 +3055,7 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
             case Js::OpCode::GetCachedFunc:
             {
                 // <dst> = GetCachedFunc <scopeObject>, <functionNum>
-                // is converted to 
+                // is converted to
                 // <dst> = NewScFunc <functionNum>, <env: FrameDisplay>
 
                 if (instr->GetSrc1()->IsScopeObjOpnd(currFunc))
@@ -3117,8 +3117,8 @@ BackwardPass::TryChangeInstrForStackArgOpt()
     *   -This is to facilitate Bailout to record the live Scope object Sym, whenever required.
     *   -Reason for doing is this because - Scope object has to be implicitly live whenever Heap Arguments object is live.
     *   -When we restore HeapArguments object in the bail out path, it expects the scope object also to be restored - if one was created.
-    *   -We do not know detailed information about Heap arguments obj syms(aliasing etc.) until we complete Forward Pass. 
-    *   -And we want to avoid dead sym clean up (in this case, scope object though not explicitly live, it is live implicitly) during Block merging in the forward pass. 
+    *   -We do not know detailed information about Heap arguments obj syms(aliasing etc.) until we complete Forward Pass.
+    *   -And we want to avoid dead sym clean up (in this case, scope object though not explicitly live, it is live implicitly) during Block merging in the forward pass.
     *   -Hence this is the optimal spot to do this.
     */
 
@@ -3152,10 +3152,10 @@ bool
 BackwardPass::IsFormalParamSym(Func * func, Sym * sym) const
 {
     Assert(sym);
-    
+
     if (sym->IsPropertySym())
     {
-        //If the sym is a propertySym, then see if the propertyId is within the range of the formals 
+        //If the sym is a propertySym, then see if the propertyId is within the range of the formals
         //We can have other properties stored in the scope object other than the formals (following the formals).
         PropertySym * propSym = sym->AsPropertySym();
         IntConstType    value = propSym->m_propertyId;
@@ -4206,8 +4206,8 @@ bool
 BackwardPass::ProcessSymUse(Sym * sym, bool isRegOpndUse, BOOLEAN isNonByteCodeUse)
 {
     BasicBlock * block = this->currentBlock;
-    
-    if (CanDeadStoreInstrForScopeObjRemoval(sym))   
+
+    if (CanDeadStoreInstrForScopeObjRemoval(sym))
     {
         return false;
     }
@@ -4493,7 +4493,7 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
                     }
                     bucket->SetMonoGuardType(nullptr);
                 }
-                
+
                 if (!opnd->IsTypeAvailable())
                 {
                     // Stop tracking the guarded properties if there's not another type check upstream.
@@ -5607,7 +5607,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc2());
                     break;
                 }
-                
+
                 // -0 + -0 == -0. As long as one src is guaranteed to not be -0, -0 does not matter for the other src. Pick a
                 // src for which to ignore negative zero, based on which sym is last-use. If both syms are last-use, src2 is
                 // picked arbitrarily.
@@ -6227,7 +6227,7 @@ BackwardPass::TransferCompoundedAddSubUsesToSrcs(IR::Instr *const instr, const i
             // Since a src may be compounded through different chains of add/sub instructions, the greater number must be
             // preserved
             srcSym->scratch.globOpt.numCompoundedAddSubUses =
-                max(srcSym->scratch.globOpt.numCompoundedAddSubUses, addSubUses);
+                GET_MAX(srcSym->scratch.globOpt.numCompoundedAddSubUses, addSubUses);
         }
         else
         {
@@ -6699,9 +6699,9 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
         tempBv.Copy(this->currentBlock->byteCodeUpwardExposedUsed);
 #endif
         PropertySym *unusedPropertySym = nullptr;
-        
+
         GlobOpt::TrackByteCodeSymUsed(instr, this->currentBlock->byteCodeUpwardExposedUsed, &unusedPropertySym);
-        
+
 #if DBG
         BVSparse<JitArenaAllocator> tempBv2(this->tempAlloc);
         tempBv2.Copy(this->currentBlock->byteCodeUpwardExposedUsed);
@@ -6739,7 +6739,7 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
     }
 #endif
 
-    
+
     if (instr->m_opcode == Js::OpCode::ArgIn_A)
     {
         //Ignore tracking ArgIn for "this", as argInsCount only tracks other params - unless it is a asmjs function(which doesn't have a "this").
@@ -6751,7 +6751,7 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
     }
 
     TraceDeadStoreOfInstrsForScopeObjectRemoval();
-    
+
     block->RemoveInstr(instr);
     return true;
 }

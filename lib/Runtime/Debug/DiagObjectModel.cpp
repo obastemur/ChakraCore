@@ -2938,7 +2938,7 @@ namespace Js
                     descriptorIndex = GetNextDescriptor(descriptorIndex);
                 }
 
-                absIndex = min(dataIndex, descriptorIndex);
+                absIndex = GET_MIN(dataIndex, descriptorIndex);
 
                 if (absIndex == Js::JavascriptArray::InvalidIndex || absIndex >= arrayObj->GetLength())
                 {

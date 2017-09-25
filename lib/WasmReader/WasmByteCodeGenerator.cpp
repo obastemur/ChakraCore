@@ -398,7 +398,7 @@ void WasmModuleGenerator::GenerateFunctionHeader(uint32 index)
     Js::ArgSlot paramCount = wasmInfo->GetParamCount();
     info->SetArgCount(paramCount);
     info->SetWasmSignature(wasmInfo->GetSignature());
-    Js::ArgSlot argSizeLength = max(paramCount, 3ui16);
+    Js::ArgSlot argSizeLength = GET_MAX(paramCount, 3ui16);
     info->SetArgSizeArrayLength(argSizeLength);
     uint32* argSizeArray = RecyclerNewArrayLeafZ(m_recycler, uint32, argSizeLength);
     info->SetArgsSizesArray(argSizeArray);

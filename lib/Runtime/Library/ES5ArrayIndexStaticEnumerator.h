@@ -59,7 +59,7 @@ namespace Js
         {
             while (true)
             {
-                Assert(m_index == min(m_dataIndex, m_descriptorIndex));
+                Assert(m_index == GET_MIN(m_dataIndex, m_descriptorIndex));
                 if (m_index == m_dataIndex)
                 {
                     m_dataIndex = m_array->GetNextIndex(m_dataIndex);
@@ -69,7 +69,7 @@ namespace Js
                     m_descriptorIndex = m_array->GetNextDescriptor(m_index, &m_descriptor, &m_descriptorValidationToken);
                 }
 
-                m_index = min(m_dataIndex, m_descriptorIndex);
+                m_index = GET_MIN(m_dataIndex, m_descriptorIndex);
                 if (m_index >= m_initialLength) // End of array
                 {
                     break;

@@ -2051,7 +2051,7 @@ namespace Js
 
         bool hasSeparator = (separator->GetLength() != 0);
 
-        charcount_t estimatedAppendSize = min(
+        charcount_t estimatedAppendSize = GET_MIN(
             static_cast<charcount_t>((64 << 20) / sizeof(void *)), // 64 MB worth of pointers
             static_cast<charcount_t>(length + (hasSeparator ? length - 1 : 0)));
 

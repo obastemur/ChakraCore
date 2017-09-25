@@ -911,11 +911,11 @@ namespace Js
             //Do significant digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumSignificantDigits, TaggedInt))
             {
-                minSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
+                minSignificantDigits = GET_MAX<uint16>(GET_MIN<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumSignificantDigits, TaggedInt))
             {
-                maxSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), minSignificantDigits);
+                maxSignificantDigits = GET_MAX<uint16>(GET_MIN<uint16>(TaggedInt::ToUInt16(propertyValue), 21), minSignificantDigits);
             }
             prepareWithSignificantDigits(scriptContext, rounderOptions, numberFormatter, numberFormatterOptions, minSignificantDigits, maxSignificantDigits);
         }
@@ -925,15 +925,15 @@ namespace Js
             //Do fraction/integer digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumIntegerDigits, TaggedInt))
             {
-                minIntegerDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
+                minIntegerDigits = GET_MAX<uint16>(GET_MIN<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __minimumFractionDigits, TaggedInt))
             {
-                minFractionDigits = min<uint16>(TaggedInt::ToUInt16(propertyValue), 20);//ToUInt16 will get rid of negatives by making them high
+                minFractionDigits = GET_MIN<uint16>(TaggedInt::ToUInt16(propertyValue), 20);//ToUInt16 will get rid of negatives by making them high
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumFractionDigits, TaggedInt))
             {
-                maxFractionDigits = max(min<uint16>(TaggedInt::ToUInt16(propertyValue), 20), minFractionDigits);//ToUInt16 will get rid of negatives by making them high
+                maxFractionDigits = GET_MAX(GET_MIN<uint16>(TaggedInt::ToUInt16(propertyValue), 20), minFractionDigits);//ToUInt16 will get rid of negatives by making them high
             }
             prepareWithFractionIntegerDigits(scriptContext, rounderOptions, numberFormatterOptions, minFractionDigits, maxFractionDigits + (formatterToUseVal == 1 ? 2 : 0), minIntegerDigits);//extend max fractions for percent
         }

@@ -258,7 +258,7 @@ namespace Js
     uint CompoundString::Block::GrowSizeForChaining(const uint size)
     {
         const uint newSize = GrowSize(size);
-        return min(MaxChainedBlockSize, newSize);
+        return GET_MIN(MaxChainedBlockSize, newSize);
     }
 
     CompoundString::Block *CompoundString::Block::Chain(Recycler *const recycler)
@@ -383,7 +383,7 @@ namespace Js
         {
             AllocateBuffer(charCapacity, recycler);
             charLength = usedCharLength;
-            
+
             ArrayWriteBarrierVerifyBits(Block::Pointers(Chars()), Block::PointerLengthFromCharLength(charCapacity));
             js_wmemcpy_s(Chars(), charCapacity, (const char16*)(buffer), usedCharLength);
             // SWB: buffer may contain chars or pointers. Trigger write barrier for the whole buffer.
@@ -841,7 +841,7 @@ namespace Js
         {
             const CharCount blockCharLength = LastBlockCharLength();
             const CharCount copyCharLength =
-                min(LastBlockCharCapacity() - blockCharLength, appendCharLength - copiedCharLength);
+                GET_MIN(LastBlockCharCapacity() - blockCharLength, appendCharLength - copiedCharLength);
             CopyHelper(&LastBlockChars()[blockCharLength], &s[copiedCharLength], copyCharLength);
             SetLastBlockCharLength(blockCharLength + copyCharLength);
             copiedCharLength += copyCharLength;

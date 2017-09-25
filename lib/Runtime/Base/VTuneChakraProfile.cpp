@@ -14,7 +14,7 @@ const utf8char_t VTuneChakraProfile::DynamicCode[] = "Dynamic code";
 bool VTuneChakraProfile::isJitProfilingActive = false;
 
 //
-// Registers the VTune profiler, if VTune sampling is running, we will get  
+// Registers the VTune profiler, if VTune sampling is running, we will get
 // true value for isJitProfilingActive variable.
 //
 void VTuneChakraProfile::Register()
@@ -38,7 +38,7 @@ void VTuneChakraProfile::UnRegister()
 }
 
 //
-// Log JIT method native load event to VTune 
+// Log JIT method native load event to VTune
 //
 void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::FunctionEntryPointInfo* entryPoint)
 {
@@ -114,7 +114,7 @@ void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::Fu
 }
 
 //
-// Log loop body load event to VTune 
+// Log loop body load event to VTune
 //
 void VTuneChakraProfile::LogLoopBodyLoadEvent(Js::FunctionBody* body, Js::LoopEntryPointInfo* entryPoint, uint16 loopNumber)
 {
@@ -125,7 +125,7 @@ void VTuneChakraProfile::LogLoopBodyLoadEvent(Js::FunctionBody* body, Js::LoopEn
         memset(&methodInfo, 0, sizeof(iJIT_Method_Load));
         const char16* methodName = body->GetExternalDisplayName();
         size_t methodLength = wcslen(methodName);
-        methodLength = min(methodLength, (size_t)UINT_MAX); // Just truncate if it is too big
+        methodLength = GET_MIN(methodLength, (size_t)UINT_MAX); // Just truncate if it is too big
         size_t length = methodLength * 3 + /* spaces */ 2 + _countof(LoopStr) + /*size of loop number*/ 10 + /*NULL*/ 1;
         utf8char_t* utf8MethodName = HeapNewNoThrowArray(utf8char_t, length);
         if(utf8MethodName)
@@ -166,7 +166,7 @@ utf8char_t* VTuneChakraProfile::GetUrl(Js::FunctionBody* body, size_t* urlBuffer
         if (url)
         {
             size_t urlCharLength = wcslen(url);
-            urlCharLength = min(urlCharLength, (size_t)UINT_MAX);       // Just truncate if it is too big
+            urlCharLength = GET_MIN(urlCharLength, (size_t)UINT_MAX);       // Just truncate if it is too big
 
             *urlBufferLength = urlCharLength * 3 + 1;
             utf8Url = HeapNewNoThrowArray(utf8char_t, *urlBufferLength);

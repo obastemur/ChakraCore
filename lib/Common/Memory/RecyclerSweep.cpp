@@ -276,7 +276,7 @@ RecyclerSweep::BackgroundSweep()
 
     // Finish the concurrent part of the first pass
     this->recycler->autoHeap.SweepSmallNonFinalizable(*this);
-    
+
     // Finish the rest of the sweep
     this->FinishSweep();
 
@@ -681,7 +681,7 @@ RecyclerSweep::AdjustPartialHeuristics()
     const size_t estimatedPartialReuseBlocks = (size_t)((double)this->reuseHeapBlockCount * (1.0 - collectEfficacy));
     const size_t estimatedPartialReuseBytes = estimatedPartialReuseBlocks * AutoSystemInfo::PageSize;
 
-    const size_t newRescanRootBytes = max(this->rescanRootBytes, estimatedPartialReuseBytes);
+    const size_t newRescanRootBytes = GET_MAX(this->rescanRootBytes, estimatedPartialReuseBytes);
 
     RECYCLER_STATS_SET(recycler, estimatedPartialReuseBytes, estimatedPartialReuseBytes);
 

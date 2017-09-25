@@ -313,7 +313,7 @@ namespace TTD
             js_memcpy_s(namebuff, namebuffLength * sizeof(char16), pRecord->GetBuffer(), pRecord->GetLength() * sizeof(char16));
 
             // Don't allow the null to be written past the end of the buffer.
-            namebuff[min(namebuffLength - 1, pRecord->GetLength())] = _u('\0');
+            namebuff[GET_MIN(namebuffLength - 1, pRecord->GetLength())] = _u('\0');
         }
 
         bool isFirst = (this->m_prefix == nullptr);
@@ -363,7 +363,7 @@ namespace TTD
     }
 
     TTDCompareMap::TTDCompareMap(ThreadContext* threadContext)
-        : StrictCrossSite(false), H1PtrIdWorklist(&HeapAllocator::Instance), H1PtrToH2PtrMap(&HeapAllocator::Instance), SnapObjCmpVTable(nullptr), H1PtrToPathMap(&HeapAllocator::Instance), 
+        : StrictCrossSite(false), H1PtrIdWorklist(&HeapAllocator::Instance), H1PtrToH2PtrMap(&HeapAllocator::Instance), SnapObjCmpVTable(nullptr), H1PtrToPathMap(&HeapAllocator::Instance),
         CurrentPath(nullptr), CurrentH1Ptr(TTD_INVALID_PTR_ID), CurrentH2Ptr(TTD_INVALID_PTR_ID), Context(threadContext),
         //
         H1ValueMap(&HeapAllocator::Instance), H1SlotArrayMap(&HeapAllocator::Instance), H1FunctionScopeInfoMap(&HeapAllocator::Instance),

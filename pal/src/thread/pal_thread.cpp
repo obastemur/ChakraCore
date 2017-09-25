@@ -55,13 +55,13 @@ static void GetInternalStackLimit(pthread_t thread, ULONG_PTR *highLimit, ULONG_
     {
 #ifndef __IOS__
         // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/CreatingThreads/CreatingThreads.html
-        stack = max(8 * 1024 * 1024, stack);
+        stack = PAL_MAX(8 * 1024 * 1024, stack);
 #else
         pthread_attr_t pat;
         pthread_attr_init(&pat);
         size_t gs = 0;
         pthread_attr_getguardsize(&pat, &gs);
-        stack = max((1024 * 1024) - gs, stack);
+        stack = PAL_MAX((1024 * 1024) - gs, stack);
 #endif
     }
 

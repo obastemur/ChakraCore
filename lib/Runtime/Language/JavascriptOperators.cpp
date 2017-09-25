@@ -5405,7 +5405,7 @@ CommonNumber:
                     ?   scriptContext->GetLibrary()->GetObjectHeaderInlinedLiteralType((uint16)propIds->count)
                     :   scriptContext->GetLibrary()->GetObjectLiteralType(
                             static_cast<PropertyIndex>(
-                                min(propIds->count, static_cast<uint32>(MaxPreInitializedObjectTypeInlineSlotCount))));
+                                GET_MIN(propIds->count, static_cast<uint32>(MaxPreInitializedObjectTypeInlineSlotCount))));
             newType = PathTypeHandlerBase::CreateTypeForNewScObject(scriptContext, objectType, propIds, false);
             *literalType = newType;
         }
@@ -5468,7 +5468,7 @@ CommonNumber:
                 ?   DynamicTypeHandler::RoundUpObjectHeaderInlinedInlineSlotCapacity(static_cast<PropertyIndex>(propIds->count))
                 :   DynamicTypeHandler::RoundUpInlineSlotCapacity(
                         static_cast<PropertyIndex>(
-                            min(propIds->count, static_cast<uint32>(MaxPreInitializedObjectTypeInlineSlotCount))));
+                            GET_MIN(propIds->count, static_cast<uint32>(MaxPreInitializedObjectTypeInlineSlotCount))));
     }
 
     Var JavascriptOperators::OP_InitCachedScope(Var varFunc, const Js::PropertyIdArray *propIds, Field(DynamicType*)* literalType, bool formalsAreLetDecls, ScriptContext *scriptContext)

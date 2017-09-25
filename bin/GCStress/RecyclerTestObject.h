@@ -51,7 +51,7 @@ public:
                 walkObjectCount++;
 
                 currentWalkDepth++;
-                maxWalkDepth = max(currentWalkDepth, maxWalkDepth);
+                maxWalkDepth = GET_MAX(currentWalkDepth, maxWalkDepth);
 
                 // Call virtual for object-specific behavior
                 object->DoWalkObject();
@@ -294,5 +294,3 @@ private:
     Field(unsigned int) count;
     FieldNoBarrier(RecyclerTestObject *) references[0];  // SWB-TODO: is this correct?
 };
-
-

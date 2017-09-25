@@ -153,6 +153,6 @@ void InductionVariable::Merge(const InductionVariable &other)
 
     changeBounds =
         IntConstantBounds(
-            min(changeBounds.LowerBound(), other.changeBounds.LowerBound()),
-            max(changeBounds.UpperBound(), other.changeBounds.UpperBound()));
+            GET_MIN(changeBounds.LowerBound(), other.changeBounds.LowerBound()),
+            GET_MAX(changeBounds.UpperBound(), other.changeBounds.UpperBound()));
 }

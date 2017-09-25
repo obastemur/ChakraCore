@@ -100,7 +100,7 @@ namespace DateTime
         }
         else
         {
-            data.dLastTime = max(data.dLastTime, time); // otherwise, make sure we don't regress the time.
+            data.dLastTime = GET_MAX(data.dLastTime, time); // otherwise, make sure we don't regress the time.
         }
 
         data.fReset = false;

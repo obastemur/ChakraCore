@@ -238,7 +238,7 @@ Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
 #ifdef RECYCLER_MEMORY_VERIFY
     if (this->VerifyEnabled())
     {
-        memset(obj, 0, min(size, sizeof(FreeObject *)));
+        memset(obj, 0, GET_MIN(size, sizeof(FreeObject *)));
     }
     else
 #endif
@@ -257,7 +257,7 @@ Recycler::AllocZeroWithAttributesInlined(DECLSPEC_GUARD_OVERFLOW size_t size)
         if (IsPageHeapEnabled())
         {
             // don't corrupt the page heap filled pattern
-            memset((void*)obj, 0, min(size, sizeof(void*)));
+            memset((void*)obj, 0, GET_MIN(size, sizeof(void*)));
         }
         else
         {

@@ -720,7 +720,7 @@ namespace Js
             hasOnlyIntegerArgs = TaggedInt::OnlyContainsTaggedInt(args);
             if (hasOnlyIntegerArgs && args.Info.Count == 3)
             {
-                return TaggedInt::ToVarUnchecked(max(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
+                return TaggedInt::ToVarUnchecked(GET_MAX(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
@@ -754,7 +754,7 @@ namespace Js
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
-                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library 
+                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library
                 // call to test this comparison.
                 if ((compare == 0 && JavascriptNumber::IsNegZero(current)) ||
                 current < compare )
@@ -800,7 +800,7 @@ namespace Js
             hasOnlyIntegerArgs = TaggedInt::OnlyContainsTaggedInt(args);
             if (hasOnlyIntegerArgs && args.Info.Count == 3)
             {
-                return TaggedInt::ToVarUnchecked(min(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
+                return TaggedInt::ToVarUnchecked(GET_MIN(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
@@ -834,7 +834,7 @@ namespace Js
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
-                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library 
+                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library
                 // call to test this comparison.
                 if ((current == 0 && JavascriptNumber::IsNegZero(compare)) ||
                 current > compare )

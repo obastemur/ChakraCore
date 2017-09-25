@@ -235,8 +235,8 @@ SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offs
     const bool isIntConst = src2Opnd->IsIntConstOpnd() || (sym && sym->IsIntConst());
     const bool isStrConst = !isIntConst && sym && sym->m_isStrConst;
 
-    if (GlobOpt::IsSwitchOptEnabled(m_func->GetTopFunc()) && 
-        isIntConst && 
+    if (GlobOpt::IsSwitchOptEnabled(m_func->GetTopFunc()) &&
+        isIntConst &&
         m_intConstSwitchCases->TestAndSet(sym ? sym->GetIntConstValue() : src2Opnd->AsIntConstOpnd()->AsInt32()))
     {
         // We've already seen a case statement with the same int const value. No need to emit anything for this.
@@ -830,7 +830,7 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
     char16 maxChar = 0;
 
     // Either the jump table is within the limit (<= 128) or it is dense (<= 2 * case Count)
-    uint const maxJumpTableSize = max<uint>(CONFIG_FLAG(MaxSingleCharStrJumpTableSize), CONFIG_FLAG(MaxSingleCharStrJumpTableRatio) * caseCount);
+    uint const maxJumpTableSize = GET_MAX<uint>(CONFIG_FLAG(MaxSingleCharStrJumpTableSize), CONFIG_FLAG(MaxSingleCharStrJumpTableRatio) * caseCount);
     if (this->m_seenOnlySingleCharStrCaseNodes)
     {
         generateDictionary = false;
@@ -839,8 +839,8 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
             JITJavascriptString * str = m_caseNodes->Item(i)->GetUpperBoundStringConstLocal();
             Assert(str->GetLength() == 1);
             char16 currChar = str->GetString()[0];
-            minChar = min(minChar, currChar);
-            maxChar = max(maxChar, currChar);
+            minChar = GET_MIN(minChar, currChar);
+            maxChar = GET_MAX(maxChar, currChar);
             if ((uint)(maxChar - minChar) > maxJumpTableSize)
             {
                 generateDictionary = true;

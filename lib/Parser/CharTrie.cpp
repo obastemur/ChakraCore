@@ -75,7 +75,7 @@ namespace UnifiedRegex
         {
             if (capacity <= count)
             {
-                int newCapacity = max(capacity * 2, initCapacity);
+                int newCapacity = GET_MAX(capacity * 2, initCapacity);
                 children = (CharTrieEntry*)allocator->Realloc(children, capacity * sizeof(CharTrieEntry), newCapacity * sizeof(CharTrieEntry));
                 capacity = newCapacity;
             }

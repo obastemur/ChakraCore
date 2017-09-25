@@ -85,7 +85,7 @@ namespace Js
                     RegexHelper::SimpleMatch(scriptContext, pattern, lastInput->GetString(), lastInputLen, lastMatch.offset);
                 }
                 Assert(pattern->WasLastMatchSuccessful());
-                for (int groupId = 1; groupId < min(numGroups, NumCtorCaptures); groupId++)
+                for (int groupId = 1; groupId < GET_MIN(numGroups, NumCtorCaptures); groupId++)
                     captures[groupId] = RegexHelper::GetGroup(scriptContext, pattern, lastInput, nonMatchValue, groupId);
 
                 this->lastParen = numGroups <= NumCtorCaptures ?

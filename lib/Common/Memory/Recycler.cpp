@@ -338,7 +338,7 @@ Recycler::Recycler(AllocationPolicyManager * policyManager, IdleDecommitPageAllo
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     // recycler requires at least Recycler::PrimaryMarkStackReservedPageCount to function properly for the main mark context
-    this->markContext.SetMaxPageCount(max(static_cast<size_t>(GetRecyclerFlagsTable().MaxMarkStackPageCount), static_cast<size_t>(Recycler::PrimaryMarkStackReservedPageCount)));
+    this->markContext.SetMaxPageCount(GET_MAX(static_cast<size_t>(GetRecyclerFlagsTable().MaxMarkStackPageCount), static_cast<size_t>(Recycler::PrimaryMarkStackReservedPageCount)));
     this->parallelMarkContext1.SetMaxPageCount(GetRecyclerFlagsTable().MaxMarkStackPageCount);
     this->parallelMarkContext2.SetMaxPageCount(GetRecyclerFlagsTable().MaxMarkStackPageCount);
     this->parallelMarkContext3.SetMaxPageCount(GetRecyclerFlagsTable().MaxMarkStackPageCount);
@@ -1148,13 +1148,13 @@ Recycler::LeaveIdleDecommit()
     bool allowTimer = (this->concurrentIdleDecommitEvent != nullptr);
     IdleDecommitSignal idleDecommitSignalRecycler = recyclerPageAllocator.LeaveIdleDecommit(allowTimer);
     IdleDecommitSignal idleDecommitSignalRecyclerLargeBlock = recyclerLargeBlockPageAllocator.LeaveIdleDecommit(allowTimer);
-    IdleDecommitSignal idleDecommitSignal = max(idleDecommitSignalRecycler, idleDecommitSignalRecyclerLargeBlock);
+    IdleDecommitSignal idleDecommitSignal = GET_MAX(idleDecommitSignalRecycler, idleDecommitSignalRecyclerLargeBlock);
     IdleDecommitSignal idleDecommitSignalThread = threadPageAllocator->LeaveIdleDecommit(allowTimer);
-    idleDecommitSignal = max(idleDecommitSignal, idleDecommitSignalThread);
+    idleDecommitSignal = GET_MAX(idleDecommitSignal, idleDecommitSignalThread);
 
 #ifdef RECYCLER_WRITE_BARRIER_ALLOC_SEPARATE_PAGE
     IdleDecommitSignal idleDecommitSignalRecyclerWithBarrier = recyclerWithBarrierPageAllocator.LeaveIdleDecommit(allowTimer);
-    idleDecommitSignal = max(idleDecommitSignal, idleDecommitSignalRecyclerWithBarrier);
+    idleDecommitSignal = GET_MAX(idleDecommitSignal, idleDecommitSignalRecyclerWithBarrier);
 #endif
     if (idleDecommitSignal != IdleDecommitSignal_None)
     {
@@ -1997,7 +1997,7 @@ Recycler::TryMarkBigBlockListWithWriteWatch(BigBlock * memoryBlocks)
             ULONG_PTR count = 1;
             if (::GetWriteWatch(writeWatchFlags, currentPageStart, AutoSystemInfo::PageSize, &written, &count, &pageSize) != 0 || count == 1)
             {
-                char * currentEnd = min(currentPageStart + pageSize, endAddress);
+                char * currentEnd = GET_MIN(currentPageStart + pageSize, endAddress);
                 size_t byteCount = (size_t)(currentEnd - currentAddress);
                 scanRootBytes += byteCount;
                 this->ScanMemory<false>((void **)currentAddress, byteCount);
@@ -5979,13 +5979,13 @@ Recycler::ThreadProc()
 
         DWORD threadPageAllocatorWaitTime = threadPageAllocator->IdleDecommit();
         DWORD recyclerPageAllocatorWaitTime = recyclerPageAllocator.IdleDecommit();
-        DWORD waitTime = min(threadPageAllocatorWaitTime, recyclerPageAllocatorWaitTime);
+        DWORD waitTime = GET_MIN(threadPageAllocatorWaitTime, recyclerPageAllocatorWaitTime);
         DWORD recyclerLargeBlockPageAllocatorWaitTime = recyclerLargeBlockPageAllocator.IdleDecommit();
-        waitTime = min(waitTime, recyclerLargeBlockPageAllocatorWaitTime);
+        waitTime = GET_MIN(waitTime, recyclerLargeBlockPageAllocatorWaitTime);
 
 #ifdef RECYCLER_WRITE_BARRIER_ALLOC_SEPARATE_PAGE
         DWORD recyclerWithBarrierPageAllocatorWaitTime = recyclerWithBarrierPageAllocator.IdleDecommit();
-        waitTime = min(waitTime, recyclerWithBarrierPageAllocatorWaitTime);
+        waitTime = GET_MIN(waitTime, recyclerWithBarrierPageAllocatorWaitTime);
 #endif
         if (waitTime == INFINITE)
         {

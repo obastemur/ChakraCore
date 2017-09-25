@@ -1099,7 +1099,7 @@ modrm:
                     Assert(instr->GetSrc1()->IsIntConstOpnd() && instr->GetSrc1()->GetType() == TyInt8);
                     unsigned nopSize = instr->GetSrc1()->AsIntConstOpnd()->GetValue();
                     Assert(nopSize >= 2 && nopSize <= 4);
-                    nopSize = max(2u, min(4u, nopSize)); // satisfy oacr
+                    nopSize = GET_MAX(2u, GET_MIN(4u, nopSize)); // satisfy oacr
                     const BYTE *nopEncoding = Nop[nopSize - 1];
                     *opcodeByte = nopEncoding[0];
                     for (unsigned i = 1; i < nopSize; i++)
@@ -1275,7 +1275,7 @@ modrm:
                     writeImm = false;
                 }
             }
-            
+
             if (writeImm)
             {
                 *(m_pc++) = (valueImm & 0xff);
@@ -1514,7 +1514,7 @@ EncoderMD::GetRelocDataSize(EncodeRelocAndLabels *reloc)
     }
 }
 
-BYTE * 
+BYTE *
 EncoderMD::GetRelocBufferAddress(EncodeRelocAndLabels * reloc)
 {
     return (BYTE*)reloc->m_ptr;
@@ -1679,7 +1679,7 @@ bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
 {
     IR::Opnd *src1 = instr->GetSrc1();
     IR::Opnd *src2 = instr->GetSrc2();
-    
+
     if (IRType_IsSimd128(regOpnd->GetType()))
     {
         // No folding for SIMD values. Alignment is not guaranteed.

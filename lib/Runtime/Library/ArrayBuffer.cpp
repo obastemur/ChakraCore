@@ -790,7 +790,7 @@ namespace Js
     static void MemCpyZero(__bcount(dstSize) BYTE* dst, size_t dstSize,
         __in_bcount(count) const BYTE* src, size_t count)
     {
-        js_memcpy_s(dst, dstSize, src, min(dstSize, count));
+        js_memcpy_s(dst, dstSize, src, GET_MIN(dstSize, count));
         if (dstSize > count)
         {
             ZeroMemory(dst + count, dstSize - count);

@@ -8,6 +8,20 @@
 #include "Warnings.h"
 #include "ChakraCoreVersion.h"
 
+#ifndef NTBUILD
+#ifdef min
+// use GET_MIN instead
+#undef min
+#define min(a,b) AssertMsg(false, "Use GET_MIN instead!");
+#endif
+
+#ifdef max
+// use GET_MIN instead
+#undef max
+#define max(a,b) AssertMsg(false, "Use GET_MAX instead!");
+#endif
+#endif
+
 //----------------------------------------------------------------------------------------------------
 // Default debug/fretest/release flags values
 //  - Set the default values of debug/fretest/release flags if it is not set by the command line

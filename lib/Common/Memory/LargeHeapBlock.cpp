@@ -636,7 +636,7 @@ LargeHeapBlock::Mark(void* objectAddress, MarkContext * markContext)
 
     size_t objectSize = header->objectSize;
     if (this->InPageHeapMode())
-    {        
+    {
         this->VerifyPageHeapPattern();
 
         // trim off the trailing part which is not a pointer
@@ -1386,7 +1386,7 @@ LargeHeapBlock::RescanMultiPage(Recycler * recycler)
 
                 // We're interested in only rescanning the parts of the object that have changed, not the whole
                 // object. So just queue that up for marking
-                char * checkEnd = min(pageStart + AutoSystemInfo::PageSize, objectAddressEnd);
+                char * checkEnd = GET_MIN(pageStart + AutoSystemInfo::PageSize, objectAddressEnd);
                 if (!recycler->AddMark(objectAddress, (checkEnd - objectAddress)))
                 {
                     this->SetNeedOOMRescan(recycler);
@@ -1977,7 +1977,7 @@ void LargeHeapBlock::FillFreeMemory(Recycler * recycler, __in_bcount(size) void 
 #if defined(RECYCLER_FREE_MEM_FILL) || defined(RECYCLER_MEMORY_VERIFY)
     if (doMemFill)
     {
-        if (this->InPageHeapMode() && pageHeapData->isLockedWithPageHeap) 
+        if (this->InPageHeapMode() && pageHeapData->isLockedWithPageHeap)
         {
             PageHeapUnLockPages();
         }
@@ -2132,7 +2132,7 @@ LargeHeapBlock::GetTrackerDataArray()
 #endif
 
 #ifdef RECYCLER_PAGE_HEAP
-void 
+void
 LargeHeapBlock::PageHeapLockPages()
 {
     if (!pageHeapData->isLockedWithPageHeap)

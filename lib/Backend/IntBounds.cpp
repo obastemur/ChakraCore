@@ -505,8 +505,8 @@ const IntBounds *IntBounds::Merge(
     Assert(bounds1Value);
 
     const IntConstantBounds constantBounds(
-        min(bounds0->ConstantLowerBound(), constantBounds1.LowerBound()),
-        max(bounds0->ConstantUpperBound(), constantBounds1.UpperBound()));
+        GET_MIN(bounds0->ConstantLowerBound(), constantBounds1.LowerBound()),
+        GET_MAX(bounds0->ConstantUpperBound(), constantBounds1.UpperBound()));
 
     const ValueNumber bounds1ValueNumber = bounds1Value->GetValueNumber();
     const ValueRelativeOffset *commonLowerBound;
@@ -569,8 +569,8 @@ const IntBounds *IntBounds::Merge(
     JitArenaAllocator *const allocator = bounds0->relativeLowerBounds.GetAllocator();
     IntBounds *const mergedBounds =
         New(IntConstantBounds(
-                min(bounds0->constantLowerBound, bounds1->constantLowerBound),
-                max(bounds0->constantUpperBound, bounds1->constantUpperBound)),
+                GET_MIN(bounds0->constantLowerBound, bounds1->constantLowerBound),
+                GET_MAX(bounds0->constantUpperBound, bounds1->constantUpperBound)),
             bounds0->WasConstantUpperBoundEstablishedExplicitly() && bounds1->WasConstantUpperBoundEstablishedExplicitly(),
             allocator);
     MergeBoundSets<true>(bounds0Value, bounds0, bounds1Value, bounds1, mergedBounds);

@@ -177,7 +177,7 @@ SectionMap32::EnsureSection(void * address, uint pageCount)
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
-    uint currentPageCount = min(pageCount, L2Count - id2);
+    uint currentPageCount = GET_MIN(pageCount, L2Count - id2);
 
     while (true)
     {
@@ -204,7 +204,7 @@ SectionMap32::EnsureSection(void * address, uint pageCount)
 
         id2 = 0;
         id1++;
-        currentPageCount = min(pageCount, L2Count);
+        currentPageCount = GET_MIN(pageCount, L2Count);
     }
 
     return true;
@@ -216,7 +216,7 @@ SectionMap32::ClearSection(void * address, uint pageCount)
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
-    uint currentPageCount = min(pageCount, L2Count - id2);
+    uint currentPageCount = GET_MIN(pageCount, L2Count - id2);
 
     while (true)
     {
@@ -232,7 +232,7 @@ SectionMap32::ClearSection(void * address, uint pageCount)
 
         id2 = 0;
         id1++;
-        currentPageCount = min(pageCount, L2Count);
+        currentPageCount = GET_MIN(pageCount, L2Count);
     }
 }
 
@@ -242,7 +242,7 @@ SectionMap32::SetSectionNoCheck(void * address, uint pageCount, SectionInfo * se
     uint id1 = GetLevel1Id(address);
     uint id2 = GetLevel2Id(address);
 
-    uint currentPageCount = min(pageCount, L2Count - id2);
+    uint currentPageCount = GET_MIN(pageCount, L2Count - id2);
 
     while (true)
     {
@@ -258,7 +258,7 @@ SectionMap32::SetSectionNoCheck(void * address, uint pageCount, SectionInfo * se
 
         id2 = 0;
         id1++;
-        currentPageCount = min(pageCount, L2Count);
+        currentPageCount = GET_MIN(pageCount, L2Count);
     }
 }
 
@@ -517,7 +517,7 @@ AllocLocalView(HANDLE sectionHandle, LPVOID remoteBaseAddr, LPVOID remoteRequest
     const size_t offsetAlignment = offset % SectionAlignment;
     const size_t alignedOffset = offset - offsetAlignment;
     const size_t viewSize = requestSize + offsetAlignment;
-    
+
     PVOID address = MapView(GetCurrentProcess(), sectionHandle, viewSize, alignedOffset, true);
     if (address == nullptr)
     {
@@ -1019,4 +1019,3 @@ PreReservedSectionAllocWrapper::FreeLocal(LPVOID lpAddress)
 
 } // namespace Memory
 #endif
-

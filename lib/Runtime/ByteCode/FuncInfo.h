@@ -255,12 +255,12 @@ public:
     //    1) new Function code's global code
     //    2) global code generated from the reparsing deferred parse function
 
-    bool IsFakeGlobalFunction(uint32 flags) const 
+    bool IsFakeGlobalFunction(uint32 flags) const
     {
         return IsGlobalFunction() && !(flags & fscrGlobalCode);
     }
 
-    Scope *GetBodyScope() const 
+    Scope *GetBodyScope() const
     {
         return bodyScope;
     }
@@ -270,7 +270,7 @@ public:
         bodyScope = scope;
     }
 
-    Scope *GetParamScope() const 
+    Scope *GetParamScope() const
     {
         return paramScope;
     }
@@ -280,13 +280,13 @@ public:
         paramScope = scope;
     }
 
-    Scope *GetTopLevelScope() const 
+    Scope *GetTopLevelScope() const
     {
         // Top level scope will be the same for knopProg and knopFncDecl.
         return paramScope;
     }
 
-    Scope* GetFuncExprScope() const 
+    Scope* GetFuncExprScope() const
     {
         return funcExprScope;
     }
@@ -578,7 +578,7 @@ public:
         {
             Js::Throw::OutOfMemory();
         }
-        outArgsMaxDepth = max(outArgsMaxDepth, outArgsCurrentExpr);
+        outArgsMaxDepth = GET_MAX(outArgsMaxDepth, outArgsCurrentExpr);
     }
 
     void EndRecordingOutArgs(Js::ArgSlot argCount)
@@ -598,7 +598,7 @@ public:
     uint AcquireForInLoopLevel()
     {
         uint forInLoopLevel = this->nextForInLoopLevel++;
-        this->maxForInLoopLevel = max(this->maxForInLoopLevel, this->nextForInLoopLevel);
+        this->maxForInLoopLevel = GET_MAX(this->maxForInLoopLevel, this->nextForInLoopLevel);
         return forInLoopLevel;
     }
 

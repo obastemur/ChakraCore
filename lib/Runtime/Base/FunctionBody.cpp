@@ -968,7 +968,7 @@ namespace Js
         this->MapFunctionObjectTypes([&](ScriptFunctionType* functionType)
         {
             Assert(functionType->GetTypeId() == TypeIds_Function);
-            
+
             if (!CrossSite::IsThunk(functionType->GetEntryPoint()))
             {
                 functionType->SetEntryPoint(GetScriptContext()->DeferredParsingThunk);
@@ -2201,7 +2201,7 @@ namespace Js
 
         {
             AutoRestoreFunctionInfo autoRestoreFunctionInfo(this, DefaultEntryThunk);
-            
+
 
             // If m_hasBeenParsed = true, one of the following things happened things happened:
             // - We had multiple function objects which were all defer-parsed, but with the same function body and one of them
@@ -3745,7 +3745,7 @@ namespace Js
             Assert(isAsmJs || GetExecutionMode() == ExecutionMode::FullJit);
             entryPointInfo->callsCount =
                 static_cast<uint8>(
-                    min(
+                    GET_MIN(
                         static_cast<uint>(static_cast<uint8>(CONFIG_FLAG(MinBailOutsBeforeRejit))) *
                             (Js::FunctionEntryPointInfo::GetDecrCallCountPerBailout() - 1),
                         0xffu));
@@ -3810,7 +3810,7 @@ namespace Js
 
         ((Js::LoopEntryPointInfo*)entryPointInfo)->totalJittedLoopIterations =
             static_cast<uint8>(
-                min(
+                GET_MIN(
                     static_cast<uint>(static_cast<uint8>(CONFIG_FLAG(MinBailOutsBeforeRejitForLoops))) *
                     (Js::LoopEntryPointInfo::GetDecrLoopCountPerBailout() - 1),
                     0xffu));
@@ -6349,7 +6349,7 @@ namespace Js
         this->SetConstTable(nullptr);
         this->byteCodeBlock = nullptr;
 
-        // Also, remove the function body from the source info to prevent any further processing 
+        // Also, remove the function body from the source info to prevent any further processing
         // of the function such as attempts to set breakpoints.
         if (GetIsFuncRegistered())
         {
@@ -7008,7 +7008,7 @@ namespace Js
                     - If the size is < 100, scale by 1.4
                     - If the size is >= 100, scale by 1.6
             */
-            const uint loopPercentage = GetByteCodeInLoopCount() * 100 / max(1u, GetByteCodeCount());
+            const uint loopPercentage = GetByteCodeInLoopCount() * 100 / GET_MAX(1u, GetByteCodeCount());
             const int byteCodeSizeThresholdForInlineCandidate = CONFIG_FLAG(LoopInlineThreshold);
             bool delayFullJITThisFunc =
                 (CONFIG_FLAG(DelayFullJITSmallFunc) > 0) && (this->GetByteCodeWithoutLDACount() <= (uint)byteCodeSizeThresholdForInlineCandidate);
@@ -7072,7 +7072,7 @@ namespace Js
         const auto ScaleLimit = [&](uint16 &limit) -> bool
         {
             Assert(scale != 0);
-            const int limitScale = max(-static_cast<int>(limit), scale);
+            const int limitScale = GET_MAX(-static_cast<int>(limit), scale);
             const int newLimit = limit + limitScale;
             Assert(static_cast<int>(static_cast<uint16>(newLimit)) == newLimit);
             limit = static_cast<uint16>(newLimit);
@@ -7085,7 +7085,7 @@ namespace Js
                 if(GetDefaultFunctionEntryPointInfo() == simpleJitEntryPointInfo)
                 {
                     Assert(GetExecutionMode() == ExecutionMode::SimpleJit);
-                    const int newSimpleJitCallCount = max(0, (int)simpleJitEntryPointInfo->callsCount + limitScale);
+                    const int newSimpleJitCallCount = GET_MAX(0, (int)simpleJitEntryPointInfo->callsCount + limitScale);
                     Assert(static_cast<int>(static_cast<uint16>(newSimpleJitCallCount)) == newSimpleJitCallCount);
                     SetSimpleJitCallCount(static_cast<uint16>(newSimpleJitCallCount));
                 }
@@ -7254,7 +7254,7 @@ namespace Js
         Assert(GetDefaultFunctionEntryPointInfo() == GetSimpleJitEntryPointInfo());
 
         // Simple JIT counts down and transitions on overflow
-        const uint8 limit = static_cast<uint8>(min(0xffui16, simpleJitLimit));
+        const uint8 limit = static_cast<uint8>(GET_MIN(0xffui16, simpleJitLimit));
         GetSimpleJitEntryPointInfo()->callsCount = limit == 0 ? 0 : limit - 1;
     }
 
@@ -7545,7 +7545,7 @@ namespace Js
 
     uint FunctionBody::GetMinLoopProfileIterations(const uint loopInterpreterLimit)
     {
-        return min(static_cast<uint>(GetMinProfileIterations()), loopInterpreterLimit);
+        return GET_MIN(static_cast<uint>(GetMinProfileIterations()), loopInterpreterLimit);
     }
 
     uint FunctionBody::GetLoopProfileThreshold(const uint loopInterpreterLimit) const
@@ -7565,7 +7565,7 @@ namespace Js
         {
             return loopInterpretCount;
         }
-        return max(loopInterpretCount / 3, GetMinLoopProfileIterations(loopInterpretCount));
+        return GET_MAX(loopInterpretCount / 3, GetMinLoopProfileIterations(loopInterpretCount));
     }
 
     uint FunctionBody::GetLoopInterpretCount(LoopHeader* loopHeader) const
@@ -7939,7 +7939,7 @@ namespace Js
         this->SetScopeSlotArraySizes(0, 0);
 
         // Manually clear these values to break any circular references
-        // that might prevent the script context from being disposed        
+        // that might prevent the script context from being disposed
         this->auxPtrs = nullptr;
         this->byteCodeBlock = nullptr;
         this->entryPoints = nullptr;
@@ -9796,7 +9796,7 @@ namespace Js
         this->functionProxy->MapFunctionObjectTypes([&](ScriptFunctionType* functionType)
         {
             Assert(functionType->GetTypeId() == TypeIds_Function);
-            
+
             if (functionType->GetEntryPointInfo() == this)
             {
                 functionType->SetEntryPointInfo(entryPoint);

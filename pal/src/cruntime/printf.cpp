@@ -79,12 +79,12 @@ BOOL Internal_AddPaddingA(LPSTR *Out, INT Count, LPSTR In,
     }
     if (Flags & PFF_MINUS) /* pad on right */
     {
-        if (strncpy_s(*Out, Count, In, min(LengthInStr + 1, Count)) != SAFECRT_SUCCESS)
+        if (strncpy_s(*Out, Count, In, PAL_MIN(LengthInStr + 1, Count)) != SAFECRT_SUCCESS)
         {
             return FALSE;
         }
 
-        *Out += min(LengthInStr, Count);
+        *Out += PAL_MIN(LengthInStr, Count);
     }
     if (Padding > 0)
     {
@@ -106,12 +106,12 @@ BOOL Internal_AddPaddingA(LPSTR *Out, INT Count, LPSTR In,
     if (!(Flags & PFF_MINUS)) /* put 'In' after padding */
     {
         if (strncpy_s(*Out, Count, In,
-                min(LengthInStr + 1, Count - (*Out - OutOriginal))) != SAFECRT_SUCCESS)
+                PAL_MIN(LengthInStr + 1, Count - (*Out - OutOriginal))) != SAFECRT_SUCCESS)
         {
             return FALSE;
         }
 
-        *Out += min(LengthInStr, Count - (*Out - OutOriginal));
+        *Out += PAL_MIN(LengthInStr, Count - (*Out - OutOriginal));
     }
 
     if (LengthInStr + PaddingOriginal > Count)

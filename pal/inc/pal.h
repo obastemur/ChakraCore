@@ -6406,10 +6406,8 @@ PALIMPORT char * __cdecl _strdup(const char *);
 #define alloca  __builtin_alloca
 #endif // __GNUC__
 
-#ifndef NO_PAL_MINMAX
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
+#define PAL_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define PAL_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #endif // !PAL_STDCPP_COMPAT
 

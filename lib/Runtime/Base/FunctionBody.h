@@ -3264,7 +3264,7 @@ namespace Js
         bool CanInlineAgain() const
         {
             // Block excessive recursive inlining of the same function
-            return inlineDepth < static_cast<byte>(max(1, min(0xff, CONFIG_FLAG(MaxFuncInlineDepth))));
+            return inlineDepth < static_cast<byte>(GET_MAX(1, GET_MIN(0xff, CONFIG_FLAG(MaxFuncInlineDepth))));
         }
 
         void OnBeginInlineInto()
@@ -3799,7 +3799,7 @@ namespace Js
 
         void SetCount(uint count)
         {
-            slotArray[EncodedSlotCountSlotIndex] = (Var)min<uint>(count, ScopeSlots::MaxEncodedSlotCount);
+            slotArray[EncodedSlotCountSlotIndex] = (Var)GET_MIN<uint>(count, ScopeSlots::MaxEncodedSlotCount);
         }
 
         Var Get(uint i) const

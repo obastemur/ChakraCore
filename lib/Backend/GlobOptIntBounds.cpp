@@ -447,8 +447,8 @@ ValueInfo *GlobOpt::UpdateIntBoundsForEqual(
         return nullptr;
     }
 
-    const int32 newMin = max(constantBounds.LowerBound(), boundConstantBounds.LowerBound());
-    const int32 newMax = min(constantBounds.UpperBound(), boundConstantBounds.UpperBound());
+    const int32 newMin = GET_MAX(constantBounds.LowerBound(), boundConstantBounds.LowerBound());
+    const int32 newMax = GET_MIN(constantBounds.UpperBound(), boundConstantBounds.UpperBound());
     return newMin <= newMax ? NewIntRangeValueInfo(valueInfo, newMin, newMax) : nullptr;
 }
 
@@ -596,7 +596,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThanOrEqual(
     {
         return nullptr;
     }
-    const int32 newMin = max(constantBounds.LowerBound(), adjustedBoundMin);
+    const int32 newMin = GET_MAX(constantBounds.LowerBound(), adjustedBoundMin);
     return
         newMin <= constantBounds.UpperBound()
             ? NewIntRangeValueInfo(valueInfo, newMin, constantBounds.UpperBound())
@@ -681,7 +681,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThanOrEqual(
     {
         return nullptr;
     }
-    const int32 newMax = min(constantBounds.UpperBound(), adjustedBoundMax);
+    const int32 newMax = GET_MIN(constantBounds.UpperBound(), adjustedBoundMax);
     return
         newMax >= constantBounds.LowerBound()
             ? NewIntRangeValueInfo(valueInfo, constantBounds.LowerBound(), newMax)

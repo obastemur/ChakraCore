@@ -121,8 +121,8 @@ EXDEF2    (NOPASMJS          , InvalidOpCode, Empty                             
   DEF2_WMS( I2toI1Mem        , Ror_Int      , Wasm::WasmMath::Ror                                )
   DEF2_WMS( I1toI1Mem        , PopCnt_Int   , ::Math::PopCnt32                                   )
   DEF2_WMS( I1toI1Mem        , Abs_Int      , ::abs                                              )
-  DEF2_WMS( I2toI1Mem        , Min_Int      , min                                                )
-  DEF2_WMS( I2toI1Mem        , Max_Int      , max                                                )
+  DEF2_WMS( I2toI1Mem        , Min_Int      , GET_MIN                                                )
+  DEF2_WMS( I2toI1Mem        , Max_Int      , GET_MAX                                                )
   DEF2_WMS( I1toI1Mem        , Clz32_Int    , AsmJsMath::Clz32                                   )
   DEF2_WMS( I1toI1Mem        , Ctz_Int      , Wasm::WasmMath::Ctz                                )
 
