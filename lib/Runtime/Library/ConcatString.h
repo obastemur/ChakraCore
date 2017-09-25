@@ -13,14 +13,20 @@ namespace Js
 
     public:
         PropertyString * GetPropertyString() const;
+        PropertyRecord * GetPropertyRecord() const;
+
+        void EnsurePropertyString();
         void SetPropertyString(PropertyString * propStr);
 
-        template <typename StringType> static LiteralStringWithPropertyStringPtr * ConvertString(StringType * originalString);
+        template <typename StringType> static
+        LiteralStringWithPropertyStringPtr * ConvertString(StringType * originalString);
 
         static uint GetOffsetOfPropertyString() { return offsetof(LiteralStringWithPropertyStringPtr, propertyString); }
 
+        static LiteralStringWithPropertyStringPtr * New(Recycler * recycler,
+          StaticType * stringTypeStatic, const WCHAR * buffer, const charcount_t length);
     protected:
-        LiteralStringWithPropertyStringPtr(StaticType* stringTypeStatic);
+        LiteralStringWithPropertyStringPtr(StaticType * stringTypeStatic);
         DEFINE_VTABLE_CTOR(LiteralStringWithPropertyStringPtr, LiteralString);
         DECLARE_CONCRETE_STRING_CLASS;
 
@@ -264,5 +270,3 @@ namespace Js
         }
     };
 }
-
-

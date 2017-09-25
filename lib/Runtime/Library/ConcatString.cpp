@@ -22,8 +22,31 @@ namespace Js
         return this->propertyString;
     }
 
+    PropertyString * LiteralStringWithPropertyStringPtr::GetPropertyString() const
+    {
+        Assert(this->propertyString != nullptr);
+        return this->propertyString->GetPropertyRecord();
+    }
+
+    void LiteralStringWithPropertyStringPtr::EnsurePropertyString()
+    {
+        if (this->propertyString == nullptr)
+        {
+            // init one!
+        }
+    }
+
+    static LiteralStringWithPropertyStringPtr * LiteralStringWithPropertyStringPtr::New
+      (Recycler * recycler, StaticType * stringTypeStatic, const WCHAR * buffer,
+        const charcount_t length)
+    {
+        // create!
+        return nullptr;
+    }
+
     void LiteralStringWithPropertyStringPtr::SetPropertyString(PropertyString * propStr)
     {
+        Assert(this->propertyString == nullptr);
         this->propertyString = propStr;
     }
 
