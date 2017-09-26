@@ -45,6 +45,7 @@ extern "C" int _lwp_self ();
 using namespace CorUnix;
 
 #ifdef __APPLE__
+#include <mach/vm_param.h>
 #define EXPECTED_ALIGNMENT 16 * 1024
 static void GetInternalStackLimit(pthread_t thread, ULONG_PTR *highLimit, ULONG_PTR *lowLimit)
 {
@@ -66,6 +67,20 @@ static void GetInternalStackLimit(pthread_t thread, ULONG_PTR *highLimit, ULONG_
     }
 
     *highLimit = (ULONG_PTR)pthread_get_stackaddr_np(thread);
+
+#ifdef VM_USRSTACK64
+    const ULONG_PTR ceiling = VM_USRSTACK64;
+#elif defined(VM_USRSTACK32)
+    const ULONG_PTR ceiling = USRSTACK;
+#else
+    const ULONG_PTR ceiling = *highLimit;
+#endif
+    
+    if (*highLimit > ceiling)
+    {
+        *highLimit = ceiling;
+    }
+    
     stack = *highLimit - stack;
 
     *lowLimit = ((stack + (EXPECTED_ALIGNMENT - 1)) & ~(EXPECTED_ALIGNMENT - 1));
