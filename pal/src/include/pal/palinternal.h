@@ -672,12 +672,11 @@ inline T* InterlockedCompareExchangePointerT(
 
 #endif // __cplusplus
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
+#ifndef PAL_MIN_MAX_DEFINED
+#define PAL_MIN_MAX_DEFINED
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif // PAL_MIN_MAX_DEFINED
 
 #define StackOverflowMessage "Process is terminated due to StackOverflowException.\n"
 
