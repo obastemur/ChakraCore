@@ -3758,8 +3758,9 @@ CommonNumber:
             else if (VirtualTableInfo<Js::LiteralStringWithPropertyStringPtr>::HasVirtualTable(temp))
             {
                 LiteralStringWithPropertyStringPtr * str = (LiteralStringWithPropertyStringPtr *)temp;
-                propertyString = str->GetPropertyString();
+                propertyString = str->GetOrAddPropertyString();
             }
+
             if(propertyString != nullptr)
             {
                 RecyclableObject* object = nullptr;
@@ -4425,18 +4426,8 @@ CommonNumber:
             if (VirtualTableInfo<Js::LiteralStringWithPropertyStringPtr>::HasVirtualTable(index))
             {
                 LiteralStringWithPropertyStringPtr * str = (LiteralStringWithPropertyStringPtr *)index;
-                propertyString = str->GetPropertyString();
-                if (propertyString == nullptr)
-                {
-                    scriptContext->GetOrAddPropertyRecord(str, &propertyRecord);
-                    propertyString = scriptContext->GetPropertyString(propertyRecord->GetPropertyId());
-                    str->SetPropertyString(propertyString);
-                }
-                else
-                {
-                    propertyRecord = propertyString->GetPropertyRecord();
-                }
-
+                propertyString = str->GetOrAddPropertyString();
+                propertyRecord = propertyString->GetPropertyRecord();
             }
             else
             {

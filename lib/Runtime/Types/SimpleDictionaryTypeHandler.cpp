@@ -57,14 +57,7 @@ namespace Js
     const PropertyRecord* TMapKey_ConvertKey(ScriptContext* scriptContext, JavascriptString* key)
     {
         PropertyRecord const * propertyRecord;
-        if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(key))
-        {
-            propertyRecord = ((PropertyString*)key)->GetPropertyRecord();
-        }
-        else
-        {
-            scriptContext->GetOrAddPropertyRecord(key, &propertyRecord);
-        }
+        scriptContext->GetOrAddPropertyRecord(key, &propertyRecord);
         return propertyRecord;
     }
 

@@ -152,7 +152,7 @@ namespace Js
     }
 
     JavascriptString * ForInObjectEnumerator::MoveAndGetNext(PropertyId& propertyId)
-    {        
+    {
         PropertyRecord const * propRecord;
         PropertyAttributes attributes = PropertyNone;
 
@@ -184,17 +184,23 @@ namespace Js
                 // Property Id does not exist.
                 if (propertyId == Constants::NoProperty)
                 {
-                    if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(currentIndex))
+                    Js::JavascriptString * propertyKey = currentIndex;
+                    if (VirtualTableInfo<Js::LiteralStringWithPropertyStringPtr>::HasVirtualTable(propertyKey))
+                    {
+                        propertyKey = ((LiteralStringWithPropertyStringPtr*)propertyKey)->GetOrAddPropertyString();
+                    }
+
+                    if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(propertyKey))
                     {
                         // If we have a property string, it is assumed that the propertyId is being
                         // kept alive with the object
-                        PropertyString * propertyString = (PropertyString *)currentIndex;
+                        PropertyString * propertyString = (PropertyString *)propertyKey;
                         propertyId = propertyString->GetPropertyRecord()->GetPropertyId();
                     }
                     else
                     {
-                        ScriptContext* scriptContext = currentIndex->GetScriptContext();
-                        scriptContext->GetOrAddPropertyRecord(currentIndex, &propRecord);
+                        ScriptContext* scriptContext = propertyKey->GetScriptContext();
+                        scriptContext->GetOrAddPropertyRecord(propertyKey->GetString(), propertyKey->GetLength(), &propRecord);
                         propertyId = propRecord->GetPropertyId();
 
                         // We keep the track of what is enumerated using a bit vector of propertyID.
@@ -220,7 +226,7 @@ namespace Js
 
                 RecyclableObject * object;
                 if (!this->enumeratingPrototype)
-                {  
+                {
                     this->enumeratingPrototype = true;
                     object = this->shadowData->firstPrototype;
                     this->shadowData->currentObject = object;

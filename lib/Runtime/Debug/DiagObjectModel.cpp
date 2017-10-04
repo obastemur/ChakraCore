@@ -2473,19 +2473,9 @@ namespace Js
                                 {
                                     if (propertyId == Constants::NoProperty)
                                     {
-                                        if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(obj))
-                                        {
-                                            // If we have a property string, it is assumed that the propertyId is being
-                                            // kept alive with the object
-                                            PropertyString * propertyString = (PropertyString *)obj;
-                                            propertyId = propertyString->GetPropertyRecord()->GetPropertyId();
-                                        }
-                                        else
-                                        {
-                                            const PropertyRecord* propertyRecord;
-                                            objectContext->GetOrAddPropertyRecord(obj, &propertyRecord);
-                                            propertyId = propertyRecord->GetPropertyId();
-                                        }
+                                        const PropertyRecord* propertyRecord;
+                                        objectContext->GetOrAddPropertyRecord(obj, &propertyRecord);
+                                        propertyId = propertyRecord->GetPropertyId();
                                     }
                                     // MoveAndGetNext shouldn't return an internal property id
                                     Assert(!Js::IsInternalPropertyId(propertyId));

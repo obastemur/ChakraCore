@@ -9,18 +9,30 @@ namespace Js
     class LiteralStringWithPropertyStringPtr : public LiteralString
     {
     private:
-        PropertyString * propertyString;
+        // TODO: Can we make PropertyString && LiteralStringWithPropertyStringPtr share the string buffer?
+        Field(PropertyString*) propertyString;
 
     public:
         PropertyString * GetPropertyString() const;
+        PropertyString * GetOrAddPropertyString(); // Get if it's there, otherwise bring it in.
         void SetPropertyString(PropertyString * propStr);
 
         template <typename StringType> static LiteralStringWithPropertyStringPtr * ConvertString(StringType * originalString);
 
         static uint GetOffsetOfPropertyString() { return offsetof(LiteralStringWithPropertyStringPtr, propertyString); }
 
+        static LiteralStringWithPropertyStringPtr *
+        NewFromCString(const char * cString, const CharCount charCount, JavascriptLibrary *const library);
+
+        static LiteralStringWithPropertyStringPtr *
+        NewFromWideString(const uint16_t * wString, const CharCount charCount, JavascriptLibrary *const library);
+
+        static LiteralStringWithPropertyStringPtr* CreateEmptyString(JavascriptLibrary *const library);
+
     protected:
         LiteralStringWithPropertyStringPtr(StaticType* stringTypeStatic);
+        LiteralStringWithPropertyStringPtr(const char16 * wString, const CharCount stringLength, JavascriptLibrary *const library);
+
         DEFINE_VTABLE_CTOR(LiteralStringWithPropertyStringPtr, LiteralString);
         DECLARE_CONCRETE_STRING_CLASS;
 

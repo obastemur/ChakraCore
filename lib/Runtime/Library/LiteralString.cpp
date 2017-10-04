@@ -41,7 +41,6 @@ namespace Js
         return RecyclerNew(type->GetScriptContext()->GetRecycler(), LiteralString, type, _u(""), 0);
     }
 
-
     ArenaLiteralString::ArenaLiteralString(StaticType * type, const char16* content, charcount_t charLength) :
       JavascriptString(type, charLength, content)
     {

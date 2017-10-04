@@ -83,30 +83,23 @@ namespace utf8
         return WideStringToNarrow(Allocator::allocate, sourceString, sourceCount, destStringPtr, destCount, allocateCount);
     }
 
-    ///
-    /// Use the codex library to encode a UTF8 string to UTF16.
-    /// The caller is responsible for freeing the memory, which is allocated
-    /// using Allocator.
-    /// The returned string is null terminated.
-    ///
-    template <typename AllocatorFunction>
-    HRESULT NarrowStringToWide(_In_ AllocatorFunction allocator,_In_ LPCSTR sourceString, size_t sourceCount, _Out_ LPWSTR* destStringPtr, _Out_ size_t* destCount, size_t* allocateCount = nullptr)
+    inline HRESULT NarrowStringToWideNoAlloc(_In_ LPCSTR sourceString, size_t sourceCount,
+        __out_ecount(destBufferCount) LPWSTR destString, size_t destBufferCount, _Out_ size_t* destCount)
     {
-        size_t cbSourceString = sourceCount;
         size_t sourceStart = 0;
-        size_t cbDestString = (sourceCount + 1) * sizeof(WCHAR);
-        if (cbDestString < sourceCount) // overflow ?
+        size_t cbSourceString = sourceCount;
+
+        if (sourceCount >= MAXUINT32)
         {
+            destString[0] = WCHAR(0);
             return E_OUTOFMEMORY;
         }
 
-        WCHAR* destString = (WCHAR*)allocator(cbDestString);
-        if (destString == nullptr)
+        if (destString == nullptr || sourceCount >= destBufferCount)
         {
-            return E_OUTOFMEMORY;
+            destString[0] = WCHAR(0);
+            return E_INVALIDARG;
         }
-
-        if (allocateCount != nullptr) *allocateCount = cbDestString;
 
         for (; sourceStart < sourceCount; sourceStart++)
         {
@@ -124,7 +117,6 @@ namespace utf8
         {
             *destCount = sourceCount;
             destString[sourceCount] = WCHAR(0);
-            *destStringPtr = destString;
         }
         else
         {
@@ -139,12 +131,42 @@ namespace utf8
             // instead of replacing them with the "replacement" chracter. Pass a flag to our
             // decoder to require such behavior
             utf8::DecodeUnitsIntoAndNullTerminateNoAdvance(remDestString, remSourceString, (LPCUTF8) sourceString + cbSourceString, DecodeOptions::doAllowInvalidWCHARs);
-            Assert(destString[cchDestString] == 0);
+
             static_assert(sizeof(utf8char_t) == sizeof(char), "Needs to be valid for cast");
-            *destStringPtr = destString;
             *destCount = cchDestString;
         }
+
+        Assert(destString[*destCount] == 0);
+
         return S_OK;
+    }
+
+    ///
+    /// Use the codex library to encode a UTF8 string to UTF16.
+    /// The caller is responsible for freeing the memory, which is allocated
+    /// using Allocator.
+    /// The returned string is null terminated.
+    ///
+    template <typename AllocatorFunction>
+    HRESULT NarrowStringToWide(_In_ AllocatorFunction allocator,_In_ LPCSTR sourceString,
+        size_t sourceCount, _Out_ LPWSTR* destStringPtr, _Out_ size_t* destCount, size_t* allocateCount = nullptr)
+    {
+        size_t cbDestString = (sourceCount + 1) * sizeof(WCHAR);
+        if (cbDestString < sourceCount) // overflow ?
+        {
+            return E_OUTOFMEMORY;
+        }
+
+        WCHAR* destString = (WCHAR*)allocator(cbDestString);
+        if (destString == nullptr)
+        {
+            return E_OUTOFMEMORY;
+        }
+
+        if (allocateCount != nullptr) *allocateCount = cbDestString;
+
+        *destStringPtr = destString;
+        return NarrowStringToWideNoAlloc(sourceString, sourceCount, destString, sourceCount + 1, destCount);
     }
 
     template <class Allocator>

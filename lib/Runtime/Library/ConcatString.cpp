@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 //-------------------------------------------------------------------------------------------------------
 #include "RuntimeLibraryPch.h"
-
+#include "Codex/Utf8Helper.h"
 
 
 namespace Js
@@ -17,8 +17,134 @@ namespace Js
     {
     }
 
+    LiteralStringWithPropertyStringPtr::LiteralStringWithPropertyStringPtr(const char16 * wString,
+      const CharCount stringLength, JavascriptLibrary *const library) :
+        LiteralString(library->GetStringTypeStatic(), wString, stringLength),
+        propertyString(nullptr)
+    {
+    }
+
+    LiteralStringWithPropertyStringPtr *LiteralStringWithPropertyStringPtr::
+    NewFromWideString(const uint16_t * wideString, const CharCount charCount, JavascriptLibrary *const library)
+    {
+        Assert(library != nullptr && wideString != nullptr);
+
+        switch (charCount)
+        {
+            case 0:
+            {
+                JavascriptString * emptyString = library->GetEmptyString();
+                AssertMsg(VirtualTableInfo<Js::LiteralStringWithPropertyStringPtr>::HasVirtualTable(emptyString),
+                    "Library::GetEmptyString is no longer LiteralStringWithPropertyStringPtr ?");
+                return (LiteralStringWithPropertyStringPtr*) emptyString;
+            }
+
+            // TODO: Make CharStringCache LiteralStringWithPropertyStringPtr?
+            // case 1:
+            //     return library->GetCharStringCache().GetStringForChar(*content);
+
+            default:
+                break;
+        }
+
+        Recycler * recycler = library->GetRecycler();
+        ScriptContext * scriptContext = library->GetScriptContext();
+        char16* destString = RecyclerNewArrayLeaf(recycler, WCHAR, charCount + 1);
+
+        if (destString == nullptr)
+        {
+            Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
+        }
+
+        js_wmemcpy_s(destString, charCount, (LPWSTR)wideString, charCount);
+        destString[charCount] = char16(0);
+
+        return RecyclerNew(library->GetRecycler(), LiteralStringWithPropertyStringPtr, destString, charCount, library);
+    }
+
+    LiteralStringWithPropertyStringPtr* LiteralStringWithPropertyStringPtr::CreateEmptyString(JavascriptLibrary *const library)
+    {
+        return RecyclerNew(library->GetRecycler(), LiteralStringWithPropertyStringPtr, _u(""), 0, library);
+    }
+
+    LiteralStringWithPropertyStringPtr *LiteralStringWithPropertyStringPtr::
+      NewFromCString(const char * cString, const CharCount charCount, JavascriptLibrary *const library)
+    {
+        Assert(library != nullptr && cString != nullptr);
+
+        switch (charCount)
+        {
+            case 0:
+            {
+                JavascriptString * emptyString = library->GetEmptyString();
+                AssertMsg(VirtualTableInfo<Js::LiteralStringWithPropertyStringPtr>::HasVirtualTable(emptyString),
+                    "Library::GetEmptyString is no longer LiteralStringWithPropertyStringPtr ?");
+                return (LiteralStringWithPropertyStringPtr*) emptyString;
+            }
+
+            // TODO: Make CharStringCache LiteralStringWithPropertyStringPtr?
+            // case 1:
+            //     return library->GetCharStringCache().GetStringForChar(*content);
+
+            default:
+                break;
+        }
+
+        ScriptContext * scriptContext = library->GetScriptContext();
+        size_t cbDestString = (charCount + 1) * sizeof(WCHAR);
+        if ((CharCount)cbDestString < charCount) // overflow
+        {
+            Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
+        }
+
+        Recycler * recycler = library->GetRecycler();
+        char16* destString = RecyclerNewArrayLeaf(recycler, WCHAR, cbDestString);
+        if (destString == nullptr)
+        {
+            Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
+        }
+
+        HRESULT result = utf8::NarrowStringToWideNoAlloc(cString, charCount, destString, charCount + 1, &cbDestString);
+
+        switch(result)
+        {
+            case S_OK:
+                return RecyclerNew(library->GetRecycler(), LiteralStringWithPropertyStringPtr, destString, (CharCount)cbDestString, library);
+
+            // unlikely
+            // case E_OUTOFMEMORY:
+            //     return nullptr; // TODO ?: throw OUTOFMEMORY
+
+            // case E_INVALIDARG:
+            //     return nullptr; // TODO ?: throw ....
+            default:
+                break;
+        }
+
+        Assert(false);
+        return nullptr; // make compiler happy
+    }
+
     PropertyString * LiteralStringWithPropertyStringPtr::GetPropertyString() const
     {
+        return this->propertyString;
+    }
+
+    PropertyString * LiteralStringWithPropertyStringPtr::GetOrAddPropertyString()
+    {
+        if (this->propertyString != nullptr)
+        {
+            return this->propertyString;
+        }
+
+        ScriptContext * scriptContext = this->GetScriptContext();
+
+        Js::PropertyRecord *propertyRecord = nullptr;
+        scriptContext->GetOrAddPropertyRecord(this->GetSz(), static_cast<int>(this->GetLength()),
+            (Js::PropertyRecord const **)&propertyRecord);
+
+        this->propertyString = scriptContext->GetPropertyString(propertyRecord->GetPropertyId());
+
         return this->propertyString;
     }
 
