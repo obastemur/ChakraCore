@@ -18,7 +18,7 @@ Abstract:
 
 
 --*/
-
+#include <assert_only.h>
 #include "pal/thread.hpp"
 #include "pal/cs.hpp"
 #include "pal/malloc.hpp"
@@ -1696,8 +1696,151 @@ done:
     return pRetVal;
 }
 
-#define KB64 (64 * 1024)
-#define MB64 (KB64 * 1024)
+#define KB4   (4   * 1024)
+#define KB16  (4   * KB4)
+#define KB64  (4   * KB16)
+#define KB512 (8   * KB64)
+#define MB1   (2   * KB512)
+#define MB64  (128 * KB512)
+#define MAX_BLOCK_INDEX 256
+// #define PRINT_MEM_OUTPUT
+
+struct MemoryReserveBlocks
+{
+    char*  KBBlocks;
+    int activeIndex;
+    MemoryReserveBlocks(): KBBlocks(nullptr) {}
+    
+    void Alloc1024()
+    {
+        KBBlocks = (char*)VirtualAlloc(nullptr, MB1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    }
+    
+    char* GetBlock(unsigned segments)
+    {
+        if (activeIndex + segments > MAX_BLOCK_INDEX || KBBlocks == nullptr) return nullptr;
+        char * retVal = KBBlocks + (KB4 * activeIndex);
+        activeIndex += segments;
+        return retVal;
+    }
+    
+    int GetAddressIndex(size_t address)
+    {
+        if (address >= (size_t)KBBlocks && address < (size_t) (KBBlocks + MB1))
+        {
+            int index = (address - (size_t)KBBlocks) / KB4;
+            _ASSERTE((size_t)KBBlocks + (index * KB4) <= address && (size_t)KBBlocks + ((index + 1) * KB4) > address);
+            return index;
+        }
+        
+        return -1;
+    }
+};
+
+struct AddressPoint
+{
+    int mainIndex;
+    int subIndex;
+    
+    AddressPoint():mainIndex(-1), subIndex(-1) { }
+    AddressPoint(int m, int s):mainIndex(m), subIndex(s) { }
+    
+    bool IsOnBlockManager() { return mainIndex != -1; }
+};
+
+struct MemoryBlockManager
+{
+    MemoryReserveBlocks reservedMemory[1024]; // temp!
+    int activeIndex;
+    
+    MemoryBlockManager()
+    {
+        activeIndex = -1;
+    }
+    
+    void GetAddressPoint(size_t addr, AddressPoint *point)
+    {
+        int currentIndex = activeIndex / 2;
+        
+        if ((size_t)reservedMemory[currentIndex].KBBlocks > addr)
+        {
+            currentIndex = 0;
+        }
+
+        for(int i = currentIndex; i <= activeIndex; i++)
+        {
+            int index = reservedMemory[i].GetAddressIndex(addr);
+            if (index != -1)
+            {
+                point->mainIndex = i;
+                point->subIndex = index;
+                return;
+            }
+        }
+    }
+    
+    AddressPoint* GetAddressPoint(size_t addr)
+    {
+        int currentIndex = activeIndex / 2;
+        
+        if ((size_t)reservedMemory[currentIndex].KBBlocks > addr)
+        {
+            currentIndex = 0;
+        }
+        
+        for(int i = currentIndex; i <= activeIndex; i++)
+        {
+            int index = reservedMemory[i].GetAddressIndex(addr);
+            if (index != -1)
+            {
+                return new AddressPoint(i, index);
+            }
+        }
+        return nullptr;
+    }
+    
+    void ChangeProtect(AddressPoint &point, size_t size, int protect)
+    {
+        char* addr = reservedMemory[point.mainIndex].KBBlocks + (point.subIndex * KB4);
+        size = (size / KB4) + (size % KB4 > 0 ? 1 : 0);
+        size *= KB4;
+        
+        AssertMsg(((size_t)addr) + size <= ((size_t)reservedMemory[point.mainIndex].KBBlocks) + MB1, "");
+
+        mprotect( (LPVOID)addr, size, protect); // todo : assert retvalue
+    }
+    
+    char* GetNewBlock(unsigned segments)
+    {
+        char* block = nullptr;
+        if (activeIndex != -1)
+        {
+            block = reservedMemory[activeIndex].GetBlock(segments);
+        }
+
+        if (block == nullptr)
+        {
+            if (activeIndex < 1023)
+            {
+                reservedMemory[++activeIndex].Alloc1024();
+                return GetNewBlock(segments);
+            }
+        }
+        
+        return block;
+    }
+    
+    void FreeBlock(AddressPoint &point, size_t size)
+    {
+        char* addr = reservedMemory[point.mainIndex].KBBlocks + (point.subIndex * KB4);
+        size = (size / KB4) + (size % KB4 > 0 ? 1 : 0);
+        size *= KB4;
+        
+        AssertMsg(((size_t)addr) + size <= ((size_t)reservedMemory[point.mainIndex].KBBlocks) + MB1, "");
+    }
+};
+
+MemoryBlockManager blockManager;
 
 LPVOID
 PALAPI
@@ -1709,7 +1852,37 @@ VirtualAlloc(
 {
     if (lpAddress)
     {
+        AddressPoint point;
+        blockManager.GetAddressPoint((size_t)lpAddress, &point);
+        
+        if (point.IsOnBlockManager())
+        {
+            if ( (MAX_BLOCK_INDEX - point.subIndex) * KB4  < dwSize )
+            {
+                printf("BOOM!\n");
+                abort();
+            }
+#ifdef PRINT_MEM_OUTPUT
+            fprintf(stderr, "ALLOC -> %p size(%lu)\n", lpAddress, dwSize);
+#endif
+            memset(lpAddress, dwSize, 0);
+            return lpAddress;
+        }
+
         return VirtualAlloc_(lpAddress, dwSize, flAllocationType, flProtect);
+    }
+    
+    if (flProtect == PAGE_READWRITE && dwSize <= 131072)
+    {
+        CPalThread *pthrCurrent = InternalGetCurrentThread();
+        InternalEnterCriticalSection(pthrCurrent, &virtual_critsec);
+        int segmentCount = (dwSize / KB4) + ((dwSize % KB4 > 0) ? 1 : 0);
+        char *blockStart = blockManager.GetNewBlock(segmentCount);
+        InternalLeaveCriticalSection(pthrCurrent, &virtual_critsec);
+#ifdef PRINT_MEM_OUTPUT
+        fprintf(stderr, "CHUNK -> %p size(%lu)\n", blockStart, dwSize);
+#endif
+        return blockStart;
     }
 
     bool reserve = (flAllocationType & MEM_RESERVE) == MEM_RESERVE;
@@ -1793,6 +1966,18 @@ VirtualFree(
     PERF_ENTRY(VirtualFree);
     ENTRY("VirtualFree(lpAddress=%p, dwSize=%u, dwFreeType=%#x)\n",
           lpAddress, dwSize, dwFreeType);
+
+    AddressPoint point;
+    blockManager.GetAddressPoint((size_t)lpAddress, &point);
+    
+    if (point.IsOnBlockManager())
+    {
+#ifdef PRINT_MEM_OUTPUT
+        fprintf(stderr, "FREE -> %p size(%lu)\n", lpAddress, dwSize);
+#endif
+        blockManager.FreeBlock(point, dwSize);
+        return true;
+    }
 
     pthrCurrent = InternalGetCurrentThread();
     InternalEnterCriticalSection(pthrCurrent, &virtual_critsec);
@@ -2004,6 +2189,43 @@ VirtualProtect(
            IN DWORD flNewProtect,
            OUT PDWORD lpflOldProtect)
 {
+    AddressPoint point;
+    blockManager.GetAddressPoint((size_t)lpAddress, &point);
+    
+    if (point.IsOnBlockManager())
+    {
+#ifdef PRINT_MEM_OUTPUT
+        switch ( flNewProtect & 0xff )
+        {
+            case PAGE_READONLY :
+                fprintf(stderr, "PROT_READ - ");
+                break;
+            case PAGE_READWRITE :
+                fprintf(stderr, "PROT_READ | PROT_WRITE - ");
+                break;
+            case PAGE_EXECUTE_READWRITE:
+                fprintf(stderr, "PROT_EXEC | PROT_READ | PROT_WRITE - ");
+                break;
+            case PAGE_EXECUTE :
+                fprintf(stderr, "PROT_EXEC - ");
+                break;
+            case PAGE_EXECUTE_READ :
+                fprintf(stderr, "PROT_EXEC | PROT_READ - ");
+                break;
+            case PAGE_NOACCESS :
+                return true;
+//                fprintf(stderr, "PROT_NONE - ");
+                break;
+                
+            default:
+                break;
+        }
+        fprintf(stderr, "PROTECT -> %p (%lu) \n", lpAddress, dwSize);
+#endif
+        blockManager.ChangeProtect(point, dwSize, W32toUnixAccessControl(PAGE_EXECUTE_READWRITE) );
+        *lpflOldProtect = PAGE_READWRITE;
+        return true;
+    }
     BOOL     bRetVal = FALSE;
     PCMI     pEntry = NULL;
     SIZE_T   MemSize = 0;

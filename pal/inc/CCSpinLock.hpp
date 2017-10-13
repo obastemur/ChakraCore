@@ -9,26 +9,19 @@
 template<bool shouldTrackThreadId>
 class CCSpinLock
 {
-    unsigned int  enterCount;
-    unsigned int  spinCount;
-    char          lock;
-    DWORD         threadId;
+    char         mutexPtr[64];
+#if DEBUG
+    size_t         threadId; // to track IsLocked
+#endif
+
 public:
-    // TODO: (obastemur) tune this / don't use constant here?
-    void Reset(unsigned int spinCount = 11)
+    void Reset(unsigned int _ = 0);
+    CCSpinLock(unsigned int _ = 0)
     {
-        this->enterCount = 0;
-        this->lock = 0;
-        this->threadId = 0;
-        this->spinCount = spinCount;
+        Reset(_);
     }
 
-    CCSpinLock(unsigned int spinCount)
-    {
-        Reset(spinCount);
-    }
-
-    CCSpinLock() { Reset(); }
+    ~CCSpinLock();
 
     void Enter();
     bool TryEnter();
