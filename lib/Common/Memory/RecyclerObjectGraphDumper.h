@@ -10,7 +10,7 @@ class RecyclerObjectGraphDumper
 public:
     struct Param
     {
-        bool (*dumpReferenceFunc)(char16 const *, void *objectAddress, void *referenceAddress);
+        bool (*dumpReferenceFunc)(CHAR_T const *, void *objectAddress, void *referenceAddress);
         bool dumpRootOnly;
         bool skipStack;
 #ifdef RECYCLER_STATS
@@ -22,16 +22,16 @@ public:
     ~RecyclerObjectGraphDumper();
 
     void BeginDumpObject(void * objectAddres);
-    void BeginDumpObject(char16 const * name);
-    void BeginDumpObject(char16 const * name, void* objectAddress);
+    void BeginDumpObject(CHAR_T const * name);
+    void BeginDumpObject(CHAR_T const * name, void* objectAddress);
     void EndDumpObject();
     void DumpObjectReference(void * objectAddress, bool remark);
 
     Recycler * recycler;
     Param * param;
 
-    char16 const * dumpObjectName;
-    char16 tempObjectName[256];
+    CHAR_T const * dumpObjectName;
+    CHAR_T tempObjectName[256];
     void * dumpObject;
 
 #ifdef PROFILE_RECYCLER_ALLOC

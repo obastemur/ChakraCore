@@ -376,7 +376,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         for (int i = 0; i < propertyCount; i++)
         {
             if (descriptors[i].Id->Equals(propertyName))
@@ -424,7 +424,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         for (int i = 0; i < propertyCount; i++)
         {
             if (descriptors[i].Id->Equals(propertyName))
@@ -525,7 +525,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         for (int i = 0; i < propertyCount; i++)
         {
             if (descriptors[i].Id->Equals(propertyName))

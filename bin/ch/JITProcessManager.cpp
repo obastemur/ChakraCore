@@ -9,7 +9,7 @@
 HANDLE JITProcessManager::s_rpcServerProcessHandle = 0; // 0 is the "invalid handle" value for process handles
 UUID JITProcessManager::s_connectionId = GUID_NULL;
 
-HRESULT JITProcessManager::StartRpcServer(int argc, __in_ecount(argc) LPWSTR argv[])
+HRESULT JITProcessManager::StartRpcServer(int argc, __in_ecount(argc) LPCHAR_T argv[])
 {
     HRESULT hr = S_OK;
 
@@ -35,7 +35,7 @@ HRESULT JITProcessManager::StartRpcServer(int argc, __in_ecount(argc) LPWSTR arg
 
 /* static */
 void
-JITProcessManager::RemoveArg(LPCWSTR flag, int * argc, __in_ecount(*argc) LPWSTR * argv[])
+JITProcessManager::RemoveArg(LPCCHAR_T flag, int * argc, __in_ecount(*argc) LPCHAR_T * argv[])
 {
     size_t flagLen = wcslen(flag);
     int flagIndex;
@@ -45,7 +45,7 @@ JITProcessManager::RemoveArg(LPCWSTR flag, int * argc, __in_ecount(*argc) LPWSTR
     }
 }
 
-HRESULT JITProcessManager::CreateServerProcess(int argc, __in_ecount(argc) LPWSTR argv[])
+HRESULT JITProcessManager::CreateServerProcess(int argc, __in_ecount(argc) LPCHAR_T argv[])
 {
     HRESULT hr;
     PROCESS_INFORMATION processInfo = { 0 };

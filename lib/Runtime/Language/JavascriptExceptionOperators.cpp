@@ -1453,13 +1453,13 @@ namespace Js
                 }
                 else
                 {
-                    LPCWSTR pUrl = NULL;
+                    LPCCHAR_T pUrl = NULL;
                     ULONG lineNumber = 0;
                     LONG characterPosition = 0;
 
                     functionBody->GetLineCharOffset(currentFrame.GetByteCodeOffset(), &lineNumber, &characterPosition);
                     pUrl = functionBody->GetSourceName();
-                    LPCWSTR functionName = nullptr;
+                    LPCCHAR_T functionName = nullptr;
                     if (CONFIG_FLAG(ExtendedErrorStackForTestHost))
                     {
                         BEGIN_LEAVE_SCRIPT_INTERNAL(scriptContext)
@@ -1534,12 +1534,12 @@ namespace Js
         return limit;
     }
 
-    void JavascriptExceptionOperators::AppendExternalFrameToStackTrace(CompoundString* bs, LPCWSTR functionName, LPCWSTR fileName, ULONG lineNumber, LONG characterPosition)
+    void JavascriptExceptionOperators::AppendExternalFrameToStackTrace(CompoundString* bs, LPCCHAR_T functionName, LPCCHAR_T fileName, ULONG lineNumber, LONG characterPosition)
     {
         // format is equivalent to wprintf("\n   at %s (%s:%d:%d)", functionName, filename, lineNumber, characterPosition);
 
         const CharCount maxULongStringLength = 10; // excluding null terminator
-        const auto ConvertULongToString = [](const ULONG value, char16 *const buffer, const CharCount charCapacity)
+        const auto ConvertULongToString = [](const ULONG value, CHAR_T *const buffer, const CharCount charCapacity)
         {
             const errno_t err = _ultow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
@@ -1557,8 +1557,8 @@ namespace Js
 
         if (CONFIG_FLAG(ExtendedErrorStackForTestHost) && *fileName != _u('\0'))
         {
-            char16 shortfilename[_MAX_FNAME];
-            char16 ext[_MAX_EXT];
+            CHAR_T shortfilename[_MAX_FNAME];
+            CHAR_T ext[_MAX_EXT];
             errno_t err = _wsplitpath_s(fileName, NULL, 0, NULL, 0, shortfilename, _MAX_FNAME, ext, _MAX_EXT);
             if (err != 0)
             {
@@ -1581,7 +1581,7 @@ namespace Js
         bs->AppendChars(_u(')'));
     }
 
-    void JavascriptExceptionOperators::AppendLibraryFrameToStackTrace(CompoundString* bs, LPCWSTR functionName)
+    void JavascriptExceptionOperators::AppendLibraryFrameToStackTrace(CompoundString* bs, LPCCHAR_T functionName)
     {
         // format is equivalent to wprintf("\n   at %s (native code)", functionName);
         bs->AppendChars(_u("\n   at "));

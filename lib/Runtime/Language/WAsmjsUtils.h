@@ -7,7 +7,7 @@
 
 #if defined(ASMJS_PLAT) || defined(ENABLE_WASM)
 
-namespace WAsmJs 
+namespace WAsmJs
 {
     static const int DOUBLE_SLOTS_SPACE = (sizeof(double) / sizeof(Js::Var)); // 2 in x86 and 1 in x64
     static const double FLOAT_SLOTS_SPACE = (sizeof(float) / (double)sizeof(Js::Var)); // 1 in x86 and 0.5 in x64
@@ -242,7 +242,7 @@ namespace WAsmJs
 #if DBG_DUMP
         // Used for debugging
         Types mType;
-        static void GetTypeDebugName(Types type, char16* buf, uint bufsize, bool shortName = false);
+        static void GetTypeDebugName(Types type, CHAR_T* buf, uint bufsize, bool shortName = false);
         void PrintTmpRegisterAllocation(RegSlot loc, bool deallocation = false);
 #endif
     };

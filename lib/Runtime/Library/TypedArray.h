@@ -137,8 +137,8 @@ namespace Js
         // Returns false if this is not a TypedArray or it's not detached
         static BOOL IsDetachedTypedArray(Var aValue);
         static HRESULT GetBuffer(Var aValue, ArrayBuffer** outBuffer, uint32* outOffset, uint32* outLength);
-        static TypedArrayBase * ValidateTypedArray(Var aValue, ScriptContext *scriptContext, LPCWSTR apiName);
-        static TypedArrayBase * ValidateTypedArray(Arguments &args, ScriptContext *scriptContext, LPCWSTR apiName);
+        static TypedArrayBase * ValidateTypedArray(Var aValue, ScriptContext *scriptContext, LPCCHAR_T apiName);
+        static TypedArrayBase * ValidateTypedArray(Arguments &args, ScriptContext *scriptContext, LPCCHAR_T apiName);
         static Var TypedArrayCreate(Var constructor, Arguments *args, uint32 length, ScriptContext *scriptContext);
 
         virtual BOOL DirectSetItem(__in uint32 index, __in Js::Var value) = 0;
@@ -183,7 +183,7 @@ namespace Js
         Var FindMinOrMax(Js::ScriptContext * scriptContext, TypeId typeId, bool findMax);
         template<typename T, bool checkNaNAndNegZero> Var FindMinOrMax(Js::ScriptContext * scriptContext, bool findMax);
 
-        static Var GetKeysEntriesValuesHelper(Arguments& args, ScriptContext *scriptContext, LPCWSTR apiName, JavascriptArrayIteratorKind kind);
+        static Var GetKeysEntriesValuesHelper(Arguments& args, ScriptContext *scriptContext, LPCCHAR_T apiName, JavascriptArrayIteratorKind kind);
 
         static uint32 GetFromIndex(Var arg, uint32 length, ScriptContext *scriptContext);
 
@@ -508,7 +508,7 @@ namespace Js
         virtual VTableValue DummyVirtualFunctionToHinderLinkerICF();
     };
 
-    // in windows build environment, char16 is not an intrinsic type, and we cannot do the type
+    // in windows build environment, CHAR_T is not an intrinsic type, and we cannot do the type
     // specialization
     class CharArray : public TypedArrayBase
     {
@@ -529,10 +529,10 @@ namespace Js
         static Var EntrySubarray(RecyclableObject* function, CallInfo callInfo, ...);
 
         CharArray(ArrayBufferBase* arrayBuffer, uint32 byteOffset, uint32 mappedLength, DynamicType* type) :
-        TypedArrayBase(arrayBuffer, byteOffset, mappedLength, sizeof(char16), type)
+        TypedArrayBase(arrayBuffer, byteOffset, mappedLength, sizeof(CHAR_T), type)
         {
             AssertMsg(arrayBuffer->GetByteLength() >= byteOffset, "invalid offset");
-            AssertMsg(mappedLength*sizeof(char16)+byteOffset <= GetArrayBuffer()->GetByteLength(), "invalid length");
+            AssertMsg(mappedLength*sizeof(CHAR_T)+byteOffset <= GetArrayBuffer()->GetByteLength(), "invalid length");
             buffer = arrayBuffer->GetBuffer() + byteOffset;
         }
 
@@ -563,7 +563,7 @@ namespace Js
     protected:
         CompareElementsFunction GetCompareElementsFunction()
         {
-            return &TypedArrayCompareElementsHelper<char16>;
+            return &TypedArrayCompareElementsHelper<CHAR_T>;
         }
 
     public:

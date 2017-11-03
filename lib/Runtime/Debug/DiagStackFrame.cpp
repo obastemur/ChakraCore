@@ -79,7 +79,7 @@ namespace Js
         {
             display = this->GetScriptFunction()->GetEnvironment();
         }
- 
+
         return display;
     }
 
@@ -161,7 +161,7 @@ namespace Js
         return varThis;
     }
 
-    void DiagStackFrame::TryFetchValueAndAddress(const char16 *source, int sourceLength, Js::ResolvedObject * pOutResolvedObj)
+    void DiagStackFrame::TryFetchValueAndAddress(const CHAR_T *source, int sourceLength, Js::ResolvedObject * pOutResolvedObj)
     {
         Assert(source);
         Assert(pOutResolvedObj);
@@ -187,9 +187,9 @@ namespace Js
 
     }
 
-    Js::ScriptFunction* DiagStackFrame::TryGetFunctionForEval(Js::ScriptContext* scriptContext, const char16 *source, int sourceLength, BOOL isLibraryCode /* = FALSE */)
+    Js::ScriptFunction* DiagStackFrame::TryGetFunctionForEval(Js::ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, BOOL isLibraryCode /* = FALSE */)
     {
-        // TODO: pass the real length of the source code instead of wcslen
+        // TODO: pass the real length of the source code instead of cstrlen
         uint32 grfscr = fscrReturnExpression | fscrEval | fscrEvalCode | fscrGlobalCode | fscrConsoleScopeEval;
         if (!this->IsThisAvailable())
         {
@@ -202,7 +202,7 @@ namespace Js
         return scriptContext->GetGlobalObject()->EvalHelper(scriptContext, source, sourceLength, kmodGlobal, grfscr, Js::Constants::EvalCode, FALSE, FALSE, this->IsStrictMode());
     }
 
-    void DiagStackFrame::EvaluateImmediate(const char16 *source, int sourceLength, BOOL isLibraryCode, Js::ResolvedObject * resolvedObject)
+    void DiagStackFrame::EvaluateImmediate(const CHAR_T *source, int sourceLength, BOOL isLibraryCode, Js::ResolvedObject * resolvedObject)
     {
         this->TryFetchValueAndAddress(source, sourceLength, resolvedObject);
 
@@ -298,7 +298,7 @@ namespace Js
         Js::ScriptContext* scriptContext = this->GetScriptContext();
 
         ArenaAllocator *arena = scriptContext->GetThreadContext()->GetDebugManager()->GetDiagnosticArena()->Arena();
-        Js::LocalsWalker *localsWalker = Anew(arena, Js::LocalsWalker, this, 
+        Js::LocalsWalker *localsWalker = Anew(arena, Js::LocalsWalker, this,
             Js::FrameWalkerFlags::FW_EnumWithScopeAlso | Js::FrameWalkerFlags::FW_AllowLexicalThis | Js::FrameWalkerFlags::FW_AllowSuperReference | Js::FrameWalkerFlags::FW_DontAddGlobalsDirectly);
 
         // Store the diag address of a var to the map so that it will be used for editing the value.

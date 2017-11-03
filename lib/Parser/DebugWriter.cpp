@@ -8,7 +8,7 @@
 
 namespace UnifiedRegex
 {
-    const char16* const DebugWriter::hex = _u("0123456789abcdef");
+    const CHAR_T* const DebugWriter::hex = _u("0123456789abcdef");
 
     DebugWriter::DebugWriter() : indent(0), nlPending(false)
     {

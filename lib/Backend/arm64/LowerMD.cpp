@@ -1955,7 +1955,7 @@ LowererMD::LoadInputParamCount(IR::Instr * instrInsert, int adjust, bool needFla
 {
     //  LDR  Rz, CallInfo
     //  UBFX Rx, Rz, 27, #1 // Get CallEval bit.
-    //  UBFX Rz, Rz, 0, #24 // Extract call count 
+    //  UBFX Rz, Rz, 0, #24 // Extract call count
     //  SUB  Rz, Rz, Rx     // Now Rz has the right number of parameters
 
     IR::SymOpnd * srcOpnd = Lowerer::LoadCallInfo(instrInsert);
@@ -2167,7 +2167,7 @@ LowererMD::LoadHeapArguments(IR::Instr * instrArgs)
             // s2 = actual argument count (without counting "this")
             instr = this->LoadInputParamCount(instrArgs, -1);
             IR::Opnd * opndInputParamCount = instr->GetDst();
-            
+
             this->LoadHelperArgument(instrArgs, opndInputParamCount);
 
             // s1 = current function
@@ -3328,13 +3328,13 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     //
 
     opndSrc1 = opndSrc1->UseWithNewType(TyInt32, this->m_func);
-    
+
     // s1 = MOV src1
 
     opndReg = IR::RegOpnd::New(TyInt32, this->m_func);
     instr = IR::Instr::New(Js::OpCode::MOV, opndReg, opndSrc1, this->m_func);
     instrAdd->InsertBefore(instr);
-    
+
     if (opndSrc2->IsAddrOpnd())
     {
         // truncate to untag
@@ -3346,7 +3346,7 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     {
         instr = IR::Instr::New(Js::OpCode::ADDS, opndReg, opndReg, opndSrc2->UseWithNewType(TyInt32, this->m_func), this->m_func);
     }
-    
+
     // s1 = ADDS s1, src2
     instrAdd->InsertBefore(instr);
     Legalize(instr);
@@ -3367,7 +3367,7 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
 
     // s1 = ORR s1, AtomTag_IntPtr
     GenerateInt32ToVarConversion(opndReg, instrAdd);
-    
+
     // dst = MOV s1
 
     instr = IR::Instr::New(Js::OpCode::MOV, instrAdd->GetDst(), opndReg, this->m_func);
@@ -6057,7 +6057,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
 
     this->m_lowerer->GenerateStringTest(regSrcStr, insertInstr, labelHelper, nullptr, false);
 
-    // r1 contains the value of the char16* pointer inside JavascriptString.
+    // r1 contains the value of the CHAR_T* pointer inside JavascriptString.
     // MOV r1, [regSrcStr + offset(m_pszValue)]
     IR::RegOpnd *r1 = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::IndirOpnd * indirOpnd = IR::IndirOpnd::New(regSrcStr->AsRegOpnd(), Js::JavascriptString::GetOffsetOfpszValue(), TyMachPtr, this->m_func);
@@ -6084,7 +6084,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         instr = IR::BranchInstr::New(Js::OpCode::BLS, labelHelper, this->m_func);
         insertInstr->InsertBefore(instr);
 
-        indirOpnd = IR::IndirOpnd::New(r1, Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) * sizeof(char16), TyInt16, this->m_func);
+        indirOpnd = IR::IndirOpnd::New(r1, Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) * sizeof(CHAR_T), TyInt16, this->m_func);
     }
     else
     {
@@ -7842,11 +7842,11 @@ LowererMD::CheckOverflowOnFloatToInt32(IR::Instr* instrInsert, IR::Opnd* intOpnd
 
 void
 LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert, IR::Instr * instrBailOut, IR::LabelInstr * labelBailOut)
-{    
+{
     IR::BailOutKind bailOutKind = IR::BailOutInvalid;
     if (instrBailOut && instrBailOut->HasBailOutInfo())
     {
-        bailOutKind = instrBailOut->GetBailOutKind(); 
+        bailOutKind = instrBailOut->GetBailOutKind();
         if (bailOutKind & IR::BailOutOnArrayAccessHelperCall)
         {
             // Bail out instead of calling helper. If this is happening unconditionally, the caller should instead throw a rejit exception.
@@ -8323,7 +8323,7 @@ LowererMD::LowerTypeof(IR::Instr* typeOfInstr)
 
     IR::LabelInstr * loadTypeDisplayStringLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
     m_lowerer->InsertCompareBranch(objTypeIdOpnd, IR::IntConstOpnd::New(Js::TypeIds_Limit, TyUint32, func), Js::OpCode::BrGe_A, true /*unsigned*/, loadTypeDisplayStringLabel, typeOfInstr);
-    
+
     m_lowerer->InsertMove(typeIdOpnd, objTypeIdOpnd, typeOfInstr);
     typeOfInstr->InsertBefore(loadTypeDisplayStringLabel);
 

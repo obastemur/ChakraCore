@@ -15,7 +15,7 @@ namespace TTD
         TTDIdentifierDictionary<TTD_PTR_ID, Js::DynamicTypeHandler*> m_handlerMap;
         TTDIdentifierDictionary<TTD_PTR_ID, Js::Type*> m_typeMap;
 
-        //The maps for script contexts and objects 
+        //The maps for script contexts and objects
         TTDIdentifierDictionary<TTD_LOG_PTR_ID, Js::GlobalObject*> m_tagToGlobalObjectMap; //get the script context from here
         TTDIdentifierDictionary<TTD_PTR_ID, Js::RecyclableObject*> m_objectMap;
 
@@ -159,7 +159,7 @@ namespace TTD
         struct PathEntry
         {
             int64 IndexOrPID;
-            const char16* OptName;
+            const CHAR_T* OptName;
         };
 
     private:
@@ -173,7 +173,7 @@ namespace TTD
 
         ~TTDComparePath();
 
-        void WritePathToConsole(ThreadContext* threadContext, bool printNewline, _Out_writes_z_(namebuffLength) char16* namebuff, charcount_t namebuffLength) const;
+        void WritePathToConsole(ThreadContext* threadContext, bool printNewline, _Out_writes_z_(namebuffLength) CHAR_T* namebuff, charcount_t namebuffLength) const;
     };
 
     //A class that we use to manage all the dictionaries we need when comparing 2 snapshots
@@ -189,7 +189,7 @@ namespace TTD
         TTD_PTR_ID CurrentH1Ptr;
         TTD_PTR_ID CurrentH2Ptr;
         ThreadContext* Context;
-        char16* PathBuffer;
+        CHAR_T* PathBuffer;
         JsUtil::BaseDictionary<TTD_PTR_ID, TTDComparePath*, HeapAllocator> H1PtrToPathMap;
 
         fPtr_AssertSnapEquivAddtlInfo* SnapObjCmpVTable;
@@ -236,7 +236,7 @@ namespace TTD
 
         void CheckConsistentAndAddPtrIdMapping_Scope(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, uint32 index);
         void CheckConsistentAndAddPtrIdMapping_FunctionBody(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId);
-        void CheckConsistentAndAddPtrIdMapping_Special(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, const char16* specialField);
+        void CheckConsistentAndAddPtrIdMapping_Special(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, const CHAR_T* specialField);
         void CheckConsistentAndAddPtrIdMapping_Root(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, TTD_LOG_PTR_ID tag);
 
         //Check if the given mapping is consistent but do not enqueue or try to lookup ptr id in any of the maps (used mainly for heap allocated promise info that may be shared)

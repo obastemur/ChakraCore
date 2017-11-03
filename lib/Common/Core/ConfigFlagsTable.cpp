@@ -75,7 +75,7 @@ namespace Js
         this->pszValue = NULL;
     }
 
-    String::String(__in_z_opt const char16* psz)
+    String::String(__in_z_opt const CHAR_T* psz)
     {
         this->pszValue = NULL;
         Set(psz);
@@ -85,7 +85,7 @@ namespace Js
     {
         if(NULL != this->pszValue)
         {
-            NoCheckHeapDeleteArray(wcslen(this->pszValue) + 1, this->pszValue);
+            NoCheckHeapDeleteArray(cstrlen(this->pszValue) + 1, this->pszValue);
         }
     }
 
@@ -99,18 +99,18 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     void
-    String::Set(__in_z_opt const char16* pszValue)
+    String::Set(__in_z_opt const CHAR_T* pszValue)
     {
         if(NULL != this->pszValue)
         {
-            NoCheckHeapDeleteArray(wcslen(this->pszValue) + 1, this->pszValue);
+            NoCheckHeapDeleteArray(cstrlen(this->pszValue) + 1, this->pszValue);
         }
 
         if(NULL != pszValue)
         {
-            size_t size    = 1 + wcslen(pszValue);
-            this->pszValue  = NoCheckHeapNewArray(char16, size);
-            wcscpy_s(this->pszValue, size, pszValue);
+            size_t size    = 1 + cstrlen(pszValue);
+            this->pszValue  = NoCheckHeapNewArray(CHAR_T, size);
+            cstrcpy_s(this->pszValue, size, pszValue);
         }
         else
         {
@@ -254,7 +254,7 @@ namespace Js
     // List of names of all the flags
     //
 
-    const char16* const FlagNames[FlagCount + 1] =
+    const CHAR_T* const FlagNames[FlagCount + 1] =
     {
     #define FLAG(type, name, ...) _u(#name),
     #include "ConfigFlagsList.h"
@@ -267,7 +267,7 @@ namespace Js
     // List of names of all the Phases
     //
 
-    const char16* const PhaseNames[PhaseCount + 1] =
+    const CHAR_T* const PhaseNames[PhaseCount + 1] =
     {
     #define PHASE(name) _u(#name),
     #include "ConfigFlagsList.h"
@@ -279,7 +279,7 @@ namespace Js
     //
     // Description of flags
     //
-    const char16* const FlagDescriptions[FlagCount + 1] =
+    const CHAR_T* const FlagDescriptions[FlagCount + 1] =
     {
     #define FLAG(type, name, description, ...) _u(description),
     #include "ConfigFlagsList.h"
@@ -611,7 +611,7 @@ namespace Js
                 uint profilingInterpreter1Limit;
                 const int scannedCount =
                     swscanf_s(
-                        static_cast<LPCWSTR>(ExecutionModeLimits),
+                        static_cast<LPCCHAR_T>(ExecutionModeLimits),
                         _u("%u.%u.%u.%u.%u"),
                         &autoProfilingInterpreter0Limit,
                         &profilingInterpreter0Limit,
@@ -832,7 +832,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     Flag
-    ConfigFlagsTable::GetFlag(__in LPCWSTR str)
+    ConfigFlagsTable::GetFlag(__in LPCCHAR_T str)
     {
         for(int i=0; i < FlagCount; i++)
         {
@@ -854,7 +854,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     Phase
-    ConfigFlagsTable::GetPhase(__in LPCWSTR str)
+    ConfigFlagsTable::GetPhase(__in LPCCHAR_T str)
     {
         for(int i=0; i < PhaseCount; i++)
         {
@@ -993,7 +993,7 @@ namespace Js
             case FlagString: \
                 if (GetAsString(name##Flag) != nullptr) \
                 { \
-                    Output::Print(_u(":%s"), (LPCWSTR)*GetAsString(name##Flag)); \
+                    Output::Print(_u(":%s"), (LPCCHAR_T)*GetAsString(name##Flag)); \
                 } \
                 break; \
             case FlagNumber: \

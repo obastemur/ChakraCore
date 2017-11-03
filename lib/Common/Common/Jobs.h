@@ -458,7 +458,7 @@ namespace JsUtil
         ParallelThreadData **parallelThreadData;
 
 #if DBG_DUMP
-        static  char16 const * const  DebugThreadNames[16];
+        static  CHAR_T const * const  DebugThreadNames[16];
 #endif
 
     public:

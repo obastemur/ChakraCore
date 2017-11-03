@@ -53,7 +53,7 @@ public:
         return (NativeCodeData::DataChunk*)((char*)data - offsetof(NativeCodeData::DataChunk, data));
     }
 
-    static char16* GetDataDescription(void* data, JitArenaAllocator * alloc);
+    static CHAR_T* GetDataDescription(void* data, JitArenaAllocator * alloc);
 
     static unsigned int GetDataTotalOffset(void* data)
     {

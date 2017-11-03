@@ -10,11 +10,11 @@ namespace Js
     {
     protected:
         LiteralString(StaticType* type);
-        LiteralString(StaticType* type, const char16* content, charcount_t charLength);
+        LiteralString(StaticType* type, const CHAR_T* content, charcount_t charLength);
         DEFINE_VTABLE_CTOR(LiteralString, JavascriptString);
 
     public:
-        static LiteralString* New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler);
+        static LiteralString* New(StaticType* type, const CHAR_T* content, charcount_t charLength, Recycler* recycler);
         static LiteralString* CreateEmptyString(StaticType* type);
     };
 }

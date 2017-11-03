@@ -96,7 +96,7 @@ namespace Js
             Assert(currentIndex == -1);
         }
 
-        static bool             FromPhysicalFrame(InlinedFrameWalker& self, StackFrame& physicalFrame, Js::ScriptFunction *parent, bool fromBailout = false, 
+        static bool             FromPhysicalFrame(InlinedFrameWalker& self, StackFrame& physicalFrame, Js::ScriptFunction *parent, bool fromBailout = false,
                                                   int loopNum = -1, const JavascriptStackWalker * const walker = nullptr, bool useInternalFrameInfo = false, bool noAlloc = false);
         void                    Close();
         bool                    Next(CallInfo& callInfo);
@@ -228,7 +228,7 @@ namespace Js
             return interpreterFrame;
         }
 
-        bool GetSourcePosition(const WCHAR** sourceFileName, ULONG* line, LONG* column);
+        bool GetSourcePosition(const CHAR_T** sourceFileName, ULONG* line, LONG* column);
 
         static bool TryIsTopJavaScriptFrameNative(ScriptContext* scriptContext, bool* istopFrameNative, bool ignoreLibraryCode = false);
 

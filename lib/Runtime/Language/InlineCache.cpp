@@ -1085,10 +1085,10 @@ namespace Js
 #ifdef INLINE_CACHE_STATS
     void FunctionBodyPolymorphicInlineCache::PrintStats(InlineCacheData *data) const
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-        wchar funcName[1024];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T funcName[1024];
         uint total = data->hits + data->misses;
-        char16 const *propName = this->functionBody->GetScriptContext()->GetThreadContext()->GetPropertyName(data->propertyId)->GetBuffer();
+        CHAR_T const *propName = this->functionBody->GetScriptContext()->GetThreadContext()->GetPropertyName(data->propertyId)->GetBuffer();
         swprintf_s(funcName, _u("%s (%s)"), this->functionBody->GetExternalDisplayName(), this->functionBody->GetDebugNumberSet(debugStringBuffer));
 
         Output::Print(_u("%s,%s,%s,%d,%d,%f,%d,%f,%d\n"),
@@ -1198,7 +1198,7 @@ namespace Js
             this->Set(instanceType, function, result);
         }
     }
-    
+
     /* static */
     uint32 IsInstInlineCache::OffsetOfFunction()
     {

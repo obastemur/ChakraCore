@@ -37,7 +37,7 @@ uint32 GetTypeByteSize(WasmType type)
     }
 }
 
-const char16 * GetTypeName(WasmType type)
+const CHAR_T * GetTypeName(WasmType type)
 {
     switch (type) {
     case WasmTypes::WasmType::Void: return _u("void");
@@ -91,7 +91,7 @@ void WasmBinaryReader::InitializeReader()
     m_readerState = READER_STATE_UNKNOWN;
 }
 
-void WasmBinaryReader::ThrowDecodingError(const char16* msg, ...)
+void WasmBinaryReader::ThrowDecodingError(const CHAR_T* msg, ...)
 {
     va_list argptr;
     va_start(argptr, msg);
@@ -760,19 +760,19 @@ void WasmBinaryReader::ReadExportSection()
     m_module->AllocateFunctionExports(numExports);
 
     ArenaAllocator tmpAlloc(_u("ExportDupCheck"), m_module->GetScriptContext()->GetThreadContext()->GetPageAllocator(), Js::Throw::OutOfMemory);
-    typedef SList<const char16*> NameList;
+    typedef SList<const CHAR_T*> NameList;
     JsUtil::BaseDictionary<uint32, NameList*, ArenaAllocator> exportsNameDict(&tmpAlloc);
 
     for (uint32 iExport = 0; iExport < numExports; iExport++)
     {
         uint32 nameLength;
-        const char16* exportName = ReadInlineName(length, nameLength);
+        const CHAR_T* exportName = ReadInlineName(length, nameLength);
 
         // Check if the name is already used
         NameList* list = nullptr;
         if (exportsNameDict.TryGetValue(nameLength, &list))
         {
-            const char16** found = list->Find([exportName, nameLength](const char16* existing) { 
+            const CHAR_T** found = list->Find([exportName, nameLength](const CHAR_T* existing) {
                 return wcsncmp(exportName, existing, nameLength) == 0;
             });
             if (found)
@@ -969,7 +969,7 @@ void WasmBinaryReader::ReadNameSection()
     {
         uint32 fnNameLen = 0;
         WasmFunctionInfo* funsig = m_module->GetWasmFunctionInfo(i);
-        const char16* name = ReadInlineName(len, fnNameLen);
+        const CHAR_T* name = ReadInlineName(len, fnNameLen);
         funsig->SetName(name, fnNameLen);
         uint32 numLocals = LEB128(len);
         if (numLocals != funsig->GetLocalCount())
@@ -1041,7 +1041,7 @@ void WasmBinaryReader::ReadCustomSection()
     m_pc = m_currentSection.end;
 }
 
-const char16* WasmBinaryReader::ReadInlineName(uint32& length, uint32& nameLength)
+const CHAR_T* WasmBinaryReader::ReadInlineName(uint32& length, uint32& nameLength)
 {
     uint32 rawNameLength = LEB128(length);
     if (rawNameLength > Limits::GetMaxStringSize())
@@ -1059,7 +1059,7 @@ const char16* WasmBinaryReader::ReadInlineName(uint32& length, uint32& nameLengt
     try
     {
         nameLength = (uint32)utf8::ByteIndexIntoCharacterIndex(rawName, rawNameLength, decodeOptions);
-        char16* contents = AnewArray(m_alloc, char16, nameLength + 1);
+        CHAR_T* contents = AnewArray(m_alloc, CHAR_T, nameLength + 1);
         size_t decodedLength = utf8::DecodeUnitsIntoAndNullTerminate(contents, rawName, rawName + rawNameLength, decodeOptions);
         if (decodedLength != nameLength)
         {
@@ -1087,8 +1087,8 @@ void WasmBinaryReader::ReadImportSection()
     for (uint32 i = 0; i < numImports; ++i)
     {
         uint32 modNameLen = 0, fnNameLen = 0;
-        const char16* modName = ReadInlineName(len, modNameLen);
-        const char16* fnName = ReadInlineName(len, fnNameLen);
+        const CHAR_T* modName = ReadInlineName(len, modNameLen);
+        const CHAR_T* fnName = ReadInlineName(len, fnNameLen);
 
         ExternalKinds::ExternalKind kind = (ExternalKinds::ExternalKind)ReadConst<int8>();
         TRACE_WASM_DECODER(_u("Import #%u: \"%s\".\"%s\", kind: %d"), i, modName, fnName, kind);
@@ -1264,7 +1264,7 @@ WasmNode WasmBinaryReader::ReadInitExpr(bool isOffset)
     return node;
 }
 
-SectionLimits WasmBinaryReader::ReadSectionLimits(uint32 maxInitial, uint32 maxMaximum, const char16* errorMsg)
+SectionLimits WasmBinaryReader::ReadSectionLimits(uint32 maxInitial, uint32 maxMaximum, const CHAR_T* errorMsg)
 {
     SectionLimits limits;
     uint32 length = 0;

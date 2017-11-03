@@ -27,7 +27,7 @@ namespace CodexTest
     }
 
     //
-    // Following test cases are based on the Utf-8 decoder tests 
+    // Following test cases are based on the Utf-8 decoder tests
     // suggested by Markus Kuhn at https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
     //
     TEST_CASE("CodexTest_EncodeTrueUtf8_SingleSurrogates", "[CodexTest]")
@@ -35,7 +35,7 @@ namespace CodexTest
         const charcount_t charCount = 1;
         utf8char_t encodedBuffer[(charCount + 1) * 3]; // +1 since the buffer will be null-terminated
 
-        char16 testValues[] = { 0xD800, 0xDB7F, 0xDB80, 0xDBFF, 0xDC00, 0xDF80, 0xDFFF };
+        CHAR_T testValues[] = { 0xD800, 0xDB7F, 0xDB80, 0xDBFF, 0xDC00, 0xDF80, 0xDFFF };
         const int numTestCases = _countof(testValues);
 
         for (int i = 0; i < numTestCases; i++)
@@ -46,7 +46,7 @@ namespace CodexTest
         }
     }
 
-    // 
+    //
     // Test encoding of given utf16-encoded strings into another encoding
     //
     // In the expected encoded string, extra bytes are represented as 0
@@ -82,12 +82,12 @@ namespace CodexTest
 
     TEST_CASE("CodexTest_EncodeCesu_PairedSurrogates", "[CodexTest]")
     {
-        // Each of these test cases verifies the encoding 
+        // Each of these test cases verifies the encoding
         // of a single surrogate pair into a 6 byte CESU string
         // Each surrogate-pair unit is encoded separately into utf8
         struct TestCase
         {
-            char16     surrogatePair[2];
+            CHAR_T     surrogatePair[2];
             utf8char_t utf8Encoding[6];
         };
 
@@ -102,18 +102,18 @@ namespace CodexTest
             { { 0xDBFF, 0xDFFF }, { 0xED, 0xAF, 0xBF, 0xED, 0xBF, 0xBF } }  //  U+10FFFF
         };
 
-        RunUtf8EncodingTestCase(testCases, static_cast<size_t (*)(utf8char_t*, const char16*, charcount_t)>(utf8::EncodeInto));
+        RunUtf8EncodingTestCase(testCases, static_cast<size_t (*)(utf8char_t*, const CHAR_T*, charcount_t)>(utf8::EncodeInto));
     }
 
     TEST_CASE("CodexTest_EncodeUtf8_PairedSurrogates", "[CodexTest]")
     {
-        // Each of these test cases verifies the encoding 
+        // Each of these test cases verifies the encoding
         // of a single surrogate pair into a 4 byte utf8 string
         // Each surrogate-pair unit is decoded to its original codepoint
         // and then encoded into utf8
         struct TestCase
         {
-            char16     surrogatePair[2];
+            CHAR_T     surrogatePair[2];
             utf8char_t utf8Encoding[4];
         };
 
@@ -133,12 +133,12 @@ namespace CodexTest
 
     TEST_CASE("CodexTest_EncodeUtf8_NonCharacters", "[CodexTest]")
     {
-        // Each of these test cases verifies the encoding 
+        // Each of these test cases verifies the encoding
         // of certain problematic codepoints that do not represent
         // characters
         struct TestCase
         {
-            char16     surrogatePair[1];
+            CHAR_T     surrogatePair[1];
             utf8char_t utf8Encoding[3];
         };
 
@@ -152,11 +152,11 @@ namespace CodexTest
 
     TEST_CASE("CodexTest_EncodeUtf8_BoundaryChars", "[CodexTest]")
     {
-        // Each of these test cases verifies the encoding 
+        // Each of these test cases verifies the encoding
         // of boundary conditions
         struct SingleChar16TestCase
         {
-            char16     surrogatePair[1];
+            CHAR_T     surrogatePair[1];
             utf8char_t utf8Encoding[3];
         };
 
@@ -168,7 +168,7 @@ namespace CodexTest
 
         struct TwoChar16TestCase
         {
-            char16     surrogatePair[2];
+            CHAR_T     surrogatePair[2];
             utf8char_t utf8Encoding[4];
         };
 
@@ -182,12 +182,12 @@ namespace CodexTest
 
     TEST_CASE("CodexTest_EncodeUtf8_SimpleCharacters", "[CodexTest]")
     {
-        // Each of these test cases verifies the encoding 
+        // Each of these test cases verifies the encoding
         // of certain problematic codepoints that do not represent
         // characters
         struct TestCase
         {
-            char16     surrogatePair[1];
+            CHAR_T     surrogatePair[1];
             utf8char_t utf8Encoding[3];
         };
 
@@ -204,12 +204,12 @@ namespace CodexTest
     {
         const charcount_t charCount = 3;
         utf8char_t encodedBuffer[(charCount + 1) * 3]; // +1 since the buffer will be null terminated
-        const char16* sourceBuffer = L"abc";
+        const CHAR_T* sourceBuffer = L"abc";
         size_t numEncodedBytes = utf8::EncodeTrueUtf8IntoAndNullTerminate(encodedBuffer, sourceBuffer, charCount);
         CHECK(numEncodedBytes == charCount);
         for (int i = 0; i < charCount; i++)
         {
-            CHECK(sourceBuffer[i] == (const char16)encodedBuffer[i]);
+            CHECK(sourceBuffer[i] == (const CHAR_T)encodedBuffer[i]);
         }
     }
 
@@ -218,7 +218,7 @@ namespace CodexTest
     {
         const int numTestCases = _countof(testCases);
         const charcount_t charCount = _countof(testCases[0].result);
-        char16 decodedBuffer[charCount + 1]; // +1 in case a null-terminating func is passed in
+        CHAR_T decodedBuffer[charCount + 1]; // +1 in case a null-terminating func is passed in
 
         for (int i = 0; i < numTestCases; i++)
         {
@@ -242,7 +242,7 @@ namespace CodexTest
             int bytesToDecode;
             size_t expectedDecodedChars;
             bool shouldEndInTruncation;
-            char16 result[8];
+            CHAR_T result[8];
             utf8char_t utf8Encoding[8];
         };
 
@@ -277,7 +277,7 @@ namespace CodexTest
             { 2, 0, true, { 0x0 }, { 0xf2, 0x81, 0x82, 0x79 } }, // Invalid 4-byte sequence truncated at the end of the chunk
             { 3, 0, true, { 0x0 }, { 0xf2, 0x81, 0x82, 0x79 } }, // Invalid 4-byte sequence truncated at the end of the chunk
         };
-        
+
         RunUtf8DecodeTestCase(testCases, utf8::DecodeUnitsIntoAndNullTerminateNoAdvance);
     }
 };

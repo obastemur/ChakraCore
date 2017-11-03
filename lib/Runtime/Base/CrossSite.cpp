@@ -360,7 +360,7 @@ namespace Js
         if (funcInfo->HasBody())
         {
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
             entryPoint = ScriptFunction::FromVar(function)->GetEntryPointInfo()->jsMethod;
             if (funcInfo->IsDeferred() && scriptContext->IsProfiling())

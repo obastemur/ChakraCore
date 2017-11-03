@@ -141,8 +141,8 @@ namespace Js
 
         bool IsOnWrongThread() const;
 
-        static RequiredEncoding GetRequiredEncoding( const char16* sz, uint length );
-        static uint CountEmbeddedNULs( const char16* sz, uint length );
+        static RequiredEncoding GetRequiredEncoding( const CHAR_T* sz, uint length );
+        static uint CountEmbeddedNULs( const CHAR_T* sz, uint length );
 
         class HistogramIndex
         {
@@ -167,7 +167,7 @@ namespace Js
         static void PrintUintOrLarge( uint val );
         static void PrintOneConcat( UintUintPair const& key, const ConcatMetrics& metrics);
 
-        void RecordNewString( const char16* sz, uint length );
+        void RecordNewString( const CHAR_T* sz, uint length );
         void RecordConcatenation( uint lenLeft, uint lenRight, ConcatType type);
 
         static const uint k_MaxConcatLength = 20; // Strings longer than this are just "large"
@@ -177,7 +177,7 @@ namespace Js
 
         void PrintAll();
 
-        static void RecordNewString( ScriptContext* scriptContext, const char16* sz, uint length );
+        static void RecordNewString( ScriptContext* scriptContext, const CHAR_T* sz, uint length );
         static void RecordConcatenation( ScriptContext* scriptContext, uint lenLeft, uint lenRight, ConcatType type = ConcatType_Unknown);
         static void RecordEmptyStringRequest( ScriptContext* scriptContext );
         static void RecordSingleCharStringRequest( ScriptContext* scriptContext );

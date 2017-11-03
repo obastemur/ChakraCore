@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------------------------------------------
 #pragma once
 
-//This file contains definitions for data structures that track info about the runtime (ThreadContext and ScriptContexts) 
+//This file contains definitions for data structures that track info about the runtime (ThreadContext and ScriptContexts)
 //that are needed by other parts of the TTD system
 
 #if ENABLE_TTD
@@ -60,7 +60,7 @@ namespace TTD
         //Callback functions provided by the host for writing info to some type of storage location
         TTDataIOInfo TTDataIOInfo;
 
-        //Callback functions provided by the host for creating external objects 
+        //Callback functions provided by the host for creating external objects
         ExternalObjectFunctions TTDExternalObjectFunctions;
 
         ThreadContextTTD(ThreadContext* threadContext, void* runtimeHandle, uint32 snapInterval, uint32 snapHistoryLength);
@@ -203,7 +203,7 @@ namespace TTD
 
     //////////////////
 
-    //This class implements the data structures and algorithms needed to manage the ScriptContext core image 
+    //This class implements the data structures and algorithms needed to manage the ScriptContext core image
     class RuntimeContextInfo
     {
     private:
@@ -225,13 +225,13 @@ namespace TTD
         JsUtil::List<Js::DebuggerScope*, HeapAllocator> m_sortedDbgScopeList;
 
         //Build a path string based on a given name
-        void BuildPathString(UtilSupport::TTAutoString, const char16* name, const char16* optaccessortag, UtilSupport::TTAutoString& into);
+        void BuildPathString(UtilSupport::TTAutoString, const CHAR_T* name, const CHAR_T* optaccessortag, UtilSupport::TTAutoString& into);
 
         //Ensure that when we do our core visit make sure that the properties always appear in the same order
         static void LoadAndOrderPropertyNames(Js::RecyclableObject* obj, JsUtil::List<const Js::PropertyRecord*, HeapAllocator>& propertyList);
         static bool PropertyNameCmp(const Js::PropertyRecord* p1, const Js::PropertyRecord* p2);
         ////
-        
+
     public:
         RuntimeContextInfo();
         ~RuntimeContextInfo();
@@ -255,14 +255,14 @@ namespace TTD
         ////
 
         //Enqueue a root object in our core path walk
-        void EnqueueRootPathObject(const char16* rootName, Js::RecyclableObject* obj);
+        void EnqueueRootPathObject(const CHAR_T* rootName, Js::RecyclableObject* obj);
 
-        //Enqueue a child object that is stored at the given property in the parent 
-        void EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const Js::PropertyRecord* prop, const char16* optacessortag = nullptr);
-        void EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const char16* propName, const char16* optacessortag = nullptr);
+        //Enqueue a child object that is stored at the given property in the parent
+        void EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const Js::PropertyRecord* prop, const CHAR_T* optacessortag = nullptr);
+        void EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const CHAR_T* propName, const CHAR_T* optacessortag = nullptr);
 
         //Enqueue a child object that is stored at a special named location in the parent object
-        void EnqueueNewFunctionBodyObject(Js::RecyclableObject* parent, Js::FunctionBody* fbody, const char16* name);
+        void EnqueueNewFunctionBodyObject(Js::RecyclableObject* parent, Js::FunctionBody* fbody, const CHAR_T* name);
 
         //Add a well known token for a debugger scope object (in a slot array)
         void AddWellKnownDebuggerScopePath(Js::RecyclableObject* parent, Js::DebuggerScope* dbgScope, uint32 index);
@@ -317,7 +317,7 @@ namespace TTD
     }
 
     template <typename T, bool mustFind>
-    int32 LookupPositionInDictNameList(const char16* key, const JsUtil::BaseDictionary<T, UtilSupport::TTAutoString*, HeapAllocator>& objToNameMap, const JsUtil::List<T, HeapAllocator>& sortedObjList, const UtilSupport::TTAutoString& nullString)
+    int32 LookupPositionInDictNameList(const CHAR_T* key, const JsUtil::BaseDictionary<T, UtilSupport::TTAutoString*, HeapAllocator>& objToNameMap, const JsUtil::List<T, HeapAllocator>& sortedObjList, const UtilSupport::TTAutoString& nullString)
     {
         AssertMsg(sortedObjList.Count() != 0, "We are using this for matching so obviously no match and there is a problem.");
 
@@ -342,7 +342,7 @@ namespace TTD
 
         }
         TTDAssert(imin == imax, "Something went wrong!!!");
-        
+
         const UtilSupport::TTAutoString* resStr = objToNameMap.Item(sortedObjList.Item(imin));
         if(mustFind)
         {

@@ -333,10 +333,10 @@ namespace JSON
     class JSONSpace
     {
     public:
-        static char16  Buffer[JSONspaceSize];
+        static CHAR_T  Buffer[JSONspaceSize];
         JSONSpace() { wmemset(Buffer, _u(' '), JSONspaceSize); }
     };
-    char16 JSONSpace::Buffer[JSONspaceSize];
+    CHAR_T JSONSpace::Buffer[JSONspaceSize];
     static JSONSpace jsonSpace;
 
     void StringifySession::CompleteInit(Js::Var space, ArenaAllocator* tempAlloc)

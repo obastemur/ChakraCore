@@ -201,7 +201,7 @@ namespace Js
         T* constTable = (T*)table;
         if (nConsts > 0)
         {
-            char16 buf[32];
+            CHAR_T buf[32];
             WAsmJs::RegisterSpace::GetTypeDebugName(type, buf, 32);
             Output::Print(_u("    Constant %s:\n    ======== =======\n    "), buf);
             WAsmJs::RegisterSpace::GetTypeDebugName(type, buf, 32, true);
@@ -975,7 +975,7 @@ namespace Js
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmSimdTypedArr(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
     {
-        const char16* heapTag = nullptr;
+        const CHAR_T* heapTag = nullptr;
 
         switch (data->ViewType)
         {

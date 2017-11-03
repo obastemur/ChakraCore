@@ -454,7 +454,7 @@ Js::DynamicObject * JsrtDebuggerStackFrame::GetLocalsObject(Js::ScriptContext* s
     return propertiesObject;
 }
 
-bool JsrtDebuggerStackFrame::Evaluate(Js::ScriptContext* scriptContext, const char16 *source, int sourceLength, bool isLibraryCode, bool forceSetValueProp, Js::DynamicObject** evalResult)
+bool JsrtDebuggerStackFrame::Evaluate(Js::ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, bool isLibraryCode, bool forceSetValueProp, Js::DynamicObject** evalResult)
 {
     *evalResult = nullptr;
     bool success = false;
@@ -499,11 +499,11 @@ bool JsrtDebuggerStackFrame::Evaluate(Js::ScriptContext* scriptContext, const ch
             resolvedObject.scriptContext = frameScriptContext;
 
             charcount_t len = Js::JavascriptString::GetBufferLength(source);
-            resolvedObject.name = AnewNoThrowArray(this->debuggerObjectsManager->GetDebugObjectArena(), WCHAR, len + 1);
+            resolvedObject.name = AnewNoThrowArray(this->debuggerObjectsManager->GetDebugObjectArena(), CHAR_T, len + 1);
 
             if (resolvedObject.name != nullptr)
             {
-                wcscpy_s((WCHAR*)resolvedObject.name, len + 1, source);
+                cstrcpy_s((CHAR_T*)resolvedObject.name, len + 1, source);
             }
             else
             {
@@ -563,9 +563,9 @@ Js::DynamicObject * JsrtDebuggerObjectProperty::GetJSONObject(Js::ScriptContext*
     {
         propertyObject = scriptContext->GetLibrary()->CreateObject();
 
-        LPCWSTR name = objectDisplayRef->Name();
+        LPCCHAR_T name = objectDisplayRef->Name();
 
-        JsrtDebugUtils::AddPropertyToObject(propertyObject, JsrtDebugPropertyId::name, name, wcslen(name), scriptContext);
+        JsrtDebugUtils::AddPropertyToObject(propertyObject, JsrtDebugPropertyId::name, name, cstrlen(name), scriptContext);
 
         JsrtDebugUtils::AddPropertyType(propertyObject, objectDisplayRef, scriptContext, forceSetValueProp); // Will add type, value, display, className, propertyAttributes
 
@@ -698,7 +698,7 @@ JsrtDebuggerObjectBase * JsrtDebuggerObjectFunction::Make(JsrtDebuggerObjectsMan
     JsrtDebuggerObjectBase* debuggerObject = nullptr;
 
     Assert(!debuggerObjectsManager->TryGetDataFromDataToDebuggerObjectsDictionary(javascriptFunction, &debuggerObject));
-    
+
     debuggerObject = Anew(debuggerObjectsManager->GetDebugObjectArena(), JsrtDebuggerObjectFunction, debuggerObjectsManager, javascriptFunction);
 
     debuggerObjectsManager->AddToDataToDebuggerObjectsDictionary(javascriptFunction, debuggerObject);

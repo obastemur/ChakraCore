@@ -61,7 +61,7 @@ typedef uint64_t uint64;
 class Output
 {
 public:
-    static size_t __cdecl Print(const char16 *form, ...);
+    static size_t __cdecl Print(const CHAR_T *form, ...);
 };
 #endif
 
@@ -146,19 +146,19 @@ namespace Intl
     // NumberFormat offers no indicator fields or convenience methods to convert to a DecimalFormat, as ICU expects RTTI to be enabled
     // As such, RTTI is enabled only in the PlatformAgnostic project and only if IntlICU=true
 
-    // lots of logic below requires utf8char_t ~= char and UChar ~= char16
+    // lots of logic below requires utf8char_t ~= char and UChar ~= CHAR_T
     static_assert(sizeof(utf8char_t) == sizeof(char), "ICU-based Intl logic assumes that utf8char_t is compatible with char");
 
     // [[ Ctrl-F: UChar_cast_explainer ]]
-    // UChar, like char16, is guaranteed to be 2 bytes on all platforms.
+    // UChar, like CHAR_T, is guaranteed to be 2 bytes on all platforms.
     // However, we cannot use static_cast because on Windows:
-    // - char16 => WCHAR => wchar_t (native type) -- see Core/CommonTypedefs.h or Codex/Utf8Codex.h
-    // - (wchar_t is a native 2-byte type on Windows, but native 4-byte elsewhere)
+    // - CHAR_T => CHAR_T => CHAR_T_t (native type) -- see Core/CommonTypedefs.h or Codex/Utf8Codex.h
+    // - (CHAR_T_t is a native 2-byte type on Windows, but native 4-byte elsewhere)
     // On other platforms:
-    // - char16 => char16_t -- see pal/inc/pal_mstypes.h
+    // - CHAR_T => char16_t -- see pal/inc/pal_mstypes.h
     // All platforms:
     // - UChar -> char16_t (all platforms)
-    static_assert(sizeof(UChar) == sizeof(char16), "ICU-based Intl logic assumes that UChar is compatible with char16");
+    static_assert(sizeof(UChar) == sizeof(CHAR_T), "ICU-based Intl logic assumes that UChar is compatible with CHAR_T");
 
     // This function duplicates the Utf8Helper.h classes/methods
     // See https://github.com/Microsoft/ChakraCore/pull/3913 for a (failed) attempt to use those directly
@@ -166,7 +166,7 @@ namespace Intl
     // The caller is responsible for delete[]ing the memory returned here
     // TODO(jahorto): As long as this function exists, it _must_ be kept in sync with utf8::WideStringToNarrow (Utf8Helper.h)
     // TODO(jahorto 10/13/2017): This function should not exist for long, and should eventually be replaced with official utf8:: code
-    static utf8char_t *Utf16ToUtf8(_In_ const char16 *src, _In_ const charcount_t srcLength, _Out_ size_t *destLength)
+    static utf8char_t *Utf16ToUtf8(_In_ const CHAR_T *src, _In_ const charcount_t srcLength, _Out_ size_t *destLength)
     {
         // Allocate memory for the UTF8 output buffer. Need 3 bytes for each (code point + null) to satisfy SAL.
         size_t allocSize = AllocSizeMath::Mul(AllocSizeMath::Add(srcLength, 1), 3);
@@ -181,19 +181,19 @@ namespace Intl
         return dest;
     }
 
-    bool IsWellFormedLanguageTag(_In_z_ const char16 *langtag16, _In_ const charcount_t cch)
+    bool IsWellFormedLanguageTag(_In_z_ const CHAR_T *langtag16, _In_ const charcount_t cch)
     {
         UErrorCode error = UErrorCode::U_ZERO_ERROR;
         char icuLocaleId[ULOC_FULLNAME_CAPACITY] = { 0 };
         char icuLangTag[ULOC_FULLNAME_CAPACITY] = { 0 };
-        
+
         size_t langtag8Length = 0;
         const utf8char_t *langtag8 = Utf16ToUtf8(langtag16, cch, &langtag8Length);
         StringBufferAutoPtr<utf8char_t> guard(langtag8);
         CHECK_UTF_CONVERSION(langtag8, false);
 
         // Convert input language tag to a locale ID for use in uloc_toLanguageTag API.
-        // We used utf8 conversion to turn char16* into utf8char_t* (unsigned char *) but uloc_forLanguageTag takes char*
+        // We used utf8 conversion to turn CHAR_T* into utf8char_t* (unsigned char *) but uloc_forLanguageTag takes char*
         // LangTags must be 7-bit-ASCII to be valid and any of these chars being "negative" is irrelevant.
         int32_t parsedLength = 0;
         int32_t forLangTagResultLength = uloc_forLanguageTag(reinterpret_cast<const char *>(langtag8),
@@ -206,8 +206,8 @@ namespace Intl
         return true;
     }
 
-    HRESULT NormalizeLanguageTag(_In_z_ const char16 *languageTag, _In_ const charcount_t cch,
-        _Out_ char16 *normalized, _Out_ size_t *normalizedLength)
+    HRESULT NormalizeLanguageTag(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch,
+        _Out_ CHAR_T *normalized, _Out_ size_t *normalizedLength)
     {
         UErrorCode error = UErrorCode::U_ZERO_ERROR;
         char icuLocaleId[ULOC_FULLNAME_CAPACITY] = { 0 };
@@ -219,7 +219,7 @@ namespace Intl
         CHECK_UTF_CONVERSION(langtag8, E_OUTOFMEMORY);
 
         // Convert input language tag to a locale ID for use in uloc_toLanguageTag API.
-        // We used utf8 conversion to turn char16* into utf8char_t* (unsigned char *) but uloc_forLanguageTag takes char*
+        // We used utf8 conversion to turn CHAR_T* into utf8char_t* (unsigned char *) but uloc_forLanguageTag takes char*
         // LangTags must be 7-bit-ASCII to be valid and any of these chars being "negative" is irrelevant.
         int32_t parsedLength = 0;
         int32_t forLangTagResultLength = uloc_forLanguageTag(reinterpret_cast<const char *>(langtag8),
@@ -239,7 +239,7 @@ namespace Intl
         return S_OK;
     }
 
-    int32_t GetCurrencyFractionDigits(_In_z_ const char16 * currencyCode)
+    int32_t GetCurrencyFractionDigits(_In_z_ const CHAR_T * currencyCode)
     {
         UErrorCode error = UErrorCode::U_ZERO_ERROR;
         const UChar *uCurrencyCode = reinterpret_cast<const UChar *>(currencyCode);
@@ -259,7 +259,7 @@ namespace Intl
     }
 
     template <typename Func>
-    HRESULT CreateFormatter(Func formatterFactory, _In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
+    HRESULT CreateFormatter(Func formatterFactory, _In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
     {
         UErrorCode error = UErrorCode::U_ZERO_ERROR;
 
@@ -296,22 +296,22 @@ namespace Intl
         return S_OK;
     }
 
-    HRESULT CreateNumberFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
+    HRESULT CreateNumberFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
     {
         return CreateFormatter(
             [](icu::Locale &locale, UErrorCode &error) { return icu::NumberFormat::createInstance(locale, error); },
             languageTag, cch, resource);
     }
 
-    HRESULT CreatePercentFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
+    HRESULT CreatePercentFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource)
     {
         return CreateFormatter(
             [](icu::Locale &locale, UErrorCode &error) { return icu::NumberFormat::createPercentInstance(locale, error); },
             languageTag, cch, resource);
     }
 
-    HRESULT CreateCurrencyFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch,
-        _In_z_ const char16 *currencyCode, _In_ const NumberFormatCurrencyDisplay currencyDisplay, _Out_ IPlatformAgnosticResource **resource)
+    HRESULT CreateCurrencyFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch,
+        _In_z_ const CHAR_T *currencyCode, _In_ const NumberFormatCurrencyDisplay currencyDisplay, _Out_ IPlatformAgnosticResource **resource)
     {
         return CreateFormatter(
             [&currencyDisplay, currencyCode](icu::Locale &locale, UErrorCode &error) -> icu::NumberFormat*
@@ -385,14 +385,14 @@ namespace Intl
     // We explicitly declare these specializations of FormatNumber so the compiler creates them
     // because they will be used in another compilation unit,
     // at which time we cannot generate code for specializations of this template.
-    template const char16 *FormatNumber<>(IPlatformAgnosticResource *formatter, const int32_t val, const NumberFormatStyle formatterToUse,
-        const NumberFormatCurrencyDisplay currencyDisplay, const char16 *currencyCode);
-    template const char16 *FormatNumber<>(IPlatformAgnosticResource *formatter, const double val, const NumberFormatStyle formatterToUse,
-        const NumberFormatCurrencyDisplay currencyDisplay, const char16 *currencyCode);
+    template const CHAR_T *FormatNumber<>(IPlatformAgnosticResource *formatter, const int32_t val, const NumberFormatStyle formatterToUse,
+        const NumberFormatCurrencyDisplay currencyDisplay, const CHAR_T *currencyCode);
+    template const CHAR_T *FormatNumber<>(IPlatformAgnosticResource *formatter, const double val, const NumberFormatStyle formatterToUse,
+        const NumberFormatCurrencyDisplay currencyDisplay, const CHAR_T *currencyCode);
 
     template <typename T>
-    const char16 *FormatNumber(IPlatformAgnosticResource *formatter, const T val, const NumberFormatStyle formatterToUse,
-        const NumberFormatCurrencyDisplay currencyDisplay, const char16 *currencyCode)
+    const CHAR_T *FormatNumber(IPlatformAgnosticResource *formatter, const T val, const NumberFormatStyle formatterToUse,
+        const NumberFormatCurrencyDisplay currencyDisplay, const CHAR_T *currencyCode)
     {
         icu::UnicodeString result;
 
@@ -449,27 +449,27 @@ namespace Intl
         }
 
         int32_t length = result.length();
-        char16 *ret = new char16[length + 1];
+        CHAR_T *ret = new CHAR_T[length + 1];
         result.extract(0, length, reinterpret_cast<UChar *>(ret)); // Ctrl-F: UChar_cast_explainer
         ret[length] = 0;
         return ret;
     }
 
-    bool ResolveLocaleLookup(_In_z_ const char16 *locale, _Out_ char16 *resolved)
+    bool ResolveLocaleLookup(_In_z_ const CHAR_T *locale, _Out_ CHAR_T *resolved)
     {
         // TODO (doilij): implement ResolveLocaleLookup
         resolved[0] = '\0';
         return false;
     }
 
-    bool ResolveLocaleBestFit(_In_z_ const char16 *locale, _Out_ char16 *resolved)
+    bool ResolveLocaleBestFit(_In_z_ const CHAR_T *locale, _Out_ CHAR_T *resolved)
     {
         // Note: the "best fit" matcher is implementation-defined, so it is okay to return the same result as ResolveLocaleLookup.
         // TODO (doilij): implement a better "best fit" matcher
         return ResolveLocaleLookup(locale, resolved);
     }
 
-    size_t GetUserDefaultLanguageTag(_Out_ char16* langtag, _In_ size_t cchLangtag)
+    size_t GetUserDefaultLanguageTag(_Out_ CHAR_T* langtag, _In_ size_t cchLangtag)
     {
         UErrorCode error = UErrorCode::U_ZERO_ERROR;
         char bcp47[ULOC_FULLNAME_CAPACITY] = { 0 };

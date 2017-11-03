@@ -107,7 +107,7 @@ Js::JavascriptMethod Js::WasmLibrary::WasmDeferredParseEntryPoint(Js::AsmJsScrip
         }
         catch (Wasm::WasmCompilationException& ex)
         {
-            char16* originalMessage = ex.ReleaseErrorMessage();
+            CHAR_T* originalMessage = ex.ReleaseErrorMessage();
             Wasm::BinaryLocation location = readerInfo->m_module->GetReader()->GetCurrentLocation();
 
             Wasm::WasmCompilationException newEx(
@@ -118,7 +118,7 @@ Js::JavascriptMethod Js::WasmLibrary::WasmDeferredParseEntryPoint(Js::AsmJsScrip
                 originalMessage
             );
             SysFreeString(originalMessage);
-            char16* msg = newEx.ReleaseErrorMessage();
+            CHAR_T* msg = newEx.ReleaseErrorMessage();
             JavascriptLibrary *library = scriptContext->GetLibrary();
             JavascriptError *pError = library->CreateWebAssemblyCompileError();
             JavascriptError::SetErrorMessage(pError, WASMERR_WasmCompileError, msg, scriptContext);

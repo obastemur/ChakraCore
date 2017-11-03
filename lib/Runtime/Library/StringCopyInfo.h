@@ -15,18 +15,18 @@ namespace Js
     {
     private:
         JavascriptString *sourceString;
-        char16 *destinationBuffer;
+        CHAR_T *destinationBuffer;
     #if DBG
         bool isInitialized;
     #endif
 
     public:
         StringCopyInfo();
-        StringCopyInfo(JavascriptString *const sourceString, _Inout_count_(sourceString->m_charLength) char16 *const destinationBuffer);
+        StringCopyInfo(JavascriptString *const sourceString, _Inout_count_(sourceString->m_charLength) CHAR_T *const destinationBuffer);
 
     public:
         JavascriptString *SourceString() const;
-        char16 *DestinationBuffer() const;
+        CHAR_T *DestinationBuffer() const;
 
     private:
         static void InstantiateForceInlinedMembers();

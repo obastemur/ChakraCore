@@ -9,7 +9,7 @@
 
 #if DBG_DUMP || ENABLE_DEBUG_CONFIG_OPTIONS
 extern char const * const RegNames[];
-extern char16 const * const RegNamesW[];
+extern CHAR_T const * const RegNamesW[];
 #endif
 
 class OpHelperBlock;

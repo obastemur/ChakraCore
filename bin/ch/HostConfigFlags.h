@@ -15,18 +15,18 @@ public:
 #include "HostConfigFlagsList.h"
 
     static HostConfigFlags flags;
-    static LPWSTR* argsVal;
+    static LPCHAR_T* argsVal;
     static int argsCount;
     static void(__stdcall *pfnPrintUsage)();
 
-    static void HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) LPWSTR argv[]);
+    static void HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) LPCHAR_T argv[]);
     static void RemoveArg(int& argc, _Inout_updates_to_(argc, argc) PWSTR argv[], int index);
     static int FindArg(int argc, _In_reads_(argc) PWSTR argv[], PCWSTR targetArg, size_t targetArgLen);
 
     template <class Func> static int FindArg(int argc, _In_reads_(argc) PWSTR argv[], Func func);
-    template <int LEN> static int FindArg(int argc, _In_reads_(argc) PWSTR argv[], const char16(&targetArg)[LEN]);
+    template <int LEN> static int FindArg(int argc, _In_reads_(argc) PWSTR argv[], const CHAR_T(&targetArg)[LEN]);
 
-    virtual bool ParseFlag(LPCWSTR flagsString, ICmdLineArgsParser * parser) override;
+    virtual bool ParseFlag(LPCCHAR_T flagsString, ICmdLineArgsParser * parser) override;
     virtual void PrintUsage() override;
     static void PrintUsageString();
 
@@ -54,7 +54,7 @@ int HostConfigFlags::FindArg(int argc, _In_reads_(argc) PWSTR argv[], Func func)
 }
 
 template <int LEN>
-int HostConfigFlags::FindArg(int argc, _In_reads_(argc) PWSTR argv[], const char16(&targetArg)[LEN])
+int HostConfigFlags::FindArg(int argc, _In_reads_(argc) PWSTR argv[], const CHAR_T(&targetArg)[LEN])
 {
     return FindArg(argc, argv, targetArg, LEN - 1); // -1 to exclude null terminator
 }

@@ -14,7 +14,7 @@ namespace Js
         FieldNoBarrier(ArenaData **) externalGuestArenaRef;
         FieldNoBarrier(Recycler *) recycler;
 
-        TempArenaAllocatorWrapper(__in LPCWSTR name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)());
+        TempArenaAllocatorWrapper(__in LPCCHAR_T name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)());
 
     public:
 

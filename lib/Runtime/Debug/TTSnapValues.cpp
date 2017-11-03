@@ -297,13 +297,13 @@ namespace TTD
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::SlotArray, next);
         }
 
-        void AssertSnapEquivTTDVar_Special(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const char16* specialField)
+        void AssertSnapEquivTTDVar_Special(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const CHAR_T* specialField)
         {
             TTDComparePath::PathEntry next{ -1, specialField };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::Special, next);
         }
 
-        void AssertSnapEquivTTDVar_SpecialArray(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const char16* specialField, uint32 index)
+        void AssertSnapEquivTTDVar_SpecialArray(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const CHAR_T* specialField, uint32 index)
         {
             TTDComparePath::PathEntry next{ index, specialField };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::SpecialArray, next);
@@ -1089,9 +1089,9 @@ namespace TTD
 
             if(emitInline || IsNullPtrTTString(fbInfo->SourceUri))
             {
-                TTDAssert(!fbInfo->IsUtf8, "Should only emit char16 encoded data in inline mode.");
+                TTDAssert(!fbInfo->IsUtf8, "Should only emit CHAR_T encoded data in inline mode.");
 
-                writer->WriteInlineCode((char16*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(char16), NSTokens::Separator::CommaSeparator);
+                writer->WriteInlineCode((CHAR_T*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(CHAR_T), NSTokens::Separator::CommaSeparator);
             }
             else
             {
@@ -1120,9 +1120,9 @@ namespace TTD
 
             if(parseInline || IsNullPtrTTString(fbInfo->SourceUri))
             {
-                TTDAssert(!fbInfo->IsUtf8, "Should only emit char16 encoded data in inline mode.");
+                TTDAssert(!fbInfo->IsUtf8, "Should only emit CHAR_T encoded data in inline mode.");
 
-                reader->ReadInlineCode((char16*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(char16), true);
+                reader->ReadInlineCode((CHAR_T*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(CHAR_T), true);
             }
             else
             {
@@ -1176,13 +1176,13 @@ namespace TTD
             TTDAssert(ctx->GetSourceContextInfo((DWORD_PTR)sourceContext, nullptr) == nullptr, "On inflate we should either have clean ctxts or we want to optimize the inflate process by skipping redoing this work!!!");
             TTDAssert(fbInfo->TopLevelBase.IsUtf8 == ((fbInfo->LoadFlag & LoadScriptFlag_Utf8Source) == LoadScriptFlag_Utf8Source), "Utf8 status is inconsistent!!!");
 
-            const char16* srcUri = fbInfo->TopLevelBase.SourceUri.Contents;
+            const CHAR_T* srcUri = fbInfo->TopLevelBase.SourceUri.Contents;
             uint32 srcUriLength = fbInfo->TopLevelBase.SourceUri.Length;
 
             SourceContextInfo * sourceContextInfo = ctx->CreateSourceContextInfo((DWORD_PTR)sourceContext, srcUri, srcUriLength, nullptr);
 
-            TTDAssert(fbInfo->TopLevelBase.IsUtf8 || sizeof(wchar) == sizeof(char16), "Non-utf8 code only allowed on windows!!!");
-            const int chsize = (fbInfo->LoadFlag & LoadScriptFlag_Utf8Source) ? sizeof(char) : sizeof(char16);
+            TTDAssert(fbInfo->TopLevelBase.IsUtf8 || sizeof(CHAR_T) == sizeof(CHAR_T), "Non-utf8 code only allowed on windows!!!");
+            const int chsize = (fbInfo->LoadFlag & LoadScriptFlag_Utf8Source) ? sizeof(char) : sizeof(CHAR_T);
             SRCINFO si = {
                 /* sourceContextInfo   */ sourceContextInfo,
                 /* dlnHost             */ 0,
@@ -1272,9 +1272,9 @@ namespace TTD
         ////
         //'new Function(...)' functions
 
-        void ExtractTopLevelNewFunctionBodyInfo(TopLevelNewFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint32 topLevelCtr, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, SlabAllocator& alloc)
+        void ExtractTopLevelNewFunctionBodyInfo(TopLevelNewFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint32 topLevelCtr, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen, SlabAllocator& alloc)
         {
-            NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(char16), alloc);
+            NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(CHAR_T), alloc);
         }
 
         Js::FunctionBody* InflateTopLevelNewFunctionBodyInfo(const TopLevelNewFunctionBodyResolveInfo* fbInfo, Js::ScriptContext* ctx)
@@ -1283,8 +1283,8 @@ namespace TTD
             Js::ModuleID moduleID = kmodGlobal;
             BOOL strictMode = FALSE;
 
-            char16* source = (char16*)fbInfo->TopLevelBase.SourceBuffer;
-            int32 length = (int32)(fbInfo->TopLevelBase.ByteLength / sizeof(char16));
+            CHAR_T* source = (CHAR_T*)fbInfo->TopLevelBase.SourceBuffer;
+            int32 length = (int32)(fbInfo->TopLevelBase.ByteLength / sizeof(CHAR_T));
 
             Js::JavascriptFunction* pfuncScript = ctx->GetGlobalObject()->EvalHelper(ctx, source, length, moduleID, fscrNil, Js::Constants::FunctionCode, TRUE, TRUE, strictMode);
             TTDAssert(pfuncScript != nullptr, "Something went wrong!!!");
@@ -1328,9 +1328,9 @@ namespace TTD
         ////
         //'eval(...)' functions
 
-        void ExtractTopLevelEvalFunctionBodyInfo(TopLevelEvalFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint32 topLevelCtr, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode, SlabAllocator& alloc)
+        void ExtractTopLevelEvalFunctionBodyInfo(TopLevelEvalFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint32 topLevelCtr, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode, SlabAllocator& alloc)
         {
-            NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(char16), alloc);
+            NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(CHAR_T), alloc);
 
             fbInfo->EvalFlags = grfscr;
             fbInfo->RegisterDocument = registerDocument;
@@ -1342,8 +1342,8 @@ namespace TTD
         {
             uint32 grfscr = ((uint32)fbInfo->EvalFlags) | fscrReturnExpression | fscrEval | fscrEvalCode | fscrGlobalCode;
 
-            char16* source = (char16*)fbInfo->TopLevelBase.SourceBuffer;
-            int32 sourceLen = (int32)(fbInfo->TopLevelBase.ByteLength / sizeof(char16));
+            CHAR_T* source = (CHAR_T*)fbInfo->TopLevelBase.SourceBuffer;
+            int32 sourceLen = (int32)(fbInfo->TopLevelBase.ByteLength / sizeof(CHAR_T));
             Js::ScriptFunction* pfuncScript = ctx->GetLibrary()->GetGlobalObject()->EvalHelper(ctx, source, sourceLen, fbInfo->TopLevelBase.ModuleId, grfscr, Js::Constants::EvalCode, fbInfo->RegisterDocument, fbInfo->IsIndirect, fbInfo->IsStrictMode);
             Assert(!pfuncScript->GetFunctionInfo()->IsGenerator());
 
@@ -1484,7 +1484,7 @@ namespace TTD
             }
             else
             {
-                const char16* fname = resfb->GetDisplayName();
+                const CHAR_T* fname = resfb->GetDisplayName();
                 for(uint32 i = 0; i < fbInfo->FunctionName.Length; ++i)
                 {
                     updateName |= (fbInfo->FunctionName.Contents[i] != fname[i]);
@@ -1902,7 +1902,7 @@ namespace TTD
             reader->ReadRecordEnd();
         }
 
-#if ENABLE_SNAPSHOT_COMPARE 
+#if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapContext* snapCtx1, const SnapContext* snapCtx2, const JsUtil::BaseDictionary<TTD_LOG_PTR_ID, NSSnapValues::SnapRootInfoEntry*, HeapAllocator>& allRootMap1, const JsUtil::BaseDictionary<TTD_LOG_PTR_ID, NSSnapValues::SnapRootInfoEntry*, HeapAllocator>& allRootMap2, TTDCompareMap& compareMap)
         {
             compareMap.DiagnosticAssert(snapCtx1->ScriptContextLogId == snapCtx2->ScriptContextLogId);

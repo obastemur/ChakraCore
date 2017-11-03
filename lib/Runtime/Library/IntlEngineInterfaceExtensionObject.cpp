@@ -103,7 +103,7 @@ using namespace PlatformAgnostic::Resource;
     Js::JavascriptOperators::GetProperty(obj, propertyID, &propertyValue, scriptContext) \
 
 #define GetPropertyLFrom(obj, propertyName) \
-    GetPropertyFrom(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, wcslen(propertyName)))
+    GetPropertyFrom(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, cstrlen(propertyName)))
 
 #define GetPropertyBuiltInFrom(obj, builtInPropID) \
     GetPropertyFrom(obj, Js::PropertyIds::builtInPropID) \
@@ -118,7 +118,7 @@ using namespace PlatformAgnostic::Resource;
     HasPropertyOn(obj, Js::PropertyIds::builtInPropID) \
 
 #define HasPropertyLOn(obj, propertyName) \
-    HasPropertyOn(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, wcslen(propertyName)))
+    HasPropertyOn(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, cstrlen(propertyName)))
 
 #ifdef INTL_WINGLOB
 
@@ -663,10 +663,10 @@ namespace Js
         JavascriptString *retVal;
 
 #if defined(INTL_ICU)
-        // `normalized` will be filled by converting a char* (of utf8 bytes) to char16*
+        // `normalized` will be filled by converting a char* (of utf8 bytes) to CHAR_T*
         // Since `len(utf8bytes) >= len(to_char16s(utf8bytes))`,
         // Therefore the max length of that char* (ULOC_FULLNAME_CAPACITY) is big enough to hold the result (including null terminator)
-        char16 normalized[ULOC_FULLNAME_CAPACITY] = { 0 };
+        CHAR_T normalized[ULOC_FULLNAME_CAPACITY] = { 0 };
         size_t normalizedLength = 0;
         hr = NormalizeLanguageTag(argString->GetSz(), argString->GetLength(), normalized, &normalizedLength);
         retVal = Js::JavascriptString::NewCopyBuffer(normalized, static_cast<charcount_t>(normalizedLength), scriptContext);
@@ -701,7 +701,7 @@ namespace Js
         PCWSTR passedLocale = argString->GetSz();
 
 #if defined(INTL_ICU)
-        char16 resolvedLocaleName[ULOC_FULLNAME_CAPACITY] = { 0 };
+        CHAR_T resolvedLocaleName[ULOC_FULLNAME_CAPACITY] = { 0 };
         if (ResolveLocaleLookup(passedLocale, resolvedLocaleName))
         {
             return JavascriptString::NewCopySz(resolvedLocaleName, scriptContext);
@@ -713,7 +713,7 @@ namespace Js
         return scriptContext->GetLibrary()->GetNull();
 #else
         // REVIEW should we zero the whole array for safety?
-        WCHAR resolvedLocaleName[LOCALE_NAME_MAX_LENGTH];
+        CHAR_T resolvedLocaleName[LOCALE_NAME_MAX_LENGTH];
         resolvedLocaleName[0] = '\0';
 
         ResolveLocaleName(passedLocale, resolvedLocaleName, _countof(resolvedLocaleName));
@@ -740,7 +740,7 @@ namespace Js
         PCWSTR passedLocale = argString->GetSz();
 
 #if defined(INTL_ICU)
-        char16 resolvedLocaleName[ULOC_FULLNAME_CAPACITY] = { 0 };
+        CHAR_T resolvedLocaleName[ULOC_FULLNAME_CAPACITY] = { 0 };
         if (ResolveLocaleBestFit(passedLocale, resolvedLocaleName))
         {
             return JavascriptString::NewCopySz(resolvedLocaleName, scriptContext);
@@ -776,7 +776,7 @@ namespace Js
     {
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
-        char16 defaultLocale[LOCALE_NAME_MAX_LENGTH];
+        CHAR_T defaultLocale[LOCALE_NAME_MAX_LENGTH];
         defaultLocale[0] = '\0';
 
         if (
@@ -887,7 +887,7 @@ namespace Js
         // First we have to determine which formatter(number, percent, or currency) we will be using.
         // Note some options might not be present.
         IPlatformAgnosticResource *numberFormatter = nullptr;
-        const char16 *locale = localeJSstr->GetSz();
+        const CHAR_T *locale = localeJSstr->GetSz();
         const charcount_t cch = localeJSstr->GetLength();
 
         NumberFormatStyle formatterToUseVal = NumberFormatStyle::DEFAULT;
@@ -904,7 +904,7 @@ namespace Js
             }
 
             JavascriptString *currencyCodeJsString = JavascriptString::FromVar(propertyValue);
-            const char16 *currencyCode = currencyCodeJsString->GetSz();
+            const CHAR_T *currencyCode = currencyCodeJsString->GetSz();
 
             if (GetTypedPropertyBuiltInFrom(options, __currencyDisplayToUse, TaggedInt))
             {
@@ -1218,7 +1218,7 @@ namespace Js
 #endif
     }
 
-    DWORD getFlagsForSensitivity(LPCWSTR sensitivity)
+    DWORD getFlagsForSensitivity(LPCCHAR_T sensitivity)
     {
         if (wcscmp(sensitivity, _u("base")) == 0)
         {
@@ -1260,8 +1260,8 @@ namespace Js
         JavascriptString* str1 = JavascriptString::FromVar(args.Values[1]);
         JavascriptString* str2 = JavascriptString::FromVar(args.Values[2]);
 
-        WCHAR defaultLocale[LOCALE_NAME_MAX_LENGTH];
-        const char16 *givenLocale = nullptr;
+        CHAR_T defaultLocale[LOCALE_NAME_MAX_LENGTH];
+        const CHAR_T *givenLocale = nullptr;
         defaultLocale[0] = '\0';
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[3]))
@@ -1327,8 +1327,8 @@ namespace Js
         BEGIN_TEMP_ALLOCATOR(tempAllocator, scriptContext, _u("localeCompare"))
         {
             using namespace PlatformAgnostic;
-            char16 * aLeft = nullptr;
-            char16 * aRight = nullptr;
+            CHAR_T * aLeft = nullptr;
+            CHAR_T * aRight = nullptr;
             charcount_t size1 = 0;
             charcount_t size2 = 0;
             auto canonicalEquivalentForm = UnicodeText::NormalizationForm::C;
@@ -1344,12 +1344,12 @@ namespace Js
 
             if (aLeft == nullptr)
             {
-                aLeft = const_cast<char16*>(str1->GetSz());
+                aLeft = const_cast<CHAR_T*>(str1->GetSz());
                 size1 = str1->GetLength();
             }
             if (aRight == nullptr)
             {
-                aRight = const_cast<char16*>(str2->GetSz());
+                aRight = const_cast<CHAR_T*>(str2->GetSz());
                 size2 = str2->GetLength();
             }
 
@@ -1389,7 +1389,7 @@ namespace Js
         }
 
         JavascriptString *argString = JavascriptString::FromVar(args.Values[1]);
-        const char16 *currencyCode = argString->GetSz();
+        const CHAR_T *currencyCode = argString->GetSz();
 
 #if defined(INTL_ICU)
         int32_t digits = GetCurrencyFractionDigits(currencyCode);
@@ -1482,7 +1482,7 @@ namespace Js
 #if defined(INTL_ICU)
         // REVIEW (doilij): Assumes the logic doesn't allow us to get to this point such that this cast is invalid (otherwise, we would throw earlier).
         auto *numberFormatter = reinterpret_cast<AutoIcuJsObject<IPlatformAgnosticResource> *>(hiddenObject)->GetInstance();
-        const char16 *strBuf = nullptr;
+        const CHAR_T *strBuf = nullptr;
         Var propertyValue = nullptr;
 
         NumberFormatStyle formatterToUse = NumberFormatStyle::DEFAULT;
@@ -1491,7 +1491,7 @@ namespace Js
 
         // It is okay for currencyCode to be nullptr if we are NOT formatting a currency.
         // If we are formatting a currency, the Intl.js logic will ensure __currency is set correctly or otherwise will throw so we don't reach here.
-        const char16 *currencyCode = nullptr;
+        const CHAR_T *currencyCode = nullptr;
 
         if (GetTypedPropertyBuiltInFrom(options, __formatterToUse, TaggedInt))
         {
@@ -1518,7 +1518,7 @@ namespace Js
             strBuf = FormatNumber(numberFormatter, val, formatterToUse, currencyDisplay, currencyCode);
         }
 
-        StringBufferAutoPtr<char16> guard(strBuf); // ensure strBuf is deleted no matter what
+        StringBufferAutoPtr<CHAR_T> guard(strBuf); // ensure strBuf is deleted no matter what
 #else
         DelayLoadWindowsGlobalization* wsl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
 

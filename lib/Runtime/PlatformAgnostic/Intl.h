@@ -60,29 +60,29 @@ namespace Intl
         MAX = 3
     };
 
-    bool IsWellFormedLanguageTag(_In_z_ const char16 *languageTag, _In_ const charcount_t cch);
-    HRESULT NormalizeLanguageTag(_In_z_ const char16 *languageTag, _In_ const charcount_t cch,
-        _Out_ char16 *normalized, _Out_ size_t *normalizedLength);
+    bool IsWellFormedLanguageTag(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch);
+    HRESULT NormalizeLanguageTag(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch,
+        _Out_ CHAR_T *normalized, _Out_ size_t *normalizedLength);
 
-    int32_t GetCurrencyFractionDigits(_In_z_ const char16 * currencyCode);
+    int32_t GetCurrencyFractionDigits(_In_z_ const CHAR_T * currencyCode);
 
     template <typename Func>
-    HRESULT CreateFormatter(Func function, _In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
-    HRESULT CreateNumberFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
-    HRESULT CreatePercentFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
-    HRESULT CreateCurrencyFormatter(_In_z_ const char16 *languageTag, _In_ const charcount_t cch,
-        _In_z_ const char16 *currencyCode, _In_ const NumberFormatCurrencyDisplay currencyDisplay, _Out_ IPlatformAgnosticResource **resource);
+    HRESULT CreateFormatter(Func function, _In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
+    HRESULT CreateNumberFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
+    HRESULT CreatePercentFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch, _Out_ IPlatformAgnosticResource **resource);
+    HRESULT CreateCurrencyFormatter(_In_z_ const CHAR_T *languageTag, _In_ const charcount_t cch,
+        _In_z_ const CHAR_T *currencyCode, _In_ const NumberFormatCurrencyDisplay currencyDisplay, _Out_ IPlatformAgnosticResource **resource);
 
     void SetNumberFormatSignificantDigits(IPlatformAgnosticResource *resource, const uint16 minSigDigits, const uint16 maxSigDigits);
     void SetNumberFormatIntFracDigits(IPlatformAgnosticResource *resource, const uint16 minFracDigits, const uint16 maxFracDigits, const uint16 minIntDigits);
     void SetNumberFormatGroupingUsed(_In_ IPlatformAgnosticResource *resource, _In_ const bool isGroupingUsed);
 
     template <typename T>
-    const char16 *FormatNumber(IPlatformAgnosticResource *formatter, const T val, const NumberFormatStyle formatterToUse, const NumberFormatCurrencyDisplay currencyDisplay, const char16 *currencyCode);
+    const CHAR_T *FormatNumber(IPlatformAgnosticResource *formatter, const T val, const NumberFormatStyle formatterToUse, const NumberFormatCurrencyDisplay currencyDisplay, const CHAR_T *currencyCode);
 
-    bool ResolveLocaleLookup(_In_z_ const char16 *locale, _Out_ char16 *resolved);
-    bool ResolveLocaleBestFit(_In_z_ const char16 *locale, _Out_ char16 *resolved);
-    size_t GetUserDefaultLanguageTag(_Out_ char16* langtag, _In_ size_t cchLangtag);
+    bool ResolveLocaleLookup(_In_z_ const CHAR_T *locale, _Out_ CHAR_T *resolved);
+    bool ResolveLocaleBestFit(_In_z_ const CHAR_T *locale, _Out_ CHAR_T *resolved);
+    size_t GetUserDefaultLanguageTag(_Out_ CHAR_T* langtag, _In_ size_t cchLangtag);
 
 } // namespace Intl
 } // namespace PlatformAgnostic

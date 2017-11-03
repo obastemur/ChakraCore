@@ -167,7 +167,7 @@ namespace utf8
     {
         size_t unused;
         return WideStringToNarrow<malloc_allocator>(
-            sourceString, wcslen(sourceString), destStringPtr, &unused);
+            sourceString, cstrlen(sourceString), destStringPtr, &unused);
     }
 
     inline HRESULT NarrowStringToWideDynamic(_In_ LPCSTR sourceString, _Out_ LPWSTR* destStringPtr)
@@ -230,7 +230,7 @@ namespace utf8
         // is used as fallback.
         static size_t Length(LPCWSTR src)
         {
-            return wcslen(src);
+            return cstrlen(src);
         }
 
         static HRESULT Convert(

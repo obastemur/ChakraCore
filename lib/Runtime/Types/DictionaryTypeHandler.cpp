@@ -311,7 +311,7 @@ namespace Js
             {
                 return false;
             }
-            
+
             if (entry->mustBeWritable && (!(descriptor->Attributes & PropertyWritable) || descriptor->IsOrMayBecomeFixed()))
             {
                 return false;
@@ -469,7 +469,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         DictionaryPropertyDescriptor<T>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -586,7 +586,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         DictionaryPropertyDescriptor<T>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -685,7 +685,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         DictionaryPropertyDescriptor<T>* descriptor;
 
         if (propertyMap->TryGetReference(propertyName, &descriptor))
@@ -898,7 +898,7 @@ namespace Js
 
         ScriptContext* scriptContext = instance->GetScriptContext();
         DictionaryPropertyDescriptor<T>* descriptor;
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -2673,7 +2673,7 @@ namespace Js
 
     template <typename T>
     void DictionaryTypeHandlerBase<T>::TraceFixedFieldsBeforeTypeHandlerChange(
-        const char16* oldTypeHandlerName, const char16* newTypeHandlerName,
+        const CHAR_T* oldTypeHandlerName, const CHAR_T* newTypeHandlerName,
         DynamicObject* instance, DynamicTypeHandler* oldTypeHandler,
         DynamicType* oldType, RecyclerWeakReference<DynamicObject>* oldSingletonInstanceBefore)
     {

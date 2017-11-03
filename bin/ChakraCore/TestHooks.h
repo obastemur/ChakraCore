@@ -16,7 +16,7 @@ interface ICustomConfigFlags;
 
 struct TestHooks
 {
-    typedef HRESULT(TESTHOOK_CALL *SetConfigFlagsPtr)(int argc, LPWSTR argv[], ICustomConfigFlags* customConfigFlags);
+    typedef HRESULT(TESTHOOK_CALL *SetConfigFlagsPtr)(int argc, LPCHAR_T argv[], ICustomConfigFlags* customConfigFlags);
     typedef HRESULT(TESTHOOK_CALL *PrintConfigFlagsUsageStringPtr)(void);
     typedef HRESULT(TESTHOOK_CALL *SetAssertToConsoleFlagPtr)(bool flag);
     typedef HRESULT(TESTHOOK_CALL *SetEnableCheckMemoryLeakOutputPtr)(bool flag);

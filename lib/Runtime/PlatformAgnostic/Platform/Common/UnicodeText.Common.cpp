@@ -11,12 +11,12 @@ namespace PlatformAgnostic
 {
 namespace UnicodeText
 {
-CharacterTypeFlags GetLegacyCharacterTypeFlags(char16 ch)
+CharacterTypeFlags GetLegacyCharacterTypeFlags(CHAR_T ch)
 {
     Assert(ch >= 128);
 
-    const char16 lineSeparatorChar = 0x2028;
-    const char16 paraSeparatorChar = 0x2029;
+    const CHAR_T lineSeparatorChar = 0x2028;
+    const CHAR_T paraSeparatorChar = 0x2029;
 
     if (ch == lineSeparatorChar || ch == paraSeparatorChar)
     {
@@ -180,7 +180,7 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
 }
 
 template
-int LogicalStringCompareImpl<char16>(__in const char16* str1, __in const char16* str2);
+int LogicalStringCompareImpl<CHAR_T>(__in const CHAR_T* str1, __in const CHAR_T* str2);
 
 }; // Internal
 #endif // !defined(_WIN32) || ENABLE_TEST_PLATFORM_AGNOSTIC
@@ -189,7 +189,7 @@ int LogicalStringCompareImpl<char16>(__in const char16* str1, __in const char16*
 
 // Unnamespaced test code
 #if ENABLE_TEST_PLATFORM_AGNOSTIC
-void LogicalStringCompareTest(const WCHAR* str1, const WCHAR* str2, int expected)
+void LogicalStringCompareTest(const CHAR_T* str1, const CHAR_T* str2, int expected)
 {
     int compareStringResult = CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE | SORT_DIGITSASNUMBERS, str1, -1, str2, -1);
 
@@ -201,7 +201,7 @@ void LogicalStringCompareTest(const WCHAR* str1, const WCHAR* str2, int expected
 
     compareStringResult = compareStringResult - CSTR_EQUAL;
 
-    int res = PlatformAgnostic::UnicodeText::Internal::LogicalStringCompareImpl<WCHAR>(str1, str2);
+    int res = PlatformAgnostic::UnicodeText::Internal::LogicalStringCompareImpl<CHAR_T>(str1, str2);
     bool passed = res == expected;
 
     if (compareStringResult != expected)

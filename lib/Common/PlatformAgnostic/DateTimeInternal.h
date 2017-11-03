@@ -86,7 +86,7 @@ namespace DateTime
     struct UtilityPlatformData
     {
         // cache always the last date's zone
-        WCHAR standardName[__CC_PA_TIMEZONE_ABVR_NAME_LENGTH];
+        CHAR_T standardName[__CC_PA_TIMEZONE_ABVR_NAME_LENGTH];
         size_t standardNameLength;
     };
 

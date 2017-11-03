@@ -78,7 +78,7 @@ namespace Js
     {
     public:
         static bool IsDigit(int ch);
-        static BOOL FHexDigit(char16 ch, int *pw);
+        static BOOL FHexDigit(CHAR_T ch, int *pw);
         static uint32 MulLu(uint32 lu1, uint32 lu2, uint32 *pluHi);
         static int AddLu(uint32 *plu1, uint32 lu2);
 
@@ -99,12 +99,12 @@ namespace Js
         static double VECTORCALL ReinterpretBits(int64 value);
 
         // Convert a given UINT16 into its corresponding string.
-        // outBufferSize is in WCHAR elements (and used only for ASSERTs)
+        // outBufferSize is in CHAR_T elements (and used only for ASSERTs)
         // Returns the number of characters written to outBuffer (not including the \0)
-        static charcount_t UInt16ToString(uint16 integer, __out __ecount(outBufferSize) WCHAR* outBuffer, charcount_t outBufferSize, char widthForPaddingZerosInsteadSpaces);
+        static charcount_t UInt16ToString(uint16 integer, __out __ecount(outBufferSize) CHAR_T* outBuffer, charcount_t outBufferSize, char widthForPaddingZerosInsteadSpaces);
 
         // Try to parse an integer string to find out if the string contains an index property name.
-        static BOOL TryConvertToUInt32(const char16* str, int length, uint32* intVal);
+        static BOOL TryConvertToUInt32(const CHAR_T* str, int length, uint32* intVal);
 
         static double Modulus(double dblLeft, double dblRight);
 
@@ -119,15 +119,15 @@ namespace Js
         template<typename EncodedChar>
         static double StrToDbl(const EncodedChar *psz, const EncodedChar **ppchLim, bool& likelyInt);
 
-        static BOOL FDblToStr(double dbl, __out_ecount(nDstBufSize) char16 *psz, int nDstBufSize);
-        static int FDblToStr(double dbl, NumberUtilities::FormatType ft, int nDigits, __out_ecount(cchDst) char16 *pchDst, int cchDst);
+        static BOOL FDblToStr(double dbl, __out_ecount(nDstBufSize) CHAR_T *psz, int nDstBufSize);
+        static int FDblToStr(double dbl, NumberUtilities::FormatType ft, int nDigits, __out_ecount(cchDst) CHAR_T *pchDst, int cchDst);
 
-        static BOOL FNonZeroFiniteDblToStr(double dbl, _Out_writes_(nDstBufSize) WCHAR* psz, int nDstBufSize);
-        _Success_(return) static BOOL FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) int radix, _Out_writes_(nDstBufSize) WCHAR* psz, int nDstBufSize);
+        static BOOL FNonZeroFiniteDblToStr(double dbl, _Out_writes_(nDstBufSize) CHAR_T* psz, int nDstBufSize);
+        _Success_(return) static BOOL FNonZeroFiniteDblToStr(double dbl, _In_range_(2, 36) int radix, _Out_writes_(nDstBufSize) CHAR_T* psz, int nDstBufSize);
 
         static double DblFromDecimal(DECIMAL * pdecIn);
 
-        static void CodePointAsSurrogatePair(codepoint_t codePointValue, __out char16* first, __out char16* second);
+        static void CodePointAsSurrogatePair(codepoint_t codePointValue, __out CHAR_T* first, __out CHAR_T* second);
         static codepoint_t SurrogatePairAsCodePoint(codepoint_t first, codepoint_t second);
 
         static bool IsSurrogateUpperPart(codepoint_t codePointValue);

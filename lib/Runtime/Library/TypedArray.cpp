@@ -1864,7 +1864,7 @@ namespace Js
         return JavascriptArray::CopyWithinHelper(nullptr, typedArrayBase, typedArrayBase, length, args, scriptContext);
     }
 
-    Var TypedArrayBase::GetKeysEntriesValuesHelper(Arguments& args, ScriptContext *scriptContext, LPCWSTR apiName, JavascriptArrayIteratorKind kind)
+    Var TypedArrayBase::GetKeysEntriesValuesHelper(Arguments& args, ScriptContext *scriptContext, LPCCHAR_T apiName, JavascriptArrayIteratorKind kind)
     {
         TypedArrayBase* typedArrayBase = ValidateTypedArray(args, scriptContext, apiName);
         return scriptContext->GetLibrary()->CreateArrayIterator(typedArrayBase, kind);
@@ -2767,7 +2767,7 @@ namespace Js
     }
 
     // static
-    TypedArrayBase * TypedArrayBase::ValidateTypedArray(Arguments &args, ScriptContext *scriptContext, LPCWSTR apiName)
+    TypedArrayBase * TypedArrayBase::ValidateTypedArray(Arguments &args, ScriptContext *scriptContext, LPCCHAR_T apiName)
     {
         if (args.Info.Count == 0)
         {
@@ -2778,7 +2778,7 @@ namespace Js
     }
 
     // static
-    TypedArrayBase* TypedArrayBase::ValidateTypedArray(Var aValue, ScriptContext *scriptContext, LPCWSTR apiName)
+    TypedArrayBase* TypedArrayBase::ValidateTypedArray(Var aValue, ScriptContext *scriptContext, LPCCHAR_T apiName)
     {
         TypedArrayBase *typedArrayBase = JavascriptOperators::TryFromVar<Js::TypedArrayBase>(aValue);
         if (!typedArrayBase)
@@ -3591,7 +3591,7 @@ namespace Js
     {
         CharArray* arr;
         uint32 totalLength, mappedByteLength;
-        if (UInt32Math::Mul(mappedLength, sizeof(char16), &mappedByteLength) ||
+        if (UInt32Math::Mul(mappedLength, sizeof(CHAR_T), &mappedByteLength) ||
             UInt32Math::Add(byteOffSet, mappedByteLength, &totalLength) ||
             (totalLength > arrayBuffer->GetByteLength()))
         {
@@ -3640,7 +3640,7 @@ namespace Js
     {
         ScriptContext* scriptContext = GetScriptContext();
         // A typed array is Integer Indexed Exotic object, so doing a get translates to 9.4.5.9 IntegerIndexedElementSet
-        LPCWSTR asString = (Js::JavascriptConversion::ToString(value, scriptContext))->GetSz();
+        LPCCHAR_T asString = (Js::JavascriptConversion::ToString(value, scriptContext))->GetSz();
 
         if (this->IsDetachedBuffer())
         {
@@ -3653,10 +3653,10 @@ namespace Js
         }
 
         AssertMsg(index < GetLength(), "Trying to set out of bound index for typed array.");
-        Assert((index + 1)* sizeof(char16) + GetByteOffset() <= GetArrayBuffer()->GetByteLength());
-        char16* typedBuffer = (char16*)buffer;
+        Assert((index + 1)* sizeof(CHAR_T) + GetByteOffset() <= GetArrayBuffer()->GetByteLength());
+        CHAR_T* typedBuffer = (CHAR_T*)buffer;
 
-        if (asString != NULL && ::wcslen(asString) == 1)
+        if (asString != NULL && ::cstrlen(asString) == 1)
         {
             typedBuffer[index] = asString[0];
         }
@@ -3746,8 +3746,8 @@ namespace Js
         }
         if (index < GetLength())
         {
-            Assert((index + 1)* sizeof(char16)+GetByteOffset() <= GetArrayBuffer()->GetByteLength());
-            char16* typedBuffer = (char16*)buffer;
+            Assert((index + 1)* sizeof(CHAR_T)+GetByteOffset() <= GetArrayBuffer()->GetByteLength());
+            CHAR_T* typedBuffer = (CHAR_T*)buffer;
             return GetLibrary()->GetCharStringCache().GetStringForChar(typedBuffer[index]);
         }
         return GetLibrary()->GetUndefined();
@@ -3763,7 +3763,7 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
 
         Assert(!(callInfo.Flags & CallFlags_New) || args[0] == nullptr);
-        Var object = TypedArrayBase::CreateNewInstance(args, scriptContext, sizeof(char16), CharArray::Create);
+        Var object = TypedArrayBase::CreateNewInstance(args, scriptContext, sizeof(CHAR_T), CharArray::Create);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
         {

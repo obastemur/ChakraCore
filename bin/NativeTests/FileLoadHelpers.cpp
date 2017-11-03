@@ -5,10 +5,10 @@
 #include "stdafx.h"
 #include "Codex/Utf8Codex.h"
 
-HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, bool* isUtf8Out, LPCWSTR* contentsRawOut, UINT* lengthBytesOut, bool printFileOpenError)
+HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCCHAR_T& contents, bool* isUtf8Out, LPCCHAR_T* contentsRawOut, UINT* lengthBytesOut, bool printFileOpenError)
 {
     HRESULT hr = S_OK;
-    LPCWSTR contentsRaw = nullptr;
+    LPCCHAR_T contentsRaw = nullptr;
     LPCUTF8 pRawBytes = nullptr;
     UINT lengthBytes = 0;
     bool isUtf8 = false;
@@ -25,7 +25,7 @@ HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, 
         {
 #ifdef _WIN32
             DWORD lastError = GetLastError();
-            char16 wszBuff[512];
+            CHAR_T wszBuff[512];
             fprintf(stderr, "Error in opening file '%s' ", filename);
             wszBuff[0] = 0;
             if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
@@ -42,7 +42,7 @@ HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, 
 #elif defined(_POSIX_VERSION)
             fprintf(stderr, "Error in opening file: ");
             perror(filename);
-#endif            
+#endif
             IfFailGo(E_FAIL);
         }
         else
@@ -57,7 +57,7 @@ HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, 
     fseek(file, 0, SEEK_END);
     lengthBytes = ftell(file);
     fseek(file, 0, SEEK_SET);
-    contentsRaw = (LPCWSTR)HeapAlloc(GetProcessHeap(), 0, lengthBytes + sizeof(WCHAR));
+    contentsRaw = (LPCCHAR_T)HeapAlloc(GetProcessHeap(), 0, lengthBytes + sizeof(WCHAR));
     if (nullptr == contentsRaw)
     {
         fwprintf(stderr, _u("out of memory"));
@@ -77,7 +77,7 @@ HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, 
     }
 
     fclose(file);
-    *(WCHAR*)((byte*)contentsRaw + lengthBytes) = _u('\0'); // Null terminate it. Could be LPCWSTR.
+    *(WCHAR*)((byte*)contentsRaw + lengthBytes) = _u('\0'); // Null terminate it. Could be LPCCHAR_T.
 
     //
     // Read encoding, handling any conversion to Unicode.
@@ -114,14 +114,14 @@ HRESULT FileLoadHelpers::LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, 
         utf8::DecodeOptions decodeOptions = utf8::doAllowInvalidWCHARs;
 
         UINT cUtf16Chars = utf8::ByteIndexIntoCharacterIndex(pRawBytes, lengthBytes, decodeOptions);
-        contents = (LPCWSTR)HeapAlloc(GetProcessHeap(), 0, (cUtf16Chars + 1) * sizeof(WCHAR));
+        contents = (LPCCHAR_T)HeapAlloc(GetProcessHeap(), 0, (cUtf16Chars + 1) * sizeof(WCHAR));
         if (nullptr == contents)
         {
             fwprintf(stderr, _u("out of memory"));
             IfFailGo(E_OUTOFMEMORY);
         }
 
-        utf8::DecodeUnitsIntoAndNullTerminate((char16*)contents, pRawBytes, pRawBytes + lengthBytes, decodeOptions);
+        utf8::DecodeUnitsIntoAndNullTerminate((CHAR_T*)contents, pRawBytes, pRawBytes + lengthBytes, decodeOptions);
     }
 
 Error:

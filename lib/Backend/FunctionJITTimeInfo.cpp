@@ -62,7 +62,7 @@ FunctionJITTimeInfo::BuildJITTimeData(
             Assert(defaultEntryPointInfo->IsFunctionEntryPointInfo());
             Js::FunctionEntryPointInfo *functionEntryPointInfo = static_cast<Js::FunctionEntryPointInfo*>(defaultEntryPointInfo);
             jitData->callsCountAddress = (intptr_t)&functionEntryPointInfo->callsCount;
-                
+
             jitData->sharedPropertyGuards = codeGenData->sharedPropertyGuards;
             jitData->sharedPropGuardCount = codeGenData->sharedPropertyGuardCount;
         }
@@ -366,14 +366,14 @@ FunctionJITTimeInfo::ForceJITLoopBody() const
 }
 
 
-char16*
+CHAR_T*
 FunctionJITTimeInfo::GetDisplayName() const
 {
     return GetBody()->GetDisplayName();
 }
 
-char16*
-FunctionJITTimeInfo::GetDebugNumberSet(wchar(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const
+CHAR_T*
+FunctionJITTimeInfo::GetDebugNumberSet(CHAR_T(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const
 {
     // (#%u.%u), #%u --> (source file Id . function Id) , function Number
     int len = swprintf_s(bufferToWriteTo, MAX_FUNCTION_BODY_DEBUG_STRING_SIZE, _u(" (#%d.%u), #%u"),

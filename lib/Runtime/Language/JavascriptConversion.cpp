@@ -601,7 +601,7 @@ CommonNumber:
         return result;
     }
 
-    JavascriptString *JavascriptConversion::CoerseString(Var aValue, ScriptContext* scriptContext, const char16* apiNameForErrorMsg)
+    JavascriptString *JavascriptConversion::CoerseString(Var aValue, ScriptContext* scriptContext, const CHAR_T* apiNameForErrorMsg)
     {
         if (!JavascriptConversion::CheckObjectCoercible(aValue, scriptContext))
         {

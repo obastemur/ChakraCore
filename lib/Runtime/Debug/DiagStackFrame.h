@@ -44,9 +44,9 @@ namespace Js
         BOOL IsThisAvailable();
         Js::Var GetThisFromFrame(Js::IDiagObjectAddress ** ppOutAddress, Js::IDiagObjectModelWalkerBase * localsWalker = nullptr);
         // This function will try to populate obj and address field of the ResolvedObject.
-        void TryFetchValueAndAddress(const char16 *source, int sourceLength, Js::ResolvedObject * pObj);
-        Js::ScriptFunction* TryGetFunctionForEval(Js::ScriptContext* scriptContext, const char16 *source, int sourceLength, BOOL isLibraryCode = FALSE);
-        void EvaluateImmediate(const char16 *source, int sourceLength, BOOL isLibraryCode, Js::ResolvedObject * pObj);
+        void TryFetchValueAndAddress(const CHAR_T *source, int sourceLength, Js::ResolvedObject * pObj);
+        Js::ScriptFunction* TryGetFunctionForEval(Js::ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, BOOL isLibraryCode = FALSE);
+        void EvaluateImmediate(const CHAR_T *source, int sourceLength, BOOL isLibraryCode, Js::ResolvedObject * pObj);
         Js::Var DoEval(Js::ScriptFunction* pfuncScript);
 
     protected:

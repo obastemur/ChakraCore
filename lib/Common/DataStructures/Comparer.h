@@ -174,10 +174,10 @@ struct StringComparer
 };
 
 template<>
-struct DefaultComparer<WCHAR*> : public StringComparer<WCHAR*> {};
+struct DefaultComparer<CHAR_T*> : public StringComparer<CHAR_T*> {};
 
 template<>
-struct DefaultComparer<const WCHAR*> : public StringComparer<const WCHAR*> {};
+struct DefaultComparer<const CHAR_T*> : public StringComparer<const CHAR_T*> {};
 
 template <typename T, typename TComparer>
 struct SpecializedComparer

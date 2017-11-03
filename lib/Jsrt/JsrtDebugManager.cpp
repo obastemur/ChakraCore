@@ -141,7 +141,7 @@ bool JsrtDebugManager::IsFirstChanceExceptionEnabled()
     return (this->GetBreakOnException() & JsDiagBreakOnExceptionAttributeFirstChance) == JsDiagBreakOnExceptionAttributeFirstChance;
 }
 
-HRESULT JsrtDebugManager::DbgRegisterFunction(Js::ScriptContext* scriptContext, Js::FunctionBody* functionBody, DWORD_PTR dwDebugSourceContext, LPCWSTR title)
+HRESULT JsrtDebugManager::DbgRegisterFunction(Js::ScriptContext* scriptContext, Js::FunctionBody* functionBody, DWORD_PTR dwDebugSourceContext, LPCCHAR_T title)
 {
     Js::Utf8SourceInfo* utf8SourceInfo = functionBody->GetUtf8SourceInfo();
 
@@ -313,7 +313,7 @@ void JsrtDebugManager::ReportExceptionBreak(Js::InterpreterHaltState* haltState)
         Js::FunctionBody* functionBody = haltState->topFrame->GetFunction();
 
         Assert(functionBody != nullptr);
-        
+
         int currentByteCodeOffset = haltState->topFrame->GetByteCodeOffset();
         JsrtDebugUtils::AddLineColumnToObject(eventDataObject, functionBody, currentByteCodeOffset);
         JsrtDebugUtils::AddSourceLengthAndTextToObject(eventDataObject, functionBody, currentByteCodeOffset);
@@ -335,7 +335,7 @@ void JsrtDebugManager::ReportExceptionBreak(Js::InterpreterHaltState* haltState)
         {
             JsrtDebugUtils::AddPropertyToObject(eventDataObject, JsrtDebugPropertyId::exception, marshaledObj, scriptContext);
         });
-        
+
         this->CallDebugEventCallbackForBreak(jsDiagDebugEvent, eventDataObject, scriptContext);
     }
 }

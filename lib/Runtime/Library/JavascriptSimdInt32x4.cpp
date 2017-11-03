@@ -6,7 +6,7 @@
 #ifdef ENABLE_SIMDJS
 namespace Js
 {
-    const char16 JavascriptSIMDInt32x4::TypeName[] = _u("SIMD.Int32x4");
+    const CHAR_T JavascriptSIMDInt32x4::TypeName[] = _u("SIMD.Int32x4");
 
     JavascriptSIMDInt32x4::JavascriptSIMDInt32x4(StaticType *type) : JavascriptSIMDType(type)
     {
@@ -57,7 +57,7 @@ namespace Js
         return false;
     }
 
-    const char16* JavascriptSIMDInt32x4::GetTypeName()
+    const CHAR_T* JavascriptSIMDInt32x4::GetTypeName()
     {
         return JavascriptSIMDInt32x4::TypeName;
     }
@@ -70,7 +70,7 @@ namespace Js
     Var JavascriptSIMDInt32x4::CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue,
         const Var* args, uint numArgs, CallInfo callInfo)
     {
-        const char16 *typeString = _u("SIMD.Int32x4(");
+        const CHAR_T *typeString = _u("SIMD.Int32x4(");
         return JavascriptSIMDObject::FromVar(&obj)->ToLocaleString<int, 4>(args, numArgs, typeString,
             simdValue.i32, &callInfo, &requestContext);
     }

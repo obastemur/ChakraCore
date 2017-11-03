@@ -3138,7 +3138,7 @@ namespace Js
                     JS_REENTRANT(jsReentLock, CopyNativeIntArrayElementsToVar(pDestArray, BigIndex(idxDest).GetSmallIndex(), pIntItemArray));
                     idxDest = idxDest + pIntItemArray->length;
                 }
-                else 
+                else
                 {
                     JavascriptNativeFloatArray *pFloatItemArray = JavascriptOperators::TryFromVar<JavascriptNativeFloatArray>(aItem);
                     if (pFloatItemArray)
@@ -3386,7 +3386,7 @@ namespace Js
 
                     idxDest = idxDest + pIntItemArray->length;
                 }
-                else 
+                else
                 {
                     JavascriptNativeFloatArray * pFloatItemArray = JavascriptOperators::TryFromVar<JavascriptNativeFloatArray>(aItem);
                     if (pFloatItemArray && !isFillFromPrototypes)
@@ -5363,7 +5363,7 @@ Case0:
             {
                 RecyclableObject* protoObj = prototype;
 
-                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj)) 
+                if (!(DynamicObject::IsAnyArray(protoObj) || JavascriptOperators::IsObject(protoObj))
                     || JavascriptProxy::Is(protoObj)
                     || protoObj->IsExternal())
                 {
@@ -5405,7 +5405,7 @@ Case0:
         T middle = length / 2;
         Var lowerValue = nullptr, upperValue = nullptr;
         T lowerExists, upperExists;
-        const char16* methodName;
+        const CHAR_T* methodName;
         bool isTypedArrayEntryPoint = typedArrayBase != nullptr;
 
         if (isTypedArrayEntryPoint)
@@ -6067,7 +6067,7 @@ Case0:
             *isIntArray = true;
 #endif
         }
-        else 
+        else
         {
             JavascriptNativeFloatArray* nativeFloatArray = JavascriptOperators::TryFromVar<JavascriptNativeFloatArray>(this);
             if (nativeFloatArray)
@@ -8079,12 +8079,12 @@ Case0:
     }
 
 #if DEBUG
-    BOOL JavascriptArray::GetIndex(const char16* propName, uint32 *pIndex)
+    BOOL JavascriptArray::GetIndex(const CHAR_T* propName, uint32 *pIndex)
     {
         uint32 lu, luDig;
 
-        int32 cch = (int32)wcslen(propName);
-        char16* pch = const_cast<char16 *>(propName);
+        int32 cch = (int32)cstrlen(propName);
+        CHAR_T* pch = const_cast<CHAR_T *>(propName);
 
         lu = *pch - '0';
         if (lu > 9)
@@ -8127,7 +8127,7 @@ Case0:
 #ifdef ENABLE_GLOBALIZATION
         LCID lcid = GetUserDefaultLCID();
         int count = 0;
-        char16 szSeparator[6];
+        CHAR_T szSeparator[6];
 
         // According to the document for GetLocaleInfo this is a sufficient buffer size.
         count = GetLocaleInfoW(lcid, LOCALE_SLIST, szSeparator, 5);
@@ -12042,7 +12042,7 @@ Case0:
 
     BOOL JavascriptArray::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
     {
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::length.Equals(propertyName))
         {
             return false;

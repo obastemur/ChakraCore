@@ -54,7 +54,7 @@ namespace Js
         static Var EntrySymbolToPrimitive(RecyclableObject* function, CallInfo callInfo, ...);
         // End Entry Points
 
-        static void ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) char16* stringBuffer, size_t countBuffer, ScriptContext* scriptContext = nullptr)
+        static void ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) CHAR_T* stringBuffer, size_t countBuffer, ScriptContext* scriptContext = nullptr)
         {
             swprintf_s(stringBuffer, countBuffer, _u("Float64x2(%.1f,%.1f)"), value.f64[SIMD_X], value.f64[SIMD_Y]);
         }

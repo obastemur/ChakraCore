@@ -26,7 +26,7 @@ namespace Js
 
         if (args.Info.Count == 0 || !SIMDType::Is(args[0]))
         {
-            char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
+            CHAR_T buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
         }
@@ -48,18 +48,18 @@ namespace Js
 
         if (args.Info.Count == 0 || !SIMDType::Is(args[0]))
         {
-            char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
+            CHAR_T buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toLocaleString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
         }
 
-        //SPEC: The meanings of the optional parameters to this method are defined in the ECMA - 402 specification; 
+        //SPEC: The meanings of the optional parameters to this method are defined in the ECMA - 402 specification;
         //implementations that do not include ECMA - 402 support must not use those parameter positions for anything else.
         //args[1] and args[2] are optional reserved parameters.
         RecyclableObject *obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
         {
-            char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
+            CHAR_T buffer[SIMD_STRING_BUFFER_MAX] = _u("");
             swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.toLocaleString()"), SIMDType::GetTypeName());
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, buffer);
         }
@@ -69,12 +69,12 @@ namespace Js
             return JavascriptSIMDObject::FromVar(obj)->ToString(scriptContext);
         }
 
-        //For all other SIMD types, call helper. 
+        //For all other SIMD types, call helper.
         SIMDValue simdValue = SIMDType::FromVar(args[0])->GetValue();
         return SIMDType::CallToLocaleString(*obj, *scriptContext, simdValue, args.Values, args.Info.Count, callInfo);
     }
 
-    // SIMDType.prototype[@@toPrimitive] as described in SIMD spec 
+    // SIMDType.prototype[@@toPrimitive] as described in SIMD spec
     template<typename SIMDType>
     Var JavascriptSIMDType::EntrySymbolToPrimitive(RecyclableObject* function, CallInfo callInfo, ...)
     {
@@ -109,7 +109,7 @@ namespace Js
                 }
             }
         }
-        char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
+        CHAR_T buffer[SIMD_STRING_BUFFER_MAX] = _u("");
         swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.[Symbol.toPrimitive]"), SIMDType::GetTypeName());
         JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_Invalid, buffer);
     }
@@ -133,7 +133,7 @@ namespace Js
         {
             return SIMDType::FromVar((JavascriptSIMDObject::FromVar(args[0]))->GetValue());
         }
-        char16 buffer[SIMD_STRING_BUFFER_MAX] = _u("");
+        CHAR_T buffer[SIMD_STRING_BUFFER_MAX] = _u("");
         swprintf_s(buffer, SIMD_STRING_BUFFER_MAX, _u("%s.valueOf()"), SIMDType::GetTypeName());
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SIMDConversion, buffer);
     }

@@ -20,7 +20,7 @@ bool JsUtil::ExternalApi::RaiseOnIntOverflow()
     return false;
 }
 
-LPCWSTR JsUtil::ExternalApi::GetFeatureKeyName()
+LPCCHAR_T JsUtil::ExternalApi::GetFeatureKeyName()
 {
     return _u("");
 }
@@ -42,12 +42,12 @@ BOOL JsUtil::ExternalApi::IsScriptActiveOnCurrentThreadContext()
 }
 #endif
 
-bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPWSTR buffer, size_t cchBufferSize, __in LPWSTR moduleName)
+bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPCHAR_T buffer, size_t cchBufferSize, __in LPCHAR_T moduleName)
 {
     return false;
 }
 
-void ConfigParserAPI::DisplayInitialOutput(__in LPWSTR moduleName)
+void ConfigParserAPI::DisplayInitialOutput(__in LPCHAR_T moduleName)
 {
 }
 

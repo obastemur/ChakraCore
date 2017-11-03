@@ -29,13 +29,13 @@ private:
     static const int  MaxTokenSize  = 512;
 
     Js::ConfigFlagsTable& flagTable;
-    LPWSTR           pszCurrentArg;
+    LPCHAR_T           pszCurrentArg;
     ICustomConfigFlags * pCustomConfigFlags;
 
 // Methods
 public:
-    int                Parse(int argc, __in_ecount(argc) LPWSTR argv[]);
-    int Parse(__in LPWSTR token) throw();
+    int                Parse(int argc, __in_ecount(argc) LPCHAR_T argv[]);
+    int Parse(__in LPCHAR_T token) throw();
     CmdLineArgsParser(ICustomConfigFlags * pCustomConfigFlags = nullptr, Js::ConfigFlagsTable& flagTable = Js::Configuration::Global.flags);
     ~CmdLineArgsParser();
 
@@ -49,13 +49,13 @@ private:
     ///----------------------------------------------------------------------------
 
     class Exception {
-        LPCWSTR        pszMsg;
+        LPCCHAR_T        pszMsg;
     public:
-        Exception(LPCWSTR message):
+        Exception(LPCCHAR_T message):
             pszMsg(message)
         {}
 
-        operator LPCWSTR () const
+        operator LPCCHAR_T () const
         {
             return this->pszMsg;
         }
@@ -64,7 +64,7 @@ private:
 // Implementation
 private:
             bool                       ParseBoolean();
-            LPWSTR                     ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ceBuffer = MaxTokenSize, bool fTreatColonAsSeparator = true);
+            LPCHAR_T                     ParseString(__inout_ecount(ceBuffer) LPCHAR_T buffer, size_t ceBuffer = MaxTokenSize, bool fTreatColonAsSeparator = true);
             int                        ParseInteger();
             Js::SourceFunctionNode     ParseSourceFunctionIds();
             void                       ParsePhase(Js::Phases *pPhase, Js::Phases *oppositePhase);
@@ -76,12 +76,12 @@ private:
             void                       ParseNumberTrioSet(Js::NumberTrioSet * numberTrioSet);
             void                       PrintUsage();
 
-            char16 CurChar()
+            CHAR_T CurChar()
             {
                 return this->pszCurrentArg[0];
             }
 
-            char16 PeekChar()
+            CHAR_T PeekChar()
             {
                 return this->pszCurrentArg[1];
             }

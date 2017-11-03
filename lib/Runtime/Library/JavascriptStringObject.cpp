@@ -342,7 +342,7 @@ namespace Js
 
     BOOL JavascriptStringObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags propertyOperationFlags)
     {
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::length.Equals(propertyName))
         {
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), propertyNameString->GetString());

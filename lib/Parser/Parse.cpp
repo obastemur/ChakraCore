@@ -56,10 +56,10 @@ struct StmtNest
     };
     StmtNest *pstmtOuter;           // Enclosing statement.
 
-    OpCode GetNop() const 
-    { 
+    OpCode GetNop() const
+    {
         AnalysisAssert(isDeferred || pnodeStmt != nullptr);
-        return isDeferred ? op : pnodeStmt->nop; 
+        return isDeferred ? op : pnodeStmt->nop;
     }
 };
 
@@ -929,7 +929,7 @@ Symbol* Parser::AddDeclForPid(ParseNodePtr pnode, IdentPtr pid, SymbolType symbo
 
         if (!sym)
         {
-            const char16 *name = reinterpret_cast<const char16*>(pid->Psz());
+            const CHAR_T *name = reinterpret_cast<const CHAR_T*>(pid->Psz());
             int nameLength = pid->Cch();
             SymbolName const symName(name, nameLength);
 
@@ -5368,7 +5368,7 @@ bool Parser::ParseFncDeclHelper(ParseNodePtr pnodeFnc, LPCOLESTR pNameHint, usho
         }
 
         // These are heuristic conditions that prohibit upfront deferral but not redeferral.
-        isTopLevelDeferredFunc = isTopLevelDeferredFunc && !isDeferredFnc && 
+        isTopLevelDeferredFunc = isTopLevelDeferredFunc && !isDeferredFnc &&
             (!isLikelyIIFE || !topLevelStmt || PHASE_FORCE_RAW(Js::DeferParsePhase, m_sourceContextInfo->sourceContextId, pnodeFnc->sxFnc.functionId));
 
 #if ENABLE_BACKGROUND_PARSING
@@ -6471,7 +6471,7 @@ bool Parser::ParseFncNames(ParseNodePtr pnodeFnc, ParseNodePtr pnodeFncParent, u
         {
             // Multiple names. Turn the source into an IdentPtr.
             pnodeFnc->sxFnc.pid = m_phtbl->PidHashNameLen(
-                m_pscan->PchBase() + ichMinNames, 
+                m_pscan->PchBase() + ichMinNames,
                 m_pscan->AdjustedLast(),
                 ichLimNames - ichMinNames);
         }
@@ -8207,11 +8207,11 @@ LPCOLESTR Parser::AppendNameHints(LPCOLESTR leftStr, uint32 leftLen, LPCOLESTR r
     {
         totalLength++; //1 for ']';
     }
-    WCHAR * finalName = AllocateStringOfLength(totalLength);
+    CHAR_T * finalName = AllocateStringOfLength(totalLength);
 
     if (leftStr != nullptr && leftLen != 0)
     {
-        wcscpy_s(finalName, leftLen + 1, leftStr);
+        cstrcpy_s(finalName, leftLen + 1, leftStr);
     }
 
     if (ignoreAddDotWithSpace)
@@ -8245,7 +8245,7 @@ LPCOLESTR Parser::AppendNameHints(LPCOLESTR leftStr, uint32 leftLen, LPCOLESTR r
     return finalName;
 }
 
-WCHAR * Parser::AllocateStringOfLength(ULONG length)
+CHAR_T * Parser::AllocateStringOfLength(ULONG length)
 {
     Assert(length > 0);
     ULONG totalBytes;
@@ -8253,7 +8253,7 @@ WCHAR * Parser::AllocateStringOfLength(ULONG length)
     {
         Error(ERRnoMemory);
     }
-    WCHAR* finalName = (WCHAR*)m_phtbl->GetAllocator()->Alloc(totalBytes);
+    CHAR_T* finalName = (CHAR_T*)m_phtbl->GetAllocator()->Alloc(totalBytes);
     if (finalName == nullptr)
     {
         Error(ERRnoMemory);
@@ -8299,7 +8299,7 @@ LPCOLESTR Parser::AppendNameHints(IdentPtr left, IdentPtr right, uint32 *pNameLe
 
 LPCOLESTR Parser::AppendNameHints(IdentPtr left, LPCOLESTR right, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace, bool wrapInBrackets)
 {
-    uint32 rightLen = (right == nullptr) ? 0 : (uint32) wcslen(right);
+    uint32 rightLen = (right == nullptr) ? 0 : (uint32) cstrlen(right);
 
     if (pShortNameOffset != nullptr)
     {
@@ -8334,7 +8334,7 @@ LPCOLESTR Parser::AppendNameHints(IdentPtr left, LPCOLESTR right, uint32 *pNameL
 
 LPCOLESTR Parser::AppendNameHints(LPCOLESTR left, IdentPtr right, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace, bool wrapInBrackets)
 {
-    uint32 leftLen = (left == nullptr) ? 0 : (uint32) wcslen(left);
+    uint32 leftLen = (left == nullptr) ? 0 : (uint32) cstrlen(left);
 
     if (pShortNameOffset != nullptr)
     {
@@ -8366,8 +8366,8 @@ LPCOLESTR Parser::AppendNameHints(LPCOLESTR left, IdentPtr right, uint32 *pNameL
 
 LPCOLESTR Parser::AppendNameHints(LPCOLESTR left, LPCOLESTR right, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace, bool wrapInBrackets)
 {
-    uint32 leftLen = (left == nullptr) ? 0 : (uint32) wcslen(left);
-    uint32 rightLen = (right == nullptr) ? 0 : (uint32) wcslen(right);
+    uint32 leftLen = (left == nullptr) ? 0 : (uint32) cstrlen(left);
+    uint32 rightLen = (right == nullptr) ? 0 : (uint32) cstrlen(right);
     if (pShortNameOffset != nullptr)
     {
         *pShortNameOffset = 0;
@@ -8713,7 +8713,7 @@ ParseNodePtr Parser::ParseExpr(int oplMin,
 
             ParseDestructuredLiteralWithScopeSave(tkLCurly, false/*isDecl*/, false /*topLevel*/, DIC_ShouldNotParseInitializer);
 
-            // Restore the Block ID at the end of the reparsing so it matches the one at the end of the first pass. We need to do this 
+            // Restore the Block ID at the end of the reparsing so it matches the one at the end of the first pass. We need to do this
             // because we don't parse initializers during reparse and there may be additional blocks (e.g. a class declaration)
             // in the initializers that will cause the next Block ID at the end of the reparsing to be different.
             m_nextBlockId = saveNextBlockId;
@@ -8826,9 +8826,9 @@ ParseNodePtr Parser::ParseExpr(int oplMin,
                     }
 
                     // Assignment stmt of the form "this.<id> = <expr>"
-                    if (nop == knopAsg 
-                        && pnode->nop == knopDot 
-                        && pnode->sxBin.pnode1->nop == knopName 
+                    if (nop == knopAsg
+                        && pnode->nop == knopDot
+                        && pnode->sxBin.pnode1->nop == knopName
                         && pnode->sxBin.pnode1->sxVar.pid == wellKnownPropertyPids._this
                         && pnode->sxBin.pnode2->nop == knopName)
                     {
@@ -9597,7 +9597,7 @@ ParseNodePtr Parser::ParseCatch()
             ParseNodePtr pnodeParam = CreateNameNode(pidCatch);
             pnodeParam->sxPid.symRef = ref->GetSymRef();
 
-            const char16 *name = reinterpret_cast<const char16*>(pidCatch->Psz());
+            const CHAR_T *name = reinterpret_cast<const CHAR_T*>(pidCatch->Psz());
             int nameLength = pidCatch->Cch();
             SymbolName const symName(name, nameLength);
             Symbol *sym = Anew(&m_nodeAllocator, Symbol, symName, pnodeParam, STVariable);
@@ -10829,8 +10829,8 @@ LNeedTerminator:
             pCatch->sxCatch.pnodeNext = nullptr;
 
             // create a fake name for the catch var.
-            const WCHAR *uniqueNameStr = _u("__ehobj");
-            IdentPtr uniqueName = m_phtbl->PidHashNameLen(uniqueNameStr, static_cast<int32>(wcslen(uniqueNameStr)));
+            const CHAR_T *uniqueNameStr = _u("__ehobj");
+            IdentPtr uniqueName = m_phtbl->PidHashNameLen(uniqueNameStr, static_cast<int32>(cstrlen(uniqueNameStr)));
 
             pCatch->sxCatch.pnodeParam = CreateNameNode(uniqueName);
 
@@ -12494,7 +12494,7 @@ IdentPtr Parser::ParseSuper(bool fAllowCall)
         // Anything else is an error
         Error(ERRInvalidSuper);
     }
-    
+
     currentNodeFunc->sxFnc.SetHasSuperReference(TRUE);
     CHAKRATEL_LANGSTATS_INC_LANGFEATURECOUNT(Super, m_scriptContext);
 

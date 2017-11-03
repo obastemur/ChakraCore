@@ -559,12 +559,12 @@ namespace Js
     void ScriptContext::SetUrl(BSTR bstrUrl)
     {
         // Assumption: this method is never called multiple times
-        Assert(this->url != nullptr && wcslen(this->url) == 0);
+        Assert(this->url != nullptr && cstrlen(this->url) == 0);
 
         charcount_t length = SysStringLen(bstrUrl) + 1; // Add 1 for the NULL.
 
-        char16* urlCopy = AnewArray(this->GeneralAllocator(), char16, length);
-        js_memcpy_s(urlCopy, (length - 1) * sizeof(char16), bstrUrl, (length - 1) * sizeof(char16));
+        CHAR_T* urlCopy = AnewArray(this->GeneralAllocator(), CHAR_T, length);
+        js_memcpy_s(urlCopy, (length - 1) * sizeof(CHAR_T), bstrUrl, (length - 1) * sizeof(CHAR_T));
         urlCopy[length - 1] = _u('\0');
 
         this->url = urlCopy;
@@ -816,7 +816,7 @@ namespace Js
         return true;
     }
 
-    PropertyString* ScriptContext::GetPropertyString2(char16 ch1, char16 ch2)
+    PropertyString* ScriptContext::GetPropertyString2(CHAR_T ch1, CHAR_T ch2)
     {
         if (ch1 < '0' || ch1 > 'z' || ch2 < '0' || ch2 > 'z')
         {
@@ -836,17 +836,17 @@ namespace Js
         threadContext->FindPropertyRecord(pstName, propertyRecord);
     }
 
-    void ScriptContext::FindPropertyRecord(__in LPCWSTR propertyName, __in int propertyNameLength, PropertyRecord const ** propertyRecord)
+    void ScriptContext::FindPropertyRecord(__in LPCCHAR_T propertyName, __in int propertyNameLength, PropertyRecord const ** propertyRecord)
     {
         threadContext->FindPropertyRecord(propertyName, propertyNameLength, propertyRecord);
     }
 
-    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* ScriptContext::FindPropertyIdNoCase(__in LPCWSTR propertyName, __in int propertyNameLength)
+    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* ScriptContext::FindPropertyIdNoCase(__in LPCCHAR_T propertyName, __in int propertyNameLength)
     {
         return threadContext->FindPropertyIdNoCase(this, propertyName, propertyNameLength);
     }
 
-    PropertyId ScriptContext::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName)
+    PropertyId ScriptContext::GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<CHAR_T> const& propName)
     {
         Js::PropertyRecord const * propertyRecord = nullptr;
         threadContext->GetOrAddPropertyId(propName, &propertyRecord);
@@ -868,12 +868,12 @@ namespace Js
         }
     }
 
-    void ScriptContext::GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR> const& propertyName, PropertyRecord const ** propertyRecord)
+    void ScriptContext::GetOrAddPropertyRecord(JsUtil::CharacterBuffer<CHAR_T> const& propertyName, PropertyRecord const ** propertyRecord)
     {
         threadContext->GetOrAddPropertyId(propertyName, propertyRecord);
     }
 
-    PropertyId ScriptContext::GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR propertyName, __in int propertyNameLength)
+    PropertyId ScriptContext::GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCCHAR_T propertyName, __in int propertyNameLength)
     {
         Js::PropertyRecord const * propertyRecord = nullptr;
         threadContext->GetOrAddPropertyId(propertyName, propertyNameLength, &propertyRecord);
@@ -886,7 +886,7 @@ namespace Js
         return propertyRecord->GetPropertyId();
     }
 
-    void ScriptContext::GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCWSTR propertyName, _In_ int propertyNameLength, _Out_ PropertyRecord const ** propertyRecord)
+    void ScriptContext::GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCCHAR_T propertyName, _In_ int propertyNameLength, _Out_ PropertyRecord const ** propertyRecord)
     {
         threadContext->GetOrAddPropertyId(propertyName, propertyNameLength, propertyRecord);
         if (propertyNameLength == 2)
@@ -917,7 +917,7 @@ namespace Js
                 // WOOB 1137798: JavascriptArray::GetIndex does not handle embedded NULLs. So if we have a property
                 // name "1234\0", JavascriptArray::GetIndex would incorrectly accepts it as an array index property
                 // name.
-                Assert((size_t)(name->GetLength()) != wcslen(name->GetBuffer()));
+                Assert((size_t)(name->GetLength()) != cstrlen(name->GetBuffer()));
             }
             else if (isNumericPropertyId)
             {
@@ -1207,7 +1207,7 @@ namespace Js
         regexStacks = stacks;
     }
 
-    Js::TempArenaAllocatorObject* ScriptContext::GetTemporaryAllocator(LPCWSTR name)
+    Js::TempArenaAllocatorObject* ScriptContext::GetTemporaryAllocator(LPCCHAR_T name)
     {
         return this->threadContext->GetTemporaryAllocator(name);
     }
@@ -1219,7 +1219,7 @@ namespace Js
         this->threadContext->ReleaseTemporaryAllocator(tempAllocator);
     }
 
-    Js::TempGuestArenaAllocatorObject* ScriptContext::GetTemporaryGuestAllocator(LPCWSTR name)
+    Js::TempGuestArenaAllocatorObject* ScriptContext::GetTemporaryGuestAllocator(LPCCHAR_T name)
     {
         return this->threadContext->GetTemporaryGuestAllocator(name);
     }
@@ -1634,7 +1634,7 @@ namespace Js
     }
     PropertyString* ScriptContext::AddPropertyString2(const Js::PropertyRecord* propString)
     {
-        const char16* buf = propString->GetBuffer();
+        const CHAR_T* buf = propString->GetBuffer();
         const uint i = PropertyStringMap::PStrMapIndex(buf[0]);
         if (this->Cache()->propertyStrings[i] == NULL)
         {
@@ -1652,7 +1652,7 @@ namespace Js
     PropertyString* ScriptContext::CachePropertyString2(const PropertyRecord* propString)
     {
         Assert(propString->GetLength() == 2);
-        const char16* propertyName = propString->GetBuffer();
+        const CHAR_T* propertyName = propString->GetBuffer();
         if ((propertyName[0] <= 'z') && (propertyName[1] <= 'z') && (propertyName[0] >= '0') && (propertyName[1] >= '0') && ((propertyName[0] > '9') || (propertyName[1] > '9')))
         {
             return AddPropertyString2(propString);
@@ -1810,7 +1810,7 @@ namespace Js
             }
             else
             {
-                char16 stringBuffer[22];
+                CHAR_T stringBuffer[22];
 
                 int pos = TaggedInt::ToBuffer(value, stringBuffer, _countof(stringBuffer));
                 string = JavascriptString::NewCopyBuffer(stringBuffer + pos, (_countof(stringBuffer) - 1) - pos, this);
@@ -1863,7 +1863,7 @@ namespace Js
         SRCINFO const * pSrcInfo,
         CompileScriptException * pse,
         Utf8SourceInfo** ppSourceInfo,
-        const char16 *rootDisplayName,
+        const CHAR_T *rootDisplayName,
         LoadScriptFlag loadScriptFlag,
         uint* sourceIndex,
         Js::Var scriptSource)
@@ -1882,7 +1882,7 @@ namespace Js
         if ((loadScriptFlag & LoadScriptFlag_Utf8Source) != LoadScriptFlag_Utf8Source)
         {
             // Convert to UTF8 and then load that
-            length = cb / sizeof(char16);
+            length = cb / sizeof(CHAR_T);
             if (!IsValidCharCount(length))
             {
                 Js::Throw::OutOfMemory();
@@ -1898,7 +1898,7 @@ namespace Js
 
             utf8Script = RecyclerNewArrayLeafTrace(this->GetRecycler(), utf8char_t, cbUtf8Buffer);
 
-            cbNeeded = utf8::EncodeIntoAndNullTerminate(utf8Script, (const char16*)script, static_cast<charcount_t>(length));
+            cbNeeded = utf8::EncodeIntoAndNullTerminate(utf8Script, (const CHAR_T*)script, static_cast<charcount_t>(length));
 
 #if DBG_DUMP && defined(PROFILE_MEM)
             if(Js::Configuration::Global.flags.TraceMemory.IsEnabled(Js::ParsePhase) && Configuration::Global.flags.Verbose)
@@ -1906,7 +1906,7 @@ namespace Js
                 Output::Print(_u("Loading script.\n")
                     _u("  Unicode (in bytes)    %u\n")
                     _u("  UTF-8 size (in bytes) %u\n")
-                    _u("  Expected savings      %d\n"), length * sizeof(char16), cbNeeded, length * sizeof(char16) - cbNeeded);
+                    _u("  Expected savings      %d\n"), length * sizeof(CHAR_T), cbNeeded, length * sizeof(CHAR_T) - cbNeeded);
             }
 #endif
 
@@ -2017,7 +2017,7 @@ namespace Js
 
     JavascriptFunction* ScriptContext::LoadScript(const byte* script, size_t cb,
         SRCINFO const * pSrcInfo, CompileScriptException * pse, Utf8SourceInfo** ppSourceInfo,
-        const char16 *rootDisplayName, LoadScriptFlag loadScriptFlag, Js::Var scriptSource)
+        const CHAR_T *rootDisplayName, LoadScriptFlag loadScriptFlag, Js::Var scriptSource)
     {
         Assert(!this->threadContext->IsScriptActive());
         Assert(pse != nullptr);
@@ -2072,7 +2072,7 @@ namespace Js
         return nullptr;
     }
 
-    JavascriptFunction* ScriptContext::GenerateRootFunction(ParseNodePtr parseTree, uint sourceIndex, Parser* parser, uint32 grfscr, CompileScriptException * pse, const char16 *rootDisplayName)
+    JavascriptFunction* ScriptContext::GenerateRootFunction(ParseNodePtr parseTree, uint sourceIndex, Parser* parser, uint32 grfscr, CompileScriptException * pse, const CHAR_T *rootDisplayName)
     {
         HRESULT hr;
 
@@ -2114,9 +2114,9 @@ namespace Js
 
     void ScriptContext::OnScriptStart(bool isRoot, bool isScript)
     {
-        const bool isForcedEnter = 
+        const bool isForcedEnter =
 #ifdef ENABLE_SCRIPT_DEBUGGING
-            this->GetDebugContext() != nullptr ? this->GetDebugContext()->GetProbeContainer()->isForcedToEnterScriptStart : 
+            this->GetDebugContext() != nullptr ? this->GetDebugContext()->GetProbeContainer()->isForcedToEnterScriptStart :
 #endif
             false;
         if (this->scriptStartEventHandler != nullptr && ((isRoot && threadContext->GetCallRootLevel() == 1) || isForcedEnter))
@@ -2526,8 +2526,8 @@ namespace Js
     //
     // Makes a copy of the URL to be stored in the map.
     //
-    SourceContextInfo * ScriptContext::CreateSourceContextInfo(DWORD_PTR sourceContext, char16 const * url, size_t len,
-        IActiveScriptDataCache* profileDataCache, char16 const * sourceMapUrl /*= NULL*/, size_t sourceMapUrlLen /*= 0*/)
+    SourceContextInfo * ScriptContext::CreateSourceContextInfo(DWORD_PTR sourceContext, CHAR_T const * url, size_t len,
+        IActiveScriptDataCache* profileDataCache, CHAR_T const * sourceMapUrl /*= NULL*/, size_t sourceMapUrlLen /*= 0*/)
     {
         // Take etw rundown lock on this thread context. We are going to init/add to sourceContextInfoMap.
         AutoCriticalSection autocs(GetThreadContext()->GetFunctionBodyLock());
@@ -2565,10 +2565,10 @@ namespace Js
     }
 
     // static
-    const char16* ScriptContext::CopyString(const char16* str, size_t charCount, ArenaAllocator* alloc)
+    const CHAR_T* ScriptContext::CopyString(const CHAR_T* str, size_t charCount, ArenaAllocator* alloc)
     {
         size_t length = charCount + 1; // Add 1 for the NULL.
-        char16* copy = AnewArray(alloc, char16, length);
+        CHAR_T* copy = AnewArray(alloc, CHAR_T, length);
         js_wmemcpy_s(copy, length, str, charCount);
         copy[length - 1] = _u('\0');
         return copy;
@@ -3666,7 +3666,7 @@ namespace Js
         {
 #if defined(ENABLE_SCRIPT_PROFILING)
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
             OUTPUT_TRACE(Js::ScriptProfilerPhase, _u("ScriptContext::RecyclerEnumClassEnumeratorCallback\n"));
             OUTPUT_TRACE(Js::ScriptProfilerPhase, _u("\tFunctionProxy : 0x%08X, FunctionNumber : %s, DeferredParseAttributes : %d, EntryPoint : 0x%08X"),
@@ -3786,7 +3786,7 @@ namespace Js
     Js::JavascriptMethod ScriptContext::ProfileModeDeferredParse(ScriptFunction ** functionRef)
     {
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
 
         OUTPUT_TRACE(Js::ScriptProfilerPhase, _u("ScriptContext::ProfileModeDeferredParse FunctionNumber : %s, startEntrypoint : 0x%08X\n"), (*functionRef)->GetFunctionProxy()->GetDebugNumberSet(debugStringBuffer), (*functionRef)->GetEntryPoint());
@@ -3842,7 +3842,7 @@ namespace Js
     Js::JavascriptMethod ScriptContext::ProfileModeDeferredDeserialize(ScriptFunction *function)
     {
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
 
         OUTPUT_TRACE(Js::ScriptProfilerPhase, _u("ScriptContext::ProfileModeDeferredDeserialize FunctionNumber : %s\n"), function->GetFunctionProxy()->GetDebugNumberSet(debugStringBuffer));
@@ -3964,9 +3964,9 @@ namespace Js
         // So we still get this call
 #if defined(ENABLE_SCRIPT_PROFILING)
         bool functionEnterEventSent = false;
-        char16 *pwszExtractedFunctionName = NULL;
+        CHAR_T *pwszExtractedFunctionName = NULL;
         size_t functionNameLen = 0;
-        const char16 *pwszFunctionName = NULL;
+        const CHAR_T *pwszFunctionName = NULL;
         HRESULT hrOfEnterEvent = S_OK;
 
         PROFILER_TOKEN scriptId = -1;
@@ -3992,7 +3992,7 @@ namespace Js
 
                 if (pBody && pBody->GetProfileSession() != pBody->GetScriptContext()->GetProfileSession())
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     OUTPUT_TRACE_DEBUGONLY(Js::ScriptProfilerPhase, _u("ScriptContext::ProfileProbeThunk, ProfileSession does not match (%d != %d), functionNumber : %s, functionName : %s\n"),
                         pBody->GetProfileSession(), pBody->GetScriptContext()->GetProfileSession(), pBody->GetDebugNumberSet(debugStringBuffer), pBody->GetDisplayName());
                 }
@@ -4016,20 +4016,20 @@ namespace Js
                     {
                         // it is string because user had called in toString extract name from it
                         Assert(JavascriptString::Is(sourceString));
-                        const char16 *pwszToString = ((JavascriptString *)sourceString)->GetSz();
-                        const char16 *pwszNameStart = wcsstr(pwszToString, _u(" "));
-                        const char16 *pwszNameEnd = wcsstr(pwszToString, _u("("));
+                        const CHAR_T *pwszToString = ((JavascriptString *)sourceString)->GetSz();
+                        const CHAR_T *pwszNameStart = wcsstr(pwszToString, _u(" "));
+                        const CHAR_T *pwszNameEnd = wcsstr(pwszToString, _u("("));
                         if (pwszNameStart == nullptr || pwszNameEnd == nullptr || ((int)(pwszNameEnd - pwszNameStart) <= 0))
                         {
                             functionNameLen = ((JavascriptString *)sourceString)->GetLength() + 1;
-                            pwszExtractedFunctionName = HeapNewArray(char16, functionNameLen);
+                            pwszExtractedFunctionName = HeapNewArray(CHAR_T, functionNameLen);
                             wcsncpy_s(pwszExtractedFunctionName, functionNameLen, pwszToString, _TRUNCATE);
                         }
                         else
                         {
                             functionNameLen = pwszNameEnd - pwszNameStart;
                             AssertMsg(functionNameLen < INT_MAX, "Allocating array with zero or negative length?");
-                            pwszExtractedFunctionName = HeapNewArray(char16, functionNameLen);
+                            pwszExtractedFunctionName = HeapNewArray(CHAR_T, functionNameLen);
                             wcsncpy_s(pwszExtractedFunctionName, functionNameLen, pwszNameStart + 1, _TRUNCATE);
                         }
                         pwszFunctionName = pwszExtractedFunctionName;
@@ -4211,8 +4211,8 @@ namespace Js
     HRESULT ScriptContext::OnFunctionCompiled(
         PROFILER_TOKEN functionId,
         PROFILER_TOKEN scriptId,
-        const WCHAR *pwszFunctionName,
-        const WCHAR *pwszFunctionNameHint,
+        const CHAR_T *pwszFunctionName,
+        const CHAR_T *pwszFunctionNameHint,
         IUnknown *pIDebugDocumentContext)
     {
         Assert(m_pProfileCallback != NULL);
@@ -4283,7 +4283,7 @@ namespace Js
         return pScriptContext->OnFunctionExit(scriptId, functionId);
     }
 
-    HRESULT ScriptContext::FunctionExitByNameSenderThunk(const char16 *pwszFunctionName, ScriptContext *pScriptContext)
+    HRESULT ScriptContext::FunctionExitByNameSenderThunk(const CHAR_T *pwszFunctionName, ScriptContext *pScriptContext)
     {
         return pScriptContext->OnDispatchFunctionExit(pwszFunctionName);
     }
@@ -4295,16 +4295,16 @@ namespace Js
     }
 
 #if defined(ENABLE_SCRIPT_PROFILING)
-    HRESULT ScriptContext::RegisterLibraryFunction(const char16 *pwszObjectName, const char16 *pwszFunctionName, Js::PropertyId functionPropertyId, JavascriptMethod entryPoint)
+    HRESULT ScriptContext::RegisterLibraryFunction(const CHAR_T *pwszObjectName, const CHAR_T *pwszFunctionName, Js::PropertyId functionPropertyId, JavascriptMethod entryPoint)
     {
 #if DEBUG
-        const char16 *pwszObjectNameFromProperty = const_cast<char16 *>(GetPropertyName(functionPropertyId)->GetBuffer());
+        const CHAR_T *pwszObjectNameFromProperty = const_cast<CHAR_T *>(GetPropertyName(functionPropertyId)->GetBuffer());
         if (GetPropertyName(functionPropertyId)->IsSymbol())
         {
             // The spec names functions whose property is a well known symbol as the description from the symbol
             // wrapped in square brackets, so verify by skipping past first bracket
-            Assert(!wcsncmp(pwszFunctionName + 1, pwszObjectNameFromProperty, wcslen(pwszObjectNameFromProperty)));
-            Assert(wcslen(pwszFunctionName) == wcslen(pwszObjectNameFromProperty) + 2);
+            Assert(!wcsncmp(pwszFunctionName + 1, pwszObjectNameFromProperty, cstrlen(pwszObjectNameFromProperty)));
+            Assert(cstrlen(pwszFunctionName) == cstrlen(pwszObjectNameFromProperty) + 2);
         }
         else
         {
@@ -4316,12 +4316,12 @@ namespace Js
         // Create the propertyId as object.functionName if it is not global function
         // the global functions would be recognized by just functionName
         // e.g. with functionName, toString, depending on objectName, it could be Object.toString, or Date.toString
-        char16 szTempName[70];
+        CHAR_T szTempName[70];
         if (pwszObjectName != NULL)
         {
             // Create name as "object.function"
             swprintf_s(szTempName, 70, _u("%s.%s"), pwszObjectName, pwszFunctionName);
-            functionPropertyId = GetOrAddPropertyIdTracked(szTempName, (uint)wcslen(szTempName));
+            functionPropertyId = GetOrAddPropertyIdTracked(szTempName, (uint)cstrlen(szTempName));
         }
 
         Js::PropertyId cachedFunctionId;
@@ -4722,7 +4722,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
         return false;
     }
 
-    HRESULT ScriptContext::OnDispatchFunctionEnter(const WCHAR *pwszFunctionName)
+    HRESULT ScriptContext::OnDispatchFunctionEnter(const CHAR_T *pwszFunctionName)
     {
         if (m_pProfileCallback2 == NULL)
         {
@@ -4740,7 +4740,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
         return hr;
     }
 
-    HRESULT ScriptContext::OnDispatchFunctionExit(const WCHAR *pwszFunctionName)
+    HRESULT ScriptContext::OnDispatchFunctionExit(const CHAR_T *pwszFunctionName)
     {
         if (m_pProfileCallback2 == NULL)
         {
@@ -5416,7 +5416,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                     {
                         body->MapEntryPoints([&](uint entryPointIndex, FunctionEntryPointInfo* entryPoint)
                         {
-                            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                             char rejit = entryPointIndex > 0 ? '*' : ' ';
                             isNativeCode = entryPoint->IsNativeCode() | isNativeCode;
                             OUTPUT_VERBOSE_STATS(Js::BGJitPhase, _u("%-20s %16s %c, %8d , %10d , %10d, %-10s, %-10s, %10d\n"),
@@ -5481,13 +5481,13 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
 
                     body->MapLoopHeaders([&](uint loopNumber, LoopHeader* header)
                     {
-                        char16 loopBodyName[256];
+                        CHAR_T loopBodyName[256];
                         body->GetLoopBodyName(loopNumber, loopBodyName, _countof(loopBodyName));
                         header->MapEntryPoints([&](int index, LoopEntryPointInfo * entryPoint)
                         {
                             if (entryPoint->IsNativeCode())
                             {
-                                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                                 char rejit = index > 0 ? '*' : ' ';
                                 OUTPUT_VERBOSE_STATS(Js::BGJitPhase, _u("%-20s %16s %c, %8d , %10d , %10d, %-10s, %-10s, %10d\n"),
                                     loopBodyName,
@@ -5545,13 +5545,13 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
         {
             uint totalBailouts = 0;
             uint totalRejits = 0;
-            WCHAR buf[256];
+            CHAR_T buf[256];
 
             // Dump bailout data.
             Output::Print(_u("%-40s %6s\n"), _u("Bailout Reason,"), _u("Count"));
 
             bailoutReasonCounts->Map([&totalBailouts](uint kind, uint val) {
-                WCHAR buf[256];
+                CHAR_T buf[256];
                 totalBailouts += val;
                 if (val != 0)
                 {
@@ -5588,7 +5588,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                 // Aggregated data
                 Output::Print(_u("%-30s %14s %14s\n"), _u("Function (#),"), _u("Bailout Count,"), _u("Rejit Count"));
                 rejitStatsMap->Map([](Js::FunctionBody const *body, RejitStats *stats, RecyclerWeakReference<const Js::FunctionBody> const*) {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     for (uint i = 0; i < NumRejitReasons; ++i)
                         stats->m_totalRejits += stats->m_rejitReasonCounts[i];
 
@@ -5596,7 +5596,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                         stats->m_totalBailouts += val;
                     });
 
-                    WCHAR buf[256];
+                    CHAR_T buf[256];
 
                     swprintf_s(buf, _u("%s (%s),"), body->GetExternalDisplayName(), (const_cast<Js::FunctionBody*>(body))->GetDebugNumberSet(debugStringBuffer)); //TODO Kount
                     Output::Print(_u("%-30s %14d, %14d\n"), buf, stats->m_totalBailouts, stats->m_totalRejits);
@@ -5606,8 +5606,8 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
 
                 // Per FunctionBody data
                 rejitStatsMap->Map([](Js::FunctionBody const *body, RejitStats *stats, RecyclerWeakReference<const Js::FunctionBody> const *) {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                    WCHAR buf[256];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T buf[256];
 
                     swprintf_s(buf, _u("%s (%s),"), body->GetExternalDisplayName(), (const_cast<Js::FunctionBody*>(body))->GetDebugNumberSet(debugStringBuffer)); //TODO Kount
                     Output::Print(_u("%-30s\n\n"), buf);
@@ -5620,7 +5620,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                         stats->m_bailoutReasonCounts->Map([](uint kind, uint val) {
                             if (val != 0)
                             {
-                                WCHAR buf[256];
+                                CHAR_T buf[256];
                                 swprintf_s(buf, _u("%S,"), GetBailOutKindName((IR::BailOutKind)kind));
                                 Output::Print(_u("%10s%-40s %6d\n"), _u(""), buf, val);
                             }
@@ -5668,7 +5668,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                 if (PHASE_VERBOSE_STATS1(Js::ObjTypeSpecPhase))
                 {
                     FunctionBody* functionBody = entry->functionBodyWeakRef->Get();
-                    const char16* functionName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
+                    const CHAR_T* functionName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
                     Output::Print(_u("FieldAccessStats: function %s (#%u): inline cache stats:\n"), functionName, functionNumber);
                     Output::Print(_u("    overall: total %u, no profile info %u\n"), functionStats.totalInlineCacheCount, functionStats.noInfoInlineCacheCount);
                     Output::Print(_u("    mono: total %u, empty %u, cloned %u\n"),
@@ -6091,7 +6091,7 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
                 LONG columnNumber = 0;
                 UINT32 methodIdOrNameId = 0;
                 UINT8 isFrameIndex = 0; // FALSE
-                const WCHAR* name = nullptr;
+                const CHAR_T* name = nullptr;
                 if (function->IsScriptFunction() && !function->IsLibraryCode())
                 {
                     Js::FunctionBody * functionBody = function->GetFunctionBody();
@@ -6173,9 +6173,9 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
     //              escapeChar - Char to use for escaping.
     //              charToEscape - The char which we should escape with escapeChar.
     // Returns:     Count of chars written to stringBuilder.
-    charcount_t ScriptContext::AppendWithEscapeCharacters(Js::StringBuilder<ArenaAllocator>* stringBuilder, const WCHAR* sourceString, charcount_t sourceStringLen, WCHAR escapeChar, WCHAR charToEscape)
+    charcount_t ScriptContext::AppendWithEscapeCharacters(Js::StringBuilder<ArenaAllocator>* stringBuilder, const CHAR_T* sourceString, charcount_t sourceStringLen, CHAR_T escapeChar, CHAR_T charToEscape)
     {
-        const WCHAR* charToEscapePtr = wcschr(sourceString, charToEscape);
+        const CHAR_T* charToEscapePtr = wcschr(sourceString, charToEscape);
         charcount_t charsPadding = 0;
 
         // Only escape characters if sourceString contains one.
@@ -6219,12 +6219,12 @@ void ScriptContext::RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertie
     }
 
     /*static*/
-    ushort ScriptContext::ProcessNameAndGetLength(Js::StringBuilder<ArenaAllocator>* nameBuffer, const WCHAR* name)
+    ushort ScriptContext::ProcessNameAndGetLength(Js::StringBuilder<ArenaAllocator>* nameBuffer, const CHAR_T* name)
     {
         Assert(nameBuffer);
         Assert(name);
 
-        ushort nameLen = (ushort)wcslen(name);
+        ushort nameLen = (ushort)cstrlen(name);
 
         // Surround each function name with quotes and escape any quote characters in the function name itself with '\\'.
         nameBuffer->Append('\"');

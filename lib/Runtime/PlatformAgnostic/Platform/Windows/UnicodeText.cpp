@@ -215,7 +215,7 @@ namespace PlatformAgnostic
             }
         }
 
-        int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
+        int32 NormalizeString(NormalizationForm normalizationForm, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, int32 destLength, ApiError* pErrorOut)
         {
             // Assert pointers
             Assert(sourceString != nullptr);
@@ -232,7 +232,7 @@ namespace PlatformAgnostic
             // Initialize the error field on the TLS since we check it later
             ::SetLastError(ERROR_SUCCESS);
 
-            int normalizedStringLength = ::NormalizeString(TranslateToWin32NormForm(normalizationForm), (LPCWSTR)sourceString, sourceLength, (LPWSTR)destString, destLength);
+            int normalizedStringLength = ::NormalizeString(TranslateToWin32NormForm(normalizationForm), (LPCCHAR_T)sourceString, sourceLength, (LPCHAR_T)destString, destLength);
 
             if (destLength == 0 && normalizedStringLength >= 0)
             {
@@ -249,14 +249,14 @@ namespace PlatformAgnostic
             return normalizedStringLength;
         }
 
-        bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength)
+        bool IsNormalizedString(NormalizationForm normalizationForm, const CHAR_T* testString, int32 testStringLength)
         {
             Assert(testString != nullptr);
 
-            return (::IsNormalizedString(TranslateToWin32NormForm(normalizationForm), (LPCWSTR)testString, testStringLength) == TRUE);
+            return (::IsNormalizedString(TranslateToWin32NormForm(normalizationForm), (LPCCHAR_T)testString, testStringLength) == TRUE);
         }
 
-        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
+        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, uint32 destLength, ApiError* pErrorOut)
         {
             // Assert pointers
             Assert(sourceString != nullptr);
@@ -283,7 +283,7 @@ namespace PlatformAgnostic
             return (uint32) translatedStringLength;
         }
 
-        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, char16* sourceString, uint32 sourceLength)
+        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, CHAR_T* sourceString, uint32 sourceLength)
         {
             // Assert pointers
             Assert(sourceString != nullptr);
@@ -408,7 +408,7 @@ namespace PlatformAgnostic
 #endif
         }
 
-        int LogicalStringCompare(const char16* string1, const char16* string2)
+        int LogicalStringCompare(const CHAR_T* string1, const CHAR_T* string2)
         {
             // CompareStringW called with these flags is equivalent to calling StrCmpLogicalW
             // and we have the added advantage of not having to link with shlwapi.lib just for one function
@@ -419,7 +419,7 @@ namespace PlatformAgnostic
 
         // Win32 implementation of platform-agnostic Unicode interface
         // These are the public APIs of this interface
-        CharacterClassificationType GetLegacyCharacterClassificationType(char16 ch)
+        CharacterClassificationType GetLegacyCharacterClassificationType(CHAR_T ch)
         {
             WORD charType = 0;
             BOOL res = ::GetStringTypeW(CT_CTYPE1, &ch, 1, &charType);

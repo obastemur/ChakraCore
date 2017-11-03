@@ -1085,7 +1085,7 @@ void ByteCodeGenerator::RestoreOneScope(Js::ScopeInfo * scopeInfo, FuncInfo * fu
             func->SetHasCachedScope(scopeInfo->IsCached());
             break;
     }
-    
+
     Assert(!scopeInfo->IsCached() || scope == func->GetBodyScope());
 
     // scopeInfo->scope was created/saved during parsing.
@@ -1220,7 +1220,7 @@ ParseNode* VisitBlock(ParseNode *pnode, ByteCodeGenerator* byteCodeGenerator, Pr
     return pnodeLastVal;
 }
 
-FuncInfo * ByteCodeGenerator::StartBindFunction(const char16 *name, uint nameLength, uint shortNameOffset, bool* pfuncExprWithName, ParseNode *pnode, Js::ParseableFunctionInfo * reuseNestedFunc)
+FuncInfo * ByteCodeGenerator::StartBindFunction(const CHAR_T *name, uint nameLength, uint shortNameOffset, bool* pfuncExprWithName, ParseNode *pnode, Js::ParseableFunctionInfo * reuseNestedFunc)
 {
     bool funcExprWithName;
     Js::ParseableFunctionInfo* parseableFunctionInfo = nullptr;
@@ -1605,7 +1605,7 @@ void ByteCodeGenerator::PopBlock()
     currentBlock = currentBlock->sxBlock.GetEnclosingBlock();
 }
 
-void ByteCodeGenerator::PushFuncInfo(char16 const * location, FuncInfo* funcInfo)
+void ByteCodeGenerator::PushFuncInfo(CHAR_T const * location, FuncInfo* funcInfo)
 {
     // We might have multiple global scope for deferparse.
     // Assert(!funcInfo->IsGlobalFunction() || this->TopFuncInfo() == nullptr || this->TopFuncInfo()->IsGlobalFunction());
@@ -1622,7 +1622,7 @@ void ByteCodeGenerator::PushFuncInfo(char16 const * location, FuncInfo* funcInfo
     funcInfoStack->Push(funcInfo);
 }
 
-void ByteCodeGenerator::PopFuncInfo(char16 const * location)
+void ByteCodeGenerator::PopFuncInfo(CHAR_T const * location)
 {
     FuncInfo * funcInfo = funcInfoStack->Pop();
     // Assert(!funcInfo->IsGlobalFunction() || this->TopFuncInfo() == nullptr || this->TopFuncInfo()->IsGlobalFunction());
@@ -1640,7 +1640,7 @@ void ByteCodeGenerator::PopFuncInfo(char16 const * location)
 
 Symbol * ByteCodeGenerator::FindSymbol(Symbol **symRef, IdentPtr pid, bool forReference)
 {
-    const char16 *key = nullptr;
+    const CHAR_T *key = nullptr;
 
     Symbol *sym = nullptr;
     Assert(symRef);
@@ -1653,7 +1653,7 @@ Symbol * ByteCodeGenerator::FindSymbol(Symbol **symRef, IdentPtr pid, bool forRe
         this->AssignPropertyId(pid);
         return nullptr;
     }
-    key = reinterpret_cast<const char16*>(sym->GetPid()->Psz());
+    key = reinterpret_cast<const CHAR_T*>(sym->GetPid()->Psz());
 
     Scope *symScope = sym->GetScope();
     Assert(symScope);
@@ -1731,7 +1731,7 @@ Symbol * ByteCodeGenerator::FindSymbol(Symbol **symRef, IdentPtr pid, bool forRe
     return sym;
 }
 
-Symbol * ByteCodeGenerator::AddSymbolToScope(Scope *scope, const char16 *key, int keyLength, ParseNode *varDecl, SymbolType symbolType)
+Symbol * ByteCodeGenerator::AddSymbolToScope(Scope *scope, const CHAR_T *key, int keyLength, ParseNode *varDecl, SymbolType symbolType)
 {
     Symbol *sym = nullptr;
 
@@ -1773,7 +1773,7 @@ Symbol * ByteCodeGenerator::AddSymbolToScope(Scope *scope, const char16 *key, in
     return sym;
 }
 
-Symbol * ByteCodeGenerator::AddSymbolToFunctionScope(const char16 *key, int keyLength, ParseNode *varDecl, SymbolType symbolType)
+Symbol * ByteCodeGenerator::AddSymbolToFunctionScope(const CHAR_T *key, int keyLength, ParseNode *varDecl, SymbolType symbolType)
 {
     Scope* scope = currentScope->GetFunc()->GetBodyScope();
     return this->AddSymbolToScope(scope, key, keyLength, varDecl, symbolType);
@@ -1808,7 +1808,7 @@ FuncInfo* GetParentFuncInfo(FuncInfo* child)
 bool ByteCodeGenerator::CanStackNestedFunc(FuncInfo * funcInfo, bool trace)
 {
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
     Assert(!funcInfo->IsGlobalFunction());
     bool const doStackNestedFunc = !funcInfo->HasMaybeEscapedNestedFunc() && !IsInDebugMode()
@@ -2078,7 +2078,7 @@ void ByteCodeGenerator::CheckDeferParseHasMaybeEscapedNestedFunc()
             // This should box the rest of the parent functions.
             if (PHASE_TESTTRACE(Js::StackFuncPhase, this->pCurrentFunction))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                 Output::Print(_u("DeferParse: box and disable stack function: %s (function %s)\n"),
                     functionBody->GetDisplayName(), functionBody->GetDebugNumberSet(debugStringBuffer));
@@ -2253,7 +2253,7 @@ void AddArgsToScope(ParseNodePtr pnode, ByteCodeGenerator *byteCodeGenerator, bo
         if (arg->IsVarLetOrConst())
         {
             Symbol *formal = byteCodeGenerator->AddSymbolToScope(byteCodeGenerator->TopFuncInfo()->GetParamScope(),
-                reinterpret_cast<const char16*>(arg->sxVar.pid->Psz()),
+                reinterpret_cast<const CHAR_T*>(arg->sxVar.pid->Psz()),
                 arg->sxVar.pid->Cch(),
                 arg,
                 STFormal);
@@ -2308,7 +2308,7 @@ void AddVarsToScope(ParseNode *vars, ByteCodeGenerator *byteCodeGenerator)
 {
     while (vars != nullptr)
     {
-        Symbol *sym = byteCodeGenerator->AddSymbolToFunctionScope(reinterpret_cast<const char16*>(vars->sxVar.pid->Psz()), vars->sxVar.pid->Cch(), vars, STVariable);
+        Symbol *sym = byteCodeGenerator->AddSymbolToFunctionScope(reinterpret_cast<const CHAR_T*>(vars->sxVar.pid->Psz()), vars->sxVar.pid->Cch(), vars, STVariable);
 
 #if DBG_DUMP
         if (sym->GetSymbolType() == STVariable && byteCodeGenerator->Trace())
@@ -2406,24 +2406,24 @@ FuncInfo* PreVisitFunction(ParseNode* pnode, ByteCodeGenerator* byteCodeGenerato
         parentFunc->IsGlobalFunction() &&
         parentFunc->root->sxFnc.GetTopLevelScope() == pnode);
 
-    const char16 *funcName = Js::Constants::AnonymousFunction;
+    const CHAR_T *funcName = Js::Constants::AnonymousFunction;
     uint funcNameLength = Js::Constants::AnonymousFunctionLength;
     uint functionNameOffset = 0;
     bool funcExprWithName = false;
 
     if (pnode->sxFnc.hint != nullptr)
     {
-        funcName = reinterpret_cast<const char16*>(pnode->sxFnc.hint);
+        funcName = reinterpret_cast<const CHAR_T*>(pnode->sxFnc.hint);
         funcNameLength = pnode->sxFnc.hintLength;
         functionNameOffset = pnode->sxFnc.hintOffset;
-        Assert(funcNameLength != 0 || funcNameLength == (int)wcslen(funcName));
+        Assert(funcNameLength != 0 || funcNameLength == (int)cstrlen(funcName));
     }
     if (pnode->sxFnc.IsDeclaration() || pnode->sxFnc.IsMethod())
     {
         // Class members have the fully qualified name stored in 'hint', no need to replace it.
         if (pnode->sxFnc.pid && !pnode->sxFnc.IsClassMember())
         {
-            funcName = reinterpret_cast<const char16*>(pnode->sxFnc.pid->Psz());
+            funcName = reinterpret_cast<const CHAR_T*>(pnode->sxFnc.pid->Psz());
             funcNameLength = pnode->sxFnc.pid->Cch();
             functionNameOffset = 0;
         }
@@ -2431,7 +2431,7 @@ FuncInfo* PreVisitFunction(ParseNode* pnode, ByteCodeGenerator* byteCodeGenerato
     else if ((pnode->sxFnc.pnodeName != nullptr) &&
         (pnode->sxFnc.pnodeName->nop == knopVarDecl))
     {
-        funcName = reinterpret_cast<const char16*>(pnode->sxFnc.pnodeName->sxVar.pid->Psz());
+        funcName = reinterpret_cast<const CHAR_T*>(pnode->sxFnc.pnodeName->sxVar.pid->Psz());
         funcNameLength = pnode->sxFnc.pnodeName->sxVar.pid->Cch();
         functionNameOffset = 0;
         //
@@ -3184,7 +3184,7 @@ void AddFunctionsToScope(ParseNodePtr scope, ByteCodeGenerator * byteCodeGenerat
         ParseNode *pnodeName = fn->sxFnc.pnodeName;
         if (pnodeName && pnodeName->nop == knopVarDecl && fn->sxFnc.IsDeclaration())
         {
-            const char16 *fnName = pnodeName->sxVar.pid->Psz();
+            const CHAR_T *fnName = pnodeName->sxVar.pid->Psz();
             if (byteCodeGenerator->Trace())
             {
                 Output::Print(_u("current context has declared function %s\n"), fnName);
@@ -3548,7 +3548,7 @@ void PreVisitBlock(ParseNode *pnodeBlock, ByteCodeGenerator *byteCodeGenerator)
 
     auto addSymbolToScope = [scope, byteCodeGenerator, isGlobalScope](ParseNode *pnode)
         {
-            Symbol *sym = byteCodeGenerator->AddSymbolToScope(scope, reinterpret_cast<const char16*>(pnode->sxVar.pid->Psz()), pnode->sxVar.pid->Cch(), pnode, STVariable);
+            Symbol *sym = byteCodeGenerator->AddSymbolToScope(scope, reinterpret_cast<const CHAR_T*>(pnode->sxVar.pid->Psz()), pnode->sxVar.pid->Cch(), pnode, STVariable);
 #if DBG_DUMP
         if (sym->GetSymbolType() == STVariable && byteCodeGenerator->Trace())
         {

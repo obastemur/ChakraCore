@@ -86,7 +86,7 @@ namespace Js {
         template <class ScriptContext>
         static double GetTvUtc(double tv, ScriptContext * scriptContext);
         static bool UtcTimeFromStrCore(
-            __in_ecount_z(ulength) const char16 *psz,
+            __in_ecount_z(ulength) const CHAR_T *psz,
             unsigned int ulength,
             double &retVal,
             ScriptContext * const scriptContext);
@@ -116,19 +116,19 @@ namespace Js {
         double SetDateData(Arguments args, DateData dd, bool fUtc, ScriptContext* scriptContext);
 
         static bool TryParseDecimalDigits(
-            const char16 *const str,
+            const CHAR_T *const str,
             const size_t length,
             const size_t startIndex,
             size_t numDigits,
             int &value);
         static bool TryParseMilliseconds(
-            const char16 *const str,
+            const CHAR_T *const str,
             const size_t length,
             const size_t startIndex,
             int &value,
             size_t &foundDigits);
         static bool TryParseTwoDecimalDigits(
-            const char16 *const str,
+            const CHAR_T *const str,
             const size_t length,
             const size_t startIndex,
             int &value,
@@ -136,7 +136,7 @@ namespace Js {
 
         // Tries to parse the string as an ISO-format date/time as defined in the spec. Returns false if the string is not in
         // ISO format.
-        static bool TryParseIsoString(const char16 *const str, const size_t length, double &timeValue, ScriptContext *scriptContext);
+        static bool TryParseIsoString(const CHAR_T *const str, const size_t length, double &timeValue, ScriptContext *scriptContext);
 
         static JavascriptString* ConvertVariantDateToString(double variantDateDouble, ScriptContext* scriptContext);
         static JavascriptString* GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd,DateTimeFlag noDateTime,ScriptContext* scriptContext);
@@ -146,8 +146,8 @@ namespace Js {
 #endif
 
         static double DateFncUTC(ScriptContext* scriptContext, Arguments args);
-        static bool FBig(char16 ch);
-        static bool FDateDelimiter(char16 ch);
+        static bool FBig(CHAR_T ch);
+        static bool FDateDelimiter(CHAR_T ch);
 
         bool IsNaN()
         {
@@ -395,12 +395,12 @@ namespace Js {
 
         StringBuilder* const bs = newStringBuilder(72);
 
-        const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, char16 *const buffer, const CharCount charCapacity)
+        const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, CHAR_T *const buffer, const CharCount charCapacity)
         {
             const charcount_t cchWritten = NumberUtilities::UInt16ToString(value, buffer, charCapacity, 2);
             Assert(cchWritten != 0);
         };
-        const auto ConvertLongToString = [](const int32 value, char16 *const buffer, const CharCount charCapacity)
+        const auto ConvertLongToString = [](const int32 value, CHAR_T *const buffer, const CharCount charCapacity)
         {
             const errno_t err = _ltow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
@@ -467,13 +467,13 @@ namespace Js {
             if (ptzd->fDst == false)
             {
                 size_t nameLength;
-                const WCHAR *const standardName = scriptContext->GetStandardName(&nameLength, pymd);
+                const CHAR_T *const standardName = scriptContext->GetStandardName(&nameLength, pymd);
                 bs->AppendChars(standardName, static_cast<CharCount>(nameLength));
             }
             else
             {
                 size_t nameLength;
-                const WCHAR *const daylightName = scriptContext->GetDaylightName(&nameLength, pymd);
+                const CHAR_T *const daylightName = scriptContext->GetDaylightName(&nameLength, pymd);
                 bs->AppendChars(daylightName, static_cast<CharCount>(nameLength));
             }
 

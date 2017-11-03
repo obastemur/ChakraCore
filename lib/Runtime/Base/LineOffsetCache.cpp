@@ -111,8 +111,8 @@ namespace Js
         charcount_t characterOffset = this->lineCharacterOffsetCacheList->Item(line);
 
         if (outByteOffset != nullptr)
-        {            
-            *outByteOffset = this->lineByteOffsetCacheList? this->lineByteOffsetCacheList->Item(line) : characterOffset;            
+        {
+            *outByteOffset = this->lineByteOffsetCacheList? this->lineByteOffsetCacheList->Item(line) : characterOffset;
         }
 
         return characterOffset;
@@ -145,7 +145,7 @@ namespace Js
             LPCUTF8 previousCharacter = currentSourcePosition;
 
             // Decode from UTF8 to wide char.  Note that Decode will advance the current character by 1 at least.
-            char16 decodedCharacter = utf8::Decode(currentSourcePosition, sourceEndCharacter, options);
+            CHAR_T decodedCharacter = utf8::Decode(currentSourcePosition, sourceEndCharacter, options);
 
             bool wasLineEncountered = false;
             switch (decodedCharacter)
@@ -228,7 +228,7 @@ namespace Js
         else if (byteOffsetList != nullptr)
         {
             byteOffsetList->Add(byteOffset);
-        }        
+        }
 
 #if DBG
         Assert(this->lineByteOffsetCacheList == nullptr || this->lineByteOffsetCacheList->Count() == this->lineCharacterOffsetCacheList->Count());

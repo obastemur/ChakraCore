@@ -65,11 +65,11 @@ class MemoryProfiler
 public:
     MemoryProfiler();
     ~MemoryProfiler();
-    static ArenaMemoryData * Begin(LPCWSTR name);
+    static ArenaMemoryData * Begin(LPCCHAR_T name);
     static RecyclerMemoryData * GetRecyclerMemoryData();
     static PageMemoryData * GetPageMemoryData(PageAllocatorType type);
-    static void Reset(LPCWSTR name, ArenaMemoryData * arena);
-    static void End(LPCWSTR name, ArenaMemoryData * arena);
+    static void Reset(LPCCHAR_T name, ArenaMemoryData * arena);
+    static void End(LPCCHAR_T name, ArenaMemoryData * arena);
     static void PrintAll();
 
     static void PrintCurrentThread();
@@ -82,7 +82,7 @@ public:
     {
         ForEachProfiler([&] (MemoryProfiler * memoryProfiler)
         {
-            memoryProfiler->WithArenaUsageSummary(true, [&] (int count, _In_reads_(count) LPWSTR * name, _In_reads_(count) ArenaMemoryDataSummary * summaries)
+            memoryProfiler->WithArenaUsageSummary(true, [&] (int count, _In_reads_(count) LPCHAR_T * name, _In_reads_(count) ArenaMemoryDataSummary * summaries)
             {
                 for (int i = 0; i < count; i++)
                 {
@@ -99,7 +99,7 @@ public:
 
 private:
     int MemoryProfiler::CreateArenaUsageSummary(ArenaAllocator * alloc, bool liveOnly,
-        _Outptr_result_buffer_(return) LPWSTR ** name_ptr, _Outptr_result_buffer_(return) ArenaMemoryDataSummary *** summaries_ptr);
+        _Outptr_result_buffer_(return) LPCHAR_T ** name_ptr, _Outptr_result_buffer_(return) ArenaMemoryDataSummary *** summaries_ptr);
 
     template<typename THandler>
     void WithArenaUsageSummary(bool liveOnly, THandler handler);
@@ -118,7 +118,7 @@ private:
     static MemoryProfiler * EnsureMemoryProfiler();
     static void AccumulateData(ArenaMemoryDataSummary *, ArenaMemoryData *, bool reset = false);
     void Print();
-    void PrintArenaHeader(char16 const * title);
+    void PrintArenaHeader(CHAR_T const * title);
     static void PrintPageMemoryData(PageMemoryData const& pageMemoryData, char const * title);
 
 private:
@@ -132,7 +132,7 @@ private:
 
     PageAllocator pageAllocator;
     ArenaAllocator alloc;
-    JsUtil::BaseDictionary<LPWSTR, ArenaMemoryDataSummary *, ArenaAllocator, PrimeSizePolicy> arenaDataMap;
+    JsUtil::BaseDictionary<LPCHAR_T, ArenaMemoryDataSummary *, ArenaAllocator, PrimeSizePolicy> arenaDataMap;
     PageMemoryData pageMemoryData[PageAllocatorType_Max];
     RecyclerMemoryData recyclerMemoryData;
     MemoryProfiler * next;
@@ -149,7 +149,7 @@ MemoryProfiler::WithArenaUsageSummary(bool liveOnly, THandler handler)
 
     PageAllocator tempPageAlloc(nullptr, Js::Configuration::Global.flags);
     ArenaAllocator tempAlloc(_u("MemoryProfiler"), &tempPageAlloc, Js::Throw::OutOfMemory);
-    LPWSTR * name = nullptr;
+    LPCHAR_T * name = nullptr;
     ArenaMemoryDataSummary ** summaries = nullptr;
     int count = CreateArenaUsageSummary(&tempAlloc, liveOnly, &name, &summaries);
     handler(count, name, summaries);

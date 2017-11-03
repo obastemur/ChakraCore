@@ -10,7 +10,7 @@ namespace PlatformAgnostic
 {
 namespace DateTime
 {
-    int GetTZ(double tv, WCHAR* dst_name, bool* is_dst, int* offset)
+    int GetTZ(double tv, CHAR_T* dst_name, bool* is_dst, int* offset)
     {
         struct tm tm_local, *tm_result;
         time_t time_noms = (time_t) (tv / 1000 /* drop ms */);
@@ -21,7 +21,7 @@ namespace DateTime
             *offset = 0;
             if (dst_name != nullptr)
             {
-                dst_name[0] = (WCHAR) 0;
+                dst_name[0] = (CHAR_T) 0;
             }
             return 0;
         }
@@ -41,7 +41,7 @@ namespace DateTime
             for (; length < __CC_PA_TIMEZONE_ABVR_NAME_LENGTH
                 && tm_result->tm_zone[length] != 0; length++)
             {
-                dst_name[length] = (WCHAR) tm_result->tm_zone[length];
+                dst_name[length] = (CHAR_T) tm_result->tm_zone[length];
             }
 
             if (length >= __CC_PA_TIMEZONE_ABVR_NAME_LENGTH)
@@ -49,7 +49,7 @@ namespace DateTime
                 length = __CC_PA_TIMEZONE_ABVR_NAME_LENGTH - 1;
             }
 
-            dst_name[length] = (WCHAR)0;
+            dst_name[length] = (CHAR_T)0;
             return length;
         }
         else
@@ -58,7 +58,7 @@ namespace DateTime
         }
     }
 
-    const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
+    const CHAR_T *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
     {
         AssertMsg(ymd != NULL, "xplat needs DateTime::YMD is defined for this call");
         double tv = Js::DateUtilities::TvFromDate(ymd->year, ymd->mon, ymd->mday, ymd->time);
@@ -69,7 +69,7 @@ namespace DateTime
         return data.standardName;
     }
 
-    const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
+    const CHAR_T *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
     {
         // xplat only gets the actual zone name for the given date
         return GetStandardName(nameLength, ymd);

@@ -12,7 +12,7 @@ namespace Js
     {
     }
 
-    LiteralString::LiteralString(StaticType * type, const char16* content, charcount_t charLength) :
+    LiteralString::LiteralString(StaticType * type, const CHAR_T* content, charcount_t charLength) :
         JavascriptString(type, charLength, content)
     {
 #if defined(DBG) && defined(_M_IX86)
@@ -31,7 +31,7 @@ namespace Js
 #endif
     }
 
-    LiteralString* LiteralString::New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler)
+    LiteralString* LiteralString::New(StaticType* type, const CHAR_T* content, charcount_t charLength, Recycler* recycler)
     {
         return RecyclerNew(recycler, LiteralString, type, content, charLength);
     }

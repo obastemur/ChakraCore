@@ -76,7 +76,7 @@ void WebAssemblySource::CreateSourceInfo(bool createNewContext, ScriptContext* s
     // Note: We don't have real "source info" for Wasm. Following are just placeholders.
     // Hack: Wasm handles debugging differently. Fake this as "LibraryCode" so that
     // normal script debugging code ignores this source info and its functions.
-    const int32 cchLength = static_cast<int32>(bufferLength / sizeof(char16));
+    const int32 cchLength = static_cast<int32>(bufferLength / sizeof(CHAR_T));
     sourceInfo = Utf8SourceInfo::NewWithNoCopy(
         scriptContext, (LPCUTF8)buffer, cchLength, bufferLength, srcInfo, /*isLibraryCode*/true);
     scriptContext->SaveSourceNoCopy(sourceInfo, cchLength, /*isCesu8*/false);

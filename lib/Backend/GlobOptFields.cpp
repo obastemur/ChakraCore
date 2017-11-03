@@ -539,7 +539,7 @@ GlobOpt::ProcessFieldKills(IR::Instr *instr, BVSparse<JitArenaAllocator> *bv, bo
     case Js::OpCode::InlineeEnd:
         Assert(!instr->UsesAllFields());
 
-        // Kill all live 'arguments' and 'caller' fields, as 'inlineeFunction.arguments' and 'inlineeFunction.caller' 
+        // Kill all live 'arguments' and 'caller' fields, as 'inlineeFunction.arguments' and 'inlineeFunction.caller'
         // cannot be copy-propped across different instances of the same inlined function.
         KillLiveFields(argumentsEquivBv, bv);
         KillLiveFields(callerEquivBv, bv);
@@ -619,7 +619,7 @@ GlobOpt::PreparePrepassFieldHoisting(Loop * loop)
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::FieldHoistPhase, this->func->GetSourceContextId(), this->func->GetLocalFunctionId()))
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("FieldHoist: START LOOP function %s (%s)\n"), this->func->GetJITFunctionBody()->GetDisplayName(), this->func->GetDebugNumberSet(debugStringBuffer));
     }
 #endif
@@ -1572,7 +1572,7 @@ GlobOpt::GenerateHoistFieldLoad(PropertySym * sym, Loop * loop, IR::Instr * inst
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::FieldHoistPhase, this->func->GetSourceContextId(), this->func->GetLocalFunctionId()))
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("    FieldHoist: function %s (%s) "), this->func->GetJITFunctionBody()->GetDisplayName(), this->func->GetDebugNumberSet(debugStringBuffer));
         newInstr->DumpTestTrace();
     }
@@ -2618,8 +2618,8 @@ GlobOpt::ProcessPropOpInTypeCheckSeq(IR::Instr* instr, IR::PropertySymOpnd *opnd
             }
         }
         else if (valueInfo->GetJsTypeSet() &&
-                 (opnd->IsMono() ? 
-                      valueInfo->GetJsTypeSet()->Contains(opnd->GetFirstEquivalentType()) : 
+                 (opnd->IsMono() ?
+                      valueInfo->GetJsTypeSet()->Contains(opnd->GetFirstEquivalentType()) :
                       IsSubsetOf(opndTypeSet, valueInfo->GetJsTypeSet())
                  )
             )

@@ -49,17 +49,17 @@ void WasmBytecodeGenerator::WriteTypeStack(WriteFn writefn) const
     writefn(_u("]"));
 }
 
-uint32 WasmBytecodeGenerator::WriteTypeStackToString(_Out_writes_(maxlen) char16* out, uint32 maxlen) const
+uint32 WasmBytecodeGenerator::WriteTypeStackToString(_Out_writes_(maxlen) CHAR_T* out, uint32 maxlen) const
 {
     AssertOrFailFast(out != nullptr);
     uint32 numwritten = 0;
-    WriteTypeStack([&] (const char16* msg)
+    WriteTypeStack([&] (const CHAR_T* msg)
     {
         numwritten += _snwprintf_s(out + numwritten, maxlen - numwritten, _TRUNCATE, msg);
     });
     if (numwritten >= maxlen - 5)
     {
-        // null out the last 5 characters so we can properly end it 
+        // null out the last 5 characters so we can properly end it
         for (int i = 1; i <= 5; i++)
         {
             *(out + maxlen - i) = 0;
@@ -73,7 +73,7 @@ uint32 WasmBytecodeGenerator::WriteTypeStackToString(_Out_writes_(maxlen) char16
 #if DBG_DUMP
 void WasmBytecodeGenerator::PrintTypeStack() const
 {
-    WriteTypeStack([](const char16* msg) { Output::Print(msg); });
+    WriteTypeStack([](const CHAR_T* msg) { Output::Print(msg); });
 }
 
 void WasmBytecodeGenerator::PrintOpBegin(WasmOp op)
@@ -308,17 +308,17 @@ Js::WebAssemblyModule* WasmModuleGenerator::GenerateModule()
     if (firstThunk)
     {
         int sourceId = (int)firstThunk->GetBody()->GetSourceContextId();
-        char16 range[64];
+        CHAR_T range[64];
         swprintf_s(range, 64, _u("%d.%d-%d.%d"),
                    sourceId, firstThunk->GetBody()->GetLocalFunctionId(),
                    sourceId, lastThunk->GetBody()->GetLocalFunctionId());
-        char16 offFullJit[128];
+        CHAR_T offFullJit[128];
         swprintf_s(offFullJit, 128, _u("-off:fulljit:%s"), range);
-        char16 offSimpleJit[128];
+        CHAR_T offSimpleJit[128];
         swprintf_s(offSimpleJit, 128, _u("-off:simplejit:%s"), range);
-        char16 offLoopJit[128];
+        CHAR_T offLoopJit[128];
         swprintf_s(offLoopJit, 128, _u("-off:jitloopbody:%s"), range);
-        char16* argv[] = { nullptr, offFullJit, offSimpleJit, offLoopJit };
+        CHAR_T* argv[] = { nullptr, offFullJit, offSimpleJit, offLoopJit };
         CmdLineArgsParser parser(nullptr);
         parser.Parse(ARRAYSIZE(argv), argv);
     }
@@ -346,7 +346,7 @@ void WasmModuleGenerator::GenerateFunctionHeader(uint32 index)
         throw WasmCompilationException(_u("Invalid function index %u"), index);
     }
 
-    const char16* functionName = nullptr;
+    const CHAR_T* functionName = nullptr;
     int nameLength = 0;
 
     if (wasmInfo->GetNameLength() > 0)
@@ -366,7 +366,7 @@ void WasmModuleGenerator::GenerateFunctionHeader(uint32 index)
                 wasmExport->index == wasmInfo->GetNumber())
             {
                 nameLength = wasmExport->nameLength + 16;
-                char16 * autoName = RecyclerNewArrayLeafZ(m_recycler, char16, nameLength);
+                CHAR_T * autoName = RecyclerNewArrayLeafZ(m_recycler, CHAR_T, nameLength);
                 nameLength = swprintf_s(autoName, nameLength, _u("%s[%u]"), wasmExport->name, wasmInfo->GetNumber());
                 functionName = autoName;
                 break;
@@ -376,7 +376,7 @@ void WasmModuleGenerator::GenerateFunctionHeader(uint32 index)
 
     if (!functionName)
     {
-        char16* autoName = RecyclerNewArrayLeafZ(m_recycler, char16, 32);
+        CHAR_T* autoName = RecyclerNewArrayLeafZ(m_recycler, CHAR_T, 32);
         nameLength = swprintf_s(autoName, 32, _u("wasm-function[%u]"), wasmInfo->GetNumber());
         functionName = autoName;
     }
@@ -541,7 +541,7 @@ void WasmBytecodeGenerator::GenerateFunction()
 #if DBG_DUMP
     if ((
         PHASE_DUMP(Js::WasmBytecodePhase, GetFunctionBody()) ||
-        PHASE_DUMP(Js::ByteCodePhase, GetFunctionBody()) 
+        PHASE_DUMP(Js::ByteCodePhase, GetFunctionBody())
         ) && !IsValidating())
     {
         Js::AsmJsByteCodeDumper::Dump(GetFunctionBody(), &mTypedRegisterAllocator, nullptr);
@@ -1365,7 +1365,7 @@ EmitInfo WasmBytecodeGenerator::EmitMemAccess(WasmOp wasmOp, const WasmTypes::Wa
     }
 
     ReleaseLocation(&exprInfo);
-    Js::RegSlot resultReg = GetRegisterSpace(type)->AcquireTmpRegister();   
+    Js::RegSlot resultReg = GetRegisterSpace(type)->AcquireTmpRegister();
     m_writer->WasmMemAccess(Js::OpCodeAsmJs::LdArrWasm, resultReg, exprInfo.location, offset, viewType);
 
     EmitInfo yieldInfo;
@@ -1642,7 +1642,7 @@ WasmRegisterSpace* WasmBytecodeGenerator::GetRegisterSpace(WasmTypes::WasmType t
 }
 
 
-Wasm::EmitInfo WasmBytecodeGenerator::PopStackPolymorphic(WasmTypes::WasmType expectedType, const char16* mismatchMessage)
+Wasm::EmitInfo WasmBytecodeGenerator::PopStackPolymorphic(WasmTypes::WasmType expectedType, const CHAR_T* mismatchMessage)
 {
     // Check the stack before popping, it is valid to yield nothing if we are Unreachable
     if (IsUnreachable() && m_evalStack.Peek().type == WasmTypes::Limit)
@@ -1652,7 +1652,7 @@ Wasm::EmitInfo WasmBytecodeGenerator::PopStackPolymorphic(WasmTypes::WasmType ex
     return PopEvalStack(expectedType, mismatchMessage);
 }
 
-EmitInfo WasmBytecodeGenerator::PopEvalStack(WasmTypes::WasmType expectedType, const char16* mismatchMessage)
+EmitInfo WasmBytecodeGenerator::PopEvalStack(WasmTypes::WasmType expectedType, const CHAR_T* mismatchMessage)
 {
     // The scope marker should at least be there
     Assert(!m_evalStack.Empty());
@@ -1691,7 +1691,7 @@ void WasmBytecodeGenerator::ExitEvalStackScope()
     Assert(!m_evalStack.Empty());
     EmitInfo info = m_evalStack.Pop();
     // It is possible to have unconsumed Any type left on the stack, simply remove them
-    while (info.type == WasmTypes::Any) 
+    while (info.type == WasmTypes::Any)
     {
         Assert(!m_evalStack.Empty());
         info = m_evalStack.Pop();
@@ -1700,7 +1700,7 @@ void WasmBytecodeGenerator::ExitEvalStackScope()
     {
         // Put info back on stack so we can write it to string
         m_evalStack.Push(info);
-        char16 buf[512] = { 0 };
+        CHAR_T buf[512] = { 0 };
         WriteTypeStackToString(buf, 512);
         throw WasmCompilationException(_u("Expected stack to be empty, but has %s"), buf);
     }
@@ -1748,22 +1748,22 @@ Wasm::WasmReaderBase* WasmBytecodeGenerator::GetReader() const
     return m_module->GetReader();
 }
 
-void WasmCompilationException::FormatError(const char16* _msg, va_list arglist)
+void WasmCompilationException::FormatError(const CHAR_T* _msg, va_list arglist)
 {
-    char16 buf[2048];
+    CHAR_T buf[2048];
 
     _vsnwprintf_s(buf, _countof(buf), _TRUNCATE, _msg, arglist);
     errorMsg = SysAllocString(buf);
 }
 
-WasmCompilationException::WasmCompilationException(const char16* _msg, ...) : errorMsg(nullptr)
+WasmCompilationException::WasmCompilationException(const CHAR_T* _msg, ...) : errorMsg(nullptr)
 {
     va_list arglist;
     va_start(arglist, _msg);
     FormatError(_msg, arglist);
 }
 
-WasmCompilationException::WasmCompilationException(const char16* _msg, va_list arglist) : errorMsg(nullptr)
+WasmCompilationException::WasmCompilationException(const CHAR_T* _msg, va_list arglist) : errorMsg(nullptr)
 {
     FormatError(_msg, arglist);
 }

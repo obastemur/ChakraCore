@@ -355,11 +355,16 @@ struct _true_value { static const bool value = true; };
 struct _false_value { static const bool value = false; };
 template <typename T> struct _has_trivial_destructor : _false_value {};
 template <typename T> struct _has_trivial_destructor<T*> : _true_value {};
+#ifndef ENGINE_CHAR_T_IS_CHAR
 template <> struct _has_trivial_destructor<char> : _true_value {};
 template <> struct _has_trivial_destructor<const char> : _true_value {};
+#else
+template <> struct _has_trivial_destructor<WCHAR> : _true_value {};
+template <> struct _has_trivial_destructor<const WCHAR> : _true_value {};
+#endif // ENGINE_CHAR_T_IS_CHAR
 template <> struct _has_trivial_destructor<unsigned char> : _true_value {};
-template <> struct _has_trivial_destructor<char16> : _true_value {};
-template <> struct _has_trivial_destructor<const char16> : _true_value {};
+template <> struct _has_trivial_destructor<CHAR_T> : _true_value {};
+template <> struct _has_trivial_destructor<const CHAR_T> : _true_value {};
 template <> struct _has_trivial_destructor<int> : _true_value {};
 
 template <bool trivial_destructor>

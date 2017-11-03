@@ -58,17 +58,17 @@ namespace DateTime
         }
     }
 
-    const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *_ /*caution! can be NULL. not used for Windows*/)
+    const CHAR_T *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *_ /*caution! can be NULL. not used for Windows*/)
     {
         data.UpdateTimeZoneInfo();
-        *nameLength = wcslen(data.timeZoneInfo.StandardName);
+        *nameLength = cstrlen(data.timeZoneInfo.StandardName);
         return data.timeZoneInfo.StandardName;
     }
 
-    const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *_/*caution! can be NULL. not used for Windows*/)
+    const CHAR_T *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *_/*caution! can be NULL. not used for Windows*/)
     {
         data.UpdateTimeZoneInfo();
-        *nameLength = wcslen(data.timeZoneInfo.DaylightName);
+        *nameLength = cstrlen(data.timeZoneInfo.DaylightName);
         return data.timeZoneInfo.DaylightName;
     }
 

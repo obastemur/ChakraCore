@@ -10,7 +10,7 @@ namespace Js
 {
     MemoryLogger::MemoryLogger(TAllocator* alloc, ULONG count) : m_alloc(alloc), m_capacity(count), m_current(0)
     {
-        m_log = AnewArrayZ(m_alloc, char16*, m_capacity);
+        m_log = AnewArrayZ(m_alloc, CHAR_T*, m_capacity);
     }
 
     MemoryLogger::~MemoryLogger()
@@ -18,7 +18,7 @@ namespace Js
         Adelete(m_alloc, m_log);
     }
 
-    void MemoryLogger::Write(const char16* msg)
+    void MemoryLogger::Write(const CHAR_T* msg)
     {
 #ifdef EXCEPTION_CHECK
         // In most cases this will be called at runtime when we have exception check enabled.
@@ -27,8 +27,8 @@ namespace Js
         AutoCriticalSection autocs(&m_criticalSection); // TODO: with circular buffer now we can use much granular lock.
 
         // Create a copy of the message.
-        size_t len = wcslen(msg);
-        char16* buf = AnewArray(m_alloc, char16, len + 1);
+        size_t len = cstrlen(msg);
+        CHAR_T* buf = AnewArray(m_alloc, CHAR_T, len + 1);
         js_wmemcpy_s(buf, len + 1, msg, len + 1);   // Copy with the NULL-terminator.
 
         // m_current is the next position to write to.

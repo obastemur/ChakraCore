@@ -96,7 +96,7 @@ namespace Js
         return ch >= '0' && ch <= '9';
     }
 
-    BOOL NumberUtilities::FHexDigit(char16 ch, int *pw)
+    BOOL NumberUtilities::FHexDigit(CHAR_T ch, int *pw)
     {
         if ((ch -= '0') <= 9)
         {
@@ -188,7 +188,7 @@ namespace Js
         return cbit;
     }
 
-    charcount_t NumberUtilities::UInt16ToString(uint16 integer, __out __ecount(outBufferSize) WCHAR* outBuffer, charcount_t outBufferSize, char widthForPaddingZerosInsteadSpaces)
+    charcount_t NumberUtilities::UInt16ToString(uint16 integer, __out __ecount(outBufferSize) CHAR_T* outBuffer, charcount_t outBufferSize, char widthForPaddingZerosInsteadSpaces)
     {
         // inlined here
         WORD digit;
@@ -290,7 +290,7 @@ namespace Js
         return cchWritten;
     }
 
-    BOOL NumberUtilities::TryConvertToUInt32(const char16* str, int length, uint32* intVal)
+    BOOL NumberUtilities::TryConvertToUInt32(const CHAR_T* str, int length, uint32* intVal)
     {
         if (length <= 0 || length > 10)
         {
@@ -685,12 +685,12 @@ namespace Js
         return Js::NumberUtilities::StrToDbl<EncodedChar>(psz, ppchLim, likelyInt);
     }
 
-    template double NumberUtilities::StrToDbl<char16>(const char16 * psz, const char16 **ppchLim, Js::ScriptContext *const scriptContext);
+    template double NumberUtilities::StrToDbl<CHAR_T>(const CHAR_T * psz, const CHAR_T **ppchLim, Js::ScriptContext *const scriptContext);
     template double NumberUtilities::StrToDbl<utf8char_t>(const utf8char_t * psz, const utf8char_t **ppchLim, Js::ScriptContext *const scriptContext);
-    template double NumberUtilities::DblFromHex<char16>(const char16 *psz, const char16 **ppchLim);
+    template double NumberUtilities::DblFromHex<CHAR_T>(const CHAR_T *psz, const CHAR_T **ppchLim);
     template double NumberUtilities::DblFromHex<utf8char_t>(const utf8char_t *psz, const utf8char_t **ppchLim);
-    template double NumberUtilities::DblFromBinary<char16>(const char16 *psz, const char16 **ppchLim);
+    template double NumberUtilities::DblFromBinary<CHAR_T>(const CHAR_T *psz, const CHAR_T **ppchLim);
     template double NumberUtilities::DblFromBinary<utf8char_t>(const utf8char_t *psz, const utf8char_t **ppchLim);
-    template double NumberUtilities::DblFromOctal<char16>(const char16 *psz, const char16 **ppchLim);
+    template double NumberUtilities::DblFromOctal<CHAR_T>(const CHAR_T *psz, const CHAR_T **ppchLim);
     template double NumberUtilities::DblFromOctal<utf8char_t>(const utf8char_t *psz, const utf8char_t **ppchLim);
 }

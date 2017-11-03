@@ -5,7 +5,7 @@
 #include "stdafx.h"
 
 #ifndef _WIN32
-HANDLE CreateSemaphoreW(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LONG lInitialCount, LONG lMaximumCount, LPCWSTR lpName)
+HANDLE CreateSemaphoreW(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LONG lInitialCount, LONG lMaximumCount, LPCCHAR_T lpName)
 {
     // xplat-todo: implement this in PAL
     Assert(false);

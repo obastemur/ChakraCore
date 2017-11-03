@@ -29,8 +29,8 @@ namespace Js
     class BufferBuilder
     {
     protected:
-        LPCWSTR clue;
-        BufferBuilder(LPCWSTR clue)
+        LPCCHAR_T clue;
+        BufferBuilder(LPCCHAR_T clue)
             : clue(clue), offset(0xffffffff) { }
     public:
         uint32 offset;
@@ -69,7 +69,7 @@ namespace Js
         typedef serialization_alignment T value_type;
         value_type value;
 
-        BufferBuilderOf(LPCWSTR clue, const T & value)
+        BufferBuilderOf(LPCCHAR_T clue, const T & value)
             : BufferBuilder(clue), value(value)
         { }
 
@@ -183,7 +183,7 @@ namespace Js
         typedef serialization_alignment T value_type;
         value_type value;
 
-        BufferBuilderOf(LPCWSTR clue, const T & value)
+        BufferBuilderOf(LPCCHAR_T clue, const T & value)
             : BufferBuilder(clue), value(value)
         { }
 
@@ -210,7 +210,7 @@ namespace Js
     template <typename T>
     struct ConstantSizedBufferBuilderOf : BufferBuilderOf<T, false>
     {
-        ConstantSizedBufferBuilderOf(LPCWSTR clue, const T & value)
+        ConstantSizedBufferBuilderOf(LPCCHAR_T clue, const T & value)
         : BufferBuilderOf<T, false>(clue, value)
         { }
     };
@@ -235,7 +235,7 @@ namespace Js
     struct BufferBuilderList : BufferBuilder
     {
         regex::ImmutableList<BufferBuilder*> * list;
-        BufferBuilderList(LPCWSTR clue)
+        BufferBuilderList(LPCCHAR_T clue)
             : BufferBuilder(clue), list(nullptr)
         { }
 
@@ -263,10 +263,10 @@ namespace Js
     {
         BufferBuilder * pointsTo;
         uint32 additionalOffset;
-        BufferBuilderRelativeOffset(LPCWSTR clue, BufferBuilder * pointsTo, uint32 additionalOffset)
+        BufferBuilderRelativeOffset(LPCCHAR_T clue, BufferBuilder * pointsTo, uint32 additionalOffset)
             : BufferBuilder(clue), pointsTo(pointsTo), additionalOffset(additionalOffset)
         { }
-        BufferBuilderRelativeOffset(LPCWSTR clue, BufferBuilder * pointsTo)
+        BufferBuilderRelativeOffset(LPCCHAR_T clue, BufferBuilder * pointsTo)
             : BufferBuilder(clue), pointsTo(pointsTo), additionalOffset(0)
         { }
 
@@ -294,7 +294,7 @@ namespace Js
     {
         uint32 size;
         const byte * raw;
-        BufferBuilderRaw(LPCWSTR clue, __in uint32 size, __in_bcount(size) const byte * raw)
+        BufferBuilderRaw(LPCCHAR_T clue, __in uint32 size, __in_bcount(size) const byte * raw)
             : BufferBuilder(clue), size(size), raw(raw)
         { }
 
@@ -323,7 +323,7 @@ namespace Js
         uint32 alignment;
         uint32 padding;
 
-        BufferBuilderAligned(LPCWSTR clue, BufferBuilder * content, uint32 alignment)
+        BufferBuilderAligned(LPCCHAR_T clue, BufferBuilder * content, uint32 alignment)
             : BufferBuilder(clue), content(content), alignment(alignment), padding(0)
         { }
 

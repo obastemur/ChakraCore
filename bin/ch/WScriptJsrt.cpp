@@ -75,7 +75,7 @@ void WScriptJsrt::RegisterScriptDir(DWORD_PTR sourceContext, LPCSTR fullDirNarro
 
 bool WScriptJsrt::CreateArgumentsObject(JsValueRef *argsObject)
 {
-    LPWSTR *argv = HostConfigFlags::argsVal;
+    LPCHAR_T *argv = HostConfigFlags::argsVal;
     JsValueRef retArr;
 
     Assert(argsObject);
@@ -177,7 +177,7 @@ JsValueRef WScriptJsrt::LoadScriptFileHelper(JsValueRef callee, JsValueRef *argu
     HRESULT hr = E_FAIL;
     JsValueRef returnValue = JS_INVALID_REFERENCE;
     JsErrorCode errorCode = JsNoError;
-    LPCWSTR errorMessage = _u("");
+    LPCCHAR_T errorMessage = _u("");
 
     if (argumentCount < 2 || argumentCount > 4)
     {
@@ -243,7 +243,7 @@ JsValueRef WScriptJsrt::LoadScriptHelper(JsValueRef callee, bool isConstructCall
 {
     HRESULT hr = E_FAIL;
     JsErrorCode errorCode = JsNoError;
-    LPCWSTR errorMessage = _u("");
+    LPCCHAR_T errorMessage = _u("");
     JsValueRef returnValue = JS_INVALID_REFERENCE;
 
     if (argumentCount < 2 || argumentCount > 4)
@@ -406,7 +406,7 @@ JsValueRef WScriptJsrt::LoadScript(JsValueRef callee, LPCSTR fileName,
 {
     HRESULT hr = E_FAIL;
     JsErrorCode errorCode = JsNoError;
-    LPCWSTR errorMessage = _u("Internal error.");
+    LPCCHAR_T errorMessage = _u("Internal error.");
     JsValueRef returnValue = JS_INVALID_REFERENCE;
     JsErrorCode innerErrorCode = JsNoError;
     JsContextRef currentContext = JS_INVALID_REFERENCE;
@@ -570,7 +570,7 @@ Error:
 
 JsValueRef WScriptJsrt::SetTimeoutCallback(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
 {
-    LPCWSTR errorMessage = _u("invalid call to WScript.SetTimeout");
+    LPCCHAR_T errorMessage = _u("invalid call to WScript.SetTimeout");
 
     JsValueRef function;
     JsValueRef timerId;
@@ -615,7 +615,7 @@ Error:
 
 JsValueRef WScriptJsrt::ClearTimeoutCallback(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
 {
-    LPCWSTR errorMessage = _u("invalid call to WScript.ClearTimeout");
+    LPCCHAR_T errorMessage = _u("invalid call to WScript.ClearTimeout");
 
     if (argumentCount != 2)
     {
@@ -664,7 +664,7 @@ void QueueDebugOperation(JsValueRef function, const DebugOperationFunc& operatio
 
 JsValueRef WScriptJsrt::AttachCallback(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
 {
-    LPCWSTR errorMessage = _u("WScript.Attach requires a function, like WScript.Attach(foo);");
+    LPCCHAR_T errorMessage = _u("WScript.Attach requires a function, like WScript.Attach(foo);");
     JsValueType argumentType = JsUndefined;
     if (argumentCount != 2)
     {
@@ -707,7 +707,7 @@ Error:
 
 JsValueRef WScriptJsrt::DetachCallback(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
 {
-    LPCWSTR errorMessage = _u("WScript.Detach requires a function, like WScript.Detach(foo);");
+    LPCCHAR_T errorMessage = _u("WScript.Detach requires a function, like WScript.Detach(foo);");
     JsValueType argumentType = JsUndefined;
     if (argumentCount != 2)
     {
@@ -1141,7 +1141,7 @@ JsValueRef __stdcall WScriptJsrt::FlagCallback(JsValueRef callee, bool isConstru
     {
         AutoString cmd;
         IfJsrtErrorSetGo(cmd.Initialize(arguments[1]));
-        char16* argv[] = { nullptr, cmd.GetWideString() };
+        CHAR_T* argv[] = { nullptr, cmd.GetWideString() };
         ChakraRTInterface::SetConfigFlags(2, argv, nullptr);
     }
 #endif
@@ -1324,7 +1324,7 @@ Error:
 
 bool WScriptJsrt::PrintException(LPCSTR fileName, JsErrorCode jsErrorCode)
 {
-    LPCWSTR errorTypeString = ConvertErrorCodeToMessage(jsErrorCode);
+    LPCCHAR_T errorTypeString = ConvertErrorCodeToMessage(jsErrorCode);
     JsValueRef exception;
     ChakraRTInterface::JsGetAndClearException(&exception);
     if (HostConfigFlags::flags.MuteHostErrorMsgIsEnabled)
@@ -1542,7 +1542,7 @@ HRESULT WScriptJsrt::ModuleMessage::Call(LPCSTR fileName)
                     specifierFullPath = moduleDirEntry->second;
                 }
             }
-            
+
             specifierFullPath += *specifierStr;
             if (_fullpath(fullPath, specifierFullPath.c_str(), _MAX_PATH) == nullptr)
             {

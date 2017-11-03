@@ -167,7 +167,7 @@ namespace Js
         DeferDeserializeFunctionInfo * GetDeferDeserializeFunctionInfo() const;
         FunctionBody * GetFunctionBody() const;
         virtual JavascriptString* GetDisplayNameImpl() const;
-        JavascriptString* DisplayNameHelper(const char16* name, charcount_t length) const;
+        JavascriptString* DisplayNameHelper(const CHAR_T* name, charcount_t length) const;
         JavascriptString* GetDisplayName() const;
         bool GetFunctionName(JavascriptString** name) const;
         bool IsLibraryCode() const;

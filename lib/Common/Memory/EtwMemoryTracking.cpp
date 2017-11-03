@@ -72,7 +72,7 @@ void ArenaMemoryTracking::Activate()
 {
 }
 
-_NOINLINE void ArenaMemoryTracking::ArenaCreated(Allocator *arena, __in LPCWSTR name)
+_NOINLINE void ArenaMemoryTracking::ArenaCreated(Allocator *arena, __in LPCCHAR_T name)
 {
     DISTINGUISH_FUNCTION(Arena);
     EtwMemoryEvents::ReportArenaCreated(arena, ArenaTypeArena);

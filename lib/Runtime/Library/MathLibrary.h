@@ -20,12 +20,12 @@ private:
 
 
 public:
-    static const LPCWSTR LibraryName;
+    static const LPCCHAR_T LibraryName;
 
     UCrtC99MathApis() : m_pfnlog2(nullptr), m_pfnlog1p(nullptr), m_pfnexpm1(nullptr), m_pfnacosh(nullptr), m_pfnasinh(nullptr), m_pfnatanh(nullptr), m_pfntrunc(nullptr), m_pfncbrt(nullptr) { }
     virtual ~UCrtC99MathApis() { }
 
-    virtual LPCWSTR GetLibraryName() const override { return LibraryName; }
+    virtual LPCCHAR_T GetLibraryName() const override { return LibraryName; }
 
     bool IsAvailable() { Ensure(); return DelayLoadLibrary::IsAvailable(); }
 

@@ -28,11 +28,11 @@ public:
     static void AddSourceToObject(Js::DynamicObject* object, Js::Utf8SourceInfo* utf8SourceInfo);
     static void AddSourceMetadataToObject(Js::DynamicObject* object, Js::Utf8SourceInfo* utf8SourceInfo);
 
-    static void AddVarPropertyToObject(Js::DynamicObject* object, const char16* propertyName, Js::Var value, Js::ScriptContext* scriptContext);
+    static void AddVarPropertyToObject(Js::DynamicObject* object, const CHAR_T* propertyName, Js::Var value, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, double value, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, uint32 value, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, int32 value, Js::ScriptContext* scriptContext);
-    static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, const char16 * value, size_t len, Js::ScriptContext* scriptContext);
+    static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, const CHAR_T * value, size_t len, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, Js::JavascriptString* jsString, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, bool value, Js::ScriptContext* scriptContext);
     static void AddPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, Js::Var value, Js::ScriptContext* scriptContext);
@@ -42,6 +42,6 @@ public:
 private:
     static void AddVarPropertyToObject(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, Js::Var value, Js::ScriptContext* scriptContext);
     static bool HasProperty(Js::DynamicObject* object, JsrtDebugPropertyId propertyId, Js::ScriptContext * scriptContext);
-    static const char16* GetClassName(Js::TypeId typeId);
-    static const char16* GetDebugPropertyName(JsrtDebugPropertyId propertyId);
+    static const CHAR_T* GetClassName(Js::TypeId typeId);
+    static const CHAR_T* GetDebugPropertyName(JsrtDebugPropertyId propertyId);
 };

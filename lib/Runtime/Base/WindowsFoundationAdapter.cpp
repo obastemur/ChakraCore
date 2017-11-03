@@ -30,7 +30,7 @@ namespace Js
             HRESULT hr;
             HSTRING hString;
             HSTRING_HEADER hStringHdr;
-            LPCWSTR factoryName = _u("Windows.Foundation.Diagnostics.AsyncCausalityTracer");
+            LPCCHAR_T factoryName = _u("Windows.Foundation.Diagnostics.AsyncCausalityTracer");
             UINT32 factoryNameLen = _countof(_u("Windows.Foundation.Diagnostics.AsyncCausalityTracer")) - 1;
             IID factoryIID = __uuidof(IAsyncCausalityTracerStatics);
 
@@ -77,7 +77,7 @@ namespace Js
 
         Assert(traceLevel <= CausalityTraceLevel::CausalityTraceLevel_Verbose && traceLevel >= CausalityTraceLevel_Required);
         Assert(source <= CausalitySource::CausalitySource_System && source >= CausalitySource_Application);
-        size_t operationNameLen = wcslen(operationName);
+        size_t operationNameLen = cstrlen(operationName);
         if (operationNameLen > UINT_MAX)
         {
             return E_OUTOFMEMORY;

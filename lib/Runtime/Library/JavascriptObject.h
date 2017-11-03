@@ -115,7 +115,7 @@ namespace Js
         static JavascriptArray* CreateKeysHelper(RecyclableObject* object, ScriptContext* scriptContext, BOOL enumNonEnumerable, bool includeSymbolProperties, bool includeStringProperties, bool includeSpecialProperties);
 
         static void ModifyGetterSetterFuncName(const PropertyRecord * propertyRecord, const PropertyDescriptor& descriptor, ScriptContext* scriptContext);
-        static char16 * ConstructName(const PropertyRecord * propertyRecord, const char16 * getOrSetStr, ScriptContext* scriptContext);
+        static CHAR_T * ConstructName(const PropertyRecord * propertyRecord, const CHAR_T * getOrSetStr, ScriptContext* scriptContext);
         static Var DefinePropertiesHelper(RecyclableObject* object, RecyclableObject* properties, ScriptContext* scriptContext);
         static Var DefinePropertiesHelperForGenericObjects(RecyclableObject* object, RecyclableObject* properties, ScriptContext* scriptContext);
         static Var DefinePropertiesHelperForProxyObjects(RecyclableObject* object, RecyclableObject* properties, ScriptContext* scriptContext);

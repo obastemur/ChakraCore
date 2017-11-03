@@ -24,9 +24,9 @@ namespace PerfCounter
         ~InstanceBase();
 
         bool IsProviderInitialized() const;
-        bool Initialize(char16 const * wszInstanceName, DWORD id);
+        bool Initialize(CHAR_T const * wszInstanceName, DWORD id);
         DWORD * InitializeSharedMemory(DWORD numCounter, HANDLE& handle);
-        DWORD * OpenSharedMemory(__in_ecount(MAX_OBJECT_NAME_PREFIX) char16 const wszObjectNamePrefix[MAX_OBJECT_NAME_PREFIX], DWORD pid, DWORD numCounter, HANDLE& handle);
+        DWORD * OpenSharedMemory(__in_ecount(MAX_OBJECT_NAME_PREFIX) CHAR_T const wszObjectNamePrefix[MAX_OBJECT_NAME_PREFIX], DWORD pid, DWORD numCounter, HANDLE& handle);
         void UninitializeSharedMemory(DWORD * data, HANDLE handle);
         bool IsEnabled() const;
     private:
@@ -127,7 +127,7 @@ namespace PerfCounter
 
 #define RECYCLER_TRACKER_ARRAY_PERF_COUNTER_TYPE(MACRO) \
     MACRO(Var); \
-    MACRO(char16); \
+    MACRO(CHAR_T); \
 
 #define RECYCLER_TRACKER_WEAKREF_PERF_COUNTER_TYPE(MACRO) \
     MACRO(PropertyRecord); \

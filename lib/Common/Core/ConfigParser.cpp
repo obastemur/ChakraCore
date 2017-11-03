@@ -27,7 +27,7 @@ class ArenaHost
     ArenaAllocator m_allocator;
 
 public:
-    ArenaHost(__in_z const char16* arenaName) :
+    ArenaHost(__in_z const CHAR_T* arenaName) :
         m_allocationPolicyManager(/* needConcurrencySupport = */ true),
         m_pageAllocator(&m_allocationPolicyManager, Js::Configuration::Global.flags),
         m_allocator(arenaName, &m_pageAllocator, Js::Throw::OutOfMemory)
@@ -97,11 +97,11 @@ void ConfigParser::ParseRegistryKey(HKEY hk, CmdLineArgsParser &parser)
     DWORD dwValue;
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-    char16 regBuffer[MaxRegSize];
+    CHAR_T regBuffer[MaxRegSize];
     dwSize = sizeof(regBuffer);
     if (NOERROR == RegGetValueW(hk, nullptr, _u("JScript9"), RRF_RT_REG_SZ, nullptr, (LPBYTE)regBuffer, &dwSize))
     {
-        LPWSTR regValue = regBuffer, nextValue = nullptr;
+        LPCHAR_T regValue = regBuffer, nextValue = nullptr;
         regValue = wcstok_s(regBuffer, _u(" "), &nextValue);
         while (regValue != nullptr)
         {
@@ -314,12 +314,12 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
     _hasReadConfig = true;
 
     int err = 0;
-    char16 modulename[_MAX_PATH];
-    char16 filename[_MAX_PATH];
+    CHAR_T modulename[_MAX_PATH];
+    CHAR_T filename[_MAX_PATH];
 
     GetModuleFileName((HMODULE)hmod, modulename, _MAX_PATH);
-    char16 drive[_MAX_DRIVE];
-    char16 dir[_MAX_DIR];
+    CHAR_T drive[_MAX_DRIVE];
+    CHAR_T dir[_MAX_DIR];
 
     _wsplitpath_s(modulename, drive, _MAX_DRIVE, dir, _MAX_DIR, nullptr, 0, nullptr, 0);
     _wmakepath_s(filename, drive, dir, _configFileName, _u(".config"));
@@ -328,7 +328,7 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
 #ifdef _WIN32
     if (_wfopen_s(&configFile, filename, _u("r, ccs=UNICODE")) != 0 || configFile == nullptr)
     {
-        WCHAR configFileFullName[MAX_PATH];
+        CHAR_T configFileFullName[MAX_PATH];
 
         StringCchPrintf(configFileFullName, MAX_PATH, _u("%s.config"), _configFileName);
 
@@ -351,14 +351,14 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
     // a config file there that we can use
     if (_wfopen_s(&configFile, filename, _u("r")) != 0 || configFile == nullptr)
     {
-        WCHAR homeDir[MAX_PATH];
+        CHAR_T homeDir[MAX_PATH];
 
         if (GetEnvironmentVariable(_u("HOME"), homeDir, MAX_PATH) == 0)
         {
             return;
         }
-        
-        WCHAR configFileFullName[MAX_PATH];
+
+        CHAR_T configFileFullName[MAX_PATH];
 
         StringCchPrintf(configFileFullName, MAX_PATH, _u("%s/%s.config"), homeDir, _configFileName);
         if (_wfopen_s(&configFile, configFileFullName, _u("r")) != 0 || configFile == nullptr)
@@ -368,7 +368,7 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
     }
 #endif
 
-    char16 configBuffer[MaxTokenSize];
+    CHAR_T configBuffer[MaxTokenSize];
     int index = 0;
 
 #ifdef _WIN32
@@ -388,7 +388,7 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
     // read tokens
     // We could use _fwscanf_s here but the function
     // isn't implemented in the PAL and we'd have to deal with
-    // wchar => char16 impedance mismatch.
+    // CHAR_T => CHAR_T impedance mismatch.
     while (index < MaxTokenSize)
     {
         CharType curChar = ReadChar(configFile);
@@ -422,7 +422,7 @@ void ConfigParser::ParseConfig(HANDLE hmod, CmdLineArgsParser &parser)
             // The expectation is that non-ANSI characters
             // are not used in the config- otherwise it will
             // be interpreted incorrectly here
-            configBuffer[index++] = (char16) curChar;
+            configBuffer[index++] = (CHAR_T) curChar;
         }
     }
 
@@ -444,7 +444,7 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
 {
 #if defined(ENABLE_DEBUG_CONFIG_OPTIONS)
     bool hasOutput = false;
-    char16 modulename[_MAX_PATH];
+    CHAR_T modulename[_MAX_PATH];
 
     GetModuleFileName((HMODULE)hmod, modulename, _MAX_PATH);
 
@@ -478,7 +478,7 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
                 *stderr = *fp;
                 setvbuf(stderr, nullptr, _IONBF, 0);
 
-                char16 buffer[_MAX_PATH + 70];
+                CHAR_T buffer[_MAX_PATH + 70];
 
                 if (ConfigParserAPI::FillConsoleTitle(buffer, _MAX_PATH + 20, modulename))
                 {
@@ -562,16 +562,16 @@ void ConfigParser::ProcessConfiguration(HANDLE hmod)
 #endif
 }
 
-HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMode)
+HRESULT ConfigParser::SetOutputFile(const CHAR_T* outputFile, const CHAR_T* openMode)
 {
     // If present, replace the {PID} token with the process ID
-    const WCHAR* pidStr = nullptr;
-    WCHAR buffer[_MAX_PATH];
+    const CHAR_T* pidStr = nullptr;
+    CHAR_T buffer[_MAX_PATH];
     if ((pidStr = wcsstr(outputFile, _u("{PID}"))) != nullptr)
     {
         size_t pidStartPosition = pidStr - outputFile;
 
-        WCHAR* pDest = buffer;
+        CHAR_T* pDest = buffer;
         size_t bufferLen = _MAX_PATH;
 
         // Copy the filename before the {PID} token
@@ -582,18 +582,18 @@ HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMo
         // Copy the PID
         _itow_s(GetCurrentProcessId(), pDest, /*bufferSize=*/_MAX_PATH - pidStartPosition, /*radix=*/10);
 #pragma prefast(suppress: 26014, "ultow string length is smaller than 256")
-        pDest += wcslen(pDest);
-        bufferLen = bufferLen - wcslen(pDest);
+        pDest += cstrlen(pDest);
+        bufferLen = bufferLen - cstrlen(pDest);
 
         // Copy the rest of the string.
 #pragma prefast(suppress: 26014, "Overwriting pDset's null terminator is intentional since the string being copied is null terminated")
-        wcscpy_s(pDest, bufferLen, outputFile + pidStartPosition + /*length of {PID}*/ 5);
+        cstrcpy_s(pDest, bufferLen, outputFile + pidStartPosition + /*length of {PID}*/ 5);
 
         outputFile = buffer;
     }
 
-    char16 fileName[_MAX_PATH];
-    char16 moduleName[_MAX_PATH];
+    CHAR_T fileName[_MAX_PATH];
+    CHAR_T moduleName[_MAX_PATH];
     GetModuleFileName(0, moduleName, _MAX_PATH);
     _wsplitpath_s(moduleName, nullptr, 0, nullptr, 0, fileName, _MAX_PATH, nullptr, 0);
     if (_wcsicmp(fileName, _u("WWAHost")) == 0 ||
@@ -608,7 +608,7 @@ HRESULT ConfigParser::SetOutputFile(const WCHAR* outputFile, const WCHAR* openMo
         if (GetEnvironmentVariable(_u("temp"), fileName, _MAX_PATH) != 0)
         {
             wcscat_s(fileName, _MAX_PATH, _u("\\"));
-            const char16 * fileNameOnly = wcsrchr(outputFile, _u('\\'));
+            const CHAR_T * fileNameOnly = wcsrchr(outputFile, _u('\\'));
             // if outputFile is full path we just need filename, discard the path
             wcscat_s(fileName, _MAX_PATH, fileNameOnly == nullptr ? outputFile : fileNameOnly);
         }

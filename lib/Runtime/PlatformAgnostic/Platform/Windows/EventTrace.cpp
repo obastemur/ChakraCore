@@ -13,7 +13,7 @@ namespace PlatformAgnostic
     {
         void FireGenericEventTrace(const void* traceData)
         {
-            JS_ETW(EventWriteJSCRIPT_INTERNAL_GENERIC_EVENT(static_cast<const char16*>(traceData)));
+            JS_ETW(EventWriteJSCRIPT_INTERNAL_GENERIC_EVENT(static_cast<const CHAR_T*>(traceData)));
         }
     }
 }

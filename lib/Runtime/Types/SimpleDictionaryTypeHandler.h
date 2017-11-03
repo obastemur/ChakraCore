@@ -193,7 +193,7 @@ namespace Js
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         virtual void DumpFixedFields() const override;
         static void TraceFixedFieldsBeforeTypeHandlerChange(
-            const char16* oldTypeHandlerName, const char16* newTypeHandlerName,
+            const CHAR_T* oldTypeHandlerName, const CHAR_T* newTypeHandlerName,
             DynamicObject* instance, DynamicTypeHandler* oldTypeHandler, DynamicType* oldType, RecyclerWeakReference<DynamicObject>* oldSingletonInstanceBefore);
         static void TraceFixedFieldsAfterTypeHandlerChange(
             DynamicObject* instance, DynamicTypeHandler* oldTypeHandler, DynamicTypeHandler* newTypeHandler,
@@ -205,7 +205,7 @@ namespace Js
             DynamicType* oldType, RecyclerWeakReference<DynamicObject>* oldSingletonInstanceBefore);
 #endif
 
-    private:        
+    private:
 
         template <bool allowNonExistent, bool markAsUsed>
         bool TryGetFixedProperty(PropertyRecord const * propertyRecord, Var * pProperty, FixedPropertyKind propertyType, ScriptContext * requestContext);

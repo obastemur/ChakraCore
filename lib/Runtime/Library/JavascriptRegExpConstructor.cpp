@@ -391,7 +391,7 @@ namespace Js
 
     BOOL JavascriptRegExpConstructor::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
     {
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::input.Equals(propertyName)
             || BuiltInPropertyRecords::$_.Equals(propertyName)
             || BuiltInPropertyRecords::lastMatch.Equals(propertyName)

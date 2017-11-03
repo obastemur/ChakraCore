@@ -18,7 +18,7 @@ static const BYTE RegEncode[] =
 };
 
 #if DBG_DUMP || ENABLE_DEBUG_CONFIG_OPTIONS
-extern char16 const * const RegNamesW[];
+extern CHAR_T const * const RegNamesW[];
 #endif
 
 #include "AsmJsInstructionTemplate.h"
@@ -1362,7 +1362,7 @@ namespace Js
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             leftOffset -= templateData->GetBaseOffSet();
-            if (!isSrc2Const) 
+            if (!isSrc2Const)
             {
                 rightOffset -= templateData->GetBaseOffSet();
             }
@@ -1388,11 +1388,11 @@ namespace Js
                 size += CMP::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg1, RegEBP, rightOffset ) );
                 break;
             case 2:
-                if (isSrc2Const) 
+                if (isSrc2Const)
                 {
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsAddrImm<int32>(RegEBP, leftOffset, rightOffset));
                 }
-                else 
+                else
                 {
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsRegAddr(reg2, RegEBP, leftOffset));
                 }

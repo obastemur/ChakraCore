@@ -50,7 +50,7 @@ class GlobOpt;
 #define TRACE_PHASE_INSTR(phase, instr, ...) \
     if(PHASE_TRACE(phase, this->func)) \
     { \
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]; \
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]; \
         Output::Print( \
             _u("Function %s (%s)"), \
             this->func->GetJITFunctionBody()->GetDisplayName(), \
@@ -397,7 +397,7 @@ private:
     SparseArray<Value>       *  byteCodeConstantValueArray;
     // Global bitvectors
     BVSparse<JitArenaAllocator> * byteCodeConstantValueNumbersBv;
-   
+
     // Global bitvectors
     IntConstantToStackSymMap *  intConstantToStackSymMap;
     IntConstantToValueMap*      intConstantToValueMap;
@@ -575,7 +575,7 @@ private:
     bool                    Simd128DoTypeSpecLoadStore(IR::Instr *instr, const Value *src1Val, const Value *src2Val, const Value *dstVal, const ThreadContext::SimdFuncSignature *simdFuncSignature);
     bool                    Simd128CanTypeSpecOpnd(const ValueType opndType, const ValueType expectedType);
     bool                    Simd128ValidateIfLaneIndex(const IR::Instr * instr, IR::Opnd * opnd, uint argPos);
-    void                    UpdateBoundCheckHoistInfoForSimd(ArrayUpperBoundCheckHoistInfo &upperHoistInfo, ValueType arrValueType, const IR::Instr *instr);    
+    void                    UpdateBoundCheckHoistInfoForSimd(ArrayUpperBoundCheckHoistInfo &upperHoistInfo, ValueType arrValueType, const IR::Instr *instr);
     void                    Simd128SetIndirOpndType(IR::IndirOpnd *indirOpnd, Js::OpCode opcode);
 #endif
 

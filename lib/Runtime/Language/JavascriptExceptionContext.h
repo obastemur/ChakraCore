@@ -39,8 +39,8 @@ namespace Js {
             bool IsScriptFunction() const;
             FunctionBody* GetFunctionBody() const;
             uint32 GetByteCodeOffset() const { return byteCodeOffset; }
-            LPCWSTR GetFunctionName() const;
-            HRESULT GetFunctionNameWithArguments(_In_ LPCWSTR *outResult) const;
+            LPCCHAR_T GetFunctionName() const;
+            HRESULT GetFunctionNameWithArguments(_In_ LPCCHAR_T *outResult) const;
         };
 
         typedef JsUtil::List<StackFrame> StackTrace;

@@ -104,7 +104,7 @@ namespace Js
         JavascriptSIMDFloat64x2 *instance = JavascriptSIMDFloat64x2::FromVar(args[0]);
         Assert(instance);
 
-        char16 stringBuffer[SIMD_STRING_BUFFER_MAX];
+        CHAR_T stringBuffer[SIMD_STRING_BUFFER_MAX];
         SIMDValue value = instance->GetValue();
 
         JavascriptSIMDFloat64x2::ToStringBuffer(value, stringBuffer, SIMD_STRING_BUFFER_MAX);

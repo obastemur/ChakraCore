@@ -310,7 +310,7 @@ namespace Js
         static Var EntryPopNonJavascriptArray(ScriptContext * scriptContext, Var object);
 
 #if DEBUG
-        static BOOL GetIndex(const char16* propName, uint32 *pIndex);
+        static BOOL GetIndex(const CHAR_T* propName, uint32 *pIndex);
 #endif
 
         uint32 GetNextIndex(uint32 index) const;
@@ -651,7 +651,7 @@ namespace Js
 
                 if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                 {
-                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                    // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                     // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                     if (JavascriptArray::Is(arr))
                     {
@@ -678,7 +678,7 @@ namespace Js
 
                     if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
                     {
-                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
+                        // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to
                         // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                         if (JavascriptArray::Is(arr))
                         {

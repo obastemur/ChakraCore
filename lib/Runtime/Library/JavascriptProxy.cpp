@@ -575,7 +575,7 @@ namespace Js
         }
         return FALSE;
     }
-  
+
     BOOL JavascriptProxy::GetAccessors(PropertyId propertyId, __out Var* getter, __out Var* setter, ScriptContext * requestContext)
     {
         PropertyDescriptor result;
@@ -668,7 +668,7 @@ namespace Js
         }
         else
         {
-            // ES2017 Spec'd (9.1.9.1): 
+            // ES2017 Spec'd (9.1.9.1):
             // If existingDescriptor is not undefined, then
             //    If IsAccessorDescriptor(existingDescriptor) is true, return false.
             //    If existingDescriptor.[[Writable]] is false, return false.
@@ -968,7 +968,7 @@ namespace Js
 
         struct ProxyOwnkeysEnumerator : public JavascriptEnumerator
         {
-            typedef JsUtil::BaseHashSet<const char16*, Recycler> VisitedNamesHashSet;
+            typedef JsUtil::BaseHashSet<const CHAR_T*, Recycler> VisitedNamesHashSet;
             Field(VisitedNamesHashSet*) visited;
             Field(JavascriptArray*) trapResult;
             Field(JavascriptProxy*) proxy;
@@ -1153,12 +1153,12 @@ namespace Js
         {
             return targetObj->IsExtensible();
         }
-        
+
         Var isExtensibleResult = threadContext->ExecuteImplicitCall(isExtensibleMethod, ImplicitCall_Accessor, [=]()->Js::Var
         {
             return CALL_FUNCTION(threadContext, isExtensibleMethod, CallInfo(CallFlags_Value, 2), handlerObj, targetObj);
         });
-        
+
         BOOL trapResult = JavascriptConversion::ToBoolean(isExtensibleResult, requestContext);
         BOOL targetIsExtensible = targetObj->IsExtensible();
         if (trapResult != targetIsExtensible)
@@ -1209,7 +1209,7 @@ namespace Js
         {
             return targetObj->PreventExtensions();
         }
-        
+
         //8. Let booleanTrapResult be ToBoolean(trapResult)
         //9. ReturnIfAbrupt(booleanTrapResult).
         //10. Let targetIsExtensible be the result of calling the[[IsExtensible]] internal method of target.
@@ -1473,12 +1473,12 @@ namespace Js
         {
             return RecyclableObject::FromVar(JavascriptObject::GetPrototypeOf(targetObj, requestContext));
         }
-        
+
         Var getPrototypeOfResult = threadContext->ExecuteImplicitCall(getPrototypeOfMethod, ImplicitCall_Accessor, [=]()->Js::Var
         {
             return CALL_FUNCTION(threadContext, getPrototypeOfMethod, CallInfo(CallFlags_Value, 2), handlerObj, targetObj);
         });
-        
+
         TypeId prototypeTypeId = JavascriptOperators::GetTypeId(getPrototypeOfResult);
         if (!JavascriptOperators::IsObjectType(prototypeTypeId) && prototypeTypeId != TypeIds_Null)
         {
@@ -1856,12 +1856,12 @@ namespace Js
         //11. If booleanTrapResult is false, then return false.
 
         Var propertyName = GetName(requestContext, propertyId);
-        
+
         Var setPropertyResult = threadContext->ExecuteImplicitCall(setMethod, ImplicitCall_Accessor, [=]()->Js::Var
         {
             return CALL_FUNCTION(threadContext, setMethod, CallInfo(CallFlags_Value, 5), handlerObj, targetObj, propertyName, newValue, receiver);
         });
-        
+
         BOOL setResult = JavascriptConversion::ToBoolean(setPropertyResult, requestContext);
         if (!setResult)
         {
@@ -1956,10 +1956,10 @@ namespace Js
 
     void JavascriptProxy::PropertyIdFromInt(uint32 index, PropertyRecord const** propertyRecord)
     {
-        char16 buffer[22];
+        CHAR_T buffer[22];
         int pos = TaggedInt::ToBuffer(index, buffer, _countof(buffer));
 
-        GetScriptContext()->GetOrAddPropertyRecord((LPCWSTR)buffer + pos, (_countof(buffer) - 1) - pos, propertyRecord);
+        GetScriptContext()->GetOrAddPropertyRecord((LPCCHAR_T)buffer + pos, (_countof(buffer) - 1) - pos, propertyRecord);
     }
 
     Var JavascriptProxy::GetName(ScriptContext* requestContext, PropertyId propertyId)
@@ -1983,7 +1983,7 @@ namespace Js
         ThreadContext* threadContext = scriptContext->GetThreadContext();
         if (threadContext->handlerPropertyId == Js::Constants::NoProperty)
         {
-            LPCWSTR autoProxyName;
+            LPCCHAR_T autoProxyName;
 
             if (threadContext->GetAutoProxyName() != nullptr)
             {
@@ -1995,7 +1995,7 @@ namespace Js
             }
 
             threadContext->handlerPropertyId = threadContext->GetOrAddPropertyRecordBind(
-                JsUtil::CharacterBuffer<WCHAR>(autoProxyName, static_cast<charcount_t>(wcslen(autoProxyName))))->GetPropertyId();
+                JsUtil::CharacterBuffer<CHAR_T>(autoProxyName, static_cast<charcount_t>(cstrlen(autoProxyName))))->GetPropertyId();
         }
         return threadContext->handlerPropertyId;
     }
@@ -2278,7 +2278,7 @@ namespace Js
         //12. ReturnIfAbrupt(extensibleTarget).
         //13. Let targetKeys be target.[[OwnPropertyKeys]]().
         //14. ReturnIfAbrupt(targetKeys).
-        
+
         Var ownKeysResult = threadContext->ExecuteImplicitCall(ownKeysMethod, ImplicitCall_Accessor, [=]()->Js::Var
         {
             return CALL_FUNCTION(threadContext, ownKeysMethod, CallInfo(CallFlags_Value, 2), handlerObj, targetObj);

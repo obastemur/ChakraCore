@@ -83,7 +83,7 @@ namespace UnifiedRegex
         return true;
     }
 
-    void TrigramAlphabet::MegaMatch(__in_ecount(inputLen) const char16* input,int inputLen) {
+    void TrigramAlphabet::MegaMatch(__in_ecount(inputLen) const CHAR_T* input,int inputLen) {
         this->input=input;
         this->inputLen=inputLen;
         if (inputLen<TrigramInfo::PatternLength) {

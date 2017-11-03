@@ -907,7 +907,7 @@ namespace regex
     private:
         struct StringChunk
         {
-            LPCWSTR dataPtr[chunkSize];
+            LPCCHAR_T dataPtr[chunkSize];
             StringChunk *next;
 
             StringChunk() : next(nullptr)
@@ -923,7 +923,7 @@ namespace regex
         // tracking allocated strings based on non-Append(String) calls
         struct AllocatedStringChunk
         {
-            LPCWSTR dataPtr;
+            LPCCHAR_T dataPtr;
             AllocatedStringChunk *next;
 
             AllocatedStringChunk() : next(nullptr)
@@ -967,20 +967,20 @@ namespace regex
 
         void AppendUInt64(uint64 value);
 
-        void AppendWithCopy(_In_z_ LPCWSTR str);
+        void AppendWithCopy(_In_z_ LPCCHAR_T str);
 
         void AppendBool(bool value)
         {
             this->Append(value ? _u("true") : _u("false"));
         }
 
-        void Append(LPCWSTR str)
+        void Append(LPCCHAR_T str)
         {
             // silently ignore nullptr usage pattern, to avoid cluttering codebase
             if (str == nullptr)
                 return;
 
-            size_t newStrSize = stringSize + wcslen(str);
+            size_t newStrSize = stringSize + cstrlen(str);
             if (newStrSize < stringSize)
             {
                 // Overflow
@@ -1014,9 +1014,9 @@ namespace regex
         }
 
         template<class TAllocator>
-        LPCWSTR Get(TAllocator *allocator)
+        LPCCHAR_T Get(TAllocator *allocator)
         {
-            char16 *str = AllocatorNewArray(TAllocator, allocator, char16, stringSize);
+            CHAR_T *str = AllocatorNewArray(TAllocator, allocator, CHAR_T, stringSize);
             str[0] = _u('\0');
 
             auto current = head;
@@ -1036,13 +1036,13 @@ namespace regex
 
         // Free a string returned by Get()
         template<class TAllocator>
-        void FreeString(LPCWSTR str)
+        void FreeString(LPCCHAR_T str)
         {
             ImmutableList<chunkSize>::FreeString(allocator, str, stringSize);
         }
 
         template<class TAllocator>
-        static void FreeString(TAllocator *allocator, LPCWSTR str, size_t strLength)
+        static void FreeString(TAllocator *allocator, LPCCHAR_T str, size_t strLength)
         {
             AssertMsg(allocator != nullptr, "allocator != nullptr");
             AssertMsg(str != nullptr, "str != nullptr");

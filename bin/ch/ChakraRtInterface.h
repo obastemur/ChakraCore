@@ -81,7 +81,7 @@ struct JsAPIHooks
     typedef JsErrorCode(WINAPI *JsrtCopyString)(JsValueRef value, char* buffer, size_t bufferSize, size_t* length);
     typedef JsErrorCode(WINAPI *JsrtCreateString)(const char *content, size_t length, JsValueRef *value);
     typedef JsErrorCode(WINAPI *JsrtCreateStringUtf16)(const uint16_t *content, size_t length, JsValueRef *value);
-    
+
     typedef JsErrorCode(WINAPI *JsrtCreateExternalArrayBuffer)(void *data, unsigned int byteLength, JsFinalizeCallback finalizeCallback, void *callbackState, JsValueRef *result);
     typedef JsErrorCode(WINAPI *JsrtCreatePropertyId)(const char *name, size_t length, JsPropertyIdRef *propertyId);
 
@@ -137,7 +137,7 @@ struct JsAPIHooks
     JsrtCreateArrayPtr pfJsrtCreateArray;
     JsrtCreateArrayBufferPtr pfJsrtCreateArrayBuffer;
     JsrtCreateSharedArrayBufferWithSharedContentPtr pfJsrtCreateSharedArrayBufferWithSharedContent;
-    JsrtGetSharedArrayBufferContentPtr pfJsrtGetSharedArrayBufferContent;    
+    JsrtGetSharedArrayBufferContentPtr pfJsrtGetSharedArrayBufferContent;
     JsrtReleaseSharedArrayBufferContentHandlePtr pfJsrtReleaseSharedArrayBufferContentHandle;
     JsrtGetArrayBufferStoragePtr pfJsrtGetArrayBufferStorage;
     JsrtCreateErrorPtr pfJsrtCreateError;
@@ -197,7 +197,7 @@ struct JsAPIHooks
 };
 
 #ifdef _WIN32
-LPCWSTR GetChakraDllNameW();
+LPCCHAR_T GetChakraDllNameW();
 #endif
 
 class ChakraRTInterface
@@ -208,7 +208,7 @@ public:
     struct ArgInfo
     {
         int argc;
-        LPWSTR* argv;
+        LPCHAR_T* argv;
         HostPrintUsageFuncPtr hostPrintUsage;
         char* filename;
 
@@ -220,7 +220,7 @@ public:
         {
         }
 
-        ArgInfo(int argc, LPWSTR* argv, HostPrintUsageFuncPtr hostPrintUsage, char* filename) :
+        ArgInfo(int argc, LPCHAR_T* argv, HostPrintUsageFuncPtr hostPrintUsage, char* filename) :
             argc(argc),
             argv(argv),
             hostPrintUsage(hostPrintUsage),
@@ -258,7 +258,7 @@ public:
     static void UnloadChakraDll(HINSTANCE library);
 
     static HRESULT SetAssertToConsoleFlag(bool flag) { return CHECKED_CALL(SetAssertToConsoleFlag, flag); }
-    static HRESULT SetConfigFlags(__in int argc, __in_ecount(argc) LPWSTR argv[], ICustomConfigFlags* customConfigFlags) { return CHECKED_CALL(SetConfigFlags, argc, argv, customConfigFlags); }
+    static HRESULT SetConfigFlags(__in int argc, __in_ecount(argc) LPCHAR_T argv[], ICustomConfigFlags* customConfigFlags) { return CHECKED_CALL(SetConfigFlags, argc, argv, customConfigFlags); }
     static HRESULT GetFileNameFlag(BSTR * filename) { return CHECKED_CALL(GetFilenameFlag, filename); }
     static HRESULT PrintConfigFlagsUsageString() { m_usageStringPrinted = true;  return CHECKED_CALL(PrintConfigFlagsUsageString); }
 

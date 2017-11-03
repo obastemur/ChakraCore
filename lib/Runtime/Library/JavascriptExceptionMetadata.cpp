@@ -100,7 +100,7 @@ namespace Js {
         charcount_t startCharOffset = 0;
         charcount_t endCharOffset = 0;
 
-        
+
         startCharOffset = cache->GetCharacterOffsetForLine(line, &startByteOffset);
 
         if (nextLine >= cache->GetLineCount())
@@ -130,7 +130,7 @@ namespace Js {
             {
                 utf8::DecodeOptions options = utf8::doAllowThreeByteSurrogates;
                 LPCUTF8 potentialNewlineStart = functionSource + endByteOffset - 3;
-                char16 decodedCharacter = utf8::Decode(potentialNewlineStart, functionSource + endByteOffset, options);
+                CHAR_T decodedCharacter = utf8::Decode(potentialNewlineStart, functionSource + endByteOffset, options);
                 if (decodedCharacter == 0x2028 || decodedCharacter == 0x2029)
                 {
                     endCharOffset--;

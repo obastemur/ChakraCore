@@ -9,9 +9,9 @@
 HANDLE g_hInstance;
 
 // Used as a prefix to generate the resource dll name.
-const char16 g_wszPrefix[] = _u("js");
+const CHAR_T g_wszPrefix[] = _u("js");
 
-static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax) WCHAR * psz, int cchMax)
+static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax) CHAR_T * psz, int cchMax)
 {
     // NOTE - istring is expected to be HRESULT
 
@@ -19,9 +19,9 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
     AssertArrMem(psz, cchMax);
 
     HGLOBAL hgl = NULL;
-    WCHAR * pchRes = NULL;
+    CHAR_T * pchRes = NULL;
     HRSRC hrsrc;
-    WCHAR * pchCur;
+    CHAR_T * pchCur;
     int cch;
     int cstring;
     DWORD cbRes;
@@ -43,7 +43,7 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
     if (NULL == hgl)
         goto LError;
 
-    pchRes = (WCHAR *)LockResource(hgl);
+    pchRes = (CHAR_T *)LockResource(hgl);
     if (NULL == pchRes)
         goto LError;
 
@@ -55,7 +55,7 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
     pchCur = pchRes;
     for (cstring = istring; cstring-- > 0;)
     {
-        if (cbRes - sizeof(WORD) < sizeof(WCHAR) * (pchCur - pchRes))
+        if (cbRes - sizeof(WORD) < sizeof(CHAR_T) * (pchCur - pchRes))
             goto LError;
 
         cch = (*(WORD *) pchCur) + 1;
@@ -63,32 +63,32 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
         if (cch <= 0)
             goto LError;
 
-        if (cbRes < sizeof(WCHAR) * cch)
+        if (cbRes < sizeof(CHAR_T) * cch)
             goto LError;
 
-        if (cbRes - sizeof(WCHAR) * cch < sizeof(WCHAR) * (pchCur - pchRes))
+        if (cbRes - sizeof(CHAR_T) * cch < sizeof(CHAR_T) * (pchCur - pchRes))
             goto LError;
 
         pchCur += cch;
     }
 
-    if (cbRes - sizeof(WORD) < sizeof(WCHAR) * (pchCur - pchRes))
+    if (cbRes - sizeof(WORD) < sizeof(CHAR_T) * (pchCur - pchRes))
         goto LError;
     cch = * (WORD *) pchCur;
 
     if (cch <= 0)
         goto LError;
 
-    if (cbRes < sizeof(WCHAR) * (cch + 1))
+    if (cbRes < sizeof(CHAR_T) * (cch + 1))
         goto LError;
 
-    if (cbRes - sizeof(WCHAR) * (cch + 1) < sizeof(WCHAR) * (pchCur - pchRes))
+    if (cbRes - sizeof(CHAR_T) * (cch + 1) < sizeof(CHAR_T) * (pchCur - pchRes))
         goto LError;
 
     if (cch > cchMax - 1)
         cch = cchMax - 1;
 
-    js_memcpy_s(psz, cchMax * sizeof(WCHAR), pchCur + 1, cch * sizeof(WCHAR));
+    js_memcpy_s(psz, cchMax * sizeof(CHAR_T), pchCur + 1, cch * sizeof(CHAR_T));
     psz[cch] = '\0';
     fRet = TRUE;
 
@@ -132,10 +132,10 @@ BSTR BstrGetResourceString(int32 isz)
         return NULL;
     }
 #else
-    const char16* LoadResourceStr(UINT id);
+    const CHAR_T* LoadResourceStr(UINT id);
 
     UINT id = (WORD)isz;
-    const char16* szT = LoadResourceStr(id);
+    const CHAR_T* szT = LoadResourceStr(id);
     if (!szT || !szT[0])
     {
         return NULL;

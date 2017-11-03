@@ -4188,7 +4188,7 @@ Instr::DumpFieldCopyPropTestTrace()
     case Js::OpCode::ScopedLdMethodFld:
     case Js::OpCode::TypeofElem:
 
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("TestTrace fieldcopyprop: function %s (%s) "),
             this->m_func->GetJITFunctionBody()->GetDisplayName(),
             this->m_func->GetDebugNumberSet(debugStringBuffer));
@@ -4247,7 +4247,7 @@ Instr::DumpByteCodeOffset()
     if (!this->m_func->IsTopFunc())
     {
         Output::SkipToColumn(78);
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u(" Func #%s"), this->m_func->GetDebugNumberSet(debugStringBuffer));
     }
 #ifdef BAILOUT_INJECTION
@@ -4546,7 +4546,7 @@ PrintByteCodeOffsetEtc:
             }
             if (!bailOutInfo->bailOutFunc->IsTopFunc())
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u(" Func %s"), bailOutInfo->bailOutFunc->GetDebugNumberSet(debugStringBuffer));
             }
             Output::Print(_u(" (%S)"), this->GetBailOutKindName());
@@ -4671,7 +4671,7 @@ Instr::DumpSimple()
     this->Dump(IRDumpFlags_SimpleForm);
 }
 
-char16 *
+CHAR_T *
 Instr::DumpString()
 {
     Output::CaptureStart();

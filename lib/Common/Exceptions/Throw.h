@@ -31,9 +31,9 @@ namespace Js {
         static bool ReportAssert(__in LPCSTR fileName, uint lineNumber, __in LPCSTR error, __in LPCSTR message);
         static void LogAssert();
 #ifdef GENERATE_DUMP
-        static int GenerateDump(PEXCEPTION_POINTERS exceptInfo, LPCWSTR filePath, int ret = EXCEPTION_CONTINUE_SEARCH, bool needLock = false);
-        static void GenerateDump(LPCWSTR filePath, bool terminate = false, bool needLock = false);
-        static void GenerateDumpForAssert(LPCWSTR filePath);
+        static int GenerateDump(PEXCEPTION_POINTERS exceptInfo, LPCCHAR_T filePath, int ret = EXCEPTION_CONTINUE_SEARCH, bool needLock = false);
+        static void GenerateDump(LPCCHAR_T filePath, bool terminate = false, bool needLock = false);
+        static void GenerateDumpForAssert(LPCCHAR_T filePath);
     private:
         static CriticalSection csGenerateDump;
 #ifdef STACK_BACK_TRACE

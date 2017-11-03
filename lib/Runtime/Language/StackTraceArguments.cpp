@@ -92,7 +92,7 @@ namespace Js {
         }
     }
 
-    HRESULT StackTraceArguments::ToString(LPCWSTR functionName, Js::ScriptContext *scriptContext, _In_ LPCWSTR *outResult) const
+    HRESULT StackTraceArguments::ToString(LPCCHAR_T functionName, Js::ScriptContext *scriptContext, _In_ LPCCHAR_T *outResult) const
     {
         HRESULT hr = S_OK;
         uint64 argumentsTypes = types;

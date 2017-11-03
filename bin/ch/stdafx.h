@@ -173,7 +173,7 @@ class AutoString
 {
     size_t length;
     char* data;
-    LPWSTR data_wide;
+    LPCHAR_T data_wide;
     JsErrorCode errorCode;
     bool dontFree;
 public:
@@ -233,7 +233,7 @@ public:
         return data;
     }
 
-    LPWSTR GetWideString()
+    LPCHAR_T GetWideString()
     {
         if(data_wide || !data)
         {

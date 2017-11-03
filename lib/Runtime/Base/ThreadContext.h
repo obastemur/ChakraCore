@@ -7,7 +7,7 @@
 namespace Js
 {
     class ScriptContext;
-    struct InlineCache;    
+    struct InlineCache;
     class CodeGenRecyclableData;
 #ifdef ENABLE_SCRIPT_DEBUGGING
     class DebugManager;
@@ -187,7 +187,7 @@ public:
 class IProjectionContextMemoryInfo abstract
 {
 public:
-    virtual void DumpCurrentStats(LPCWSTR headerMsg, bool forceDetailed) = 0;
+    virtual void DumpCurrentStats(LPCCHAR_T headerMsg, bool forceDetailed) = 0;
     virtual void Release() = 0;
 };
 #endif
@@ -424,7 +424,7 @@ public:
     {
         if (!emptyStringPropertyRecord)
         {
-            emptyStringPropertyRecord = propertyMap->LookupWithKey(Js::HashedCharacterBuffer<char16>(_u(""), 0));
+            emptyStringPropertyRecord = propertyMap->LookupWithKey(Js::HashedCharacterBuffer<CHAR_T>(_u(""), 0));
             if (emptyStringPropertyRecord == nullptr)
             {
                 emptyStringPropertyRecord = this->UncheckedAddPropertyId(_u(""), 0, true);
@@ -534,7 +534,7 @@ public:
 
 private:
     typedef JsUtil::BaseDictionary<uint, Js::SourceDynamicProfileManager*, Recycler, PowerOf2SizePolicy> SourceDynamicProfileManagerMap;
-    typedef JsUtil::BaseDictionary<Js::HashedCharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer> SymbolRegistrationMap;
+    typedef JsUtil::BaseDictionary<Js::HashedCharacterBuffer<CHAR_T>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer> SymbolRegistrationMap;
 
     class SourceDynamicProfileManagerCache
     {
@@ -548,7 +548,7 @@ private:
         Field(uint) refCount;              // For every script context using this cache, there is a ref count added.
     };
 
-    typedef JsUtil::BaseDictionary<const WCHAR*, SourceDynamicProfileManagerCache*, Recycler, PowerOf2SizePolicy> SourceProfileManagersByUrlMap;
+    typedef JsUtil::BaseDictionary<const CHAR_T*, SourceDynamicProfileManagerCache*, Recycler, PowerOf2SizePolicy> SourceProfileManagersByUrlMap;
 
     struct RecyclableData
     {
@@ -623,7 +623,7 @@ private:
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         // use for autoProxy called from Debug.setAutoProxyName. we need to keep the buffer from GetSz() alive.
-        Field(LPCWSTR) autoProxyName;
+        Field(LPCCHAR_T) autoProxyName;
 #endif
     };
 
@@ -818,7 +818,7 @@ private:
     // Regex globals
     //
     UnifiedRegex::StandardChars<uint8>* standardUTF8Chars;
-    UnifiedRegex::StandardChars<char16>* standardUnicodeChars;
+    UnifiedRegex::StandardChars<CHAR_T>* standardUnicodeChars;
 
     Js::ImplicitCallFlags implicitCallFlags;
 
@@ -963,8 +963,8 @@ public:
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     Js::Var GetMemoryStat(Js::ScriptContext* scriptContext);
-    void SetAutoProxyName(LPCWSTR objectName);
-    LPCWSTR GetAutoProxyName() const { return recyclableData->autoProxyName; }
+    void SetAutoProxyName(LPCCHAR_T objectName);
+    LPCCHAR_T GetAutoProxyName() const { return recyclableData->autoProxyName; }
     Js::PropertyId handlerPropertyId = Js::Constants::NoProperty;
 #endif
 
@@ -1125,39 +1125,39 @@ private:
     template <bool locked> Js::PropertyRecord const * GetPropertyNameImpl(Js::PropertyId propertyId);
 public:
     void FindPropertyRecord(Js::JavascriptString *pstName, Js::PropertyRecord const ** propertyRecord);
-    void FindPropertyRecord(__in LPCWSTR propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord);
-    const Js::PropertyRecord * FindPropertyRecord(const char16 * propertyName, int propertyNameLength);
+    void FindPropertyRecord(__in LPCCHAR_T propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord);
+    const Js::PropertyRecord * FindPropertyRecord(const CHAR_T * propertyName, int propertyNameLength);
 
-    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(Js::ScriptContext * scriptContext, LPCWSTR propertyName, int propertyNameLength);
-    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<WCHAR> const& propertyName);
-    bool FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<WCHAR> const& propertyName, Js::CaseInvariantPropertyListWithHashCode** propertyRecord);
+    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(Js::ScriptContext * scriptContext, LPCCHAR_T propertyName, int propertyNameLength);
+    JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<CHAR_T> const& propertyName);
+    bool FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<CHAR_T> const& propertyName, Js::CaseInvariantPropertyListWithHashCode** propertyRecord);
     void CleanNoCasePropertyMap();
     void ForceCleanPropertyMap();
 
-    const Js::PropertyRecord * GetOrAddPropertyRecord(JsUtil::CharacterBuffer<char16> propertyName)
+    const Js::PropertyRecord * GetOrAddPropertyRecord(JsUtil::CharacterBuffer<CHAR_T> propertyName)
     {
         return GetOrAddPropertyRecordImpl(propertyName, false);
     }
-    const Js::PropertyRecord * GetOrAddPropertyRecordBind(JsUtil::CharacterBuffer<char16> propertyName)
+    const Js::PropertyRecord * GetOrAddPropertyRecordBind(JsUtil::CharacterBuffer<CHAR_T> propertyName)
     {
         return GetOrAddPropertyRecordImpl(propertyName, true);
     }
     void AddBuiltInPropertyRecord(const Js::PropertyRecord *propertyRecord);
 
-    void GetOrAddPropertyId(_In_ LPCWSTR propertyName, _In_ int propertyNameLength, _Out_ Js::PropertyRecord const** propertyRecord);
-    void GetOrAddPropertyId(_In_ JsUtil::CharacterBuffer<WCHAR> const& propertyName, _Out_ Js::PropertyRecord const** propertyRecord);
-    Js::PropertyRecord const * UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& propertyName, bool bind, bool isSymbol = false);
-    Js::PropertyRecord const * UncheckedAddPropertyId(__in LPCWSTR propertyName, __in int propertyNameLength, bool bind = false, bool isSymbol = false);
+    void GetOrAddPropertyId(_In_ LPCCHAR_T propertyName, _In_ int propertyNameLength, _Out_ Js::PropertyRecord const** propertyRecord);
+    void GetOrAddPropertyId(_In_ JsUtil::CharacterBuffer<CHAR_T> const& propertyName, _Out_ Js::PropertyRecord const** propertyRecord);
+    Js::PropertyRecord const * UncheckedAddPropertyId(JsUtil::CharacterBuffer<CHAR_T> const& propertyName, bool bind, bool isSymbol = false);
+    Js::PropertyRecord const * UncheckedAddPropertyId(__in LPCCHAR_T propertyName, __in int propertyNameLength, bool bind = false, bool isSymbol = false);
 
 #ifdef ENABLE_JS_ETW
     void EtwLogPropertyIdList();
 #endif
 
 private:
-    const Js::PropertyRecord * GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<char16> propertyName, bool bind);
+    const Js::PropertyRecord * GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<CHAR_T> propertyName, bool bind);
     void AddPropertyRecordInternal(const Js::PropertyRecord * propertyRecord);
     void BindPropertyRecord(const Js::PropertyRecord * propertyRecord);
-    bool IsDirectPropertyName(const char16 * propertyName, int propertyNameLength);
+    bool IsDirectPropertyName(const CHAR_T * propertyName, int propertyNameLength);
 
     RecyclerWeakReference<const Js::PropertyRecord> * CreatePropertyRecordWeakRef(const Js::PropertyRecord * propertyRecord);
     void AddCaseInvariantPropertyRecord(const Js::PropertyRecord * propertyRecord);
@@ -1187,7 +1187,7 @@ public:
 
 #if DBG_DUMP
     void RegisterProjectionMemoryInformation(IProjectionContextMemoryInfo* projectionContextMemoryInfo);
-    void DumpProjectionContextMemoryStats(LPCWSTR headerMsg, bool forceDetailed = false);
+    void DumpProjectionContextMemoryStats(LPCCHAR_T headerMsg, bool forceDetailed = false);
     IProjectionContextMemoryInfo* GetProjectionContextMemoryInformation();
 #endif
 #endif
@@ -1266,10 +1266,10 @@ public:
     Js::InterpreterStackFrame *PopInterpreterFrame();
     Js::InterpreterStackFrame *GetLeafInterpreterFrame() const { return leafInterpreterFrame; }
 
-    Js::TempArenaAllocatorObject * GetTemporaryAllocator(LPCWSTR name);
+    Js::TempArenaAllocatorObject * GetTemporaryAllocator(LPCCHAR_T name);
     void ReleaseTemporaryAllocator(Js::TempArenaAllocatorObject * tempAllocator);
 
-    Js::TempGuestArenaAllocatorObject * GetTemporaryGuestAllocator(LPCWSTR name);
+    Js::TempGuestArenaAllocatorObject * GetTemporaryGuestAllocator(LPCCHAR_T name);
     void ReleaseTemporaryGuestAllocator(Js::TempGuestArenaAllocatorObject * tempAllocator);
 
 #ifdef ENABLE_SCRIPT_DEBUGGING
@@ -1472,16 +1472,16 @@ public:
 
 #if ENABLE_PROFILE_INFO
     void EnsureSourceProfileManagersByUrlMap();
-    Js::SourceDynamicProfileManager* GetSourceDynamicProfileManager(_In_z_ const WCHAR* url, _In_ uint hash, _Inout_ bool* addref);
-    uint ReleaseSourceDynamicProfileManagers(const WCHAR* url);
+    Js::SourceDynamicProfileManager* GetSourceDynamicProfileManager(_In_z_ const CHAR_T* url, _In_ uint hash, _Inout_ bool* addref);
+    uint ReleaseSourceDynamicProfileManagers(const CHAR_T* url);
 #endif
 
     void EnsureSymbolRegistrationMap();
-    const Js::PropertyRecord* GetSymbolFromRegistrationMap(const char16* stringKey, charcount_t stringLength);
-    const Js::PropertyRecord* AddSymbolToRegistrationMap(const char16* stringKey, charcount_t stringLength);
+    const Js::PropertyRecord* GetSymbolFromRegistrationMap(const CHAR_T* stringKey, charcount_t stringLength);
+    const Js::PropertyRecord* AddSymbolToRegistrationMap(const CHAR_T* stringKey, charcount_t stringLength);
 
 #if ENABLE_TTD
-    JsUtil::BaseDictionary<Js::HashedCharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* GetSymbolRegistrationMap_TTD();
+    JsUtil::BaseDictionary<Js::HashedCharacterBuffer<CHAR_T>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* GetSymbolRegistrationMap_TTD();
 #endif
 
     inline void ClearPendingSOError()
@@ -1697,7 +1697,7 @@ public:
     // Regex helpers
     //
     UnifiedRegex::StandardChars<uint8>* GetStandardChars(__inout_opt uint8* dummy);
-    UnifiedRegex::StandardChars<char16>* GetStandardChars(__inout_opt char16* dummy);
+    UnifiedRegex::StandardChars<CHAR_T>* GetStandardChars(__inout_opt CHAR_T* dummy);
 
     bool IsOptimizedForManyInstances() const { return isOptimizedForManyInstances; }
 

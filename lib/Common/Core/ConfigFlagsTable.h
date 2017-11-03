@@ -86,8 +86,8 @@ namespace Js
 #undef PHASE
     };
 
-    extern const char16* const FlagNames[FlagCount + 1];
-    extern const char16* const PhaseNames[PhaseCount + 1];
+    extern const CHAR_T* const FlagNames[FlagCount + 1];
+    extern const CHAR_T* const PhaseNames[PhaseCount + 1];
     extern const Flag           FlagParents[FlagCount + 1];
 
     typedef     int             Number;
@@ -103,9 +103,9 @@ namespace Js
     /// fiddling to make this class as interoperable with strings as possible :-
     ///
     ///     1.  Single argument constructor takes care of initialization
-    ///     2.  Assignment operator overloaded for char16*
-    ///     3.  JavascriptConversion to const char16 * is defined. Making this constant ensures
-    ///         that a non constant char16 * does not point to our buffer which can
+    ///     2.  Assignment operator overloaded for CHAR_T*
+    ///     3.  JavascriptConversion to const CHAR_T * is defined. Making this constant ensures
+    ///         that a non constant CHAR_T * does not point to our buffer which can
     ///         potentially corrupt it.
     ///
     ///----------------------------------------------------------------------------
@@ -119,12 +119,12 @@ namespace Js
 
     // Data
     private:
-        char16*           pszValue;
+        CHAR_T*           pszValue;
 
     // Construction
     public:
         inline String();
-        inline String(__in_z_opt const char16* psz);
+        inline String(__in_z_opt const CHAR_T* psz);
         inline ~String();
 
 
@@ -137,7 +137,7 @@ namespace Js
         ///
         ///----------------------------------------------------------------------------
 
-        String& operator=(__in_z_opt const char16* psz)
+        String& operator=(__in_z_opt const CHAR_T* psz)
         {
             Set(psz);
             return *this;
@@ -154,14 +154,14 @@ namespace Js
         ///
         ///----------------------------------------------------------------------------
 
-        operator const char16* () const
+        operator const CHAR_T* () const
         {
             return this->pszValue;
         }
 
     // Implementation
     private:
-        void Set(__in_z_opt const char16* pszValue);
+        void Set(__in_z_opt const CHAR_T* pszValue);
     };
 
     class NumberSet
@@ -444,8 +444,8 @@ namespace Js
     // Methods
     public:
 
-        static  Flag            GetFlag(__in LPCWSTR str);
-        static  Phase           GetPhase(__in LPCWSTR str);
+        static  Flag            GetFlag(__in LPCCHAR_T str);
+        static  Phase           GetPhase(__in LPCCHAR_T str);
         static  void            PrintUsageString();
 
         static  FlagTypes       GetFlagType(Flag flag);

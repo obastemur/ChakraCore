@@ -24,7 +24,7 @@ protected:
 
 public:
     virtual uint GetByteCodeCount() const = 0;
-    virtual size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) WCHAR* displayName, _In_ size_t sizeInChars) = 0;
+    virtual size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) CHAR_T* displayName, _In_ size_t sizeInChars) = 0;
     virtual void GetEntryPointAddress(void** entrypoint, ptrdiff_t *size) = 0;
     virtual uint GetInterpretedCount() const = 0;
     virtual void Delete() = 0;
@@ -209,11 +209,11 @@ public:
         return functionBody->GetByteCodeCount() +  functionBody->GetConstantCount();
     }
 
-    size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) WCHAR* displayName, _In_ size_t sizeInChars) override
+    size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) CHAR_T* displayName, _In_ size_t sizeInChars) override
     {
-        const WCHAR* name = functionBody->GetExternalDisplayName();
-        size_t nameSizeInChars = wcslen(name) + 1;
-        size_t sizeInBytes = nameSizeInChars * sizeof(WCHAR);
+        const CHAR_T* name = functionBody->GetExternalDisplayName();
+        size_t nameSizeInChars = cstrlen(name) + 1;
+        size_t sizeInBytes = nameSizeInChars * sizeof(CHAR_T);
         if(displayName == NULL || sizeInChars < nameSizeInChars)
         {
            return nameSizeInChars;
@@ -288,7 +288,7 @@ struct JsLoopBodyCodeGen sealed : public CodeGenWorkItem
         return (loopHeader->endOffset - loopHeader->startOffset) + functionBody->GetConstantCount();
     }
 
-    size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) WCHAR* displayName, _In_ size_t sizeInChars) override
+    size_t GetDisplayName(_Out_writes_opt_z_(sizeInChars) CHAR_T* displayName, _In_ size_t sizeInChars) override
     {
         return this->functionBody->GetLoopBodyName(this->GetLoopNumber(), displayName, sizeInChars);
     }

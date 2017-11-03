@@ -16,14 +16,14 @@ namespace Js
     class WritableStringBuffer
     {
     public:
-        WritableStringBuffer(_In_count_(length) char16* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {}
+        WritableStringBuffer(_In_count_(length) CHAR_T* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {}
 
-        void Append(char16 c);
-        void Append(const char16 * str, charcount_t countNeeded);
-        void AppendLarge(const char16 * str, charcount_t countNeeded);
+        void Append(CHAR_T c);
+        void Append(const CHAR_T * str, charcount_t countNeeded);
+        void AppendLarge(const CHAR_T * str, charcount_t countNeeded);
     private:
-        char16* m_pszString;
-        char16* m_pszCurrentPtr;
+        CHAR_T* m_pszString;
+        CHAR_T* m_pszCurrentPtr;
         charcount_t m_length;
 #if DBG
         charcount_t GetCount()
@@ -39,7 +39,7 @@ namespace Js
     {
     public:
         static JSONString* New(JavascriptString* originalString, charcount_t start, charcount_t extraChars);
-        virtual const char16* GetSz() override;
+        virtual const CHAR_T* GetSz() override;
     protected:
         DEFINE_VTABLE_CTOR(JSONString, JavascriptString);
     private:
@@ -48,7 +48,7 @@ namespace Js
 
     private:
         JSONString(JavascriptString* originalString, charcount_t start, charcount_t length);
-        static const WCHAR escapeMap[128];
+        static const CHAR_T escapeMap[128];
         static const BYTE escapeMapCount[128];
     public:
         template <EscapingOperation op>
@@ -63,13 +63,13 @@ namespace Js
             }
             else
             {
-                const char16* szValue = value->GetSz();
+                const CHAR_T* szValue = value->GetSz();
                 return EscapeNonEmptyString<op, Js::JSONString, Js::ConcatStringWrapping<_u('"'), _u('"')>, Js::JavascriptString*>(value, szValue, start, len, outputString);
             }
         }
 
         template <EscapingOperation op, class TJSONString, class TConcatStringWrapping, class TJavascriptString>
-        static TJavascriptString EscapeNonEmptyString(Js::JavascriptString* value, const char16* szValue, uint start, charcount_t len, WritableStringBuffer* outputString)
+        static TJavascriptString EscapeNonEmptyString(Js::JavascriptString* value, const CHAR_T* szValue, uint start, charcount_t len, WritableStringBuffer* outputString)
         {
             charcount_t extra = 0;
             TJavascriptString result;
@@ -84,12 +84,12 @@ namespace Js
                     outputString->AppendLarge(szValue, start);
                 }
             }
-            const wchar* endSz = szValue + len;
-            const wchar* startSz = szValue + start;
-            const wchar* lastFlushSz = startSz;
-            for (const wchar* current = startSz; current < endSz; current++)
+            const CHAR_T* endSz = szValue + len;
+            const CHAR_T* startSz = szValue + start;
+            const CHAR_T* lastFlushSz = startSz;
+            for (const CHAR_T* current = startSz; current < endSz; current++)
             {
-                WCHAR wch = *current;
+                CHAR_T wch = *current;
 
                 if (op == EscapingOperation_Count)
                 {
@@ -100,7 +100,7 @@ namespace Js
                 }
                 else
                 {
-                    WCHAR specialChar;
+                    CHAR_T specialChar;
                     if (wch < _countof(escapeMap))
                     {
                         specialChar = escapeMap[static_cast<int>((char)wch)];
@@ -120,9 +120,9 @@ namespace Js
                             outputString->Append(specialChar);
                             if (specialChar == _u('u'))
                             {
-                                char16 bf[5];
+                                CHAR_T bf[5];
                                 _ltow_s(wch, bf, _countof(bf), 16);
-                                size_t count = wcslen(bf);
+                                size_t count = cstrlen(bf);
                                 if (count < 4)
                                 {
                                     if (count == 1)
@@ -172,11 +172,11 @@ namespace Js
             return result;
         }
 
-        static WCHAR* EscapeNonEmptyString(ArenaAllocator* allocator, const char16* szValue)
+        static CHAR_T* EscapeNonEmptyString(ArenaAllocator* allocator, const CHAR_T* szValue)
         {
-            WCHAR* result = nullptr;
+            CHAR_T* result = nullptr;
             StringProxy::allocator = allocator;
-            charcount_t len = (charcount_t)wcslen(szValue);
+            charcount_t len = (charcount_t)cstrlen(szValue);
             StringProxy* proxy = EscapeNonEmptyString<EscapingOperation_NotEscape, StringProxy, StringProxy, StringProxy*>(nullptr, szValue, 0, len, nullptr);
             result = proxy->GetResult(szValue, len);
             StringProxy::allocator = nullptr;
@@ -216,12 +216,12 @@ namespace Js
                 return Anew(allocator, StringProxy, start, length);
             }
 
-            WCHAR* GetResult(const WCHAR* originalString, charcount_t originalLength)
+            CHAR_T* GetResult(const CHAR_T* originalString, charcount_t originalLength)
             {
                 if (this->m_needEscape)
                 {
                     charcount_t unescapedStringLength = originalLength + m_extra + 2 /* for the quotes */;
-                    WCHAR* buffer = AnewArray(allocator, WCHAR, unescapedStringLength + 1); /* for terminating null */
+                    CHAR_T* buffer = AnewArray(allocator, CHAR_T, unescapedStringLength + 1); /* for terminating null */
                     buffer[unescapedStringLength] = '\0';
                     WritableStringBuffer stringBuffer(buffer, unescapedStringLength);
                     StringProxy* proxy = JSONString::EscapeNonEmptyString<EscapingOperation_Escape, StringProxy, StringProxy, StringProxy*>(nullptr, originalString, m_start, originalLength, &stringBuffer);
@@ -231,7 +231,7 @@ namespace Js
                 }
                 else
                 {
-                    WCHAR* buffer = AnewArray(allocator, WCHAR, originalLength + 3); /* quotes and terminating null */
+                    CHAR_T* buffer = AnewArray(allocator, CHAR_T, originalLength + 3); /* quotes and terminating null */
                     buffer[0] = _u('\"');
                     buffer[originalLength + 1] = _u('\"');
                     buffer[originalLength + 2] = _u('\0');

@@ -428,18 +428,18 @@ LblDone:
         return JavascriptNumber::ToVar(uValue >> (nShift & 0x1F), scriptContext);
     }
 
-    int TaggedInt::ToBuffer(Var aValue, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
+    int TaggedInt::ToBuffer(Var aValue, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize)
     {
         return ToBuffer(ToInt32(aValue), buffer, bufSize);
     }
 
     // fills the buffer from the end and returns the start index
-    int TaggedInt::UnsignedToString(unsigned __int64 value, char16 *buffer, int bufferSize)
+    int TaggedInt::UnsignedToString(unsigned __int64 value, CHAR_T *buffer, int bufferSize)
     {
         static_assert(sizeof(unsigned long) <= 8, "This method may not support the target architecture");
         AssertMsg(bufferSize >= 22, "Error: bufferSize is too small. value may not be represented properly");
 
-        buffer[bufferSize - 1] = char16(0);
+        buffer[bufferSize - 1] = CHAR_T(0);
         int pos = bufferSize - 2;
         while(value > 9)
         {
@@ -469,7 +469,7 @@ LblDone:
         return pos + 1;
     }
 
-    int TaggedInt::SignedToString(__int64 value, char16 *buffer, int bufferSize)
+    int TaggedInt::SignedToString(__int64 value, CHAR_T *buffer, int bufferSize)
     {
         bool neg = value < 0;
         unsigned long val = (unsigned long) (neg ? -1 * value : value);
@@ -478,13 +478,13 @@ LblDone:
         return pos;
     }
 
-    int TaggedInt::ToBuffer(int value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
+    int TaggedInt::ToBuffer(int value, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize)
     {
         Assert(bufSize >= 22);
         return SignedToString(value, buffer, bufSize);
     }
 
-    int TaggedInt::ToBuffer(uint value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
+    int TaggedInt::ToBuffer(uint value, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize)
     {
         Assert(bufSize >= 22);
         return UnsignedToString(value, buffer, bufSize);
@@ -497,7 +497,7 @@ LblDone:
 
     JavascriptString* TaggedInt::ToString(int value, ScriptContext* scriptContext)
     {
-        char16 szBuffer[22];
+        CHAR_T szBuffer[22];
         int pos = ToBuffer(value, szBuffer, _countof(szBuffer));
 
         return JavascriptString::NewCopyBuffer(szBuffer + pos, (_countof(szBuffer) - 1) - pos, scriptContext);
@@ -505,7 +505,7 @@ LblDone:
 
     JavascriptString* TaggedInt::ToString(uint value, ScriptContext* scriptContext)
     {
-        char16 szBuffer[22];
+        CHAR_T szBuffer[22];
         int pos = ToBuffer(value, szBuffer, _countof(szBuffer));
 
         return JavascriptString::NewCopyBuffer(szBuffer + pos, (_countof(szBuffer) - 1) - pos, scriptContext);

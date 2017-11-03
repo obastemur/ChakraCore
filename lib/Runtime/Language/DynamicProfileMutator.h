@@ -13,7 +13,7 @@ class DynamicProfileMutator
 public:
     virtual void Mutate(Js::DynamicProfileInfo * info) = 0;
     virtual void Delete() = 0;
-    virtual void Initialize(const char16 * options) = 0;
+    virtual void Initialize(const CHAR_T * options) = 0;
 
     static void Mutate(Js::FunctionBody * functionBody);
     static DynamicProfileMutator * GetMutator();

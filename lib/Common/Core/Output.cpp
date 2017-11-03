@@ -36,7 +36,7 @@ unsigned int Output::s_traceEntryId = 0;
 #endif
 
 THREAD_ST FILE*    Output::s_file = nullptr;
-THREAD_ST char16* Output::buffer = nullptr;
+THREAD_ST CHAR_T* Output::buffer = nullptr;
 THREAD_ST size_t   Output::bufferAllocSize = 0;
 THREAD_ST size_t   Output::bufferFreeSize = 0;
 THREAD_ST size_t   Output::s_Column  = 0;
@@ -47,7 +47,7 @@ THREAD_ST bool     Output::s_capture = false;
 #define MAX_OUTPUT_BUFFER_SIZE 10 * 1024 * 1024  // 10 MB maximum before we force a flush
 
 size_t __cdecl
-Output::VerboseNote(const char16 * format, ...)
+Output::VerboseNote(const CHAR_T * format, ...)
 {
 #ifdef ENABLE_TRACE
     if (Js::Configuration::Global.flags.Verbose)
@@ -66,7 +66,7 @@ Output::VerboseNote(const char16 * format, ...)
 
 #ifdef ENABLE_TRACE
 size_t __cdecl
-Output::Trace(Js::Phase phase, const char16 *form, ...)
+Output::Trace(Js::Phase phase, const CHAR_T *form, ...)
 {
     size_t retValue = 0;
 
@@ -82,7 +82,7 @@ Output::Trace(Js::Phase phase, const char16 *form, ...)
 }
 
 size_t __cdecl
-Output::Trace2(Js::Phase phase, const char16 *form, ...)
+Output::Trace2(Js::Phase phase, const CHAR_T *form, ...)
 {
     size_t retValue = 0;
 
@@ -98,7 +98,7 @@ Output::Trace2(Js::Phase phase, const char16 *form, ...)
 }
 
 size_t __cdecl
-Output::TraceWithPrefix(Js::Phase phase, const char16 prefix[], const char16 *form, ...)
+Output::TraceWithPrefix(Js::Phase phase, const CHAR_T prefix[], const CHAR_T *form, ...)
 {
     size_t retValue = 0;
 
@@ -106,7 +106,7 @@ Output::TraceWithPrefix(Js::Phase phase, const char16 prefix[], const char16 *fo
     {
         va_list argptr;
         va_start(argptr, form);
-        WCHAR prefixValue[512];
+        CHAR_T prefixValue[512];
         _snwprintf_s(prefixValue, _countof(prefixValue), _TRUNCATE, _u("%s: %s: "), Js::PhaseNames[static_cast<int>(phase)], prefix);
         retValue += Output::VTrace(_u("%s"), prefixValue, form, argptr);
         va_end(argptr);
@@ -116,7 +116,7 @@ Output::TraceWithPrefix(Js::Phase phase, const char16 prefix[], const char16 *fo
 }
 
 size_t __cdecl
-Output::TraceWithFlush(Js::Phase phase, const char16 *form, ...)
+Output::TraceWithFlush(Js::Phase phase, const CHAR_T *form, ...)
 {
     size_t retValue = 0;
 
@@ -133,7 +133,7 @@ Output::TraceWithFlush(Js::Phase phase, const char16 *form, ...)
 }
 
 size_t __cdecl
-Output::TraceWithFlush(Js::Flag flag, const char16 *form, ...)
+Output::TraceWithFlush(Js::Flag flag, const CHAR_T *form, ...)
 {
     size_t retValue = 0;
 
@@ -150,7 +150,7 @@ Output::TraceWithFlush(Js::Flag flag, const char16 *form, ...)
 }
 
 size_t
-Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char16 *form, va_list argptr)
+Output::VTrace(const CHAR_T* shortPrefixFormat, const CHAR_T* prefix, const CHAR_T *form, va_list argptr)
 {
     size_t retValue = 0;
 
@@ -173,13 +173,13 @@ Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char
     {
         const ULONG c_framesToSkip = 2; // Skip 2 frames -- Output::VTrace and Output::Trace.
         const ULONG c_frameCount = 10;  // TODO: make it configurable.
-        const char16 callStackPrefix[] = _u("call stack:");
+        const CHAR_T callStackPrefix[] = _u("call stack:");
         if (s_inMemoryLogger)
         {
             // Trace just addresses of functions, avoid symbol info as it takes too much memory.
             // One line for whole stack trace for easier parsing on the jd side.
             const size_t c_msgCharCount = _countof(callStackPrefix) + (1 + sizeof(void*) * 2) * c_frameCount; // 2 hexadecimal digits per byte + 1 for space.
-            char16 callStackMsg[c_msgCharCount];
+            CHAR_T callStackMsg[c_msgCharCount];
             void* frames[c_frameCount];
             size_t start = 0;
             size_t temp;
@@ -214,7 +214,7 @@ Output::VTrace(const char16* shortPrefixFormat, const char16* prefix, const char
 
 #ifdef BGJIT_STATS
 size_t __cdecl
-Output::TraceStats(Js::Phase phase, const char16 *form, ...)
+Output::TraceStats(Js::Phase phase, const CHAR_T *form, ...)
 {
     if(PHASE_STATS1(phase))
     {
@@ -239,7 +239,7 @@ Output::TraceStats(Js::Phase phase, const char16 *form, ...)
 ///----------------------------------------------------------------------------
 
 size_t __cdecl
-Output::Print(const char16 *form, ...)
+Output::Print(const CHAR_T *form, ...)
 {
     va_list argptr;
     va_start(argptr, form);
@@ -249,7 +249,7 @@ Output::Print(const char16 *form, ...)
 }
 
 size_t __cdecl
-Output::Print(int column, const char16 *form, ...)
+Output::Print(int column, const CHAR_T *form, ...)
 {
     Output::SkipToColumn(column);
     va_list argptr;
@@ -260,9 +260,9 @@ Output::Print(int column, const char16 *form, ...)
 }
 
 size_t __cdecl
-Output::VPrint(const char16 *form, va_list argptr)
+Output::VPrint(const CHAR_T *form, va_list argptr)
 {
-    char16 buf[2048];
+    CHAR_T buf[2048];
     size_t size;
 
     size = _vsnwprintf_s(buf, _countof(buf), _TRUNCATE, form, argptr);
@@ -274,10 +274,10 @@ Output::VPrint(const char16 *form, va_list argptr)
 }
 
 size_t __cdecl
-Output::PrintBuffer(const char16 * buf, size_t size)
+Output::PrintBuffer(const CHAR_T * buf, size_t size)
 {
     Output::s_Column += size;
-    const char16 * endbuf = wcschr(buf, '\n');
+    const CHAR_T * endbuf = wcschr(buf, '\n');
     while (endbuf != nullptr)
     {
         Output::s_Column = size - (endbuf - buf) - 1;
@@ -321,7 +321,7 @@ Output::PrintBuffer(const char16 * buf, size_t size)
                 {
                     size_t oldBufferSize = bufferAllocSize - bufferFreeSize;
                     size_t newBufferAllocSize = (bufferAllocSize + size + 1) * 4 / 3;
-                    char16 * newBuffer = (char16 *)realloc(buffer, (newBufferAllocSize * sizeof(char16)));
+                    CHAR_T * newBuffer = (CHAR_T *)realloc(buffer, (newBufferAllocSize * sizeof(CHAR_T)));
                     if (newBuffer == nullptr)
                     {
                         // See if I can just flush it and print directly
@@ -348,8 +348,8 @@ Output::PrintBuffer(const char16 * buf, size_t size)
             if (addToBuffer)
             {
                 Assert(Output::bufferFreeSize >= size + 1);
-                memcpy_s(Output::buffer + Output::bufferAllocSize - Output::bufferFreeSize, Output::bufferFreeSize * sizeof(char16),
-                    buf, (size + 1) * sizeof(char16));
+                memcpy_s(Output::buffer + Output::bufferAllocSize - Output::bufferFreeSize, Output::bufferFreeSize * sizeof(CHAR_T),
+                    buf, (size + 1) * sizeof(CHAR_T));
                 bufferFreeSize -= size;
             }
         }
@@ -387,7 +387,7 @@ void Output::Flush()
     _flushall();
 }
 
-void Output::DirectPrint(char16 const * string)
+void Output::DirectPrint(CHAR_T const * string)
 {
     AutoCriticalSection autocs(&s_critsect);
 
@@ -535,14 +535,14 @@ Output::CaptureStart()
     s_capture = true;
 }
 
-char16 *
+CHAR_T *
 Output::CaptureEnd()
 {
     Assert(s_capture);
     s_capture = false;
     bufferFreeSize = 0;
     bufferAllocSize = 0;
-    char16 * returnBuffer = buffer;
+    CHAR_T * returnBuffer = buffer;
     buffer = nullptr;
     return returnBuffer;
 }

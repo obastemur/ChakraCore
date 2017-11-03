@@ -7,14 +7,14 @@
 
 #include "Core/ConfigParser.h"
 
-bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPWSTR buffer, size_t cchBufferSize, __in LPWSTR moduleName)
+bool ConfigParserAPI::FillConsoleTitle(__ecount(cchBufferSize) LPCHAR_T buffer, size_t cchBufferSize, __in LPCHAR_T moduleName)
 {
     swprintf_s(buffer, cchBufferSize, _u("Chakra GC: %d - %s"), GetCurrentProcessId(), moduleName);
 
     return true;
 }
 
-void ConfigParserAPI::DisplayInitialOutput(__in LPWSTR moduleName)
+void ConfigParserAPI::DisplayInitialOutput(__in LPCHAR_T moduleName)
 {
     Output::Print(_u("Chakra GC\n"));
     Output::Print(_u("INIT: PID        : %d\n"), GetCurrentProcessId());
@@ -53,7 +53,7 @@ bool JsUtil::ExternalApi::RaiseOnIntOverflow()
     return false;
 }
 
-LPCWSTR JsUtil::ExternalApi::GetFeatureKeyName()
+LPCCHAR_T JsUtil::ExternalApi::GetFeatureKeyName()
 {
     return  _u("Software\\Microsoft\\Internet Explorer\\ChakraRecycler");
 }

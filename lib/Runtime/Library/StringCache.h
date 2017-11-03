@@ -175,7 +175,7 @@ public:
     DEFINE_CACHED_STRING(GetSymbolTypeDisplayString, _u("symbol"))
 
 private:
-  template< size_t N > JavascriptString* CreateStringFromCppLiteral(const char16(&value)[N]) const
+  template< size_t N > JavascriptString* CreateStringFromCppLiteral(const CHAR_T(&value)[N]) const
   {
       return LiteralString::New(stringTypeStatic, value, N - 1 /*don't include terminating NUL*/, scriptContext->GetRecycler());
   }

@@ -176,19 +176,19 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     }
 
 #if DBG_DUMP
-    void RegisterSpace::GetTypeDebugName(Types type, char16* buf, uint bufsize, bool shortName)
+    void RegisterSpace::GetTypeDebugName(Types type, CHAR_T* buf, uint bufsize, bool shortName)
     {
         // Since this needs to be done manually for each type, this assert will make sure to not forget to update this if a new type is added
         CompileAssert(LIMIT == 5);
 
         switch (type)
         {
-        case INT32: wcscpy_s(buf, bufsize  , shortName ? _u("I"): _u("INT32")); break;
-        case INT64: wcscpy_s(buf, bufsize  , shortName ? _u("L"): _u("INT64")); break;
-        case FLOAT32: wcscpy_s(buf, bufsize, shortName ? _u("F"): _u("FLOAT32")); break;
-        case FLOAT64: wcscpy_s(buf, bufsize, shortName ? _u("D"): _u("FLOAT64")); break;
-        case SIMD: wcscpy_s(buf, bufsize   , _u("SIMD")); break;
-        default: wcscpy_s(buf, bufsize     , _u("UNKNOWN")); break;
+        case INT32: cstrcpy_s(buf, bufsize  , shortName ? _u("I"): _u("INT32")); break;
+        case INT64: cstrcpy_s(buf, bufsize  , shortName ? _u("L"): _u("INT64")); break;
+        case FLOAT32: cstrcpy_s(buf, bufsize, shortName ? _u("F"): _u("FLOAT32")); break;
+        case FLOAT64: cstrcpy_s(buf, bufsize, shortName ? _u("D"): _u("FLOAT64")); break;
+        case SIMD: cstrcpy_s(buf, bufsize   , _u("SIMD")); break;
+        default: cstrcpy_s(buf, bufsize     , _u("UNKNOWN")); break;
         }
     }
 
@@ -196,7 +196,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
     {
         if (PHASE_TRACE1(Js::AsmjsTmpRegisterAllocationPhase))
         {
-            char16 buf[16];
+            CHAR_T buf[16];
             GetTypeDebugName(mType, buf, 16, true);
             Output::Print(_u("%s%s %d\n"), deallocation ? _u("-") : _u("+"), buf, loc);
         }
@@ -264,7 +264,7 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
 #if DBG_DUMP
                 if (PHASE_TRACE(Js::AsmjsInterpreterStackPhase, body))
                 {
-                    char16 buf[16];
+                    CHAR_T buf[16];
                     RegisterSpace::GetTypeDebugName(type, buf, 16);
                     Output::Print(_u("%s Offset:%d  ConstCount:%d  VarCount:%d  TmpCount:%d = %d * %d = 0x%x bytes\n"),
                                   buf,
@@ -361,8 +361,8 @@ template<> Types RegisterSpace::GetRegisterSpaceType<AsmJsSIMDValue>(){return WA
             Types type = (Types)i;
             if (!IsTypeExcluded(type))
             {
-                char16 typeName[16];
-                char16 shortTypeName[16];
+                CHAR_T typeName[16];
+                CHAR_T shortTypeName[16];
                 RegisterSpace::GetTypeDebugName(type, typeName, 16);
                 RegisterSpace::GetTypeDebugName(type, shortTypeName, 16, true);
                 RegisterSpace* registerSpace = GetRegisterSpace(type);

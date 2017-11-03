@@ -12,7 +12,7 @@ enum SymbolType : byte
     STUnknown
 };
 
-typedef JsUtil::CharacterBuffer<WCHAR> SymbolName;
+typedef JsUtil::CharacterBuffer<CHAR_T> SymbolName;
 class Symbol
 {
 private:
@@ -106,7 +106,7 @@ public:
         }
     }
 
-    bool MatchName(const char16 *key, int length)
+    bool MatchName(const CHAR_T *key, int length)
     {
         return name == SymbolName(key, length);
     }
@@ -466,10 +466,10 @@ public:
     }
 
 #if DBG_DUMP
-    const char16 *GetSymbolTypeName();
+    const CHAR_T *GetSymbolTypeName();
 #endif
 
-    const JsUtil::CharacterBuffer<WCHAR>& GetName() const
+    const JsUtil::CharacterBuffer<CHAR_T>& GetName() const
     {
         return this->name;
     }

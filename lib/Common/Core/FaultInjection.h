@@ -48,11 +48,11 @@ namespace Js
                 EnableType((FaultType)type);
             }
             bool IsEnabled(FaultType type);
-            bool IsEnabled(const char16* name);
+            bool IsEnabled(const CHAR_T* name);
         };
 
-        static char16 *FaultTypeNames[];
-        void ParseFaultTypes(const char16* szFaultTypes);
+        static CHAR_T *FaultTypeNames[];
+        void ParseFaultTypes(const CHAR_T* szFaultTypes);
 
     public:
         enum FaultMode
@@ -85,7 +85,7 @@ namespace Js
         bool IsCurrentStackMatch();
         bool EnsureStackMatchInfraInitialized();
         uint baselineFrameCount;
-        char16 *baselineStack[MAX_FRAME_COUNT];
+        CHAR_T *baselineStack[MAX_FRAME_COUNT];
         UINT_PTR baselineAddresses[MAX_FRAME_COUNT];
         ULONG_PTR* stackHashOfAllInjectionPoints;
         UINT stackHashOfAllInjectionPointsSize;
@@ -96,7 +96,7 @@ namespace Js
         ~FaultInjection();
         bool IsFaultEnabled(FaultType faultType);
         bool IsFaultInjectionOn(FaultType faultType);
-        bool ShouldInjectFault(FaultType fType, LPCWSTR name = nullptr, size_t size = 0);// name and size are used for OOM only
+        bool ShouldInjectFault(FaultType fType, LPCCHAR_T name = nullptr, size_t size = 0);// name and size are used for OOM only
 
         // sample for customized fault type
         template<class Pred>
@@ -113,7 +113,7 @@ namespace Js
         }
 
     private:
-        bool ShouldInjectFaultHelper(FaultType fType, LPCWSTR name = nullptr, size_t size = 0);
+        bool ShouldInjectFaultHelper(FaultType fType, LPCCHAR_T name = nullptr, size_t size = 0);
 
     private:
         // for reconstruction stack of the fault injection points in postmortem debugging
@@ -124,7 +124,7 @@ namespace Js
             void* StackData;
             size_t StackDataLength;
             CONTEXT Context;
-            WCHAR name[32];
+            CHAR_T name[32];
             size_t allocSize;
             InjectionRecord* next;
         };
@@ -132,7 +132,7 @@ namespace Js
         InjectionRecord* InjectionFirstRecord;
         InjectionRecord** InjectionLastRecordRef;
         int InjectionRecordsCount;
-        void dumpCurrentStackData(LPCWSTR name = nullptr, size_t size = 0);
+        void dumpCurrentStackData(LPCCHAR_T name = nullptr, size_t size = 0);
 
         static THREAD_LOCAL int(*pfnHandleAV)(int, PEXCEPTION_POINTERS);
 

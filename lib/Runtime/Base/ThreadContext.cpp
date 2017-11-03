@@ -384,7 +384,7 @@ void ThreadContext::GlobalInitialize()
 {
     for (int i = 0; i < _countof(builtInPropertyRecords); i++)
     {
-        builtInPropertyRecords[i]->SetHash(JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(builtInPropertyRecords[i]->GetBuffer(), builtInPropertyRecords[i]->GetLength()));
+        builtInPropertyRecords[i]->SetHash(JsUtil::CharacterBuffer<CHAR_T>::StaticGetHashCode(builtInPropertyRecords[i]->GetBuffer(), builtInPropertyRecords[i]->GetLength()));
     }
 }
 
@@ -883,12 +883,12 @@ ThreadContext::GetPropertyNameImpl(Js::PropertyId propertyId)
 void
 ThreadContext::FindPropertyRecord(Js::JavascriptString *pstName, Js::PropertyRecord const ** propertyRecord)
 {
-    LPCWSTR psz = pstName->GetSz();
+    LPCCHAR_T psz = pstName->GetSz();
     FindPropertyRecord(psz, pstName->GetLength(), propertyRecord);
 }
 
 void
-ThreadContext::FindPropertyRecord(__in LPCWSTR propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord)
+ThreadContext::FindPropertyRecord(__in LPCCHAR_T propertyName, __in int propertyNameLength, Js::PropertyRecord const ** propertyRecord)
 {
     EnterPinnedScope((volatile void **)propertyRecord);
     *propertyRecord = FindPropertyRecord(propertyName, propertyNameLength);
@@ -908,7 +908,7 @@ ThreadContext::IsNumericProperty(Js::PropertyId propertyId)
 }
 
 const Js::PropertyRecord *
-ThreadContext::FindPropertyRecord(const char16 * propertyName, int propertyNameLength)
+ThreadContext::FindPropertyRecord(const CHAR_T * propertyName, int propertyNameLength)
 {
     // IsDirectPropertyName == 1 char properties && GetEmptyStringPropertyRecord == 0 length
     if (propertyNameLength < 2)
@@ -921,18 +921,18 @@ ThreadContext::FindPropertyRecord(const char16 * propertyName, int propertyNameL
         if (IsDirectPropertyName(propertyName, propertyNameLength))
         {
             Js::PropertyRecord const * propertyRecord = propertyNamesDirect[propertyName[0]];
-            Assert(propertyRecord == propertyMap->LookupWithKey(Js::HashedCharacterBuffer<char16>(propertyName, propertyNameLength)));
+            Assert(propertyRecord == propertyMap->LookupWithKey(Js::HashedCharacterBuffer<CHAR_T>(propertyName, propertyNameLength)));
             return propertyRecord;
         }
     }
 
-    return propertyMap->LookupWithKey(Js::HashedCharacterBuffer<char16>(propertyName, propertyNameLength));
+    return propertyMap->LookupWithKey(Js::HashedCharacterBuffer<CHAR_T>(propertyName, propertyNameLength));
 }
 
 Js::PropertyRecord const *
-ThreadContext::UncheckedAddPropertyId(__in LPCWSTR propertyName, __in int propertyNameLength, bool bind, bool isSymbol)
+ThreadContext::UncheckedAddPropertyId(__in LPCCHAR_T propertyName, __in int propertyNameLength, bool bind, bool isSymbol)
 {
-    return UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR>(propertyName, propertyNameLength), bind, isSymbol);
+    return UncheckedAddPropertyId(JsUtil::CharacterBuffer<CHAR_T>(propertyName, propertyNameLength), bind, isSymbol);
 }
 
 void ThreadContext::InitializePropertyMaps()
@@ -980,7 +980,7 @@ void ThreadContext::UncheckedAddBuiltInPropertyId()
 }
 
 bool
-ThreadContext::IsDirectPropertyName(const char16 * propertyName, int propertyNameLength)
+ThreadContext::IsDirectPropertyName(const CHAR_T * propertyName, int propertyNameLength)
 {
     return ((propertyNameLength == 1) && ((propertyName[0] & 0xFF80) == 0));
 }
@@ -1004,7 +1004,7 @@ ThreadContext::CreatePropertyRecordWeakRef(const Js::PropertyRecord * propertyRe
 }
 
 Js::PropertyRecord const *
-ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& propertyName, bool bind, bool isSymbol)
+ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<CHAR_T> const& propertyName, bool bind, bool isSymbol)
 {
 #if ENABLE_TTD
     if(isSymbol & this->IsRuntimeInTTDMode())
@@ -1038,8 +1038,8 @@ ThreadContext::UncheckedAddPropertyId(JsUtil::CharacterBuffer<WCHAR> const& prop
     // Create the PropertyRecord
 
     int length = propertyName.GetLength();
-    uint bytelength = sizeof(char16) * length;
-    size_t allocLength = bytelength + sizeof(char16) + ( (!isSymbol && length <= 10 && length > 0) ? sizeof(uint32) : 0);
+    uint bytelength = sizeof(CHAR_T) * length;
+    size_t allocLength = bytelength + sizeof(CHAR_T) + ( (!isSymbol && length <= 10 && length > 0) ? sizeof(uint32) : 0);
 
     // If it's bound, create it in the thread arena, along with a fake weak ref
     Js::PropertyRecord * propertyRecord;
@@ -1077,7 +1077,7 @@ ThreadContext::AddPropertyRecordInternal(const Js::PropertyRecord * propertyReco
 {
     // At this point the PropertyRecord is constructed but not added to the map.
 
-    const char16 * propertyName = propertyRecord->GetBuffer();
+    const CHAR_T * propertyName = propertyRecord->GetBuffer();
     int propertyNameLength = propertyRecord->GetLength();
     Js::PropertyId propertyId = propertyRecord->GetPropertyId();
 
@@ -1154,7 +1154,7 @@ ThreadContext::AddCaseInvariantPropertyRecord(const Js::PropertyRecord * propert
     // Create a weak reference to the property record here (since we no longer use weak refs in the property map)
     RecyclerWeakReference<const Js::PropertyRecord> * propertyRecordWeakRef = CreatePropertyRecordWeakRef(propertyRecord);
 
-    JsUtil::CharacterBuffer<WCHAR> newPropertyName(propertyRecord->GetBuffer(), propertyRecord->GetLength());
+    JsUtil::CharacterBuffer<CHAR_T> newPropertyName(propertyRecord->GetBuffer(), propertyRecord->GetLength());
     Js::CaseInvariantPropertyListWithHashCode* list;
     if (!FindExistingPropertyRecord(newPropertyName, &list))
     {
@@ -1187,12 +1187,12 @@ ThreadContext::BindPropertyRecord(const Js::PropertyRecord * propertyRecord)
     }
 }
 
-void ThreadContext::GetOrAddPropertyId(_In_ LPCWSTR propertyName, _In_ int propertyNameLength, _Out_ Js::PropertyRecord const ** propertyRecord)
+void ThreadContext::GetOrAddPropertyId(_In_ LPCCHAR_T propertyName, _In_ int propertyNameLength, _Out_ Js::PropertyRecord const ** propertyRecord)
 {
-    GetOrAddPropertyId(JsUtil::CharacterBuffer<WCHAR>(propertyName, propertyNameLength), propertyRecord);
+    GetOrAddPropertyId(JsUtil::CharacterBuffer<CHAR_T>(propertyName, propertyNameLength), propertyRecord);
 }
 
-void ThreadContext::GetOrAddPropertyId(_In_ JsUtil::CharacterBuffer<WCHAR> const& propertyName, _Out_ Js::PropertyRecord const ** propRecord)
+void ThreadContext::GetOrAddPropertyId(_In_ JsUtil::CharacterBuffer<CHAR_T> const& propertyName, _Out_ Js::PropertyRecord const ** propRecord)
 {
     EnterPinnedScope((volatile void **)propRecord);
     *propRecord = GetOrAddPropertyRecord(propertyName);
@@ -1200,7 +1200,7 @@ void ThreadContext::GetOrAddPropertyId(_In_ JsUtil::CharacterBuffer<WCHAR> const
 }
 
 const Js::PropertyRecord *
-ThreadContext::GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<char16> propertyName, bool bind)
+ThreadContext::GetOrAddPropertyRecordImpl(JsUtil::CharacterBuffer<CHAR_T> propertyName, bool bind)
 {
     // Make sure the recycler is around so that we can take weak references to the property strings
     EnsureRecycler();
@@ -1320,13 +1320,13 @@ void ThreadContext::CreateNoCasePropertyMap()
 }
 
 JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>*
-ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, LPCWSTR propertyName, int propertyNameLength)
+ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, LPCCHAR_T propertyName, int propertyNameLength)
 {
-    return ThreadContext::FindPropertyIdNoCase(scriptContext, JsUtil::CharacterBuffer<WCHAR>(propertyName,  propertyNameLength));
+    return ThreadContext::FindPropertyIdNoCase(scriptContext, JsUtil::CharacterBuffer<CHAR_T>(propertyName,  propertyNameLength));
 }
 
 JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>*
-ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<WCHAR> const& propertyName)
+ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::CharacterBuffer<CHAR_T> const& propertyName)
 {
     if (caseInvariantPropertySet == nullptr)
     {
@@ -1341,7 +1341,7 @@ ThreadContext::FindPropertyIdNoCase(Js::ScriptContext * scriptContext, JsUtil::C
 }
 
 bool
-ThreadContext::FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<WCHAR> const& propertyName, Js::CaseInvariantPropertyListWithHashCode** list)
+ThreadContext::FindExistingPropertyRecord(_In_ JsUtil::CharacterBuffer<CHAR_T> const& propertyName, Js::CaseInvariantPropertyListWithHashCode** list)
 {
     Js::CaseInvariantPropertyListWithHashCode* l = this->caseInvariantPropertySet->LookupWithKey(propertyName);
 
@@ -2315,7 +2315,7 @@ void ThreadContext::ReleaseDebugManager()
 #endif
 
 Js::TempArenaAllocatorObject *
-ThreadContext::GetTemporaryAllocator(LPCWSTR name)
+ThreadContext::GetTemporaryAllocator(LPCCHAR_T name)
 {
     AssertCanHandleOutOfMemory();
 
@@ -2346,7 +2346,7 @@ ThreadContext::ReleaseTemporaryAllocator(Js::TempArenaAllocatorObject * tempAllo
 
 
 Js::TempGuestArenaAllocatorObject *
-ThreadContext::GetTemporaryGuestAllocator(LPCWSTR name)
+ThreadContext::GetTemporaryGuestAllocator(LPCCHAR_T name)
 {
     AssertCanHandleOutOfMemory();
 
@@ -2963,7 +2963,7 @@ ThreadContext::InExpirableCollectMode()
     // and when debugger is attaching, it might have set the function to deferredParse.
     return (expirableObjectList != nullptr &&
             numExpirableObjects > 0 &&
-            expirableCollectModeGcCount >= 0 
+            expirableCollectModeGcCount >= 0
 #ifdef ENABLE_SCRIPT_DEBUGGING
         &&
             (this->GetDebugManager() != nullptr &&
@@ -4206,7 +4206,7 @@ void ThreadContext::EnsureSourceProfileManagersByUrlMap()
 // Returns the cache profile manager for the URL and hash combination for a particular dynamic script. There is a ref count added for every script context
 // that references the shared profile manager info.
 //
-Js::SourceDynamicProfileManager* ThreadContext::GetSourceDynamicProfileManager(_In_z_ const WCHAR* url, _In_ uint hash, _Inout_ bool* addRef)
+Js::SourceDynamicProfileManager* ThreadContext::GetSourceDynamicProfileManager(_In_z_ const CHAR_T* url, _In_ uint hash, _Inout_ bool* addRef)
 {
       EnsureSourceProfileManagersByUrlMap();
       Js::SourceDynamicProfileManager* profileManager = nullptr;
@@ -4254,9 +4254,9 @@ Js::SourceDynamicProfileManager* ThreadContext::GetSourceDynamicProfileManager(_
       if (newCache)
       {
           // Let's make a copy of the URL because there is no guarantee this URL will remain alive in the future.
-          size_t lengthInChars = wcslen(url) + 1;
-          WCHAR* urlCopy = RecyclerNewArrayLeaf(GetRecycler(), WCHAR, lengthInChars);
-          js_memcpy_s(urlCopy, lengthInChars * sizeof(WCHAR), url, lengthInChars * sizeof(WCHAR));
+          size_t lengthInChars = cstrlen(url) + 1;
+          CHAR_T* urlCopy = RecyclerNewArrayLeaf(GetRecycler(), CHAR_T, lengthInChars);
+          js_memcpy_s(urlCopy, lengthInChars * sizeof(CHAR_T), url, lengthInChars * sizeof(CHAR_T));
           this->recyclableData->sourceProfileManagersByUrl->Add(urlCopy, managerCache);
       }
       return profileManager;
@@ -4265,7 +4265,7 @@ Js::SourceDynamicProfileManager* ThreadContext::GetSourceDynamicProfileManager(_
 //
 // Decrement the ref count for this URL and cleanup the corresponding record if there are no other references to it.
 //
-uint ThreadContext::ReleaseSourceDynamicProfileManagers(const WCHAR* url)
+uint ThreadContext::ReleaseSourceDynamicProfileManagers(const CHAR_T* url)
 {
     // If we've already freed the recyclable data, we're shutting down the thread context so skip clean up
     if (this->recyclableData == nullptr) return 0;
@@ -4295,16 +4295,16 @@ void ThreadContext::EnsureSymbolRegistrationMap()
     }
 }
 
-const Js::PropertyRecord* ThreadContext::GetSymbolFromRegistrationMap(const char16* stringKey, charcount_t stringLength)
+const Js::PropertyRecord* ThreadContext::GetSymbolFromRegistrationMap(const CHAR_T* stringKey, charcount_t stringLength)
 {
     this->EnsureSymbolRegistrationMap();
 
-    Js::HashedCharacterBuffer<char16> propertyName = Js::HashedCharacterBuffer<char16>(stringKey, stringLength);
+    Js::HashedCharacterBuffer<CHAR_T> propertyName = Js::HashedCharacterBuffer<CHAR_T>(stringKey, stringLength);
 
     return this->recyclableData->symbolRegistrationMap->LookupWithKey(&propertyName, nullptr);
 }
 
-const Js::PropertyRecord* ThreadContext::AddSymbolToRegistrationMap(const char16* stringKey, charcount_t stringLength)
+const Js::PropertyRecord* ThreadContext::AddSymbolToRegistrationMap(const CHAR_T* stringKey, charcount_t stringLength)
 {
     this->EnsureSymbolRegistrationMap();
 
@@ -4316,14 +4316,14 @@ const Js::PropertyRecord* ThreadContext::AddSymbolToRegistrationMap(const char16
     // However, as the key contains a null character we need to hash the symbol name past the null character. The default implementation terminates
     // at the null character, so we use the Js::HashedCharacterBuffer as key. We allocate the key in the recycler memory as it needs to be around
     // for the lifetime of the map.
-    Js::HashedCharacterBuffer<char16> * propertyName = RecyclerNew(GetRecycler(), Js::HashedCharacterBuffer<char16>, propertyRecord->GetBuffer(), propertyRecord->GetLength());
+    Js::HashedCharacterBuffer<CHAR_T> * propertyName = RecyclerNew(GetRecycler(), Js::HashedCharacterBuffer<CHAR_T>, propertyRecord->GetBuffer(), propertyRecord->GetLength());
     this->recyclableData->symbolRegistrationMap->Add(propertyName, propertyRecord);
 
     return propertyRecord;
 }
 
 #if ENABLE_TTD
-JsUtil::BaseDictionary<Js::HashedCharacterBuffer<char16>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* ThreadContext::GetSymbolRegistrationMap_TTD()
+JsUtil::BaseDictionary<Js::HashedCharacterBuffer<CHAR_T>*, const Js::PropertyRecord*, Recycler, PowerOf2SizePolicy, Js::PropertyRecordStringHashComparer>* ThreadContext::GetSymbolRegistrationMap_TTD()
 {
     //This adds a little memory but makes simplifies other logic -- maybe revise later
     this->EnsureSymbolRegistrationMap();
@@ -4460,7 +4460,7 @@ void ThreadContext::RegisterProjectionMemoryInformation(IProjectionContextMemory
     this->projectionMemoryInformation = projectionContextMemoryInfo;
 }
 
-void ThreadContext::DumpProjectionContextMemoryStats(LPCWSTR headerMsg, bool forceDetailed)
+void ThreadContext::DumpProjectionContextMemoryStats(LPCCHAR_T headerMsg, bool forceDetailed)
 {
     if (this->projectionMemoryInformation)
     {
@@ -4482,7 +4482,7 @@ Js::Var ThreadContext::GetMemoryStat(Js::ScriptContext* scriptContext)
     return dumper.Dump();
 }
 
-void ThreadContext::SetAutoProxyName(LPCWSTR objectName)
+void ThreadContext::SetAutoProxyName(LPCCHAR_T objectName)
 {
     recyclableData->autoProxyName = objectName;
 }
@@ -4501,7 +4501,7 @@ UnifiedRegex::StandardChars<uint8>* ThreadContext::GetStandardChars(__inout_opt 
     return standardUTF8Chars;
 }
 
-UnifiedRegex::StandardChars<char16>* ThreadContext::GetStandardChars(__inout_opt char16* dummy)
+UnifiedRegex::StandardChars<CHAR_T>* ThreadContext::GetStandardChars(__inout_opt CHAR_T* dummy)
 {
     if (standardUnicodeChars == 0)
     {

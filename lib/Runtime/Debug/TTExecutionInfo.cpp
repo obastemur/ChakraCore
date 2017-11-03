@@ -8,7 +8,7 @@
 
 namespace TTD
 {
-    TTDebuggerAbortException::TTDebuggerAbortException(uint32 abortCode, int64 optEventTime, int64 optMoveMode, const char16* staticAbortMessage)
+    TTDebuggerAbortException::TTDebuggerAbortException(uint32 abortCode, int64 optEventTime, int64 optMoveMode, const CHAR_T* staticAbortMessage)
         : m_abortCode(abortCode), m_optEventTime(optEventTime), m_optMoveMode(optMoveMode), m_staticAbortMessage(staticAbortMessage)
     {
         ;
@@ -19,17 +19,17 @@ namespace TTD
         ;
     }
 
-    TTDebuggerAbortException TTDebuggerAbortException::CreateAbortEndOfLog(const char16* staticMessage)
+    TTDebuggerAbortException TTDebuggerAbortException::CreateAbortEndOfLog(const CHAR_T* staticMessage)
     {
         return TTDebuggerAbortException(1, -1, 0, staticMessage);
     }
 
-    TTDebuggerAbortException TTDebuggerAbortException::CreateTopLevelAbortRequest(int64 targetEventTime, int64 moveMode, const char16* staticMessage)
+    TTDebuggerAbortException TTDebuggerAbortException::CreateTopLevelAbortRequest(int64 targetEventTime, int64 moveMode, const CHAR_T* staticMessage)
     {
         return TTDebuggerAbortException(2, targetEventTime, moveMode, staticMessage);
     }
 
-    TTDebuggerAbortException TTDebuggerAbortException::CreateUncaughtExceptionAbortRequest(int64 targetEventTime, const char16* staticMessage)
+    TTDebuggerAbortException TTDebuggerAbortException::CreateUncaughtExceptionAbortRequest(int64 targetEventTime, const CHAR_T* staticMessage)
     {
         return TTDebuggerAbortException(3, targetEventTime, 0, staticMessage);
     }
@@ -59,7 +59,7 @@ namespace TTD
         return this->m_optMoveMode;
     }
 
-    const char16* TTDebuggerAbortException::GetStaticAbortMessage() const
+    const CHAR_T* TTDebuggerAbortException::GetStaticAbortMessage() const
     {
         return this->m_staticAbortMessage;
     }

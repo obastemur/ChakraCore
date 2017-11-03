@@ -1005,7 +1005,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
         return;
     }
 
-    // TODO: OOP JIT: should assert about runtime type handler addr 
+    // TODO: OOP JIT: should assert about runtime type handler addr
     Assert(cachedType->GetTypeHandler() != finalType->GetTypeHandler());
 
     if (cachedType->GetTypeHandler()->GetInlineSlotCapacity() == finalType->GetTypeHandler()->GetInlineSlotCapacity() &&
@@ -2519,7 +2519,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, Func *func, bool do
 ///----------------------------------------------------------------------------
 
 IndirOpnd *
-IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const char16 *desc, Func *func, bool dontEncode /* = false */)
+IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const CHAR_T *desc, Func *func, bool dontEncode /* = false */)
 {
     IndirOpnd * indirOpnd = IndirOpnd::New(baseOpnd, offset, type, func);
     indirOpnd->m_desc = desc;
@@ -2771,7 +2771,7 @@ IndirOpnd::ReplaceIndexOpnd(RegOpnd *newIndex)
 }
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-const char16 *
+const CHAR_T *
 IndirOpnd::GetDescription()
 {
     return this->m_desc;
@@ -3035,9 +3035,9 @@ Opnd::DumpAddress(void *address, bool printToConsole, bool skipMaskedAddress)
 }
 
 void
-Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t * count, Js::FunctionInfo * info, bool printToConsole, _In_opt_z_ char16 const * type)
+Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) CHAR_T ** buffer, size_t * count, Js::FunctionInfo * info, bool printToConsole, _In_opt_z_ CHAR_T const * type)
 {
-    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     if (info->HasBody())
     {
         if (type == nullptr)
@@ -3215,7 +3215,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                             Output::Print(_u("%s"), func->GetInProcThreadContext()->GetPropertyRecord(propertyOpInfo->GetPropertyId())->GetBuffer(), propertyOpId);
                         }
                         Output::Print(_u("(%u)"), propertyOpId);
-                        
+
                         if (propertyOpInfo->IsLoadedFromProto())
                         {
                             Output::Print(_u("~"));
@@ -3438,7 +3438,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
             INT_PTR address = (INT_PTR)indirOpnd->GetOriginalAddress();
             Output::Print(_u(" <"));
             const size_t BUFFER_LEN = 128;
-            char16 buffer[BUFFER_LEN];
+            CHAR_T buffer[BUFFER_LEN];
             GetAddrDescription(buffer, BUFFER_LEN, (void *)address, indirOpnd->GetAddrKind(), AsmDumpMode, /*printToConsole */ true, func, /* skipMaskedAddress */true);
             Output::Print(_u("%s"), buffer);
             Output::Print(_u(">"));
@@ -3511,7 +3511,7 @@ void
 Opnd::DumpOpndKindAddr(bool AsmDumpMode, Func *func)
 {
     const size_t BUFFER_LEN = 128;
-    char16 buffer[BUFFER_LEN];
+    CHAR_T buffer[BUFFER_LEN];
     GetAddrDescription(buffer, BUFFER_LEN, AsmDumpMode, true, func);
 
     Output::Print(_u("%s"), buffer);
@@ -3523,7 +3523,7 @@ Opnd::DumpOpndKindMemRef(bool AsmDumpMode, Func *func)
     MemRefOpnd *memRefOpnd = this->AsMemRefOpnd();
     Output::Print(_u("["));
     const size_t BUFFER_LEN = 128;
-    char16 buffer[BUFFER_LEN];
+    CHAR_T buffer[BUFFER_LEN];
     // TODO: michhol, make this intptr_t
     GetAddrDescription(buffer, BUFFER_LEN, (void*)memRefOpnd->GetMemLoc(), memRefOpnd->GetAddrKind(), AsmDumpMode, true, func);
     Output::Print(_u("%s"), buffer);
@@ -3550,7 +3550,7 @@ Opnd::DumpOpndKindMemRef(bool AsmDumpMode, Func *func)
         Additional parameters to be passed to the formatter.
 */
 void
-Opnd::WriteToBuffer(_Outptr_result_buffer_(*count) char16 **buffer, size_t *count, const char16 *fmt, ...)
+Opnd::WriteToBuffer(_Outptr_result_buffer_(*count) CHAR_T **buffer, size_t *count, const CHAR_T *fmt, ...)
 {
     va_list argptr;
     va_start(argptr, fmt);
@@ -3562,10 +3562,10 @@ Opnd::WriteToBuffer(_Outptr_result_buffer_(*count) char16 **buffer, size_t *coun
 }
 
 void
-Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count,
+Opnd::GetAddrDescription(__out_ecount(count) CHAR_T *const description, const size_t count,
     void * address, IR::AddrOpndKind addressKind, bool AsmDumpMode, bool printToConsole, Func *func, bool skipMaskedAddress)
 {
-    char16 *buffer = description;
+    CHAR_T *buffer = description;
     size_t n = count;
 
     if (address)
@@ -3575,9 +3575,9 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
         case IR::AddrOpndKindConstantAddress:
         {
 #ifdef _M_X64_OR_ARM64
-            char16 const * format = _u("0x%012I64X");
+            CHAR_T const * format = _u("0x%012I64X");
 #else
-            char16 const * format = _u("0x%08X");
+            CHAR_T const * format = _u("0x%08X");
 #endif
             WriteToBuffer(&buffer, &n, format, address);
         }
@@ -3586,9 +3586,9 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             if (Js::TaggedInt::Is(address))
             {
 #ifdef _M_X64_OR_ARM64
-                char16 const * format = _u("0x%012I64X (value: %d)");
+                CHAR_T const * format = _u("0x%012I64X (value: %d)");
 #else
-                char16 const * format = _u("0x%08X  (value: %d)");
+                CHAR_T const * format = _u("0x%08X  (value: %d)");
 #endif
                 WriteToBuffer(&buffer, &n, format, address, Js::TaggedInt::ToInt32(address));
             }
@@ -3646,11 +3646,11 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
         case IR::AddrOpndKindConstantVar:
         {
 #ifdef _M_X64_OR_ARM64
-            char16 const * format = _u("0x%012I64X%s");
+            CHAR_T const * format = _u("0x%012I64X%s");
 #else
-            char16 const * format = _u("0x%08X%s");
+            CHAR_T const * format = _u("0x%08X%s");
 #endif
-            char16 const * addressName = _u("");
+            CHAR_T const * addressName = _u("");
 
             if (address == Js::JavascriptArray::MissingItem)
             {
@@ -3876,7 +3876,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             }
             break;
         case AddrOpndKindSz:
-            WriteToBuffer(&buffer, &n, wcslen((char16 const *)address) > 30 ? _u("\"%.30s...\"") : _u("\"%.30s\""), address);
+            WriteToBuffer(&buffer, &n, cstrlen((CHAR_T const *)address) > 30 ? _u("\"%.30s...\"") : _u("\"%.30s\""), address);
             break;
         case AddrOpndKindDynamicFloatRef:
             DumpAddress(address, printToConsole, skipMaskedAddress);
@@ -3997,10 +3997,10 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
     @param func
 */
 void
-Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count, bool AsmDumpMode,
+Opnd::GetAddrDescription(__out_ecount(count) CHAR_T *const description, const size_t count, bool AsmDumpMode,
                          bool printToConsole, Func *func)
 {
-    char16 *buffer = description;
+    CHAR_T *buffer = description;
     size_t n = count;
 
     IR::AddrOpnd * addrOpnd = this->AsAddrOpnd();

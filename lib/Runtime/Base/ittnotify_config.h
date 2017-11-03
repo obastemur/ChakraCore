@@ -62,8 +62,10 @@
 #  endif
 #endif /* ITT_PLATFORM */
 
-#if defined(_UNICODE) && !defined(UNICODE)
-#define UNICODE
+#ifndef ENGINE_CHAR_T_IS_CHAR
+    #if defined(_UNICODE) && !defined(UNICODE)
+    #define UNICODE
+    #endif
 #endif
 
 #include <stddef.h>
@@ -333,7 +335,7 @@ typedef struct ___itt_thread_info
 {
     const char* nameA; /*!< Copy of original name in ASCII. */
 #if defined(UNICODE) || defined(_UNICODE)
-    const WCHAR* nameW; /*!< Copy of original name in UNICODE. */
+    const CHAR_T* nameW; /*!< Copy of original name in UNICODE. */
 #else  /* UNICODE || _UNICODE */
     void* nameW;
 #endif /* UNICODE || _UNICODE */
@@ -367,13 +369,13 @@ typedef struct __itt_counter_info
 {
     const char* nameA;  /*!< Copy of original name in ASCII. */
 #if defined(UNICODE) || defined(_UNICODE)
-    const WCHAR* nameW; /*!< Copy of original name in UNICODE. */
+    const CHAR_T* nameW; /*!< Copy of original name in UNICODE. */
 #else  /* UNICODE || _UNICODE */
     void* nameW;
 #endif /* UNICODE || _UNICODE */
     const char* domainA;  /*!< Copy of original name in ASCII. */
 #if defined(UNICODE) || defined(_UNICODE)
-    const WCHAR* domainW; /*!< Copy of original name in UNICODE. */
+    const CHAR_T* domainW; /*!< Copy of original name in UNICODE. */
 #else  /* UNICODE || _UNICODE */
     void* domainW;
 #endif /* UNICODE || _UNICODE */

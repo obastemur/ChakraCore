@@ -414,7 +414,7 @@ FlowGraph::Build(void)
                 Region *region = block->GetFirstInstr()->AsLabelInstr()->GetRegion();
                 if (region)
                 {
-                    const char16 * regMap[] = { _u("RegionTypeInvalid"),
+                    const CHAR_T * regMap[] = { _u("RegionTypeInvalid"),
                         _u("RegionTypeRoot"),
                         _u("RegionTypeTry"),
                         _u("RegionTypeCatch"),
@@ -465,7 +465,7 @@ FlowGraph::Build(void)
                 if (currentLabel && CheckIfEarlyExitAndAddEdgeToFinally(instr->AsBranchInstr(), currentLabel->GetRegion(), branchTarget->GetRegion(), instrNext, exitLabel))
                 {
                     Assert(exitLabel);
-                    IR::Instr * bailOnEarlyExit = IR::BailOutInstr::New(Js::OpCode::BailOnEarlyExit, IR::BailOutOnEarlyExit, instr, instr->m_func); 
+                    IR::Instr * bailOnEarlyExit = IR::BailOutInstr::New(Js::OpCode::BailOnEarlyExit, IR::BailOutOnEarlyExit, instr, instr->m_func);
                     instr->InsertBefore(bailOnEarlyExit);
                     IR::LabelInstr *exceptFinallyLabel = this->finallyLabelStack->Top();
                     IR::LabelInstr *nonExceptFinallyLabel = exceptFinallyLabel->m_next->m_next->AsLabelInstr();
@@ -525,7 +525,7 @@ FlowGraph::Build(void)
                 Region *region = block->GetFirstInstr()->AsLabelInstr()->GetRegion();
                 if (region)
                 {
-                    const char16 * regMap[] = { _u("RegionTypeInvalid"),
+                    const CHAR_T * regMap[] = { _u("RegionTypeInvalid"),
                         _u("RegionTypeRoot"),
                         _u("RegionTypeTry"),
                         _u("RegionTypeCatch"),
@@ -571,7 +571,7 @@ FlowGraph::Build(void)
                 Region *region = block->GetFirstInstr()->AsLabelInstr()->GetRegion();
                 if (region)
                 {
-                    const char16 * regMap[] = { _u("RegionTypeInvalid"),
+                    const CHAR_T * regMap[] = { _u("RegionTypeInvalid"),
                     _u("RegionTypeRoot"),
                     _u("RegionTypeTry"),
                     _u("RegionTypeCatch"),
@@ -1991,7 +1991,7 @@ FlowGraph::UpdateRegionForBlockFromEHPred(BasicBlock * block, bool reassign)
     Assert(region || block->GetPredList()->Count() == 0 || block->firstInstr->AsLabelInstr()->GetRegion());
 
     if (region)
-    { 
+    {
         if (!region->ehBailoutData)
         {
             region->AllocateEHBailoutData(this->func, tryInstr);
@@ -3883,7 +3883,7 @@ FlowGraph::VerifyLoopGraph()
 #if DBG_DUMP
 
 void
-FlowGraph::Dump(bool onlyOnVerboseMode, const char16 *form)
+FlowGraph::Dump(bool onlyOnVerboseMode, const CHAR_T *form)
 {
     if(PHASE_DUMP(Js::FGBuildPhase, this->GetFunc()))
     {

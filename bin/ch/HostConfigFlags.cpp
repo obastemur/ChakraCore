@@ -5,7 +5,7 @@
 #include "stdafx.h"
 
 HostConfigFlags HostConfigFlags::flags;
-LPWSTR* HostConfigFlags::argsVal;
+LPCHAR_T* HostConfigFlags::argsVal;
 int HostConfigFlags::argsCount;
 void(__stdcall *HostConfigFlags::pfnPrintUsage)();
 
@@ -51,7 +51,7 @@ HostConfigFlags::HostConfigFlags() :
 {
 }
 
-bool HostConfigFlags::ParseFlag(LPCWSTR flagsString, ICmdLineArgsParser * parser)
+bool HostConfigFlags::ParseFlag(LPCCHAR_T flagsString, ICmdLineArgsParser * parser)
 {
 #define FLAG(Type, Name, Desc, Default) \
     if (_wcsicmp(_u(#Name), flagsString) == 0) \
@@ -91,7 +91,7 @@ int HostConfigFlags::FindArg(int argc, _In_reads_(argc) PWSTR argv[], PCWSTR tar
     });
 }
 
-void HostConfigFlags::RemoveArg(int& argc, _Inout_updates_to_(argc, argc) LPWSTR argv[], int index)
+void HostConfigFlags::RemoveArg(int& argc, _Inout_updates_to_(argc, argc) LPCHAR_T argv[], int index)
 {
     Assert(index >= 0 && index < argc);
     for (int i = index + 1; i < argc; ++i)
@@ -101,10 +101,10 @@ void HostConfigFlags::RemoveArg(int& argc, _Inout_updates_to_(argc, argc) LPWSTR
     --argc;
 }
 
-void HostConfigFlags::HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) LPWSTR argv[])
+void HostConfigFlags::HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) LPCHAR_T argv[])
 {
-    const LPCWSTR argsFlag = _u("-args");
-    const LPCWSTR endArgsFlag = _u("-endargs");
+    const LPCCHAR_T argsFlag = _u("-args");
+    const LPCCHAR_T endArgsFlag = _u("-endargs");
     int argsFlagLen = static_cast<int>(wcslen(argsFlag));
     int i;
     for (i = 1; i < argc; i++)
@@ -129,7 +129,7 @@ void HostConfigFlags::HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) L
     {
         return;
     }
-    HostConfigFlags::argsVal = new LPWSTR[argsCount];
+    HostConfigFlags::argsVal = new LPCHAR_T[argsCount];
     HostConfigFlags::argsCount = argsCount;
     int argIndex = argsStart;
     for (i = 0; i < argsCount; i++)
@@ -140,7 +140,7 @@ void HostConfigFlags::HandleArgsFlag(int& argc, _Inout_updates_to_(argc, argc) L
     argIndex = argsStart - 1;
     for (i = argsEnd + 1; i < argc; i++)
     {
-        LPWSTR temp = argv[argIndex];
+        LPCHAR_T temp = argv[argIndex];
         argv[argIndex] = argv[i];
         argv[i] = temp;
         argIndex++;

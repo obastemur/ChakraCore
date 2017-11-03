@@ -18,7 +18,7 @@ namespace Js
         };
 
         static Var EncodeCoreURI(ScriptContext* scriptContext, Arguments& args, unsigned char flags);
-        static Var Decode(__in_ecount(len) const char16* psz, uint32 len, unsigned char reservedFlags, ScriptContext* scriptContext);
+        static Var Decode(__in_ecount(len) const CHAR_T* psz, uint32 len, unsigned char reservedFlags, ScriptContext* scriptContext);
         static Var DecodeCoreURI(ScriptContext* scriptContext, Arguments& args, unsigned char reservedFlags);
 
         static unsigned char s_uriProps[128];
@@ -72,7 +72,7 @@ namespace Js
 #else
         static inline void ValidateURIProps(void) {}
 #endif
-        static inline BOOL InURISet( char16 c, unsigned char flags )
+        static inline BOOL InURISet( CHAR_T c, unsigned char flags )
         {
             //static unsigned char *uriProps = GetURIProps();
             ValidateURIProps();
@@ -82,9 +82,9 @@ namespace Js
         static const uint32 MaxUTF8Len = 4;
         static uint32 ToUTF8( uint32 uVal, BYTE bUTF8[MaxUTF8Len]);
         static uint32 FromUTF8( BYTE bUTF8[MaxUTF8Len], uint32 uLen );
-        static Var Encode(__in_ecount(len) const char16* psz, uint32 len, unsigned char unescapedFlags, ScriptContext* scriptContext );
+        static Var Encode(__in_ecount(len) const CHAR_T* psz, uint32 len, unsigned char unescapedFlags, ScriptContext* scriptContext );
 
     private:
-        static bool DecodeByteFromHex(const char16 digit1, const char16 digit2, unsigned char &value);
+        static bool DecodeByteFromHex(const CHAR_T digit1, const CHAR_T digit2, unsigned char &value);
     };
 }

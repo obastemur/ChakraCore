@@ -5,7 +5,7 @@
 #pragma once
 
 // xplat-todo: error: ISO C++ forbids forward references to 'enum' types
-#if defined(ENABLE_TRACE) 
+#if defined(ENABLE_TRACE)
 namespace Js
 {
 enum Flag: unsigned short;
@@ -52,7 +52,7 @@ namespace Js
     // decouple implementation so that in common.lib we don't have dependency on memory.lib
     struct ILogger
     {
-        virtual void Write(const char16* msg) = 0;
+        virtual void Write(const CHAR_T* msg) = 0;
     };
 
 #ifdef STACK_BACK_TRACE
@@ -68,17 +68,17 @@ namespace Js
 class Output
 {
 public:
-    static size_t __cdecl VerboseNote(const char16 * format, ...);
+    static size_t __cdecl VerboseNote(const CHAR_T * format, ...);
 #ifdef ENABLE_TRACE
-    static size_t __cdecl Trace(Js::Phase phase, const char16 *form, ...);
-    static size_t __cdecl Trace2(Js::Phase phase, const char16 *form, ...);
-    static size_t __cdecl TraceWithPrefix(Js::Phase phase, const char16 prefix[], const char16 *form, ...);
-    static size_t __cdecl TraceWithFlush(Js::Phase phase, const char16 *form, ...);
-    static size_t __cdecl TraceWithFlush(Js::Flag flag, const char16 *form, ...);
-    static size_t __cdecl TraceStats(Js::Phase phase, const char16 *form, ...);
+    static size_t __cdecl Trace(Js::Phase phase, const CHAR_T *form, ...);
+    static size_t __cdecl Trace2(Js::Phase phase, const CHAR_T *form, ...);
+    static size_t __cdecl TraceWithPrefix(Js::Phase phase, const CHAR_T prefix[], const CHAR_T *form, ...);
+    static size_t __cdecl TraceWithFlush(Js::Phase phase, const CHAR_T *form, ...);
+    static size_t __cdecl TraceWithFlush(Js::Flag flag, const CHAR_T *form, ...);
+    static size_t __cdecl TraceStats(Js::Phase phase, const CHAR_T *form, ...);
     template<class Fn>
     static size_t __cdecl
-    TraceWithCallback(Js::Phase phase, Fn callback, const char16 *form, ...)
+    TraceWithCallback(Js::Phase phase, Fn callback, const CHAR_T *form, ...)
     {
         size_t retValue = 0;
 
@@ -93,17 +93,17 @@ public:
         }
 
         return retValue;
-    }    
+    }
     static void     SetInMemoryLogger(Js::ILogger* logger);
 #ifdef STACK_BACK_TRACE
     static void     SetStackTraceHelper(Js::IStackTraceHelper* helper);
 #endif
-    
+
 #endif // ENABLE_TRACE
-    static size_t __cdecl Print(const char16 *form, ...);
-    static size_t __cdecl Print(int column, const char16 *form, ...);
-    static size_t __cdecl PrintBuffer(const char16 * buffer, size_t size);
-    static size_t __cdecl VPrint(const char16 *form, va_list argptr);
+    static size_t __cdecl Print(const CHAR_T *form, ...);
+    static size_t __cdecl Print(int column, const CHAR_T *form, ...);
+    static size_t __cdecl PrintBuffer(const CHAR_T * buffer, size_t size);
+    static size_t __cdecl VPrint(const CHAR_T *form, va_list argptr);
     static void     SkipToColumn(size_t column);
     static FILE*    SetFile(FILE *);
     static FILE*    GetFile();
@@ -114,10 +114,10 @@ public:
 
     static WORD     SetConsoleForeground(WORD color);
     static void     CaptureStart();
-    static char16* CaptureEnd();
+    static CHAR_T* CaptureEnd();
 
 private:
-    static void     DirectPrint(const char16 * string);
+    static void     DirectPrint(const CHAR_T * string);
 
     static AutoFILE s_outputFile;
     static bool     s_useDebuggerWindow;
@@ -129,14 +129,14 @@ private:
 #ifdef STACK_BACK_TRACE
     static Js::IStackTraceHelper* s_stackTraceHelper; // Used for capturing stack trace.
 #endif
-    static size_t VTrace(const char16* shortPrefixFormat, const char16* prefix, const char16 *form, va_list argptr);
+    static size_t VTrace(const CHAR_T* shortPrefixFormat, const CHAR_T* prefix, const CHAR_T *form, va_list argptr);
 #endif // ENABLE_TRACE
 
 #define THREAD_ST THREAD_LOCAL
 
     THREAD_ST static bool s_capture;
     THREAD_ST static FILE * s_file;
-    THREAD_ST static char16 * buffer;
+    THREAD_ST static CHAR_T * buffer;
     THREAD_ST static size_t bufferFreeSize;
     THREAD_ST static size_t bufferAllocSize;
     THREAD_ST static size_t s_Column;

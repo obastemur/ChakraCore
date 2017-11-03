@@ -143,17 +143,17 @@ namespace Js
         static const uint InlineeMetaArgIndex_Argv            = 3;
         static const uint InlineeMetaArgCount                 = 3;
 
-        static const  char16 AnonymousFunction[];
-        static const  char16 AnonymousCode[];
-        static const  char16 Anonymous[];            // Used in the function created due to new Function
-        static const  char16 Empty[];
-        static const  char16 FunctionCode[];
-        static const  char16 GlobalCode[];
-        static const  char16 EvalCode[];
-        static const  char16 GlobalFunction[];
-        static const  char16 UnknownScriptCode[];
-        static const  char16 StringReplace[];
-        static const  char16 StringMatch[];
+        static const  CHAR_T AnonymousFunction[];
+        static const  CHAR_T AnonymousCode[];
+        static const  CHAR_T Anonymous[];            // Used in the function created due to new Function
+        static const  CHAR_T Empty[];
+        static const  CHAR_T FunctionCode[];
+        static const  CHAR_T GlobalCode[];
+        static const  CHAR_T EvalCode[];
+        static const  CHAR_T GlobalFunction[];
+        static const  CHAR_T UnknownScriptCode[];
+        static const  CHAR_T StringReplace[];
+        static const  CHAR_T StringMatch[];
 
         static const size_t AnonymousFunctionLength = _countof(_u("Anonymous function")) - 1;
         static const size_t AnonymousLength         = _countof(_u("anonymous")) - 1;

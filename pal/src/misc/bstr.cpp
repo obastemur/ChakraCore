@@ -183,5 +183,9 @@ STDAPI_(BSTR) SysAllocString(const OLECHAR* psz)
         return NULL;
     }
 
+#ifndef ENGINE_CHAR_T_IS_CHAR
     return SysAllocStringLen(psz, (DWORD)PAL_wcslen(psz));
+#else
+    return SysAllocStringLen(psz, (DWORD)PAL_strlen(psz));
+#endif
 }

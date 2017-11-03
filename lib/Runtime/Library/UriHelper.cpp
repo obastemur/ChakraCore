@@ -126,7 +126,7 @@ namespace Js
     // The Encode algorithm described in sec. 15.1.3 of the spec. The input string is
     // 'pSz' and the Unescaped set is described by the flags 'unescapedFlags'. The
     // output is a string var.
-    Var UriHelper::Encode(__in_ecount(len) const  char16* pSz, uint32 len, unsigned char unescapedFlags, ScriptContext* scriptContext )
+    Var UriHelper::Encode(__in_ecount(len) const  CHAR_T* pSz, uint32 len, unsigned char unescapedFlags, ScriptContext* scriptContext )
     {
         BYTE bUTF8[MaxUTF8Len];
 
@@ -134,7 +134,7 @@ namespace Js
         uint32 outputLen = 0;
         for( uint32 k = 0; k < len; k++ )
         {
-            char16 c = pSz[k];
+            CHAR_T c = pSz[k];
             uint32 uVal;
             if( InURISet(c, unescapedFlags) )
             {
@@ -158,7 +158,7 @@ namespace Js
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIEncodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
                     }
                     __analysis_assume(k < len); // because we throw exception if k==len
-                    char16 c1 = pSz[k];
+                    CHAR_T c1 = pSz[k];
                     if( c1 < 0xDC00 || c1 > 0xDFFF )
                     {
                         JavascriptError::ThrowURIError(scriptContext, JSERR_URIEncodeError /* TODO-ERROR: _u("NEED MESSAGE") */);
@@ -174,13 +174,13 @@ namespace Js
         //pass 2 generate the encoded URI
 
         uint32 allocSize = UInt32Math::Add(outputLen, 1);
-        char16* outURI = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, allocSize);
-        char16* outCurrent = outURI;
-        const char16 *hexStream = _u("0123456789ABCDEF");
+        CHAR_T* outURI = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, allocSize);
+        CHAR_T* outCurrent = outURI;
+        const CHAR_T *hexStream = _u("0123456789ABCDEF");
 
         for( uint32 k = 0; k < len; k++ )
         {
-            char16 c = pSz[k];
+            CHAR_T c = pSz[k];
             uint32 uVal;
             if( InURISet(c, unescapedFlags) )
             {
@@ -209,7 +209,7 @@ namespace Js
                     }
 #endif
                     __analysis_assume(k < len);// because we throw exception if k==len
-                    char16 c1 = pSz[k];
+                    CHAR_T c1 = pSz[k];
 
 #if DBG
                     if( c1 < 0xDC00 || c1 > 0xDFFF )
@@ -266,10 +266,10 @@ namespace Js
     // The Decode algorithm described in sec. 15.1.3 of the spec. The input string is
     // 'pSZ' and the Reserved set is described by the flags 'reservedFlags'. The
     // output is a string var.
-    Var UriHelper::Decode(__in_ecount(len) const char16* pSz, uint32 len, unsigned char reservedFlags, ScriptContext* scriptContext)
+    Var UriHelper::Decode(__in_ecount(len) const CHAR_T* pSz, uint32 len, unsigned char reservedFlags, ScriptContext* scriptContext)
     {
-        char16 c1;
-        char16 c;
+        CHAR_T c1;
+        CHAR_T c;
         // pass 1 calculate output length and error check
         uint32 outputLen = 0;
         for( uint32 k = 0; k < len; k++ )
@@ -350,7 +350,7 @@ namespace Js
                     }
                     if( uVal < 0x10000 )
                     {
-                        c1 = (char16)uVal;
+                        c1 = (CHAR_T)uVal;
                     }
                     else if( uVal > 0x10ffff )
                     {
@@ -380,8 +380,8 @@ namespace Js
 
         //pass 2 generate the decoded URI
         uint32 allocSize = UInt32Math::Add(outputLen, 1);
-        char16* outURI = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, allocSize);
-        char16* outCurrent = outURI;
+        CHAR_T* outURI = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, allocSize);
+        CHAR_T* outCurrent = outURI;
 
 
         for( uint32 k = 0; k < len; k++ )
@@ -489,7 +489,7 @@ namespace Js
 
                     if( uVal < 0x10000 )
                     {
-                        c1 = (char16)uVal;
+                        c1 = (CHAR_T)uVal;
                     }
 
 #if DBG
@@ -505,8 +505,8 @@ namespace Js
                         uint32 h = ((( uVal - 0x10000) >> 10) & 0x3ff) + 0xd800;
 
                         __analysis_assume(outCurrent + 2 <= outURI + allocSize);
-                        *outCurrent++ = (char16)h;
-                        *outCurrent++ = (char16)l;
+                        *outCurrent++ = (CHAR_T)h;
+                        *outCurrent++ = (CHAR_T)l;
                         continue;
                     }
                 }
@@ -518,7 +518,7 @@ namespace Js
                 }
                 else
                 {
-                    js_memcpy_s(outCurrent, (allocSize - (outCurrent - outURI)) * sizeof(char16), &pSz[start], (k - start + 1)*sizeof(char16));
+                    js_memcpy_s(outCurrent, (allocSize - (outCurrent - outURI)) * sizeof(CHAR_T), &pSz[start], (k - start + 1)*sizeof(CHAR_T));
                     outCurrent += k - start + 1;
                 }
             }
@@ -537,7 +537,7 @@ namespace Js
     }
 
     // Decodes a two-hexadecimal-digit wide character pair into the byte value it represents
-    bool UriHelper::DecodeByteFromHex(const char16 digit1, const char16 digit2, unsigned char &value)
+    bool UriHelper::DecodeByteFromHex(const CHAR_T digit1, const CHAR_T digit2, unsigned char &value)
     {
         int x;
         if(!Js::NumberUtilities::FHexDigit(digit1, &x))

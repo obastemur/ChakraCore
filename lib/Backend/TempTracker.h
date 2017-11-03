@@ -26,7 +26,7 @@ protected:
     HashTable<BVSparse<JitArenaAllocator> *> * tempTransferDependencies;
 
 #if DBG
-    void Dump(char16 const * traceName);
+    void Dump(CHAR_T const * traceName);
 #endif
 };
 
@@ -87,8 +87,8 @@ protected:
 
 #if DBG_DUMP
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempNumber"); }
-    void Dump(char16 const * traceName);
+    static CHAR_T const * GetTraceName() { return _u("MarkTempNumber"); }
+    void Dump(CHAR_T const * traceName);
 #endif
 
     // true if we have a LdElem_A from stack object that has non temp uses.
@@ -138,7 +138,7 @@ protected:
 
 #if DBG_DUMP
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempObject"); }
+    static CHAR_T const * GetTraceName() { return _u("MarkTempObject"); }
 #endif
 private:
     static bool IsTempProducing(IR::Instr * instr);
@@ -184,7 +184,7 @@ protected:
     bool HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass) { return false; }
 
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempObjectVerify"); }
+    static CHAR_T const * GetTraceName() { return _u("MarkTempObjectVerify"); }
 private:
     BVSparse<JitArenaAllocator> removedUpwardExposedUse;
 };

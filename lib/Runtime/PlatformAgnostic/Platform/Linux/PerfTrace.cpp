@@ -25,9 +25,9 @@ namespace PlatformAgnostic
 {
 
 volatile sig_atomic_t PerfTrace::mapsRequested = 0;
-  
+
 //
-// Registers a signal handler for SIGUSR2 
+// Registers a signal handler for SIGUSR2
 //
 void PerfTrace::Register()
 {
@@ -87,7 +87,7 @@ void  PerfTrace::WritePerfMap()
 #if DYNAMIC_INTERPRETER_THUNK
                 if(body->HasInterpreterThunkGenerated())
                 {
-                    const char16* functionName = body->GetExternalDisplayName();
+                    const CHAR_T* functionName = body->GetExternalDisplayName();
                     fwprintf(perfMapFile, _u("%llX %llX %s(Interpreted)\n"),
                         body->GetDynamicInterpreterEntryPoint(),
                         body->GetDynamicInterpreterThunkSize(),

@@ -60,19 +60,19 @@ namespace UnifiedRegex
         char alpha[AlphaCount];
         char alphaBits[AsciiTableSize];
         char trigramMap[TrigramMapSize];
-        const char16* input;
+        const CHAR_T* input;
         int inputLen;
 
         void InitTrigramMap();
         bool AddStarts(__in_xcount(TrigramInfo::PatternLength) char* pat1,__in_xcount(TrigramInfo::PatternLength) char* pat2, RegexPattern* pattern);
-        void MegaMatch(__in_ecount(inputLen) const char16* input,int inputLen);
+        void MegaMatch(__in_ecount(inputLen) const CHAR_T* input,int inputLen);
     };
 
     // ----------------------------------------------------------------------
     // OctoquadIdentifier
     // ----------------------------------------------------------------------
 
-    class OctoquadIdentifier : private Chars<char16>
+    class OctoquadIdentifier : private Chars<CHAR_T>
     {
         friend class OctoquadMatcher;
     public:
@@ -128,7 +128,7 @@ namespace UnifiedRegex
     // OctoquadMatcher
     // ----------------------------------------------------------------------
 
-    class OctoquadMatcher : private Chars<char16>
+    class OctoquadMatcher : private Chars<CHAR_T>
     {
     private:
         OctoquadMatcher(const StandardChars<Char>* standardChars, CaseInsensitive::MappingSource mappingSource, OctoquadIdentifier* identifier);

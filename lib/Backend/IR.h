@@ -296,7 +296,7 @@ public:
     virtual void    Dump(IRDumpFlags flags);
             void    Dump();
             void    DumpSimple();
-    char16*        DumpString();
+    CHAR_T*        DumpString();
     void            DumpGlobOptInstrString();
     void            Dump(int window);
     void            DumpRange(Instr *instrEnd);
@@ -337,7 +337,7 @@ public:
     bool            IsCmCC_I4();
     bool            IsNeq();
     bool            BinaryCalculator(IntConstType src1Const, IntConstType src2Const, IntConstType *pResult);
-    template <typename T>     
+    template <typename T>
     bool            BinaryCalculatorT(T src1Const, T src2Const, int64 *pResult, bool checkWouldTrap);
     bool            UnaryCalculator(IntConstType src1Const, IntConstType *pResult);
     IR::Instr*      GetNextArg();
@@ -469,7 +469,7 @@ public:
     Instr *         m_prev;
     Func *          m_func;
 #if DBG_DUMP
-    char16 *       globOptInstrString;
+    CHAR_T *       globOptInstrString;
 #endif
     // These should be together to pack into a uint32
     Js::OpCode      m_opcode;
@@ -524,7 +524,7 @@ class ByteCodeUsesInstr : public Instr
 {
 private:
     BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed;
-    
+
 public:
     static ByteCodeUsesInstr * New(IR::Instr * originalBytecodeInstr);
     static ByteCodeUsesInstr * New(Func * containingFunction, uint32 offset);
@@ -667,7 +667,7 @@ public:
     BYTE                    m_isDataLabel : 1;
 
     // Indicate whether the label is the target of a for in loop exit (BrOnEmpty or BrOnNotEmpty)
-    // It is used by Inliner to track inlinee for in loop level to assign stack allocated for in 
+    // It is used by Inliner to track inlinee for in loop level to assign stack allocated for in
     // This bit has unknown validity outside of inliner
     BYTE                    m_isForInExit : 1;
 #if DBG

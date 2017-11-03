@@ -375,7 +375,7 @@ namespace UnifiedRegex
     }
 
     template <typename T>
-    void Inst::PrintBytes(DebugWriter *w, Inst *inst, T *that, const char16 *annotation) const
+    void Inst::PrintBytes(DebugWriter *w, Inst *inst, T *that, const CHAR_T *annotation) const
     {
         T *start = (T*)that;
         byte *startByte = (byte *)start;
@@ -398,7 +398,7 @@ namespace UnifiedRegex
     }
 
     template <>
-    void Inst::PrintBytes(DebugWriter *w, Inst *inst, Inst *that, const char16 *annotation) const
+    void Inst::PrintBytes(DebugWriter *w, Inst *inst, Inst *that, const CHAR_T *annotation) const
     {
         Inst *start = (Inst *)that;
 
@@ -465,7 +465,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void BackupMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void BackupMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("backup: "));
         backup.Print(w);
@@ -473,7 +473,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void CharMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void CharMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("c: "));
         w->PrintQuotedChar(c);
@@ -481,7 +481,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void Char2Mixin::Print(DebugWriter* w, const char16* litbuf) const
+    void Char2Mixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
@@ -491,7 +491,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void Char3Mixin::Print(DebugWriter* w, const char16* litbuf) const
+    void Char3Mixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
@@ -503,7 +503,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void Char4Mixin::Print(DebugWriter* w, const char16* litbuf) const
+    void Char4Mixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("c0: "));
         w->PrintQuotedChar(cs[0]);
@@ -517,7 +517,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void LiteralMixin::Print(DebugWriter* w, const char16* litbuf, bool isEquivClass) const
+    void LiteralMixin::Print(DebugWriter* w, const CHAR_T* litbuf, bool isEquivClass) const
     {
         if (isEquivClass)
         {
@@ -548,18 +548,18 @@ namespace UnifiedRegex
     // Char2LiteralScannerMixin
     // ----------------------------------------------------------------------
 
-    bool Char2LiteralScannerMixin::Match(Matcher& matcher, const char16* const input, const CharCount inputLength, CharCount& inputOffset) const
+    bool Char2LiteralScannerMixin::Match(Matcher& matcher, const CHAR_T* const input, const CharCount inputLength, CharCount& inputOffset) const
     {
         if (inputLength == 0)
         {
             return false;
         }
 
-        const uint matchC0 = Chars<char16>::CTU(cs[0]);
-        const uint matchC1 = Chars<char16>::CTU(cs[1]);
+        const uint matchC0 = Chars<CHAR_T>::CTU(cs[0]);
+        const uint matchC1 = Chars<CHAR_T>::CTU(cs[1]);
 
-        const char16 * currentInput = input + inputOffset;
-        const char16 * endInput = input + inputLength - 1;
+        const CHAR_T * currentInput = input + inputOffset;
+        const CHAR_T * endInput = input + inputLength - 1;
 
         while (currentInput < endInput)
         {
@@ -568,7 +568,7 @@ namespace UnifiedRegex
 #endif
             while (true)
             {
-                const uint c1 = Chars<char16>::CTU(currentInput[1]);
+                const uint c1 = Chars<CHAR_T>::CTU(currentInput[1]);
                 if (c1 != matchC1)
                 {
                     if (c1 == matchC0)
@@ -586,7 +586,7 @@ namespace UnifiedRegex
                 matcher.CompStats();
 #endif
                 // Check the first character
-                const uint c0 = Chars<char16>::CTU(*currentInput);
+                const uint c0 = Chars<CHAR_T>::CTU(*currentInput);
                 if (c0 == matchC0)
                 {
                     inputOffset = (CharCount)(currentInput - input);
@@ -611,7 +611,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
                 matcher.CompStats();
 #endif
-                const uint c1 = Chars<char16>::CTU(currentInput[1]);
+                const uint c1 = Chars<CHAR_T>::CTU(currentInput[1]);
                 if (c1 == matchC1)
                 {
                     inputOffset = (CharCount)(currentInput - input);
@@ -629,7 +629,7 @@ namespace UnifiedRegex
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void Char2LiteralScannerMixin::Print(DebugWriter* w, const char16 * litbuf) const
+    void Char2LiteralScannerMixin::Print(DebugWriter* w, const CHAR_T * litbuf) const
     {
         Char2Mixin::Print(w, litbuf);
         w->Print(_u(" (with two character literal scanner)"));
@@ -648,7 +648,7 @@ namespace UnifiedRegex
 
     template <typename ScannerT>
     inline bool
-    ScannerMixinT<ScannerT>::Match(Matcher& matcher, const char16 * const input, const CharCount inputLength, CharCount& inputOffset) const
+    ScannerMixinT<ScannerT>::Match(Matcher& matcher, const CHAR_T * const input, const CharCount inputLength, CharCount& inputOffset) const
     {
         Assert(length <= matcher.program->rep.insts.litbufLen - offset);
         return scanner.template Match<1>(
@@ -665,7 +665,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <typename ScannerT>
-    void ScannerMixinT<ScannerT>::Print(DebugWriter* w, const char16* litbuf, bool isEquivClass) const
+    void ScannerMixinT<ScannerT>::Print(DebugWriter* w, const CHAR_T* litbuf, bool isEquivClass) const
     {
         LiteralMixin::Print(w, litbuf, isEquivClass);
         w->Print(_u(" (with %s scanner)"), ScannerT::GetName());
@@ -673,15 +673,15 @@ namespace UnifiedRegex
 #endif
 
     // explicit instantiation
-    template struct ScannerMixinT<TextbookBoyerMoore<char16>>;
-    template struct ScannerMixinT<TextbookBoyerMooreWithLinearMap<char16>>;
+    template struct ScannerMixinT<TextbookBoyerMoore<CHAR_T>>;
+    template struct ScannerMixinT<TextbookBoyerMooreWithLinearMap<CHAR_T>>;
 
     // ----------------------------------------------------------------------
     // EquivScannerMixinT
     // ----------------------------------------------------------------------
 
     template <uint lastPatCharEquivClassSize>
-    inline bool EquivScannerMixinT<lastPatCharEquivClassSize>::Match(Matcher& matcher, const char16* const input, const CharCount inputLength, CharCount& inputOffset) const
+    inline bool EquivScannerMixinT<lastPatCharEquivClassSize>::Match(Matcher& matcher, const CHAR_T* const input, const CharCount inputLength, CharCount& inputOffset) const
     {
         Assert(length * CaseInsensitive::EquivClassSize <= matcher.program->rep.insts.litbufLen - offset);
         CompileAssert(lastPatCharEquivClassSize >= 1 && lastPatCharEquivClassSize <= CaseInsensitive::EquivClassSize);
@@ -699,7 +699,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <uint lastPatCharEquivClassSize>
-    void EquivScannerMixinT<lastPatCharEquivClassSize>::Print(DebugWriter* w, const char16* litbuf) const
+    void EquivScannerMixinT<lastPatCharEquivClassSize>::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         __super::Print(w, litbuf, true);
         w->Print(_u(" (last char equiv size:%d)"), lastPatCharEquivClassSize);
@@ -714,7 +714,7 @@ namespace UnifiedRegex
     // ----------------------------------------------------------------------
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void ScannerInfo::Print(DebugWriter* w, const char16* litbuf) const
+    void ScannerInfo::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         ScannerMixin::Print(w, litbuf, isEquivClass);
     }
@@ -741,7 +741,7 @@ namespace UnifiedRegex
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void ScannersMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void ScannersMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("literals: {"));
         for (int i = 0; i < numLiterals; i++)
@@ -764,7 +764,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template<bool IsNegation>
-    void SetMixin<IsNegation>::Print(DebugWriter* w, const char16* litbuf) const
+    void SetMixin<IsNegation>::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("set: "));
         if (IsNegation)
@@ -776,21 +776,21 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void TrieMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void TrieMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         trie.Print(w);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void GroupMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void GroupMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("groupId: %d"), groupId);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void ChompBoundedMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void ChompBoundedMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("repeats: "));
         repeats.Print(w);
@@ -798,21 +798,21 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void JumpMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void JumpMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("targetLabel: L%04x"), Inst::GetPrintLabel(targetLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void BodyGroupsMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void BodyGroupsMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("minBodyGroupId: %d, maxBodyGroupId: %d"), minBodyGroupId, maxBodyGroupId);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void BeginLoopBasicsMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void BeginLoopBasicsMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("loopId: %d, repeats: "), loopId);
         repeats.Print(w);
@@ -821,7 +821,7 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void BeginLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void BeginLoopMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         BeginLoopBasicsMixin::Print(w, litbuf);
         w->Print(_u(", hasInnerNondet: %s, exitLabel: L%04x, "),
@@ -830,63 +830,63 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void GreedyMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void GreedyMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("greedy: %s"), isGreedy ? _u("true") : _u("false"));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void RepeatLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void RepeatLoopMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("beginLabel: L%04x"), Inst::GetPrintLabel(beginLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void GreedyLoopNoBacktrackMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void GreedyLoopNoBacktrackMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("loopId: %d, exitLabel: L%04x"), loopId, exitLabel);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void TryMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void TryMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("failLabel: L%04x"), Inst::GetPrintLabel(failLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void NegationMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void NegationMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("isNegation: %s"), isNegation ? _u("true") : _u("false"));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void NextLabelMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void NextLabelMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("nextLabel: L%04x"), Inst::GetPrintLabel(nextLabel));
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void FixedLengthMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void FixedLengthMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("length: %u"), length);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void FollowFirstMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void FollowFirstMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("followFirst: %c"), followFirst);
     }
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void NoNeedToSaveMixin::Print(DebugWriter* w, const char16* litbuf) const
+    void NoNeedToSaveMixin::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->Print(_u("noNeedToSave: %s"), noNeedToSave ? _u("true") : _u("false"));
     }
@@ -902,7 +902,7 @@ namespace UnifiedRegex
 #endif
 
     template <int n>
-    void SwitchMixin<n>::AddCase(char16 c, Label targetLabel)
+    void SwitchMixin<n>::AddCase(CHAR_T c, Label targetLabel)
     {
         Assert(numCases < MaxCases);
         int i;
@@ -945,7 +945,7 @@ namespace UnifiedRegex
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     template <int n>
-    void SwitchMixin<n>::Print(DebugWriter* w, const char16* litbuf) const
+    void SwitchMixin<n>::Print(DebugWriter* w, const CHAR_T* litbuf) const
     {
         w->EOL();
         w->Indent();
@@ -2883,7 +2883,7 @@ namespace UnifiedRegex
                         auto toCanonical = [&](codepoint_t c) {
                             return matcher.standardChars->ToCanonical(
                                 CaseInsensitive::MappingSource::CaseFolding,
-                                static_cast<char16>(c));
+                                static_cast<CHAR_T>(c));
                         };
                         doesMatch = (toCanonical(groupCodePoint) == toCanonical(inputCodePoint));
                     }
@@ -5107,7 +5107,7 @@ namespace UnifiedRegex
 
     Matcher::Matcher(Js::ScriptContext* scriptContext, RegexPattern* pattern)
         : pattern(pattern)
-        , standardChars(scriptContext->GetThreadContext()->GetStandardChars((char16*)0))
+        , standardChars(scriptContext->GetThreadContext()->GetStandardChars((CHAR_T*)0))
         , program(pattern->rep.unified.program)
         , groupInfos(nullptr)
         , loopInfos(nullptr)
@@ -6018,8 +6018,8 @@ namespace UnifiedRegex
 #endif
 
     // Template parameter here is the max number of cases
-    template void UnifiedRegex::SwitchMixin<10>::AddCase(char16, unsigned int);
-    template void UnifiedRegex::SwitchMixin<20>::AddCase(char16, unsigned int);
+    template void UnifiedRegex::SwitchMixin<10>::AddCase(CHAR_T, unsigned int);
+    template void UnifiedRegex::SwitchMixin<20>::AddCase(CHAR_T, unsigned int);
 
 #define M(...)
 #define MTemplate(TagName, TemplateDeclaration, GenericClassName, SpecializedClassName) template struct SpecializedClassName;

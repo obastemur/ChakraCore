@@ -97,8 +97,12 @@
 #undef Yield /* winbase.h defines this but we want to use it for Js::OpCode::Yield; it is Win16 legacy, no harm undef'ing it */
 #pragma warning(pop)
 
-// xplat-todo: get a better name for this macro
-#define _u(s) L##s
+#ifndef ENGINE_CHAR_T_IS_CHAR
+    #define _u(s) L##s
+#else
+    #define _u(s) s
+#endif
+
 #define INIT_PRIORITY(x)
 
 #define get_cpuid __cpuid
@@ -130,7 +134,11 @@ __forceinline void  __int2c()
 #include "inc/rt/no_sal2.h"
 #include "inc/rt/oaidl.h"
 
-#define _u(s) u##s
+#ifndef ENGINE_CHAR_T_IS_CHAR
+    #define _u(s) u##s
+#else
+    #define _u(s) s
+#endif
 
 typedef GUID UUID;
 #define INIT_PRIORITY(x) __attribute__((init_priority(x)))
@@ -442,7 +450,26 @@ bool IsAddressOnStack(ULONG_PTR address);
 
 errno_t rand_s(unsigned int* randomValue);
 
-inline char16* wmemset(char16* wcs, char16 wc, size_t n)
+#ifndef CHAR_T
+    #ifndef ENGINE_CHAR_T_IS_CHAR
+        #ifdef _WIN32
+        typedef wchar_t CHAR_T;
+        #else
+        typedef char16_t CHAR_T;
+        #endif
+        inline size_t cstrlen(const CHAR_T * str) { return wcslen(str); }
+        inline void cstrcpy_s(CHAR_T * target, size_t size, const CHAR_T * source) { wcscpy_s(target, size, source); }
+    #else
+        typedef char CHAR_T;
+        inline size_t cstrlen(const CHAR_T * str) { return strlen(str); }
+        inline void cstrcpy_s(CHAR_T * target, size_t size, const CHAR_T * source) { strcpy_s(target, size, source); }
+
+    #endif
+    typedef const CHAR_T *LPCCHAR_T;
+    typedef CHAR_T *LPCHAR_T;
+#endif // CHAR_T
+
+inline CHAR_T* wmemset(CHAR_T* wcs, CHAR_T wc, size_t n)
 {
     while (n)
     {
@@ -451,19 +478,19 @@ inline char16* wmemset(char16* wcs, char16 wc, size_t n)
     return wcs;
 }
 
-inline errno_t wmemcpy_s(char16* dest, size_t destSize, const char16* src, size_t count)
+inline errno_t wmemcpy_s(CHAR_T* dest, size_t destSize, const CHAR_T* src, size_t count)
 {
-    return memcpy_s(dest, sizeof(char16) * destSize, src, sizeof(char16) * count);
+    return memcpy_s(dest, sizeof(CHAR_T) * destSize, src, sizeof(CHAR_T) * count);
 }
 
-inline int _wunlink(const char16* filename)
+inline int _wunlink(const CHAR_T* filename)
 {
     // WARN: does not set errno when fail
     return DeleteFile(filename) ? 0 : -1;
 }
 
 template <size_t size>
-inline errno_t _wcserror_s(char16 (&buffer)[size], int errnum)
+inline errno_t _wcserror_s(CHAR_T (&buffer)[size], int errnum)
 {
     const char* str = strerror(errnum);
     // WARN: does not return detail errno when fail
@@ -475,8 +502,8 @@ inline errno_t _wcserror_s(char16 (&buffer)[size], int errnum)
 #define midl_user_free(ptr) \
     if (ptr != NULL) { HeapFree(GetProcessHeap(), NULL, ptr); }
 
-DWORD __cdecl CharLowerBuffW(const char16* lpsz, DWORD  cchLength);
-DWORD __cdecl CharUpperBuffW(const char16* lpsz, DWORD  cchLength);
+DWORD __cdecl CharLowerBuffW(const CHAR_T* lpsz, DWORD  cchLength);
+DWORD __cdecl CharUpperBuffW(const CHAR_T* lpsz, DWORD  cchLength);
 
 #define MAXUINT32   ((uint32_t)~((uint32_t)0))
 #define MAXINT32    ((int32_t)(MAXUINT32 >> 1))
@@ -555,8 +582,8 @@ __forceinline void * _AddressOfReturnAddress()
 #define STRSAFE_INLINE
 #endif
 
-STRSAFEAPI StringCchPrintfW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszFormat, ...);
-STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszFormat, va_list argList);
+STRSAFEAPI StringCchPrintfW(CHAR_T* pszDest, size_t cchDest, const CHAR_T* pszFormat, ...);
+STRSAFEAPI StringVPrintfWorkerW(CHAR_T* pszDest, size_t cchDest, const CHAR_T* pszFormat, va_list argList);
 
 #define STRSAFE_MAX_CCH  2147483647 // max # of characters we support (same as INT_MAX)
 
@@ -569,7 +596,7 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
 
 // Provide the definitions for non-windows platforms
 #ifndef _MSC_VER
-STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszFormat, va_list argList)
+STRSAFEAPI StringVPrintfWorkerW(CHAR_T* pszDest, size_t cchDest, const CHAR_T* pszFormat, va_list argList)
 {
     HRESULT hr = S_OK;
 
@@ -585,9 +612,11 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
 
         // leave the last space for the null terminator
         cchMax = cchDest - 1;
-
+#ifndef ENGINE_CHAR_T_IS_CHAR
         iRet = _vsnwprintf(pszDest, cchMax, pszFormat, argList);
-        // ASSERT((iRet < 0) || (((size_t)iRet) <= cchMax));
+#else
+        iRet = _vsnprintf(pszDest, cchMax, pszFormat, argList);
+#endif
 
         if ((iRet < 0) || (((size_t)iRet) > cchMax))
         {
@@ -609,7 +638,7 @@ STRSAFEAPI StringVPrintfWorkerW(WCHAR* pszDest, size_t cchDest, const WCHAR* psz
     return hr;
 }
 
-STRSAFEAPI StringCchPrintfW(WCHAR* pszDest, size_t cchDest, const WCHAR* pszFormat, ...)
+STRSAFEAPI StringCchPrintfW(CHAR_T* pszDest, size_t cchDest, const CHAR_T* pszFormat, ...)
 {
     HRESULT hr;
 

@@ -65,7 +65,7 @@ namespace ThreadServiceTests
 
         REQUIRE(JsSetCurrentContext(context) == JsNoError);
 
-        LPCWSTR script = nullptr;
+        LPCCHAR_T script = nullptr;
         REQUIRE(FileLoadHelpers::LoadScriptFromFile("Splay.js", script) == S_OK);
         REQUIRE(script != nullptr);
 

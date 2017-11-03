@@ -201,7 +201,7 @@ JITTimeFunctionBody::InitializeJITFunctionData(
     jitBody->paramClosureReg = functionBody->GetParamClosureRegister();
     jitBody->usesArgumentsObject = functionBody->GetUsesArgumentsObject();
     jitBody->doScopeObjectCreation = functionBody->GetDoScopeObjectCreation();
-    
+
     //CompileAssert(sizeof(PropertyIdArrayIDL) == sizeof(Js::PropertyIdArray));
     jitBody->formalsPropIdArray = (PropertyIdArrayIDL*)functionBody->GetFormalsPropIdArray(false);
     jitBody->formalsPropIdArrayAddr = (intptr_t)functionBody->GetFormalsPropIdArray(false);
@@ -238,7 +238,7 @@ JITTimeFunctionBody::InitializeJITFunctionData(
     jitBody->hasFinally = functionBody->GetHasFinally();
 
     jitBody->nameLength = functionBody->GetDisplayNameLength() + 1; // +1 for null terminator
-    jitBody->displayName = (char16 *)functionBody->GetDisplayName();
+    jitBody->displayName = (CHAR_T *)functionBody->GetDisplayName();
     jitBody->objectLiteralTypesAddr = (intptr_t)functionBody->GetObjectLiteralTypesWithLock();
     jitBody->literalRegexCount = functionBody->GetLiteralRegexCount();
     jitBody->literalRegexes = (intptr_t*)functionBody->GetLiteralRegexesWithLock();
@@ -685,7 +685,7 @@ JITTimeFunctionBody::IsGlobalFunc() const
 }
 
 void
-JITTimeFunctionBody::DisableInlineApply() 
+JITTimeFunctionBody::DisableInlineApply()
 {
     m_bodyData.isInlineApplyDisabled = TRUE;
 }
@@ -1121,7 +1121,7 @@ JITTimeFunctionBody::InitializeStatementMap(Js::SmallSpanSequence * statementMap
 
     if (statementsLength > 0)
     {
-        // TODO: (michhol OOP JIT) should be able to directly use statementMap.statementBuffer        
+        // TODO: (michhol OOP JIT) should be able to directly use statementMap.statementBuffer
         statementMap->pStatementBuffer = (JsUtil::GrowingUint32HeapArray*)Anew(alloc, GrowingUint32ArenaArray, alloc, statementsLength);
         statementMap->pStatementBuffer->SetCount(statementsLength);
         js_memcpy_s(
@@ -1144,7 +1144,7 @@ JITTimeFunctionBody::InitializeStatementMap(Js::SmallSpanSequence * statementMap
     return true;
 }
 
-char16*
+CHAR_T*
 JITTimeFunctionBody::GetDisplayName() const
 {
     return m_bodyData.displayName;

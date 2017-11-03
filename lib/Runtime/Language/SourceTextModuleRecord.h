@@ -27,7 +27,7 @@ namespace Js
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) override;
         virtual bool IsSourceTextModuleRecord() override { return true; } // we don't really have other kind of modulerecord at this time.
 
-        // return false when "ambiguous". 
+        // return false when "ambiguous".
         // otherwise nullptr means "null" where we have circular reference/cannot resolve.
         bool ResolveExport(PropertyId exportName, ResolveSet* resolveSet, ModuleNameRecord** exportRecord) override;
         bool ResolveImport(PropertyId localName, ModuleNameRecord** importRecord);
@@ -48,7 +48,7 @@ namespace Js
 
         void SetSpecifier(Var specifier) { this->normalizedSpecifier = specifier; }
         Var GetSpecifier() const { return normalizedSpecifier; }
-        const char16 *GetSpecifierSz() const { return JavascriptString::FromVar(this->normalizedSpecifier)->GetSz(); }
+        const CHAR_T *GetSpecifierSz() const { return JavascriptString::FromVar(this->normalizedSpecifier)->GetSz(); }
 
         Var GetErrorObject() const { return errorObject; }
 
@@ -110,7 +110,7 @@ namespace Js
         const static uint InvalidSlotCount = 0xffffffff;
         const static uint InvalidSlotIndex = 0xffffffff;
         // TODO: move non-GC fields out to avoid false reference?
-        // This is the parsed tree resulted from compilation. 
+        // This is the parsed tree resulted from compilation.
         Field(bool) wasParsed;
         Field(bool) wasDeclarationInitialized;
         Field(bool) parentsNotified;

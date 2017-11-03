@@ -115,7 +115,7 @@ void Heap<TAlloc, TPreReservedAlloc>::DecommitAll()
 
     DListBase<Allocation>::EditingIterator i(&this->largeObjectAllocations);
     while (i.Next())
-    { 
+    {
         Allocation& allocation = i.Data();
         Assert(!allocation.largeObjectAllocation.isDecommitted);
 
@@ -810,7 +810,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
     if (page->inFullList)
     {
         VerboseHeapTrace(_u("Recycling page 0x%p because address 0x%p of size %d was freed\n"), page->address, object->address, object->size);
-       
+
         // If the object being freed is equal to the page size, we're
         // going to remove it anyway so don't add it to a bucket
         if (object->size != pageSize)
@@ -833,7 +833,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::FreeAllocation(Allocation* object)
 
             void* pageAddress = page->address;
 
-            this->fullPages[page->currentBucket].RemoveElement(this->auxiliaryAllocator, page);            
+            this->fullPages[page->currentBucket].RemoveElement(this->auxiliaryAllocator, page);
 
             // The page is not in any bucket- just update the stats, free the allocation
             // and dump the page- we don't need to update free object size since the object
@@ -1021,7 +1021,7 @@ bool Heap<TAlloc, TPreReservedAlloc>::UpdateFullPages()
 template<typename TAlloc, typename TPreReservedAlloc>
 void Heap<TAlloc, TPreReservedAlloc>::FreeXdata(XDataAllocation* xdata, void* segment)
 {
-    Assert(!xdata->IsFreed()); 
+    Assert(!xdata->IsFreed());
     {
         AutoCriticalSection autoLock(&this->codePageAllocators->cs);
         this->codePageAllocators->ReleaseSecondary(*xdata, segment);
@@ -1114,11 +1114,11 @@ void FillDebugBreak(_Out_writes_bytes_all_(byteCount) BYTE* buffer, _In_ size_t 
     // While it could be easier to put 0xBE (same way as 0xCC on x86), BKPT is not recommended -- it may cause unexpected side effects.
     // So, use same sequence are C++ compiler uses (0xDEFE), this is recognized by debugger as __debugbreak.
     // This is 2 bytes, and in case there is a gap of 1 byte in the end, fill it with 0 (there is no 1 byte long THUMB instruction).
-    CompileAssert(sizeof(char16) == 2);
-    char16 pattern = 0xDEFE;
+    CompileAssert(sizeof(CHAR_T) == 2);
+    CHAR_T pattern = 0xDEFE;
 
     BYTE * writeBuffer = buffer;
-    wmemset((char16 *)writeBuffer, pattern, byteCount / 2);
+    wmemset((CHAR_T *)writeBuffer, pattern, byteCount / 2);
     if (byteCount % 2)
     {
         // Note: this is valid scenario: in JIT mode, we may not be 2-byte-aligned in the end of unwind info.

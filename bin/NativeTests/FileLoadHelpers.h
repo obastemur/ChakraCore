@@ -7,5 +7,5 @@
 class FileLoadHelpers
 {
 public :
-    static HRESULT LoadScriptFromFile(LPCSTR filename, LPCWSTR& contents, bool* isUtf8Out = nullptr, LPCWSTR* contentsRawOut = nullptr, UINT* lengthBytesOut = nullptr, bool printFileOpenError = true);
+    static HRESULT LoadScriptFromFile(LPCSTR filename, LPCCHAR_T& contents, bool* isUtf8Out = nullptr, LPCCHAR_T* contentsRawOut = nullptr, UINT* lengthBytesOut = nullptr, bool printFileOpenError = true);
 };

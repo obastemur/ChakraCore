@@ -132,9 +132,9 @@ namespace Js
         {
             *runtimeName = nullptr;
             HRESULT hr = S_OK;
-            const char16 *name = _u("Js.HSTRINGIterator");
+            const CHAR_T *name = _u("Js.HSTRINGIterator");
 
-            hr = WindowsCreateString(name, static_cast<UINT32>(wcslen(name)), runtimeName);
+            hr = WindowsCreateString(name, static_cast<UINT32>(cstrlen(name)), runtimeName);
             return hr;
         }
         IFACEMETHOD(GetTrustLevel)(_Out_ TrustLevel* trustLvl)
@@ -192,8 +192,8 @@ namespace Js
             *runtimeName = nullptr;
             HRESULT hr = S_OK;
             // Return type that does not exist in metadata
-            const char16 *name = _u("Js.HSTRINGIterable");
-            hr = WindowsCreateString(name, static_cast<UINT32>(wcslen(name)), runtimeName);
+            const CHAR_T *name = _u("Js.HSTRINGIterable");
+            hr = WindowsCreateString(name, static_cast<UINT32>(cstrlen(name)), runtimeName);
             return hr;
         }
         IFACEMETHOD(GetTrustLevel)(_Out_ TrustLevel* trustLvl)
@@ -220,7 +220,7 @@ namespace Js
     }
 
     template<typename T>
-    HRESULT WindowsGlobalizationAdapter::GetActivationFactory(DelayLoadWindowsGlobalization *delayLoadLibrary, LPCWSTR factoryName, T** instance)
+    HRESULT WindowsGlobalizationAdapter::GetActivationFactory(DelayLoadWindowsGlobalization *delayLoadLibrary, LPCCHAR_T factoryName, T** instance)
     {
         *instance = nullptr;
 
@@ -230,7 +230,7 @@ namespace Js
         HRESULT hr;
 
         // factoryName will never get truncated as the name of interfaces in Windows.globalization are not that long.
-        IfFailedReturn(delayLoadLibrary->WindowsCreateStringReference(factoryName, static_cast<UINT32>(wcslen(factoryName)), &hStringHdr, &hString));
+        IfFailedReturn(delayLoadLibrary->WindowsCreateStringReference(factoryName, static_cast<UINT32>(cstrlen(factoryName)), &hStringHdr, &hString));
         AnalysisAssert(hString);
         IfFailedReturn(delayLoadLibrary->DllGetActivationFactory(hString, &factory));
 
@@ -346,7 +346,7 @@ namespace Js
 
         // OK for languageTag to get truncated as it would pass incomplete languageTag below which
         // will be rejected by globalization dll
-        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(languageTag, static_cast<UINT32>(wcslen(languageTag)), &hStringHdr, &hString));
+        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(languageTag, static_cast<UINT32>(cstrlen(languageTag)), &hStringHdr, &hString));
         AnalysisAssert(hString);
         IfFailedReturn(this->languageFactory->CreateLanguage(hString, language));
         return hr;
@@ -360,7 +360,7 @@ namespace Js
         HSTRING_HEADER hStringHdr;
         // OK for languageTag to get truncated as it would pass incomplete languageTag below which
         // will be rejected by globalization dll
-        IfFailThrowHr(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(languageTag, static_cast<UINT32>(wcslen(languageTag)), &hStringHdr, &hString));
+        IfFailThrowHr(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(languageTag, static_cast<UINT32>(cstrlen(languageTag)), &hStringHdr, &hString));
         if (hString == nullptr)
         {
             return 0;
@@ -390,7 +390,7 @@ namespace Js
         // Construct HSTRING of timeZoneId passed
         // OK for timeZoneId to get truncated as it would pass incomplete timeZoneId below which
         // will be rejected by globalization dll
-        IfFailThrowHr(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(timeZoneId, static_cast<UINT32>(wcslen(timeZoneId)), &timeZoneHeader, &timeZone));
+        IfFailThrowHr(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(timeZoneId, static_cast<UINT32>(cstrlen(timeZoneId)), &timeZoneHeader, &timeZone));
 
         // The warning is timeZone could be '0'. This is valid scenario and in that case, ChangeTimeZone() would
         // return error HR in which case we will throw.
@@ -427,7 +427,7 @@ namespace Js
         // initialize hard-coded default languages
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, 1), 1);
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, 1), 1);
-        IfFailedReturn(library->WindowsCreateStringReference(_u("en-US"), static_cast<UINT32>(wcslen(_u("en-US"))), (headers), (arr)));
+        IfFailedReturn(library->WindowsCreateStringReference(_u("en-US"), static_cast<UINT32>(cstrlen(_u("en-US"))), (headers), (arr)));
         Microsoft::WRL::ComPtr<IIterable<HSTRING>> defaultLanguages;
         IfFailedReturn(Microsoft::WRL::MakeAndInitialize<HSTRINGIterable>(&defaultLanguages, arr, 1));
 
@@ -501,7 +501,7 @@ if (this->object) \
 
         // OK for currencyCode to get truncated as it would pass incomplete currencyCode below which
         // will be rejected by globalization dll
-        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(currencyCode, static_cast<UINT32>(wcslen(currencyCode)), &hStringHdr, &hString));
+        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(currencyCode, static_cast<UINT32>(cstrlen(currencyCode)), &hStringHdr, &hString));
         AnalysisAssert(hString);
         IfFailedReturn(this->currencyFormatterFactory->CreateCurrencyFormatterCode(hString, currencyFormatter));
         return hr;
@@ -519,7 +519,7 @@ if (this->object) \
         {
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(cstrlen(localeStrings[i])), (headers + i), (arr + i)));
         }
 
         Microsoft::WRL::ComPtr<IIterable<HSTRING>> languages(nullptr);
@@ -529,7 +529,7 @@ if (this->object) \
         HSTRING_HEADER geoStringHeader;
         IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(_u("ZZ"), 2, &geoStringHeader, &geoString));
         AnalysisAssert(geoString);
-        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(currencyCode, static_cast<UINT32>(wcslen(currencyCode)), &hStringHdr, &hString));
+        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(currencyCode, static_cast<UINT32>(cstrlen(currencyCode)), &hStringHdr, &hString));
         AnalysisAssert(hString);
         IfFailedReturn(this->currencyFormatterFactory->CreateCurrencyFormatterCodeContext(hString, languages.Get(), geoString, currencyFormatter));
         return hr;
@@ -543,7 +543,7 @@ if (this->object) \
         AutoArrayPtr<HSTRING_HEADER> headers(HeapNewArray(HSTRING_HEADER, numLocaleStrings), numLocaleStrings);
         for(uint32 i = 0; i< numLocaleStrings; i++)
         {
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(cstrlen(localeStrings[i])), (headers + i), (arr + i)));
         }
 
         Microsoft::WRL::ComPtr<IIterable<HSTRING>> languages(nullptr);
@@ -567,7 +567,7 @@ if (this->object) \
         {
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(cstrlen(localeStrings[i])), (headers + i), (arr + i)));
         }
 
         Microsoft::WRL::ComPtr<IIterable<HSTRING>> languages(nullptr);
@@ -596,7 +596,7 @@ if (this->object) \
 
         // OK for formatString to get truncated as it would pass incomplete formatString below which
         // will be rejected by globalization dll.
-        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(formatString, static_cast<UINT32>(wcslen(formatString)), &fsHStringHdr, &fsHString));
+        IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(formatString, static_cast<UINT32>(cstrlen(formatString)), &fsHStringHdr, &fsHString));
         AnalysisAssert(fsHString);
 
         AutoArrayPtr<HSTRING> arr(HeapNewArray(HSTRING, numLocaleStrings), numLocaleStrings);
@@ -605,7 +605,7 @@ if (this->object) \
         {
             // OK for localeString to get truncated as it would pass incomplete localeString below which
             // will be rejected by globalization dll.
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(wcslen(localeStrings[i])), (headers + i), (arr + i)));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(localeStrings[i], static_cast<UINT32>(cstrlen(localeStrings[i])), (headers + i), (arr + i)));
         }
 
         Microsoft::WRL::ComPtr<IIterable<HSTRING>> languages(nullptr);
@@ -629,9 +629,9 @@ if (this->object) \
 
             // OK for calendar/clock to get truncated as it would pass incomplete text below which
             // will be rejected by globalization dll.
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(calendar, static_cast<UINT32>(wcslen(calendar)), &calStringHeader, &calString));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(calendar, static_cast<UINT32>(cstrlen(calendar)), &calStringHeader, &calString));
             AnalysisAssert(calString);
-            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(clock, static_cast<UINT32>(wcslen(clock)), &clockStringHeader, &clockString));
+            IfFailedReturn(GetWindowsGlobalizationLibrary(scriptContext)->WindowsCreateStringReference(clock, static_cast<UINT32>(cstrlen(clock)), &clockStringHeader, &clockString));
             AnalysisAssert(clockString);
             IfFailedReturn(this->dateTimeFormatterFactory->CreateDateTimeFormatterContext(fsHString, languages.Get(), geoString, calString, clockString, result));
         }

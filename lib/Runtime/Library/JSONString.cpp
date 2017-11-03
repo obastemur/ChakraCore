@@ -31,7 +31,7 @@ namespace Js
     createEscapeMap(false);
     createEscapeMap(true);
     */
-    const WCHAR JSONString::escapeMap[] = {
+    const CHAR_T JSONString::escapeMap[] = {
         _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('b'), _u('t'), _u('n'), _u('u'), _u('f'),
         _u('r'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'),
         _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('u'), _u('\0'), _u('\0'), _u('"'), _u('\0'), _u('\0'), _u('\0'),
@@ -74,11 +74,11 @@ namespace Js
         Assert(m_originalString->GetLength() < length);
     }
 
-    const char16* JSONString::GetSz()
+    const CHAR_T* JSONString::GetSz()
     {
         Assert(!this->IsFinalized());
         charcount_t length = this->GetLength() + /*terminating null*/1;
-        WCHAR* buffer = RecyclerNewArrayLeaf(this->GetRecycler(), WCHAR, length);
+        CHAR_T* buffer = RecyclerNewArrayLeaf(this->GetRecycler(), CHAR_T, length);
         this->SetBuffer(buffer);
         buffer[GetLength()] = '\0';
         WritableStringBuffer stringBuffer(buffer, length);
@@ -90,22 +90,22 @@ namespace Js
         return buffer;
     }
 
-    void WritableStringBuffer::Append(const char16 * str, charcount_t countNeeded)
+    void WritableStringBuffer::Append(const CHAR_T * str, charcount_t countNeeded)
     {
         JavascriptString::CopyHelper(m_pszCurrentPtr, str, countNeeded);
         this->m_pszCurrentPtr += countNeeded;
         Assert(this->GetCount() <= m_length);
     }
 
-    void WritableStringBuffer::Append(char16 c)
+    void WritableStringBuffer::Append(CHAR_T c)
     {
         *m_pszCurrentPtr = c;
         this->m_pszCurrentPtr++;
         Assert(this->GetCount() <= m_length);
     }
-    void WritableStringBuffer::AppendLarge(const char16 * str, charcount_t countNeeded)
+    void WritableStringBuffer::AppendLarge(const CHAR_T * str, charcount_t countNeeded)
     {
-        js_memcpy_s(m_pszCurrentPtr, sizeof(WCHAR) * countNeeded, str, sizeof(WCHAR) * countNeeded);
+        js_memcpy_s(m_pszCurrentPtr, sizeof(CHAR_T) * countNeeded, str, sizeof(CHAR_T) * countNeeded);
         this->m_pszCurrentPtr += countNeeded;
         Assert(this->GetCount() <= m_length);
     }

@@ -16,6 +16,6 @@ interface ICmdLineArgsParser
 interface ICustomConfigFlags
 {
     virtual void PrintUsage() = 0;
-    virtual bool ParseFlag(LPCWSTR flagsString, ICmdLineArgsParser * parser) = 0;
+    virtual bool ParseFlag(LPCCHAR_T flagsString, ICmdLineArgsParser * parser) = 0;
 };
 

@@ -11,7 +11,7 @@
 class TestEtwEventSink
 {
 public:
-    virtual void WriteMethodEvent(const char16* eventName,
+    virtual void WriteMethodEvent(const CHAR_T* eventName,
         void* scriptContextId,
         void* methodStartAddress,
         uint64 methodSize,
@@ -21,9 +21,9 @@ public:
         DWORD_PTR sourceID,
         uint line,
         uint column,
-        const char16* methodName) = 0;
+        const CHAR_T* methodName) = 0;
 
-    virtual void WriteSourceEvent(const char16* eventName, uint64 sourceContext, void* scriptContextId, uint sourceFlags, const char16* url) = 0;
+    virtual void WriteSourceEvent(const CHAR_T* eventName, uint64 sourceContext, void* scriptContextId, uint sourceFlags, const CHAR_T* url) = 0;
 
     virtual void UnloadInstance() = 0;
 

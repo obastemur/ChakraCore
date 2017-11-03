@@ -79,7 +79,7 @@ namespace JsUtil
 
     template<>
     inline bool
-    CharacterBuffer<WCHAR>::StaticEquals(__in_z WCHAR const * s1, __in_z WCHAR const * s2, __in charcount_t length)
+    CharacterBuffer<CHAR_T>::StaticEquals(__in_z CHAR_T const * s1, __in_z CHAR_T const * s2, __in charcount_t length)
     {
         return wmemcmp(s1, s2, length) == 0;
     }

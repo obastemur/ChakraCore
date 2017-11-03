@@ -43,6 +43,7 @@ PRINT_USAGE() {
     echo "     --embed-icu       Download and embed ICU-57 statically."
     echo "     --extra-defines=DEF=VAR,DEFINE,..."
     echo "                       Compile with additional defines"
+    echo "     --experiment-char Use `char` instead of `char16` for internal string"
     echo " -h, --help            Show help"
     echo "     --icu=PATH        Path to ICU include folder (see example below)"
     echo " -j[=N], --jobs[=N]    Multicore build, allow N jobs at once."
@@ -116,6 +117,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 LIBS_ONLY_BUILD=
 SHOULD_EMBED_ICU=0
 ALWAYS_YES=0
+EXPERIMENT_CHAR=""
 
 if [ -f "/proc/version" ]; then
     OS_LINUX=1
@@ -176,6 +178,10 @@ while [[ $# -gt 0 ]]; do
             fi
             EXTRA_DEFINES="${EXTRA_DEFINES}-D${x}"
         done
+        ;;
+
+    --experiment-char)
+            EXTRA_DEFINES="${EXTRA_DEFINES}-DENGINE_CHAR_T_IS_CHAR_SH=1"
         ;;
 
     -t | --test-build)
@@ -604,7 +610,7 @@ echo Generating $BUILD_TYPE makefiles
 echo $EXTRA_DEFINES
 cmake $CMAKE_GEN $CC_PREFIX $ICU_PATH $LTO $STATIC_LIBRARY $ARCH $TARGET_OS \
     $ENABLE_CC_XPLAT_TRACE $EXTRA_DEFINES -DCMAKE_BUILD_TYPE=$BUILD_TYPE $SANITIZE $NO_JIT $INTL_ICU \
-    $WITHOUT_FEATURES $WB_FLAG $WB_ARGS $CMAKE_EXPORT_COMPILE_COMMANDS $LIBS_ONLY_BUILD\
+    $WITHOUT_FEATURES $WB_FLAG $WB_ARGS $CMAKE_EXPORT_COMPILE_COMMANDS $LIBS_ONLY_BUILD \
     $VALGRIND $BUILD_RELATIVE_DIRECTORY
 
 _RET=$?

@@ -417,8 +417,8 @@ namespace Js
         // 17. Return the String that is the result of concatenating "[object ", tag, and "]".
         auto buildToString = [&scriptContext](Var tag) {
             JavascriptString *tagStr = JavascriptString::FromVar(tag);
-            const WCHAR objectStartString[9] = _u("[object ");
-            const WCHAR objectEndString[1] = { _u(']') };
+            const CHAR_T objectStartString[9] = _u("[object ");
+            const CHAR_T objectEndString[1] = { _u(']') };
             CompoundString *const cs = CompoundString::NewWithCharCapacity(_countof(objectStartString)
               + _countof(objectEndString) + tagStr->GetLength(), scriptContext->GetLibrary());
 
@@ -1891,27 +1891,27 @@ namespace Js
     static const size_t ConstructNameGetSetLength = 5;    // 5 = 1 ( for .) + 3 (get or set) + 1 for null)
 
     /*static*/
-    char16 * JavascriptObject::ConstructName(const PropertyRecord * propertyRecord, const char16 * getOrSetStr, ScriptContext* scriptContext)
+    CHAR_T * JavascriptObject::ConstructName(const PropertyRecord * propertyRecord, const CHAR_T * getOrSetStr, ScriptContext* scriptContext)
     {
         Assert(propertyRecord);
         Assert(scriptContext);
-        char16 * finalName = nullptr;
+        CHAR_T * finalName = nullptr;
         size_t propertyLength = (size_t)propertyRecord->GetLength();
         if (propertyLength > 0)
         {
             size_t totalChars;
             if (SizeTAdd(propertyLength, ConstructNameGetSetLength, &totalChars) == S_OK)
             {
-                finalName = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, totalChars);
+                finalName = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, totalChars);
                 Assert(finalName != nullptr);
-                const char16* propertyName = propertyRecord->GetBuffer();
+                const CHAR_T* propertyName = propertyRecord->GetBuffer();
                 Assert(propertyName != nullptr);
-                wcscpy_s(finalName, totalChars, propertyName);
+                cstrcpy_s(finalName, totalChars, propertyName);
 
                 Assert(getOrSetStr != nullptr);
-                Assert(wcslen(getOrSetStr) == 4);
+                Assert(cstrlen(getOrSetStr) == 4);
 
-                wcscpy_s(finalName + propertyLength, ConstructNameGetSetLength, getOrSetStr);
+                cstrcpy_s(finalName + propertyLength, ConstructNameGetSetLength, getOrSetStr);
             }
         }
         return finalName;
@@ -1931,7 +1931,7 @@ namespace Js
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetGetter())->GetFunctionProxy()->GetDisplayName(), _u("get")) == 0)
             {
                 // modify to name.get
-                const char16* finalName = ConstructName(propertyRecord, _u(".get"), scriptContext);
+                const CHAR_T* finalName = ConstructName(propertyRecord, _u(".get"), scriptContext);
                 if (finalName != nullptr)
                 {
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);
@@ -1946,7 +1946,7 @@ namespace Js
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetSetter())->GetFunctionProxy()->GetDisplayName(), _u("set")) == 0)
             {
                 // modify to name.set
-                const char16* finalName = ConstructName(propertyRecord, _u(".set"), scriptContext);
+                const CHAR_T* finalName = ConstructName(propertyRecord, _u(".set"), scriptContext);
                 if (finalName != nullptr)
                 {
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);

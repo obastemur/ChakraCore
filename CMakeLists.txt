@@ -25,6 +25,13 @@ if(LIBS_ONLY_BUILD_SH)
     set(CC_LIBS_ONLY_BUILD 1)
 endif()
 
+if(ENGINE_CHAR_T_IS_CHAR_SH)
+    unset(ENGINE_CHAR_T_IS_CHAR_SH CACHE)
+    add_definitions(-DENGINE_CHAR_T_IS_CHAR=1)
+else()
+    add_definitions(-DUNICODE=1)
+endif()
+
 if(CC_USES_SYSTEM_ARCH_SH)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
         set(CC_TARGETS_AMD64_SH 1)
@@ -282,7 +289,6 @@ if(CLR_CMAKE_PLATFORM_XPLAT)
     endif(CC_TARGETS_AMD64)
 
     add_definitions(
-        -DUNICODE
         -D_SAFECRT_USE_CPP_OVERLOADS=1
         -D__STDC_WANT_LIB_EXT1__=1
         )

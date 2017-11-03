@@ -164,7 +164,7 @@ protected:
     static OLECHAR PeekFirst(EncodedCharPtr p, EncodedCharPtr last) { return *p; }
     static OLECHAR PeekFull(EncodedCharPtr p, EncodedCharPtr last) { return *p; }
 
-    static OLECHAR ReadSurrogatePairUpper(const EncodedCharPtr&, const EncodedCharPtr& last)
+    static WCHAR ReadSurrogatePairUpper(const EncodedCharPtr&, const EncodedCharPtr& last)
     {
         AssertMsg(false, "method should not be called while scanning UTF16 string");
         return 0xfffe;
@@ -380,7 +380,7 @@ public:
 #endif
     enum ScanState
     {
-        ScanStateNormal = 0,       
+        ScanStateNormal = 0,
         ScanStateStringTemplateMiddleOrEnd = 1,
     };
 

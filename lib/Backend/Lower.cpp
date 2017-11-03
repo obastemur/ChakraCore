@@ -164,7 +164,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
     noMathFastPath = !defaultDoFastPath;
 
 #if DBG_DUMP
-    char16 * globOptInstrString = nullptr;
+    CHAR_T * globOptInstrString = nullptr;
 #endif
 
     FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, instrEnd, instrStart)
@@ -310,7 +310,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     // s2 = current function.
                     IR::Opnd * paramOpnd = LoadFunctionBodyOpnd(instr);
                     this->m_lowererMD.LoadHelperArgument(instr, paramOpnd);
-                    
+
                     m_lowererMD.ChangeToHelperCallMem(instr, IR::HelperOP_NewScopeObjectWithFormals);
                 }
                 else
@@ -4823,7 +4823,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         {
             if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("FixedNewObj: function %s (%s): lowering non-fixed new script object for %s, because %s.\n"),
                     newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
                     newObjInstr->IsProfiledInstr() ? _u("constructor cache hasn't been cloned") : _u("instruction is not profiled"));
@@ -4849,10 +4849,10 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         {
             const Js::JavascriptFunction* ctor = ctorCache->constructor;
             Js::FunctionBody* ctorBody = ctor->GetFunctionInfo()->HasBody() ? ctor->GetFunctionInfo()->GetFunctionBody() : nullptr;
-            const char16* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
+            const CHAR_T* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
 
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-            char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
             Output::Print(_u("FixedNewObj: function %s (%s): lowering skipped new script object for %s with %s ctor <unknown> (%s %s).\n"),
                 newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer2), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
@@ -4880,10 +4880,10 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     {
         const Js::JavascriptFunction* constructor = ctorCache->constructor;
         Js::FunctionBody* constructorBody = constructor->GetFunctionInfo()->HasBody() ? constructor->GetFunctionInfo()->GetFunctionBody() : nullptr;
-        const char16* constructorName = constructorBody != nullptr ? constructorBody->GetDisplayName() : _u("<unknown>");
+        const CHAR_T* constructorName = constructorBody != nullptr ? constructorBody->GetDisplayName() : _u("<unknown>");
 
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-        char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
         if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
         {
@@ -6382,7 +6382,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     IR::Opnd * typeOpnd = IR::RegOpnd::New(TyMachPtr, func);
     InsertMove(typeOpnd, IR::IndirOpnd::New(functionProxyOpnd->AsRegOpnd(), Js::FunctionProxy::GetOffsetOfDeferredPrototypeType(),
         TyMachPtr, func), insertBeforeInstr);
-    
+
     IR::LabelInstr * labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
     InsertTestBranch(typeOpnd, typeOpnd, Js::OpCode::BrEq_A, labelHelper, insertBeforeInstr);
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
@@ -6395,7 +6395,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     insertBeforeInstr->InsertBefore(callHelperInstr);
     m_lowererMD.LowerCall(callHelperInstr, 0);
     insertBeforeInstr->InsertBefore(labelDone);
-    
+
     GenerateMemInit(regOpnd, 0, vtableAddressOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfType(), typeOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInitNull(regOpnd, Js::ScriptFunction::GetOffsetOfAuxSlots(), insertBeforeInstr, isZeroed);
@@ -6403,7 +6403,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfConstructorCache(),
     LoadLibraryValueOpnd(insertBeforeInstr, LibraryValue::ValueConstructorCacheDefaultInstance),
         insertBeforeInstr, isZeroed);
-    
+
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfFunctionInfo(), functionInfoOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfEnvironment(), envOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInitNull(regOpnd, Js::ScriptFunction::GetOffsetOfCachedScopeObj(), insertBeforeInstr, isZeroed);
@@ -7266,7 +7266,7 @@ Lowerer::PinTypeRef(JITTypeHolder type, void* typeRef, IR::Instr* instr, Js::Pro
 
     if (PHASE_TRACE(Js::TracePinnedTypesPhase, this->m_func))
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("PinnedTypes: function %s(%s) instr %s property ID %u pinned %s reference 0x%p to type 0x%p.\n"),
             this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
             Js::OpCodeUtil::GetOpCodeName(instr->m_opcode), propertyId,
@@ -7379,7 +7379,7 @@ Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::Pro
 
                 if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("ObjTypeSpec: function %s(%s) registered guard 0x%p with value 0x%p for property ID %u.\n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
                         guard, guard->GetValue(), propertyId);
@@ -7409,7 +7409,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered equivalent type spec guard 0x%p with value 0x%p for property ID %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
                     guard, guard->GetValue(), propertyId);
@@ -7488,7 +7488,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
                 // this problem by tracking property information on the value type in glob opt.
                 if (PHASE_TRACE(Js::EquivObjTypeSpecPhase, this->m_func))
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("EquivObjTypeSpec: top function %s (%s): duplicate property clash on %d \n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), m_func->GetDebugNumberSet(debugStringBuffer), propertyId);
                     Output::Flush();
@@ -7543,7 +7543,7 @@ Lowerer::LinkCtorCacheToGuardedProperties(JITTimeConstructorCache* ctorCache)
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered ctor cache 0x%p with value 0x%p for property %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
                     ctorCache->GetRuntimeCacheAddr(), ctorCache->GetType()->GetAddr(), propertyId);
@@ -8389,7 +8389,7 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
     // lastBlockInfo.buffer[blockCharLength] = c;
     IR::RegOpnd *baseOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
     InsertMove(baseOpnd, IR::IndirOpnd::New(opndLeft->AsRegOpnd(), (int32)Js::CompoundString::GetOffsetOfLastBlockInfo() + (int32)Js::CompoundString::GetOffsetOfLastBlockInfoBuffer(), TyMachPtr, m_func), insertBeforeInstr);
-    IR::IndirOpnd *indirBufferToStore = IR::IndirOpnd::New(baseOpnd, charLengthOpnd, (byte)Math::Log2(sizeof(char16)), TyUint16, m_func);
+    IR::IndirOpnd *indirBufferToStore = IR::IndirOpnd::New(baseOpnd, charLengthOpnd, (byte)Math::Log2(sizeof(CHAR_T)), TyUint16, m_func);
     InsertMove(indirBufferToStore, charResultOpnd, insertBeforeInstr);
 
     // left->m_charLength++
@@ -14023,7 +14023,7 @@ const BYTE Lowerer::IndirScales[static_cast<ValueType::TSize>(ObjectType::Count)
     /* ObjectType::Int64Array               */ 3, // log2(sizeof(int64))
     /* ObjectType::Uint64Array              */ 3, // log2(sizeof(uint64))
     /* ObjectType::BoolArray                */ 0, // log2(sizeof(bool))
-    /* ObjectType::CharArray                */ 1  // log2(sizeof(char16))
+    /* ObjectType::CharArray                */ 1  // log2(sizeof(CHAR_T))
 };
 
 VTableValue Lowerer::GetArrayVtableAddress(const ValueType valueType, bool getVirtual)
@@ -16154,7 +16154,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
     else
     {
         // Just use the offset to indirect into the string buffer
-        charIndirOpnd = IR::IndirOpnd::New(bufferOpnd, indirOpnd->GetOffset() * sizeof(char16), TyUint16, this->m_func);
+        charIndirOpnd = IR::IndirOpnd::New(bufferOpnd, indirOpnd->GetOffset() * sizeof(CHAR_T), TyUint16, this->m_func);
         index32CmpOpnd = IR::IntConstOpnd::New((uint32)indirOpnd->GetOffset(), TyUint32, this->m_func);
     }
 
@@ -16371,7 +16371,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             {
                 if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                         this->m_func->GetJITFunctionBody()->GetDisplayName(),
                         this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -16567,7 +16567,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             {
                 char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
                 baseValueType.ToString(baseValueTypeStr);
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("Typed Array Lowering: function: %s (%s), instr: %s, base value type: %S, %s."),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(),
                     this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -16880,7 +16880,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         {
             if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(),
                     this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -16916,7 +16916,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         {
             char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             baseValueType.ToString(baseValueTypeStr);
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("Typed Array Lowering: function: %s (%s), instr: %s, base value type: %S, %s."),
                 this->m_func->GetJITFunctionBody()->GetDisplayName(),
                 this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -17707,7 +17707,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
     {
         uint32 length = Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) + 1U;
         InsertCompareBranch(strLength, IR::IntConstOpnd::New(length, TyUint32, func), Js::OpCode::BrLe_A, true, labelCharCodeAt, lastInstr);
-        tempIndirOpnd = IR::IndirOpnd::New(strPtr, (length) * sizeof(char16), TyUint16, func);
+        tempIndirOpnd = IR::IndirOpnd::New(strPtr, (length) * sizeof(CHAR_T), TyUint16, func);
     }
     else
     {
@@ -18820,7 +18820,7 @@ void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
         {
             m_lowererMD.LoadFloatHelperArgument(instr, instr->GetSrc1());
         }
-        else 
+        else
         {
             m_lowererMD.LoadDoubleHelperArgument(instr, instr->GetSrc1());
         }
@@ -20403,7 +20403,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
             else
             {
                 #if ENABLE_DEBUG_CONFIG_OPTIONS
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 #endif
                 PHASE_PRINT_TRACE(Js::AddFldFastPathPhase, this->m_func,
                     _u("AddFldFastPath: function: %s(%s) property ID: %u no fast path, because the phase is off.\n"),
@@ -20444,7 +20444,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     if (doAdd)
     {
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
         PHASE_PRINT_TRACE(Js::AddFldFastPathPhase, this->m_func,
             _u("AddFldFastPath: function: %s(%s) property ID: %d %s fast path for %s.\n"),
@@ -22113,7 +22113,7 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
 
             // We can't optimize non-javascript type strings.
             JITJavascriptString *typeNameJsString = JITJavascriptString::FromVar(idOpnd->m_sym->m_instrDef->GetSrc1()->AsAddrOpnd()->m_localAddress);
-            const char16        *typeName         = typeNameJsString->GetString();
+            const CHAR_T        *typeName         = typeNameJsString->GetString();
 
             Js::InternalString typeNameString(typeName, typeNameJsString->GetLength());
             if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::UndefinedTypeNameString))
@@ -22180,7 +22180,7 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
             return true;
         }
     }
-    
+
     if (instrSrc1 && instrSrc1->GetStackSym()->IsSingleDef() && instrSrc2 && instrSrc2->GetStackSym()->IsSingleDef() &&
         instrSrc1->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof &&
         instrSrc2->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof)
@@ -22430,7 +22430,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     IR::LabelInstr *helper= IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::RegOpnd    *dst      = compare->GetDst()->IsRegOpnd() ? compare->GetDst()->AsRegOpnd() : nullptr;
     IR::RegOpnd    *typeRegOpnd  = IR::RegOpnd::New(TyMachReg, m_func);
-    
+
     Assert(dst);
 
     if (dst->IsEqual(object))
@@ -23927,7 +23927,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             {
                 InsertCompareBranch(src2, IR::IntConstOpnd::NewFromType(-1, src2->GetType(), m_func), Js::OpCode::BrNeq_A, divLabel, divLabel);
             }
-            
+
             InsertMove(dst, !isRem ? src1 : IR::IntConstOpnd::NewFromType(0, dst->GetType(), m_func), divLabel);
             InsertBranch(Js::OpCode::Br, doneLabel, divLabel);
         }
@@ -24191,7 +24191,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     {
         GenerateRecyclerAlloc(IR::HelperAllocMemForVarArray, allocSize, dst, instr);
     }
-   
+
     m_lowererMD.GenerateMemInit(dst, Js::ScopeSlots::EncodedSlotCountSlotIndex * sizeof(Js::Var),
             (size_t)min<uint>(actualSlotCount, Js::ScopeSlots::MaxEncodedSlotCount), instr, !doStackSlots);
 

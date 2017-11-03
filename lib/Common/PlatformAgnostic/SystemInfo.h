@@ -43,7 +43,7 @@ namespace PlatformAgnostic
             // TODO: make AssertMsg available under PlatformAgnostic
             //AssertMsg(path != nullptr, "Path can not be nullptr");
             //AssertMsg(size < INT_MAX, "Isn't it too big for a path buffer?");
-            LPWSTR wpath = (WCHAR*)malloc(sizeof(WCHAR) * size);
+            LPCHAR_T wpath = (CHAR_T*)malloc(sizeof(CHAR_T) * size);
             int str_len;
             if (!wpath)
             {

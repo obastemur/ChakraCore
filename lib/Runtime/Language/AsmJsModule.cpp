@@ -1125,13 +1125,13 @@ namespace Js
             callNode->sxCall.pnodeArgs->name()->GetPropertyId() == bufferDecl->name()->GetPropertyId();
     }
 
-    bool AsmJsModuleCompiler::Fail( ParseNode* usepn, const wchar *error )
+    bool AsmJsModuleCompiler::Fail( ParseNode* usepn, const CHAR_T *error )
     {
         AsmJSCompiler::OutputError(GetScriptContext(), error);
         return false;
     }
 
-    bool AsmJsModuleCompiler::FailName( ParseNode *usepn, const wchar *fmt, PropertyName name )
+    bool AsmJsModuleCompiler::FailName( ParseNode *usepn, const CHAR_T *fmt, PropertyName name )
     {
         AsmJSCompiler::OutputError(GetScriptContext(), fmt, name->Psz());
         return false;
@@ -2322,7 +2322,7 @@ namespace Js
         return mCompileTime.ToMicroseconds();
     }
 
-    static const char16* AsmPhaseNames[AsmJsCompilation::Phases_COUNT] = {
+    static const CHAR_T* AsmPhaseNames[AsmJsCompilation::Phases_COUNT] = {
         _u("Module"),
         _u("ByteCode"),
         _u("TemplateJIT"),

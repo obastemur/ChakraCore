@@ -483,7 +483,7 @@ bool Debugger::CompareOrWriteBaselineFile(LPCSTR fileName)
         AutoString baselineData;
         IfJsrtErrorFailLogAndRetFalse(baselineData.Initialize(result));
 
-        char16 baselineFilename[256];
+        CHAR_T baselineFilename[256];
         swprintf_s(baselineFilename, HostConfigFlags::flags.dbgbaselineIsEnabled ? _u("%S.dbg.baseline.rebase") : _u("%S.dbg.baseline"), fileName);
 
         FILE *file = nullptr;

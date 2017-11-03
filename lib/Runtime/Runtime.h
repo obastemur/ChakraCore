@@ -588,12 +588,12 @@ enum tagDEBUG_EVENT_INFO_TYPE
 #ifdef INTL_WINGLOB
 
 //The "helper" methods below are to resolve external symbol references to our delay-loaded libraries.
-inline HRESULT WindowsCreateString(_In_reads_opt_(length) const WCHAR * sourceString, UINT32 length, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
+inline HRESULT WindowsCreateString(_In_reads_opt_(length) const CHAR_T * sourceString, UINT32 length, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
 {
     return ThreadContext::GetContextForCurrentThread()->GetWindowsGlobalizationLibrary()->WindowsCreateString(sourceString, length, string);
 }
 
-inline HRESULT WindowsCreateStringReference(_In_reads_opt_(length + 1) const WCHAR * sourceString, UINT32 length, _Out_ HSTRING_HEADER * header, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
+inline HRESULT WindowsCreateStringReference(_In_reads_opt_(length + 1) const CHAR_T * sourceString, UINT32 length, _Out_ HSTRING_HEADER * header, _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING * string)
 {
     return ThreadContext::GetContextForCurrentThread()->GetWindowsGlobalizationLibrary()->WindowsCreateStringReference(sourceString, length, header, string);
 }

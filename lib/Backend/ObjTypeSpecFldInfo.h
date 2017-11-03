@@ -205,7 +205,7 @@ public:
         Js::EntryPointInfo *entryPoint, Js::FunctionBody* const topFunctionBody, Js::FunctionBody *const functionBody, Js::FieldAccessStatsPtr inlineCacheStats);
 
     // TODO: OOP JIT, implement this
-    char16* GetCacheLayoutString() { __debugbreak(); return nullptr; }
+    CHAR_T* GetCacheLayoutString() { __debugbreak(); return nullptr; }
 
 private:
     ObjTypeSpecFldInfoFlags GetFlags() const;

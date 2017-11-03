@@ -54,7 +54,7 @@ namespace JSON
         {
         };
 
-        Js::Var Parse(LPCWSTR str, uint length);
+        Js::Var Parse(LPCCHAR_T str, uint length);
         Js::Var Parse(Js::JavascriptString* input);
         Js::Var Walk(Js::JavascriptString* name, Js::PropertyId id, Js::Var holder, uint32 index = Js::JavascriptArray::InvalidIndex);
         void Finalizer();

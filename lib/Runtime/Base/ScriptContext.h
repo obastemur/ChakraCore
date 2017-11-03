@@ -489,7 +489,7 @@ namespace Js
 
 #ifdef ENABLE_JS_ETW
         void EmitStackTraceEvent(__in UINT64 operationID, __in USHORT maxFrameCount, bool emitV2AsyncStackEvent);
-        static ushort ProcessNameAndGetLength(Js::StringBuilder<ArenaAllocator>* nameBuffer, const WCHAR* name);
+        static ushort ProcessNameAndGetLength(Js::StringBuilder<ArenaAllocator>* nameBuffer, const CHAR_T* name);
 #endif
 
         void SetIsDiagnosticsScriptContext(bool set) { this->isDiagnosticsScriptContext = set; }
@@ -550,7 +550,7 @@ namespace Js
 
     private:
 
-        JavascriptFunction* GenerateRootFunction(ParseNodePtr parseTree, uint sourceIndex, Parser* parser, uint32 grfscr, CompileScriptException * pse, const char16 *rootDisplayName);
+        JavascriptFunction* GenerateRootFunction(ParseNodePtr parseTree, uint sourceIndex, Parser* parser, uint32 grfscr, CompileScriptException * pse, const CHAR_T *rootDisplayName);
 
         typedef void (*EventHandler)(ScriptContext *);
         ScriptContext ** registeredPrototypeChainEnsuredToHaveOnlyWritableDataPropertiesScriptContext;
@@ -816,12 +816,12 @@ private:
         DateTime::Utility dateTimeUtility;
 
 public:
-        inline const WCHAR *const GetStandardName(size_t *nameLength, DateTime::YMD *ymd = NULL)
+        inline const CHAR_T *const GetStandardName(size_t *nameLength, DateTime::YMD *ymd = NULL)
         {
             return dateTimeUtility.GetStandardName(nameLength, ymd);
         }
 
-        inline const WCHAR *const GetDaylightName(size_t *nameLength, DateTime::YMD *ymd = NULL)
+        inline const CHAR_T *const GetDaylightName(size_t *nameLength, DateTime::YMD *ymd = NULL)
         {
             return dateTimeUtility.GetDaylightName(nameLength, ymd);
         }
@@ -870,7 +870,7 @@ private:
         RecyclerRootPtr<SourceList> sourceList;
 
 #ifdef ENABLE_SCRIPT_DEBUGGING
-        typedef void(*RaiseMessageToDebuggerFunctionType)(ScriptContext *, DEBUG_EVENT_INFO_TYPE, LPCWSTR, LPCWSTR);
+        typedef void(*RaiseMessageToDebuggerFunctionType)(ScriptContext *, DEBUG_EVENT_INFO_TYPE, LPCCHAR_T, LPCCHAR_T);
         RaiseMessageToDebuggerFunctionType raiseMessageToDebuggerFunctionType;
 
         typedef void(*TransitionToDebugModeIfFirstSourceFn)(ScriptContext *, Utf8SourceInfo *);
@@ -923,7 +923,7 @@ private:
 #ifdef RUNTIME_DATA_COLLECTION
         time_t createTime;
 #endif
-        char16 const * url;
+        CHAR_T const * url;
 
         void PrintStats();
 
@@ -981,7 +981,7 @@ private:
         }
 #endif
 
-        char16 const * GetUrl() const { return url; }
+        CHAR_T const * GetUrl() const { return url; }
         void SetUrl(BSTR bstr);
 #ifdef RUNTIME_DATA_COLLECTION
         time_t GetCreateTime() const { return createTime; }
@@ -1078,8 +1078,8 @@ private:
         SourceContextInfo * GetSourceContextInfo(DWORD_PTR hostSourceContext, IActiveScriptDataCache* profileDataCache);
         SourceContextInfo * GetSourceContextInfo(uint hash);
         SourceContextInfo * CreateSourceContextInfo(uint hash, DWORD_PTR hostSourceContext);
-        SourceContextInfo * CreateSourceContextInfo(DWORD_PTR hostSourceContext, char16 const * url, size_t len,
-            IActiveScriptDataCache* profileDataCache, char16 const * sourceMapUrl = nullptr, size_t sourceMapUrlLen = 0);
+        SourceContextInfo * CreateSourceContextInfo(DWORD_PTR hostSourceContext, CHAR_T const * url, size_t len,
+            IActiveScriptDataCache* profileDataCache, CHAR_T const * sourceMapUrl = nullptr, size_t sourceMapUrlLen = 0);
 
 #if defined(LEAK_REPORT) || defined(CHECK_MEMORY_LEAK)
         void ClearSourceContextInfoMaps()
@@ -1203,26 +1203,26 @@ private:
         void InitPropertyStringMap(int i);
         PropertyString* AddPropertyString2(const Js::PropertyRecord* propertyRecord);
         PropertyString* CachePropertyString2(const Js::PropertyRecord* propertyRecord);
-        PropertyString* GetPropertyString2(char16 ch1, char16 ch2);
-        void FindPropertyRecord(__in LPCWSTR pszPropertyName, __in int propertyNameLength, PropertyRecord const** propertyRecord);
-        JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(__in LPCWSTR pszPropertyName, __in int propertyNameLength);
+        PropertyString* GetPropertyString2(CHAR_T ch1, CHAR_T ch2);
+        void FindPropertyRecord(__in LPCCHAR_T pszPropertyName, __in int propertyNameLength, PropertyRecord const** propertyRecord);
+        JsUtil::List<const RecyclerWeakReference<Js::PropertyRecord const>*>* FindPropertyIdNoCase(__in LPCCHAR_T pszPropertyName, __in int propertyNameLength);
 
         void FindPropertyRecord(JavascriptString* pstName, PropertyRecord const** propertyRecord);
         PropertyRecord const * GetPropertyName(PropertyId propertyId);
         PropertyRecord const * GetPropertyNameLocked(PropertyId propertyId);
-        void GetOrAddPropertyRecord(JsUtil::CharacterBuffer<WCHAR> const& propName, PropertyRecord const** propertyRecord);
-        template <size_t N> void GetOrAddPropertyRecord(const char16(&propertyName)[N], PropertyRecord const** propertyRecord)
+        void GetOrAddPropertyRecord(JsUtil::CharacterBuffer<CHAR_T> const& propName, PropertyRecord const** propertyRecord);
+        template <size_t N> void GetOrAddPropertyRecord(const CHAR_T(&propertyName)[N], PropertyRecord const** propertyRecord)
         {
             GetOrAddPropertyRecord(propertyName, N - 1, propertyRecord);
         }
         void GetOrAddPropertyRecord(_In_ Js::JavascriptString * propertyString, _Out_ PropertyRecord const** propertyRecord);
-        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName);
-        template <size_t N> PropertyId GetOrAddPropertyIdTracked(const char16(&propertyName)[N])
+        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<CHAR_T> const& propName);
+        template <size_t N> PropertyId GetOrAddPropertyIdTracked(const CHAR_T(&propertyName)[N])
         {
             return GetOrAddPropertyIdTracked(propertyName, N - 1);
         }
-        PropertyId GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCWSTR pszPropertyName, __in int propertyNameLength);
-        void GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCWSTR pszPropertyName, _In_ int propertyNameLength, _Out_ PropertyRecord const** propertyRecord);
+        PropertyId GetOrAddPropertyIdTracked(__in_ecount(propertyNameLength) LPCCHAR_T pszPropertyName, __in int propertyNameLength);
+        void GetOrAddPropertyRecord(__in_ecount(propertyNameLength) LPCCHAR_T pszPropertyName, _In_ int propertyNameLength, _Out_ PropertyRecord const** propertyRecord);
         BOOL IsNumericPropertyId(PropertyId propertyId, uint32* value);
 
         void RegisterWeakReferenceDictionary(JsUtil::IWeakReferenceDictionary* weakReferenceDictionary);
@@ -1239,13 +1239,13 @@ private:
         ParseNodePtr ParseScript(Parser* parser, const byte* script,
             size_t cb, SRCINFO const * pSrcInfo,
             CompileScriptException * pse, Utf8SourceInfo** ppSourceInfo,
-            const char16 *rootDisplayName, LoadScriptFlag loadScriptFlag,
+            const CHAR_T *rootDisplayName, LoadScriptFlag loadScriptFlag,
             uint* sourceIndex, Js::Var scriptSource = nullptr);
 
         JavascriptFunction* LoadScript(const byte* script, size_t cb,
             SRCINFO const * pSrcInfo,
             CompileScriptException * pse, Utf8SourceInfo** ppSourceInfo,
-            const char16 *rootDisplayName, LoadScriptFlag loadScriptFlag,
+            const CHAR_T *rootDisplayName, LoadScriptFlag loadScriptFlag,
             Js::Var scriptSource = nullptr);
 
         ArenaAllocator* GeneralAllocator() { return &generalAllocator; }
@@ -1273,9 +1273,9 @@ private:
         ArenaAllocator* AllocatorForDiagnostics();
 #endif
 
-        Js::TempArenaAllocatorObject* GetTemporaryAllocator(LPCWSTR name);
+        Js::TempArenaAllocatorObject* GetTemporaryAllocator(LPCCHAR_T name);
         void ReleaseTemporaryAllocator(Js::TempArenaAllocatorObject* tempAllocator);
-        Js::TempGuestArenaAllocatorObject* GetTemporaryGuestAllocator(LPCWSTR name);
+        Js::TempGuestArenaAllocatorObject* GetTemporaryGuestAllocator(LPCCHAR_T name);
         void ReleaseTemporaryGuestAllocator(Js::TempGuestArenaAllocatorObject* tempAllocator);
 
         bool EnsureInterpreterArena(ArenaAllocator **);
@@ -1384,7 +1384,7 @@ private:
             raiseMessageToDebuggerFunctionType = function;
         }
 
-        void RaiseMessageToDebugger(DEBUG_EVENT_INFO_TYPE messageType, LPCWSTR message, LPCWSTR url)
+        void RaiseMessageToDebugger(DEBUG_EVENT_INFO_TYPE messageType, LPCCHAR_T message, LPCCHAR_T url)
         {
             if (raiseMessageToDebuggerFunctionType != nullptr)
             {
@@ -1530,7 +1530,7 @@ private:
         typedef HRESULT(*RegisterExternalLibraryType)(Js::ScriptContext *pScriptContext);
         HRESULT RegisterProfileProbe(IActiveScriptProfilerCallback *pProfileCallback, DWORD dwEventMask, DWORD dwContext, RegisterExternalLibraryType RegisterExternalLibrary, JavascriptMethod dispatchInvoke);
         HRESULT DeRegisterProfileProbe(HRESULT hrReason, JavascriptMethod dispatchInvoke);
-        HRESULT RegisterLibraryFunction(const char16 *pwszObjectName, const char16 *pwszFunctionName, Js::PropertyId functionPropertyId, JavascriptMethod entryPoint);
+        HRESULT RegisterLibraryFunction(const CHAR_T *pwszObjectName, const CHAR_T *pwszFunctionName, Js::PropertyId functionPropertyId, JavascriptMethod entryPoint);
         HRESULT RegisterBuiltinFunctions(RegisterExternalLibraryType RegisterExternalLibrary);
         HRESULT SetProfileEventMask(DWORD dwEventMask);
 
@@ -1593,7 +1593,7 @@ private:
         private:
             ScriptContext* m_scriptContext;
         };
-#endif        
+#endif
 
 #ifdef EDIT_AND_CONTINUE
     private:
@@ -1622,10 +1622,10 @@ private:
         BuiltinFunctionIdDictionary *m_pBuiltinFunctionIdMap;
         Js::PropertyId GetFunctionNumber(JavascriptMethod entryPoint);
 
-        static const char16* CopyString(const char16* str, size_t charCount, ArenaAllocator* alloc);
+        static const CHAR_T* CopyString(const CHAR_T* str, size_t charCount, ArenaAllocator* alloc);
 
 #ifdef ENABLE_JS_ETW
-        static charcount_t AppendWithEscapeCharacters(Js::StringBuilder<ArenaAllocator>* stringBuilder, const WCHAR* sourceString, charcount_t sourceStringLen, WCHAR escapeChar, WCHAR charToEscape);
+        static charcount_t AppendWithEscapeCharacters(Js::StringBuilder<ArenaAllocator>* stringBuilder, const CHAR_T* sourceString, charcount_t sourceStringLen, CHAR_T escapeChar, CHAR_T charToEscape);
 #endif
 
     public:
@@ -1663,21 +1663,21 @@ private:
         HRESULT OnFunctionCompiled(
             PROFILER_TOKEN functionId,
             PROFILER_TOKEN scriptId,
-            const WCHAR *pwszFunctionName,
-            const WCHAR *pwszFunctionNameHint,
+            const CHAR_T *pwszFunctionName,
+            const CHAR_T *pwszFunctionNameHint,
             IUnknown *pIDebugDocumentContext);
         HRESULT OnFunctionEnter(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId);
         HRESULT OnFunctionExit(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId);
 
         static HRESULT FunctionExitSenderThunk(PROFILER_TOKEN functionId, PROFILER_TOKEN scriptId, ScriptContext *pScriptContext);
-        static HRESULT FunctionExitByNameSenderThunk(const char16 *pwszFunctionName, ScriptContext *pScriptContext);
+        static HRESULT FunctionExitByNameSenderThunk(const CHAR_T *pwszFunctionName, ScriptContext *pScriptContext);
 
         bool SetDispatchProfile(bool fSet, JavascriptMethod dispatchInvoke);
-        HRESULT OnDispatchFunctionEnter(const WCHAR *pwszFunctionName);
-        HRESULT OnDispatchFunctionExit(const WCHAR *pwszFunctionName);
+        HRESULT OnDispatchFunctionEnter(const CHAR_T *pwszFunctionName);
+        HRESULT OnDispatchFunctionExit(const CHAR_T *pwszFunctionName);
 
 #endif // ENABLE_SCRIPT_PROFILING
-       
+
         void OnStartupComplete();
         void SaveStartupProfileAndRelease(bool isSaveOnClose = false);
 

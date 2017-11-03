@@ -27,13 +27,13 @@ DbgHelpSymbolManager DbgHelpSymbolManager::Instance;
 void
 DbgHelpSymbolManager::Initialize()
 {
-    char16 *wszSearchPath = nullptr;
-    char16 *wszModuleDrive = nullptr;
-    char16 *wszModuleDir = nullptr;
-    char16 *wszOldSearchPath = nullptr;
-    char16 *wszNewSearchPath = nullptr;
-    char16 *wszModuleName = nullptr;
-    char16 const *wszModule = nullptr;
+    CHAR_T *wszSearchPath = nullptr;
+    CHAR_T *wszModuleDrive = nullptr;
+    CHAR_T *wszModuleDir = nullptr;
+    CHAR_T *wszOldSearchPath = nullptr;
+    CHAR_T *wszNewSearchPath = nullptr;
+    CHAR_T *wszModuleName = nullptr;
+    CHAR_T const *wszModule = nullptr;
 
     const size_t ceModuleName = _MAX_PATH;
     const size_t ceOldSearchPath = 32767;
@@ -55,7 +55,7 @@ DbgHelpSymbolManager::Initialize()
     // Let's make sure the directory where chakra.dll is, is on the symbol path.
 
     wszModule = AutoSystemInfo::GetJscriptDllFileName();
-    wszModuleName = NoCheckHeapNewArray(char16, ceModuleName);
+    wszModuleName = NoCheckHeapNewArray(CHAR_T, ceModuleName);
     if (wszModuleName == nullptr)
     {
         goto end;
@@ -75,13 +75,13 @@ DbgHelpSymbolManager::Initialize()
 
     if (wszModule != nullptr)
     {
-        wszModuleDrive = NoCheckHeapNewArray(char16, _MAX_DRIVE);
+        wszModuleDrive = NoCheckHeapNewArray(CHAR_T, _MAX_DRIVE);
         if (wszModuleDrive == nullptr)
         {
             goto end;
         }
 
-        wszModuleDir = NoCheckHeapNewArray(char16, _MAX_DIR);
+        wszModuleDir = NoCheckHeapNewArray(CHAR_T, _MAX_DIR);
         if (wszModuleDir == nullptr)
         {
             goto end;
@@ -90,13 +90,13 @@ DbgHelpSymbolManager::Initialize()
         _wsplitpath_s(wszModule, wszModuleDrive, _MAX_DRIVE, wszModuleDir, _MAX_DIR, NULL, 0, NULL, 0);
         _wmakepath_s(wszModuleName, ceModuleName, wszModuleDrive, wszModuleDir, NULL, NULL);
 
-        wszOldSearchPath = NoCheckHeapNewArray(char16, ceOldSearchPath);
+        wszOldSearchPath = NoCheckHeapNewArray(CHAR_T, ceOldSearchPath);
         if (wszOldSearchPath == nullptr)
         {
             goto end;
         }
 
-        wszNewSearchPath = NoCheckHeapNewArray(char16, ceNewSearchPath);
+        wszNewSearchPath = NoCheckHeapNewArray(CHAR_T, ceNewSearchPath);
         if (wszNewSearchPath == nullptr)
         {
             goto end;

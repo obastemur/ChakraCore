@@ -10,7 +10,7 @@ namespace Js
     {
     public:
         static void CachePropertyRead(Var startingObject, RecyclableObject * objectWithProperty, const bool isRoot, PropertyId propertyId, const bool isMissing, PropertyValueInfo* info, ScriptContext * requestContext);
-        static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, JsUtil::CharacterBuffer<WCHAR> const& propertyName, ScriptContext* requestContext);
+        static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, JsUtil::CharacterBuffer<CHAR_T> const& propertyName, ScriptContext* requestContext);
         static void CachePropertyReadForGetter(PropertyValueInfo *info, Var originalInstance, PropertyId propertyId, ScriptContext* requestContext);
         static void CachePropertyWrite(RecyclableObject * object, const bool isRoot, Type* typeWithoutProperty, PropertyId propertyId, PropertyValueInfo* info, ScriptContext * requestContext);
 
@@ -52,8 +52,8 @@ namespace Js
         static void PretendTrySetProperty(Type *const type, Type *const oldType, PropertyCacheOperationInfo * operationInfo, PropertyValueInfo *const propertyValueInfo);
 
 #if DBG_DUMP
-        static void TraceCache(InlineCache * inlineCache, const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
-        static void TraceCache(PolymorphicInlineCache * polymorphicInlineCache, const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
+        static void TraceCache(InlineCache * inlineCache, const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
+        static void TraceCache(PolymorphicInlineCache * polymorphicInlineCache, const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
 #endif
 
     private:
@@ -63,7 +63,7 @@ namespace Js
         static bool CanCachePropertyWrite(RecyclableObject * object, ScriptContext * requestContext);
 
 #if DBG_DUMP
-        static void TraceCacheCommon(const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
+        static void TraceCacheCommon(const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object);
 #endif
     };
 }

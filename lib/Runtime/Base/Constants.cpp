@@ -14,16 +14,16 @@ const uint Constants::InvalidSourceIndex;
 const RegSlot Constants::NoRegister;
 #endif
 
-const char16 Constants::AnonymousFunction[] = _u("Anonymous function");
-const char16 Constants::Anonymous[] = _u("anonymous");
-const char16 Constants::Empty[] = _u("");
-const char16 Constants::FunctionCode[] = _u("Function code");
-const char16 Constants::GlobalCode[] = _u("Global code");
-const char16 Constants::EvalCode[] = _u("eval code");
-const char16 Constants::GlobalFunction[] = _u("glo");
-const char16 Constants::UnknownScriptCode[] = _u("Unknown script code");
-const char16 Constants::StringReplace[] = _u("String.prototype.replace");
-const char16 Constants::StringMatch[] = _u("String.prototype.match");
+const CHAR_T Constants::AnonymousFunction[] = _u("Anonymous function");
+const CHAR_T Constants::Anonymous[] = _u("anonymous");
+const CHAR_T Constants::Empty[] = _u("");
+const CHAR_T Constants::FunctionCode[] = _u("Function code");
+const CHAR_T Constants::GlobalCode[] = _u("Global code");
+const CHAR_T Constants::EvalCode[] = _u("eval code");
+const CHAR_T Constants::GlobalFunction[] = _u("glo");
+const CHAR_T Constants::UnknownScriptCode[] = _u("Unknown script code");
+const CHAR_T Constants::StringReplace[] = _u("String.prototype.replace");
+const CHAR_T Constants::StringMatch[] = _u("String.prototype.match");
 
 const uint64 Constants::ExponentMask = 0x3FF0000000000000;
 const uint64 Constants::MantissaMask = 0x000FFFFFFFFFFFFF;

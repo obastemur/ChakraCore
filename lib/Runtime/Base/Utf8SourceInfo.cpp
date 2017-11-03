@@ -58,7 +58,7 @@ namespace Js
 #endif
     }
 
-    LPCUTF8 Utf8SourceInfo::GetSource(const char16 * reason) const
+    LPCUTF8 Utf8SourceInfo::GetSource(const CHAR_T * reason) const
     {
         AssertMsg(this->sourceHolder != nullptr, "We have no source mapper.");
 #ifdef ENABLE_SCRIPT_DEBUGGING
@@ -74,7 +74,7 @@ namespace Js
         }
     }
 
-    size_t Utf8SourceInfo::GetCbLength(const char16 * reason) const
+    size_t Utf8SourceInfo::GetCbLength(const CHAR_T * reason) const
     {
         AssertMsg(this->sourceHolder != nullptr, "We have no source mapper.");
 #ifdef ENABLE_SCRIPT_DEBUGGING

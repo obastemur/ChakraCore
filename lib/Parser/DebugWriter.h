@@ -8,7 +8,7 @@
 
 namespace UnifiedRegex
 {
-    class DebugWriter : private Chars<char16>
+    class DebugWriter : private Chars<CHAR_T>
     {
     private:
         static const Char* const hex;

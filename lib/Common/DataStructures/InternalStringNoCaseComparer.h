@@ -10,13 +10,13 @@ namespace JsUtil
     class NoCaseComparer;
 
     template <>
-    class NoCaseComparer<JsUtil::CharacterBuffer<WCHAR>>
+    class NoCaseComparer<JsUtil::CharacterBuffer<CHAR_T>>
     {
     public:
-        static bool Equals(JsUtil::CharacterBuffer<WCHAR> const& x, JsUtil::CharacterBuffer<WCHAR> const& y);
-        static uint GetHashCode(JsUtil::CharacterBuffer<WCHAR> const& i);
+        static bool Equals(JsUtil::CharacterBuffer<CHAR_T> const& x, JsUtil::CharacterBuffer<CHAR_T> const& y);
+        static uint GetHashCode(JsUtil::CharacterBuffer<CHAR_T> const& i);
     private:
-        static int Compare(JsUtil::CharacterBuffer<WCHAR> const& x, JsUtil::CharacterBuffer<WCHAR> const& y);
+        static int Compare(JsUtil::CharacterBuffer<CHAR_T> const& x, JsUtil::CharacterBuffer<CHAR_T> const& y);
     };
 
 }

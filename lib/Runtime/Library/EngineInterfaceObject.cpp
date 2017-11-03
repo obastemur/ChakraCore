@@ -55,7 +55,7 @@
     Js::JavascriptOperators::GetProperty(obj, propertyID, &propertyValue, scriptContext) \
 
 #define GetPropertyLFrom(obj, propertyName) \
-    GetPropertyFrom(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, wcslen(propertyName)))
+    GetPropertyFrom(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, cstrlen(propertyName)))
 
 #define GetPropertyBuiltInFrom(obj, builtInPropID) \
     GetPropertyFrom(obj, Js::PropertyIds::builtInPropID) \
@@ -70,7 +70,7 @@
     HasPropertyOn(obj, Js::PropertyIds::builtInPropID) \
 
 #define HasPropertyLOn(obj, propertyName) \
-    HasPropertyOn(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, wcslen(propertyName)))
+    HasPropertyOn(obj, scriptContext->GetOrAddPropertyIdTracked(propertyName, cstrlen(propertyName)))
 
 namespace Js
 {
@@ -310,7 +310,7 @@ namespace Js
             {
                 JavascriptString* customFunctionName = JavascriptString::FromVar(args.Values[2]);
                 // tagPublicFunction("Intl.Collator", Collator); in Intl.js calls TagPublicLibraryCode the expected name is Collator so we need to calculate the offset
-                const char16 * shortName = wcsrchr(customFunctionName->GetString(), _u('.'));
+                const CHAR_T * shortName = wcsrchr(customFunctionName->GetString(), _u('.'));
                 uint shortNameOffset = 0;
                 if (shortName != nullptr)
                 {

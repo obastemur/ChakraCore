@@ -591,6 +591,6 @@ LNegative:
         return dbl;
     }
 
-    template bool BigInt::FInitFromDigits<char16>(const char16 *prgch, int32 cch, int32 *pcchDig);
+    template bool BigInt::FInitFromDigits<CHAR_T>(const CHAR_T *prgch, int32 cch, int32 *pcchDig);
     template bool BigInt::FInitFromDigits<utf8char_t>(const utf8char_t *prgch, int32 cch, int32 *pcchDig);
 }

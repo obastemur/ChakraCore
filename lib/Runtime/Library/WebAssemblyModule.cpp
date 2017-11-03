@@ -92,7 +92,7 @@ WebAssemblyModule::NewInstance(RecyclableObject* function, CallInfo callInfo, ..
     {
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedBufferSource);
     }
-    
+
     WebAssemblySource src(args[1], true, scriptContext);
     return CreateModule(scriptContext, &src);
 }
@@ -183,7 +183,7 @@ Var WebAssemblyModule::EntryCustomSections(RecyclableObject* function, CallInfo 
 
     WebAssemblyModule * module = WebAssemblyModule::FromVar(args[1]);
     JavascriptString * sectionName = JavascriptConversion::ToString(sectionNameVar, scriptContext);
-    const char16* sectionNameBuf = sectionName->GetString();
+    const CHAR_T* sectionNameBuf = sectionName->GetString();
     charcount_t sectionNameLength = sectionName->GetLength();
 
     Var customSections = JavascriptOperators::NewJavascriptArrayNoArg(scriptContext);
@@ -192,7 +192,7 @@ Var WebAssemblyModule::EntryCustomSections(RecyclableObject* function, CallInfo 
         Wasm::CustomSection customSection = module->GetCustomSection(i);
         if (sectionNameLength == customSection.nameLength &&
             // can't use string compare because null-terminator is a valid character for custom section names
-            memcmp(sectionNameBuf, customSection.name, sectionNameLength * sizeof(char16)) == 0)
+            memcmp(sectionNameBuf, customSection.name, sectionNameLength * sizeof(CHAR_T)) == 0)
         {
             const uint32 byteLength = customSection.payloadSize;
             ArrayBuffer* arrayBuffer = scriptContext->GetLibrary()->CreateArrayBuffer(byteLength);
@@ -306,7 +306,7 @@ WebAssemblyModule::ValidateModule(
     }
     catch (Wasm::WasmCompilationException& ex)
     {
-        char16* originalMessage = ex.ReleaseErrorMessage();
+        CHAR_T* originalMessage = ex.ReleaseErrorMessage();
         SysFreeString(originalMessage);
 
         return false;
@@ -554,7 +554,7 @@ WebAssemblyModule::AllocateFunctionExports(uint32 entries)
 }
 
 void
-WebAssemblyModule::SetExport(uint32 iExport, uint32 funcIndex, const char16* exportName, uint32 nameLength, Wasm::ExternalKinds::ExternalKind kind)
+WebAssemblyModule::SetExport(uint32 iExport, uint32 funcIndex, const CHAR_T* exportName, uint32 nameLength, Wasm::ExternalKinds::ExternalKind kind)
 {
     m_exports[iExport].index = funcIndex;
     m_exports[iExport].nameLength = nameLength;
@@ -579,7 +579,7 @@ WebAssemblyModule::GetImportCount() const
 }
 
 void
-WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32 modNameLen, const char16* fnName, uint32 fnNameLen)
+WebAssemblyModule::AddFunctionImport(uint32 sigId, const CHAR_T* modName, uint32 modNameLen, const CHAR_T* fnName, uint32 fnNameLen)
 {
     if (sigId >= GetSignatureCount())
     {
@@ -621,7 +621,7 @@ WebAssemblyModule::AddFunctionImport(uint32 sigId, const char16* modName, uint32
     if (!UInt32Math::Add(modNameLen, bufferLength, &bufferLength) &&
         !UInt32Math::Add(fnNameLen, bufferLength, &bufferLength))
     {
-        char16 * autoName = RecyclerNewArrayLeafZ(GetScriptContext()->GetRecycler(), char16, bufferLength);
+        CHAR_T * autoName = RecyclerNewArrayLeafZ(GetScriptContext()->GetRecycler(), CHAR_T, bufferLength);
         uint32 nameLength = swprintf_s(autoName, bufferLength, _u("%s.%s.Thunk[%u]"), modName, fnName, funcInfo->GetNumber());
         if (nameLength != (uint32)-1)
         {
@@ -645,7 +645,7 @@ WebAssemblyModule::GetImport(uint32 i) const
 }
 
 void
-WebAssemblyModule::AddGlobalImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
+WebAssemblyModule::AddGlobalImport(const CHAR_T* modName, uint32 modNameLen, const CHAR_T* importName, uint32 importNameLen)
 {
     Wasm::WasmImport* wi = Anew(m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Global;
@@ -657,7 +657,7 @@ WebAssemblyModule::AddGlobalImport(const char16* modName, uint32 modNameLen, con
 }
 
 void
-WebAssemblyModule::AddMemoryImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
+WebAssemblyModule::AddMemoryImport(const CHAR_T* modName, uint32 modNameLen, const CHAR_T* importName, uint32 importNameLen)
 {
     Wasm::WasmImport* wi = Anew(m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Memory;
@@ -670,7 +670,7 @@ WebAssemblyModule::AddMemoryImport(const char16* modName, uint32 modNameLen, con
 }
 
 void
-WebAssemblyModule::AddTableImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen)
+WebAssemblyModule::AddTableImport(const CHAR_T* modName, uint32 modNameLen, const CHAR_T* importName, uint32 importNameLen)
 {
     Wasm::WasmImport* wi = Anew(m_alloc, Wasm::WasmImport);
     wi->kind = Wasm::ExternalKinds::Table;

@@ -97,7 +97,7 @@ public:
 #if DBG
     uint32 outArgsDepth; // number of calls nested in an expression
 #endif
-    const char16 *name; // name of the function
+    const CHAR_T *name; // name of the function
     Js::RegSlot nullConstantRegister; // location, if any, of enregistered null constant
     Js::RegSlot undefinedConstantRegister; // location, if any, of enregistered undefined constant
     Js::RegSlot trueConstantRegister; // location, if any, of enregistered true constant
@@ -181,7 +181,7 @@ public:
     JsUtil::List<Js::RegSlot, ArenaAllocator> nonUserNonTempRegistersToInitialize;
 
     FuncInfo(
-        const char16 *name,
+        const CHAR_T *name,
         ArenaAllocator *alloc,
         ByteCodeGenerator *byteCodeGenerator,
         Scope *paramScope,
@@ -251,12 +251,12 @@ public:
     //    1) new Function code's global code
     //    2) global code generated from the reparsing deferred parse function
 
-    bool IsFakeGlobalFunction(uint32 flags) const 
+    bool IsFakeGlobalFunction(uint32 flags) const
     {
         return IsGlobalFunction() && !(flags & fscrGlobalCode);
     }
 
-    Scope *GetBodyScope() const 
+    Scope *GetBodyScope() const
     {
         return bodyScope;
     }
@@ -266,7 +266,7 @@ public:
         bodyScope = scope;
     }
 
-    Scope *GetParamScope() const 
+    Scope *GetParamScope() const
     {
         return paramScope;
     }
@@ -276,13 +276,13 @@ public:
         paramScope = scope;
     }
 
-    Scope *GetTopLevelScope() const 
+    Scope *GetTopLevelScope() const
     {
         // Top level scope will be the same for knopProg and knopFncDecl.
         return paramScope;
     }
 
-    Scope* GetFuncExprScope() const 
+    Scope* GetFuncExprScope() const
     {
         return funcExprScope;
     }
@@ -437,7 +437,7 @@ public:
         return hasEscapedUseNestedFunc;
     }
 
-    void SetHasMaybeEscapedNestedFunc(DebugOnly(char16 const * reason));
+    void SetHasMaybeEscapedNestedFunc(DebugOnly(CHAR_T const * reason));
 
     bool IsDeferred() const;
 

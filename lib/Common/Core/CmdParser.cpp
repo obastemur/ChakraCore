@@ -25,11 +25,11 @@ using namespace Js;
 ///
 ///----------------------------------------------------------------------------
 
-LPWSTR
-CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPWSTR buffer, size_t ceBuffer, bool fTreatColonAsSeparator)
+LPCHAR_T
+CmdLineArgsParser::ParseString(__inout_ecount(ceBuffer) LPCHAR_T buffer, size_t ceBuffer, bool fTreatColonAsSeparator)
 {
 
-    char16 *out = buffer;
+    CHAR_T *out = buffer;
     size_t len = 0;
 
     if('"' == CurChar())
@@ -353,7 +353,7 @@ CmdLineArgsParser::ParseNumberRange(Js::NumberRange *pRange)
 void
 CmdLineArgsParser::ParsePhase(Js::Phases *pPhaseList, Js::Phases *oppositePhase)
 {
-    char16 buffer[MaxTokenSize];
+    CHAR_T buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
     Phase phase = ConfigFlagsTable::GetPhase(ParseString(buffer));
@@ -484,7 +484,7 @@ CmdLineArgsParser::ParseBoolean()
 BSTR
 CmdLineArgsParser::GetCurrentString()
 {
-    char16 buffer[MaxTokenSize];
+    CHAR_T buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
     switch (CurChar())
@@ -522,10 +522,10 @@ CmdLineArgsParser::GetCurrentString()
 void
 CmdLineArgsParser::ParseFlag()
 {
-    char16 buffer[MaxTokenSize];
+    CHAR_T buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
-    LPWSTR flagString = ParseString(buffer);
+    LPCHAR_T flagString = ParseString(buffer);
     Flag flag = ConfigFlagsTable::GetFlag(flagString);
     if(InvalidFlag == flag)
     {
@@ -618,7 +618,7 @@ CmdLineArgsParser::ParseFlag()
 ///----------------------------------------------------------------------------
 
 int
-CmdLineArgsParser::Parse(int argc, __in_ecount(argc) LPWSTR argv[])
+CmdLineArgsParser::Parse(int argc, __in_ecount(argc) LPCHAR_T argv[])
 {
     int err = 0;
 
@@ -638,10 +638,10 @@ CmdLineArgsParser::Parse(int argc, __in_ecount(argc) LPWSTR argv[])
     return err;
 }
 
-int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
+int CmdLineArgsParser::Parse(__in LPCHAR_T oneArg) throw()
 {
     int err = 0;
-    char16 buffer[MaxTokenSize];
+    CHAR_T buffer[MaxTokenSize];
     ZeroMemory(buffer, sizeof(buffer));
 
     this->pszCurrentArg = oneArg;
@@ -682,7 +682,7 @@ int CmdLineArgsParser::Parse(__in LPWSTR oneArg) throw()
     }
     catch(Exception &exp)
     {
-        Output::Print(_u("%s : %s\n"), (LPCWSTR)exp, oneArg);
+        Output::Print(_u("%s : %s\n"), (LPCCHAR_T)exp, oneArg);
         err = -1;
     }
     return err;

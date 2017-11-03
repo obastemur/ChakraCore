@@ -6,14 +6,31 @@
 
 #include <limits.h>
 
-#ifdef _WIN32
-typedef WCHAR char16;
-#define _u(s) L##s
+#ifndef ENGINE_CHAR_T_IS_CHAR
+    #ifdef _WIN32
+        #define _u(s) L##s
+    #else
+        #define _u(s) u##s
+    #endif
 #else
-#define _u(s) u##s
+    #define _u(s) s
 #endif
 
-typedef char16 wchar;
+
+#ifndef CHAR_T
+    #ifndef ENGINE_CHAR_T_IS_CHAR
+        #ifdef _WIN32
+            typedef wchar_t CHAR_T;
+        #else
+            typedef char16_t CHAR_T;
+        #endif
+    #else
+        typedef char CHAR_T;
+    #endif
+    typedef const CHAR_T *LPCCHAR_T;
+    typedef CHAR_T *LPCHAR_T;
+#endif // CHAR_T
+
 typedef unsigned int uint;
 typedef unsigned short ushort;
 

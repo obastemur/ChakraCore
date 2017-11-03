@@ -43,10 +43,10 @@ namespace UnifiedRegex
             return (Char)i;
         }
 
-        // Char to char16
-        static inline char16 CTW(Char c)
+        // Char to CHAR_T
+        static inline CHAR_T CTW(Char c)
         {
-            return (char16)c;
+            return (CHAR_T)c;
         }
 
         // Offset, same buffer
@@ -93,10 +93,10 @@ namespace UnifiedRegex
             return (Char)(uint8)i;
         }
 
-        // Char to char16
-        static inline char16 CTW(Char c)
+        // Char to CHAR_T
+        static inline CHAR_T CTW(Char c)
         {
-            return (char16)(uint8)c;
+            return (CHAR_T)(uint8)c;
         }
 
         // Offset, same buffer
@@ -113,12 +113,12 @@ namespace UnifiedRegex
     };
 
     template <>
-    struct Chars<char16>
+    struct Chars<CHAR_T>
     {
-        typedef char16 Char;
+        typedef CHAR_T Char;
         typedef uint16 UChar;
 
-        static const int CharWidth = sizeof(char16) * 8;
+        static const int CharWidth = sizeof(CHAR_T) * 8;
         static const int NumChars = 1 << CharWidth;
         static const uint MaxUChar = (uint16)-1;
         static const uint MaxUCharAscii = (1 << 7) - 1;
@@ -144,8 +144,8 @@ namespace UnifiedRegex
             return (Char)(uint16)i;
         }
 
-        // Char to char16
-        static inline char16 CTW(Char c)
+        // Char to CHAR_T
+        static inline CHAR_T CTW(Char c)
         {
             return c;
         }
@@ -196,11 +196,11 @@ namespace UnifiedRegex
             return (Char)(codepoint_t)i;
         }
 
-        // Char to char16
-        static inline char16 CTW(Char c)
+        // Char to CHAR_T
+        static inline CHAR_T CTW(Char c)
         {
-            Assert(c < Chars<char16>::MaxUChar);
-            return (char16)c;
+            Assert(c < Chars<CHAR_T>::MaxUChar);
+            return (CHAR_T)c;
         }
 
         // Offset, same buffer

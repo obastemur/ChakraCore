@@ -1328,8 +1328,8 @@ GlobOptBlockData::TrackArgumentsSym(IR::RegOpnd const* opnd)
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     if (PHASE_TESTTRACE(Js::StackArgOptPhase, this->globOpt->func))
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-        char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("Created a new alias s%d for arguments object in function %s(%s) topFunc %s(%s)\n"),
             opnd->m_sym->m_id,
             this->curFunc->GetJITFunctionBody()->GetDisplayName(),

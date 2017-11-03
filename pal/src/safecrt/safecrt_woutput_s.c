@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 /***
@@ -32,12 +32,14 @@
 
 #include "mbusafecrt_internal.h"
 
+#ifndef ENGINE_CHAR_T_IS_CHAR
 #ifndef _UNICODE    /* CRT flag */
 #define _UNICODE 1
 #endif
 
 #ifndef UNICODE     /* NT flag */
 #define UNICODE 1
+#endif
 #endif
 
 #define FORMAT_VALIDATIONS

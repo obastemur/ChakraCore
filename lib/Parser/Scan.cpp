@@ -156,7 +156,7 @@ template <typename EncodingPolicy>
 void Scanner<EncodingPolicy>::PrepareForBackgroundParse(Js::ScriptContext *scriptContext)
 {
     scriptContext->GetThreadContext()->GetStandardChars((EncodedChar*)0);
-    scriptContext->GetThreadContext()->GetStandardChars((char16*)0);
+    scriptContext->GetThreadContext()->GetStandardChars((CHAR_T*)0);
 }
 #endif
 
@@ -522,7 +522,7 @@ uint32 Scanner<EncodingPolicy>::UnescapeToTempBuf(EncodedCharPtr p, EncodedCharP
         }
         else
         {
-            char16 lower, upper;
+            CHAR_T lower, upper;
             Js::NumberUtilities::CodePointAsSurrogatePair(codePoint, &lower, &upper);
             m_tempChBuf.AppendCh(lower);
             m_tempChBuf.AppendCh(upper);
@@ -556,7 +556,7 @@ IdentPtr Scanner<EncodingPolicy>::PidOfIdentiferAt(EncodedCharPtr p, EncodedChar
     else
     {
         Assert(sizeof(EncodedChar) == 2);
-        return m_phtbl->PidHashNameLen(reinterpret_cast< const char16 * >(p), (int32)(last - p));
+        return m_phtbl->PidHashNameLen(reinterpret_cast< const CHAR_T * >(p), (int32)(last - p));
     }
 }
 
@@ -812,7 +812,7 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstant(ArenaAllocator* alloc)
 #endif
     ArenaAllocator* ctAllocator = alloc;
     UnifiedRegex::StandardChars<EncodedChar>* standardEncodedChars = m_scriptContext->GetThreadContext()->GetStandardChars((EncodedChar*)0);
-    UnifiedRegex::StandardChars<char16>* standardChars = m_scriptContext->GetThreadContext()->GetStandardChars((char16*)0);
+    UnifiedRegex::StandardChars<CHAR_T>* standardChars = m_scriptContext->GetThreadContext()->GetStandardChars((CHAR_T*)0);
 #if ENABLE_REGEX_CONFIG_OPTIONS
     UnifiedRegex::DebugWriter *w = 0;
     if (REGEX_CONFIG_FLAG(RegexDebug))
@@ -869,7 +869,7 @@ tokens Scanner<EncodingPolicy>::ScanRegExpConstantNoAST(ArenaAllocator* alloc)
 
     ThreadContext *threadContext = m_scriptContext->GetThreadContext();
     UnifiedRegex::StandardChars<EncodedChar>* standardEncodedChars = threadContext->GetStandardChars((EncodedChar*)0);
-    UnifiedRegex::StandardChars<char16>* standardChars = threadContext->GetStandardChars((char16*)0);
+    UnifiedRegex::StandardChars<CHAR_T>* standardChars = threadContext->GetStandardChars((CHAR_T*)0);
     charcount_t totalLen = 0, bodyChars = 0, totalChars = 0, bodyLen = 0;
     UnifiedRegex::Parser<EncodingPolicy, true> parser
             ( m_scriptContext
@@ -1181,7 +1181,7 @@ LMainDefault:
                 }
                 else
                 {
-                    ch = (char16)codePoint;
+                    ch = (CHAR_T)codePoint;
                 }
 
                 // In raw mode we want the last hex character or the closing curly. c should hold one or the other.
@@ -1252,9 +1252,9 @@ LTwoHex:
                 }
 
                 wT = (c = this->ReadFirst(p, last)) - '0';
-                if ((char16)wT > 7)
+                if ((CHAR_T)wT > 7)
                 {
-                    if (ch != 0 || ((char16)wT <= 9))
+                    if (ch != 0 || ((CHAR_T)wT <= 9))
                     {
                         m_OctOrLeadingZeroOnLastTKNumber = true;
                     }
@@ -1284,7 +1284,7 @@ LTwoHex:
 
 LOneOctal:
                 wT = (c = this->ReadFirst(p, last)) - '0';
-                if ((char16)wT > 7)
+                if ((CHAR_T)wT > 7)
                 {
                     p--;
                     break;

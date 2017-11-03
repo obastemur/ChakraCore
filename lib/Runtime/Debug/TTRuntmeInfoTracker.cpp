@@ -24,7 +24,7 @@ namespace TTD
             ctx->InitializeDebugging();
 #else
             //
-            //TODO: x-plat does not like some parts of initiallize debugging so just set the flag we need 
+            //TODO: x-plat does not like some parts of initiallize debugging so just set the flag we need
             //
             ctx->GetDebugContext()->SetDebuggerMode(Js::DebuggerMode::Debugging);
 #endif
@@ -48,7 +48,7 @@ namespace TTD
         : m_threadCtx(threadContext), m_runtimeHandle(runtimeHandle), m_contextCreatedOrDestoyedInReplay(false),
         SnapInterval(snapInterval), SnapHistoryLength(snapHistoryLength),
         m_activeContext(nullptr), m_contextList(&HeapAllocator::Instance), m_ttdContextToExternalRefMap(&HeapAllocator::Instance),
-        m_ttdRootTagToObjectMap(&HeapAllocator::Instance), m_ttdMayBeLongLivedRoot(&HeapAllocator::Instance), 
+        m_ttdRootTagToObjectMap(&HeapAllocator::Instance), m_ttdMayBeLongLivedRoot(&HeapAllocator::Instance),
         m_ttdRecordRootWeakMap(),m_ttdReplayRootPinSet(),
         TTDataIOInfo({ 0 }), TTDExternalObjectFunctions({ 0 })
     {
@@ -274,7 +274,7 @@ namespace TTD
             }
         }
 
-        //Now sync up the root list wrt. long lived roots that we recorded 
+        //Now sync up the root list wrt. long lived roots that we recorded
         JsUtil::BaseHashSet<TTD_LOG_PTR_ID, HeapAllocator> refInfoMap(&HeapAllocator::Instance);
         for(uint32 i = 0; i < liveRootCount; ++i)
         {
@@ -606,7 +606,7 @@ namespace TTD
 
     //////////////////
 
-    void RuntimeContextInfo::BuildPathString(UtilSupport::TTAutoString rootpath, const char16* name, const char16* optaccessortag, UtilSupport::TTAutoString& into)
+    void RuntimeContextInfo::BuildPathString(UtilSupport::TTAutoString rootpath, const CHAR_T* name, const CHAR_T* optaccessortag, UtilSupport::TTAutoString& into)
     {
         into.Append(rootpath);
         into.Append(_u("."));
@@ -675,7 +675,7 @@ namespace TTD
             return wcscmp(p1->GetBuffer(), p2->GetBuffer()) > 0;
         }
     }
-    
+
     RuntimeContextInfo::RuntimeContextInfo()
         : m_worklist(&HeapAllocator::Instance), m_nullString(),
         m_coreObjToPathMap(&HeapAllocator::Instance, TTD_CORE_OBJECT_COUNT), m_coreBodyToPathMap(&HeapAllocator::Instance, TTD_CORE_FUNCTION_BODY_COUNT), m_coreDbgScopeToPathMap(&HeapAllocator::Instance, TTD_CORE_FUNCTION_BODY_COUNT),
@@ -860,7 +860,7 @@ namespace TTD
 
     ////
 
-    void RuntimeContextInfo::EnqueueRootPathObject(const char16* rootName, Js::RecyclableObject* obj)
+    void RuntimeContextInfo::EnqueueRootPathObject(const CHAR_T* rootName, Js::RecyclableObject* obj)
     {
         this->m_worklist.Enqueue(obj);
 
@@ -870,12 +870,12 @@ namespace TTD
         this->m_coreObjToPathMap.AddNew(obj, rootStr);
     }
 
-    void RuntimeContextInfo::EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const Js::PropertyRecord* prop, const char16* optacessortag)
+    void RuntimeContextInfo::EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const Js::PropertyRecord* prop, const CHAR_T* optacessortag)
     {
         this->EnqueueNewPathVarAsNeeded(parent, val, prop->GetBuffer(), optacessortag);
     }
 
-    void RuntimeContextInfo::EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const char16* propName, const char16* optacessortag)
+    void RuntimeContextInfo::EnqueueNewPathVarAsNeeded(Js::RecyclableObject* parent, Js::Var val, const CHAR_T* propName, const CHAR_T* optacessortag)
     {
         if(JsSupport::IsVarTaggedInline(val))
         {
@@ -889,7 +889,7 @@ namespace TTD
 
         Js::RecyclableObject* obj = Js::RecyclableObject::FromVar(val);
         if(!this->m_coreObjToPathMap.ContainsKey(obj))
-        {   
+        {
             const UtilSupport::TTAutoString* ppath = this->m_coreObjToPathMap.Item(parent);
 
             this->m_worklist.Enqueue(obj);
@@ -908,7 +908,7 @@ namespace TTD
         }
     }
 
-    void RuntimeContextInfo::EnqueueNewFunctionBodyObject(Js::RecyclableObject* parent, Js::FunctionBody* fbody, const char16* name)
+    void RuntimeContextInfo::EnqueueNewFunctionBodyObject(Js::RecyclableObject* parent, Js::FunctionBody* fbody, const CHAR_T* name)
     {
         if(!this->m_coreBodyToPathMap.ContainsKey(fbody))
         {

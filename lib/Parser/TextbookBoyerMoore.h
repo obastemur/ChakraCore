@@ -88,7 +88,7 @@ namespace UnifiedRegex
             ) const;
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-        static char16 const * GetName() { return _u("linear map Boyer-Moore"); }
+        static CHAR_T const * GetName() { return _u("linear map Boyer-Moore"); }
 #endif
      };
 
@@ -156,7 +156,7 @@ namespace UnifiedRegex
             ) const;
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-        static char16 const * GetName() { return _u("full map Boyer-Moore"); }
+        static CHAR_T const * GetName() { return _u("full map Boyer-Moore"); }
 #endif
     };
 }

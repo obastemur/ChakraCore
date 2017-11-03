@@ -30,8 +30,8 @@ public:
     {
         struct
         {
-            FieldNoBarrier(char16 const *) url;            // The url of the file
-            FieldNoBarrier(char16 const *) sourceMapUrl;   // The url of the source map, such as actual non-minified source of JS on the server.
+            FieldNoBarrier(CHAR_T const *) url;            // The url of the file
+            FieldNoBarrier(CHAR_T const *) sourceMapUrl;   // The url of the source map, such as actual non-minified source of JS on the server.
         };
         Field(uint)      hash;                 // hash for dynamic scripts
     };

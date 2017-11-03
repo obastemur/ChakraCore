@@ -70,8 +70,8 @@ namespace TTD
             Count
         };
 
-        void InitKeyNamesArray(const char16*** names, size_t** lengths);
-        void CleanupKeyNamesArray(const char16*** names, size_t** lengths);
+        void InitKeyNamesArray(const CHAR_T*** names, size_t** lengths);
+        void CleanupKeyNamesArray(const CHAR_T*** names, size_t** lengths);
     }
 
     ////
@@ -157,25 +157,25 @@ namespace TTD
             }
         }
 
-        void WriteRawCharBuff(const char16* buff, size_t bufflen)
+        void WriteRawCharBuff(const CHAR_T* buff, size_t bufflen)
         {
-            this->WriteRawByteBuff((const byte*)buff, bufflen * sizeof(char16));
+            this->WriteRawByteBuff((const byte*)buff, bufflen * sizeof(CHAR_T));
         }
 
-        void WriteRawChar(char16 c)
+        void WriteRawChar(CHAR_T c)
         {
-            this->WriteRawByteBuff_Fixed<char16>(c);
+            this->WriteRawByteBuff_Fixed<CHAR_T>(c);
         }
 
         template <size_t N, typename T>
-        void WriteFormattedCharData(const char16(&formatString)[N], T data)
+        void WriteFormattedCharData(const CHAR_T(&formatString)[N], T data)
         {
             byte* trgtBuff = this->ReserveSpaceForSmallData<TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE>();
 
-            int addedChars = swprintf_s((char16*)trgtBuff, (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(char16)), formatString, data);
-            TTDAssert(addedChars != -1 && addedChars < (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(char16)), "Formatting failed or result is too big.");
+            int addedChars = swprintf_s((CHAR_T*)trgtBuff, (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(CHAR_T)), formatString, data);
+            TTDAssert(addedChars != -1 && addedChars < (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(CHAR_T)), "Formatting failed or result is too big.");
 
-            int addedBytes = (addedChars != -1) ? (addedChars * sizeof(char16)) : 0;
+            int addedBytes = (addedChars != -1) ? (addedChars * sizeof(CHAR_T)) : 0;
             this->CommitSpaceForSmallData(addedBytes);
         }
 
@@ -249,8 +249,8 @@ namespace TTD
         virtual void WriteNakedWellKnownToken(TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) = 0;
         void WriteWellKnownToken(NSTokens::Key key, TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator = NSTokens::Separator::NoSeparator);
 
-        virtual void WriteInlineCode(_In_reads_(length) const char16* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) = 0;
-        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const char16* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) = 0;
+        virtual void WriteInlineCode(_In_reads_(length) const CHAR_T* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) = 0;
+        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const CHAR_T* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) = 0;
     };
 
     //A implements the writer for verbose text formatted output
@@ -258,7 +258,7 @@ namespace TTD
     {
     private:
         //Array of key names and their lengths
-        const char16** m_keyNameArray;
+        const CHAR_T** m_keyNameArray;
         size_t* m_keyNameLengthArray;
 
         //indent size for formatting
@@ -304,8 +304,8 @@ namespace TTD
 
         virtual void WriteNakedWellKnownToken(TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
 
-        virtual void WriteInlineCode(_In_reads_(length) const char16* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
-        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const char16* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
+        virtual void WriteInlineCode(_In_reads_(length) const CHAR_T* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
+        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const CHAR_T* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
     };
 
     //A implements the writer for a compact binary formatted output
@@ -351,8 +351,8 @@ namespace TTD
 
         virtual void WriteNakedWellKnownToken(TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
 
-        virtual void WriteInlineCode(_In_reads_(length) const char16* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
-        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const char16* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
+        virtual void WriteInlineCode(_In_reads_(length) const CHAR_T* code, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
+        virtual void WriteInlinePropertyRecordName(_In_reads_(length) const CHAR_T* pname, uint32 length, NSTokens::Separator separator = NSTokens::Separator::NoSeparator) override;
     };
 
     //////////////////
@@ -450,11 +450,11 @@ namespace TTD
             }
         }
 
-        bool PeekRawChar(_Out_ char16* c)
+        bool PeekRawChar(_Out_ CHAR_T* c)
         {
             if(this->m_peekChar != -1)
             {
-                *c = (char16)this->m_peekChar;
+                *c = (CHAR_T)this->m_peekChar;
                 return true;
             }
             else
@@ -468,11 +468,11 @@ namespace TTD
             }
         }
 
-        bool ReadRawChar(_Out_ char16* c)
+        bool ReadRawChar(_Out_ CHAR_T* c)
         {
             if(this->m_peekChar != -1)
             {
-                *c = (char16)this->m_peekChar;
+                *c = (CHAR_T)this->m_peekChar;
                 this->m_peekChar = -1;
 
                 return true;
@@ -494,8 +494,8 @@ namespace TTD
                 }
                 else
                 {
-                    *c = *((char16*)(this->m_buffer + this->m_cursor));
-                    this->m_cursor += sizeof(char16);
+                    *c = *((CHAR_T*)(this->m_buffer + this->m_cursor));
+                    this->m_cursor += sizeof(CHAR_T);
 
                     return true;
                 }
@@ -581,7 +581,7 @@ namespace TTD
             return this->ReadNakedWellKnownToken(alloc);
         }
 
-        virtual void ReadInlineCode(_Out_writes_(length) char16* code, uint32 length, bool readSeparator = false) = 0;
+        virtual void ReadInlineCode(_Out_writes_(length) CHAR_T* code, uint32 length, bool readSeparator = false) = 0;
     };
 
     //////////////////
@@ -590,31 +590,31 @@ namespace TTD
     class TextFormatReader : public FileReader
     {
     private:
-        JsUtil::List<char16, HeapAllocator> m_charListPrimary;
-        JsUtil::List<char16, HeapAllocator> m_charListOpt;
-        JsUtil::List<char16, HeapAllocator> m_charListDiscard;
+        JsUtil::List<CHAR_T, HeapAllocator> m_charListPrimary;
+        JsUtil::List<CHAR_T, HeapAllocator> m_charListOpt;
+        JsUtil::List<CHAR_T, HeapAllocator> m_charListDiscard;
 
         //Array of key names and their lengths
-        const char16** m_keyNameArray;
+        const CHAR_T** m_keyNameArray;
         size_t* m_keyNameLengthArray;
 
-        NSTokens::ParseTokenKind Scan(JsUtil::List<char16, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind Scan(JsUtil::List<CHAR_T, HeapAllocator>& charList);
 
-        NSTokens::ParseTokenKind ScanKey(JsUtil::List<char16, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanKey(JsUtil::List<CHAR_T, HeapAllocator>& charList);
 
         NSTokens::ParseTokenKind ScanSpecialNumber();
-        NSTokens::ParseTokenKind ScanNumber(JsUtil::List<char16, HeapAllocator>& charList);
-        NSTokens::ParseTokenKind ScanAddress(JsUtil::List<char16, HeapAllocator>& charList);
-        NSTokens::ParseTokenKind ScanLogTag(JsUtil::List<char16, HeapAllocator>& charList);
-        NSTokens::ParseTokenKind ScanEnumTag(JsUtil::List<char16, HeapAllocator>& charList);
-        NSTokens::ParseTokenKind ScanWellKnownToken(JsUtil::List<char16, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanNumber(JsUtil::List<CHAR_T, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanAddress(JsUtil::List<CHAR_T, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanLogTag(JsUtil::List<CHAR_T, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanEnumTag(JsUtil::List<CHAR_T, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanWellKnownToken(JsUtil::List<CHAR_T, HeapAllocator>& charList);
 
-        NSTokens::ParseTokenKind ScanString(JsUtil::List<char16, HeapAllocator>& charList);
-        NSTokens::ParseTokenKind ScanNakedString(char16 leadChar);
+        NSTokens::ParseTokenKind ScanString(JsUtil::List<CHAR_T, HeapAllocator>& charList);
+        NSTokens::ParseTokenKind ScanNakedString(CHAR_T leadChar);
 
-        int64 ReadIntFromCharArray(const char16* buff);
-        uint64 ReadUIntFromCharArray(const char16* buff);
-        double ReadDoubleFromCharArray(const char16* buff);
+        int64 ReadIntFromCharArray(const CHAR_T* buff);
+        uint64 ReadUIntFromCharArray(const CHAR_T* buff);
+        double ReadDoubleFromCharArray(const CHAR_T* buff);
 
     public:
         TextFormatReader(JsTTDStreamHandle handle, TTDReadBytesFromStreamCallback pfRead, TTDFlushAndCloseStreamCallback pfClose);
@@ -652,7 +652,7 @@ namespace TTD
         virtual TTD_WELLKNOWN_TOKEN ReadNakedWellKnownToken(SlabAllocator& alloc, bool readSeparator = false) override;
         virtual TTD_WELLKNOWN_TOKEN ReadNakedWellKnownToken(UnlinkableSlabAllocator& alloc, bool readSeparator = false) override;
 
-        virtual void ReadInlineCode(_Out_writes_(length) char16* code, uint32 length, bool readSeparator = false) override;
+        virtual void ReadInlineCode(_Out_writes_(length) CHAR_T* code, uint32 length, bool readSeparator = false) override;
     };
 
     //A serialization class that reads a compact binary format
@@ -694,7 +694,7 @@ namespace TTD
         virtual TTD_WELLKNOWN_TOKEN ReadNakedWellKnownToken(SlabAllocator& alloc, bool readSeparator = false) override;
         virtual TTD_WELLKNOWN_TOKEN ReadNakedWellKnownToken(UnlinkableSlabAllocator& alloc, bool readSeparator = false) override;
 
-        virtual void ReadInlineCode(_Out_writes_(length) char16* code, uint32 length, bool readSeparator = false) override;
+        virtual void ReadInlineCode(_Out_writes_(length) CHAR_T* code, uint32 length, bool readSeparator = false) override;
     };
 
     //////////////////
@@ -760,7 +760,7 @@ namespace TTD
             }
         }
 
-        void AppendRaw(const char16* str, uint32 length)
+        void AppendRaw(const CHAR_T* str, uint32 length)
         {
             if(length >= TRACE_LOGGER_BUFFER_SIZE)
             {
@@ -772,7 +772,7 @@ namespace TTD
                 TTDAssert(this->m_currLength + length < TRACE_LOGGER_BUFFER_SIZE, "We are going to overrun!");
 
                 char* currs = (this->m_buffer + this->m_currLength);
-                const char16* currw = str;
+                const CHAR_T* currw = str;
 
                 for(uint32 i = 0; i < length; ++i)
                 {
@@ -793,7 +793,7 @@ namespace TTD
         }
 
         void AppendText(char* text, uint32 length);
-        void AppendText(const char16* text, uint32 length);
+        void AppendText(const CHAR_T* text, uint32 length);
         void AppendIndent();
         void AppendString(char* text);
         void AppendBool(bool bval);

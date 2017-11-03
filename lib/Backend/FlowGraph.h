@@ -175,7 +175,7 @@ public:
     void         InsertEdgeFromFinallyToEarlyExit(BasicBlock * finallyEndBlock, IR::LabelInstr * exitLabel);
 #if DBG_DUMP
     void         Dump();
-    void         Dump(bool verbose, const char16 *form);
+    void         Dump(bool verbose, const CHAR_T *form);
 #endif
 
     JitArenaAllocator *       alloc;

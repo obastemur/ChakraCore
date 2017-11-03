@@ -371,7 +371,7 @@ namespace Js
     void JavascriptError::SetErrorMessage(JavascriptError *pError, HRESULT hr, ScriptContext* scriptContext, va_list argList)
     {
         Assert(FAILED(hr));
-        char16 * allocatedString = nullptr;
+        CHAR_T * allocatedString = nullptr;
 
         if (FACILITY_CONTROL == HRESULT_FACILITY(hr) || FACILITY_JSCRIPT == HRESULT_FACILITY(hr))
         {
@@ -387,7 +387,7 @@ namespace Js
                     size_t len = _vscwprintf(message, argList);
                     Assert(len > 0);
                     len = AllocSizeMath::Add(len, 1);
-                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, len);
+                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, len);
 
 #pragma prefast(push)
 #pragma prefast(disable:26014, "allocatedString allocated size more than msglen")
@@ -411,8 +411,8 @@ namespace Js
                 if (message != nullptr)
                 {
                     uint32 len = SysStringLen(message) +1;
-                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, len);
-                    wcscpy_s(allocatedString, len, message);
+                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, len);
+                    cstrcpy_s(allocatedString, len, message);
                     SysFreeString(message);
                 }
             }
@@ -423,7 +423,7 @@ namespace Js
     void JavascriptError::SetErrorMessage(JavascriptError *pError, HRESULT hr, PCWSTR varName, ScriptContext* scriptContext)
     {
         Assert(FAILED(hr));
-        char16 * allocatedString = nullptr;
+        CHAR_T * allocatedString = nullptr;
 
         if (FACILITY_CONTROL == HRESULT_FACILITY(hr) || FACILITY_JSCRIPT == HRESULT_FACILITY(hr))
         {
@@ -435,9 +435,9 @@ namespace Js
                 if (message != nullptr)
                 {
                     uint32 msglen = SysStringLen(message);
-                    size_t varlen = wcslen(varName);
+                    size_t varlen = cstrlen(varName);
                     size_t len = AllocSizeMath::Add(msglen, varlen);
-                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, len);
+                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, len);
                     size_t outputIndex = 0;
                     for (size_t i = 0; i < msglen; i++)
                     {
@@ -445,9 +445,9 @@ namespace Js
                         if (message[i] == _u('%') && i + 1 < msglen && message[i+1] == _u('s'))
                         {
                             Assert(len - outputIndex >= varlen);
-                            wcscpy_s(allocatedString + outputIndex, len - outputIndex, varName);
+                            cstrcpy_s(allocatedString + outputIndex, len - outputIndex, varName);
                             outputIndex += varlen;
-                            wcscpy_s(allocatedString + outputIndex, len - outputIndex, message + i + 2);
+                            cstrcpy_s(allocatedString + outputIndex, len - outputIndex, message + i + 2);
                             outputIndex += (msglen - i);
                             break;
                         }
@@ -476,8 +476,8 @@ namespace Js
                 if (message != nullptr)
                 {
                     uint32 len = SysStringLen(message) +1;
-                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, len);
-                    wcscpy_s(allocatedString, len, message);
+                    allocatedString = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), CHAR_T, len);
+                    cstrcpy_s(allocatedString, len, message);
                     SysFreeString(message);
                 }
             }
@@ -492,7 +492,7 @@ namespace Js
 
     BOOL JavascriptError::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
     {
-        char16 const *pszMessage = nullptr;
+        CHAR_T const *pszMessage = nullptr;
 
         if (!this->GetScriptContext()->GetThreadContext()->IsScriptActive())
         {
@@ -518,7 +518,7 @@ namespace Js
         return TRUE;
     }
 
-    HRESULT JavascriptError::GetRuntimeError(RecyclableObject* errorObject, __out_opt LPCWSTR * pMessage)
+    HRESULT JavascriptError::GetRuntimeError(RecyclableObject* errorObject, __out_opt LPCCHAR_T * pMessage)
     {
         // Only report the error number if it is a runtime error
         HRESULT hr = JSERR_UncaughtException;
@@ -571,7 +571,7 @@ namespace Js
         return hr;
     }
 
-    HRESULT JavascriptError::GetRuntimeErrorWithScriptEnter(RecyclableObject* errorObject, __out_opt LPCWSTR * pMessage)
+    HRESULT JavascriptError::GetRuntimeErrorWithScriptEnter(RecyclableObject* errorObject, __out_opt LPCCHAR_T * pMessage)
     {
         ScriptContext* scriptContext = errorObject->GetScriptContext();
         Assert(!scriptContext->GetThreadContext()->IsScriptActive());
@@ -806,7 +806,7 @@ namespace Js
         JavascriptError* jsNewError = this->CreateNewErrorOfSameType(targetJavascriptLibrary);
         if (jsNewError)
         {
-            LPCWSTR msg = nullptr;
+            LPCCHAR_T msg = nullptr;
             HRESULT hr = JavascriptError::GetRuntimeError(this, &msg);
             jsNewError->SetErrorMessageProperties(jsNewError, hr, msg, targetJavascriptLibrary->GetScriptContext());
         }
@@ -822,7 +822,7 @@ namespace Js
         }
     }
 
-    JavascriptError* JavascriptError::CreateFromCompileScriptException(ScriptContext* scriptContext, CompileScriptException* cse, const WCHAR * sourceUrl)
+    JavascriptError* JavascriptError::CreateFromCompileScriptException(ScriptContext* scriptContext, CompileScriptException* cse, const CHAR_T * sourceUrl)
     {
         HRESULT hr = cse->ei.scode;
         Js::JavascriptError * error = Js::JavascriptError::MapParseError(scriptContext, hr);

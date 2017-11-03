@@ -179,7 +179,7 @@ namespace JsRTApiTest
         // Run a script to setup some globals
         JsValueRef function = JS_INVALID_REFERENCE;
 
-        LPCWSTR script = nullptr;
+        LPCCHAR_T script = nullptr;
         REQUIRE(FileLoadHelpers::LoadScriptFromFile("ObjectsAndProperties2.js", script) == S_OK);
         REQUIRE(script != nullptr);
 
@@ -205,7 +205,7 @@ namespace JsRTApiTest
         JsValueRef asString = JS_INVALID_REFERENCE;
         REQUIRE(JsConvertValueToString(value, &asString) == JsNoError);
 
-        LPCWSTR str = nullptr;
+        LPCCHAR_T str = nullptr;
         size_t length;
         REQUIRE(JsStringToPointer(asString, &str, &length) == JsNoError);
         REQUIRE(!wcscmp(str, _u("white")));
@@ -502,7 +502,7 @@ namespace JsRTApiTest
         JsValueRef value = JS_INVALID_REFERENCE;
         JsValueType type;
         JsValueRef asString = JS_INVALID_REFERENCE;
-        LPCWSTR str = nullptr;
+        LPCCHAR_T str = nullptr;
         size_t length;
 
         // Number
@@ -719,7 +719,7 @@ namespace JsRTApiTest
     void ErrorHandlingTest(JsRuntimeAttributes attributes, JsRuntimeHandle runtime)
     {
         // Run a script to setup some globals
-        LPCWSTR script = nullptr;
+        LPCCHAR_T script = nullptr;
         REQUIRE(FileLoadHelpers::LoadScriptFromFile("ErrorHandling.js", script) == S_OK);
         REQUIRE(script != nullptr);
 
@@ -901,7 +901,7 @@ namespace JsRTApiTest
 
         JsPropertyIdRef property = JS_INVALID_REFERENCE;
         JsValueRef value = JS_INVALID_REFERENCE;
-        LPCWSTR str = nullptr;
+        LPCCHAR_T str = nullptr;
         size_t length;
 
         REQUIRE(JsGetPropertyIdFromName(_u("message"), &property) == JsNoError);
@@ -969,7 +969,7 @@ namespace JsRTApiTest
 
     void ObjectTests(JsRuntimeAttributes attributes, JsRuntimeHandle runtime)
     {
-        LPCWSTR script = _u("x = { a: \"abc\", b: \"def\", c: \"ghi\" }; x");
+        LPCCHAR_T script = _u("x = { a: \"abc\", b: \"def\", c: \"ghi\" }; x");
         JsValueRef result = JS_INVALID_REFERENCE;
         JsValueRef propertyNames = JS_INVALID_REFERENCE;
 
@@ -1073,7 +1073,7 @@ namespace JsRTApiTest
 
     void ByteCodeTest(JsRuntimeAttributes attributes, JsRuntimeHandle runtime)
     {
-        LPCWSTR script = _u("function test() { return true; }; test();");
+        LPCCHAR_T script = _u("function test() { return true; }; test();");
         JsValueRef result = JS_INVALID_REFERENCE;
         JsValueType type;
         bool boolValue;
@@ -1119,14 +1119,14 @@ namespace JsRTApiTest
     {
         bool loadedScript;
         bool unloadedScript;
-        LPCWSTR script;
+        LPCCHAR_T script;
     } ByteCodeCallbackTracker;
 
     void ByteCodeWithCallbackTest(JsRuntimeAttributes attributes, JsRuntimeHandle runtime)
     {
-        LPCWSTR fn_decl = BYTECODEWITHCALLBACK_METHODBODY;
-        LPCWSTR script = BYTECODEWITHCALLBACK_METHODBODY _u("; test();");
-        LPCWSTR scriptFnToString = BYTECODEWITHCALLBACK_METHODBODY _u("; test.toString();");
+        LPCCHAR_T fn_decl = BYTECODEWITHCALLBACK_METHODBODY;
+        LPCCHAR_T script = BYTECODEWITHCALLBACK_METHODBODY _u("; test();");
+        LPCCHAR_T scriptFnToString = BYTECODEWITHCALLBACK_METHODBODY _u("; test.toString();");
         JsValueRef result = JS_INVALID_REFERENCE;
         JsValueType type;
         bool boolValue;
@@ -1774,7 +1774,7 @@ namespace JsRTApiTest
         _u("    }")                                   \
         _u("})();")
 
-    static const LPCWSTR terminationTests[] = { TERMINATION_TESTS };
+    static const LPCCHAR_T terminationTests[] = { TERMINATION_TESTS };
 
     void ExternalFunctionWithScriptAbortionTest(JsRuntimeAttributes attributes, JsRuntimeHandle runtime)
     {
@@ -1902,7 +1902,7 @@ namespace JsRTApiTest
     static JsErrorCode CALLBACK Success_FIMC(_In_ JsModuleRecord referencingModule, _In_ JsValueRef specifier, _Outptr_result_maybenull_ JsModuleRecord* dependentModuleRecord)
     {
         JsModuleRecord moduleRecord = JS_INVALID_REFERENCE;
-        LPCWSTR specifierStr;
+        LPCCHAR_T specifierStr;
         size_t length;
 
         JsErrorCode errorCode = JsStringToPointer(specifier, &specifierStr, &length);
@@ -1969,7 +1969,7 @@ namespace JsRTApiTest
         JsValueRef asString = JS_INVALID_REFERENCE;
         REQUIRE(JsConvertValueToString(value1Check, &asString) == JsNoError);
 
-        LPCWSTR str = nullptr;
+        LPCCHAR_T str = nullptr;
         size_t length;
         REQUIRE(JsStringToPointer(asString, &str, &length) == JsNoError);
         REQUIRE(!wcscmp(str, _u("Expected ';'")));
@@ -1985,7 +1985,7 @@ namespace JsRTApiTest
     static JsErrorCode CALLBACK ReentrantParse_FIMC(_In_ JsModuleRecord referencingModule, _In_ JsValueRef specifier, _Outptr_result_maybenull_ JsModuleRecord* dependentModuleRecord)
     {
         JsModuleRecord moduleRecord = JS_INVALID_REFERENCE;
-        LPCWSTR specifierStr;
+        LPCCHAR_T specifierStr;
         size_t length;
 
         JsErrorCode errorCode = JsStringToPointer(specifier, &specifierStr, &length);
@@ -2052,7 +2052,7 @@ namespace JsRTApiTest
         JsValueRef asString = JS_INVALID_REFERENCE;
         REQUIRE(JsConvertValueToString(value1Check, &asString) == JsNoError);
 
-        LPCWSTR str = nullptr;
+        LPCCHAR_T str = nullptr;
         size_t length;
         REQUIRE(JsStringToPointer(asString, &str, &length) == JsNoError);
         REQUIRE(!wcscmp(str, _u("Expected ';'")));
@@ -2067,7 +2067,7 @@ namespace JsRTApiTest
     static JsErrorCode CALLBACK reentrantNoErrorParse_FIMC(_In_ JsModuleRecord referencingModule, _In_ JsValueRef specifier, _Outptr_result_maybenull_ JsModuleRecord* dependentModuleRecord)
     {
         JsModuleRecord moduleRecord = JS_INVALID_REFERENCE;
-        LPCWSTR specifierStr;
+        LPCCHAR_T specifierStr;
         size_t length;
 
         JsErrorCode errorCode = JsStringToPointer(specifier, &specifierStr, &length);

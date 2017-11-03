@@ -16,18 +16,18 @@ namespace JSON
     public:
         JSONScanner();
         tokens Scan();
-        void Init(const char16* input, uint len, Token* pOutToken,
-            ::Js::ScriptContext* sc, const char16* current, ArenaAllocator* allocator);
+        void Init(const CHAR_T* input, uint len, Token* pOutToken,
+            ::Js::ScriptContext* sc, const CHAR_T* current, ArenaAllocator* allocator);
 
         void Finalizer();
-        char16* GetCurrentString() { return currentString; } 
+        CHAR_T* GetCurrentString() { return currentString; }
         uint GetCurrentStringLen() { return currentIndex; }
         uint GetScanPosition() { return uint(currentChar - inputText); }
 
         void __declspec(noreturn) ThrowSyntaxError(int wErr)
         {
-            char16 scanPos[16];
-            ::_itow_s(GetScanPosition(), scanPos, _countof(scanPos) / sizeof(char16), 10);
+            CHAR_T scanPos[16];
+            ::_itow_s(GetScanPosition(), scanPos, _countof(scanPos) / sizeof(CHAR_T), 10);
             Js::JavascriptError::ThrowSyntaxError(scriptContext, wErr, scanPos);
         }
 
@@ -38,9 +38,9 @@ namespace JSON
         public:
             uint m_rangeStart;
             uint m_rangeLength;
-            char16 m_char;
+            CHAR_T m_char;
             RangeCharacterPair() {}
-            RangeCharacterPair(uint rangeStart, uint rangeLength, char16 ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {}
+            RangeCharacterPair(uint rangeStart, uint rangeLength, CHAR_T ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {}
         };
 
         typedef JsUtil::List<RangeCharacterPair, ArenaAllocator> RangeCharacterPairList;
@@ -53,12 +53,12 @@ namespace JSON
 
         RangeCharacterPairList* GetCurrentRangeCharacterPairList(void);
 
-        inline char16 ReadNextChar(void)
+        inline CHAR_T ReadNextChar(void)
         {
             return *currentChar++;
         }
 
-        inline char16 PeekNextChar(void)
+        inline CHAR_T PeekNextChar(void)
         {
             return *currentChar;
         }
@@ -66,17 +66,17 @@ namespace JSON
         tokens ScanString();
         bool IsJSONNumber();
 
-        const char16* inputText;
+        const CHAR_T* inputText;
         uint    inputLen;
-        const char16* currentChar;
-        const char16* pTokenString;
+        const CHAR_T* currentChar;
+        const CHAR_T* pTokenString;
 
         Token*   pToken;
         ::Js::ScriptContext* scriptContext;
 
         uint     currentIndex;
-        char16* currentString;
-        __field_ecount(stringBufferLength) char16* stringBuffer;
+        CHAR_T* currentString;
+        __field_ecount(stringBufferLength) CHAR_T* stringBuffer;
         int      stringBufferLength;
 
         friend class JSONParser;

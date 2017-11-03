@@ -28,7 +28,7 @@ namespace Js {
         uint64 types;
 
     public:
-        HRESULT ToString(LPCWSTR functionName, Js::ScriptContext *scriptContext, _In_ LPCWSTR* outResult) const;
+        HRESULT ToString(LPCCHAR_T functionName, Js::ScriptContext *scriptContext, _In_ LPCCHAR_T* outResult) const;
         void Init(const JavascriptStackWalker &walker);
         StackTraceArguments() : types(fCallerIsGlobal) {}
     };

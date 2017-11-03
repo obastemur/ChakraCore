@@ -1976,7 +1976,7 @@ void ByteCodeGenerator::LoadAllConstants(FuncInfo *funcInfo)
     });
 
     // WARNING !!!
-    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail 
+    // DO NOT emit any bytecode before loading the heap arguments. This is because those opcodes may bail
     // out (unlikely, since opcodes emitted in this function should not correspond to user code, but possible)
     // and the Jit assumes that there cannot be any bailouts before LdHeapArguments (or its equivalent)
 
@@ -2758,7 +2758,7 @@ void ByteCodeGenerator::EmitOneFunction(ParseNode *pnode)
     // we're generating byte code.
     if (deferParseFunction->IsDeferred() || (funcInfo->originalAttributes & Js::FunctionInfo::Attributes::CanDefer))
     {
-        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);        
+        Js::ScopeInfo::SaveEnclosingScopeInfo(this, funcInfo);
     }
 
     if (funcInfo->root->sxFnc.pnodeBody == nullptr)
@@ -7716,7 +7716,7 @@ void EmitCallI(
         Js::Throw::OutOfMemory();
     }
 
-    
+
     if (fEvaluateComponents && !isSuperCall)
     {
         // Release the call target operands we assigned above. If we didn't assign them here,
@@ -9701,7 +9701,7 @@ void EmitAdd(ParseNode *pnode, ByteCodeGenerator *byteCodeGenerator, FuncInfo *f
             if (concatCount > 2 && concatCount <= UINT8_MAX)
             {
 #if DBG
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
                 ParseNode * pnode1 = concatOpnds.Head();
                 concatOpnds.RemoveHead();

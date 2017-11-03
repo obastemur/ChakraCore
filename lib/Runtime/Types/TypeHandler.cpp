@@ -413,9 +413,9 @@ namespace Js
         }
     }
 
-    void DynamicTypeHandler::TraceUseFixedProperty(PropertyRecord const * propertyRecord, Var * pProperty, bool result, LPCWSTR typeHandlerName, ScriptContext * requestContext)
+    void DynamicTypeHandler::TraceUseFixedProperty(PropertyRecord const * propertyRecord, Var * pProperty, bool result, LPCCHAR_T typeHandlerName, ScriptContext * requestContext)
     {
-        LPCWSTR fixedPropertyResultType = nullptr;
+        LPCCHAR_T fixedPropertyResultType = nullptr;
         bool log = false;
 
         if (pProperty && *pProperty && ((Js::JavascriptFunction::Is(*pProperty) && (PHASE_VERBOSE_TRACE1(Js::FixedMethodsPhase) || PHASE_VERBOSE_TESTTRACE1(Js::FixedMethodsPhase))) ||
@@ -567,7 +567,7 @@ namespace Js
         }
     }
 
-    void DynamicTypeHandler::SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<WCHAR> const& propertyName, Var value, SideEffects possibleSideEffects)
+    void DynamicTypeHandler::SetPropertyUpdateSideEffect(DynamicObject* instance, JsUtil::CharacterBuffer<CHAR_T> const& propertyName, Var value, SideEffects possibleSideEffects)
     {
         if (possibleSideEffects)
         {

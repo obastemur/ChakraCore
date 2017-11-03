@@ -63,7 +63,7 @@ namespace Js {
         static uint16 ToUInt16(double value);
         static uint16 ToUInt16_Full(Var aValue, ScriptContext* scriptContext);
 
-        static JavascriptString *CoerseString(Var aValue, ScriptContext* scriptContext, const char16* apiNameForErrorMsg);
+        static JavascriptString *CoerseString(Var aValue, ScriptContext* scriptContext, const CHAR_T* apiNameForErrorMsg);
         static BOOL CheckObjectCoercible(Var aValue, ScriptContext* scriptContext);
         static bool SameValue(Var aValue, Var bValue);
         static bool SameValueZero(Var aValue, Var bValue);

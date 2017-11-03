@@ -56,9 +56,9 @@ namespace Js
         static bool CheckModuleReturn( AsmJsModuleCompiler& m );
         static bool CheckFuncPtrTables( AsmJsModuleCompiler &m );
 
-        static void OutputError(ScriptContext * scriptContext, const wchar * message, ...);
-        static void OutputMessage(ScriptContext * scriptContext, const DEBUG_EVENT_INFO_TYPE messageType, const wchar * message, ...);
-        static void VOutputMessage(ScriptContext * scriptContext, const DEBUG_EVENT_INFO_TYPE messageType, const wchar * message, va_list argptr);
+        static void OutputError(ScriptContext * scriptContext, const CHAR_T * message, ...);
+        static void OutputMessage(ScriptContext * scriptContext, const DEBUG_EVENT_INFO_TYPE messageType, const CHAR_T * message, ...);
+        static void VOutputMessage(ScriptContext * scriptContext, const DEBUG_EVENT_INFO_TYPE messageType, const CHAR_T * message, va_list argptr);
     public:
         bool static Compile(ExclusiveContext *cx, AsmJSParser parser, ParseNode *stmtList);
     };

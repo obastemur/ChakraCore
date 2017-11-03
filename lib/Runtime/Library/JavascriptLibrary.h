@@ -59,7 +59,7 @@ namespace Js
     {
         Field(PropertyString*) strLen2[80];
 
-        inline static uint PStrMapIndex(char16 ch)
+        inline static uint PStrMapIndex(CHAR_T ch)
         {
             Assert(ch >= '0' && ch <= 'z');
             return ch - '0';
@@ -196,7 +196,7 @@ namespace Js
         friend class Projection::WinRTPromiseEngineInterfaceExtensionObject;
         friend class Projection::ProjectionContext;
 #endif
-        static const char16* domBuiltinPropertyNames[];
+        static const CHAR_T* domBuiltinPropertyNames[];
 
     public:
 #if ENABLE_COPYONACCESS_ARRAY
@@ -535,7 +535,7 @@ namespace Js
         RuntimeFunction * CreateSetterFunction(PropertyId nameId, FunctionInfo* functionInfo);
 
         template <size_t N>
-        JavascriptFunction * AddFunctionToLibraryObjectWithPropertyName(DynamicObject* object, const char16(&propertyName)[N], FunctionInfo * functionInfo, int length);
+        JavascriptFunction * AddFunctionToLibraryObjectWithPropertyName(DynamicObject* object, const CHAR_T(&propertyName)[N], FunctionInfo * functionInfo, int length);
 
         static SimpleTypeHandler<1> SharedPrototypeTypeHandler;
         static SimpleTypeHandler<1> SharedFunctionWithoutPrototypeTypeHandler;
@@ -702,7 +702,7 @@ namespace Js
         void SetBoxedObjectValue_TTD(Js::RecyclableObject* obj, Js::Var value);
 
         Js::RecyclableObject* CreateDate_TTD(double value);
-        Js::RecyclableObject* CreateRegex_TTD(const char16* patternSource, uint32 patternLength, UnifiedRegex::RegexFlags flags, CharCount lastIndex, Js::Var lastVar);
+        Js::RecyclableObject* CreateRegex_TTD(const CHAR_T* patternSource, uint32 patternLength, UnifiedRegex::RegexFlags flags, CharCount lastIndex, Js::Var lastVar);
         Js::RecyclableObject* CreateError_TTD();
 
         Js::RecyclableObject* CreateES5Array_TTD();
@@ -997,7 +997,7 @@ namespace Js
         JavascriptError* CreateWebAssemblyRuntimeError();
         JavascriptError* CreateWebAssemblyLinkError();
         JavascriptSymbol* CreateSymbol(JavascriptString* description);
-        JavascriptSymbol* CreateSymbol(const char16* description, int descriptionLength);
+        JavascriptSymbol* CreateSymbol(const CHAR_T* description, int descriptionLength);
         JavascriptSymbol* CreateSymbol(const PropertyRecord* propertyRecord);
         JavascriptPromise* CreatePromise();
         JavascriptGenerator* CreateGenerator(Arguments& args, ScriptFunction* scriptFunction, RecyclableObject* prototype);
@@ -1085,9 +1085,9 @@ namespace Js
         DynamicObject* CreateObject(RecyclableObject* prototype, uint16 requestedInlineSlotCapacity = 0);
 
         typedef JavascriptString* LibStringType; // used by diagnostics template
-        template< size_t N > JavascriptString* CreateStringFromCppLiteral(const char16 (&value)[N]) const;
-        template<> JavascriptString* CreateStringFromCppLiteral(const char16 (&value)[1]) const; // Specialization for empty string
-        template<> JavascriptString* CreateStringFromCppLiteral(const char16 (&value)[2]) const; // Specialization for single-char strings
+        template< size_t N > JavascriptString* CreateStringFromCppLiteral(const CHAR_T (&value)[N]) const;
+        template<> JavascriptString* CreateStringFromCppLiteral(const CHAR_T (&value)[1]) const; // Specialization for empty string
+        template<> JavascriptString* CreateStringFromCppLiteral(const CHAR_T (&value)[2]) const; // Specialization for single-char strings
         PropertyString* CreatePropertyString(const Js::PropertyRecord* propertyRecord);
 
         JavascriptVariantDate* CreateVariantDate(const double value);
@@ -1100,7 +1100,7 @@ namespace Js
         JavascriptSIMDObject* CreateSIMDObject(Var simdValue, TypeId typeDescriptor);
 #endif
         JavascriptStringObject* CreateStringObject(JavascriptString* value);
-        JavascriptStringObject* CreateStringObject(const char16* value, charcount_t length);
+        JavascriptStringObject* CreateStringObject(const CHAR_T* value, charcount_t length);
         JavascriptSymbolObject* CreateSymbolObject(JavascriptSymbol* value);
         JavascriptArrayIterator* CreateArrayIterator(Var iterable, JavascriptArrayIteratorKind kind);
         JavascriptMapIterator* CreateMapIterator(JavascriptMap* map, JavascriptMapIteratorKind kind);
@@ -1155,7 +1155,7 @@ namespace Js
         static void CheckAndInvalidateIsConcatSpreadableCache(PropertyId propertyId, ScriptContext *scriptContext);
 
 #if DBG_DUMP
-        static const char16* GetStringTemplateCallsiteObjectKey(Var callsite);
+        static const CHAR_T* GetStringTemplateCallsiteObjectKey(Var callsite);
 #endif
 
         Field(JavascriptFunction*)* GetBuiltinFunctions();
@@ -1186,7 +1186,7 @@ namespace Js
             return GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src1) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src2) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Dst);
         }
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-        static char16 const * GetNameForBuiltIn(BuiltinFunction index)
+        static CHAR_T const * GetNameForBuiltIn(BuiltinFunction index)
         {
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionName));
             return JavascriptLibrary::LibraryFunctionName[index];
@@ -1353,7 +1353,7 @@ namespace Js
         static size_t const LibraryFunctionArgC[BuiltinFunction::Count + 1];
         static int const LibraryFunctionFlags[BuiltinFunction::Count + 1];   // returns enum BuiltInFlags.
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-        static char16 const * const LibraryFunctionName[BuiltinFunction::Count + 1];
+        static CHAR_T const * const LibraryFunctionName[BuiltinFunction::Count + 1];
 #endif
 
     public:

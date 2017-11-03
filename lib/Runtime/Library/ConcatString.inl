@@ -23,7 +23,7 @@ namespace Js
 
     /////////////////////// ConcatStringBase //////////////////////////
     template <typename ConcatStringType>
-    inline const char16* ConcatStringBase::GetSzImpl()
+    inline const CHAR_T* ConcatStringBase::GetSzImpl()
     {
         AssertCanHandleOutOfMemory();
         Assert(!this->IsFinalized());
@@ -33,7 +33,7 @@ namespace Js
         charcount_t allocSize = SafeSzSize();
 
         Recycler* recycler = scriptContext->GetRecycler();
-        char16* target = RecyclerNewArrayLeaf(recycler, char16, allocSize);
+        CHAR_T* target = RecyclerNewArrayLeaf(recycler, CHAR_T, allocSize);
 
         Copy<ConcatStringType>(target, GetLength());
         target[GetLength()] = _u('\0');
@@ -84,9 +84,9 @@ namespace Js
     }
 
     template<int N>
-    inline const char16 * ConcatStringN<N>::GetSz()
+    inline const CHAR_T * ConcatStringN<N>::GetSz()
     {
-        const char16 * sz = GetSzImpl<ConcatStringN>();
+        const CHAR_T * sz = GetSzImpl<ConcatStringN>();
 
         // Allow slots to be garbage collected if no more refs.
         ClearArray(m_slots, N);
@@ -98,7 +98,7 @@ namespace Js
 
     /////////////////////// ConcatStringWrapping //////////////////////////
 
-    template<char16 L, char16 R>
+    template<CHAR_T L, CHAR_T R>
     ConcatStringWrapping<L, R>::ConcatStringWrapping(JavascriptString* inner) :
         ConcatStringBase(inner->GetLibrary()->GetStringTypeStatic()),
         m_inner(CompoundString::GetImmutableOrScriptUnreferencedString(inner))
@@ -106,7 +106,7 @@ namespace Js
         this->SetLength(inner->GetLength() + 2); // does not include null character
     }
 
-    template<char16 L, char16 R>
+    template<CHAR_T L, CHAR_T R>
     ConcatStringWrapping<L, R>* ConcatStringWrapping<L, R>::New(JavascriptString* inner)
     {
         Recycler* recycler = inner->GetRecycler();
@@ -120,29 +120,29 @@ namespace Js
 #endif
     }
 
-    template<char16 L, char16 R>
-    inline const char16 * ConcatStringWrapping<L, R>::GetSz()
+    template<CHAR_T L, CHAR_T R>
+    inline const CHAR_T * ConcatStringWrapping<L, R>::GetSz()
     {
-        const char16 * sz = GetSzImpl<ConcatStringWrapping>();
+        const CHAR_T * sz = GetSzImpl<ConcatStringWrapping>();
         m_inner = nullptr;
         ClearArray(m_slots);
         LiteralStringWithPropertyStringPtr::ConvertString(this);
         return sz;
     }
 
-    template<char16 L, char16 R>
+    template<CHAR_T L, CHAR_T R>
     inline JavascriptString* ConcatStringWrapping<L, R>::GetFirstItem() const
     {
         Assert(m_inner);
-        char16 lBuf[2] = { L, '\0' };
+        CHAR_T lBuf[2] = { L, '\0' };
         return this->GetLibrary()->CreateStringFromCppLiteral(lBuf);
     }
 
-    template<char16 L, char16 R>
+    template<CHAR_T L, CHAR_T R>
     inline JavascriptString* ConcatStringWrapping<L, R>::GetLastItem() const
     {
         Assert(m_inner);
-        char16 rBuf[2] = { R, '\0' };
+        CHAR_T rBuf[2] = { R, '\0' };
         return this->GetLibrary()->CreateStringFromCppLiteral(rBuf);
     }
 

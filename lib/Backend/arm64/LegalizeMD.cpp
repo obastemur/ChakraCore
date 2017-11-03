@@ -81,7 +81,7 @@ void LegalizeMD::LegalizeRegOpnd(IR::Instr* instr, IR::Opnd* opnd)
     case TyInt16:
         ty = TyInt32;
         break;
-    
+
     case TyUint8:
     case TyUint16:
         ty = TyUint32;
@@ -89,8 +89,8 @@ void LegalizeMD::LegalizeRegOpnd(IR::Instr* instr, IR::Opnd* opnd)
     }
 
     if (ty != opnd->GetType())
-    { 
-        // UseWithNewType will make a copy if the register is already in use. We know it is in use because it is used in this instruction, and we want to reuse this operand rather than making a copy 
+    {
+        // UseWithNewType will make a copy if the register is already in use. We know it is in use because it is used in this instruction, and we want to reuse this operand rather than making a copy
         // so UnUse it before calling UseWithNewType.
         opnd->UnUse();
         opnd->UseWithNewType(ty, instr->m_func);
@@ -395,7 +395,7 @@ void LegalizeMD::LegalizeSymOffset(
     // Determine scale factor for scaled offsets
     int scale = (symOpnd->GetType() == TyFloat64) ? 3 : 2;
     int32 scaledOffset = offset >> scale;
-    
+
     // Either scaled unsigned 12-bit offset, or unscaled signed 9-bit offset
     if (forms & L_SymSU12I9)
     {
@@ -784,7 +784,7 @@ bool LegalizeMD::LegalizeDirectBranch(IR::BranchInstr *branchInstr, uint32 branc
 
 #ifdef DBG
 
-void LegalizeMD::IllegalInstr(IR::Instr * instr, const char16 * msg, ...)
+void LegalizeMD::IllegalInstr(IR::Instr * instr, const CHAR_T * msg, ...)
 {
     va_list argptr;
     va_start(argptr, msg);

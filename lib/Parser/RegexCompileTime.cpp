@@ -1010,13 +1010,13 @@ namespace UnifiedRegex
                 EMIT(compiler, SyncToChar2LiteralAndConsumeInst, litptr[0], litptr[1]);
             else
             {
-                TextbookBoyerMooreSetup<char16> setup(litptr, length);
+                TextbookBoyerMooreSetup<CHAR_T> setup(litptr, length);
                 switch (setup.GetScheme())
                 {
-                case TextbookBoyerMooreSetup<char16>::LinearScheme:
+                case TextbookBoyerMooreSetup<CHAR_T>::LinearScheme:
                     EMIT(compiler, SyncToLinearLiteralAndConsumeInst, offset, length)->scanner.Setup(compiler.rtAllocator, setup);
                     break;
-                case TextbookBoyerMooreSetup<char16>::DefaultScheme:
+                case TextbookBoyerMooreSetup<CHAR_T>::DefaultScheme:
                     EMIT(compiler, SyncToLiteralAndConsumeInst, offset, length)->scanner.Setup(compiler.rtAllocator, setup);
                     break;
                 };
@@ -1049,13 +1049,13 @@ namespace UnifiedRegex
                     EMIT(compiler, SyncToChar2LiteralAndContinueInst, litptr[0], litptr[1]);
                 else
                 {
-                    TextbookBoyerMooreSetup<char16> setup(litptr, length);
+                    TextbookBoyerMooreSetup<CHAR_T> setup(litptr, length);
                     switch (setup.GetScheme())
                     {
-                    case TextbookBoyerMooreSetup<char16>::LinearScheme:
+                    case TextbookBoyerMooreSetup<CHAR_T>::LinearScheme:
                         EMIT(compiler, SyncToLinearLiteralAndContinueInst, offset, length)->scanner.Setup(compiler.rtAllocator, setup);
                         break;
-                    case TextbookBoyerMooreSetup<char16>::DefaultScheme:
+                    case TextbookBoyerMooreSetup<CHAR_T>::DefaultScheme:
                         EMIT(compiler, SyncToLiteralAndContinueInst, offset, length)->scanner.Setup(compiler.rtAllocator, setup);
                         break;
                     };
@@ -1083,13 +1083,13 @@ namespace UnifiedRegex
                     EMIT(compiler, SyncToChar2LiteralAndBackupInst, litptr[0], litptr[1], prevConsumes);
                 else
                 {
-                    TextbookBoyerMooreSetup<char16> setup(litptr, length);
+                    TextbookBoyerMooreSetup<CHAR_T> setup(litptr, length);
                     switch (setup.GetScheme())
                     {
-                    case TextbookBoyerMooreSetup<char16>::LinearScheme:
+                    case TextbookBoyerMooreSetup<CHAR_T>::LinearScheme:
                         EMIT(compiler, SyncToLinearLiteralAndBackupInst, offset, length, prevConsumes)->scanner.Setup(compiler.rtAllocator, setup);
                         break;
-                    case TextbookBoyerMooreSetup<char16>::DefaultScheme:
+                    case TextbookBoyerMooreSetup<CHAR_T>::DefaultScheme:
                         EMIT(compiler, SyncToLiteralAndBackupInst, offset, length, prevConsumes)->scanner.Setup(compiler.rtAllocator, setup);
                         break;
                     };

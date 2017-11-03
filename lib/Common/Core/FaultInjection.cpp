@@ -72,9 +72,9 @@ namespace Js
         return nullptr;
     }
 
-    static char16* trimRight(_Inout_z_ char16* str)
+    static CHAR_T* trimRight(_Inout_z_ CHAR_T* str)
     {
-        auto tmp = str + wcslen(str);
+        auto tmp = str + cstrlen(str);
         while (!isprint(*--tmp));
         *(tmp + 1) = _u('\0');
         return str;
@@ -353,10 +353,10 @@ namespace Js
     static SymbolInfoPackage sip;
     static ModuleInfo mi;
 
-    const char16* crashStackStart = _u("=====Callstack for this exception=======\n");
-    const char16* crashStackEnd = _u("=====End of callstack for this exception=======\n");
-    const char16* injectionStackStart = _u("=====Fault injecting record=====\n");
-    const char16* injectionStackEnd = _u("=====End of Fault injecting record=====\n");
+    const CHAR_T* crashStackStart = _u("=====Callstack for this exception=======\n");
+    const CHAR_T* crashStackEnd = _u("=====End of callstack for this exception=======\n");
+    const CHAR_T* injectionStackStart = _u("=====Fault injecting record=====\n");
+    const CHAR_T* injectionStackEnd = _u("=====End of Fault injecting record=====\n");
 
     typedef struct _RANGE{
         UINT_PTR startAddress;
@@ -377,12 +377,12 @@ namespace Js
 
 #define FAULT_TYPE(x) _u(#x),\
 
-    char16 *FaultInjection::FaultTypeNames[] =
+    CHAR_T *FaultInjection::FaultTypeNames[] =
     {
 #include "FaultTypes.h"
     };
 #undef FAULT_TYPE
-    static_assert(sizeof(FaultInjection::FaultTypeNames) == FaultInjection::FaultType::FaultTypeCount*sizeof(char16*),
+    static_assert(sizeof(FaultInjection::FaultTypeNames) == FaultInjection::FaultType::FaultTypeCount*sizeof(CHAR_T*),
         "FaultTypeNames count is wrong");
 
     void FaultInjection::FaultInjectionTypes::EnableType(FaultType type)
@@ -395,7 +395,7 @@ namespace Js
         Assert(type >= 0 && type < FaultType::FaultTypeCount);
         return getBit(type) == 0x1;
     }
-    bool FaultInjection::FaultInjectionTypes::IsEnabled(const char16* name)
+    bool FaultInjection::FaultInjectionTypes::IsEnabled(const CHAR_T* name)
     {
         for (int type = 0; type < FaultType::FaultTypeCount; type++)
         {
@@ -533,7 +533,7 @@ namespace Js
         if (!faultInjectionTypes)
         {
             faultInjectionTypes = NoCheckHeapNew(FaultInjectionTypes);
-            if ((const char16*)globalFlags.FaultInjectionType == nullptr)
+            if ((const CHAR_T*)globalFlags.FaultInjectionType == nullptr)
             {
                 // no -FaultInjectionType specified, inject all
                 faultInjectionTypes->EnableAll();
@@ -553,18 +553,18 @@ namespace Js
             && IsFaultEnabled(faultType);
     }
 
-    void FaultInjection::ParseFaultTypes(const char16* szFaultTypes)
+    void FaultInjection::ParseFaultTypes(const CHAR_T* szFaultTypes)
     {
-        auto charCount = wcslen(szFaultTypes) + 1;
-        char16* szTypes = (char16*)malloc(charCount*sizeof(char16));
+        auto charCount = cstrlen(szFaultTypes) + 1;
+        CHAR_T* szTypes = (CHAR_T*)malloc(charCount*sizeof(CHAR_T));
         AssertMsg(szTypes, "OOM in FaultInjection Infra");
-        wcscpy_s(szTypes, charCount, szFaultTypes);
-        const char16* delims = _u(",");
-        char16 *nextTok = nullptr;
-        char16* tok = wcstok_s(szTypes, delims, &nextTok);
+        cstrcpy_s(szTypes, charCount, szFaultTypes);
+        const CHAR_T* delims = _u(",");
+        CHAR_T *nextTok = nullptr;
+        CHAR_T* tok = wcstok_s(szTypes, delims, &nextTok);
         while (tok != NULL)
         {
-            if (wcslen(tok) > 0)
+            if (cstrlen(tok) > 0)
             {
                 if (iswdigit(tok[0]))
                 {
@@ -581,9 +581,9 @@ namespace Js
                 {
                     // FaultInjectionType:#1-4,#6 format, not flags
                     auto tok1 = tok + 1;
-                    if (wcslen(tok1)>0 && iswdigit(tok1[0]))
+                    if (cstrlen(tok1)>0 && iswdigit(tok1[0]))
                     {
-                        char16* pDash = wcschr(tok1, _u('-'));
+                        CHAR_T* pDash = wcschr(tok1, _u('-'));
                         if (pDash)
                         {
                             for (int i = _wtoi(tok1); i <= _wtoi(pDash + 1); i++)
@@ -614,11 +614,11 @@ namespace Js
         free(szTypes);
     }
 
-    static void SmashLambda(_Inout_z_ char16* str)
+    static void SmashLambda(_Inout_z_ CHAR_T* str)
     {
         //jscript9test!<lambda_dc7f9e8c591f1832700d6567e43faa6c>::operator()
-        const char16 lambdaSig[] = _u("<lambda_");
-        const int lambdaSigLen = (int)wcslen(lambdaSig);
+        const CHAR_T lambdaSig[] = _u("<lambda_");
+        const int lambdaSigLen = (int)cstrlen(lambdaSig);
         auto temp = str;
         while (temp != nullptr)
         {
@@ -662,7 +662,7 @@ namespace Js
 
             // read baseline stack file
             FILE *fp = nullptr;
-            const char16 *stackFile = globalFlags.FaultInjectionStackFile;//default: _u("stack.txt");
+            const CHAR_T *stackFile = globalFlags.FaultInjectionStackFile;//default: _u("stack.txt");
             auto err = _wfopen_s(&fp, stackFile, _u("r"));
             if (err != 0 || fp == nullptr)
             {
@@ -671,7 +671,7 @@ namespace Js
                 return false;
             }
 
-            char16 buffer[MAX_SYM_NAME]; // assume the file is normal
+            CHAR_T buffer[MAX_SYM_NAME]; // assume the file is normal
             unsigned int maxLineCount =
                 (globalFlags.FaultInjectionStackLineCount < 0
                 || globalFlags.FaultInjectionStackLineCount > MAX_FRAME_COUNT
@@ -691,9 +691,9 @@ namespace Js
                     continue; // don't break because we can hit the start marker and reset
                 }
 
-                const char16 jscript9test[] = _u("jscript9test!");
-                const char16 jscript9[] = _u("jscript9!");
-                char16* symbolStart = stristr(buffer, jscript9test);
+                const CHAR_T jscript9test[] = _u("jscript9test!");
+                const CHAR_T jscript9[] = _u("jscript9!");
+                CHAR_T* symbolStart = stristr(buffer, jscript9test);
                 if (symbolStart == nullptr)
                 {
                     symbolStart = stristr(buffer, jscript9);
@@ -718,19 +718,19 @@ namespace Js
                     trimRight(symbolStart);
                 }
                 SmashLambda(symbolStart);
-                size_t len = wcslen(symbolStart);
+                size_t len = cstrlen(symbolStart);
                 if (baselineStack[baselineFrameCount] == nullptr)
                 {
-                    baselineStack[baselineFrameCount] = (char16*)malloc((len + 1)*sizeof(char16));
+                    baselineStack[baselineFrameCount] = (CHAR_T*)malloc((len + 1)*sizeof(CHAR_T));
                     AssertMsg(baselineStack[baselineFrameCount], "OOM in FaultInjection Infra");
                 }
                 else
                 {
-                    auto tmp = (char16*)realloc(baselineStack[baselineFrameCount], (len + 1)*sizeof(char16));
+                    auto tmp = (CHAR_T*)realloc(baselineStack[baselineFrameCount], (len + 1)*sizeof(CHAR_T));
                     AssertMsg(tmp, "OOM in FaultInjection Infra");
                     baselineStack[baselineFrameCount] = tmp;
                 }
-                wcscpy_s(baselineStack[baselineFrameCount], len + 1, symbolStart);
+                cstrcpy_s(baselineStack[baselineFrameCount], len + 1, symbolStart);
                 baselineFrameCount++;
             }
             fclose(fp);
@@ -858,7 +858,7 @@ namespace Js
         {
             return;
         }
-        
+
         AutoCriticalSection autoCS(&csFautInjection);
         if (triedToInstallExceptionFilter)
         {
@@ -918,9 +918,9 @@ namespace Js
         {
             RemoveVectoredExceptionHandler(vectoredExceptionHandler);
 
-            // remove the handler from the list second time. 
-            // This code is called inside an exception handler, when the exception handler is called, 
-            // the refcount of the handler in ntdll!LdrpVectorHandlerList is increased, 
+            // remove the handler from the list second time.
+            // This code is called inside an exception handler, when the exception handler is called,
+            // the refcount of the handler in ntdll!LdrpVectorHandlerList is increased,
             // so need to call RemoveVectoredExceptionHandler twice to really remove the handler from the list
             // otherwise the exception from the handler itself will re-enter the handler
             RemoveVectoredExceptionHandler(vectoredExceptionHandler);
@@ -948,7 +948,7 @@ namespace Js
     // !list -t jscript9test!Js::FaultInjection::InjectionRecord.next -e -x "dps @$extret @$extret+0x128" poi(@@c++(&jscript9test!Js::FaultInjection::Global.InjectionFirstRecord))
     // to rebuild the stack (locals are available)
     // .cxr @@C++(&jscript9test!Js::FaultInjection::Global.InjectionFirstRecord->Context)
-    _NOINLINE void FaultInjection::dumpCurrentStackData(LPCWSTR name /*= nullptr*/, size_t size /*= 0*/)
+    _NOINLINE void FaultInjection::dumpCurrentStackData(LPCCHAR_T name /*= nullptr*/, size_t size /*= 0*/)
     {
 
 #if !defined(_M_ARM32_OR_ARM64)
@@ -985,7 +985,7 @@ namespace Js
 
         if (name)
         {
-            wcscpy_s(record->name, name);
+            cstrcpy_s(record->name, name);
         }
         record->allocSize = size;
 
@@ -1004,7 +1004,7 @@ namespace Js
 #endif // _M_ARM || _M_ARM64
     }
 
-    bool FaultInjection::ShouldInjectFault(FaultType fType, LPCWSTR name, size_t size)
+    bool FaultInjection::ShouldInjectFault(FaultType fType, LPCCHAR_T name, size_t size)
     {
         bool shouldInjectionFault = ShouldInjectFaultHelper(fType, name, size);
         if (shouldInjectionFault && fType != FaultType::ScriptTerminationOnDispose)
@@ -1014,7 +1014,7 @@ namespace Js
         return shouldInjectionFault;
     }
 
-    bool FaultInjection::ShouldInjectFaultHelper(FaultType fType, LPCWSTR name, size_t size)
+    bool FaultInjection::ShouldInjectFaultHelper(FaultType fType, LPCCHAR_T name, size_t size)
     {
         if (globalFlags.FaultInjection < 0)
         {
@@ -1092,7 +1092,7 @@ namespace Js
         case CountOnly:
             break;
         case DisplayAvailableFaultTypes:
-        case InstallExceptionHandlerOnly:        
+        case InstallExceptionHandlerOnly:
             return false;
         default:
             AssertMsg(false, "Invalid FaultInjection mode");
@@ -1107,7 +1107,7 @@ namespace Js
         // try to lookup stack hash, to see if it matches
         if (!shouldInjectionFault)
         {
-            const UINT_PTR expectedHash = HexStrToAddress((LPCWSTR)globalFlags.FaultInjectionStackHash);
+            const UINT_PTR expectedHash = HexStrToAddress((LPCCHAR_T)globalFlags.FaultInjectionStackHash);
             if (expectedHash != 0)
             {
                 void* StackFrames[MAX_FRAME_COUNT];
@@ -1218,11 +1218,11 @@ namespace Js
 
         bool needDump = true;
         uintptr_t ip = (uintptr_t)ep->ExceptionRecord->ExceptionAddress;
-        uintptr_t offset = 0;       
+        uintptr_t offset = 0;
 
         // static to not use local stack space since stack space might be low at this point
-        THREAD_LOCAL static char16 modulePath[MAX_PATH + 1];
-        THREAD_LOCAL static WCHAR filename[MAX_PATH + 1];
+        THREAD_LOCAL static CHAR_T modulePath[MAX_PATH + 1];
+        THREAD_LOCAL static CHAR_T filename[MAX_PATH + 1];
 
         HMODULE mod = nullptr;
         GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<LPCTSTR>(ip), &mod);
@@ -1253,7 +1253,7 @@ namespace Js
             }
             else
             { // file locked
-                char16 content[32] = { 0 };
+                CHAR_T content[32] = { 0 };
                 while (fgetws(content, 31, fp))
                 {
                     savedOffset = HexStrToAddress(content);
@@ -1306,10 +1306,10 @@ namespace Js
         // create dump for this crash
         if (needDump)
         {
-            THREAD_LOCAL static char16 dumpName[MAX_PATH + 1];
-            wcscpy_s(filename, globalFlags.Filename);
-            char16* jsFile = filename;
-            char16 *pch = jsFile;
+            THREAD_LOCAL static CHAR_T dumpName[MAX_PATH + 1];
+            cstrcpy_s(filename, globalFlags.Filename);
+            CHAR_T* jsFile = filename;
+            CHAR_T *pch = jsFile;
             // remove path and keep only alphabet and number to make a valid filename
             while (*pch)
             {
@@ -1327,10 +1327,10 @@ namespace Js
 
             // get dump file name
             int suffix = 1;
-            const char16* fiType = _u("undefined");
+            const CHAR_T* fiType = _u("undefined");
             if (globalFlags.FaultInjectionType != nullptr)
             {
-                fiType = (LPCWSTR)globalFlags.FaultInjectionType;
+                fiType = (LPCCHAR_T)globalFlags.FaultInjectionType;
             }
             while (true)
             {
@@ -1371,8 +1371,8 @@ namespace Js
                 // removing extension for windbg module name style
                 auto& jscript9Path = modulePath;
                 wcsncpy_s(jscript9Path, AutoSystemInfo::Data.GetJscriptDllFileName(),
-                    wcslen(AutoSystemInfo::Data.GetJscriptDllFileName()) - 4);
-                char16* jscript9Name = jscript9Path + wcslen(jscript9Path);
+                    cstrlen(AutoSystemInfo::Data.GetJscriptDllFileName()) - 4);
+                CHAR_T* jscript9Name = jscript9Path + cstrlen(jscript9Path);
                 while (*(jscript9Name - 1) != _u('\\') && jscript9Name > jscript9Path)
                 {
                     jscript9Name--;
@@ -1382,7 +1382,7 @@ namespace Js
                 // It contains windbg debugging instructions on how to figure out the injected faults,
                 // And the message will be showing in windbg while loading the minidump.
                 // If you need to add more instructions please increase the buffer capacity accordingly
-                THREAD_LOCAL static char16 dbgTip[1024];
+                THREAD_LOCAL static CHAR_T dbgTip[1024];
                 if (InjectionFirstRecord == nullptr)
                 {
                     wcsncpy_s(dbgTip,
@@ -1405,7 +1405,7 @@ namespace Js
                 MINIDUMP_USER_STREAM UserStreams[1];
                 UserStreams[0].Type = CommentStreamW;
                 UserStreams[0].Buffer = dbgTip;
-                UserStreams[0].BufferSize = (ULONG)wcslen(dbgTip)*sizeof(char16);
+                UserStreams[0].BufferSize = (ULONG)cstrlen(dbgTip)*sizeof(CHAR_T);
                 MINIDUMP_USER_STREAM_INFORMATION musi;
                 musi.UserStreamCount = 1;
                 musi.UserStreamArray = UserStreams;
@@ -1451,7 +1451,7 @@ namespace Js
         if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) // hard stack overflow
         {
             DebugBreak(); // let the postmortem debugger to create the dump, make sure they are filing bug with same bucket
-        }        
+        }
 
         __try
         {

@@ -17,7 +17,7 @@ public:
     public:
         void * scriptEngine;
     private:
-        char16 const * url;
+        CHAR_T const * url;
 #if _MSC_VER
         __time64_t time;
 #else
@@ -32,12 +32,12 @@ public:
 
     static void StartRedirectOutput();
     static void EndRedirectOutput();
-    static void StartSection(char16 const * msg, ...);
-    static void StartSection(char16 const * msg, va_list argptr);
+    static void StartSection(CHAR_T const * msg, ...);
+    static void StartSection(CHAR_T const * msg, va_list argptr);
     static void EndSection();
-    static void Print(char16 const * msg, ...);
+    static void Print(CHAR_T const * msg, ...);
 
-    static UrlRecord * LogUrl(char16 const * url, void * globalObject);
+    static UrlRecord * LogUrl(CHAR_T const * url, void * globalObject);
     static void DumpUrl(DWORD tid);
 private:
     static CriticalSection s_cs;
@@ -55,7 +55,7 @@ private:
 class AutoLeakReportSection
 {
 public:
-    AutoLeakReportSection(Js::ConfigFlagsTable& flags, char16 const * msg, ...);
+    AutoLeakReportSection(Js::ConfigFlagsTable& flags, CHAR_T const * msg, ...);
     ~AutoLeakReportSection();
 
 private:

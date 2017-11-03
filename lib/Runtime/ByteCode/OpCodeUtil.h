@@ -9,7 +9,7 @@ namespace Js
 class OpCodeUtil
 {
 public:
-    static char16 const * GetOpCodeName(OpCode op);
+    static CHAR_T const * GetOpCodeName(OpCode op);
 
     static bool IsCallOp(OpCode op);
     static bool IsProfiledCallOp(OpCode op);
@@ -47,9 +47,9 @@ public:
     static OpLayoutType GetOpCodeLayout(OpCode op);
 private:
 #if DBG_DUMP || ENABLE_DEBUG_CONFIG_OPTIONS
-    static char16 const * const OpCodeNames[(int)Js::OpCode::MaxByteSizedOpcodes + 1];
-    static char16 const * const ExtendedOpCodeNames[];
-    static char16 const * const BackendOpCodeNames[];
+    static CHAR_T const * const OpCodeNames[(int)Js::OpCode::MaxByteSizedOpcodes + 1];
+    static CHAR_T const * const ExtendedOpCodeNames[];
+    static CHAR_T const * const BackendOpCodeNames[];
 #endif
     static OpLayoutType const OpCodeLayouts[];
     static OpLayoutType const ExtendedOpCodeLayouts[];

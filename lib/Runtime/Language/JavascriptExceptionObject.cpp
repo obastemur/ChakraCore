@@ -178,14 +178,14 @@ namespace Js
         return functionBody;
     }
 
-    LPCWSTR JavascriptExceptionContext::StackFrame::GetFunctionName() const
+    LPCCHAR_T JavascriptExceptionContext::StackFrame::GetFunctionName() const
     {
         return IsScriptFunction() ?
             GetFunctionBody()->GetExternalDisplayName() : PointerValue(this->name);
     }
 
     // Get function name with arguments info. Used by script WER.
-    HRESULT JavascriptExceptionContext::StackFrame::GetFunctionNameWithArguments(_In_ LPCWSTR *outResult) const
+    HRESULT JavascriptExceptionContext::StackFrame::GetFunctionNameWithArguments(_In_ LPCCHAR_T *outResult) const
     {
         PCWSTR name = GetFunctionName();
         HRESULT hr = S_OK;

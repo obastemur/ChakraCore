@@ -442,7 +442,7 @@ namespace Js
 
 #if DBG_DUMP
         static void DumpScriptContext(ScriptContext * scriptContext);
-        static char16 const * GetImplicitCallFlagsString(ImplicitCallFlags flags);
+        static CHAR_T const * GetImplicitCallFlagsString(ImplicitCallFlags flags);
 #endif
 #ifdef RUNTIME_DATA_COLLECTION
         static void DumpScriptContextToFile(ScriptContext * scriptContext);
@@ -537,14 +537,14 @@ namespace Js
         static JavascriptMethod EnsureDynamicProfileInfo(Js::ScriptFunction * function);
 #if DBG_DUMP
         static void DumpList(DynamicProfileInfoList * profileInfoList, ArenaAllocator * dynamicProfileInfoAllocator);
-        static void DumpProfiledValue(char16 const * name, uint * value, uint count);
-        static void DumpProfiledValue(char16 const * name, ValueType * value, uint count);
-        static void DumpProfiledValue(char16 const * name, CallSiteInfo * callSiteInfo, uint count);
-        static void DumpProfiledValue(char16 const * name, ArrayCallSiteInfo * arrayCallSiteInfo, uint count);
-        static void DumpProfiledValue(char16 const * name, ImplicitCallFlags * loopImplicitCallFlags, uint count);
+        static void DumpProfiledValue(CHAR_T const * name, uint * value, uint count);
+        static void DumpProfiledValue(CHAR_T const * name, ValueType * value, uint count);
+        static void DumpProfiledValue(CHAR_T const * name, CallSiteInfo * callSiteInfo, uint count);
+        static void DumpProfiledValue(CHAR_T const * name, ArrayCallSiteInfo * arrayCallSiteInfo, uint count);
+        static void DumpProfiledValue(CHAR_T const * name, ImplicitCallFlags * loopImplicitCallFlags, uint count);
         template<class TData, class FGetValueType>
-        static void DumpProfiledValuesGroupedByValue(const char16 *const name, const TData *const data, const uint count, const FGetValueType GetValueType, ArenaAllocator *const dynamicProfileInfoAllocator);
-        static void DumpFldInfoFlags(char16 const * name, FldInfo * fldInfo, uint count, FldInfoFlags value, char16 const * valueName);
+        static void DumpProfiledValuesGroupedByValue(const CHAR_T *const name, const TData *const data, const uint count, const FGetValueType GetValueType, ArenaAllocator *const dynamicProfileInfoAllocator);
+        static void DumpFldInfoFlags(CHAR_T const * name, FldInfo * fldInfo, uint count, FldInfoFlags value, CHAR_T const * valueName);
 
         static void DumpLoopInfo(FunctionBody *fbody);
 #endif
@@ -560,7 +560,7 @@ namespace Js
         static void WriteData(const T& data, FILE * file);
 #if defined(_MSC_VER) && !defined(__clang__)
         template <>
-        static void WriteData<char16 const *>(char16 const * const& sz, FILE * file);
+        static void WriteData<CHAR_T const *>(CHAR_T const * const& sz, FILE * file);
         template <>
         static void WriteData<FunctionInfo *>(FunctionInfo * const& functionInfo, FILE * file); // Not defined, to prevent accidentally writing function info
         template <>

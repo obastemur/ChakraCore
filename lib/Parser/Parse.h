@@ -358,7 +358,7 @@ public:
     void RegisterRegexPattern(UnifiedRegex::RegexPattern *const regexPattern);
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-    LPCWSTR GetParseType() const
+    LPCCHAR_T GetParseType() const
     {
         switch(m_parseType)
         {
@@ -400,7 +400,7 @@ private:
     ParseNodePtr * m_ppnodeScope;  // function list tail
     ParseNodePtr * m_ppnodeExprScope; // function expression list tail
     ParseNodePtr * m_ppnodeVar;  // variable list tail
-    bool m_inDeferredNestedFunc; // true if parsing a function in deferred mode, nested within the current node  
+    bool m_inDeferredNestedFunc; // true if parsing a function in deferred mode, nested within the current node
     bool m_reparsingLambdaParams;
     bool m_disallowImportExportStmt;
     bool m_isInParsingArgList;
@@ -484,7 +484,7 @@ private:
     ParseNode *GetCurrentFunctionNode();
     ParseNode *GetCurrentNonLambdaFunctionNode();
 
-    bool IsNodeAllowedInCurrentDeferralState(OpCode op) 
+    bool IsNodeAllowedInCurrentDeferralState(OpCode op)
     {
         if (!this->m_deferringAST)
         {
@@ -798,7 +798,7 @@ private:
     };
 
     // Used to map JavaScript object member name to member type.
-    typedef JsUtil::BaseDictionary<WCHAR*, MemberType, ArenaAllocator, PrimeSizePolicy> MemberNameToTypeMap;
+    typedef JsUtil::BaseDictionary<CHAR_T*, MemberType, ArenaAllocator, PrimeSizePolicy> MemberNameToTypeMap;
 
     static MemberNameToTypeMap* CreateMemberNameMap(ArenaAllocator* pAllocator);
 
@@ -844,7 +844,7 @@ private:
     LPCOLESTR AppendNameHints(LPCOLESTR left, IdentPtr  right, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace = false, bool wrapInBrackets = false);
     LPCOLESTR AppendNameHints(LPCOLESTR left, LPCOLESTR right, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace = false, bool wrapInBrackets = false);
     LPCOLESTR AppendNameHints(LPCOLESTR leftStr, uint32 leftLen, LPCOLESTR rightStr, uint32 rightLen, uint32 *pNameLength, uint32 *pShortNameOffset, bool ignoreAddDotWithSpace = false, bool wrapInBrackets = false);
-    WCHAR * AllocateStringOfLength(ULONG length);
+    CHAR_T * AllocateStringOfLength(ULONG length);
 
     void FinishFncNode(ParseNodePtr pnodeFnc);
 
@@ -884,11 +884,11 @@ private:
 
     template<bool buildAST> ParseNodePtr ParsePostfixOperators(
         ParseNodePtr pnode,
-        BOOL fAllowCall, 
-        BOOL fInNew, 
+        BOOL fAllowCall,
+        BOOL fInNew,
         BOOL isAsyncExpr,
-        BOOL *pfCanAssign, 
-        _Inout_ IdentToken* pToken, 
+        BOOL *pfCanAssign,
+        _Inout_ IdentToken* pToken,
         _Out_opt_ bool* pfIsDotOrIndex = nullptr);
 
     void ThrowNewTargetSyntaxErrForGlobalScope();

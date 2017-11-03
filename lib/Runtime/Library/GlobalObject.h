@@ -98,25 +98,25 @@ namespace Js
 #ifdef IR_VIEWER
         static Var EntryParseIR(RecyclableObject *function, CallInfo callInfo, ...);
 #define _refactor_ /* FIXME (t-doilij) */
-        _refactor_ static Js::PropertyId CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName);
-        _refactor_ static void SetProperty(Js::DynamicObject *obj, const char16 *propertyName, Js::Var value);
+        _refactor_ static Js::PropertyId CreateProperty(Js::ScriptContext *scriptContext, const CHAR_T *propertyName);
+        _refactor_ static void SetProperty(Js::DynamicObject *obj, const CHAR_T *propertyName, Js::Var value);
         _refactor_ static void SetProperty(Js::DynamicObject *obj, Js::PropertyId id, Js::Var value);
 #undef  _refactor_
-        static Var FunctionInfoObjectBuilder(ScriptContext *scriptContext, const char16 *file,
-            const char16 *function, ULONG lineNum, ULONG colNum,
+        static Var FunctionInfoObjectBuilder(ScriptContext *scriptContext, const CHAR_T *file,
+            const CHAR_T *function, ULONG lineNum, ULONG colNum,
             uint funcId, Js::Utf8SourceInfo *utf8SrcInfo, Js::Var source);
         static Var EntryFunctionList(RecyclableObject *function, CallInfo callInfo, ...);
         static Var EntryRejitFunction(RecyclableObject *function, CallInfo callInfo, ...);
 #endif /* IR_VIEWER */
 
-        static void ValidateSyntax(ScriptContext* scriptContext, const char16 *source, int sourceLength, bool isGenerator, bool isAsync, void (Parser::*validateSyntax)());
+        static void ValidateSyntax(ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, bool isGenerator, bool isAsync, void (Parser::*validateSyntax)());
         static void UpdateThisForEval(Var &varThis, ModuleID moduleID, ScriptContext *scriptContext, BOOL strictMode) ;
-        static ScriptFunction* DefaultEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
+        static ScriptFunction* DefaultEvalHelper(ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
 #ifdef ENABLE_SCRIPT_PROFILING
-        static ScriptFunction* ProfileModeEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
-#endif        
+        static ScriptFunction* ProfileModeEvalHelper(ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
+#endif
 #ifdef IR_VIEWER
-        static Var IRDumpEvalHelper(ScriptContext* scriptContext, const char16 *source,
+        static Var IRDumpEvalHelper(ScriptContext* scriptContext, const CHAR_T *source,
             int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle,
             BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
 #endif /* IR_VIEWER */
@@ -125,7 +125,7 @@ namespace Js
         static GlobalObject* FromVar(Var aValue);
         static GlobalObject* UnsafeFromVar(Var aValue);
 
-        typedef ScriptFunction* (*EvalHelperType)(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
+        typedef ScriptFunction* (*EvalHelperType)(ScriptContext* scriptContext, const CHAR_T *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode);
         FieldNoBarrier(EvalHelperType) EvalHelper;
 
         static Var EntryEvalHelper(ScriptContext* scriptContext, RecyclableObject* function, CallInfo callInfo, Arguments& args);

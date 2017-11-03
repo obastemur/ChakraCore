@@ -43,13 +43,13 @@ namespace Js
 
         PropertyRecord(DWORD bytelength, bool isNumeric, uint hash, bool isSymbol);
         PropertyRecord(PropertyId pid, uint hash, bool isNumeric, DWORD byteCount, bool isSymbol);
-        PropertyRecord(const WCHAR* buffer, const int length, DWORD bytelength, bool isSymbol);
+        PropertyRecord(const CHAR_T* buffer, const int length, DWORD bytelength, bool isSymbol);
         PropertyRecord() { Assert(false); } // never used, needed by compiler for BuiltInPropertyRecord
 
-        static bool IsPropertyNameNumeric(const char16* str, int length, uint32* intVal);
+        static bool IsPropertyNameNumeric(const CHAR_T* str, int length, uint32* intVal);
     public:
 #ifdef DEBUG
-        static bool IsPropertyNameNumeric(const char16* str, int length);
+        static bool IsPropertyNameNumeric(const CHAR_T* str, int length);
 #endif
 
         static PropertyAttributes DefaultAttributesForPropertyId(PropertyId propertyId, bool __proto__AsDeleted);
@@ -59,12 +59,12 @@ namespace Js
 
         charcount_t GetLength() const
         {
-            return byteCount / sizeof(char16);
+            return byteCount / sizeof(CHAR_T);
         }
 
-        const char16* GetBuffer() const
+        const CHAR_T* GetBuffer() const
         {
-            return (const char16 *)(this + 1);
+            return (const CHAR_T *)(this + 1);
         }
 
         bool IsNumeric() const { return isNumeric; }
@@ -78,17 +78,17 @@ namespace Js
             this->hash = hash;
         }
 
-        bool Equals(JsUtil::CharacterBuffer<WCHAR> const & str) const
+        bool Equals(JsUtil::CharacterBuffer<CHAR_T> const & str) const
         {
             return (this->GetLength() == str.GetLength() && !Js::IsInternalPropertyId(this->GetPropertyId()) &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(this->GetBuffer(), str.GetBuffer(), this->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(this->GetBuffer(), str.GetBuffer(), this->GetLength()));
         }
 
         bool Equals(PropertyRecord const & propertyRecord) const
         {
             return (this->GetLength() == propertyRecord.GetLength() &&
                 Js::IsInternalPropertyId(this->GetPropertyId()) == Js::IsInternalPropertyId(propertyRecord.GetPropertyId()) &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(this->GetBuffer(), propertyRecord.GetBuffer(), this->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(this->GetBuffer(), propertyRecord.GetBuffer(), this->GetLength()));
         }
 
     public:
@@ -112,17 +112,17 @@ namespace Js
     struct BuiltInPropertyRecord
     {
         PropertyRecord propertyRecord;
-        char16 buffer[LEN];
+        CHAR_T buffer[LEN];
 
         operator const PropertyRecord*() const
         {
             return &propertyRecord;
         }
 
-        bool Equals(JsUtil::CharacterBuffer<WCHAR> const & str) const
+        bool Equals(JsUtil::CharacterBuffer<CHAR_T> const & str) const
         {
             return (LEN - 1 == str.GetLength() &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(buffer, str.GetBuffer(), LEN - 1));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(buffer, str.GetBuffer(), LEN - 1));
         }
     };
 
@@ -159,7 +159,7 @@ namespace Js
         HashedCharacterBuffer(TChar const * string, charcount_t len) :
             JsUtil::CharacterBuffer<TChar>(string, len)
         {
-            this->hashCode = JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(string, len);
+            this->hashCode = JsUtil::CharacterBuffer<CHAR_T>::StaticGetHashCode(string, len);
         }
 
         hash_t GetHashCode() const { return this->hashCode; }
@@ -170,13 +170,13 @@ namespace Js
         inline static bool Equals(PropertyRecord const * str1, PropertyRecord const * str2)
         {
             return (str1->GetLength() == str2->GetLength() &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
         }
 
-        inline static bool Equals(PropertyRecord const * str1, JsUtil::CharacterBuffer<WCHAR> const * str2)
+        inline static bool Equals(PropertyRecord const * str1, JsUtil::CharacterBuffer<CHAR_T> const * str2)
         {
             return (str1->GetLength() == str2->GetLength() && !Js::IsInternalPropertyId(str1->GetPropertyId()) &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
         }
 
         inline static hash_t GetHashCode(PropertyRecord const * str)
@@ -184,9 +184,9 @@ namespace Js
             return str->GetHashCode();
         }
 
-        inline static hash_t GetHashCode(JsUtil::CharacterBuffer<WCHAR> const * str)
+        inline static hash_t GetHashCode(JsUtil::CharacterBuffer<CHAR_T> const * str)
         {
-            return JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(str->GetBuffer(), str->GetLength());
+            return JsUtil::CharacterBuffer<CHAR_T>::StaticGetHashCode(str->GetBuffer(), str->GetLength());
         }
     };
 
@@ -214,21 +214,21 @@ namespace Js
             return str1 == str2;
         }
 
-        inline static bool Equals(PropertyRecord const * str1, JsUtil::CharacterBuffer<WCHAR> const & str2)
+        inline static bool Equals(PropertyRecord const * str1, JsUtil::CharacterBuffer<CHAR_T> const & str2)
         {
             return (!str1->IsSymbol() &&
                 str1->GetLength() == str2.GetLength() &&
                 !Js::IsInternalPropertyId(str1->GetPropertyId()) &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetBuffer(), str2.GetBuffer(), str1->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1->GetBuffer(), str2.GetBuffer(), str1->GetLength()));
         }
 
-        inline static bool Equals(PropertyRecord const * str1, HashedCharacterBuffer<char16> const & str2)
+        inline static bool Equals(PropertyRecord const * str1, HashedCharacterBuffer<CHAR_T> const & str2)
         {
             return (!str1->IsSymbol() &&
                 str1->GetHashCode() == str2.GetHashCode() &&
                 str1->GetLength() == str2.GetLength() &&
                 !Js::IsInternalPropertyId(str1->GetPropertyId()) &&
-                JsUtil::CharacterBuffer<char16>::StaticEquals(str1->GetBuffer(), str2.GetBuffer(), str1->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1->GetBuffer(), str2.GetBuffer(), str1->GetLength()));
         }
 
         inline static bool Equals(PropertyRecord const * str1, JavascriptString * str2);
@@ -240,40 +240,40 @@ namespace Js
     };
 
     template<>
-    struct PropertyRecordStringHashComparer<JsUtil::CharacterBuffer<WCHAR>>
+    struct PropertyRecordStringHashComparer<JsUtil::CharacterBuffer<CHAR_T>>
     {
-        inline static bool Equals(JsUtil::CharacterBuffer<WCHAR> const & str1, JsUtil::CharacterBuffer<WCHAR> const & str2)
+        inline static bool Equals(JsUtil::CharacterBuffer<CHAR_T> const & str1, JsUtil::CharacterBuffer<CHAR_T> const & str2)
         {
             return (str1.GetLength() == str2.GetLength() &&
-                JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1.GetBuffer(), str2.GetBuffer(), str1.GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1.GetBuffer(), str2.GetBuffer(), str1.GetLength()));
         }
 
-        inline static hash_t GetHashCode(JsUtil::CharacterBuffer<WCHAR> const & str)
+        inline static hash_t GetHashCode(JsUtil::CharacterBuffer<CHAR_T> const & str)
         {
-            return JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(str.GetBuffer(), str.GetLength());
+            return JsUtil::CharacterBuffer<CHAR_T>::StaticGetHashCode(str.GetBuffer(), str.GetLength());
         }
     };
 
     template<>
-    struct PropertyRecordStringHashComparer<HashedCharacterBuffer<char16>>
+    struct PropertyRecordStringHashComparer<HashedCharacterBuffer<CHAR_T>>
     {
-        inline static hash_t GetHashCode(HashedCharacterBuffer<char16> const & str)
+        inline static hash_t GetHashCode(HashedCharacterBuffer<CHAR_T> const & str)
         {
             return str.GetHashCode();
         }
     };
 
     template<>
-    struct PropertyRecordStringHashComparer<HashedCharacterBuffer<char16> *>
+    struct PropertyRecordStringHashComparer<HashedCharacterBuffer<CHAR_T> *>
     {
-        inline static bool Equals(HashedCharacterBuffer<char16>* const str1, HashedCharacterBuffer<char16>* const str2)
+        inline static bool Equals(HashedCharacterBuffer<CHAR_T>* const str1, HashedCharacterBuffer<CHAR_T>* const str2)
         {
             return (str1->GetLength() == str2->GetLength() &&
                 str1->GetHashCode() == str2->GetHashCode() &&
-                JsUtil::CharacterBuffer<char16>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
+                JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(str1->GetBuffer(), str2->GetBuffer(), str1->GetLength()));
         }
 
-        inline static hash_t GetHashCode(HashedCharacterBuffer<char16>* const str)
+        inline static hash_t GetHashCode(HashedCharacterBuffer<CHAR_T>* const str)
         {
             return str->GetHashCode();
         }
@@ -318,7 +318,7 @@ namespace JsUtil
     struct NoCaseComparer<Js::CaseInvariantPropertyListWithHashCode*>
     {
         static bool Equals(_In_ Js::CaseInvariantPropertyListWithHashCode* list1, _In_ Js::CaseInvariantPropertyListWithHashCode* list2);
-        static bool Equals(_In_ Js::CaseInvariantPropertyListWithHashCode* list, JsUtil::CharacterBuffer<WCHAR> const& str);
+        static bool Equals(_In_ Js::CaseInvariantPropertyListWithHashCode* list, JsUtil::CharacterBuffer<CHAR_T> const& str);
         static hash_t GetHashCode(_In_ Js::CaseInvariantPropertyListWithHashCode* list);
     };
 

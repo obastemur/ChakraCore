@@ -6,7 +6,7 @@
 
 #pragma intrinsic(memcpy)
 extern void __stdcall js_memcpy_s(__bcount(sizeInBytes) void *dst, size_t sizeInBytes, __in_bcount(count) const void *src, size_t count);
-extern void __stdcall js_wmemcpy_s(__ecount(sizeInWords) char16 *dst, size_t sizeInWords, __in_ecount(count) const char16 *src, size_t count);
+extern void __stdcall js_wmemcpy_s(__ecount(sizeInWords) CHAR_T *dst, size_t sizeInWords, __in_ecount(count) const CHAR_T *src, size_t count);
 
 #if defined(_M_IX86) || defined(_M_X64)
 extern void __stdcall js_memset_zero_nontemporal(__bcount(sizeInBytes) void *dst, size_t sizeInBytes);
@@ -45,7 +45,7 @@ namespace JsUtil
         // By default, implemented in Dll\Jscript\ScriptEngine.cpp
         // Anyone who statically links with jscript.common.common.lib has to implement this
         // This is used to determine which regkey we should read while loading the configuration
-        static LPCWSTR GetFeatureKeyName();
+        static LPCCHAR_T GetFeatureKeyName();
     };
 };
 

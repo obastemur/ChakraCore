@@ -108,7 +108,7 @@ namespace Js
 
             if (PHASE_TRACE1(Js::ScriptFunctionWithInlineCachePhase))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                 Output::Print(_u("Function object with inline cache: function number: (%s)\tfunction name: %s\n"),
                     functionBody->GetDebugNumberSet(debugStringBuffer), functionBody->GetDisplayName());
@@ -342,8 +342,8 @@ namespace Js
     {
         FunctionProxy* proxy = this->GetFunctionProxy();
         ParseableFunctionInfo * pFuncBody = proxy->EnsureDeserialized();
-        const char16 * inputStr = inputString->GetString();
-        const char16 * paramStr = wcschr(inputStr, _u('('));
+        const CHAR_T * inputStr = inputString->GetString();
+        const CHAR_T * paramStr = wcschr(inputStr, _u('('));
 
         if (paramStr == nullptr || wcscmp(pFuncBody->GetDisplayName(), Js::Constants::EvalCode) == 0)
         {
@@ -357,7 +357,7 @@ namespace Js
 
         JavascriptString* prefixString = nullptr;
         uint prefixStringLength = 0;
-        const char16* name = _u("");
+        const CHAR_T* name = _u("");
         charcount_t nameLength = 0;
         Var returnStr = nullptr;
 
@@ -426,8 +426,8 @@ namespace Js
             JavascriptExceptionOperators::ThrowOutOfMemory(this->GetScriptContext());
         }
 
-        char16 * funcBodyStr = RecyclerNewArrayLeaf(this->GetScriptContext()->GetRecycler(), char16, totalLength);
-        char16 * funcBodyStrStart = funcBodyStr;
+        CHAR_T * funcBodyStr = RecyclerNewArrayLeaf(this->GetScriptContext()->GetRecycler(), CHAR_T, totalLength);
+        CHAR_T * funcBodyStrStart = funcBodyStr;
         if (prefixString != nullptr)
         {
             js_wmemcpy_s(funcBodyStr, prefixStringLength, prefixString->GetString(), prefixStringLength);
@@ -487,7 +487,7 @@ namespace Js
             BufferStringBuilder builder(cch, scriptContext);
             utf8::DecodeOptions options = pFuncBody->GetUtf8SourceInfo()->IsCesu8() ? utf8::doAllowThreeByteSurrogates : utf8::doDefault;
             size_t decodedCount = utf8::DecodeUnitsInto(builder.DangerousGetWritableBuffer(), pbStart, pbStart + cbLength, options);
-            
+
             if (decodedCount != cch)
             {
                 AssertMsg(false, "Decoded incorrect number of characters for function body");
@@ -954,7 +954,7 @@ namespace Js
         }
     }
 
-    bool ScriptFunction::GetSymbolName(const char16** symbolName, charcount_t* length) const
+    bool ScriptFunction::GetSymbolName(const CHAR_T** symbolName, charcount_t* length) const
     {
         if (nullptr != this->computedNameVar && JavascriptSymbol::Is(this->computedNameVar))
         {
@@ -972,14 +972,14 @@ namespace Js
     {
         Assert(this->GetFunctionProxy() != nullptr); // The caller should guarantee a proxy exists
         ParseableFunctionInfo * func = this->GetFunctionProxy()->EnsureDeserialized();
-        const char16* name = nullptr;
+        const CHAR_T* name = nullptr;
         charcount_t length = 0;
         JavascriptString* returnStr = nullptr;
         ENTER_PINNED_SCOPE(JavascriptString, computedName);
 
         if (computedNameVar != nullptr)
         {
-            const char16* symbolName = nullptr;
+            const CHAR_T* symbolName = nullptr;
             charcount_t symbolNameLength = 0;
             if (this->GetSymbolName(&symbolName, &symbolNameLength))
             {

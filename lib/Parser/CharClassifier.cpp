@@ -209,7 +209,7 @@ CharTypes Js::CharClassifier::GetBigCharTypeES5(codepoint_t codepoint, const Js:
         return _C_NWL;
     }
 
-    auto charType = GetLegacyCharacterClassificationType((char16)codepoint);
+    auto charType = GetLegacyCharacterClassificationType((CHAR_T)codepoint);
     if (charType == CharacterClassificationType::Letter)
     {
         return CharTypes::_C_LET;
@@ -231,13 +231,13 @@ PlatformAgnostic::UnicodeText::CharacterTypeFlags Js::CharClassifier::GetBigChar
         return PlatformAgnostic::UnicodeText::CharacterTypeFlags::IdChar;
     }
 
-    // Make sure that the codepoint fits within the char16 range
+    // Make sure that the codepoint fits within the CHAR_T range
     if (ch > 0xFFFF)
     {
         return UnknownChar;
     }
 
-    return PlatformAgnostic::UnicodeText::GetLegacyCharacterTypeFlags((char16)ch);
+    return PlatformAgnostic::UnicodeText::GetLegacyCharacterTypeFlags((CHAR_T)ch);
 }
 
 
@@ -506,7 +506,7 @@ const LPCUTF8 Js::CharClassifier::SkipIdentifierNonSurrogateStartEnd(LPCUTF8 psz
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogate(LPCOLESTR psz, const CharClassifier *instance)
 {
-    char16 currentChar = 0x0;
+    CHAR_T currentChar = 0x0;
 
     // Slow path is to check for a surrogate each iteration.
     // There is no new surrogate whitespaces as of yet, however, might be in the future, so surrogates still need to be checked
@@ -536,7 +536,7 @@ const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogate(LPCOLESTR psz, const 
 
 const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogateStartEnd(_In_reads_(pStrEnd - pStr) LPCOLESTR pStr, _In_ LPCOLESTR pStrEnd, const CharClassifier *instance)
 {
-    char16 currentChar = 0x0;
+    CHAR_T currentChar = 0x0;
 
     // Same reasoning as above
     while(pStr < pStrEnd && (currentChar = *pStr) != '\0')
@@ -565,7 +565,7 @@ const OLECHAR* Js::CharClassifier::SkipWhiteSpaceSurrogateStartEnd(_In_reads_(pS
 const OLECHAR* Js::CharClassifier::SkipIdentifierSurrogate(LPCOLESTR psz, const CharClassifier *instance)
 {
     // Similar reasoning to above, however we do have surrogate identifiers, but less likely to occur in code.
-    char16 currentChar = *psz;
+    CHAR_T currentChar = *psz;
 
     if (!instance->IsIdStart(currentChar))
     {

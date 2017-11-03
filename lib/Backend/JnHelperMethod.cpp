@@ -188,7 +188,7 @@ DECLSPEC_GUARDIGNORE  _NOINLINE intptr_t GetNonTableMethodAddress(ThreadContextI
     // These are statically initialized to an import thunk, but let's keep them out of the table in case a new CRT changes this
     //
     case HelperWMemCmp:
-        return ShiftAddr(context, (int(*)(const char16 *, const char16 *, size_t))wmemcmp);
+        return ShiftAddr(context, (int(*)(const CHAR_T *, const CHAR_T *, size_t))wmemcmp);
 
     case HelperMemCpy:
         return ShiftAddr(context, (void*(*)(void *, void const*, size_t))memcpy);
@@ -320,7 +320,7 @@ intptr_t GetMethodOriginalAddress(ThreadContextInfo * context, JnHelperMethod he
 
 
 
-char16 const * const JnHelperMethodNames[] =
+CHAR_T const * const JnHelperMethodNames[] =
 {
 #define HELPERCALL(Name, Address, Attributes) _u("") STRINGIZEW(Name) _u(""),
 #include "JnHelperMethodList.h"
@@ -337,7 +337,7 @@ char16 const * const JnHelperMethodNames[] =
 ///
 ///----------------------------------------------------------------------------
 
-char16 const*
+CHAR_T const*
 GetMethodName(JnHelperMethod helperMethod)
 {
     return JnHelperMethodNames[static_cast<WORD>(helperMethod)];
@@ -349,7 +349,7 @@ GetMethodName(JnHelperMethod helperMethod)
 } //namespace IR
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-const char16 *GetVtableName(VTableValue value)
+const CHAR_T *GetVtableName(VTableValue value)
 {
     switch (value)
     {

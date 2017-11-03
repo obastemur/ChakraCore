@@ -481,7 +481,7 @@ CHAKRA_API JsDiagSetStepType(
             ThreadContext* threadContext = runtime->GetThreadContext();
             if(!threadContext->IsRuntimeInTTDMode())
             {
-                //Don't want to fail hard when user accidentally clicks this so pring message and step forward 
+                //Don't want to fail hard when user accidentally clicks this so pring message and step forward
                 fprintf(stderr, "Must be in replay mode to use reverse-step - launch with \"--replay-debug\" flag in Node.");
                 jsrtDebugManager->SetResumeType(BREAKRESUMEACTION_STEP_OVER);
             }
@@ -502,7 +502,7 @@ CHAKRA_API JsDiagSetStepType(
             ThreadContext* threadContext = runtime->GetThreadContext();
             if(!threadContext->IsRuntimeInTTDMode())
             {
-                //Don't want to fail hard when user accidentally clicks this so pring message and step forward 
+                //Don't want to fail hard when user accidentally clicks this so pring message and step forward
                 fprintf(stderr, "Must be in replay mode to use reverse-continue - launch with \"--replay-debug\" flag in Node.");
                 jsrtDebugManager->SetResumeType(BREAKRESUMEACTION_CONTINUE);
             }
@@ -785,7 +785,7 @@ CHAKRA_API JsDiagEvaluate(
             return JsErrorInvalidArgument;
         }
 
-        const WCHAR* expression;
+        const CHAR_T* expression;
         utf8::NarrowToWide wide_expression;
         if (isArrayBuffer && isUtf8)
         {
@@ -802,7 +802,7 @@ CHAKRA_API JsDiagEvaluate(
             expression = !isArrayBuffer ?
                 Js::JavascriptString::FromVar(expressionVal)->GetSz() // String
                 :
-                (const WCHAR*)Js::ArrayBuffer::FromVar(expressionVal)->GetBuffer(); // ArrayBuffer;
+                (const CHAR_T*)Js::ArrayBuffer::FromVar(expressionVal)->GetBuffer(); // ArrayBuffer;
         }
 
         *evalResult = JS_INVALID_REFERENCE;

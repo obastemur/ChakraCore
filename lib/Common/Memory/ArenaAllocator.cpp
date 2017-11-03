@@ -41,7 +41,7 @@ void ArenaData::UpdateCacheBlock() const
 
 template <class TFreeListPolicy, size_t ObjectAlignmentBitShiftArg, bool RequireObjectAlignment, size_t MaxObjectSize>
 ArenaAllocatorBase<TFreeListPolicy, ObjectAlignmentBitShiftArg, RequireObjectAlignment, MaxObjectSize>::
-ArenaAllocatorBase(__in LPCWSTR name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)(), void(*recoverMemoryFunc)()) :
+ArenaAllocatorBase(__in LPCCHAR_T name, PageAllocator * pageAllocator, void(*outOfMemoryFunc)(), void(*recoverMemoryFunc)()) :
     Allocator(outOfMemoryFunc, recoverMemoryFunc),
     ArenaData(pageAllocator),
 #ifdef ARENA_ALLOCATOR_FREE_LIST_SIZE
@@ -1154,7 +1154,7 @@ void InlineCacheAllocator::CheckIsAllZero(bool lockdown)
             // will be debug pattern filled (specifically, at least their weak reference slots).
             // All other caches must be zeroed out (again, at least their weak reference slots).
 #ifdef ARENA_MEMORY_VERIFY
-            Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0) 
+            Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0)
                 || IsAll(weakRefBytes, sizeof(cache->weakRefs), InlineCacheFreeListPolicy::DbgFreeMemFill));
 #else
             Assert(IsAll(weakRefBytes, sizeof(cache->weakRefs), 0));

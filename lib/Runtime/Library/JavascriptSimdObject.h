@@ -11,7 +11,7 @@ namespace Js
     private:
         Field(Var) value;               //The SIMDType var contained by the wrapper object
         Field(uint) numLanes;           //Number of lanes
-        Field(TypeId) typeDescriptor;   //The SIMDType contained by the wrapper object. 
+        Field(TypeId) typeDescriptor;   //The SIMDType contained by the wrapper object.
         DEFINE_VTABLE_CTOR(JavascriptSIMDObject, DynamicObject);
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(JavascriptSIMDObject);
         void SetTypeDescriptor(TypeId tid);
@@ -27,7 +27,7 @@ namespace Js
 
         Var ToString(ScriptContext* scriptContext) const;
         template <typename T, size_t N>
-        Var ToLocaleString(const Var* args, uint numArgs, char16 const *typeString, const T (&laneValues)[N], CallInfo* callInfo, ScriptContext* scriptContext) const;
+        Var ToLocaleString(const Var* args, uint numArgs, CHAR_T const *typeString, const T (&laneValues)[N], CallInfo* callInfo, ScriptContext* scriptContext) const;
 
         Var Unwrap() const;
         Var GetValue() const;

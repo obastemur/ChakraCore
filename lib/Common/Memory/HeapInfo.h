@@ -329,8 +329,8 @@ private:
     public:
 #if !USE_STATIC_VPM
         InvalidBitsTable invalidBitsBuffers;
-        ValidPointersMap() 
-        { 
+        ValidPointersMap()
+        {
 #if USE_VPM_TABLE
             GenerateValidPointersMap(&validPointersBuffer, invalidBitsBuffers, blockInfoBuffer);
 #else
@@ -345,7 +345,7 @@ private:
 
         inline const ValidPointers<TBlockAttributes> GetValidPointersForIndex(uint bucketIndex) const
         {
-            AnalysisAssert(bucketIndex < TBlockAttributes::BucketCount);  
+            AnalysisAssert(bucketIndex < TBlockAttributes::BucketCount);
             ushort const * validPointers = nullptr;
 #if USE_VPM_TABLE
             validPointers = validPointersBuffer[bucketIndex];
@@ -355,7 +355,7 @@ private:
 
         inline const typename SmallHeapBlockT<TBlockAttributes>::SmallHeapBlockBitVector * GetInvalidBitVector(uint index) const
         {
-            AnalysisAssert(index < TBlockAttributes::BucketCount);            
+            AnalysisAssert(index < TBlockAttributes::BucketCount);
 #if USE_STATIC_VPM
             return &(*invalidBitsBuffers)[index];
 #else
@@ -370,7 +370,7 @@ private:
         }
 
 #ifdef ENABLE_TEST_HOOKS
-        static HRESULT GenerateValidPointersMapHeader(LPCWSTR vpmFullPath);
+        static HRESULT GenerateValidPointersMapHeader(LPCCHAR_T vpmFullPath);
         static HRESULT GenerateValidPointersMapForBlockType(FILE* file);
 #endif
     };
@@ -380,7 +380,7 @@ private:
 
 public:
 #ifdef ENABLE_TEST_HOOKS
-    static HRESULT GenerateValidPointersMapHeader(LPCWSTR vpmFullPath)
+    static HRESULT GenerateValidPointersMapHeader(LPCCHAR_T vpmFullPath)
     {
         return smallAllocValidPointersMap.GenerateValidPointersMapHeader(vpmFullPath);
     }

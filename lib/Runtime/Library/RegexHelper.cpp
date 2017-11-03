@@ -20,7 +20,7 @@ namespace Js
 
     // See also:
     //    UnifiedRegex::Parser::Options(...)
-    bool RegexHelper::GetFlags(Js::ScriptContext* scriptContext, __in_ecount(strLen) const char16* str, CharCount strLen, UnifiedRegex::RegexFlags &flags)
+    bool RegexHelper::GetFlags(Js::ScriptContext* scriptContext, __in_ecount(strLen) const CHAR_T* str, CharCount strLen, UnifiedRegex::RegexFlags &flags)
     {
         for (CharCount i = 0; i < strLen; i++)
         {
@@ -67,7 +67,7 @@ namespace Js
         return true;
     }
 
-    UnifiedRegex::RegexPattern* RegexHelper::CompileDynamic(ScriptContext *scriptContext, const char16* psz, CharCount csz, const char16* pszOpts, CharCount cszOpts, bool isLiteralSource)
+    UnifiedRegex::RegexPattern* RegexHelper::CompileDynamic(ScriptContext *scriptContext, const CHAR_T* psz, CharCount csz, const CHAR_T* pszOpts, CharCount cszOpts, bool isLiteralSource)
     {
         Assert(psz != 0 && psz[csz] == 0);
         Assert(pszOpts != 0 || cszOpts == 0);
@@ -108,7 +108,7 @@ namespace Js
     }
 
     UnifiedRegex::RegexPattern* RegexHelper::CompileDynamic(
-        ScriptContext *scriptContext, const char16* psz, CharCount csz, UnifiedRegex::RegexFlags flags, bool isLiteralSource)
+        ScriptContext *scriptContext, const CHAR_T* psz, CharCount csz, UnifiedRegex::RegexFlags flags, bool isLiteralSource)
     {
         //
         // Regex compilations are mostly string parsing based. To avoid duplicating validation rules,
@@ -116,7 +116,7 @@ namespace Js
         // based implementation.
         //
         const CharCount OPT_BUF_SIZE = 6;
-        char16 opts[OPT_BUF_SIZE];
+        CHAR_T opts[OPT_BUF_SIZE];
 
         CharCount i = 0;
         if (flags & UnifiedRegex::IgnoreCaseRegexFlag)
@@ -147,7 +147,7 @@ namespace Js
         return CompileDynamic(scriptContext, psz, csz, opts, i, isLiteralSource);
     }
 
-    UnifiedRegex::RegexPattern* RegexHelper::PrimCompileDynamic(ScriptContext *scriptContext, const char16* psz, CharCount csz, const char16* pszOpts, CharCount cszOpts, bool isLiteralSource)
+    UnifiedRegex::RegexPattern* RegexHelper::PrimCompileDynamic(ScriptContext *scriptContext, const CHAR_T* psz, CharCount csz, const CHAR_T* pszOpts, CharCount cszOpts, bool isLiteralSource)
     {
         PROBE_STACK_NO_DISPOSE(scriptContext, Js::Constants::MinStackRegex);
 
@@ -191,7 +191,7 @@ namespace Js
             scriptContext->GetRegexStatsDatabase()->BeginProfile();
 #endif
         BEGIN_TEMP_ALLOCATOR(ctAllocator, scriptContext, _u("UnifiedRegexParseAndCompile"));
-        UnifiedRegex::StandardChars<char16>* standardChars = scriptContext->GetThreadContext()->GetStandardChars((char16*)0);
+        UnifiedRegex::StandardChars<CHAR_T>* standardChars = scriptContext->GetThreadContext()->GetStandardChars((CHAR_T*)0);
         UnifiedRegex::Node* root = 0;
         UnifiedRegex::Parser<NullTerminatedUnicodeEncodingPolicy, false> parser
             ( scriptContext
@@ -279,9 +279,9 @@ namespace Js
         ScriptContext* scriptContext,
         UnifiedRegex::RegexStats::Use use,
         JavascriptRegExp* regExp,
-        const char16 *const input,
+        const CHAR_T *const input,
         const CharCount inputLength,
-        const char16 *const replace = 0,
+        const CHAR_T *const replace = 0,
         const CharCount replaceLength = 0)
     {
         Assert(regExp);
@@ -342,7 +342,7 @@ namespace Js
 
     struct RegexMatchState
     {
-        const char16* input;
+        const CHAR_T* input;
         TempArenaAllocatorObject* tempAllocatorObj;
         UnifiedRegex::Matcher* matcher;
     };
@@ -429,7 +429,7 @@ namespace Js
     Var RegexHelper::RegexEs5MatchImpl(ScriptContext* scriptContext, JavascriptRegExp *regularExpression, JavascriptString *input, bool noResult, void *const stackAllocationPointer)
     {
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -445,7 +445,7 @@ namespace Js
         if (trigramAlphabet!=NULL && inputLength>=MinTrigramInputLength && trigramInfo!=NULL)
         {
             if (trigramAlphabet->input==NULL)
-                trigramAlphabet->MegaMatch((char16*)inputStr,inputLength);
+                trigramAlphabet->MegaMatch((CHAR_T*)inputStr,inputLength);
 
             if (trigramInfo->isTrigramPattern)
             {
@@ -604,7 +604,7 @@ namespace Js
         UnifiedRegex::GroupInfo match; // initially undefined
         if (offset <= inputLength)
         {
-            const char16* inputStr = input->GetString();
+            const CHAR_T* inputStr = input->GetString();
             match = SimpleMatch(scriptContext, pattern, inputStr, inputLength, offset);
         }
 
@@ -661,7 +661,7 @@ namespace Js
     Var RegexHelper::RegexEs5TestImpl(ScriptContext* scriptContext, JavascriptRegExp *regularExpression, JavascriptString *input)
     {
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
         UnifiedRegex::GroupInfo match; // initially undefined
 
@@ -736,16 +736,16 @@ namespace Js
         , int numGroups
         , GroupFn getGroup
         , JavascriptString* input
-        , const char16* matchedString
+        , const CHAR_T* matchedString
         , UnifiedRegex::GroupInfo match
         , JavascriptString* replace
         , int substitutions
         , __in_ecount(substitutions) CharCount* substitutionOffsets
-        , CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)>& concatenated )
+        , CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)>& concatenated )
     {
         Var nonMatchValue = NonMatchValue(scriptContext, false);
         const CharCount inputLength = input->GetLength();
-        const char16* replaceStr = replace->GetString();
+        const CHAR_T* replaceStr = replace->GetString();
         const CharCount replaceLength = replace->GetLength();
 
         CharCount offset = 0;
@@ -753,7 +753,7 @@ namespace Js
         {
             CharCount substitutionOffset = substitutionOffsets[i];
             concatenated.Append(replace, offset, substitutionOffset - offset);
-            char16 currentChar = replaceStr[substitutionOffset + 1];
+            CHAR_T currentChar = replaceStr[substitutionOffset + 1];
             if (currentChar >= _u('0') && currentChar <= _u('9'))
             {
                 int captureIndex = (int)(currentChar - _u('0'));
@@ -817,7 +817,7 @@ namespace Js
         concatenated.Append(replace, offset, replaceLength - offset);
     }
 
-    int RegexHelper::GetReplaceSubstitutions(const char16 * const replaceStr, CharCount const replaceLength,
+    int RegexHelper::GetReplaceSubstitutions(const CHAR_T * const replaceStr, CharCount const replaceLength,
         ArenaAllocator * const tempAllocator, CharCount** const substitutionOffsetsOut)
     {
         int substitutions = 0;
@@ -886,7 +886,7 @@ namespace Js
     Var RegexHelper::RegexEs6ReplaceImpl(ScriptContext* scriptContext, RecyclableObject* thisObj, JavascriptString* input, JavascriptString* replace, bool noResult)
     {
         auto appendReplacement = [&](
-            CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)>& resultBuilder,
+            CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)>& resultBuilder,
             ArenaAllocator* tempAlloc,
             JavascriptString* matchStr,
             int numberOfCaptures,
@@ -922,7 +922,7 @@ namespace Js
     Var RegexHelper::RegexEs6ReplaceImpl(ScriptContext* scriptContext, RecyclableObject* thisObj, JavascriptString* input, JavascriptFunction* replaceFn)
     {
         auto appendReplacement = [&](
-            CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)>& resultBuilder,
+            CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)>& resultBuilder,
             ArenaAllocator* tempAlloc,
             JavascriptString* matchStr,
             int numberOfCaptures,
@@ -1003,7 +1003,7 @@ namespace Js
             AdvanceLastIndex(thisObj, input, matchStr, unicode, scriptContext);
         }
 
-        CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)> accumulatedResultBuilder(scriptContext);
+        CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)> accumulatedResultBuilder(scriptContext);
         CharCount inputLength = input->GetLength();
         CharCount nextSourcePosition = 0;
 
@@ -1085,9 +1085,9 @@ namespace Js
     Var RegexHelper::RegexEs5ReplaceImpl(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, JavascriptString* input, JavascriptString* replace, bool noResult)
     {
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
-        const char16* replaceStr = replace->GetString();
+        const CHAR_T* replaceStr = replace->GetString();
         CharCount replaceLength = replace->GetLength();
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
 
         JavascriptString* newString = nullptr;
@@ -1118,7 +1118,7 @@ namespace Js
                  state.tempAllocatorObj->GetAllocator(), &substitutionOffsets);
 
             // Use to see if we already have partial result populated in concatenated
-            CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)> concatenated(scriptContext);
+            CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)> concatenated(scriptContext);
 
             // If lastIndex > 0, append input[0..offset] characters to the result
             if (offset > 0)
@@ -1146,7 +1146,7 @@ namespace Js
                     auto getGroup = [&](int captureIndex, Var nonMatchValue) {
                         return GetGroup(scriptContext, pattern, input, nonMatchValue, captureIndex);
                     };
-                    const char16* matchedString = inputStr + lastActualMatch.offset;
+                    const CHAR_T* matchedString = inputStr + lastActualMatch.offset;
                     ReplaceFormatString(scriptContext, pattern->NumGroups(), getGroup, input, matchedString, lastActualMatch, replace, substitutions, substitutionOffsets, concatenated);
                 }
                 else
@@ -1231,7 +1231,7 @@ namespace Js
     Var RegexHelper::RegexEs5ReplaceImpl(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, JavascriptString* input, JavascriptFunction* replacefn)
     {
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
         JavascriptString* newString = nullptr;
         const int numGroups = pattern->NumGroups();
@@ -1262,7 +1262,7 @@ namespace Js
             offset = regularExpression->GetLastIndex();
         }
 
-        CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)> concatenated(scriptContext);
+        CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)> concatenated(scriptContext);
         UnifiedRegex::GroupInfo lastActualMatch;
         UnifiedRegex::GroupInfo lastSuccessfulMatch;
 
@@ -1357,7 +1357,7 @@ namespace Js
             return input;
         }
 
-        const char16 *const replaceStr = replace->GetString();
+        const CHAR_T *const replaceStr = replace->GetString();
 
         // Unfortunately, due to the possibility of there being $ escapes, we can't just wmemcpy the replace string. Check if we
         // have a small replace string that we can quickly scan for '$', to see if we can just wmemcpy.
@@ -1371,10 +1371,10 @@ namespace Js
 
         if(definitelyNoEscapes)
         {
-            const char16* inputStr = input->GetString();
-            const char16* prefixStr = inputStr;
+            const CHAR_T* inputStr = input->GetString();
+            const CHAR_T* prefixStr = inputStr;
             CharCount prefixLength = (CharCount)matchedIndex;
-            const char16* postfixStr = inputStr + prefixLength + match->GetLength();
+            const CHAR_T* postfixStr = inputStr + prefixLength + match->GetLength();
             CharCount postfixLength = input->GetLength() - prefixLength - match->GetLength();
             CharCount newLength = prefixLength + postfixLength + replace->GetLength();
             BufferStringBuilder bufferString(newLength, match->GetScriptContext());
@@ -1384,7 +1384,7 @@ namespace Js
             return bufferString.ToString();
         }
 
-        CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)> concatenated(input->GetScriptContext());
+        CompoundString::Builder<64 * sizeof(void *) / sizeof(CHAR_T)> concatenated(input->GetScriptContext());
 
         // Copy portion of input string that precedes the matched substring
         concatenated.Append(input, 0, matchedIndex);
@@ -1456,10 +1456,10 @@ namespace Js
                 return CALL_FUNCTION(threadContext, replacefn, CallInfo(4), pThis, match, JavascriptNumber::ToVar((int)indexMatched, scriptContext), input);
             });
             JavascriptString* replace = JavascriptConversion::ToString(replaceVar, scriptContext);
-            const char16* inputStr = input->GetString();
-            const char16* prefixStr = inputStr;
+            const CHAR_T* inputStr = input->GetString();
+            const CHAR_T* prefixStr = inputStr;
             CharCount prefixLength = indexMatched;
-            const char16* postfixStr = inputStr + prefixLength + match->GetLength();
+            const CHAR_T* postfixStr = inputStr + prefixLength + match->GetLength();
             CharCount postfixLength = input->GetLength() - prefixLength - match->GetLength();
             CharCount newLength = prefixLength + postfixLength + replace->GetLength();
             BufferStringBuilder bufferString(newLength, match->GetScriptContext());
@@ -1663,7 +1663,7 @@ namespace Js
 
     JavascriptString* RegexHelper::AppendStickyToFlagsIfNeeded(JavascriptString* flags, ScriptContext* scriptContext)
     {
-        const char16* flagsString = flags->GetString();
+        const CHAR_T* flagsString = flags->GetString();
         if (wcsstr(flagsString, _u("y")) == nullptr)
         {
             BEGIN_TEMP_ALLOCATOR(tempAlloc, scriptContext, _u("RegexHelper"))
@@ -1702,7 +1702,7 @@ namespace Js
 
         UnifiedRegex::RegexPattern *splitPattern = GetSplitPattern(scriptContext, regularExpression);
 
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength(); // s in spec
         const int numGroups = splitPattern->NumGroups();
         Var nonMatchValue = NonMatchValue(scriptContext, false);
@@ -1783,7 +1783,7 @@ namespace Js
     }
 
     UnifiedRegex::GroupInfo
-    RegexHelper::SimpleMatch(ScriptContext * scriptContext, UnifiedRegex::RegexPattern * pattern, const char16 * input,  CharCount inputLength, CharCount offset)
+    RegexHelper::SimpleMatch(ScriptContext * scriptContext, UnifiedRegex::RegexPattern * pattern, const CHAR_T * input,  CharCount inputLength, CharCount offset)
     {
         RegexMatchState state;
         PrimBeginMatch(state, scriptContext, pattern, input, inputLength, false);
@@ -1796,7 +1796,7 @@ namespace Js
     Var RegexHelper::RegexSearchImpl(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, JavascriptString* input)
     {
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
-        const char16* inputStr = input->GetString();
+        const CHAR_T* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -1819,7 +1819,7 @@ namespace Js
         {
             CharCount count = min(input->GetLength(), limit);
             ary = scriptContext->GetLibrary()->CreateArray(count);
-            const char16 * charString = input->GetString();
+            const CHAR_T * charString = input->GetString();
             for (CharCount i = 0; i < count; i++)
             {
                 ary->DirectSetItemAt(i, scriptContext->GetLibrary()->GetCharStringCache().GetStringForChar(charString[i]));
@@ -1859,7 +1859,7 @@ namespace Js
     // ----------------------------------------------------------------------
     // Primitives
     // ----------------------------------------------------------------------
-    void RegexHelper::PrimBeginMatch(RegexMatchState& state, ScriptContext* scriptContext, UnifiedRegex::RegexPattern* pattern, const char16* input, CharCount inputLength, bool alwaysNeedAlloc)
+    void RegexHelper::PrimBeginMatch(RegexMatchState& state, ScriptContext* scriptContext, UnifiedRegex::RegexPattern* pattern, const CHAR_T* input, CharCount inputLength, bool alwaysNeedAlloc)
     {
         state.input = input;
         if (pattern->rep.unified.matcher == 0)
@@ -1931,12 +1931,12 @@ namespace Js
             return scriptContext->GetLibrary()->GetEmptyString();
         case 1:
         {
-            const char16* inputStr = input->GetString();
+            const CHAR_T* inputStr = input->GetString();
             return scriptContext->GetLibrary()->GetCharStringCache().GetStringForChar(inputStr[group.offset]);
         }
         case 2:
         {
-            const char16* inputStr = input->GetString();
+            const CHAR_T* inputStr = input->GetString();
             PropertyString* propString = scriptContext->GetPropertyString2(inputStr[group.offset], inputStr[group.offset + 1]);
             if (propString != 0)
                 return propString;
@@ -2106,7 +2106,7 @@ namespace Js
     }
 
     template<bool mustMatchEntireInput>
-    BOOL RegexHelper::RegexTest_NonScript(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const char16 *const input, const CharCount inputLength)
+    BOOL RegexHelper::RegexTest_NonScript(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const CHAR_T *const input, const CharCount inputLength)
     {
         // This version of the function should only be used when testing the regex against a non-javascript string. That is,
         // this call was not initiated by script code. Hence, the RegExp constructor is not updated with the last match. If
@@ -2142,8 +2142,8 @@ namespace Js
     }
 
     // explicit instantiation
-    template BOOL RegexHelper::RegexTest_NonScript<true>(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const char16 *const input, const CharCount inputLength);
-    template BOOL RegexHelper::RegexTest_NonScript<false>(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const char16 *const input, const CharCount inputLength);
+    template BOOL RegexHelper::RegexTest_NonScript<true>(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const CHAR_T *const input, const CharCount inputLength);
+    template BOOL RegexHelper::RegexTest_NonScript<false>(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, const CHAR_T *const input, const CharCount inputLength);
 
     // Asserts if the value needs to be marshaled to target context.
     // Returns the resulting value.

@@ -25,10 +25,10 @@ public:
 class JITJavascriptString : JITRecyclableObject
 {
 private:
-    const char16* m_pszValue;
+    const CHAR_T* m_pszValue;
     charcount_t m_charLength;
 public:
-    const char16* GetString() const
+    const CHAR_T* GetString() const
     {
         return m_pszValue;
     }
@@ -89,6 +89,6 @@ struct DefaultComparer<JITJavascriptString*>
 
     inline static uint GetHashCode(JITJavascriptString * pStr)
     {
-        return JsUtil::CharacterBuffer<char16>::StaticGetHashCode(pStr->GetString(), pStr->GetLength());
+        return JsUtil::CharacterBuffer<CHAR_T>::StaticGetHashCode(pStr->GetString(), pStr->GetLength());
     }
 };

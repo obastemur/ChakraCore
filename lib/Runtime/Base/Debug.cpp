@@ -10,14 +10,14 @@
 #endif
 #include "Language/JavascriptStackWalker.h"
 
-WCHAR* DumpCallStack(uint frameCount) { return DumpCallStackFull(frameCount, /*print*/ true); }
+CHAR_T* DumpCallStack(uint frameCount) { return DumpCallStackFull(frameCount, /*print*/ true); }
 
-WCHAR* DumpCallStackFull(uint frameCount, bool print)
+CHAR_T* DumpCallStackFull(uint frameCount, bool print)
 {
     Js::ScriptContext* scriptContext = ThreadContext::GetContextForCurrentThread()->GetScriptContextList();
     Js::JavascriptStackWalker walker(scriptContext);
 
-    WCHAR buffer[512];
+    CHAR_T buffer[512];
     Js::StringBuilder<ArenaAllocator> sb(scriptContext->GeneralAllocator());
     uint fc = 0;
     while (walker.Walk())
@@ -25,7 +25,7 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
         void * codeAddr = walker.GetCurrentCodeAddr();
         if (walker.IsJavascriptFrame())
         {
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             StringCchPrintf(buffer, _countof(buffer), _u("0x%p  "), codeAddr);
             sb.AppendSz(buffer);
             // Found a JavascriptFunction.  Dump its name and parameters.
@@ -33,7 +33,7 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
 
             Js::FunctionBody * jsBody = jsFunc->GetFunctionBody();
             const Js::CallInfo callInfo = walker.GetCallInfo();
-            const WCHAR* sourceFileName = _u("NULL");
+            const CHAR_T* sourceFileName = _u("NULL");
             ULONG line = 0; LONG column = 0;
             walker.GetSourcePosition(&sourceFileName, &line, &column);
 
@@ -56,7 +56,7 @@ WCHAR* DumpCallStackFull(uint frameCount, bool print)
        }
     }
     sb.AppendCppLiteral(_u("----------------------------------------------------------------------\n"));
-    WCHAR* stack = sb.Detach();
+    CHAR_T* stack = sb.Detach();
     if(print)
     {
         Output::Print(stack);

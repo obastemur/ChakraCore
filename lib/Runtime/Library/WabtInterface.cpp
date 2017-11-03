@@ -18,10 +18,10 @@ struct Context
     ScriptContext* scriptContext;
 };
 
-char16* NarrowStringToWide(Context* ctx, const char* src, const size_t* srcSize = nullptr, size_t* dstSize = nullptr)
+CHAR_T* NarrowStringToWide(Context* ctx, const char* src, const size_t* srcSize = nullptr, size_t* dstSize = nullptr)
 {
-    auto allocator = [&ctx](size_t size) {return (char16*)AnewArray(ctx->allocator, char16, size); };
-    char16* dst = nullptr;
+    auto allocator = [&ctx](size_t size) {return (CHAR_T*)AnewArray(ctx->allocator, CHAR_T, size); };
+    CHAR_T* dst = nullptr;
     size_t size;
     HRESULT hr = utf8::NarrowStringToWide(allocator, src, srcSize ? *srcSize : strlen(src), &dst, &size);
     if (hr != S_OK)
@@ -88,7 +88,7 @@ Js::Var StringToVar(const char* src, uint length, void* user_data)
     Context* ctx = (Context*)user_data;
     size_t bufSize = 0;
     size_t slength = (size_t)length;
-    char16* buf = NarrowStringToWide(ctx, src, &slength, &bufSize);
+    CHAR_T* buf = NarrowStringToWide(ctx, src, &slength, &bufSize);
     Assert(bufSize < UINT32_MAX);
     return JavascriptString::NewCopyBuffer(buf, (charcount_t)bufSize, ctx->scriptContext);
 }
@@ -129,7 +129,7 @@ Js::Var WabtInterface::EntryConvertWast2Wasm(RecyclableObject* function, CallInf
         isSpecText = JavascriptConversion::ToBool(isSpecVar, scriptContext);
     }
     JavascriptString* string = (JavascriptString*)args[1];
-    const char16* str = string->GetString();
+    const CHAR_T* str = string->GetString();
     ArenaAllocator arena(_u("Wast2Wasm"), scriptContext->GetThreadContext()->GetPageAllocator(), Throw::OutOfMemory);
     Context context;
     context.allocator = &arena;

@@ -99,7 +99,7 @@ AutoSystemInfo::Initialize()
     initialized = true;
 #endif
 
-    WCHAR DisableDebugScopeCaptureFlag[MAX_PATH];
+    CHAR_T DisableDebugScopeCaptureFlag[MAX_PATH];
     if (::GetEnvironmentVariable(_u("JS_DEBUG_SCOPE"), DisableDebugScopeCaptureFlag, _countof(DisableDebugScopeCaptureFlag)) != 0)
     {
         disableDebugScopeCapture = true;
@@ -393,9 +393,9 @@ DWORD AutoSystemInfo::SaveModuleFileName(HANDLE hMod)
     return ::GetModuleFileNameW((HMODULE)hMod, Data.binaryName, MAX_PATH);
 }
 
-LPCWSTR AutoSystemInfo::GetJscriptDllFileName()
+LPCCHAR_T AutoSystemInfo::GetJscriptDllFileName()
 {
-    return (LPCWSTR)Data.binaryName;
+    return (LPCCHAR_T)Data.binaryName;
 }
 
 #ifdef _WIN32
@@ -459,7 +459,7 @@ HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorV
     if(AutoSystemInfo::Data.majorVersion == 0 && AutoSystemInfo::Data.minorVersion == 0)
     {
         // uninitialized state  - call the system API to get the version info.
-        LPCWSTR jscriptDllName = GetJscriptDllFileName();
+        LPCCHAR_T jscriptDllName = GetJscriptDllFileName();
         hr = GetVersionInfo(jscriptDllName, majorVersion, minorVersion);
 
         AutoSystemInfo::Data.majorVersion = *majorVersion;
@@ -488,7 +488,7 @@ HRESULT AutoSystemInfo::GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorV
 //
 // Returns the major and minor version of the binary passed as argument.
 //
-HRESULT AutoSystemInfo::GetVersionInfo(__in LPCWSTR pszPath, DWORD* majorVersion, DWORD* minorVersion)
+HRESULT AutoSystemInfo::GetVersionInfo(__in LPCCHAR_T pszPath, DWORD* majorVersion, DWORD* minorVersion)
 {
 #ifdef _WIN32
     DWORD   dwTemp;

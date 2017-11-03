@@ -775,7 +775,7 @@ private:
 
     struct GuestArenaAllocator : public ArenaAllocator
     {
-        GuestArenaAllocator(__in_z char16 const*  name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)())
+        GuestArenaAllocator(__in_z CHAR_T const*  name, PageAllocator * pageAllocator, void (*outOfMemoryFunc)())
             : ArenaAllocator(name, pageAllocator, outOfMemoryFunc), pendingDelete(false)
         {
         }
@@ -1050,8 +1050,8 @@ private:
 #endif
 #ifdef RECYCLER_STATS
     RecyclerCollectionStats collectionStats;
-    void PrintHeapBlockStats(char16 const * name, HeapBlock::HeapBlockType type);
-    void PrintHeapBlockMemoryStats(char16 const * name, HeapBlock::HeapBlockType type);
+    void PrintHeapBlockStats(CHAR_T const * name, HeapBlock::HeapBlockType type);
+    void PrintHeapBlockMemoryStats(CHAR_T const * name, HeapBlock::HeapBlockType type);
     void PrintCollectStats();
     void PrintHeuristicCollectionStats();
     void PrintMarkCollectionStats();
@@ -1161,7 +1161,7 @@ public:
 
     // Finalizer support
     void SetExternalRootMarker(ExternalRootMarker fn, void * context);
-    ArenaAllocator * CreateGuestArena(char16 const * name, void (*outOfMemoryFunc)());
+    ArenaAllocator * CreateGuestArena(CHAR_T const * name, void (*outOfMemoryFunc)());
     void DeleteGuestArena(ArenaAllocator * arenaAllocator);
     ArenaData ** RegisterExternalGuestArena(ArenaData* guestArena)
     {
@@ -1402,7 +1402,7 @@ public:
     uint GetVerifyPad() const { return verifyPad; }
     void Verify(Js::Phase phase);
 
-    static void VerifyCheck(BOOL cond, char16 const * msg, void * address, void * corruptedAddress);
+    static void VerifyCheck(BOOL cond, CHAR_T const * msg, void * address, void * corruptedAddress);
     static void VerifyCheckFill(void * address, size_t size);
     void FillCheckPad(void * address, size_t size, size_t alignedAllocSize, bool objectAlreadyInitialized);
     void FillCheckPad(void * address, size_t size, size_t alignedAllocSize)
@@ -1427,8 +1427,8 @@ public:
     void ReportLeaksOnProcessDetach();
 #endif
 #ifdef CHECK_MEMORY_LEAK
-    void CheckLeaks(char16 const * header);
-    void CheckLeaksOnProcessDetach(char16 const * header);
+    void CheckLeaks(CHAR_T const * header);
+    void CheckLeaksOnProcessDetach(CHAR_T const * header);
 #endif
 #ifdef RECYCLER_TRACE
     void SetDomCollect(bool isDomCollect) { collectionParam.domCollect = isDomCollect; }

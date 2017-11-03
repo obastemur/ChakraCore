@@ -86,7 +86,7 @@ MemoryProfiler::GetRecyclerMemoryData()
 }
 
 ArenaMemoryData *
-MemoryProfiler::Begin(LPCWSTR name)
+MemoryProfiler::Begin(LPCCHAR_T name)
 {
     if (!Js::Configuration::Global.flags.IsEnabled(Js::TraceMemoryFlag))
     {
@@ -103,10 +103,10 @@ MemoryProfiler::Begin(LPCWSTR name)
     AUTO_NESTED_HANDLED_EXCEPTION_TYPE(ExceptionType_DisableCheck);
     MemoryProfiler * memoryProfiler = EnsureMemoryProfiler();
     ArenaMemoryDataSummary * arenaTotalMemoryData;
-    if (!memoryProfiler->arenaDataMap.TryGetValue((LPWSTR)name, &arenaTotalMemoryData))
+    if (!memoryProfiler->arenaDataMap.TryGetValue((LPCHAR_T)name, &arenaTotalMemoryData))
     {
         arenaTotalMemoryData = AnewStructZ(&memoryProfiler->alloc, ArenaMemoryDataSummary);
-        memoryProfiler->arenaDataMap.Add((LPWSTR)name, arenaTotalMemoryData);
+        memoryProfiler->arenaDataMap.Add((LPCHAR_T)name, arenaTotalMemoryData);
     }
     arenaTotalMemoryData->arenaCount++;
 
@@ -126,11 +126,11 @@ MemoryProfiler::Begin(LPCWSTR name)
 }
 
 void
-MemoryProfiler::Reset(LPCWSTR name, ArenaMemoryData * memoryData)
+MemoryProfiler::Reset(LPCCHAR_T name, ArenaMemoryData * memoryData)
 {
     MemoryProfiler * memoryProfiler = memoryData->profiler;
     ArenaMemoryDataSummary * arenaMemoryDataSummary;
-    bool hasItem = memoryProfiler->arenaDataMap.TryGetValue((LPWSTR)name, &arenaMemoryDataSummary);
+    bool hasItem = memoryProfiler->arenaDataMap.TryGetValue((LPCHAR_T)name, &arenaMemoryDataSummary);
     Assert(hasItem);
 
 
@@ -147,11 +147,11 @@ MemoryProfiler::Reset(LPCWSTR name, ArenaMemoryData * memoryData)
 }
 
 void
-MemoryProfiler::End(LPCWSTR name, ArenaMemoryData * memoryData)
+MemoryProfiler::End(LPCCHAR_T name, ArenaMemoryData * memoryData)
 {
     MemoryProfiler * memoryProfiler = memoryData->profiler;
     ArenaMemoryDataSummary * arenaMemoryDataSummary;
-    bool hasItem = memoryProfiler->arenaDataMap.TryGetValue((LPWSTR)name, &arenaMemoryDataSummary);
+    bool hasItem = memoryProfiler->arenaDataMap.TryGetValue((LPCHAR_T)name, &arenaMemoryDataSummary);
     Assert(hasItem);
 
     if (memoryData->next != nullptr)
@@ -272,7 +272,7 @@ MemoryProfiler::Print()
 }
 
 void
-MemoryProfiler::PrintArenaHeader(char16 const * title)
+MemoryProfiler::PrintArenaHeader(CHAR_T const * title)
 {
     Output::Print(_u("--------------------------------------------------------------------------------------------------------\n"));
 
@@ -293,22 +293,22 @@ MemoryProfiler::PrintArenaHeader(char16 const * title)
 }
 
 int MemoryProfiler::CreateArenaUsageSummary(ArenaAllocator * alloc, bool liveOnly,
-    _Outptr_result_buffer_(return) LPWSTR ** name_ptr, _Outptr_result_buffer_(return) ArenaMemoryDataSummary *** summaries_ptr)
+    _Outptr_result_buffer_(return) LPCHAR_T ** name_ptr, _Outptr_result_buffer_(return) ArenaMemoryDataSummary *** summaries_ptr)
 {
     Assert(alloc);
 
-    LPWSTR *& name = *name_ptr;
+    LPCHAR_T *& name = *name_ptr;
     ArenaMemoryDataSummary **& summaries = *summaries_ptr;
 
     int count = arenaDataMap.Count();
-    name = AnewArray(alloc, LPWSTR, count);
+    name = AnewArray(alloc, LPCHAR_T, count);
     int i = 0;
-    arenaDataMap.Map([&i, name](LPWSTR key, ArenaMemoryDataSummary*)
+    arenaDataMap.Map([&i, name](LPCHAR_T key, ArenaMemoryDataSummary*)
     {
         name[i++] = key;
     });
 
-    qsort_s(name, count, sizeof(LPWSTR), [](void*, const void* a, const void* b) { return DefaultComparer<LPWSTR>::Compare(*(LPWSTR*)a, *(LPWSTR*)b); }, nullptr);
+    qsort_s(name, count, sizeof(LPCHAR_T), [](void*, const void* a, const void* b) { return DefaultComparer<LPCHAR_T>::Compare(*(LPCHAR_T*)a, *(LPCHAR_T*)b); }, nullptr);
 
     summaries = AnewArray(alloc, ArenaMemoryDataSummary *, count);
 
@@ -352,7 +352,7 @@ int MemoryProfiler::CreateArenaUsageSummary(ArenaAllocator * alloc, bool liveOnl
 void
 MemoryProfiler::PrintArena(bool liveOnly)
 {
-    WithArenaUsageSummary(liveOnly, [&] (int count, _In_reads_(count) LPWSTR * name, _In_reads_(count) ArenaMemoryDataSummary ** summaries)
+    WithArenaUsageSummary(liveOnly, [&] (int count, _In_reads_(count) LPCHAR_T * name, _In_reads_(count) ArenaMemoryDataSummary ** summaries)
     {
         int i = 0;
 

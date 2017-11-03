@@ -16,7 +16,7 @@ class ArenaMemoryTracking
 {
 public:
     static void Activate();
-    static void ArenaCreated(Allocator *arena,  __in LPCWSTR name);
+    static void ArenaCreated(Allocator *arena,  __in LPCCHAR_T name);
     static void ArenaDestroyed(Allocator *arena);
     static void ReportAllocation(Allocator *arena, void *address, size_t size);
     static void ReportReallocation(Allocator *arena, void *address, size_t existingSize, size_t newSize);

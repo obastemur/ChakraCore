@@ -49,7 +49,7 @@ IRBuilder::AddStatementBoundary(uint statementIndex, uint offset)
                     }
                 }
             }
-            else if (Js::Configuration::Global.flags.IsEnabled(Js::BailOutAtEveryLineFlag)) 
+            else if (Js::Configuration::Global.flags.IsEnabled(Js::BailOutAtEveryLineFlag))
             {
                 this->InjectBailOut(offset);
             }
@@ -1203,7 +1203,7 @@ IRBuilder::BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset)
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 IR::IndirOpnd *
-IRBuilder::BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset, const char16 *desc)
+IRBuilder::BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset, const CHAR_T *desc)
 {
     IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(baseReg, offset, TyVar, desc, m_func);
     return indirOpnd;
@@ -1558,7 +1558,7 @@ IRBuilder::BuildConstantLoads()
             instr = IR::Instr::NewConstantLoad(dstOpnd, varConst, valueType, m_func,
                 m_func->IsOOPJIT() ? m_func->GetJITFunctionBody()->GetConstAsT<Js::RecyclableObject>(reg) : nullptr);
             break;
-        }        
+        }
         this->AddInstr(instr, Js::Constants::NoByteCodeOffset);
     }
 
@@ -2544,7 +2544,7 @@ IRBuilder::BuildReg5(Js::OpCode newOpcode, uint32 offset, Js::RegSlot dstRegSlot
     src3Opnd = this->BuildSrcOpnd(src3RegSlot);
     src4Opnd = this->BuildSrcOpnd(src4RegSlot);
     dstOpnd = this->BuildDstOpnd(dstRegSlot);
-    
+
     instr = IR::Instr::New(Js::OpCode::ArgOut_A, IR::RegOpnd::New(TyVar, m_func), src4Opnd, m_func);
     this->AddInstr(instr, offset);
 
@@ -3252,7 +3252,7 @@ IRBuilder::BuildProfiledSlotLoad(Js::OpCode loadOp, IR::RegOpnd *dstOpnd, IR::Sy
             const ValueType valueType(instr->AsProfiledInstr()->u.FldInfo().valueType);
             char valueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             valueType.ToString(valueTypeStr);
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("TestTrace function %s (#%s) ValueType = %S "), m_func->GetJITFunctionBody()->GetDisplayName(), m_func->GetDebugNumberSet(debugStringBuffer), valueTypeStr);
             instr->DumpTestTrace();
         }
@@ -3730,7 +3730,7 @@ NewScFuncCommon:
                 if (stackFuncPtrSym)
                 {
                     IR::RegOpnd * dataOpnd = IR::RegOpnd::New(TyVar, m_func);
-                    instr = IR::Instr::New(Js::OpCode::NewScFuncData, dataOpnd, environmentOpnd, 
+                    instr = IR::Instr::New(Js::OpCode::NewScFuncData, dataOpnd, environmentOpnd,
                                            IR::RegOpnd::New(stackFuncPtrSym, TyVar, m_func), m_func);
                     this->AddInstr(instr, offset);
                     instr = IR::Instr::New(newOpcode, regOpnd, functionBodySlotOpnd, dataOpnd, m_func);
@@ -3815,7 +3815,7 @@ IRBuilder::BuildElementSlotI2(Js::OpCode newOpcode, uint32 offset, Js::RegSlot r
 
             fieldSym = PropertySym::New(regOpnd->m_sym, slotId2, (uint32)-1, (uint)-1, PropertyKindSlots, m_func);
             fieldOpnd = IR::SymOpnd::New(fieldSym, TyVar, m_func);
-            
+
             if (newOpcode == Js::OpCode::LdModuleSlot)
             {
                 newOpcode = Js::OpCode::LdSlot;
@@ -3938,7 +3938,7 @@ IRBuilder::BuildElementSlotI2(Js::OpCode newOpcode, uint32 offset, Js::RegSlot r
                     m_func->GetTopFunc()->AddSlotArrayCheck(fieldOpnd);
                 }
             }
-            newOpcode = 
+            newOpcode =
                 newOpcode == Js::OpCode::StInnerObjSlot || newOpcode == Js::OpCode::StInnerSlot ?
                 Js::OpCode::StSlot : Js::OpCode::StSlotChkUndecl;
             instr = IR::Instr::New(newOpcode, fieldOpnd, regOpnd, m_func);
@@ -4090,7 +4090,7 @@ IRBuilder::BuildProfiledFieldLoad(Js::OpCode loadOp, IR::RegOpnd *dstOpnd, IR::S
             const ValueType valueType(instr->AsProfiledInstr()->u.FldInfo().valueType);
             char valueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             valueType.ToString(valueTypeStr);
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("TestTrace function %s (%s) ValueType = %i "), m_func->GetJITFunctionBody()->GetDisplayName(), m_func->GetDebugNumberSet(debugStringBuffer), valueTypeStr);
             instr->DumpTestTrace();
         }
@@ -6118,7 +6118,7 @@ IRBuilder::BuildProfiledCallI(Js::OpCode opcode, uint32 offset, Js::RegSlot retu
                 if(this->m_func->GetWorkItem()->GetJITTimeInfo())
                 {
                     const FunctionJITTimeInfo *inlinerData = this->m_func->GetWorkItem()->GetJITTimeInfo();
-                    if(!(this->IsLoopBody() && PHASE_OFF(Js::InlineInJitLoopBodyPhase, this->m_func)) && 
+                    if(!(this->IsLoopBody() && PHASE_OFF(Js::InlineInJitLoopBodyPhase, this->m_func)) &&
                         inlinerData && inlinerData->GetInlineesBV() && (!inlinerData->GetInlineesBV()->Test(profileId)
 #if DBG
                         || (PHASE_STRESS(Js::BailOnNoProfilePhase, this->m_func->GetTopFunc()) &&

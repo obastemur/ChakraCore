@@ -51,7 +51,7 @@ public:
     bool ArmDivAvailable() const { return this->armDivAvailable; }
 #endif
     static DWORD SaveModuleFileName(HANDLE hMod);
-    static LPCWSTR GetJscriptDllFileName();
+    static LPCCHAR_T GetJscriptDllFileName();
     static HRESULT GetJscriptFileVersion(DWORD* majorVersion, DWORD* minorVersion, DWORD *buildDateHash = nullptr, DWORD *buildTimeHash = nullptr);
 #if DBG
     static bool IsInitialized();
@@ -82,7 +82,7 @@ public:
     UINT_PTR dllLoadAddress;
     UINT_PTR dllHighAddress;
 #endif
-    
+
 private:
     AutoSystemInfo() : majorVersion(0), minorVersion(0), buildDateHash(0), buildTimeHash(0), crtSize(0) { Initialize(); }
     void Initialize();
@@ -111,12 +111,12 @@ private:
 
     bool InitPhysicalProcessorCount();
 
-    WCHAR binaryName[MAX_PATH + 1];
+    CHAR_T binaryName[MAX_PATH + 1];
     DWORD majorVersion;
     DWORD minorVersion;
     DWORD buildDateHash;
     DWORD buildTimeHash;
-    static HRESULT GetVersionInfo(__in LPCWSTR pszPath, DWORD* majorVersion, DWORD* minorVersion);
+    static HRESULT GetVersionInfo(__in LPCCHAR_T pszPath, DWORD* majorVersion, DWORD* minorVersion);
 
     static const DWORD INVALID_VERSION = (DWORD)-1;
 

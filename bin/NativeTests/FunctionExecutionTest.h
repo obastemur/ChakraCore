@@ -104,7 +104,7 @@ namespace Js
     class Output
     {
     public:
-        static size_t Print(const char16 *form, ...) { UNREFERENCED_PARAMETER(form);  return 0; }
+        static size_t Print(const CHAR_T *form, ...) { UNREFERENCED_PARAMETER(form);  return 0; }
     };
 
     class FunctionBody
@@ -119,7 +119,7 @@ namespace Js
         FunctionEntryPointInfo* GetDefaultFunctionEntryPointInfo() { return &defaultInfo; }
         FunctionEntryPointInfo *GetSimpleJitEntryPointInfo() { return &simpleInfo; }
         void TraceExecutionMode(const char *const eventDescription = nullptr) const { UNREFERENCED_PARAMETER(eventDescription); }
-        
+
         FunctionBody(bool interpreterProfile, bool interpreterAutoProfile, bool simpleJit):
             doInterpreterProfile(interpreterProfile),
             doInterpreterAutoProfile(interpreterAutoProfile),

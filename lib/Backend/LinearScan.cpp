@@ -15,7 +15,7 @@ char const * const RegNames[RegNumCount] =
 #undef REGDAT
 };
 
-char16 const * const RegNamesW[RegNumCount] =
+CHAR_T const * const RegNamesW[RegNumCount] =
 {
 #define REGDAT(Name, ListName, ...) _u("") STRINGIZEW(ListName) _u(""),
 #include "RegList.h"
@@ -1290,7 +1290,7 @@ FuncBailOutData::FinalizeLocalOffsets(JitArenaAllocator *allocator, GlobalBailOu
             bool isSimd128B8  = simd128B8Syms->Test(i) != 0;
             bool isSimd128B16 = simd128B16Syms->Test(i) != 0;
 
-            globalBailOutRecordDataTable->AddOrUpdateRow(allocator, bailOutRecordId, i, isFloat, isInt, 
+            globalBailOutRecordDataTable->AddOrUpdateRow(allocator, bailOutRecordId, i, isFloat, isInt,
                 isSimd128F4, isSimd128I4, isSimd128I8, isSimd128I16, isSimd128U4, isSimd128U8, isSimd128U16,
                 isSimd128B4, isSimd128B8, isSimd128B16, localOffsets[i], &((*lastUpdatedRowIndices)[i]));
 #else
@@ -2174,7 +2174,7 @@ LinearScan::FillBailOutRecord(IR::Instr * instr)
 #if DBG_DUMP
         if(PHASE_DUMP(Js::BailOutPhase, this->func))
         {
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("Bailout function: %s [%s]\n"), funcBailOutData[i].func->GetJITFunctionBody()->GetDisplayName(), funcBailOutData[i].func->GetDebugNumberSet(debugStringBuffer), i);
             funcBailOutData[i].bailOutRecord->Dump();
         }
@@ -3928,7 +3928,7 @@ LinearScan::ProcessSecondChanceBoundaryHelper(IR::BranchInstr *branchInstr, IR::
                     }
                     else
                     {
-                        // Dead code after the unconditional branch causes the currentBlock data to be freed later on...  
+                        // Dead code after the unconditional branch causes the currentBlock data to be freed later on...
                         // Deep copy in this case.
                         branchLabel->m_loweredBasicBlock = this->currentBlock->Clone(this->tempAlloc);
                     }
@@ -4928,7 +4928,7 @@ IR::Instr * LinearScan::GetIncInsertionPoint(IR::Instr *instr)
 }
 
 void LinearScan::DynamicStatsInstrument()
-{    
+{
     {
         IR::Instr *firstInstr = this->func->m_headInstr;
     IR::MemRefOpnd *memRefOpnd = IR::MemRefOpnd::New(this->func->GetJITFunctionBody()->GetCallCountStatsAddr(), TyUint32, this->func);

@@ -94,7 +94,7 @@ namespace Js
         virtual Var GetHomeObj() const override { return homeObj; }
         virtual void SetHomeObj(Var homeObj) override { this->homeObj = homeObj; }
         virtual void SetComputedNameVar(Var computedNameVar) override { this->computedNameVar = computedNameVar; }
-        bool GetSymbolName(const char16** symbolName, charcount_t *length) const;
+        bool GetSymbolName(const CHAR_T** symbolName, charcount_t *length) const;
         virtual Var GetComputedNameVar() const override { return this->computedNameVar; }
         virtual JavascriptString* GetDisplayNameImpl() const;
         JavascriptString* GetComputedName() const;

@@ -297,7 +297,7 @@ Func::Codegen(JitArenaAllocator *alloc, JITTimeWorkItem * workItem,
     {
         Func func(alloc, workItem, threadContextInfo,
             scriptContextInfo, outputData, epInfo, runtimeInfo,
-            polymorphicInlineCacheInfo, codeGenAllocators, 
+            polymorphicInlineCacheInfo, codeGenAllocators,
 #if !FLOATVAR
             numberAllocator,
 #endif
@@ -343,7 +343,7 @@ Func::Codegen(JitArenaAllocator *alloc, JITTimeWorkItem * workItem,
 
             if (PHASE_TRACE(Js::ReJITPhase, &func))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(
                     _u("Rejit (compile-time): function: %s (%s) reason: %S\n"),
                     workItem->GetJITFunctionBody()->GetDisplayName(),
@@ -581,7 +581,7 @@ Func::TryCodegen()
                 if (CONFIG_FLAG(OOPJITFixupValidate))
                 {
                     // Scan memory to see if there's missing pointer needs to be fixed up
-                    // This can hit false positive if some data field happens to have value 
+                    // This can hit false positive if some data field happens to have value
                     // falls into the NativeCodeData memory range.
                     NativeCodeData::DataChunk *next2 = chunk;
                     while (next2)
@@ -2017,7 +2017,7 @@ Func::AllocateNumber(double value)
 void
 Func::DumpFullFunctionName()
 {
-    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
     Output::Print(_u("Function %s (%s)"), GetJITFunctionBody()->GetDisplayName(), GetDebugNumberSet(debugStringBuffer));
 }

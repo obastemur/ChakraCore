@@ -360,9 +360,9 @@ namespace Js
         }
 
         int cBody = strBody->GetLength();
-        const char16 *szRegex = strBody->GetSz();
+        const CHAR_T *szRegex = strBody->GetSz();
         int cOpts = 0;
-        const char16 *szOptions = nullptr;
+        const CHAR_T *szOptions = nullptr;
 
         JavascriptString * strOptions = nullptr;
         if (options != nullptr && !JavascriptOperators::IsUndefinedObject(options))
@@ -385,7 +385,7 @@ namespace Js
         return pattern;
     }
 
-    JavascriptRegExp* JavascriptRegExp::CreateRegEx(const char16* pSource, CharCount sourceLen, UnifiedRegex::RegexFlags flags, ScriptContext *scriptContext)
+    JavascriptRegExp* JavascriptRegExp::CreateRegEx(const CHAR_T* pSource, CharCount sourceLen, UnifiedRegex::RegexFlags flags, ScriptContext *scriptContext)
     {
         UnifiedRegex::RegexPattern* pattern = RegexHelper::CompileDynamic(scriptContext, pSource, sourceLen, flags, false);
 
@@ -462,7 +462,7 @@ namespace Js
                 bool escape = false;
                 for (charcount_t i = 0; i < str.GetLength(); ++i)
                 {
-                    const char16 c = str.GetBuffer()[i];
+                    const CHAR_T c = str.GetBuffer()[i];
 
                     if(!escape)
                     {
@@ -597,9 +597,9 @@ namespace Js
             }
 
             int cBody = strBody->GetLength();
-            const char16 *szRegex = strBody->GetSz(); // must be null terminated!
+            const CHAR_T *szRegex = strBody->GetSz(); // must be null terminated!
             int cOpts = 0;
-            const char16 *szOptions = nullptr;
+            const CHAR_T *szOptions = nullptr;
 
             JavascriptString * strOptions = nullptr;
             if (callInfo.Count > 2 && !JavascriptOperators::IsUndefinedObject(args[2]))
@@ -958,7 +958,7 @@ namespace Js
         StringBuilder<ArenaAllocator>* builder,
         RecyclableObject* thisObj,
         PropertyId propertyId,
-        char16 flag,
+        CHAR_T flag,
         ScriptContext* scriptContext)
     {
         Var propertyValue = JavascriptOperators::GetProperty(thisObj, propertyId, scriptContext);
@@ -1326,7 +1326,7 @@ namespace Js
     BOOL JavascriptRegExp::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
     {
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
 #define DELETE_PROPERTY(ownProperty) \
         if (ownProperty) \

@@ -2260,8 +2260,8 @@ namespace Js
     void InterpreterStackFrame::OP_InvalidWasmTypeConversion(...)
     {
         // Right now the only invalid wasm type conversion is with int64
-        const char16* fromType = toJs ? _u("int64") : _u("Javascript Variable");
-        const char16* toType = toJs ? _u("Javascript Variable") : _u("int64");
+        const CHAR_T* fromType = toJs ? _u("int64") : _u("Javascript Variable");
+        const CHAR_T* toType = toJs ? _u("Javascript Variable") : _u("int64");
         JavascriptError::ThrowTypeErrorVar(scriptContext, WASMERR_InvalidTypeConversion, fromType, toType);
     }
 
@@ -3412,7 +3412,7 @@ namespace Js
 
             if(PHASE_TRACE(InterpreterAutoProfilePhase, functionBody))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("InterpreterAutoProfile - Func %s - Started profiling\n"), functionBody->GetDebugNumberSet(debugStringBuffer));
                 Output::Flush();
             }
@@ -3434,7 +3434,7 @@ namespace Js
         #if DBG_DUMP
             if(PHASE_TRACE(InterpreterAutoProfilePhase, functionBody))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("InterpreterAutoProfile - Func %s - Stopped profiling\n"), functionBody->GetDebugNumberSet(debugStringBuffer));
                 Output::Flush();
             }
@@ -3746,7 +3746,7 @@ namespace Js
             JavascriptFunction::CallAsmJsFunction<int>(function, entrypointInfo->jsMethod, m_outParams, alignedArgsSize, reg);
             break;
         case AsmJsRetType::Signed:
-            
+
             m_localIntSlots[returnReg] = JavascriptFunction::CallAsmJsFunction<int>(function, entrypointInfo->jsMethod, m_outParams, alignedArgsSize, reg);
             break;
         case AsmJsRetType::Int64:
@@ -6101,7 +6101,7 @@ const byte * InterpreterStackFrame::OP_ProfiledLoopBodyStart(const byte * ip)
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
             if(PHASE_TRACE(Js::JITLoopBodyPhase, fn))
             {
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                 Output::Print(
                     _u("Speculate Jit set for this function with loopbody: function: %s (%s)\n"),

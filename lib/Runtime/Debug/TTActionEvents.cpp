@@ -202,7 +202,7 @@ namespace TTD
             Js::Var message = InflateVarInReplay(executeContext, GetVarItem_0(errorData));
             TTD_REPLAY_VALIDATE_INCOMING_REFERENCE(message, ctx);
 
-            *res = nullptr; 
+            *res = nullptr;
             switch(eventKind)
             {
             case EventKind::CreateErrorActionTag:
@@ -950,14 +950,14 @@ namespace TTD
 
             if(sourceContextInfo == nullptr)
             {
-                const char16* srcUri = cpAction->SourceUri.Contents;
+                const CHAR_T* srcUri = cpAction->SourceUri.Contents;
                 uint32 srcUriLength = cpAction->SourceUri.Length;
 
                 sourceContextInfo = ctx->CreateSourceContextInfo((DWORD_PTR)cpAction->SourceContextId, srcUri, srcUriLength, nullptr);
             }
 
-            TTDAssert(cpAction->IsUtf8 || sizeof(wchar) == sizeof(char16), "Non-utf8 code only allowed on windows!!!");
-            const int chsize = (cpAction->LoadFlag & LoadScriptFlag_Utf8Source) ? sizeof(char) : sizeof(char16);
+            TTDAssert(cpAction->IsUtf8 || sizeof(CHAR_T) == sizeof(CHAR_T), "Non-utf8 code only allowed on windows!!!");
+            const int chsize = (cpAction->LoadFlag & LoadScriptFlag_Utf8Source) ? sizeof(char) : sizeof(CHAR_T);
             SRCINFO si = {
                 /* sourceContextInfo   */ sourceContextInfo,
                 /* dlnHost             */ 0,

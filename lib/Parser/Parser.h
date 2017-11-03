@@ -30,7 +30,7 @@ namespace UnifiedRegex {
     struct Program;
     template <typename T> class StandardChars;
     typedef StandardChars<uint8> UTF8StandardChars;
-    typedef StandardChars<char16> UnicodeStandardChars;
+    typedef StandardChars<CHAR_T> UnicodeStandardChars;
 #if ENABLE_REGEX_CONFIG_OPTIONS
     class DebugWriter;
     struct RegexStats;

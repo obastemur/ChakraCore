@@ -31,7 +31,7 @@ namespace Js {
 
     struct SZS
     {
-        const char16 *psz;      // string
+        const CHAR_T *psz;      // string
         short cch;              // length of string
         short szst;             // type of entry
         int32 lwVal;             // value
@@ -303,7 +303,7 @@ namespace Js {
             bs->AppendChars(
                 ivalAbs,
                 10,
-                [](const int value, char16 *const buffer, const CharCount charCapacity)
+                [](const int value, CHAR_T *const buffer, const CharCount charCapacity)
                 {
                     errno_t err = _itow_s(value, buffer, charCapacity, 10);
                     Assert(err == 0);
@@ -382,12 +382,12 @@ namespace Js {
 
         CompoundString *const bs = CompoundString::NewWithCharCapacity(30, scriptContext->GetLibrary());
 
-        const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, char16 *const buffer, const CharCount charCapacity)
+        const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, CHAR_T *const buffer, const CharCount charCapacity)
         {
             const charcount_t cchWritten = NumberUtilities::UInt16ToString(value, buffer, charCapacity, 2);
             Assert(cchWritten != 0);
         };
-        const auto ConvertLongToString = [](const int32 value, char16 *const buffer, const CharCount charCapacity)
+        const auto ConvertLongToString = [](const int32 value, CHAR_T *const buffer, const CharCount charCapacity)
         {
             const errno_t err = _ltow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
@@ -437,8 +437,8 @@ namespace Js {
         int cch;
         int count = 0;
         const int kcchMax = 256;
-        WCHAR wszBuf[kcchMax];
-        WCHAR *pwszBuf, *pToBeFreed = NULL, *p;
+        CHAR_T wszBuf[kcchMax];
+        CHAR_T *pwszBuf, *pToBeFreed = NULL, *p;
         JavascriptString *bs = nullptr;
 
          // the caller of this function should ensure that the range of pymd->year is such that the following conversion works.
@@ -493,7 +493,7 @@ namespace Js {
 
         if( cch > kcchMax )
         {
-            pwszBuf = pToBeFreed = (WCHAR *)malloc( cch * sizeof(WCHAR) );
+            pwszBuf = pToBeFreed = (CHAR_T *)malloc( cch * sizeof(CHAR_T) );
             if(!pwszBuf)
             {
                 Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
@@ -631,13 +631,13 @@ Error:
     }
 
     inline bool
-    DateImplementation::FBig(char16 ch)
+    DateImplementation::FBig(CHAR_T ch)
     {
         return (unsigned int)ch >= 128;
     }
 
     inline bool
-    DateImplementation::FDateDelimiter(char16 ch)
+    DateImplementation::FDateDelimiter(CHAR_T ch)
     {
         return (ch == '/' || ch == '-');
     }
@@ -659,7 +659,7 @@ Error:
             return dbl;
         }
         unsigned int ulength = pParseString->GetLength();
-        const char16 *psz =  pParseString->GetSz();
+        const CHAR_T *psz =  pParseString->GetSz();
 
         if(UtcTimeFromStrCore(psz, ulength, dbl, scriptContext))
         {
@@ -671,7 +671,7 @@ Error:
     }
 
     bool DateImplementation::TryParseDecimalDigits(
-        const char16 *const str,
+        const CHAR_T *const str,
         const size_t length,
         const size_t startIndex,
         const size_t numDigits,
@@ -711,7 +711,7 @@ Error:
     // Either 1 digit or 2 digits or 3 digits
     // Ignore any digits after the third
     bool DateImplementation::TryParseMilliseconds(
-        const char16 *const str,
+        const CHAR_T *const str,
         const size_t length,
         const size_t startIndex,
         int &value,
@@ -758,7 +758,7 @@ Error:
     }
 
     bool DateImplementation::TryParseTwoDecimalDigits(
-        const char16 *const str,
+        const CHAR_T *const str,
         const size_t length,
         const size_t startIndex,
         int &value,
@@ -785,7 +785,7 @@ Error:
         return canHaveTrailingDigit || hasNoTrailingDigit;
     }
 
-    bool DateImplementation::TryParseIsoString(const char16 *const str, const size_t length, double &timeValue, ScriptContext *scriptContext)
+    bool DateImplementation::TryParseIsoString(const CHAR_T *const str, const size_t length, double &timeValue, ScriptContext *scriptContext)
     {
         Assert(str);
 
@@ -938,7 +938,7 @@ Error:
                 isLocalTime = true;
                 break;
             }
-            const char16 utcOffsetSign = str[i];
+            const CHAR_T utcOffsetSign = str[i];
             if(utcOffsetSign == _u('Z'))
             {
                 ++i;
@@ -1002,7 +1002,7 @@ Error:
     }
 
     bool DateImplementation::UtcTimeFromStrCore(
-        __in_ecount_z(ulength) const char16 *psz,
+        __in_ecount_z(ulength) const CHAR_T *psz,
         unsigned int ulength,
         double &retVal,
         ScriptContext *const scriptContext)
@@ -1039,10 +1039,10 @@ Error:
             ssYear
         };
 
-        char16 *pchBase;
-        char16 *pch;
-        char16 ch;
-        char16 *pszSrc = nullptr;
+        CHAR_T *pchBase;
+        CHAR_T *pch;
+        CHAR_T ch;
+        CHAR_T *pszSrc = nullptr;
 
         const int32 lwNil = 0x80000000;
         int32 cch;
@@ -1068,9 +1068,9 @@ Error:
         //Create a copy to analyze
         BEGIN_TEMP_ALLOCATOR(tempAllocator, scriptContext, _u("UtcTimeFromStr"));
 
-        pszSrc = AnewArray(tempAllocator, char16, ulength + 1);
+        pszSrc = AnewArray(tempAllocator, CHAR_T, ulength + 1);
 
-        size_t size = sizeof(char16) * (ulength + 1);
+        size_t size = sizeof(CHAR_T) * (ulength + 1);
         js_memcpy_s(pszSrc, size, psz, size);
 
         _wcslwr_s(pszSrc,ulength+1);
@@ -1198,7 +1198,7 @@ Error:
                     if (pszs-- <= g_rgszs)
                         goto LError;
                     if (cch <= pszs->cch &&
-                        0 == memcmp(pchBase, pszs->psz, cch * sizeof(char16)))
+                        0 == memcmp(pchBase, pszs->psz, cch * sizeof(CHAR_T)))
                     {
                         break;
                     }

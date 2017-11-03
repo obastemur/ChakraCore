@@ -558,7 +558,6 @@ typedef LONG_PTR LPARAM;
 typedef unsigned short char16_t;
 #endif // __cplusplus
 
-typedef char16_t char16;
 typedef char16_t WCHAR;
 
 #ifdef PAL_STDCPP_COMPAT

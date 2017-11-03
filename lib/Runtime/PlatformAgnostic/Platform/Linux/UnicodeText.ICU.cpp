@@ -13,7 +13,7 @@
 #include <cctype>
 #define UErrorCode int
 #define U_ZERO_ERROR 0
-#define UChar char16
+#define UChar CHAR_T
 #include <string.h>
 #define IS_CHAR(ch) \
         (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
@@ -30,8 +30,8 @@ namespace PlatformAgnostic
         static UErrorCode g_lastErrorCode = U_ZERO_ERROR;
 #endif
 
-        static_assert(sizeof(char16) == sizeof(UChar),
-            "This implementation depends on ICU char size matching char16's size");
+        static_assert(sizeof(CHAR_T) == sizeof(UChar),
+            "This implementation depends on ICU char size matching CHAR_T's size");
 
 #ifdef HAS_REAL_ICU
         // Helper ICU conversion facilities
@@ -140,7 +140,7 @@ namespace PlatformAgnostic
         }
 
         // Linux ICU implementation of platform-agnostic Unicode interface
-        int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
+        int32 NormalizeString(NormalizationForm normalizationForm, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, int32 destLength, ApiError* pErrorOut)
         {
             // Assert pointers
             Assert(sourceString != nullptr);
@@ -197,7 +197,7 @@ namespace PlatformAgnostic
             return normalizedStringLength;
         }
 
-        bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength)
+        bool IsNormalizedString(NormalizationForm normalizationForm, const CHAR_T* testString, int32 testStringLength)
         {
             Assert(testString != nullptr);
             UErrorCode errorCode = U_ZERO_ERROR;
@@ -231,12 +231,12 @@ namespace PlatformAgnostic
             return u_isUWhiteSpace(ch) == 1;
         }
 
-        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
+        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, uint32 destLength, ApiError* pErrorOut)
         {
             int32_t resultStringLength = 0;
             UErrorCode errorCode = U_ZERO_ERROR;
 
-            static_assert(sizeof(UChar) == sizeof(char16), "Unexpected char type from ICU, function might have to be updated");
+            static_assert(sizeof(UChar) == sizeof(CHAR_T), "Unexpected char type from ICU, function might have to be updated");
             if (caseFlags == CaseFlagsUpper)
             {
                 resultStringLength = u_strToUpper((UChar*) destString, destLength,
@@ -278,25 +278,25 @@ namespace PlatformAgnostic
             return asc == ' ' || asc == '\n' || asc == '\t' || asc == '\r';
         }
 
-        bool IsNormalizedString(NormalizationForm normalizationForm, const char16* testString, int32 testStringLength) {
+        bool IsNormalizedString(NormalizationForm normalizationForm, const CHAR_T* testString, int32 testStringLength) {
             // TODO: implement this
             return true;
         }
 
 #define EMPTY_COPY \
     const int len = (destLength <= sourceLength) ? destLength - 1 : sourceLength; \
-    memcpy(destString, sourceString, len * sizeof(char16)); \
-    destString[len] = char16(0); \
+    memcpy(destString, sourceString, len * sizeof(CHAR_T)); \
+    destString[len] = CHAR_T(0); \
     *pErrorOut = NoError; \
     return len;
 
-        int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut)
+        int32 NormalizeString(NormalizationForm normalizationForm, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, int32 destLength, ApiError* pErrorOut)
         {
             // TODO: implement this
             EMPTY_COPY
         }
 
-        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut)
+        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, uint32 destLength, ApiError* pErrorOut)
         {
             // TODO: implement this
             EMPTY_COPY
@@ -355,7 +355,7 @@ namespace PlatformAgnostic
             }
         }
 
-        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, char16* stringToChange, uint32 bufferLength)
+        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, CHAR_T* stringToChange, uint32 bufferLength)
         {
 #ifndef HAS_REAL_ICU
             // ASCII only
@@ -397,9 +397,9 @@ namespace PlatformAgnostic
 #endif
         }
 
-        int LogicalStringCompare(const char16* string1, const char16* string2)
+        int LogicalStringCompare(const CHAR_T* string1, const CHAR_T* string2)
         {
-            return PlatformAgnostic::UnicodeText::Internal::LogicalStringCompareImpl<char16>(string1, string2);
+            return PlatformAgnostic::UnicodeText::Internal::LogicalStringCompareImpl<CHAR_T>(string1, string2);
         }
 
         bool IsExternalUnicodeLibraryAvailable()
@@ -494,7 +494,7 @@ namespace PlatformAgnostic
         // We actually don't care about the legacy behavior on Linux since no one
         // has a dependency on it. So this actually is different between
         // Windows and Linux
-        CharacterClassificationType GetLegacyCharacterClassificationType(char16 character)
+        CharacterClassificationType GetLegacyCharacterClassificationType(CHAR_T character)
         {
 #ifdef HAS_REAL_ICU
             auto charTypeMask = U_GET_GC_MASK(character);

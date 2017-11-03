@@ -30,7 +30,7 @@
 
 namespace Js
 {
-    const char16 * AsmJsType::toChars() const
+    const CHAR_T * AsmJsType::toChars() const
     {
         switch (which_)
         {

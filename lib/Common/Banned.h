@@ -47,7 +47,7 @@
 #if (_SDL_BANNED_LEVEL3)
 #   pragma deprecated (CharToOem, CharToOemA, CharToOemW, OemToChar, OemToCharA, OemToCharW, CharToOemBuffA, CharToOemBuffW)
 #   pragma deprecated (alloca, _alloca)
-#   pragma deprecated (strlen, wcslen, _mbslen, _mbstrlen, StrLen, lstrlen)
+#   pragma deprecated (strlen, cstrlen, _mbslen, _mbstrlen, StrLen, lstrlen)
 #   pragma deprecated (ChangeWindowMessageFilter)
 #endif
 

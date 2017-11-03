@@ -61,9 +61,9 @@ namespace Resource
     };
 
 #ifndef _WIN32
-    typedef char16_t char16;
+    typedef char CHAR_T;
 #endif
-    template class StringBufferAutoPtr<char16>;
+    template class StringBufferAutoPtr<CHAR_T>;
     template class StringBufferAutoPtr<unsigned char>;
 } // namespace Intl
 } // namespace PlatformAgnostic

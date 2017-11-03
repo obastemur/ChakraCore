@@ -6,7 +6,7 @@
 #ifdef ENABLE_SIMDJS
 namespace Js
 {
-    const char16 JavascriptSIMDBool32x4::TypeName[] = _u("SIMD.Bool32x4");
+    const CHAR_T JavascriptSIMDBool32x4::TypeName[] = _u("SIMD.Bool32x4");
 
     JavascriptSIMDBool32x4::JavascriptSIMDBool32x4(StaticType *type) : JavascriptSIMDType(type)
     {
@@ -41,7 +41,7 @@ namespace Js
         return reinterpret_cast<JavascriptSIMDBool32x4 *>(aValue);
     }
 
-    const char16* JavascriptSIMDBool32x4::GetTypeName()
+    const CHAR_T* JavascriptSIMDBool32x4::GetTypeName()
     {
         return JavascriptSIMDBool32x4::TypeName;
     }

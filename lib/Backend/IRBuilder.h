@@ -121,7 +121,7 @@ private:
     void                BuildGeneratorPreamble();
     void                LoadNativeCodeData();
     void                BuildConstantLoads();
-    void                BuildImplicitArgIns();    
+    void                BuildImplicitArgIns();
 
 #define LAYOUT_TYPE(layout) \
     void                Build##layout(Js::OpCode newOpcode, uint32 offset);
@@ -202,7 +202,7 @@ private:
     IR::IndirOpnd *     BuildIndirOpnd(IR::RegOpnd *baseReg, IR::RegOpnd *indexReg);
     IR::IndirOpnd *     BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset);
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-    IR::IndirOpnd *     BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset, const char16 *desc);
+    IR::IndirOpnd *     BuildIndirOpnd(IR::RegOpnd *baseReg, uint32 offset, const CHAR_T *desc);
 #endif
     IR::SymOpnd *       BuildFieldOpnd(Js::OpCode newOpCode, Js::RegSlot reg, Js::PropertyId propertyId, Js::PropertyIdIndexType propertyIdIndex, PropertyKind propertyKind, uint inlineCacheIndex = -1);
     PropertySym *       BuildFieldSym(Js::RegSlot reg, Js::PropertyId propertyId, Js::PropertyIdIndexType propertyIdIndex, uint inlineCacheIndex, PropertyKind propertyKind);

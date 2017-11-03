@@ -23,7 +23,7 @@ namespace TTD
             this->m_threadContext->TTDRootNestingCount++;
         }
 
-        ~TTDNestingDepthAutoAdjuster() 
+        ~TTDNestingDepthAutoAdjuster()
         {
             this->m_threadContext->TTDRootNestingCount--;
         }
@@ -37,7 +37,7 @@ namespace TTD
         TTDVar* m_resultPtr;
 
     public:
-        TTDJsRTActionResultAutoRecorder() 
+        TTDJsRTActionResultAutoRecorder()
             : m_actionEvent(nullptr), m_resultPtr(nullptr)
         {
             ;
@@ -141,7 +141,7 @@ namespace TTD
 
         //Add the entry to the list
         template <typename T>
-        NSLogEvents::EventLogEntry* GetNextAvailableEntry() 
+        NSLogEvents::EventLogEntry* GetNextAvailableEntry()
         {
             const size_t esize = TTD_EVENT_PLUS_DATA_SIZE(T);
             if((this->m_headBlock == nullptr) || (this->m_headBlock->CurrPos + esize >= TTD_EVENTLOG_LIST_BLOCK_SIZE))
@@ -341,10 +341,10 @@ namespace TTD
         //reset the bottom (global) mode with the specific value
         void SetGlobalMode(TTDMode m);
 
-        //Mark that a snapshot is in (or or is now complete) 
+        //Mark that a snapshot is in (or or is now complete)
         void SetSnapshotOrInflateInProgress(bool flag);
 
-        //push a new debugger mode 
+        //push a new debugger mode
         void PushMode(TTDMode m);
 
         //pop the top debugger mode
@@ -356,7 +356,7 @@ namespace TTD
         //Set the mode flags on the script context based on the TTDMode in the Log
         void SetModeFlagsOnContext(Js::ScriptContext* ctx);
 
-        //Get the global mode flags for creating a script context 
+        //Get the global mode flags for creating a script context
         void GetModesForExplicitContextCreate(bool& inRecord, bool& activelyRecording, bool& inReplay);
 
         //Just check if the debug mode flag has been set (don't check any active or suppressed properties)
@@ -370,8 +370,8 @@ namespace TTD
 
         //Add top level function load info to our sets
         const NSSnapValues::TopLevelScriptLoadFunctionBodyResolveInfo* AddScriptLoad(Js::FunctionBody* fb, Js::ModuleID moduleId, uint64 sourceContextId, const byte* source, uint32 sourceLen, LoadScriptFlag loadFlag);
-        const NSSnapValues::TopLevelNewFunctionBodyResolveInfo* AddNewFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen);
-        const NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* AddEvalFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode);
+        const NSSnapValues::TopLevelNewFunctionBodyResolveInfo* AddNewFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen);
+        const NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* AddEvalFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode);
 
         uint32 GetSourceInfoCount() const;
 
@@ -441,7 +441,7 @@ namespace TTD
 
         void ReplayEnqueueTaskEvent(Js::ScriptContext* ctx, Js::Var taskVar);
 
-        //Get the current top-level event time 
+        //Get the current top-level event time
         int64 GetCurrentTopLevelEventTime() const;
 
         //Get the event time corresponding to the first/last/k-th top-level event in the log
@@ -464,10 +464,10 @@ namespace TTD
         ////////////////////////////////
         //Snapshot and replay support
 
-        //Do the snapshot extraction 
+        //Do the snapshot extraction
         void DoSnapshotExtract();
 
-        //Take a ready-to-run snapshot for the event if needed 
+        //Take a ready-to-run snapshot for the event if needed
         void DoRtrSnapIfNeeded();
 
         //Find the event time that has the snapshot we want to inflate from in order to replay to the requested target time
@@ -519,7 +519,7 @@ namespace TTD
         //Record creation operations
         void RecordJsRTCreateNumber(TTDJsRTActionResultAutoRecorder& actionPopper, double value);
         void RecordJsRTCreateBoolean(TTDJsRTActionResultAutoRecorder& actionPopper, bool value);
-        void RecordJsRTCreateString(TTDJsRTActionResultAutoRecorder& actionPopper, const char16* stringValue, size_t stringLength);
+        void RecordJsRTCreateString(TTDJsRTActionResultAutoRecorder& actionPopper, const CHAR_T* stringValue, size_t stringLength);
         void RecordJsRTCreateSymbol(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var);
 
         //Record error creation
@@ -594,7 +594,7 @@ namespace TTD
         void RecordJsRTConstructCall(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var funcVar, uint32 argCount, Js::Var* args);
 
         //Record code parse
-        NSLogEvents::EventLogEntry* RecordJsRTCodeParse(TTDJsRTActionResultAutoRecorder& actionPopper, LoadScriptFlag loadFlag, bool isUft8, const byte* script, uint32 scriptByteLength, uint64 sourceContextId, const char16* sourceUri);
+        NSLogEvents::EventLogEntry* RecordJsRTCodeParse(TTDJsRTActionResultAutoRecorder& actionPopper, LoadScriptFlag loadFlag, bool isUft8, const byte* script, uint32 scriptByteLength, uint64 sourceContextId, const CHAR_T* sourceUri);
 
         //Record callback of an existing function
         NSLogEvents::EventLogEntry* RecordJsRTCallFunction(TTDJsRTActionResultAutoRecorder& actionPopper, int32 rootDepth, Js::Var funcVar, uint32 argCount, Js::Var* args);

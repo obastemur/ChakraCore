@@ -1637,7 +1637,7 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
     str[length] = '\0';
 }
 
-void ValueType::ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
+void ValueType::ToString(WCHAR (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 {
     char charStr[VALUE_TYPE_MAX_STRING_SIZE];
     ToString(charStr);
@@ -1740,7 +1740,7 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 
 #endif
 
-bool ValueType::FromString(const wchar *const str, ValueType *valueType)
+bool ValueType::FromString(const WCHAR *const str, ValueType *valueType)
 {
     Assert(str);
     Assert(valueType);
@@ -1749,7 +1749,7 @@ bool ValueType::FromString(const wchar *const str, ValueType *valueType)
     int i = 0;
     for(; i < VALUE_TYPE_MAX_STRING_SIZE - 1 && str[i]; ++i)
     {
-        Assert(static_cast<wchar>(static_cast<char>(str[i])) == str[i]);
+        Assert(static_cast<CHAR_T>(static_cast<char>(str[i])) == str[i]);
         charStr[i] = static_cast<char>(str[i]);
     }
     charStr[i] = '\0';

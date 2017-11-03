@@ -11,7 +11,7 @@ namespace Js
     {
     private:
         DEFINE_VTABLE_CTOR(JavascriptSIMDUint8x16, JavascriptSIMDType);
-        static const char16 TypeName[];
+        static const CHAR_T TypeName[];
     public:
         class EntryInfo
         {
@@ -29,7 +29,7 @@ namespace Js
         static JavascriptSIMDUint8x16* FromVar(Var aValue);
         static Var CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue, const Var* args, uint numArgs, CallInfo callInfo);
 
-        static void ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) char16* stringBuffer, size_t countBuffer, ScriptContext* scriptContext = nullptr)
+        static void ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) CHAR_T* stringBuffer, size_t countBuffer, ScriptContext* scriptContext = nullptr)
         {
             swprintf_s(stringBuffer, countBuffer, _u("SIMD.Uint8x16(%u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u)"),
                 value.u8[0], value.u8[1], value.u8[2], value.u8[3], value.u8[4], value.u8[5], value.u8[6], value.u8[7],
@@ -39,7 +39,7 @@ namespace Js
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
 
         inline SIMDValue GetValue() { return value; }
-        static const char16* GetTypeName();
+        static const CHAR_T* GetTypeName();
         Var  Copy(ScriptContext* requestContext);
     };
 }

@@ -33,7 +33,7 @@ namespace TTD
 
         const Js::PropertyRecord* InflatePropertyRecord_CreateNew(const SnapPropertyRecord* pRecord, ThreadContext* threadContext)
         {
-            const char16* pname = pRecord->PropertyName.Contents;
+            const CHAR_T* pname = pRecord->PropertyName.Contents;
             int32 plen = pRecord->PropertyName.Length;
 
             const Js::PropertyRecord* newPropertyRecord = nullptr;
@@ -291,7 +291,7 @@ namespace TTD
             reader->ReadRecordEnd();
         }
 
-#if ENABLE_SNAPSHOT_COMPARE 
+#if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapType* t1, const SnapType* t2, TTDCompareMap& compareMap)
         {
             compareMap.DiagnosticAssert(t1->JsTypeId == t2->JsTypeId);

@@ -300,7 +300,7 @@ namespace TTD
         ;
     }
 
-    void TTDComparePath::WritePathToConsole(ThreadContext* threadContext, bool printNewline, _Out_writes_z_(buffLength) char16* namebuff, charcount_t namebuffLength) const
+    void TTDComparePath::WritePathToConsole(ThreadContext* threadContext, bool printNewline, _Out_writes_z_(buffLength) CHAR_T* namebuff, charcount_t namebuffLength) const
     {
         if(this->m_prefix != nullptr)
         {
@@ -310,7 +310,7 @@ namespace TTD
         if(this->m_stepKind == StepKind::PropertyData || this->m_stepKind == StepKind::PropertyGetter || this->m_stepKind == StepKind::PropertySetter)
         {
             const Js::PropertyRecord* pRecord = threadContext->GetPropertyName((Js::PropertyId)this->m_step.IndexOrPID);
-            js_memcpy_s(namebuff, namebuffLength * sizeof(char16), pRecord->GetBuffer(), pRecord->GetLength() * sizeof(char16));
+            js_memcpy_s(namebuff, namebuffLength * sizeof(CHAR_T), pRecord->GetBuffer(), pRecord->GetLength() * sizeof(CHAR_T));
 
             // Don't allow the null to be written past the end of the buffer.
             namebuff[min(namebuffLength - 1, pRecord->GetLength())] = _u('\0');
@@ -363,7 +363,7 @@ namespace TTD
     }
 
     TTDCompareMap::TTDCompareMap(ThreadContext* threadContext)
-        : StrictCrossSite(false), H1PtrIdWorklist(&HeapAllocator::Instance), H1PtrToH2PtrMap(&HeapAllocator::Instance), SnapObjCmpVTable(nullptr), H1PtrToPathMap(&HeapAllocator::Instance), 
+        : StrictCrossSite(false), H1PtrIdWorklist(&HeapAllocator::Instance), H1PtrToH2PtrMap(&HeapAllocator::Instance), SnapObjCmpVTable(nullptr), H1PtrToPathMap(&HeapAllocator::Instance),
         CurrentPath(nullptr), CurrentH1Ptr(TTD_INVALID_PTR_ID), CurrentH2Ptr(TTD_INVALID_PTR_ID), Context(threadContext),
         //
         H1ValueMap(&HeapAllocator::Instance), H1SlotArrayMap(&HeapAllocator::Instance), H1FunctionScopeInfoMap(&HeapAllocator::Instance),
@@ -376,7 +376,7 @@ namespace TTD
     {
         this->StrictCrossSite = !threadContext->TTDLog->IsDebugModeFlagSet();
 
-        this->PathBuffer = TT_HEAP_ALLOC_ARRAY_ZERO(char16, PATH_BUFFER_COUNT);
+        this->PathBuffer = TT_HEAP_ALLOC_ARRAY_ZERO(CHAR_T, PATH_BUFFER_COUNT);
 
         this->SnapObjCmpVTable = TT_HEAP_ALLOC_ARRAY_ZERO(fPtr_AssertSnapEquivAddtlInfo, (int32)NSSnapObjects::SnapObjectType::Limit);
 
@@ -406,7 +406,7 @@ namespace TTD
 
     TTDCompareMap::~TTDCompareMap()
     {
-        TT_HEAP_FREE_ARRAY(char16, this->PathBuffer, PATH_BUFFER_COUNT);
+        TT_HEAP_FREE_ARRAY(CHAR_T, this->PathBuffer, PATH_BUFFER_COUNT);
 
         TT_HEAP_FREE_ARRAY(TTD::fPtr_AssertSnapEquivAddtlInfo, this->SnapObjCmpVTable, (int32)NSSnapObjects::SnapObjectType::Limit);
 
@@ -473,7 +473,7 @@ namespace TTD
         this->CheckConsistentAndAddPtrIdMapping_Helper(h1PtrId, h2PtrId, TTDComparePath::StepKind::FunctionBody, next);
     }
 
-    void TTDCompareMap::CheckConsistentAndAddPtrIdMapping_Special(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, const char16* specialField)
+    void TTDCompareMap::CheckConsistentAndAddPtrIdMapping_Special(TTD_PTR_ID h1PtrId, TTD_PTR_ID h2PtrId, const CHAR_T* specialField)
     {
         TTDComparePath::PathEntry next{ -1, specialField };
         this->CheckConsistentAndAddPtrIdMapping_Helper(h1PtrId, h2PtrId, TTDComparePath::StepKind::Special, next);

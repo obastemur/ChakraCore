@@ -8,15 +8,15 @@
 class JITProcessManager
 {
 public:
-    static HRESULT StartRpcServer(int argc, __in_ecount(argc) LPWSTR argv[]);
+    static HRESULT StartRpcServer(int argc, __in_ecount(argc) LPCHAR_T argv[]);
     static void TerminateJITServer();
 
     static HANDLE GetRpcProccessHandle();
     static UUID GetRpcConnectionId();
-    static void RemoveArg(LPCWSTR flag, int * argc, __in_ecount(*argc) LPWSTR * argv[]);
+    static void RemoveArg(LPCCHAR_T flag, int * argc, __in_ecount(*argc) LPCHAR_T * argv[]);
 
 private:
-    static HRESULT CreateServerProcess(int argc, __in_ecount(argc) LPWSTR argv[]);
+    static HRESULT CreateServerProcess(int argc, __in_ecount(argc) LPCHAR_T argv[]);
 
     static HANDLE s_rpcServerProcessHandle;
     static UUID s_connectionId;

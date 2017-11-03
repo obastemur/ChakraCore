@@ -15,8 +15,8 @@ public:
     static bool DoCollectInfo() { return collectInfo; }
 
     template <typename Fn>
-    static Js::SourceDynamicProfileManager * Load(__in_z char16 const * filename, Fn loadFn);
-    static void SaveRecord(__in_z char16 const * filename, __in_ecount(sizeof(DWORD) + *record) char const * record);
+    static Js::SourceDynamicProfileManager * Load(__in_z CHAR_T const * filename, Fn loadFn);
+    static void SaveRecord(__in_z CHAR_T const * filename, __in_ecount(sizeof(DWORD) + *record) char const * record);
 
     static char * AllocRecord(DECLSPEC_GUARD_OVERFLOW DWORD bufferSize);
     static void DeleteRecord(__in_ecount(sizeof(DWORD) + *record) char const * record);
@@ -24,18 +24,18 @@ public:
     static char * GetRecordBuffer(__in_ecount(sizeof(DWORD) + *record) char * record);
     static DWORD GetRecordSize(__in_ecount(sizeof(DWORD) + *record) char const * record);
 private:
-    static char16 const * GetMessageType();
+    static CHAR_T const * GetMessageType();
     static void ClearInfoMap(bool deleteFileStorage);
 
-    static bool ImportFile(__in_z char16 const * filename, bool allowNonExistingFile);
-    static bool ExportFile(__in_z char16 const * filename);
-    static bool SetupCacheDir(__in_z char16 const * dirname);
+    static bool ImportFile(__in_z CHAR_T const * filename, bool allowNonExistingFile);
+    static bool ExportFile(__in_z CHAR_T const * filename);
+    static bool SetupCacheDir(__in_z CHAR_T const * dirname);
     static void DisableCacheDir();
 
     static bool CreateCacheCatalog();
     static void ClearCacheCatalog();
     static bool LoadCacheCatalog();
-    static bool AppendCacheCatalog(__in_z char16 const * url);
+    static bool AppendCacheCatalog(__in_z CHAR_T const * url);
     static bool AcquireLock();
     static bool ReleaseLock();
     static bool VerifyHeader();
@@ -45,9 +45,9 @@ private:
     static bool enabled;
     static bool collectInfo;
     static bool useCacheDir;
-    static char16 cacheDrive[_MAX_DRIVE];
-    static char16 cacheDir[_MAX_DIR];
-    static char16 catalogFilename[_MAX_PATH];
+    static CHAR_T cacheDrive[_MAX_DRIVE];
+    static CHAR_T cacheDir[_MAX_DIR];
+    static CHAR_T catalogFilename[_MAX_PATH];
     static DWORD const MagicNumber;
     static DWORD const FileFormatVersion;
 #ifdef _WIN32
@@ -71,7 +71,7 @@ private:
     class StorageInfo
     {
     public:
-        void GetFilename(_Out_writes_z_(_MAX_PATH) char16 filename[_MAX_PATH]) const;
+        void GetFilename(_Out_writes_z_(_MAX_PATH) CHAR_T filename[_MAX_PATH]) const;
         char const * ReadRecord() const;
         bool WriteRecord(__in_ecount(sizeof(DWORD) + *record) char const * record) const;
         bool isFileStorage;
@@ -81,13 +81,13 @@ private:
             char const * record;
         };
     };
-    typedef JsUtil::BaseDictionary<char16 const *, StorageInfo, NoCheckHeapAllocator, PrimeSizePolicy, DefaultComparer, JsUtil::DictionaryEntry> InfoMap;
+    typedef JsUtil::BaseDictionary<CHAR_T const *, StorageInfo, NoCheckHeapAllocator, PrimeSizePolicy, DefaultComparer, JsUtil::DictionaryEntry> InfoMap;
     static InfoMap infoMap;
 };
 
 template <class Fn>
 Js::SourceDynamicProfileManager *
-DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
+DynamicProfileStorage::Load(CHAR_T const * filename, Fn loadFn)
 {
     Assert(DynamicProfileStorage::IsEnabled());
     AutoCriticalSection autocs(&cs);
@@ -103,7 +103,7 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
             ReleaseLock();
         }
 #if !DBG || !defined(_M_AMD64)
-        char16 const * messageType = GetMessageType();
+        CHAR_T const * messageType = GetMessageType();
         if (messageType)
         {
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data not found for '%s'\n"), messageType, filename);
@@ -151,7 +151,7 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
 
     if (sourceDynamicProfileManager == nullptr)
     {
-        char16 const * messageType = GetMessageType();
+        CHAR_T const * messageType = GetMessageType();
         if (messageType)
         {
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data corrupted: '%s'\n"), messageType, filename);

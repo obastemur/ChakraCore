@@ -207,7 +207,7 @@ namespace Js
 
         JavascriptFunction *pfuncScript;
         FunctionInfo *pfuncInfoCache = NULL;
-        char16 const * sourceString = bs->GetSz();
+        CHAR_T const * sourceString = bs->GetSz();
         charcount_t sourceLen = bs->GetLength();
         EvalMapString key(sourceString, sourceLen, moduleID, strictMode, /* isLibraryCode = */ false);
         if (!scriptContext->IsInNewFunctionMap(key, &pfuncInfoCache))
@@ -3052,7 +3052,7 @@ LABEL1:
 
     BOOL JavascriptFunction::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
     {
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::caller.Equals(propertyName) || BuiltInPropertyRecords::arguments.Equals(propertyName))
         {
             if (this->HasRestrictedProperties())
@@ -3090,9 +3090,9 @@ LABEL1:
         {
             // This is under DBG_DUMP so we can allow a check
             ParseableFunctionInfo* body = this->GetFunctionProxy() != nullptr ? this->GetFunctionProxy()->EnsureDeserialized() : nullptr;
-            const char16* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
+            const CHAR_T* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
 
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
             Output::Print(_u("CtorCache: before invalidating cache (0x%p) for ctor %s (%s): "), PointerValue(this->constructorCache), ctorName,
                 body ? body->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
@@ -3109,8 +3109,8 @@ LABEL1:
         {
             // This is under DBG_DUMP so we can allow a check
             ParseableFunctionInfo* body = this->GetFunctionProxy() != nullptr ? this->GetFunctionProxy()->EnsureDeserialized() : nullptr;
-            const char16* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            const CHAR_T* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
             Output::Print(_u("CtorCache: after invalidating cache (0x%p) for ctor %s (%s): "), PointerValue(this->constructorCache), ctorName,
                 body ? body->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
@@ -3187,12 +3187,12 @@ LABEL1:
         Assert(this->GetFunctionProxy() != nullptr); // The caller should guarantee a proxy exists
         ParseableFunctionInfo * func = this->GetFunctionProxy()->EnsureDeserialized();
         charcount_t length = 0;
-        const char16* name = func->GetShortDisplayName(&length);
+        const CHAR_T* name = func->GetShortDisplayName(&length);
 
         return DisplayNameHelper(name, length);
     }
 
-    JavascriptString* JavascriptFunction::DisplayNameHelper(const char16* name, charcount_t length) const
+    JavascriptString* JavascriptFunction::DisplayNameHelper(const CHAR_T* name, charcount_t length) const
     {
         ScriptContext* scriptContext = this->GetScriptContext();
         Assert(this->GetFunctionProxy() != nullptr); // The caller should guarantee a proxy exists
@@ -3203,7 +3203,7 @@ LABEL1:
         }
         else if (func->GetIsAccessor())
         {
-            const char16* accessorName = func->GetDisplayName();
+            const CHAR_T* accessorName = func->GetDisplayName();
             if (accessorName[0] == _u('g'))
             {
                 return LiteralString::Concat(LiteralString::NewCopySz(_u("get "), scriptContext), LiteralString::NewCopyBuffer(name, length, scriptContext));

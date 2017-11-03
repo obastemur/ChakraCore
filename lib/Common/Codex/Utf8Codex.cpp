@@ -28,19 +28,19 @@ namespace utf8
         return (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
-    inline bool IsAligned(LPCOLESTR pch)
+    inline bool IsAligned(LPCWSTR pch)
     {
         return (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
-    inline bool ShouldFastPath(LPCUTF8 pb, LPCOLESTR pch)
+    inline bool ShouldFastPath(LPCUTF8 pb, LPCWSTR pch)
     {
         return (reinterpret_cast<size_t>(pb) & mAlignmentMask) == 0 && (reinterpret_cast<size_t>(pch) & mAlignmentMask) == 0;
     }
 
-    inline size_t EncodedBytes(char16 prefix)
+    inline size_t EncodedBytes(WCHAR prefix)
     {
-         CodexAssert(0 == (prefix & 0xFF00)); // prefix must really be a byte. We use char16 for as a convenience for the API.
+         CodexAssert(0 == (prefix & 0xFF00)); // prefix must really be a byte. We use WCHAR for as a convenience for the API.
 
         // The number of bytes in an UTF8 encoding is determined by the 4 high-order bits of the first byte.
         // 0xxx -> 1
@@ -68,44 +68,44 @@ namespace utf8
         return ((0x5B >> (((prefix ^ 0xF0) >> 3) & 0x1E)) & 0x03) + 1;
     }
 
-    const char16 WCH_UTF16_HIGH_FIRST  =  char16(0xd800);
-    const char16 WCH_UTF16_HIGH_LAST   =  char16(0xdbff);
-    const char16 WCH_UTF16_LOW_FIRST   =  char16(0xdc00);
-    const char16 WCH_UTF16_LOW_LAST    =  char16(0xdfff);
+    const WCHAR WCH_UTF16_HIGH_FIRST  =  WCHAR(0xd800);
+    const WCHAR WCH_UTF16_HIGH_LAST   =  WCHAR(0xdbff);
+    const WCHAR WCH_UTF16_LOW_FIRST   =  WCHAR(0xdc00);
+    const WCHAR WCH_UTF16_LOW_LAST    =  WCHAR(0xdfff);
 
-    char16 GetUnknownCharacter(DecodeOptions options = doDefault)
+    WCHAR GetUnknownCharacter(DecodeOptions options = doDefault)
     {
         if ((options & doThrowOnInvalidWCHARs) != 0)
         {
             throw InvalidWideCharException();
         }
-        return char16(UNICODE_UNKNOWN_CHAR_MARK);
+        return WCHAR(UNICODE_UNKNOWN_CHAR_MARK);
     }
 
-    inline BOOL InRange(const char16 ch, const char16 chMin, const char16 chMax)
+    inline BOOL InRange(const WCHAR ch, const WCHAR chMin, const WCHAR chMax)
     {
         return (unsigned)(ch - chMin) <= (unsigned)(chMax - chMin);
     }
 
-    BOOL IsValidWideChar(char16 ch)
+    BOOL IsValidWideChar(WCHAR ch)
     {
         return (ch < 0xfdd0) || ((ch > 0xfdef) && (ch <= 0xffef)) || ((ch >= 0xfff9) && (ch <= 0xfffd));
     }
 
-    inline BOOL IsHighSurrogateChar(char16 ch)
+    inline BOOL IsHighSurrogateChar(WCHAR ch)
     {
         return InRange( ch, WCH_UTF16_HIGH_FIRST, WCH_UTF16_HIGH_LAST );
     }
 
-    inline BOOL IsLowSurrogateChar(char16 ch)
+    inline BOOL IsLowSurrogateChar(WCHAR ch)
     {
         return InRange( ch, WCH_UTF16_LOW_FIRST, WCH_UTF16_LOW_LAST );
     }
 
     _At_(ptr, _In_reads_(end - ptr) _Post_satisfies_(ptr >= _Old_(ptr) - 1 && ptr <= end))
-    inline char16 DecodeTail(char16 c1, LPCUTF8& ptr, LPCUTF8 end, DecodeOptions& options, bool *chunkEndsAtTruncatedSequence)
+    inline WCHAR DecodeTail(WCHAR c1, LPCUTF8& ptr, LPCUTF8 end, DecodeOptions& options, bool *chunkEndsAtTruncatedSequence)
     {
-        char16 ch = 0;
+        WCHAR ch = 0;
         BYTE c2, c3, c4;
 
         switch (EncodedBytes(c1))
@@ -352,9 +352,9 @@ LFourByte:
         else
             return ptr;
     }
-    
+
     _Use_decl_annotations_
-    size_t DecodeUnitsInto(char16 *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
+    size_t DecodeUnitsInto(WCHAR *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
     {
         DecodeOptions localOptions = options;
 
@@ -364,7 +364,7 @@ LFourByte:
         }
 
         LPCUTF8 p = pbUtf8;
-        char16 *dest = buffer;
+        WCHAR *dest = buffer;
 
         if (!ShouldFastPath(p, dest)) goto LSlowPath;
 
@@ -373,8 +373,8 @@ LFastPath:
         {
             unsigned bytes = *(unsigned *)p;
             if ((bytes & 0x80808080) != 0) goto LSlowPath;
-            ((uint32 *)dest)[0] = (char16(bytes) & 0x00FF) | ((char16(bytes) & 0xFF00) << 8);
-            ((uint32 *)dest)[1] = (char16(bytes >> 16) & 0x00FF) | ((char16(bytes >> 16) & 0xFF00) << 8);
+            ((uint32 *)dest)[0] = (WCHAR(bytes) & 0x00FF) | ((WCHAR(bytes) & 0xFF00) << 8);
+            ((uint32 *)dest)[1] = (WCHAR(bytes >> 16) & 0x00FF) | ((WCHAR(bytes >> 16) & 0xFF00) << 8);
             p += 4;
             dest += 4;
         }
@@ -383,7 +383,7 @@ LSlowPath:
         while (p < pbEnd)
         {
             LPCUTF8 s = p;
-            char16 chDest = Decode(p, pbEnd, localOptions, chunkEndsAtTruncatedSequence);
+            WCHAR chDest = Decode(p, pbEnd, localOptions, chunkEndsAtTruncatedSequence);
 
             if (s < p)
             {
@@ -405,7 +405,7 @@ LSlowPath:
     }
 
     _Use_decl_annotations_
-    size_t DecodeUnitsIntoAndNullTerminate(char16 *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
+    size_t DecodeUnitsIntoAndNullTerminate(WCHAR *buffer, LPCUTF8& pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
     {
         size_t result = DecodeUnitsInto(buffer, pbUtf8, pbEnd, options, chunkEndsAtTruncatedSequence);
         buffer[result] = 0;
@@ -413,12 +413,12 @@ LSlowPath:
     }
 
     _Use_decl_annotations_
-    size_t DecodeUnitsIntoAndNullTerminateNoAdvance(char16 *buffer, LPCUTF8 pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
+    size_t DecodeUnitsIntoAndNullTerminateNoAdvance(WCHAR *buffer, LPCUTF8 pbUtf8, LPCUTF8 pbEnd, DecodeOptions options, bool *chunkEndsAtTruncatedSequence)
     {
         return DecodeUnitsIntoAndNullTerminate(buffer, pbUtf8, pbEnd, options, chunkEndsAtTruncatedSequence);
     }
 
-    bool CharsAreEqual(LPCOLESTR pch, LPCUTF8 bch, LPCUTF8 end, DecodeOptions options)
+    bool CharsAreEqual(LPCWSTR pch, LPCUTF8 bch, LPCUTF8 end, DecodeOptions options)
     {
         DecodeOptions localOptions = options;
         while (bch < end)
@@ -433,7 +433,7 @@ LSlowPath:
 
     template <bool cesu8Encoding, bool countBytesOnly>
     __range(0, cchIn * 3)
-    size_t EncodeIntoImpl(_When_(!countBytesOnly, __out_ecount(cchIn * 3)) LPUTF8 buffer, __in_ecount(cchIn) const char16 *source, charcount_t cchIn, const void* bufferEnd)
+    size_t EncodeIntoImpl(_When_(!countBytesOnly, __out_ecount(cchIn * 3)) LPUTF8 buffer, __in_ecount(cchIn) const WCHAR *source, charcount_t cchIn, const void* bufferEnd)
     {
         charcount_t cch = cchIn; // SAL analysis gets confused by EncodeTrueUtf8's dest buffer requirement unless we alias cchIn with a local
         LPUTF8 dest = buffer;
@@ -487,13 +487,13 @@ LSlowPath:
     }
 
     __range(0, cch * 3)
-        size_t EncodeInto(__out_ecount(cch * 3) LPUTF8 buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
+        size_t EncodeInto(__out_ecount(cch * 3) LPUTF8 buffer, __in_ecount(cch) const WCHAR *source, charcount_t cch)
     {
         return EncodeIntoImpl<true, false>(buffer, source, cch, &buffer[cch*3]);
     }
 
     __range(0, cch * 3)
-    size_t EncodeIntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
+    size_t EncodeIntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const WCHAR *source, charcount_t cch)
     {
         size_t result = EncodeInto(buffer, source, cch);
         buffer[result] = 0;
@@ -501,7 +501,7 @@ LSlowPath:
     }
 
     __range(0, cch * 3)
-        size_t EncodeTrueUtf8IntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const char16 *source, charcount_t cch)
+        size_t EncodeTrueUtf8IntoAndNullTerminate(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const WCHAR *source, charcount_t cch)
     {
         size_t result = EncodeIntoImpl<false, false>(buffer, source, cch, &buffer[3 * cch]);
         buffer[result] = 0;
@@ -509,14 +509,14 @@ LSlowPath:
     }
 
     __range(0, cch * 3)
-        size_t EncodeTrueUtf8IntoBoundsChecked(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const char16 *source, charcount_t cch, const void * bufferEnd)
+        size_t EncodeTrueUtf8IntoBoundsChecked(__out_ecount(cch * 3 + 1) utf8char_t *buffer, __in_ecount(cch) const WCHAR *source, charcount_t cch, const void * bufferEnd)
     {
         size_t result = EncodeIntoImpl<false, false>(buffer, source, cch, bufferEnd);
         return result;
     }
 
     __range(0, cch * 3)
-        size_t CountTrueUtf8(__in_ecount(cch) const char16 *source, charcount_t cch)
+        size_t CountTrueUtf8(__in_ecount(cch) const WCHAR *source, charcount_t cch)
     {
         return EncodeIntoImpl<false, true>(nullptr, source, cch, nullptr);
     }

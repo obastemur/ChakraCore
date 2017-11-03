@@ -54,12 +54,12 @@ namespace PerfCounter
         {
             if (IsProviderInitialized())
             {
-                char16 wszModuleName[_MAX_PATH];
+                CHAR_T wszModuleName[_MAX_PATH];
                 if (!GetModuleFileName(NULL, wszModuleName, _MAX_PATH))
                 {
                     return false;
                 }
-                char16 wszFilename[_MAX_FNAME];
+                CHAR_T wszFilename[_MAX_FNAME];
                 _wsplitpath_s(wszModuleName, NULL, 0, NULL, 0, wszFilename, _MAX_FNAME, NULL, 0);
 
                 return __super::Initialize(wszFilename, GetCurrentProcessId());

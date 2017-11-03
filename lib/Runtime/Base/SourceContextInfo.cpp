@@ -42,7 +42,7 @@ bool SourceContextInfo::IsSourceProfileLoaded() const
 SourceContextInfo* SourceContextInfo::Clone(Js::ScriptContext* scriptContext) const
 {
     IActiveScriptDataCache* profileCache = NULL;
-    
+
 #if ENABLE_PROFILE_INFO
     if (this->sourceDynamicProfileManager != NULL)
     {
@@ -53,15 +53,15 @@ SourceContextInfo* SourceContextInfo::Clone(Js::ScriptContext* scriptContext) co
     SourceContextInfo * newSourceContextInfo = scriptContext->GetSourceContextInfo(dwHostSourceContext, profileCache);
     if (newSourceContextInfo == nullptr)
     {
-        char16 const * oldUrl = this->url;
-        char16 const * oldSourceMapUrl = this->sourceMapUrl;
+        CHAR_T const * oldUrl = this->url;
+        CHAR_T const * oldSourceMapUrl = this->sourceMapUrl;
         newSourceContextInfo = scriptContext->CreateSourceContextInfo(
             dwHostSourceContext,
             oldUrl,
-            oldUrl? wcslen(oldUrl) : 0,
+            oldUrl? cstrlen(oldUrl) : 0,
             NULL,
             oldSourceMapUrl,
-            oldSourceMapUrl ? wcslen(oldSourceMapUrl) : 0);
+            oldSourceMapUrl ? cstrlen(oldSourceMapUrl) : 0);
         newSourceContextInfo->nextLocalFunctionId = this->nextLocalFunctionId;
         newSourceContextInfo->sourceContextId = this->sourceContextId;
         newSourceContextInfo->EnsureInitialized();

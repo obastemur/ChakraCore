@@ -199,7 +199,7 @@ namespace Js
         {
             return propertyId;
         }
-        JsUtil::CharacterBuffer<WCHAR> propertyStr(propertyKey->GetString(), propertyKey->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyStr(propertyKey->GetString(), propertyKey->GetLength());
         if (BuiltInPropertyRecords::valueOf.Equals(propertyStr))
         {
             return PropertyIds::valueOf;
@@ -226,12 +226,12 @@ namespace Js
 #endif
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-    const char16* TMapKey_GetBuffer(const PropertyRecord* key)
+    const CHAR_T* TMapKey_GetBuffer(const PropertyRecord* key)
     {
         return key->GetBuffer();
     }
 
-    const char16* TMapKey_GetBuffer(JavascriptString* key)
+    const CHAR_T* TMapKey_GetBuffer(JavascriptString* key)
     {
         return key->GetSz();
     }
@@ -1119,7 +1119,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         SimpleDictionaryPropertyDescriptor<TPropertyIndex>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -1175,7 +1175,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         SimpleDictionaryPropertyDescriptor<TPropertyIndex>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -1233,7 +1233,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         SimpleDictionaryPropertyDescriptor<TPropertyIndex>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -1493,7 +1493,7 @@ namespace Js
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         SimpleDictionaryPropertyDescriptor<TPropertyIndex>* descriptor;
         if (propertyMap->TryGetReference(propertyName, &descriptor))
         {
@@ -1569,7 +1569,7 @@ namespace Js
 
             ScriptContext* scriptContext = instance->GetScriptContext();
 
-            JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+            JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
             SimpleDictionaryPropertyDescriptor<TPropertyIndex>* descriptor;
             if (propertyMap->TryGetReference(propertyName, &descriptor))
             {
@@ -3231,7 +3231,7 @@ namespace Js
 
     template <typename TPropertyIndex, typename TMapKey, bool IsNotExtensibleSupported>
     void SimpleDictionaryTypeHandlerBase<TPropertyIndex, TMapKey, IsNotExtensibleSupported>::TraceFixedFieldsBeforeTypeHandlerChange(
-        const char16* oldTypeHandlerName, const char16* newTypeHandlerName,
+        const CHAR_T* oldTypeHandlerName, const CHAR_T* newTypeHandlerName,
         DynamicObject* instance, DynamicTypeHandler* oldTypeHandler,
         DynamicType* oldType, RecyclerWeakReference<DynamicObject>* oldSingletonInstanceBefore)
     {

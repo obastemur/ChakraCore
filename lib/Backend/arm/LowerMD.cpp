@@ -2102,7 +2102,7 @@ LowererMD::LoadHeapArguments(IR::Instr * instrArgs)
             // s2 = actual argument count (without counting "this")
             instr = this->LoadInputParamCount(instrArgs, -1);
             IR::Opnd * opndInputParamCount = instr->GetDst();
-            
+
             this->LoadHelperArgument(instrArgs, opndInputParamCount);
 
             // s1 = current function
@@ -6280,7 +6280,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         insertInstr->InsertBefore(instr);
 
         // indir = [psz + index32 * 2]
-        indirOpnd = IR::IndirOpnd::New(psz, constIndex * sizeof(char16), TyUint16, this->m_func);
+        indirOpnd = IR::IndirOpnd::New(psz, constIndex * sizeof(CHAR_T), TyUint16, this->m_func);
     }
     else
     {
@@ -6308,7 +6308,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         insertInstr->InsertBefore(instr);
 
         // indir = [psz + index32 * 2]
-        indirOpnd = IR::IndirOpnd::New(psz, index32, (byte)Math::Log2(sizeof(char16)), TyUint16, this->m_func);
+        indirOpnd = IR::IndirOpnd::New(psz, index32, (byte)Math::Log2(sizeof(CHAR_T)), TyUint16, this->m_func);
     }
 
     // char = LDRH [regSrc + index32, LSL #1]
@@ -7816,7 +7816,7 @@ LowererMD::GenerateFastInlineBuiltInMathFloor(IR::Instr* instr)
 
     IR::LabelInstr * bailoutLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, /*helperLabel*/true);;
     bool sharedBailout = (instr->GetBailOutInfo()->bailOutInstr != instr) ? true : false;
-    
+
     // NaN check
     IR::Instr *instrCmp = IR::Instr::New(Js::OpCode::VCMPF64, this->m_func);
     instrCmp->SetSrc1(floatOpnd);
@@ -8017,7 +8017,7 @@ LowererMD::GenerateFastInlineBuiltInMathRound(IR::Instr* instr)
 
     IR::LabelInstr * bailoutLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, /*helperLabel*/true);;
     bool sharedBailout = (instr->GetBailOutInfo()->bailOutInstr != instr) ? true : false;
-    
+
     // NaN check
     IR::Instr *instrCmp = IR::Instr::New(Js::OpCode::VCMPF64, this->m_func);
     instrCmp->SetSrc1(floatOpnd);
@@ -8372,7 +8372,7 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert, 
     IR::BailOutKind bailOutKind = IR::BailOutInvalid;
     if (instrBailOut && instrBailOut->HasBailOutInfo())
     {
-        bailOutKind = instrBailOut->GetBailOutKind(); 
+        bailOutKind = instrBailOut->GetBailOutKind();
         if (bailOutKind & IR::BailOutOnArrayAccessHelperCall)
         {
             // Bail out instead of calling helper. If this is happening unconditionally, the caller should instead throw a rejit exception.
@@ -8883,7 +8883,7 @@ LowererMD::LowerTypeof(IR::Instr* typeOfInstr)
 
     IR::LabelInstr * loadTypeDisplayStringLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
     m_lowerer->InsertCompareBranch(objTypeIdOpnd, IR::IntConstOpnd::New(Js::TypeIds_Limit, TyUint32, func), Js::OpCode::BrGe_A, true /*unsigned*/, loadTypeDisplayStringLabel, typeOfInstr);
-    
+
     m_lowerer->InsertMove(typeIdOpnd, objTypeIdOpnd, typeOfInstr);
     typeOfInstr->InsertBefore(loadTypeDisplayStringLabel);
 

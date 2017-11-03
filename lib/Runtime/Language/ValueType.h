@@ -318,11 +318,17 @@ private:
     static size_t GetLowestBitIndex(const Bits b);
     void ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const;
 public:
-    void ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const;
+    void ToString(CHAR_T (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const;
+    static bool FromString(const CHAR_T *const str, ValueType *valueType);
+
+#ifndef ENGINE_CHAR_T_IS_CHAR
     void ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const;
-    void ToStringDebug(__out_ecount(strSize) char *const str, const size_t strSize) const;
-    static bool FromString(const wchar *const str, ValueType *valueType);
     static bool FromString(const char *const str, ValueType *valueType);
+#else
+    void ToString(WCHAR (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const;
+    static bool FromString(const WCHAR *const str, ValueType *valueType);
+#endif
+    void ToStringDebug(__out_ecount(strSize) char *const str, const size_t strSize) const;
 
 public:
     TSize GetRawData() const;

@@ -13,7 +13,7 @@ struct StaticSymLen
 {
     uint32 luHash;
     uint32 cch;
-    OLECHAR sz[N];
+    WCHAR sz[N];
 };
 
 typedef StaticSymLen<0> StaticSym;
@@ -21,9 +21,9 @@ typedef StaticSymLen<0> StaticSym;
 /***************************************************************************
 Hashing functions. Definitions in core\hashfunc.cpp.
 ***************************************************************************/
-ULONG CaseSensitiveComputeHash(LPCOLESTR prgch, LPCOLESTR end);
+ULONG CaseSensitiveComputeHash(LPCWSTR prgch, LPCWSTR end);
 ULONG CaseSensitiveComputeHash(LPCUTF8 prgch, LPCUTF8 end);
-ULONG CaseInsensitiveComputeHash(LPCOLESTR posz);
+ULONG CaseInsensitiveComputeHash(LPCWSTR posz);
 
 enum
 {
@@ -118,11 +118,11 @@ private:
     AssignmentState assignmentState;
     bool isUsedInLdElem;
 
-    OLECHAR m_sz[]; // the spelling follows (null terminated)
+    WCHAR m_sz[]; // the spelling follows (null terminated)
 
     void SetTk(tokens tk, ushort grfid);
 public:
-    LPCOLESTR Psz(void)
+    LPCWSTR Psz(void)
     { return m_sz; }
     uint32 Cch(void)
     { return m_cch; }
@@ -303,10 +303,10 @@ public:
     void SetIsModuleExport() { m_grfid |= fidModuleExport; }
     BOOL GetIsModuleExport() const { return m_grfid & fidModuleExport; }
 
-    static tokens TkFromNameLen(uint32 luHash, _In_reads_(cch) LPCOLESTR prgch, uint32 cch, bool isStrictMode, ushort * pgrfid, ushort * ptk);
+    static tokens TkFromNameLen(uint32 luHash, _In_reads_(cch) LPCWSTR prgch, uint32 cch, bool isStrictMode, ushort * pgrfid, ushort * ptk);
 
 #if DBG
-    static tokens TkFromNameLen(_In_reads_(cch) LPCOLESTR prgch, uint32 cch, bool isStrictMode);
+    static tokens TkFromNameLen(_In_reads_(cch) LPCWSTR prgch, uint32 cch, bool isStrictMode);
 #endif
 };
 
@@ -347,7 +347,7 @@ public:
     }
 
     IdentPtr PidFromTk(tokens tk);
-    IdentPtr PidHashName(LPCOLESTR psz)
+    IdentPtr PidHashName(LPCWSTR psz)
     {
         size_t csz = wcslen(psz);
         Assert(csz <= ULONG_MAX);
@@ -360,7 +360,6 @@ public:
     IdentPtr PidHashNameLen(CharType const * psz, uint32 cch);
     template <typename CharType>
     IdentPtr PidHashNameLenWithHash(_In_reads_(cch) CharType const * psz, CharType const * end, int32 cch, uint32 luHash);
-
 
     template <typename CharType>
     inline IdentPtr FindExistingPid(
@@ -377,7 +376,7 @@ public:
 
     NoReleaseAllocator* GetAllocator() {return &m_noReleaseAllocator;}
 
-    bool Contains(_In_reads_(cch) LPCOLESTR prgch, int32 cch);
+    bool Contains(_In_reads_(cch) LPCWSTR prgch, int32 cch);
 
     template<typename Fn>
     void VisitPids(Fn fn)
@@ -396,7 +395,7 @@ private:
     Ident ** m_prgpidName;        // hash table for names
 
     uint32 m_luMask;                // hash mask
-    uint32 m_luCount;              // count of the number of entires in the hash table    
+    uint32 m_luCount;              // count of the number of entires in the hash table
     IdentPtr m_rpid[tkLimKwd];
 
     HashTbl()
@@ -424,15 +423,15 @@ private:
     uint CountAndVerifyItems(IdentPtr *buckets, uint bucketCount, uint mask);
 #endif
 
-    static bool CharsAreEqual(__in_z LPCOLESTR psz1, __in_ecount(psz2end - psz2) LPCOLESTR psz2, LPCOLESTR psz2end)
+    static bool CharsAreEqual(__in_z LPCWSTR psz1, __in_ecount(psz2end - psz2) LPCWSTR psz2, LPCWSTR psz2end)
     {
-        return memcmp(psz1, psz2, (psz2end - psz2) * sizeof(OLECHAR)) == 0;
+        return memcmp(psz1, psz2, (psz2end - psz2) * sizeof(WCHAR)) == 0;
     }
-    static bool CharsAreEqual(__in_z LPCOLESTR psz1, LPCUTF8 psz2, LPCUTF8 psz2end)
+    static bool CharsAreEqual(__in_z LPCWSTR psz1, LPCUTF8 psz2, LPCUTF8 psz2end)
     {
         return utf8::CharsAreEqual(psz1, psz2, psz2end, utf8::doAllowThreeByteSurrogates);
     }
-    static bool CharsAreEqual(__in_z LPCOLESTR psz1, __in_ecount(psz2end - psz2) char const * psz2, char const * psz2end)
+    static bool CharsAreEqual(__in_z LPCWSTR psz1, __in_ecount(psz2end - psz2) char const * psz2, char const * psz2end)
     {
         while (psz2 < psz2end)
         {
@@ -443,17 +442,17 @@ private:
         }
         return true;
     }
-    static void CopyString(__in_ecount((psz2end - psz2) + 1) LPOLESTR psz1, __in_ecount(psz2end - psz2) LPCOLESTR psz2, LPCOLESTR psz2end)
+    static void CopyString(__in_ecount((psz2end - psz2) + 1) LPWSTR psz1, __in_ecount(psz2end - psz2) LPCWSTR psz2, LPCWSTR psz2end)
     {
         size_t cch = psz2end - psz2;
-        js_memcpy_s(psz1, cch * sizeof(OLECHAR), psz2, cch * sizeof(OLECHAR));
+        js_memcpy_s(psz1, cch * sizeof(WCHAR), psz2, cch * sizeof(WCHAR));
         psz1[cch] = 0;
     }
-    static void CopyString(LPOLESTR psz1, LPCUTF8 psz2, LPCUTF8 psz2end)
+    static void CopyString(LPWSTR psz1, LPCUTF8 psz2, LPCUTF8 psz2end)
     {
         utf8::DecodeUnitsIntoAndNullTerminate(psz1, psz2, psz2end);
     }
-    static void CopyString(LPOLESTR psz1, char const * psz2, char const * psz2end)
+    static void CopyString(LPWSTR psz1, char const * psz2, char const * psz2end)
     {
         while (psz2 < psz2end)
         {

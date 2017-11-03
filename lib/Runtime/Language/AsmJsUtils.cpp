@@ -141,7 +141,7 @@ namespace Js
         *outNode = pnode;
     }
 
-    AsmJsCompilationException::AsmJsCompilationException( const char16* _msg, ... )
+    AsmJsCompilationException::AsmJsCompilationException( const CHAR_T* _msg, ... )
     {
         va_list arglist;
         va_start( arglist, _msg );
@@ -153,7 +153,7 @@ namespace Js
     {
         JavascriptString* str = JavascriptString::FromVar(string);
         charcount_t length = str->GetLength();
-        const char16* buf = str->GetString();
+        const CHAR_T* buf = str->GetString();
         int radix = 10;
         if (length >= 2 && buf[0] == '0' && buf[1] == 'x')
         {
@@ -237,8 +237,8 @@ namespace Js
                         RecyclableObject* object = RecyclableObject::FromVar(*origArgs);
                         PropertyRecord const * lowPropRecord = nullptr;
                         PropertyRecord const * highPropRecord = nullptr;
-                        scriptContext->GetOrAddPropertyRecord(_u("low"), (int)wcslen(_u("low")), &lowPropRecord);
-                        scriptContext->GetOrAddPropertyRecord(_u("high"), (int)wcslen(_u("high")), &highPropRecord);
+                        scriptContext->GetOrAddPropertyRecord(_u("low"), (int)cstrlen(_u("low")), &lowPropRecord);
+                        scriptContext->GetOrAddPropertyRecord(_u("high"), (int)cstrlen(_u("high")), &highPropRecord);
                         Var low = JavascriptOperators::OP_GetProperty(object, lowPropRecord->GetPropertyId(), scriptContext);
                         Var high = JavascriptOperators::OP_GetProperty(object, highPropRecord->GetPropertyId(), scriptContext);
 

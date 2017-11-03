@@ -603,7 +603,7 @@ END {
             // Note: There's a few places where we assume that there's no equivalence set
             // with only one actual member. If you fail this check, double-check the data
             // in the table above - one line likely has the same value for all deltas.
-            // 
+            //
             // The 0 parameter here indicates that we're starting from the first entry in
             // the transformation table. This function recursively checks (during compile
             // time) the entry at the index passed as well as all after it.
@@ -654,7 +654,7 @@ END {
             return false; // trivial
         }
 
-        bool RangeToEquivClass(uint & tblidx, uint l, uint h, uint & acth, __out_ecount(EquivClassSize) char16 equivl[EquivClassSize])
+        bool RangeToEquivClass(uint & tblidx, uint l, uint h, uint & acth, __out_ecount(EquivClassSize) CHAR_T equivl[EquivClassSize])
         {
             return RangeToEquivClass(tblidx, l, h, acth, equivl, [](MappingSource source) {
                 return source == MappingSource::UnicodeData;
@@ -668,7 +668,7 @@ END {
             });
         }
 
-        bool RangeToEquivClassOnlyInSource(MappingSource mappingSource, uint& tblidx, uint l, uint h, uint& acth, __out_ecount(EquivClassSize) char16 equivl[EquivClassSize])
+        bool RangeToEquivClassOnlyInSource(MappingSource mappingSource, uint& tblidx, uint l, uint h, uint& acth, __out_ecount(EquivClassSize) CHAR_T equivl[EquivClassSize])
         {
             return RangeToEquivClass(tblidx, l, h, acth, equivl, [&](MappingSource actualSource) {
                 return mappingSource == actualSource;

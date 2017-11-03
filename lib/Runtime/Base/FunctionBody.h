@@ -1244,7 +1244,7 @@ namespace Js
 
         Recycler* GetRecycler() const;
         uint32 GetSourceContextId() const;
-        char16* GetDebugNumberSet(wchar(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const;
+        CHAR_T* GetDebugNumberSet(CHAR_T(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const;
         bool GetIsTopLevel() { return m_isTopLevel; }
         void SetIsTopLevel(bool set) { m_isTopLevel = set; }
         bool GetIsAnonymousFunction() const { return this->GetDisplayName() == Js::Constants::AnonymousFunction; }
@@ -1297,16 +1297,16 @@ namespace Js
 #endif
         bool HasValidNonProfileEntryPoint() const;
 #endif
-        virtual void SetDisplayName(const char16* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) = 0;
-        virtual const char16* GetDisplayName() const = 0;
+        virtual void SetDisplayName(const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) = 0;
+        virtual const CHAR_T* GetDisplayName() const = 0;
         virtual uint GetDisplayNameLength() const = 0;
         virtual uint GetShortDisplayNameOffset() const = 0;
-        static const char16* WrapWithBrackets(const char16* name, charcount_t sz, ScriptContext* scriptContext);
+        static const CHAR_T* WrapWithBrackets(const CHAR_T* name, charcount_t sz, ScriptContext* scriptContext);
 
         // Used only in the library function stringify (toString, DiagGetValueString).
         // If we need more often to give the short name, we should create a member variable which points to the short name
         // this is also now being used for function.name.
-        const char16* GetShortDisplayName(charcount_t * shortNameLength);
+        const CHAR_T* GetShortDisplayName(charcount_t * shortNameLength);
 
         bool GetDisplayNameIsRecyclerAllocated() { return m_displayNameIsRecyclerAllocated; }
 
@@ -1333,9 +1333,9 @@ namespace Js
 
     protected:
         // Static method(s)
-        static bool SetDisplayName(const char16* srcName, FieldWithBarrier(const char16*)* destName, uint displayNameLength, ScriptContext * scriptContext, SetDisplayNameFlags flags = SetDisplayNameFlagsNone);
-        static bool SetDisplayName(const char16* srcName, const char16** destName, uint displayNameLength, ScriptContext * scriptContext, SetDisplayNameFlags flags = SetDisplayNameFlagsNone);
-        static bool IsConstantFunctionName(const char16* srcName);
+        static bool SetDisplayName(const CHAR_T* srcName, FieldWithBarrier(const CHAR_T*)* destName, uint displayNameLength, ScriptContext * scriptContext, SetDisplayNameFlags flags = SetDisplayNameFlagsNone);
+        static bool SetDisplayName(const CHAR_T* srcName, const CHAR_T** destName, uint displayNameLength, ScriptContext * scriptContext, SetDisplayNameFlags flags = SetDisplayNameFlagsNone);
+        static bool IsConstantFunctionName(const CHAR_T* srcName);
 
     protected:
         FieldNoBarrier(ScriptContext*) m_scriptContext;   // Memory context for this function body
@@ -1586,23 +1586,23 @@ namespace Js
         friend struct ByteCodeSerializer;
 
     private:
-        DeferDeserializeFunctionInfo(int nestedFunctionCount, LocalFunctionId functionId, ByteCodeCache* byteCodeCache, const byte* serializedFunction, Utf8SourceInfo* sourceInfo, ScriptContext* scriptContext, uint functionNumber, const char16* displayName, uint displayNameLength, uint displayShortNameOffset, NativeModule *nativeModule, FunctionInfo::Attributes attributes);
+        DeferDeserializeFunctionInfo(int nestedFunctionCount, LocalFunctionId functionId, ByteCodeCache* byteCodeCache, const byte* serializedFunction, Utf8SourceInfo* sourceInfo, ScriptContext* scriptContext, uint functionNumber, const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, NativeModule *nativeModule, FunctionInfo::Attributes attributes);
     public:
-        static DeferDeserializeFunctionInfo* New(ScriptContext* scriptContext, int nestedFunctionCount, LocalFunctionId functionId, ByteCodeCache* byteCodeCache, const byte* serializedFunction, Utf8SourceInfo* utf8SourceInfo, const char16* displayName, uint displayNameLength, uint displayShortNameOffset, NativeModule *nativeModule, FunctionInfo::Attributes attributes);
+        static DeferDeserializeFunctionInfo* New(ScriptContext* scriptContext, int nestedFunctionCount, LocalFunctionId functionId, ByteCodeCache* byteCodeCache, const byte* serializedFunction, Utf8SourceInfo* utf8SourceInfo, const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, NativeModule *nativeModule, FunctionInfo::Attributes attributes);
 
         virtual void Finalize(bool isShutdown) override;
         FunctionBody* Deserialize();
 
-        virtual const char16* GetDisplayName() const override;
-        void SetDisplayName(const char16* displayName);
-        virtual void SetDisplayName(const char16* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) override;
+        virtual const CHAR_T* GetDisplayName() const override;
+        void SetDisplayName(const CHAR_T* displayName);
+        virtual void SetDisplayName(const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) override;
         virtual uint GetDisplayNameLength() const { return m_displayNameLength; }
         virtual uint GetShortDisplayNameOffset() const { return m_displayShortNameOffset; }
-        LPCWSTR GetSourceInfo(int& lineNumber, int& columnNumber) const;
+        LPCCHAR_T GetSourceInfo(int& lineNumber, int& columnNumber) const;
     private:
         Field(const byte*) m_functionBytes;
         Field(ByteCodeCache*) m_cache;
-        Field(const char16 *) m_displayName;  // Optional name
+        Field(const CHAR_T *) m_displayName;  // Optional name
         Field(uint) m_displayNameLength;
         Field(uint) m_displayShortNameOffset;
         Field(NativeModule *) m_nativeModule;
@@ -1628,7 +1628,7 @@ namespace Js
         };
 
     protected:
-        ParseableFunctionInfo(JavascriptMethod method, int nestedFunctionCount, LocalFunctionId functionId, Utf8SourceInfo* sourceInfo, ScriptContext* scriptContext, uint functionNumber, const char16* displayName, uint m_displayNameLength, uint displayShortNameOffset, FunctionInfo::Attributes attributes, Js::PropertyRecordList* propertyRecordList, FunctionBodyFlags flags);
+        ParseableFunctionInfo(JavascriptMethod method, int nestedFunctionCount, LocalFunctionId functionId, Utf8SourceInfo* sourceInfo, ScriptContext* scriptContext, uint functionNumber, const CHAR_T* displayName, uint m_displayNameLength, uint displayShortNameOffset, FunctionInfo::Attributes attributes, Js::PropertyRecordList* propertyRecordList, FunctionBodyFlags flags);
 
         ParseableFunctionInfo(ParseableFunctionInfo * proxy);
 
@@ -1661,7 +1661,7 @@ namespace Js
         uint GetNestedCount() const { return nestedArray == nullptr ? 0 : nestedArray->nestedCount; }
 
     public:
-        static ParseableFunctionInfo* New(ScriptContext* scriptContext, int nestedFunctionCount, LocalFunctionId functionId, Utf8SourceInfo* utf8SourceInfo, const char16* displayName, uint m_displayNameLength, uint displayShortNameOffset, Js::PropertyRecordList* propertyRecordList, FunctionInfo::Attributes attributes, FunctionBodyFlags flags);
+        static ParseableFunctionInfo* New(ScriptContext* scriptContext, int nestedFunctionCount, LocalFunctionId functionId, Utf8SourceInfo* utf8SourceInfo, const CHAR_T* displayName, uint m_displayNameLength, uint displayShortNameOffset, Js::PropertyRecordList* propertyRecordList, FunctionInfo::Attributes attributes, FunctionBodyFlags flags);
         static ParseableFunctionInfo* NewDeferredFunctionFromFunctionBody(FunctionBody *functionBody);
 
         DEFINE_VTABLE_CTOR_NO_REGISTER(ParseableFunctionInfo, FunctionProxy);
@@ -1773,7 +1773,7 @@ namespace Js
         void ResetInParams();
         ScopeInfo* GetScopeInfo() const { return static_cast<ScopeInfo*>(this->GetAuxPtr(AuxPointerType::ScopeInfo)); }
         void SetScopeInfo(ScopeInfo* scopeInfo) {  this->SetAuxPtr(AuxPointerType::ScopeInfo, scopeInfo); }
-        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<WCHAR> const& propName);
+        PropertyId GetOrAddPropertyIdTracked(JsUtil::CharacterBuffer<CHAR_T> const& propName);
         bool IsTrackedPropertyId(PropertyId pid);
 
         void SetScopeSlotArraySizes(uint scopeSlotCount, uint scopeSlotCountForParamScope)
@@ -1814,21 +1814,21 @@ namespace Js
         ULONG GetLineNumber() const;
         ULONG GetColumnNumber() const;
         template <class T>
-        LPCWSTR GetSourceName(const T& sourceContextInfo) const;
+        LPCCHAR_T GetSourceName(const T& sourceContextInfo) const;
         template <class T>
-        static LPCWSTR GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction);
-        LPCWSTR GetSourceName() const;
+        static LPCCHAR_T GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction);
+        LPCCHAR_T GetSourceName() const;
         ULONG GetRelativeLineNumber() const { return m_lineNumber; }
         ULONG GetRelativeColumnNumber() const { return m_columnNumber; }
         uint GetSourceIndex() const;
-        LPCUTF8 GetSource(const  char16* reason = nullptr) const;
+        LPCUTF8 GetSource(const  CHAR_T* reason = nullptr) const;
         charcount_t LengthInChars() const { return m_cchLength; }
         charcount_t StartInDocument() const;
         bool IsEval() const { return m_isEval; }
         bool IsDynamicFunction() const;
         bool GetDontInline() { return m_dontInline; }
         void SetDontInline(bool is) { m_dontInline = is; }
-        LPCUTF8 GetStartOfDocument(const char16* reason = nullptr) const;
+        LPCUTF8 GetStartOfDocument(const CHAR_T* reason = nullptr) const;
         bool IsReparsed() const { return m_reparsed; }
         void SetReparsed(bool set) { m_reparsed = set; }
 #ifdef NTBUILD
@@ -1889,14 +1889,14 @@ namespace Js
         void Copy(FunctionBody* other);
         void CopyNestedArray(ParseableFunctionInfo * other);
 
-        const char16* GetExternalDisplayName() const;
+        const CHAR_T* GetExternalDisplayName() const;
 
         //
         // Algorithm to retrieve a function body's external display name. Template supports both
         // local FunctionBody and ScriptDAC (debugging) scenarios.
         //
         template <class T>
-        static const char16* GetExternalDisplayName(const T* funcBody)
+        static const CHAR_T* GetExternalDisplayName(const T* funcBody)
         {
             Assert(funcBody != nullptr);
             Assert(funcBody->GetDisplayName() != nullptr);
@@ -1904,9 +1904,9 @@ namespace Js
             return funcBody->GetDisplayName();
         }
 
-        virtual const char16* GetDisplayName() const override;
-        void SetDisplayName(const char16* displayName);
-        virtual void SetDisplayName(const char16* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) override;
+        virtual const CHAR_T* GetDisplayName() const override;
+        void SetDisplayName(const CHAR_T* displayName);
+        virtual void SetDisplayName(const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, SetDisplayNameFlags flags = SetDisplayNameFlagsNone) override;
 
         virtual void Finalize(bool isShutdown) override;
 
@@ -1926,7 +1926,7 @@ namespace Js
         void BuildDeferredStubs(ParseNode *pnodeFnc);
         DeferredFunctionStub *GetDeferredStubs() const { return static_cast<DeferredFunctionStub *>(this->GetAuxPtr(AuxPointerType::DeferredStubs)); }
         void SetDeferredStubs(DeferredFunctionStub *stub) { this->SetAuxPtr(AuxPointerType::DeferredStubs, stub); }
-        void RegisterFuncToDiag(ScriptContext * scriptContext, char16 const * pszTitle);
+        void RegisterFuncToDiag(ScriptContext * scriptContext, CHAR_T const * pszTitle);
         bool IsES6ModuleCode() const;
 
     protected:
@@ -1995,7 +1995,7 @@ namespace Js
 
         FieldWithBarrier(ULONG) m_lineNumber;
         FieldWithBarrier(ULONG) m_columnNumber;
-        FieldWithBarrier(const char16*) m_displayName;  // Optional name
+        FieldWithBarrier(const CHAR_T*) m_displayName;  // Optional name
         FieldWithBarrier(uint) m_displayNameLength;
         FieldWithBarrier(PropertyRecordList*) m_boundPropertyRecords;
         FieldWithBarrier(NestedArray*) nestedArray;
@@ -2014,13 +2014,13 @@ namespace Js
     // local FunctionBody and ScriptDAC (debugging) scenarios.
     //
     template <class T>
-    LPCWSTR ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo) const
+    LPCCHAR_T ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo) const
     {
         return GetSourceName<T>(sourceContextInfo, this->m_isEval, this->m_isDynamicFunction);
     }
 
     template <class T>
-    LPCWSTR ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction)
+    LPCCHAR_T ParseableFunctionInfo::GetSourceName(const T& sourceContextInfo, bool m_isEval, bool m_isDynamicFunction)
     {
         if (sourceContextInfo->IsDynamic())
         {
@@ -2394,7 +2394,7 @@ namespace Js
         FieldWithBarrier(ImplicitCallFlags) savedImplicitCallsFlags;
 #endif
 
-        FunctionBody(ScriptContext* scriptContext, const char16* displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount, Utf8SourceInfo* sourceInfo,
+        FunctionBody(ScriptContext* scriptContext, const CHAR_T* displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount, Utf8SourceInfo* sourceInfo,
             uint uFunctionNumber, uint uScriptId, Js::LocalFunctionId functionId, Js::PropertyRecordList* propRecordList, FunctionInfo::Attributes attributes, FunctionBodyFlags flags
 #ifdef PERF_COUNTERS
             , bool isDeserializedFunction = false
@@ -2423,14 +2423,14 @@ namespace Js
             // Used during deferred bytecode serialization
         }
 
-        static FunctionBody * NewFromRecycler(Js::ScriptContext * scriptContext, const char16 * displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount,
+        static FunctionBody * NewFromRecycler(Js::ScriptContext * scriptContext, const CHAR_T * displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount,
             Utf8SourceInfo* sourceInfo, uint uScriptId, Js::LocalFunctionId functionId, Js::PropertyRecordList* boundPropertyRecords, FunctionInfo::Attributes attributes
             , FunctionBodyFlags flags
 #ifdef PERF_COUNTERS
             , bool isDeserializedFunction
 #endif
             );
-        static FunctionBody * NewFromRecycler(Js::ScriptContext * scriptContext, const char16 * displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount,
+        static FunctionBody * NewFromRecycler(Js::ScriptContext * scriptContext, const CHAR_T * displayName, uint displayNameLength, uint displayShortNameOffset, uint nestedCount,
             Utf8SourceInfo* sourceInfo, uint uFunctionNumber, uint uScriptId, Js::LocalFunctionId functionId, Js::PropertyRecordList* boundPropertyRecords, FunctionInfo::Attributes attributes
             , FunctionBodyFlags flags
 #ifdef PERF_COUNTERS
@@ -2532,7 +2532,7 @@ namespace Js
         uint32 GetNextDebuggerScopeIndex() { return debuggerScopeIndex++; }
         void SetDebuggerScopeIndex(uint32 index) { debuggerScopeIndex = index; }
 
-        size_t GetLoopBodyName(uint loopNumber, _Out_writes_opt_z_(sizeInChars) WCHAR* displayName, _In_ size_t sizeInChars);
+        size_t GetLoopBodyName(uint loopNumber, _Out_writes_opt_z_(sizeInChars) CHAR_T* displayName, _In_ size_t sizeInChars);
 
         void AllocateLoopHeaders();
         void ReleaseLoopHeaders();
@@ -3311,7 +3311,7 @@ namespace Js
         LoopEntryPointInfo * GetLoopEntryPointInfoFromNativeAddress(DWORD_PTR codeAddress, uint loopNum) const;
 #endif
 
-        void InsertSymbolToRegSlotList(JsUtil::CharacterBuffer<WCHAR> const& propName, RegSlot reg, RegSlot totalRegsCount);
+        void InsertSymbolToRegSlotList(JsUtil::CharacterBuffer<CHAR_T> const& propName, RegSlot reg, RegSlot totalRegsCount);
         void InsertSymbolToRegSlotList(RegSlot reg, PropertyId propertyId, RegSlot totalRegsCount);
         void SetPropertyIdsOfFormals(PropertyIdArray * formalArgs);
         PropertyIdArray * AllocatePropertyIdArrayForFormals(uint32 size, uint32 count, byte extraSlots);
@@ -3401,7 +3401,7 @@ namespace Js
             return sourceSpan->begin == 0 && sourceSpan->end == 0;
         }
 
-        static void GetShortNameFromUrl(__in LPCWSTR pchUrl, _Out_writes_z_(cchBuffer) LPWSTR pchShortName, __in size_t cchBuffer);
+        static void GetShortNameFromUrl(__in LPCCHAR_T pchUrl, _Out_writes_z_(cchBuffer) LPCHAR_T pchShortName, __in size_t cchBuffer);
 
         template<class Fn>
         void MapLoopHeaders(Fn fn) const

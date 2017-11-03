@@ -29,7 +29,7 @@ namespace Js
 
     const double g_kdblJanuary1st1970 = 25569.0;
 
-    const char16 g_rgpszDay[7][4] =
+    const CHAR_T g_rgpszDay[7][4] =
     {
         _u("Sun"),
         _u("Mon"),
@@ -40,7 +40,7 @@ namespace Js
         _u("Sat")
     };
 
-    const char16 g_rgpszMonth[12][4] =
+    const CHAR_T g_rgpszMonth[12][4] =
     {
         _u("Jan"),
         _u("Feb"),
@@ -56,7 +56,7 @@ namespace Js
         _u("Dec")
     };
 
-    const char16 g_rgpszZone[8][4] =
+    const CHAR_T g_rgpszZone[8][4] =
     {
         _u("EST"),
         _u("EDT"),

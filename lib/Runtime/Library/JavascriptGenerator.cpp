@@ -78,7 +78,7 @@ namespace Js
     }
 #endif
 
-    Var JavascriptGenerator::CallGenerator(ResumeYieldData* yieldData, const char16* apiNameForErrorMessage)
+    Var JavascriptGenerator::CallGenerator(ResumeYieldData* yieldData, const CHAR_T* apiNameForErrorMessage)
     {
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptLibrary* library = scriptContext->GetLibrary();

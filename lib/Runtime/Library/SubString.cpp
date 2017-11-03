@@ -8,7 +8,7 @@ namespace Js
 {
     DEFINE_RECYCLER_TRACKER_PERF_COUNTER(SubString);
 
-    inline SubString::SubString(void const * originalFullStringReference, const char16* subString, charcount_t length, ScriptContext *scriptContext) :
+    inline SubString::SubString(void const * originalFullStringReference, const CHAR_T* subString, charcount_t length, ScriptContext *scriptContext) :
         JavascriptString(scriptContext->GetLibrary()->GetStringTypeStatic())
     {
         this->SetBuffer(subString);
@@ -34,13 +34,13 @@ namespace Js
         Recycler* recycler = scriptContext->GetRecycler();
 
         Assert(string->GetLength() >= start + length);
-        const char16 * subString = string->GetString() + start;
+        const CHAR_T * subString = string->GetString() + start;
         void const * originalFullStringReference = string->GetOriginalStringReference();
 
         return RecyclerNew(recycler, SubString, originalFullStringReference, subString, length, scriptContext);
     }
 
-    JavascriptString* SubString::New(const char16* string, charcount_t start, charcount_t length, ScriptContext *scriptContext)
+    JavascriptString* SubString::New(const CHAR_T* string, charcount_t start, charcount_t length, ScriptContext *scriptContext)
     {
         AssertMsg( IsValidCharCount(start), "start is out of range" );
         AssertMsg( IsValidCharCount(length), "length is out of range" );
@@ -54,12 +54,12 @@ namespace Js
         return RecyclerNew(recycler, SubString, string, string + start, length, scriptContext);
     }
 
-    const char16* SubString::GetSz()
+    const CHAR_T* SubString::GetSz()
     {
         if (originalFullStringReference)
         {
             Recycler* recycler = this->GetScriptContext()->GetRecycler();
-            char16 * newInstance = AllocateLeafAndCopySz(recycler, UnsafeGetBuffer(), GetLength());
+            CHAR_T * newInstance = AllocateLeafAndCopySz(recycler, UnsafeGetBuffer(), GetLength());
             this->SetBuffer(newInstance);
 
             // We don't need the string reference anymore, set it to nullptr and use this to know our string is nullptr terminated

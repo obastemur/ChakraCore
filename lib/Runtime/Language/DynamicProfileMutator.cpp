@@ -36,7 +36,7 @@ DynamicProfileMutator::GetMutator()
         return nullptr;
     }
 
-    char16 const * dllname = Js::Configuration::Global.flags.DynamicProfileMutatorDll;
+    CHAR_T const * dllname = Js::Configuration::Global.flags.DynamicProfileMutatorDll;
     HMODULE hModule = ::LoadLibraryW(dllname);
     if (hModule == nullptr)
     {

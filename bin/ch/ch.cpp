@@ -14,9 +14,9 @@ unsigned int MessageBase::s_messageCount = 0;
 Debugger* Debugger::debugger = nullptr;
 
 #ifdef _WIN32
-LPCWSTR hostName = _u("ch.exe");
+LPCCHAR_T hostName = _u("ch.exe");
 #else
-LPCWSTR hostName = _u("ch");
+LPCCHAR_T hostName = _u("ch");
 #endif
 
 JsRuntimeHandle chRuntime = JS_INVALID_RUNTIME_HANDLE;
@@ -28,7 +28,7 @@ char ttUri[ttUriBufferLength];
 size_t ttUriLength = 0;
 UINT32 snapInterval = MAXUINT32;
 UINT32 snapHistoryLength = MAXUINT32;
-LPCWSTR connectionUuidString = NULL;
+LPCCHAR_T connectionUuidString = NULL;
 UINT32 startEventCount = 1;
 
 extern "C"
@@ -105,13 +105,13 @@ void __stdcall PrintChVersion()
 #ifdef _WIN32
 void __stdcall PrintChakraCoreVersion()
 {
-    char16 filename[_MAX_PATH];
-    char16 drive[_MAX_DRIVE];
-    char16 dir[_MAX_DIR];
+    CHAR_T filename[_MAX_PATH];
+    CHAR_T drive[_MAX_DRIVE];
+    CHAR_T dir[_MAX_DIR];
 
-    LPCWSTR chakraDllName = GetChakraDllNameW();
+    LPCCHAR_T chakraDllName = GetChakraDllNameW();
 
-    char16 modulename[_MAX_PATH];
+    CHAR_T modulename[_MAX_PATH];
     if (!GetModuleFileNameW(NULL, modulename, _MAX_PATH))
     {
         return;
@@ -176,7 +176,7 @@ Error:
     return hr;
 }
 
-HRESULT CreateLibraryByteCodeHeader(LPCSTR contentsRaw, JsFinalizeCallback contentsRawFinalizeCallback, DWORD lengthBytes, LPCWSTR bcFullPath, LPCSTR libraryNameNarrow)
+HRESULT CreateLibraryByteCodeHeader(LPCSTR contentsRaw, JsFinalizeCallback contentsRawFinalizeCallback, DWORD lengthBytes, LPCCHAR_T bcFullPath, LPCSTR libraryNameNarrow)
 {
     HANDLE bcFileHandle = nullptr;
     JsValueRef bufferVal;
@@ -216,7 +216,7 @@ HRESULT CreateLibraryByteCodeHeader(LPCSTR contentsRaw, JsFinalizeCallback conte
     {
         outputStr = "#endif\r\n";
     }
-    
+
     // We no longer need contentsRaw, so call the finalizer for it if one was provided
     if(contentsRawFinalizeCallback != nullptr)
     {
@@ -802,10 +802,10 @@ HRESULT ExecuteTestWithMemoryCheck(char* fileName)
 }
 
 #ifdef _WIN32
-bool HandleJITServerFlag(int& argc, _Inout_updates_to_(argc, argc) LPWSTR argv[])
+bool HandleJITServerFlag(int& argc, _Inout_updates_to_(argc, argc) LPCHAR_T argv[])
 {
-    LPCWSTR flag = _u("-jitserver:");
-    LPCWSTR flagWithoutColon = _u("-jitserver");
+    LPCCHAR_T flag = _u("-jitserver:");
+    LPCCHAR_T flagWithoutColon = _u("-jitserver");
     size_t flagLen = wcslen(flag);
 
     int i = 0;
@@ -844,7 +844,7 @@ bool HandleJITServerFlag(int& argc, _Inout_updates_to_(argc, argc) LPWSTR argv[]
 
 typedef HRESULT(WINAPI *JsInitializeJITServerPtr)(UUID* connectionUuid, void* securityDescriptor, void* alpcSecurityDescriptor);
 
-int _cdecl RunJITServer(int argc, __in_ecount(argc) LPWSTR argv[])
+int _cdecl RunJITServer(int argc, __in_ecount(argc) LPCHAR_T argv[])
 {
     ChakraRTInterface::ArgInfo argInfo = { argc, argv, PrintUsage, nullptr };
     HINSTANCE chakraLibrary = nullptr;
@@ -890,7 +890,7 @@ unsigned int WINAPI StaticThreadProc(void *lpParam)
 }
 
 #ifndef _WIN32
-static char16** argv = nullptr;
+static CHAR_T** argv = nullptr;
 int main(int argc, char** c_argv)
 {
 #ifndef CHAKRA_STATIC_LIBRARY
@@ -898,14 +898,14 @@ int main(int argc, char** c_argv)
     PAL_InitializeChakraCore();
 #endif
     int origargc = argc; // store for clean-up later
-    argv = new char16*[argc];
+    argv = new CHAR_T*[argc];
     for (int i = 0; i < argc; i++)
     {
         NarrowStringToWideDynamic(c_argv[i], &argv[i]);
     }
 #else
 #define PAL_Shutdown()
-int _cdecl wmain(int argc, __in_ecount(argc) LPWSTR argv[])
+int _cdecl wmain(int argc, __in_ecount(argc) LPCHAR_T argv[])
 {
 #endif
 
@@ -951,7 +951,7 @@ int _cdecl wmain(int argc, __in_ecount(argc) LPWSTR argv[])
 
     for(int i = 1; i < argc; ++i)
     {
-        const wchar *arg = argv[i];
+        const CHAR_T *arg = argv[i];
         size_t arglen = wcslen(arg);
 
         // support - or / prefix for flags
@@ -997,33 +997,33 @@ int _cdecl wmain(int argc, __in_ecount(argc) LPWSTR argv[])
         else if(wcsstr(argv[i], _u("-TTRecord=")) == argv[i])
         {
             doTTRecord = true;
-            wchar* ruri = argv[i] + wcslen(_u("-TTRecord="));
+            CHAR_T* ruri = argv[i] + wcslen(_u("-TTRecord="));
             Helpers::GetTTDDirectory(ruri, &ttUriLength, ttUri, ttUriBufferLength);
         }
         else if(wcsstr(argv[i], _u("-TTReplay=")) == argv[i])
         {
             doTTReplay = true;
-            wchar* ruri = argv[i] + wcslen(_u("-TTReplay="));
+            CHAR_T* ruri = argv[i] + wcslen(_u("-TTReplay="));
             Helpers::GetTTDDirectory(ruri, &ttUriLength, ttUri, ttUriBufferLength);
         }
         else if(wcsstr(argv[i], _u("-TTSnapInterval=")) == argv[i])
         {
-            LPCWSTR intervalStr = argv[i] + wcslen(_u("-TTSnapInterval="));
+            LPCCHAR_T intervalStr = argv[i] + wcslen(_u("-TTSnapInterval="));
             snapInterval = (UINT32)_wtoi(intervalStr);
         }
         else if(wcsstr(argv[i], _u("-TTHistoryLength=")) == argv[i])
         {
-            LPCWSTR historyStr = argv[i] + wcslen(_u("-TTHistoryLength="));
+            LPCCHAR_T historyStr = argv[i] + wcslen(_u("-TTHistoryLength="));
             snapHistoryLength = (UINT32)_wtoi(historyStr);
         }
         else if(wcsstr(argv[i], _u("-TTDStartEvent=")) == argv[i])
         {
-            LPCWSTR startEventStr = argv[i] + wcslen(_u("-TTDStartEvent="));
+            LPCCHAR_T startEventStr = argv[i] + wcslen(_u("-TTDStartEvent="));
             startEventCount = (UINT32)_wtoi(startEventStr);
         }
         else
         {
-            wchar *temp = argv[cpos];
+            CHAR_T *temp = argv[cpos];
             argv[cpos] = argv[i];
             argv[i] = temp;
             cpos++;

@@ -10,8 +10,8 @@ public:
     HostDebugContext(Js::ScriptContext* inScriptContext) { this->scriptContext = inScriptContext; }
     virtual void Delete() = 0;
     virtual DWORD_PTR GetHostSourceContext(Js::Utf8SourceInfo * sourceInfo) = 0;
-    virtual HRESULT SetThreadDescription(__in LPCWSTR url) = 0;
-    virtual HRESULT DbgRegisterFunction(Js::ScriptContext * scriptContext, Js::FunctionBody * functionBody, DWORD_PTR dwDebugSourceContext, LPCWSTR title) = 0;
+    virtual HRESULT SetThreadDescription(__in LPCCHAR_T url) = 0;
+    virtual HRESULT DbgRegisterFunction(Js::ScriptContext * scriptContext, Js::FunctionBody * functionBody, DWORD_PTR dwDebugSourceContext, LPCCHAR_T title) = 0;
     virtual void ReParentToCaller(Js::Utf8SourceInfo* sourceInfo) = 0;
     virtual void SortMembersList(JsUtil::List<Js::DebuggerPropertyDisplayInfo *, ArenaAllocator> * pMembersList, Js::ScriptContext* scriptContext) {/*Do nothing*/}
 
@@ -46,7 +46,7 @@ namespace Js
         ~DebugContext();
         void Initialize();
         HRESULT RundownSourcesAndReparse(bool shouldPerformSourceRundown, bool shouldReparseFunctions);
-        void RegisterFunction(Js::ParseableFunctionInfo * func, LPCWSTR title);
+        void RegisterFunction(Js::ParseableFunctionInfo * func, LPCCHAR_T title);
         bool IsClosed() const { return this->isClosed; };
         bool IsSelfOrScriptContextClosed() const;
         void Close();
@@ -79,8 +79,8 @@ namespace Js
         // Private Functions
         void WalkAndAddUtf8SourceInfo(Js::Utf8SourceInfo* sourceInfo, JsUtil::List<Js::Utf8SourceInfo *, Recycler, false, Js::CopyRemovePolicy, RecyclerPointerComparer> *utf8SourceInfoList);
         bool CanRegisterFunction() const;
-        void RegisterFunction(Js::ParseableFunctionInfo * func, DWORD_PTR dwDebugSourceContext, LPCWSTR title);
-        void RegisterFunction(Js::FunctionBody * functionBody, DWORD_PTR dwDebugSourceContext, LPCWSTR title);
+        void RegisterFunction(Js::ParseableFunctionInfo * func, DWORD_PTR dwDebugSourceContext, LPCCHAR_T title);
+        void RegisterFunction(Js::FunctionBody * functionBody, DWORD_PTR dwDebugSourceContext, LPCCHAR_T title);
 
         template<class TMapFunction>
         void MapUTF8SourceInfoUntil(TMapFunction map);

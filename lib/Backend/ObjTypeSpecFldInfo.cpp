@@ -416,8 +416,8 @@ ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, Js::InlineCache* cac
                 functionObject = (Js::JavascriptFunction *)fixedProperty;
                 if (PHASE_VERBOSE_TRACE(Js::FixedMethodsPhase, functionBody))
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                    char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                     Js::DynamicObject* protoObject = isProto ? prototypeObject : nullptr;
                     Output::Print(_u("FixedFields: function %s (%s) cloning cache with fixed method: %s (%s), function: 0x%p, body: 0x%p (cache id: %d, layout: %s, type: 0x%p, proto: 0x%p, proto type: 0x%p)\n"),
@@ -430,8 +430,8 @@ ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, Js::InlineCache* cac
 
                 if (PHASE_VERBOSE_TESTTRACE(Js::FixedMethodsPhase, functionBody))
                 {
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                    char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                     Output::Print(_u("FixedFields: function %s (%s) cloning cache with fixed method: %s (%s) (cache id: %d, layout: %s)\n"),
                         functionBody->GetDisplayName(), functionBody->GetDebugNumberSet(debugStringBuffer), fixedPropertyRecord->GetBuffer(), functionObject->GetFunctionInfo()->GetFunctionProxy() ?
@@ -467,8 +467,8 @@ ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, Js::InlineCache* cac
                         {
                             if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
                             {
-                                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                                char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                                CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                                 Output::Print(_u("FixedNewObj: function %s (%s) ctor cache for %s (%s) about to be cloned has unlocked inline slot count: guard value = 0x%p, type = 0x%p, slots = %d, inline slots = %d\n"),
                                     functionBody->GetDisplayName(), functionBody->GetDebugNumberSet(debugStringBuffer), fixedPropertyRecord->GetBuffer(), functionObject->GetFunctionInfo()->GetFunctionBody() ?
@@ -489,8 +489,8 @@ ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, Js::InlineCache* cac
 
                     if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
                     {
-                        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                        char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                        CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                         Output::Print(_u("FixedNewObj: function %s (%s) cloning ctor cache for %s (%s): guard value = 0x%p, type = 0x%p, slots = %d, inline slots = %d\n"),
                             functionBody->GetDisplayName(), functionBody->GetDebugNumberSet(debugStringBuffer), fixedPropertyRecord->GetBuffer(), functionObject->GetFunctionInfo()->GetFunctionBody() ?
@@ -506,8 +506,8 @@ ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, Js::InlineCache* cac
                     {
                         if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
                         {
-                            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-                            char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                            CHAR_T debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                             Output::Print(_u("FixedNewObj: function %s (%s) skipping ctor cache for %s (%s), because %s (guard value = 0x%p, script context = %p).\n"),
                                 functionBody->GetDisplayName(), functionBody->GetDebugNumberSet(debugStringBuffer), fixedPropertyRecord->GetBuffer(), functionObject->GetFunctionInfo()->GetFunctionBody() ?

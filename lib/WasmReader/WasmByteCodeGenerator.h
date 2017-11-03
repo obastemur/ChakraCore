@@ -48,7 +48,7 @@ namespace Wasm
 
     class WasmCompilationException
     {
-        void FormatError(const char16* _msg, va_list arglist);
+        void FormatError(const CHAR_T* _msg, va_list arglist);
         BSTR errorMsg;
         // We need to explicitly delete these; simply not including them makes compilers do
         // generation of simple copy-construct and copy-assign functions, which incorrectly
@@ -80,8 +80,8 @@ namespace Wasm
         }
 #endif
     public:
-        WasmCompilationException(const char16* _msg, ...);
-        WasmCompilationException(const char16* _msg, va_list arglist);
+        WasmCompilationException(const CHAR_T* _msg, ...);
+        WasmCompilationException(const CHAR_T* _msg, va_list arglist);
         WasmCompilationException(WasmCompilationException&& other)
         {
             errorMsg = other.errorMsg;
@@ -198,7 +198,7 @@ namespace Wasm
         EmitInfo EmitSelect();
         template<typename WriteFn>
         void WriteTypeStack(WriteFn fn) const;
-        uint32 WriteTypeStackToString(_Out_writes_(maxlen) char16* out, uint32 maxlen) const;
+        uint32 WriteTypeStackToString(_Out_writes_(maxlen) CHAR_T* out, uint32 maxlen) const;
 #if DBG_DUMP
         uint32 opId = 0;
         uint32 lastOpId = 1;
@@ -231,8 +231,8 @@ namespace Wasm
         WasmRegisterSpace* GetRegisterSpace(WasmTypes::WasmType type);
 
         EmitInfo PopValuePolymorphic() { return PopEvalStack(); }
-        EmitInfo PopStackPolymorphic(WasmTypes::WasmType expectedType = WasmTypes::Any, const char16* mismatchMessage = nullptr);
-        EmitInfo PopEvalStack(WasmTypes::WasmType expectedType = WasmTypes::Any, const char16* mismatchMessage = nullptr);
+        EmitInfo PopStackPolymorphic(WasmTypes::WasmType expectedType = WasmTypes::Any, const CHAR_T* mismatchMessage = nullptr);
+        EmitInfo PopEvalStack(WasmTypes::WasmType expectedType = WasmTypes::Any, const CHAR_T* mismatchMessage = nullptr);
         void PushEvalStack(EmitInfo);
         EmitInfo EnsureYield(BlockInfo);
         void EnterEvalStackScope();

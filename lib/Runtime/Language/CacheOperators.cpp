@@ -94,7 +94,7 @@ namespace Js
     void CacheOperators::CachePropertyReadForGetter(
         PropertyValueInfo *info,
         Var originalInstance,
-        JsUtil::CharacterBuffer<WCHAR> const& propertyName,
+        JsUtil::CharacterBuffer<CHAR_T> const& propertyName,
         ScriptContext* requestContext)
     {
         PropertyRecord const* propertyRecord;
@@ -347,7 +347,7 @@ namespace Js
     }
 
 #if DBG_DUMP
-    void CacheOperators::TraceCache(InlineCache * inlineCache, const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
+    void CacheOperators::TraceCache(InlineCache * inlineCache, const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
     {
         TraceCacheCommon(methodName, propertyId, requestContext, object);
         if(inlineCache)
@@ -359,7 +359,7 @@ namespace Js
         Output::Flush();
     }
 
-    void CacheOperators::TraceCache(PolymorphicInlineCache * polymorphicInlineCache, const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
+    void CacheOperators::TraceCache(PolymorphicInlineCache * polymorphicInlineCache, const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
     {
         TraceCacheCommon(methodName, propertyId, requestContext, object);
         Output::Print(_u("Polymorphic Inline Cache, size = %d :\n"), polymorphicInlineCache->GetSize());
@@ -367,12 +367,12 @@ namespace Js
         Output::Flush();
     }
 
-    void CacheOperators::TraceCacheCommon(const char16 * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
+    void CacheOperators::TraceCacheCommon(const CHAR_T * methodName, PropertyId propertyId, ScriptContext * requestContext, RecyclableObject * object)
     {
         if(object)
         {
             JavascriptFunction* caller;
-            const WCHAR* callerName = NULL;
+            const CHAR_T* callerName = NULL;
             uint lineNumber = 0;
             uint columnNumber = 0;
             if(JavascriptStackWalker::GetCaller(&caller, requestContext))

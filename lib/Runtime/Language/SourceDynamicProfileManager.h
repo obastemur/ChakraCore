@@ -25,7 +25,7 @@ namespace Js
 #ifdef DYNAMIC_PROFILE_STORAGE
             dynamicProfileInfoMapSaving(&HeapAllocator::Instance),
 #endif
-            dynamicProfileInfoMap(allocator), startupFunctions(nullptr), profileDataCache(nullptr) 
+            dynamicProfileInfoMap(allocator), startupFunctions(nullptr), profileDataCache(nullptr)
         {
         }
 
@@ -41,7 +41,7 @@ namespace Js
         uint SaveToProfileCacheAndRelease(SourceContextInfo* info);
         bool IsProfileLoaded() { return cachedStartupFunctions != nullptr; }
         bool IsProfileLoadedFromWinInet() { return profileDataCache != nullptr; }
-        bool LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCWSTR url);
+        bool LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCCHAR_T url);
         IActiveScriptDataCache* GetProfileCache() { return profileDataCache; }
         uint GetStartupFunctionsLength() { return (this->startupFunctions ? this->startupFunctions->Length() : 0); }
 #ifdef DYNAMIC_PROFILE_STORAGE
@@ -56,9 +56,9 @@ namespace Js
 #ifdef DYNAMIC_PROFILE_STORAGE
         typedef JsUtil::BaseDictionary<LocalFunctionId, DynamicProfileInfo *, HeapAllocator> DynamicProfileInfoMapSavingType;
         FieldNoBarrier(DynamicProfileInfoMapSavingType) dynamicProfileInfoMapSaving;
-        
+
         void SaveDynamicProfileInfo(LocalFunctionId functionId, DynamicProfileInfo * dynamicProfileInfo);
-        void SaveToDynamicProfileStorage(char16 const * url);
+        void SaveToDynamicProfileStorage(CHAR_T const * url);
         void AddItem(LocalFunctionId functionId, DynamicProfileInfo *info);
         template <typename T>
         static SourceDynamicProfileManager * Deserialize(T * reader, Recycler* allocator);

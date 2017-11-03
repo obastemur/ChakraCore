@@ -23,7 +23,7 @@ namespace Js {
         static void DumpR8Float(float value);
         static void DumpFloat32x4Reg(RegSlot reg);
         static void DumpInt32x4Reg(RegSlot reg);
-        
+
         static void DumpUint32x4Reg(RegSlot reg);
         static void DumpInt16x8Reg(RegSlot reg);
         static void DumpUint16x8Reg(RegSlot reg);
@@ -50,8 +50,8 @@ namespace Js {
     private:
         struct WAsmJsMemTag
         {
-            char16 valueTag;
-            const char16 * heapTag;
+            CHAR_T valueTag;
+            const CHAR_T * heapTag;
         };
         static void InitializeWAsmJsMemTag(ArrayBufferView::ViewType type, _Out_ WAsmJsMemTag * tag);
     };

@@ -16,11 +16,11 @@ void __stdcall js_memcpy_s(__bcount(sizeInBytes) void *dst, size_t sizeInBytes, 
         Js::Throw::FatalInternalError();
 }
 
-void __stdcall js_wmemcpy_s(__ecount(sizeInWords) char16 *dst, size_t sizeInWords, __in_ecount(count) const char16 *src, size_t count)
+void __stdcall js_wmemcpy_s(__ecount(sizeInWords) CHAR_T *dst, size_t sizeInWords, __in_ecount(count) const CHAR_T *src, size_t count)
 {
     //Multiplication Overflow check
-    Assert(count <= sizeInWords && count <= SIZE_MAX/sizeof(char16));
-    if(!(count <= sizeInWords && count <= SIZE_MAX/sizeof(char16)))
+    Assert(count <= sizeInWords && count <= SIZE_MAX/sizeof(CHAR_T));
+    if(!(count <= sizeInWords && count <= SIZE_MAX/sizeof(CHAR_T)))
     {
         Js::Throw::FatalInternalError();
     }

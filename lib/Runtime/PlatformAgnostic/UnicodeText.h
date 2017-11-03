@@ -106,7 +106,7 @@ namespace PlatformAgnostic
         //   length of the normalized string in the destination buffer
         //   If the return value is less than or equal to 0, then see the value of pErrorOut to understand the error
         //
-        int32 NormalizeString(NormalizationForm normalizationForm, const char16* sourceString, uint32 sourceLength, char16* destString, int32 destLength, ApiError* pErrorOut);
+        int32 NormalizeString(NormalizationForm normalizationForm, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, int32 destLength, ApiError* pErrorOut);
 
         //
         // This method verifies that a given UTF16 string is normalized according to the rules of Unicode 4.0 TR#15.
@@ -120,7 +120,7 @@ namespace PlatformAgnostic
         //   true if the input string is already normalized, false if it isn't
         //   No error codes are returned since they're not used by the caller.
         //
-        bool IsNormalizedString(NormalizationForm normalizatingForm, const char16* testString, int32 testStringLength);
+        bool IsNormalizedString(NormalizationForm normalizatingForm, const CHAR_T* testString, int32 testStringLength);
 
         //
         // This method lets the caller know if an external Unicode helper library is being used by the PAL
@@ -169,7 +169,7 @@ namespace PlatformAgnostic
         //   length of the translated string in the destination buffer
         //   If the return value is less than or equal to 0, then see the value of pErrorOut to understand the error
         //
-        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const char16* sourceString, uint32 sourceLength, char16* destString, uint32 destLength, ApiError* pErrorOut);
+        int32 ChangeStringLinguisticCase(CaseFlags caseFlags, const CHAR_T* sourceString, uint32 sourceLength, CHAR_T* destString, uint32 destLength, ApiError* pErrorOut);
 
         //
         // Change the case of a string using linguistic rules
@@ -184,19 +184,19 @@ namespace PlatformAgnostic
         //   length of the translated string in the destination buffer
         //   If the return value is less than or equal to 0, then see the value of pErrorOut to understand the error
         //
-        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, char16* stringToChange, uint32 bufferLength);
+        uint32 ChangeStringCaseInPlace(CaseFlags caseFlags, CHAR_T* stringToChange, uint32 bufferLength);
 
         //
         // Return the classification type of the character using Unicode 2.0 rules
         // Used for ES5 compat
         //
-        CharacterClassificationType GetLegacyCharacterClassificationType(char16 character);
+        CharacterClassificationType GetLegacyCharacterClassificationType(CHAR_T character);
 
         //
         // Return the flags associated with the character using Unicode 2.0 rules
         // Used for ES5 compat
         //
-        CharacterTypeFlags GetLegacyCharacterTypeFlags(char16 character);
+        CharacterTypeFlags GetLegacyCharacterTypeFlags(CHAR_T character);
 
         //
         // Compares two unicode strings but numbers are compared
@@ -208,6 +208,6 @@ namespace PlatformAgnostic
         //     -1 - string1 is greater than string2
         //     +1 - string1 is lesser than string2
         //
-        int LogicalStringCompare(const char16* string1, const char16* string2);
+        int LogicalStringCompare(const CHAR_T* string1, const CHAR_T* string2);
     };
 };

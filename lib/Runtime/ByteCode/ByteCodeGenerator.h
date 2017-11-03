@@ -225,7 +225,7 @@ public:
     void AssignPropertyIds(Js::ParseableFunctionInfo* functionInfo);
     void MapCacheIdsToPropertyIds(FuncInfo *funcInfo);
     void MapReferencedPropertyIds(FuncInfo *funcInfo);
-    FuncInfo *StartBindFunction(const char16 *name, uint nameLength, uint shortNameOffset, bool* pfuncExprWithName, ParseNode *pnode, Js::ParseableFunctionInfo * reuseNestedFunc);
+    FuncInfo *StartBindFunction(const CHAR_T *name, uint nameLength, uint shortNameOffset, bool* pfuncExprWithName, ParseNode *pnode, Js::ParseableFunctionInfo * reuseNestedFunc);
     void EndBindFunction(bool funcExprWithName);
     void StartBindCatch(ParseNode *pnode);
 
@@ -256,13 +256,13 @@ public:
     void PushBlock(ParseNode *pnode);
     void PopBlock();
 
-    void PushFuncInfo(char16 const * location, FuncInfo* funcInfo);
-    void PopFuncInfo(char16 const * location);
+    void PushFuncInfo(CHAR_T const * location, FuncInfo* funcInfo);
+    void PopFuncInfo(CHAR_T const * location);
 
     Js::RegSlot PrependLocalScopes(Js::RegSlot evalEnv, Js::RegSlot tempLoc, FuncInfo *funcInfo);
     Symbol *FindSymbol(Symbol **symRef, IdentPtr pid, bool forReference = false);
-    Symbol *AddSymbolToScope(Scope *scope, const char16 *key, int keyLength, ParseNode *varDecl, SymbolType symbolType);
-    Symbol *AddSymbolToFunctionScope(const char16 *key, int keyLength, ParseNode *varDecl, SymbolType symbolType);
+    Symbol *AddSymbolToScope(Scope *scope, const CHAR_T *key, int keyLength, ParseNode *varDecl, SymbolType symbolType);
+    Symbol *AddSymbolToFunctionScope(const CHAR_T *key, int keyLength, ParseNode *varDecl, SymbolType symbolType);
     void FuncEscapes(Scope *scope);
     void EmitTopLevelStatement(ParseNode *stmt, FuncInfo *funcInfo, BOOL fReturnValue);
     void EmitInvertedLoop(ParseNode* outerLoop,ParseNode* invertedLoop,FuncInfo* funcInfo);
@@ -340,7 +340,7 @@ public:
     static Js::OpCode GetStFldOpCode(FuncInfo* funcInfo, bool isRoot, bool isLetDecl, bool isConstDecl, bool isClassMemberInit);
     static Js::OpCode GetScopedStFldOpCode(bool isStrictMode, bool isConsoleScope = false)
     {
-        return isStrictMode ? 
+        return isStrictMode ?
             (isConsoleScope ? Js::OpCode::ConsoleScopedStFldStrict : Js::OpCode::ScopedStFldStrict) :
             (isConsoleScope ? Js::OpCode::ConsoleScopedStFld : Js::OpCode::ScopedStFld);
     }

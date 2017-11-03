@@ -245,7 +245,7 @@ namespace Js
         // Consider: Implement actual string hash lookup
         Assert(requestContext);
         PropertyRecord const* propertyRecord;
-        char16 const * propertyName = propertyNameString->GetString();
+        CHAR_T const * propertyName = propertyNameString->GetString();
         charcount_t const propertyNameLength = propertyNameString->GetLength();
 
         if (instance->HasObjectArray())
@@ -485,7 +485,7 @@ namespace Js
 
         return deleteResult;
     }
-    
+
     BOOL PathTypeHandlerBase::IsEnumerable(DynamicObject* instance, PropertyId propertyId)
     {
         return true;
@@ -1568,7 +1568,7 @@ namespace Js
         TypeTransitionMap * oldTypeToPromotedTypeMap = nullptr;
 #if DBG
         DynamicType * oldCachedType = nullptr;
-        char16 reason[1024];
+        CHAR_T reason[1024];
         swprintf_s(reason, 1024, _u("Cache not populated."));
 #endif
         if (useCache && newPrototype->GetInternalProperty(newPrototype, Js::InternalPropertyIds::TypeOfPrototypeObjectDictionary, (Js::Var*)&oldTypeToPromotedTypeMap, nullptr, scriptContext) && oldTypeToPromotedTypeMap != nullptr)
@@ -2149,7 +2149,7 @@ namespace Js
     }
 
     void PathTypeHandlerBase::TraceFixedFieldsBeforeTypeHandlerChange(
-        const char16* conversionName, const char16* oldTypeHandlerName, const char16* newTypeHandlerName,
+        const CHAR_T* conversionName, const CHAR_T* oldTypeHandlerName, const CHAR_T* newTypeHandlerName,
         DynamicObject* instance, DynamicTypeHandler* oldTypeHandler,
         DynamicType* oldType, RecyclerWeakReference<DynamicObject>* oldSingletonInstanceBefore)
     {

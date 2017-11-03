@@ -94,7 +94,7 @@ namespace Js
     //
     // Loads the profile from the WININET cache
     //
-    bool SourceDynamicProfileManager::LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCWSTR url)
+    bool SourceDynamicProfileManager::LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCCHAR_T url)
     {
     #ifdef ENABLE_WININET_PROFILE_DATA_CACHE
         AssertMsg(CONFIG_FLAG(WininetProfileCache), "Profile caching should be enabled for us to get here");
@@ -467,7 +467,7 @@ namespace Js
     }
 
     void
-    SourceDynamicProfileManager::SaveToDynamicProfileStorage(char16 const * url)
+    SourceDynamicProfileManager::SaveToDynamicProfileStorage(CHAR_T const * url)
     {
         Assert(DynamicProfileStorage::IsEnabled());
         BufferSizeCounter counter;

@@ -261,7 +261,7 @@ namespace Js
     }
 
 
-    void AsmJSByteCodeGenerator::PrintAsmJsCompilationError(__out_ecount(256)  char16* msg)
+    void AsmJSByteCodeGenerator::PrintAsmJsCompilationError(__out_ecount(256)  CHAR_T* msg)
     {
         uint offset = mWriter.GetCurrentOffset();
         ULONG line = 0;
@@ -272,8 +272,8 @@ namespace Js
             col = 0;
         }
 
-        char16 filename[_MAX_FNAME];
-        char16 ext[_MAX_EXT];
+        CHAR_T filename[_MAX_FNAME];
+        CHAR_T ext[_MAX_EXT];
         _wsplitpath_s( Configuration::Global.flags.Filename, NULL, 0, NULL, 0, filename, _MAX_FNAME, ext, _MAX_EXT );
 
         LPCOLESTR NoneName = _u("None");

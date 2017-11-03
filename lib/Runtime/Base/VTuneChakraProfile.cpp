@@ -14,7 +14,7 @@ const utf8char_t VTuneChakraProfile::DynamicCode[] = "Dynamic code";
 bool VTuneChakraProfile::isJitProfilingActive = false;
 
 //
-// Registers the VTune profiler, if VTune sampling is running, we will get  
+// Registers the VTune profiler, if VTune sampling is running, we will get
 // true value for isJitProfilingActive variable.
 //
 void VTuneChakraProfile::Register()
@@ -38,7 +38,7 @@ void VTuneChakraProfile::UnRegister()
 }
 
 //
-// Log JIT method native load event to VTune 
+// Log JIT method native load event to VTune
 //
 void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::FunctionEntryPointInfo* entryPoint)
 {
@@ -47,13 +47,13 @@ void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::Fu
     {
         iJIT_Method_Load methodInfo;
         memset(&methodInfo, 0, sizeof(iJIT_Method_Load));
-        const char16* methodName = body->GetExternalDisplayName();
+        const CHAR_T* methodName = body->GetExternalDisplayName();
         // Append function line number info to method name so that VTune can distinguish between polymorphic methods
-        char16 methodNameBuffer[_MAX_PATH];
+        CHAR_T methodNameBuffer[_MAX_PATH];
         ULONG lineNumber = body->GetLineNumber();
-        char16 numberBuffer[20];
+        CHAR_T numberBuffer[20];
         _ltow_s(lineNumber, numberBuffer, 10);
-        wcscpy_s(methodNameBuffer, methodName);
+        cstrcpy_s(methodNameBuffer, methodName);
         if (entryPoint->GetJitMode() == ExecutionMode::SimpleJit)
         {
             wcscat_s(methodNameBuffer, _u(" Simple"));
@@ -62,7 +62,7 @@ void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::Fu
         wcscat_s(methodNameBuffer, numberBuffer);
         wcscat_s(methodNameBuffer, _u("}"));
 
-        size_t methodLength = wcslen(methodNameBuffer);
+        size_t methodLength = cstrlen(methodNameBuffer);
         Assert(methodLength < _MAX_PATH);
         size_t length = methodLength * 3 + 1;
         utf8char_t* utf8MethodName = HeapNewNoThrowArray(utf8char_t, length);
@@ -114,7 +114,7 @@ void VTuneChakraProfile::LogMethodNativeLoadEvent(Js::FunctionBody* body, Js::Fu
 }
 
 //
-// Log loop body load event to VTune 
+// Log loop body load event to VTune
 //
 void VTuneChakraProfile::LogLoopBodyLoadEvent(Js::FunctionBody* body, Js::LoopEntryPointInfo* entryPoint, uint16 loopNumber)
 {
@@ -123,8 +123,8 @@ void VTuneChakraProfile::LogLoopBodyLoadEvent(Js::FunctionBody* body, Js::LoopEn
     {
         iJIT_Method_Load methodInfo;
         memset(&methodInfo, 0, sizeof(iJIT_Method_Load));
-        const char16* methodName = body->GetExternalDisplayName();
-        size_t methodLength = wcslen(methodName);
+        const CHAR_T* methodName = body->GetExternalDisplayName();
+        size_t methodLength = cstrlen(methodName);
         methodLength = min(methodLength, (size_t)UINT_MAX); // Just truncate if it is too big
         size_t length = methodLength * 3 + /* spaces */ 2 + _countof(LoopStr) + /*size of loop number*/ 10 + /*NULL*/ 1;
         utf8char_t* utf8MethodName = HeapNewNoThrowArray(utf8char_t, length);
@@ -162,10 +162,10 @@ utf8char_t* VTuneChakraProfile::GetUrl(Js::FunctionBody* body, size_t* urlBuffer
     utf8char_t* utf8Url = NULL;
     if (!body->GetSourceContextInfo()->IsDynamic())
     {
-        const wchar* url = body->GetSourceContextInfo()->url;
+        const CHAR_T* url = body->GetSourceContextInfo()->url;
         if (url)
         {
-            size_t urlCharLength = wcslen(url);
+            size_t urlCharLength = cstrlen(url);
             urlCharLength = min(urlCharLength, (size_t)UINT_MAX);       // Just truncate if it is too big
 
             *urlBufferLength = urlCharLength * 3 + 1;

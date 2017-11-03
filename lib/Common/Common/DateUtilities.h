@@ -10,9 +10,9 @@ namespace Js
 {
     // Global date constants
     extern const double g_kdblJanuary1st1970;
-    extern const char16 g_rgpszDay[7][4];
-    extern const char16 g_rgpszMonth[12][4];
-    extern const char16 g_rgpszZone[8][4];
+    extern const CHAR_T g_rgpszDay[7][4];
+    extern const CHAR_T g_rgpszMonth[12][4];
+    extern const CHAR_T g_rgpszZone[8][4];
 
     // Utility methods to manipulate various date formats
     class DateUtilities

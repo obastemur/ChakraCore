@@ -52,15 +52,15 @@ namespace Js {
         static int64 ToInt64(Var aValue);
         static uint16 ToUInt16(Var aValue);
         static Var ToVarUnchecked(int nValue);
-        static int ToBuffer(Var aValue, __out_ecount_z(bufSize) char16 * buffer, uint bufSize);
-        static int ToBuffer(int value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize);
-        static int ToBuffer(uint value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize);
+        static int ToBuffer(Var aValue, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize);
+        static int ToBuffer(int value, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize);
+        static int ToBuffer(uint value, __out_ecount_z(bufSize) CHAR_T * buffer, uint bufSize);
         static JavascriptString* ToString(Var aValue,ScriptContext* scriptContext);
         static JavascriptString* ToString(int value,ScriptContext* scriptContext);
         static JavascriptString* ToString(uint value,ScriptContext* scriptContext);
 
-        static int SignedToString(__int64 value, char16 *buffer, int bufferSize);
-        static int UnsignedToString(unsigned __int64 value, char16 *buffer, int bufferSize);
+        static int SignedToString(__int64 value, CHAR_T *buffer, int bufferSize);
+        static int UnsignedToString(unsigned __int64 value, CHAR_T *buffer, int bufferSize);
 
         static Var MinVal() { return ToVarUnchecked(k_nMinValue); }
         static Var MaxVal() { return ToVarUnchecked(k_nMaxValue); }

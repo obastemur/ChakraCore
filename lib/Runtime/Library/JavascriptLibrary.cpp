@@ -1826,7 +1826,7 @@ namespace Js
         JavascriptLibrary* library = arrayBufferConstructor->GetLibrary();
         library->AddMember(arrayBufferConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(arrayBufferConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->arrayBufferPrototype, PropertyNone);
-        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);       
+        library->AddSpeciesAccessorsToLibraryObject(arrayBufferConstructor, &ArrayBuffer::EntryInfo::GetterSymbolSpecies);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
         {
@@ -3918,7 +3918,7 @@ namespace Js
     };
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
-    char16 const * const JavascriptLibrary::LibraryFunctionName[] = {
+    CHAR_T const * const JavascriptLibrary::LibraryFunctionName[] = {
 #define LIBRARY_FUNCTION(obj, name, argc, flags, entry) _u(#obj) _u(".") _u(#name),
 #include "LibraryFunction.h"
 #undef LIBRARY_FUNCTION
@@ -5450,7 +5450,7 @@ namespace Js
         return this->CreateDate(value);
     }
 
-    Js::RecyclableObject* JavascriptLibrary::CreateRegex_TTD(const char16* patternSource, uint32 patternLength, UnifiedRegex::RegexFlags flags, CharCount lastIndex, Js::Var lastVar)
+    Js::RecyclableObject* JavascriptLibrary::CreateRegex_TTD(const CHAR_T* patternSource, uint32 patternLength, UnifiedRegex::RegexFlags flags, CharCount lastIndex, Js::Var lastVar)
     {
         Js::JavascriptRegExp* re = Js::JavascriptRegExp::CreateRegEx(patternSource, patternLength, flags, this->scriptContext);
         re->SetLastIndexInfo_TTD(lastIndex, lastVar);
@@ -5788,7 +5788,7 @@ namespace Js
     }
 
 #if DBG_DUMP
-    const char16* JavascriptLibrary::GetStringTemplateCallsiteObjectKey(Var callsite)
+    const CHAR_T* JavascriptLibrary::GetStringTemplateCallsiteObjectKey(Var callsite)
     {
         // Calculate the key for the string template callsite object.
         // Key is combination of the raw string literals delimited by '${}' since string template literals cannot include that symbol.
@@ -5814,8 +5814,8 @@ namespace Js
         }
 
         uint32 keyLength = totalStringLength + (arrayLength - 1) * 3 + 1;
-        char16* key = RecyclerNewArray(scriptContext->GetRecycler(), char16, keyLength);
-        char16* ptr = key;
+        CHAR_T* key = RecyclerNewArray(scriptContext->GetRecycler(), CHAR_T, keyLength);
+        CHAR_T* ptr = key;
         charcount_t remainingSpace = keyLength;
 
         // Get first item before loop - there always must be at least one item
@@ -5905,7 +5905,7 @@ namespace Js
             }
 
             // If the strings at this index are not equal, the callsite objects are not equal.
-            if (!JsUtil::CharacterBuffer<char16>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
+            if (!JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
             {
                 return false;
             }
@@ -5929,7 +5929,7 @@ namespace Js
         }
 
         // If the strings at this index are not equal, the callsite objects are not equal.
-        if (!JsUtil::CharacterBuffer<char16>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
+        if (!JsUtil::CharacterBuffer<CHAR_T>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
         {
             return false;
         }
@@ -5958,8 +5958,8 @@ namespace Js
             return false;
         }
 
-        const char16* pid_x;
-        const char16* pid_y;
+        const CHAR_T* pid_x;
+        const CHAR_T* pid_y;
 
         while (x->nop == knopList)
         {
@@ -5976,7 +5976,7 @@ namespace Js
             pid_y = y->sxBin.pnode1->sxPid.pid->Psz();
 
             // If the pid values of each raw string don't match each other, these are different.
-            if (!DefaultComparer<const char16*>::Equals(pid_x, pid_y))
+            if (!DefaultComparer<const CHAR_T*>::Equals(pid_x, pid_y))
             {
                 return false;
             }
@@ -5997,7 +5997,7 @@ namespace Js
         pid_y = y->sxPid.pid->Psz();
 
         // This is the final string in the raw literals list. Return true if they are equal.
-        return DefaultComparer<const char16*>::Equals(pid_x, pid_y);
+        return DefaultComparer<const CHAR_T*>::Equals(pid_x, pid_y);
     }
 
     hash_t StringTemplateCallsiteObjectComparer<ParseNodePtr>::GetHashCode(ParseNodePtr i)
@@ -6009,7 +6009,7 @@ namespace Js
 
         i = i->sxStrTemplate.pnodeStringRawLiterals;
 
-        const char16* pid;
+        const CHAR_T* pid;
 
         while (i->nop == knopList)
         {
@@ -6017,8 +6017,8 @@ namespace Js
 
             pid = i->sxBin.pnode1->sxPid.pid->Psz();
 
-            hash ^= DefaultComparer<const char16*>::GetHashCode(pid);
-            hash ^= DefaultComparer<const char16*>::GetHashCode(_u("${}"));
+            hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(pid);
+            hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(_u("${}"));
 
             i = i->sxBin.pnode2;
         }
@@ -6027,7 +6027,7 @@ namespace Js
 
         pid = i->sxPid.pid->Psz();
 
-        hash ^= DefaultComparer<const char16*>::GetHashCode(pid);
+        hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(pid);
 
         return hash;
     }
@@ -6121,16 +6121,16 @@ namespace Js
 
         rawArray->DirectGetItemAt(0, &var);
         Js::JavascriptString* str = Js::JavascriptString::FromVar(var);
-        hash ^= DefaultComparer<const char16*>::GetHashCode(str->GetSz());
+        hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(str->GetSz());
 
         for (uint32 i = 1; i < rawArray->GetLength(); i++)
         {
-            hash ^= DefaultComparer<const char16*>::GetHashCode(_u("${}"));
+            hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(_u("${}"));
 
             BOOL hasItem = rawArray->DirectGetItemAt(i, &var);
             AssertOrFailFast(hasItem);
             str = Js::JavascriptString::FromVar(var);
-            hash ^= DefaultComparer<const char16*>::GetHashCode(str->GetSz());
+            hash ^= DefaultComparer<const CHAR_T*>::GetHashCode(str->GetSz());
         }
 
         return hash;
@@ -6449,7 +6449,7 @@ namespace Js
         return this->CreateSymbol(description->GetString(), (int)description->GetLength());
     }
 
-    JavascriptSymbol* JavascriptLibrary::CreateSymbol(const char16* description, int descriptionLength)
+    JavascriptSymbol* JavascriptLibrary::CreateSymbol(const CHAR_T* description, int descriptionLength)
     {
         ENTER_PINNED_SCOPE(const Js::PropertyRecord, propertyRecord);
 
@@ -6628,7 +6628,7 @@ namespace Js
         if (JavascriptString::Is(name))
         {
             JavascriptString * functionName = JavascriptString::FromVar(name);
-            const char16 * functionNameBuffer = functionName->GetString();
+            const CHAR_T * functionNameBuffer = functionName->GetString();
             int functionNameBufferLength = functionName->GetLengthAsSignedInt();
 
             PropertyId functionNamePropertyId = scriptContext->GetOrAddPropertyIdTracked(functionNameBuffer, functionNameBufferLength);
@@ -6778,7 +6778,7 @@ namespace Js
         const bool useCache = prototype->GetScriptContext() == this->scriptContext;
 #if DBG
         DynamicType* oldCachedType = nullptr;
-        char16 reason[1024];
+        CHAR_T reason[1024];
         swprintf_s(reason, 1024, _u("Cache not populated."));
 #endif
         // Always use `TypeOfPrototypeObjectInlined` because we are creating DynamicType of TypeIds_Object
@@ -7053,7 +7053,7 @@ namespace Js
         return RecyclerNew(this->GetRecycler(), JavascriptStringObject, value, stringTypeDynamic);
     }
 
-    JavascriptStringObject* JavascriptLibrary::CreateStringObject(const char16* value, charcount_t length)
+    JavascriptStringObject* JavascriptLibrary::CreateStringObject(const CHAR_T* value, charcount_t length)
     {
         AssertMsg(stringTypeDynamic, "Where's stringTypeDynamic?");
         return RecyclerNew(this->GetRecycler(), JavascriptStringObject,
@@ -7386,7 +7386,7 @@ namespace Js
 
 #ifdef ENABLE_SCRIPT_PROFILING
     // Register for profiler
-#define DEFINE_OBJECT_NAME(object) const char16 *pwszObjectName = _u(#object);
+#define DEFINE_OBJECT_NAME(object) const CHAR_T *pwszObjectName = _u(#object);
 
 #define REGISTER_OBJECT(object)\
     if (FAILED(hr = this->ProfilerRegister##object()))\

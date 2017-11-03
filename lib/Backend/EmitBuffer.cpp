@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 template <typename TAlloc, typename TPreReservedAlloc, typename SyncObject>
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::EmitBufferManager(ArenaAllocator * allocator, CustomHeap::CodePageAllocators<TAlloc, TPreReservedAlloc> * codePageAllocators,
-    Js::ScriptContext * scriptContext, LPCWSTR name, HANDLE processHandle) :
+    Js::ScriptContext * scriptContext, LPCCHAR_T name, HANDLE processHandle) :
     allocationHeap(allocator, codePageAllocators, processHandle),
     allocator(allocator),
     allocations(nullptr),
@@ -537,7 +537,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
 #if DBG_DUMP
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
-EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::DumpAndResetStats(char16 const * filename)
+EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::DumpAndResetStats(CHAR_T const * filename)
 {
     if (this->totalBytesCommitted != 0)
     {

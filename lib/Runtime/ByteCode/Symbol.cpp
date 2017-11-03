@@ -5,7 +5,7 @@
 #include "RuntimeByteCodePch.h"
 
 #if DBG_DUMP
-static const char16 * const SymbolTypeNames[] = { _u("Function"), _u("Variable"), _u("MemberName"), _u("Formal"), _u("Unknown") };
+static const CHAR_T * const SymbolTypeNames[] = { _u("Function"), _u("Variable"), _u("MemberName"), _u("Formal"), _u("Unknown") };
 #endif
 
 bool Symbol::IsArguments() const
@@ -213,7 +213,7 @@ Symbol * Symbol::GetFuncScopeVarSym() const
 }
 
 #if DBG_DUMP
-const char16 * Symbol::GetSymbolTypeName()
+const CHAR_T * Symbol::GetSymbolTypeName()
 {
     return SymbolTypeNames[symbolType];
 }

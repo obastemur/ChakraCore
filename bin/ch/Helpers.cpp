@@ -13,7 +13,7 @@
 
 void TTDHostBuildCurrentExeDirectory(char* path, size_t* pathLength, size_t bufferLength)
 {
-    wchar exePath[MAX_PATH];
+    CHAR_T exePath[MAX_PATH];
     GetModuleFileName(NULL, exePath, MAX_PATH);
 
     size_t i = wcslen(exePath) - 1;
@@ -33,7 +33,7 @@ void TTDHostBuildCurrentExeDirectory(char* path, size_t* pathLength, size_t buff
 
 int TTDHostMKDir(const char* path, size_t pathLength)
 {
-    char16 cpath[MAX_PATH];
+    CHAR_T cpath[MAX_PATH];
     LPCUTF8 pathbase = (LPCUTF8)path;
 
     if(MAX_PATH <= pathLength) //<= to account for null terminator
@@ -48,7 +48,7 @@ int TTDHostMKDir(const char* path, size_t pathLength)
 
 JsTTDStreamHandle TTDHostOpen(size_t pathLength, const char* path, bool isWrite)
 {
-    char16 wpath[MAX_PATH];
+    CHAR_T wpath[MAX_PATH];
     LPCUTF8 pathbase = (LPCUTF8)path;
 
     if(MAX_PATH <= pathLength) //<= to account for null terminator
@@ -135,7 +135,7 @@ HRESULT Helpers::LoadScriptFromFile(LPCSTR filename, LPCSTR& contents, UINT* len
         {
 #ifdef _WIN32
             DWORD lastError = GetLastError();
-            char16 wszBuff[512];
+            CHAR_T wszBuff[512];
             fprintf(stderr, "Error in opening file '%s' ", filename);
             wszBuff[0] = 0;
             if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
@@ -241,7 +241,7 @@ Error:
     return hr;
 }
 
-LPCWSTR Helpers::JsErrorCodeToString(JsErrorCode jsErrorCode)
+LPCCHAR_T Helpers::JsErrorCodeToString(JsErrorCode jsErrorCode)
 {
     bool hasException = false;
     ChakraRTInterface::JsHasException(&hasException);
@@ -310,7 +310,7 @@ LPCWSTR Helpers::JsErrorCodeToString(JsErrorCode jsErrorCode)
     }
 }
 
-void Helpers::LogError(__in __nullterminated const char16 *msg, ...)
+void Helpers::LogError(__in __nullterminated const CHAR_T *msg, ...)
 {
     va_list args;
     va_start(args, msg);
@@ -340,7 +340,7 @@ HRESULT Helpers::LoadBinaryFile(LPCSTR filename, LPCSTR& contents, UINT& lengthB
             fprintf(stderr, "Error in opening file '%s' ", filename);
 #ifdef _WIN32
             DWORD lastError = GetLastError();
-            char16 wszBuff[512];
+            CHAR_T wszBuff[512];
             wszBuff[0] = 0;
             if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
                 nullptr,
@@ -355,7 +355,7 @@ HRESULT Helpers::LoadBinaryFile(LPCSTR filename, LPCSTR& contents, UINT& lengthB
 #endif
             fprintf(stderr, "\n");
         }
-        return E_FAIL;        
+        return E_FAIL;
     }
     // file will not be nullptr if _wfopen_s succeeds
     __analysis_assume(file != nullptr);
@@ -415,7 +415,7 @@ void Helpers::TTReportLastIOErrorAsNeeded(BOOL ok, const char* msg)
 //We assume bounded ascii path length for simplicity
 #define MAX_TTD_ASCII_PATH_EXT_LENGTH 64
 
-void Helpers::CreateTTDDirectoryAsNeeded(size_t* uriLength, char* uri, const char* asciiDir1, const wchar* asciiDir2)
+void Helpers::CreateTTDDirectoryAsNeeded(size_t* uriLength, char* uri, const char* asciiDir1, const CHAR_T* asciiDir2)
 {
     if(*uriLength + strlen(asciiDir1) + wcslen(asciiDir2) + 2 > MAX_URI_LENGTH || strlen(asciiDir1) >= MAX_TTD_ASCII_PATH_EXT_LENGTH || wcslen(asciiDir2) >= MAX_TTD_ASCII_PATH_EXT_LENGTH)
     {
@@ -472,7 +472,7 @@ void Helpers::CreateTTDDirectoryAsNeeded(size_t* uriLength, char* uri, const cha
     }
 }
 
-void Helpers::GetTTDDirectory(const wchar* curi, size_t* uriLength, char* uri, size_t bufferLength)
+void Helpers::GetTTDDirectory(const CHAR_T* curi, size_t* uriLength, char* uri, size_t bufferLength)
 {
     TTDHostBuildCurrentExeDirectory(uri, uriLength, bufferLength);
 

@@ -6,7 +6,7 @@
 
 #ifdef _WIN32
 LPCSTR chakraDllName = "chakracore.dll";
-LPCWSTR chakraDllNameW = _u("chakracore.dll");
+LPCCHAR_T chakraDllNameW = _u("chakracore.dll");
 #else
 #include <dlfcn.h>
 #ifdef __APPLE__
@@ -25,7 +25,7 @@ TestHooks ChakraRTInterface::m_testHooks = { 0 };
 JsAPIHooks ChakraRTInterface::m_jsApiHooks = { 0 };
 
 #ifdef _WIN32
-LPCWSTR GetChakraDllNameW()
+LPCCHAR_T GetChakraDllNameW()
 {
     return chakraDllNameW;
 }
@@ -223,7 +223,7 @@ HRESULT ChakraRTInterface::ParseConfigFlags()
         m_argInfo->filename = nullptr;
         Assert(m_testHooks.pfGetFilenameFlag != nullptr);
 
-        char16* fileNameWide = nullptr;
+        CHAR_T* fileNameWide = nullptr;
         hr = GetFileNameFlag(&fileNameWide);
 
         if (hr != S_OK)

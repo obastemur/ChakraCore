@@ -45,8 +45,8 @@ public:
     bool HasSharedPropertyGuards() const;
     bool HasSharedPropertyGuard(Js::PropertyId id) const;
 
-    char16* GetDisplayName() const;
-    char16* GetDebugNumberSet(wchar(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const;
+    CHAR_T* GetDisplayName() const;
+    CHAR_T* GetDebugNumberSet(CHAR_T(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const;
 private:
     FunctionJITTimeDataIDL m_data;
 };

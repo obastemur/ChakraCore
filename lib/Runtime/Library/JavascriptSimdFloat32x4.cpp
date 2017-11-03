@@ -6,7 +6,7 @@
 #ifdef ENABLE_SIMDJS
 namespace Js
 {
-    const char16 JavascriptSIMDFloat32x4::TypeName[] = _u("SIMD.Float32x4");
+    const CHAR_T JavascriptSIMDFloat32x4::TypeName[] = _u("SIMD.Float32x4");
 
     JavascriptSIMDFloat32x4::JavascriptSIMDFloat32x4(StaticType *type) : JavascriptSIMDType(type)
     {
@@ -44,22 +44,22 @@ namespace Js
     Var JavascriptSIMDFloat32x4::CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue,
         const Var* args, uint numArgs, CallInfo callInfo)
     {
-        const char16 *typeString = _u("SIMD.Float32x4(");
+        const CHAR_T *typeString = _u("SIMD.Float32x4(");
         return JavascriptSIMDObject::FromVar(&obj)->ToLocaleString<float, 4>(args, numArgs, typeString,
             simdValue.f32, &callInfo, &requestContext);
     }
 
-    void JavascriptSIMDFloat32x4::ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) char16* stringBuffer, size_t countBuffer, ScriptContext* scriptContext)
+    void JavascriptSIMDFloat32x4::ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) CHAR_T* stringBuffer, size_t countBuffer, ScriptContext* scriptContext)
     {
-        const char16* f0 = JavascriptNumber::ToStringRadix10((double)value.f32[0], scriptContext)->GetSz();
-        const char16* f1 = JavascriptNumber::ToStringRadix10((double)value.f32[1], scriptContext)->GetSz();
-        const char16* f2 = JavascriptNumber::ToStringRadix10((double)value.f32[2], scriptContext)->GetSz();
-        const char16* f3 = JavascriptNumber::ToStringRadix10((double)value.f32[3], scriptContext)->GetSz();
+        const CHAR_T* f0 = JavascriptNumber::ToStringRadix10((double)value.f32[0], scriptContext)->GetSz();
+        const CHAR_T* f1 = JavascriptNumber::ToStringRadix10((double)value.f32[1], scriptContext)->GetSz();
+        const CHAR_T* f2 = JavascriptNumber::ToStringRadix10((double)value.f32[2], scriptContext)->GetSz();
+        const CHAR_T* f3 = JavascriptNumber::ToStringRadix10((double)value.f32[3], scriptContext)->GetSz();
 
         swprintf_s(stringBuffer, countBuffer, _u("SIMD.Float32x4(%s, %s, %s, %s)"), f0, f1, f2, f3);
     }
 
-    const char16* JavascriptSIMDFloat32x4::GetTypeName()
+    const CHAR_T* JavascriptSIMDFloat32x4::GetTypeName()
     {
         return JavascriptSIMDFloat32x4::TypeName;
     }

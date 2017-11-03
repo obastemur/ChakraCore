@@ -20,7 +20,7 @@
     /// <returns>
     ///     true if the operation succeeded, false otherwise.
     /// </returns>
-    typedef bool (CHAKRA_CALLBACK * JsSerializedScriptLoadSourceCallback)(_In_ JsSourceContext sourceContext, _Outptr_result_z_ const WCHAR** scriptBuffer);
+    typedef bool (CHAKRA_CALLBACK * JsSerializedScriptLoadSourceCallback)(_In_ JsSourceContext sourceContext, _Outptr_result_z_ const CHAR_T** scriptBuffer);
 
     /// <summary>
     ///     Parses a script and returns a function representing the script.
@@ -39,9 +39,9 @@
     /// </returns>
     CHAKRA_API
         JsParseScript(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef *result);
 
     /// <summary>
@@ -62,9 +62,9 @@
     /// </returns>
     CHAKRA_API
         JsParseScriptWithAttributes(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _In_ JsParseScriptAttributes parseAttributes,
             _Out_ JsValueRef *result);
 
@@ -85,9 +85,9 @@
     /// </returns>
     CHAKRA_API
         JsRunScript(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef *result);
 
     /// <summary>
@@ -107,9 +107,9 @@
     /// </returns>
     CHAKRA_API
         JsExperimentalApiRunModule(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef *result);
 
     /// <summary>
@@ -136,7 +136,7 @@
     /// </returns>
     CHAKRA_API
         JsSerializeScript(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _Out_writes_to_opt_(*bufferSize, *bufferSize) BYTE *buffer,
             _Inout_ unsigned int *bufferSize);
 
@@ -172,7 +172,7 @@
             _In_ JsSerializedScriptUnloadCallback scriptUnloadCallback,
             _In_ BYTE *buffer,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef * result);
 
     /// <summary>
@@ -209,7 +209,7 @@
             _In_ JsSerializedScriptUnloadCallback scriptUnloadCallback,
             _In_ BYTE *buffer,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_opt_ JsValueRef * result);
 
     /// <summary>
@@ -236,10 +236,10 @@
     /// </returns>
     CHAKRA_API
         JsParseSerializedScript(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ BYTE *buffer,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef *result);
 
     /// <summary>
@@ -268,10 +268,10 @@
     /// </returns>
     CHAKRA_API
         JsRunSerializedScript(
-            _In_z_ const wchar_t *script,
+            _In_z_ const CHAR_T_t *script,
             _In_ BYTE *buffer,
             _In_ JsSourceContext sourceContext,
-            _In_z_ const wchar_t *sourceUrl,
+            _In_z_ const CHAR_T_t *sourceUrl,
             _Out_ JsValueRef *result);
 
     /// <summary>
@@ -294,7 +294,7 @@
     /// </returns>
     CHAKRA_API
         JsGetPropertyIdFromName(
-            _In_z_ const wchar_t *name,
+            _In_z_ const CHAR_T_t *name,
             _Out_ JsPropertyIdRef *propertyId);
 
     /// <summary>
@@ -317,7 +317,7 @@
     CHAKRA_API
         JsGetPropertyNameFromId(
             _In_ JsPropertyIdRef propertyId,
-            _Outptr_result_z_ const wchar_t **name);
+            _Outptr_result_z_ const CHAR_T_t **name);
 
     /// <summary>
     ///     Creates a string value from a string pointer.
@@ -333,7 +333,7 @@
     /// </returns>
     CHAKRA_API
         JsPointerToString(
-            _In_reads_(stringLength) const wchar_t *stringValue,
+            _In_reads_(stringLength) const CHAR_T_t *stringValue,
             _In_ size_t stringLength,
             _Out_ JsValueRef *value);
 
@@ -361,7 +361,7 @@
     CHAKRA_API
         JsStringToPointer(
             _In_ JsValueRef value,
-            _Outptr_result_buffer_(*stringLength) const wchar_t **stringValue,
+            _Outptr_result_buffer_(*stringLength) const CHAR_T_t **stringValue,
             _Out_ size_t *stringLength);
 
 #endif // _CHAKRACOMMONWINDOWS_H_

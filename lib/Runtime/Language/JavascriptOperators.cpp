@@ -38,7 +38,7 @@ typedef enum JsNativeValueType: int
 typedef struct JsNativeString
 {
     unsigned int length;
-    LPCWSTR str;
+    LPCCHAR_T str;
 } JsNativeString;
 
 #endif
@@ -55,7 +55,7 @@ namespace Js
         IndexType_JavascriptString
     };
 
-    IndexType GetIndexTypeFromString(char16 const * propertyName, charcount_t propertyLength, ScriptContext* scriptContext, uint32* index, PropertyRecord const** propertyRecord, bool createIfNotFound)
+    IndexType GetIndexTypeFromString(CHAR_T const * propertyName, charcount_t propertyLength, ScriptContext* scriptContext, uint32* index, PropertyRecord const** propertyRecord, bool createIfNotFound)
     {
         if (JavascriptOperators::TryConvertToUInt32(propertyName, propertyLength, index) &&
             (*index != JavascriptArray::InvalidIndex))
@@ -91,8 +91,8 @@ namespace Js
             }
             else
             {
-                char16 buffer[20];
-                ::_itow_s(indexInt, buffer, sizeof(buffer) / sizeof(char16), 10);
+                CHAR_T buffer[20];
+                ::_itow_s(indexInt, buffer, sizeof(buffer) / sizeof(CHAR_T), 10);
                 charcount_t length = JavascriptString::GetBufferLength(buffer);
                 if (createIfNotFound || preferJavascriptStringOverPropertyRecord)
                 {
@@ -123,7 +123,7 @@ namespace Js
             else
             {
                 JavascriptString* indexStr = JavascriptConversion::ToString(indexVar, scriptContext);
-                char16 const * propertyName = indexStr->GetString();
+                CHAR_T const * propertyName = indexStr->GetString();
                 charcount_t const propertyLength = indexStr->GetLength();
 
                 if (!createIfNotFound && preferJavascriptStringOverPropertyRecord)
@@ -1943,7 +1943,7 @@ CommonNumber:
             return value;
         }
 
-        const char16* propertyName = scriptContext->GetPropertyName(propertyId)->GetBuffer();
+        const CHAR_T* propertyName = scriptContext->GetPropertyName(propertyId)->GetBuffer();
 
         JavascriptFunction * caller = nullptr;
         if (JavascriptStackWalker::GetCaller(&caller, scriptContext))
@@ -2216,7 +2216,7 @@ CommonNumber:
         return ((*flags & Accessor) == Accessor) || ((*flags & Proxy) == Proxy) || ((*flags & Data) == Data && (*flags & Writable) == None);
     }
 
-    BOOL JavascriptOperators::SetGlobalPropertyNoHost(char16 const * propertyName, charcount_t propertyLength, Var value, ScriptContext * scriptContext)
+    BOOL JavascriptOperators::SetGlobalPropertyNoHost(CHAR_T const * propertyName, charcount_t propertyLength, Var value, ScriptContext * scriptContext)
     {
         GlobalObject * globalObject = scriptContext->GetGlobalObject();
         uint32 index;
@@ -4423,7 +4423,7 @@ CommonNumber:
         else if (indexType == IndexType_JavascriptString)
         {
             Assert(propertyNameString);
-            JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+            JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
             if (BuiltInPropertyRecords::NaN.Equals(propertyName))
             {
@@ -5978,8 +5978,8 @@ CommonNumber:
 #if DBG_DUMP
                 if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
                 {
-                    const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
-                    char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                    const CHAR_T* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
+                    CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                     Output::Print(_u("CtorCache: populated cache (0x%p) for ctor %s (%s): "), constructorCache, ctorName,
                         functionBody ? functionBody->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
@@ -6037,8 +6037,8 @@ CommonNumber:
 #if DBG_DUMP
             if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
             {
-                const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                const CHAR_T* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                 Output::Print(_u("CtorCache: populated cache (0x%p) for ctor %s (%s): "), constructorCache, ctorName,
                     functionBody ? functionBody->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
@@ -6053,8 +6053,8 @@ CommonNumber:
 #if DBG_DUMP
             if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
             {
-                const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
-                char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                const CHAR_T* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
+                CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                 Output::Print(_u("CtorCache: did not populate cache (0x%p) for ctor %s (%s), because %s: prototype = 0x%p, functionBody = 0x%p, ctor context = 0x%p, request context = 0x%p"),
                     constructorCache, ctorName, functionBody ? functionBody->GetDebugNumberSet(debugStringBuffer) : _u("(null)"),
@@ -6181,8 +6181,8 @@ CommonNumber:
                             profileInfo != nullptr && CheckIfPrototypeChainHasOnlyWritableDataProperties(type->GetPrototype()) &&
                             Js::Configuration::Global.flags.Trace.IsEnabled(Js::HostOptPhase))
                         {
-                            const char16* ctorName = constructorBody->GetDisplayName();
-                            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                            const CHAR_T* ctorName = constructorBody->GetDisplayName();
+                            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                             Output::Print(_u("CtorCache: %s cache (0x%p) for ctor %s (#%u) did not update because external call"),
                                 constructorCache, constructorBody, ctorName, constructorBody ? constructorBody->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
                             Output::Print(_u("\n"));
@@ -6252,7 +6252,7 @@ CommonNumber:
                 {
                     if (inlineSlotCapacityBeforeShrink != cachedTypeHandler->GetInlineSlotCapacity())
                     {
-                        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+                        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                         Output::Print(_u("Inline slot capacity shrunk: Function:%04s Before:%d After:%d\n"),
                             constructorBody->GetDebugNumberSet(debugStringBuffer), inlineSlotCapacityBeforeShrink, cachedTypeHandler->GetInlineSlotCapacity());
@@ -6274,8 +6274,8 @@ CommonNumber:
         }
         if ((ctorBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, ctorBody)) || (ctorBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
         {
-            const char16* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            const CHAR_T* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
             Output::Print(_u("CtorCache: %s cache (0x%p) for ctor %s (%s): "), isHit ? _u("hit") : _u("missed"), ctorCache, ctorName,
                 ctorBody ? ctorBody->GetDebugNumberSet(debugStringBuffer) : _u("(null)"));
@@ -6286,13 +6286,13 @@ CommonNumber:
 #endif
     }
 
-    void JavascriptOperators::TraceUpdateConstructorCache(const ConstructorCache* ctorCache, const FunctionBody* ctorBody, bool updated, const char16* reason)
+    void JavascriptOperators::TraceUpdateConstructorCache(const ConstructorCache* ctorCache, const FunctionBody* ctorBody, bool updated, const CHAR_T* reason)
     {
 #if DBG_DUMP
         if (PHASE_TRACE(Js::ConstructorCachePhase, ctorBody))
         {
-            const char16* ctorName = ctorBody->GetDisplayName();
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            const CHAR_T* ctorName = ctorBody->GetDisplayName();
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
             Output::Print(_u("CtorCache: %s cache (0x%p) for ctor %s (%s)%s %s: "),
                 updated ? _u("updated") : _u("did not update"), ctorBody, ctorName,
@@ -7743,7 +7743,7 @@ CommonNumber:
             // Don't error if we disabled implicit calls
             if (scriptContext->GetThreadContext()->RecordImplicitException())
             {
-                const char16* propertyName = scriptContext->GetPropertyName(propertyId)->GetBuffer();
+                const CHAR_T* propertyName = scriptContext->GetPropertyName(propertyId)->GetBuffer();
 
                 value = scriptContext->GetLibrary()->GetUndefined();
                 JavascriptFunction * caller = NULL;
@@ -8113,8 +8113,8 @@ CommonNumber:
 
     void JavascriptOperators::GetPropertyIdForInt(uint64 value, ScriptContext* scriptContext, PropertyRecord const ** propertyRecord)
     {
-        char16 buffer[20];
-        ::_ui64tow_s(value, buffer, sizeof(buffer)/sizeof(char16), 10);
+        CHAR_T buffer[20];
+        ::_ui64tow_s(value, buffer, sizeof(buffer)/sizeof(CHAR_T), 10);
         scriptContext->GetOrAddPropertyRecord(buffer, JavascriptString::GetBufferLength(buffer), propertyRecord);
     }
 
@@ -10449,7 +10449,7 @@ CommonNumber:
 
     BOOL JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(RecyclableObject* instance, JavascriptString* propertyNameString, Var* setterValue, DescriptorFlags* flags, PropertyValueInfo* info, ScriptContext* scriptContext)
     {
-        JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
+        JsUtil::CharacterBuffer<CHAR_T> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (Js::BuiltInPropertyRecords::__proto__.Equals(propertyName))
         {
             return CheckPrototypesForAccessorOrNonWritablePropertyCore<JavascriptString*, false, false>(instance, propertyNameString, setterValue, flags, info, scriptContext);
@@ -10466,7 +10466,7 @@ CommonNumber:
         return JavascriptOperators::SetProperty(instance, object, propertyId, newValue, &info, requestContext, propertyOperationFlags);
     }
 
-    BOOL JavascriptOperators::TryConvertToUInt32(const char16* str, int length, uint32* intVal)
+    BOOL JavascriptOperators::TryConvertToUInt32(const CHAR_T* str, int length, uint32* intVal)
     {
         return NumberUtilities::TryConvertToUInt32(str, length, intVal);
     }
@@ -10509,4 +10509,3 @@ CommonNumber:
         return constructor;
     }
 } // namespace Js
- 

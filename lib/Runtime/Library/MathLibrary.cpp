@@ -12,7 +12,7 @@
 #pragma intrinsic(_mm_round_sd)
 #endif
 
-const LPCWSTR UCrtC99MathApis::LibraryName = _u("api-ms-win-crt-math-l1-1-0.dll");
+const LPCCHAR_T UCrtC99MathApis::LibraryName = _u("api-ms-win-crt-math-l1-1-0.dll");
 
 void UCrtC99MathApis::Ensure()
 {
@@ -754,7 +754,7 @@ namespace Js
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
-                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library 
+                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library
                 // call to test this comparison.
                 if ((compare == 0 && JavascriptNumber::IsNegZero(current)) ||
                 current < compare )
@@ -834,7 +834,7 @@ namespace Js
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
-                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library 
+                // In C++, -0.0f == 0.0f; however, in ES, -0.0f < 0.0f. Thus, use additional library
                 // call to test this comparison.
                 if ((current == 0 && JavascriptNumber::IsNegZero(compare)) ||
                 current > compare )

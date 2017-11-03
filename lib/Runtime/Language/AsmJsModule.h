@@ -277,8 +277,8 @@ namespace Js {
         ByteCodeGenerator* GetByteCodeGenerator() const;
         ScriptContext  *GetScriptContext() const;
 
-        bool FailName( ParseNode *usepn, const wchar *fmt, PropertyName name );
-        bool Fail( ParseNode* usepn, const wchar *error );
+        bool FailName( ParseNode *usepn, const CHAR_T *fmt, PropertyName name );
+        bool Fail( ParseNode* usepn, const CHAR_T *error );
 
         bool AreAllFuncTableDefined();
         bool UsesHeapBuffer() { return mUsesHeapBuffer; }

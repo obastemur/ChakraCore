@@ -505,7 +505,7 @@ Encoder::Encode()
 
         if (PHASE_TRACE(Js::TracePinnedTypesPhase, this->m_func))
         {
-            char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+            CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("PinnedTypes: function %s(%s) pinned %d types.\n"),
                 this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer), pinnedTypeRefCount);
             Output::Flush();

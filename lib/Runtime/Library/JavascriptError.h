@@ -122,8 +122,8 @@ namespace Js
         static void __declspec(noreturn) ThrowParserError(ScriptContext* scriptContext, HRESULT hrParser, CompileScriptException* se);
         static ErrorTypeEnum MapParseError(int32 hCode);
         static JavascriptError* MapParseError(ScriptContext* scriptContext, int32 hCode);
-        static HRESULT GetRuntimeError(RecyclableObject* errorObject, __out_opt LPCWSTR * pMessage);
-        static HRESULT GetRuntimeErrorWithScriptEnter(RecyclableObject* errorObject, __out_opt LPCWSTR * pMessage);
+        static HRESULT GetRuntimeError(RecyclableObject* errorObject, __out_opt LPCCHAR_T * pMessage);
+        static HRESULT GetRuntimeErrorWithScriptEnter(RecyclableObject* errorObject, __out_opt LPCCHAR_T * pMessage);
         static void __declspec(noreturn) ThrowStackOverflowError(ScriptContext *scriptContext, PVOID returnAddress = nullptr);
         static void SetErrorMessageProperties(JavascriptError *pError, HRESULT errCode, PCWSTR message, ScriptContext* scriptContext);
         static void SetErrorMessage(JavascriptError *pError, HRESULT errCode, PCWSTR varName, ScriptContext* scriptContext);
@@ -161,18 +161,18 @@ namespace Js
         virtual JavascriptError* CreateNewErrorOfSameType(JavascriptLibrary* targetJavascriptLibrary);
         JavascriptError* CloneErrorMsgAndNumber(JavascriptLibrary* targetJavascriptLibrary);
         static void TryThrowTypeError(ScriptContext * checkScriptContext, ScriptContext * scriptContext, int32 hCode, PCWSTR varName = nullptr);
-        static JavascriptError* CreateFromCompileScriptException(ScriptContext* scriptContext, CompileScriptException* cse, const WCHAR * sourceUrl = nullptr);
+        static JavascriptError* CreateFromCompileScriptException(ScriptContext* scriptContext, CompileScriptException* cse, const CHAR_T * sourceUrl = nullptr);
 
     private:
 
         Field(BOOL) isExternalError;
         Field(BOOL) isPrototype;
         Field(bool) isStackPropertyRedefined;
-        Field(char16 const *) originalRuntimeErrorMessage;
+        Field(CHAR_T const *) originalRuntimeErrorMessage;
         Field(JavascriptExceptionObject *) exceptionObject;
 
 #ifdef ERROR_TRACE
-        static void Trace(const char16 *form, ...) // const
+        static void Trace(const CHAR_T *form, ...) // const
         {
             if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::ErrorPhase))
             {

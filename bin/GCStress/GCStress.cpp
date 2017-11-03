@@ -115,7 +115,7 @@ void InsertObject()
 {
     // Create a new object
     RecyclerTestObject * object = CreateNewObject();
-    
+
     // Walk to a random location in the current object graph
     Location location = GetRandomLocation();
 
@@ -131,7 +131,7 @@ void ReplaceObject()
 {
     // Create a new object
     RecyclerTestObject * object = CreateNewObject();
-    
+
     // Walk to a random location in the current object graph
     Location location = GetRandomLocation();
 
@@ -225,7 +225,7 @@ void BuildObjectCreationTable()
 #ifdef RECYCLER_VISITED_HOST
     objectCreationTable.AddWeightedEntry(&RecyclerVisitedObject<51, 1000>::New, 40);
 #endif
-    
+
     objectCreationTable.AddWeightedEntry(&LeafObject<1001, 50000>::New, 1);
     objectCreationTable.AddWeightedEntry(&ScannedObject<1001, 50000>::New, 10);
     objectCreationTable.AddWeightedEntry(&BarrierObject<1001, 50000>::New, 2);
@@ -253,7 +253,7 @@ void SimpleRecyclerTest()
 #if ENABLE_BACKGROUND_PAGE_FREEING
     PageAllocator::BackgroundPageQueue backgroundPageQueue;
 #endif
-    IdleDecommitPageAllocator pageAllocator(nullptr, 
+    IdleDecommitPageAllocator pageAllocator(nullptr,
         PageAllocatorType::PageAllocatorType_Thread,
         Js::Configuration::Global.flags,
         0 /* maxFreePageCount */, PageAllocator::DefaultMaxFreePageCount /* maxIdleFreePageCount */,
@@ -284,8 +284,8 @@ void SimpleRecyclerTest()
 #endif
 
         wprintf(_u("Recycler created, initializing heap...\n"));
-        
-        // Initialize stack roots and add to our roots table        
+
+        // Initialize stack roots and add to our roots table
         RecyclerTestObject * stackRoots[stackRootCount];
         for (unsigned int i = 0; i < stackRootCount; i++)
         {
@@ -293,7 +293,7 @@ void SimpleRecyclerTest()
             roots.AddWeightedEntry(Location::Scanned(&stackRoots[i]), 1);
         }
 
-        // Initialize global roots and add to our roots table        
+        // Initialize global roots and add to our roots table
         for (unsigned int i = 0; i < globalRootCount; i++)
         {
             globalRoots[i] = nullptr;
@@ -301,7 +301,7 @@ void SimpleRecyclerTest()
         }
 
         // MemProtect only:
-        // Initialize implicit roots and add to our roots table        
+        // Initialize implicit roots and add to our roots table
         if (implicitRootsMode)
         {
             for (unsigned int i = 0; i < implicitRootCount; i++)
@@ -310,7 +310,7 @@ void SimpleRecyclerTest()
                 roots.AddWeightedEntry(Location::ImplicitRoot(&implicitRoots[i]), 1);
             }
         }
-        
+
         // Initialize GC heap randomly
         for (unsigned int i = 0; i < initializeCount; i++)
         {
@@ -329,7 +329,7 @@ void SimpleRecyclerTest()
             {
                 DoHeapOperation();
             }
-            
+
             WalkHeap();
 
             // Dispose now
@@ -393,7 +393,7 @@ int __cdecl wmain(int argc, __in_ecount(argc) WCHAR* argv[])
                 jscriptOptions = i;
                 break;
             }
-            else 
+            else
             {
                 wprintf(_u("unknown argument '%s'\n"), argv[i]);
                 usage(argv[0]);
@@ -427,12 +427,12 @@ int main(int argc, char** argv)
     // Ignoring mem-alloc failures here as this is
     // simply a test tool. We can add more error checking
     // here later if desired.
-    char16** args = new char16*[argc];
+    CHAR_T** args = new CHAR_T*[argc];
     for (int i = 0; i < argc; i++)
     {
         args[i] = UTIL_MBToWC_Alloc(argv[i], -1);
     }
-    
+
     int ret = wmain(argc, args);
 
     for (int i = 0; i < argc; i++)
@@ -440,7 +440,7 @@ int main(int argc, char** argv)
         free(args[i]);
     }
     delete[] args;
-    
+
     PAL_Shutdown();
     return ret;
 }

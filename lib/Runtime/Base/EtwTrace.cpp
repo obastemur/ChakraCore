@@ -180,7 +180,7 @@ void EtwTrace::PerformRundown(bool start)
                 // the functionBody may have not have bytecode generated yet before registering to utf8SourceInfo
                 // accessing MapLoopHeaders in background thread can causes the functionBody counters locked for updating
                 // and cause assertion when bytecode generation is done and updating bytecodeCount counter on functionBody
-                // so check if the functionBody has done loopbody codegen in advance to not call into Map function in case 
+                // so check if the functionBody has done loopbody codegen in advance to not call into Map function in case
                 // loopbody codegen is not done yet
                 if (body->GetHasDoneLoopBodyCodeGen())
                 {
@@ -338,7 +338,7 @@ void EtwTrace::LogScriptContextLoadEvent(ScriptContext* scriptContext)
 //
 // Logs the runtime source module load event.
 //
-void EtwTrace::LogSourceModuleLoadEvent(ScriptContext* scriptContext, DWORD_PTR sourceContext, _In_z_ const char16* url)
+void EtwTrace::LogSourceModuleLoadEvent(ScriptContext* scriptContext, DWORD_PTR sourceContext, _In_z_ const CHAR_T* url)
 {
     AssertMsg(sourceContext != Constants::NoHostSourceContext, "We should not be logged this if there is no source code available");
 
@@ -352,12 +352,12 @@ void EtwTrace::LogSourceModuleLoadEvent(ScriptContext* scriptContext, DWORD_PTR 
 //
 // This emulates the logic used by the F12 profiler to give names to functions
 //
-const char16* EtwTrace::GetFunctionName(FunctionBody* body)
+const CHAR_T* EtwTrace::GetFunctionName(FunctionBody* body)
 {
     return body->GetExternalDisplayName();
 }
 
-size_t EtwTrace::GetLoopBodyName(_In_ FunctionBody* body, _In_ LoopHeader* loopHeader, _Out_writes_opt_z_(size) char16* nameBuffer, _In_ size_t size)
+size_t EtwTrace::GetLoopBodyName(_In_ FunctionBody* body, _In_ LoopHeader* loopHeader, _Out_writes_opt_z_(size) CHAR_T* nameBuffer, _In_ size_t size)
 {
     return body->GetLoopBodyName(body->GetLoopNumber(loopHeader), nameBuffer, size);
 }
@@ -365,26 +365,26 @@ size_t EtwTrace::GetLoopBodyName(_In_ FunctionBody* body, _In_ LoopHeader* loopH
 _Success_(return == 0)
 size_t EtwTrace::GetSimpleJitFunctionName(
     Js::FunctionBody *const body,
-    _Out_writes_opt_z_(nameCharCapacity) char16 *const name,
+    _Out_writes_opt_z_(nameCharCapacity) CHAR_T *const name,
     const size_t nameCharCapacity)
 {
     Assert(body);
     Assert(name);
     Assert(nameCharCapacity != 0);
 
-    const char16 *const suffix = _u("Simple");
+    const CHAR_T *const suffix = _u("Simple");
     const size_t suffixCharLength = _countof(_u("Simple")) - 1;
 
-    const char16 *const functionName = GetFunctionName(body);
-    const size_t functionNameCharLength = wcslen(functionName);
+    const CHAR_T *const functionName = GetFunctionName(body);
+    const size_t functionNameCharLength = cstrlen(functionName);
     const size_t requiredCharCapacity = functionNameCharLength + suffixCharLength + 1;
     if(requiredCharCapacity > nameCharCapacity || name == NULL)
     {
         return requiredCharCapacity;
     }
 
-    wcscpy_s(name, nameCharCapacity, functionName);
-    wcscpy_s(&name[functionNameCharLength], nameCharCapacity - functionNameCharLength, suffix);
+    cstrcpy_s(name, nameCharCapacity, functionName);
+    cstrcpy_s(&name[functionNameCharLength], nameCharCapacity - functionNameCharLength, suffix);
     return 0;
 }
 

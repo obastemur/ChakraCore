@@ -150,7 +150,7 @@ struct ByteBuffer
     union
     {
         void * pv;
-        const char16 * s16;
+        const CHAR_T * s16;
         const char * s8;
     };
 public:
@@ -411,7 +411,7 @@ public:
           string16Count(_u("String16 Count"), 0),
           string16IndexTable(_u("String16 Indexes")),
           string16Table(_u("String16 Table")),
-          alignedString16Table(_u("Alignment for String16 Table"), &string16Table, sizeof(char16)),
+          alignedString16Table(_u("Alignment for String16 Table"), &string16Table, sizeof(CHAR_T)),
           lineInfoCacheCount(_u("Line Info Cache"), sourceInfo->GetLineOffsetCache()->GetLineCount()),
           lineCharacterOffsetCacheBuffer(_u("Line Info Character Cache"), lineInfoCacheCount.value * sizeof(charcount_t), (byte *)sourceInfo->GetLineOffsetCache()->GetLineCharacterOffsetBuffer()),
           lineInfoHasByteCache(_u("Line Info Has Byte Cache"), sourceInfo->GetLineOffsetCache()->GetLineByteOffsetBuffer() != nullptr),
@@ -632,14 +632,14 @@ public:
         return indexEntry.id;
     }
 
-    uint32 PrependRelativeOffset(BufferBuilderList & builder, LPCWSTR clue, BufferBuilder * pointedTo)
+    uint32 PrependRelativeOffset(BufferBuilderList & builder, LPCCHAR_T clue, BufferBuilder * pointedTo)
     {
         auto entry = Anew(alloc, BufferBuilderRelativeOffset, clue, pointedTo, 0);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(int32);
     }
 
-    uint32 PrependInt16(BufferBuilderList & builder, LPCWSTR clue, int16 value, BufferBuilderInt16 ** entryOut = nullptr)
+    uint32 PrependInt16(BufferBuilderList & builder, LPCCHAR_T clue, int16 value, BufferBuilderInt16 ** entryOut = nullptr)
     {
         auto entry = Anew(alloc, BufferBuilderInt16, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -650,7 +650,7 @@ public:
         return sizeof(int16);
     }
 
-    uint32 PrependInt32(BufferBuilderList & builder, LPCWSTR clue, int value, BufferBuilderInt32 ** entryOut = nullptr)
+    uint32 PrependInt32(BufferBuilderList & builder, LPCCHAR_T clue, int value, BufferBuilderInt32 ** entryOut = nullptr)
     {
         auto entry = Anew(alloc, BufferBuilderInt32, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -661,7 +661,7 @@ public:
         return sizeof(int32);
     }
 
-    uint32 PrependConstantInt16(BufferBuilderList & builder, LPCWSTR clue, int16 value, ConstantSizedBufferBuilderOf<int16> ** entryOut = nullptr)
+    uint32 PrependConstantInt16(BufferBuilderList & builder, LPCCHAR_T clue, int16 value, ConstantSizedBufferBuilderOf<int16> ** entryOut = nullptr)
     {
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int16>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -672,7 +672,7 @@ public:
         return sizeof(int16);
     }
 
-    uint32 PrependConstantInt32(BufferBuilderList & builder, LPCWSTR clue, int value, ConstantSizedBufferBuilderOf<int> ** entryOut = nullptr)
+    uint32 PrependConstantInt32(BufferBuilderList & builder, LPCCHAR_T clue, int value, ConstantSizedBufferBuilderOf<int> ** entryOut = nullptr)
     {
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -683,7 +683,7 @@ public:
         return sizeof(int32);
     }
 
-    uint32 PrependConstantInt64(BufferBuilderList & builder, LPCWSTR clue, int64 value, ConstantSizedBufferBuilderOf<int64> ** entryOut = nullptr)
+    uint32 PrependConstantInt64(BufferBuilderList & builder, LPCCHAR_T clue, int64 value, ConstantSizedBufferBuilderOf<int64> ** entryOut = nullptr)
     {
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int64>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -694,45 +694,45 @@ public:
         return sizeof(int64);
     }
 
-    uint32 PrependByte(BufferBuilderList & builder, LPCWSTR clue, byte value)
+    uint32 PrependByte(BufferBuilderList & builder, LPCCHAR_T clue, byte value)
     {
         auto entry = Anew(alloc, BufferBuilderByte, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(byte);
     }
 
-    uint32 PrependFunctionBodyFlags(BufferBuilderList & builder, LPCWSTR clue, FunctionBody::FunctionBodyFlags value)
+    uint32 PrependFunctionBodyFlags(BufferBuilderList & builder, LPCCHAR_T clue, FunctionBody::FunctionBodyFlags value)
     {
         return PrependByte(builder, clue, (byte) value);
     }
 
-    uint32 PrependBool(BufferBuilderList & builder, LPCWSTR clue, bool value)
+    uint32 PrependBool(BufferBuilderList & builder, LPCCHAR_T clue, bool value)
     {
         return PrependByte(builder, clue, (byte) value);
     }
 
-    uint32 PrependFloat(BufferBuilderList & builder, LPCWSTR clue, float value)
+    uint32 PrependFloat(BufferBuilderList & builder, LPCCHAR_T clue, float value)
     {
         auto entry = Anew(alloc, BufferBuilderFloat, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(float);
     }
 
-    uint32 PrependDouble(BufferBuilderList & builder, LPCWSTR clue, double value)
+    uint32 PrependDouble(BufferBuilderList & builder, LPCCHAR_T clue, double value)
     {
         auto entry = Anew(alloc, BufferBuilderDouble, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(double);
     }
 
-    uint32 PrependSIMDValue(BufferBuilderList & builder, LPCWSTR clue, SIMDValue value)
+    uint32 PrependSIMDValue(BufferBuilderList & builder, LPCCHAR_T clue, SIMDValue value)
     {
         auto entry = Anew(alloc, BufferBuilderSIMD, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(SIMDValue);
     }
 
-    uint32 PrependString16(__in BufferBuilderList & builder, __in_nz LPCWSTR clue, __in_bcount_opt(byteLength) LPCWSTR sz, __in uint32 byteLength)
+    uint32 PrependString16(__in BufferBuilderList & builder, __in_nz LPCCHAR_T clue, __in_bcount_opt(byteLength) LPCCHAR_T sz, __in uint32 byteLength)
     {
         if (sz != nullptr)
         {
@@ -745,7 +745,7 @@ public:
         }
     }
 
-    uint32 PrependByteBuffer(BufferBuilderList & builder, LPCWSTR clue, ByteBuffer * bb)
+    uint32 PrependByteBuffer(BufferBuilderList & builder, LPCCHAR_T clue, ByteBuffer * bb)
     {
         auto id = GetString16Id(bb);
         return PrependInt32(builder, clue, id);
@@ -754,7 +754,7 @@ public:
     int GetIdOfPropertyRecord(const PropertyRecord * propertyRecord)
     {
         AssertMsg(!propertyRecord->IsSymbol(), "bytecode serializer does not currently handle non-built-in symbol PropertyRecords");
-        size_t byteCount = ((size_t)propertyRecord->GetLength() + 1) * sizeof(char16);
+        size_t byteCount = ((size_t)propertyRecord->GetLength() + 1) * sizeof(CHAR_T);
         if (byteCount > UINT_MAX)
         {
             // We should never see property record that big
@@ -780,7 +780,7 @@ public:
     }
 
     template<typename T>
-    uint32 Prepend(BufferBuilderList & builder, LPCWSTR clue, T * t)
+    uint32 Prepend(BufferBuilderList & builder, LPCCHAR_T clue, T * t)
     {
         auto block = Anew(alloc, BufferBuilderRaw, clue, sizeof(serialization_alignment T), (const byte*)t);
         builder.list = builder.list->Prepend(block, alloc);
@@ -794,7 +794,7 @@ public:
     };
 
 #ifdef ASMJS_PLAT
-    HRESULT RewriteAsmJsByteCodesInto(BufferBuilderList & builder, LPCWSTR clue, FunctionBody * function, ByteBlock * byteBlock, SerializedFieldList& definedFields)
+    HRESULT RewriteAsmJsByteCodesInto(BufferBuilderList & builder, LPCCHAR_T clue, FunctionBody * function, ByteBlock * byteBlock, SerializedFieldList& definedFields)
     {
         SListCounted<AuxRecord> auxRecords(alloc);
 
@@ -893,7 +893,7 @@ public:
     }
 #endif
 
-    HRESULT RewriteByteCodesInto(BufferBuilderList & builder, LPCWSTR clue, FunctionBody * function, ByteBlock * byteBlock, SerializedFieldList& definedFields)
+    HRESULT RewriteByteCodesInto(BufferBuilderList & builder, LPCCHAR_T clue, FunctionBody * function, ByteBlock * byteBlock, SerializedFieldList& definedFields)
     {
         SListCounted<AuxRecord> auxRecords(alloc);
 
@@ -1388,7 +1388,7 @@ public:
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         size += PrependInt32(builder, _u("Start String Constant"), magicStartStringConstant);
 #endif
-        auto bb = Anew(alloc, ByteBuffer, (str->GetLength() + 1) * sizeof(char16), (void*)str->GetSz());
+        auto bb = Anew(alloc, ByteBuffer, (str->GetLength() + 1) * sizeof(CHAR_T), (void*)str->GetSz());
         size += PrependByteBuffer(builder, _u("String Constant 16 Value"), bb);
 
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
@@ -1473,7 +1473,7 @@ public:
 
         case TypeIds_String:
         {
-            auto size = PrependByte(builder, _u("String Constant 16"), 
+            auto size = PrependByte(builder, _u("String Constant 16"),
                 Js::PropertyString::Is(var)? ctPropertyString16 : ctString16);
             return size + PrependStringConstant(builder, var);
         }
@@ -1782,7 +1782,7 @@ public:
         return size;
     }
 
-    uint32 PrependGrowingUint32Array(BufferBuilderList & builder, LPCWSTR clue, JsUtil::GrowingUint32HeapArray * arr)
+    uint32 PrependGrowingUint32Array(BufferBuilderList & builder, LPCCHAR_T clue, JsUtil::GrowingUint32HeapArray * arr)
     {
         if (arr == nullptr || arr->Count() == 0 || arr->GetLength() == 0 || arr->GetBuffer() == nullptr)
         {
@@ -1793,7 +1793,7 @@ public:
         return size;
     }
 
-    uint32 PrependSmallSpanSequence(BufferBuilderList & builder, LPCWSTR clue, SmallSpanSequence * spanSequence)
+    uint32 PrependSmallSpanSequence(BufferBuilderList & builder, LPCCHAR_T clue, SmallSpanSequence * spanSequence)
     {
         auto size = PrependInt32(builder, clue, spanSequence->baseValue);
         size += PrependGrowingUint32Array(builder, _u("Statement Buffer"), spanSequence->pStatementBuffer);
@@ -1802,7 +1802,7 @@ public:
     }
 
     template <typename TStructType>
-    uint32 PrependStruct(BufferBuilderList & builder, LPCWSTR clue, TStructType * value)
+    uint32 PrependStruct(BufferBuilderList & builder, LPCCHAR_T clue, TStructType * value)
     {
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<TStructType>, clue, *value);
         builder.list = builder.list->Prepend(entry, alloc);
@@ -1864,7 +1864,7 @@ public:
         size += PrependByte(builder, _u("UsesHeapBuffer"), funcInfo->UsesHeapBuffer());
         for (int i = WAsmJs::LIMIT - 1; i >= 0; --i)
         {
-            const char16* clue = nullptr;
+            const CHAR_T* clue = nullptr;
             switch (i)
             {
             case WAsmJs::INT32:   clue = _u("Int32TypedSlots"); break;
@@ -2049,9 +2049,9 @@ public:
 
         if (!isAnonymous)
         {
-            const char16* displayName = function->GetDisplayName();
+            const CHAR_T* displayName = function->GetDisplayName();
             uint displayNameLength = function->m_displayNameLength;
-            PrependString16(builder, _u("Display Name"), displayName, (displayNameLength + 1) * sizeof(char16));
+            PrependString16(builder, _u("Display Name"), displayName, (displayNameLength + 1) * sizeof(CHAR_T));
         }
 
         PrependInt32(builder, _u("Relative Function ID"), function->GetLocalFunctionId() - topFunctionId); // Serialized function ids are relative to the top function ID
@@ -2073,7 +2073,7 @@ public:
             definedFields.has_attributes = true;
             PrependInt32(builder, _u("Attributes"), attributes);
         }
-       
+
         PrependInt32(builder, _u("Offset Into Source"), sourceDiff);
         if (function->GetNestedCount() > 0)
         {
@@ -2212,7 +2212,7 @@ public:
 
                 const auto source = literalRegex->GetSource();
                 PrependInt32(builder, _u("Literal regex source length"), source.GetLength());
-                PrependString16(builder, _u("Literal regex source"), source.GetBuffer(), (source.GetLength() + 1)* sizeof(char16));
+                PrependString16(builder, _u("Literal regex source"), source.GetBuffer(), (source.GetLength() + 1)* sizeof(CHAR_T));
                 PrependByte(builder, _u("Literal regex flags"), literalRegex->GetFlags());
             }
 
@@ -2558,7 +2558,7 @@ public:
         uint32 countOfAuxiliaryStructure;
         current = ReadUInt32(current, &countOfAuxiliaryStructure);
         Assert(countOfAuxiliaryStructure != 0);
-        
+
         uint32 sizeOfAuxiliaryBlock;
         uint32 sizeOfAuxiliaryContextBlock;
         current = ReadUInt32(current, &sizeOfAuxiliaryBlock);
@@ -2619,7 +2619,7 @@ public:
         return current;
     }
 
-    LPCWSTR GetString16ById(int id, bool* isPropertyRecord = nullptr)
+    LPCCHAR_T GetString16ById(int id, bool* isPropertyRecord = nullptr)
     {
         if (id == 0xffffffff)
         {
@@ -2636,7 +2636,7 @@ public:
         }
         auto offset = record->offset;
         auto addressOfString = raw + offset;
-        return (LPCWSTR)addressOfString;
+        return (LPCCHAR_T)addressOfString;
     }
 
     uint32 GetString16LengthById(int id)
@@ -2645,8 +2645,8 @@ public:
         {
             Assert(false);
         }
-        LPCWSTR s1 = GetString16ById(id);
-        LPCWSTR s2 = GetString16ById(id + 1);
+        LPCCHAR_T s1 = GetString16ById(id);
+        LPCCHAR_T s2 = GetString16ById(id + 1);
         auto result = s2 - s1 - 1;
         Assert(result <= UINT_MAX);
         return (uint32)result;
@@ -2806,13 +2806,13 @@ public:
 
         // string16Table is aligned to 2-bytes
         uint32 string16TableOffset = (uint32)(string16Table - raw);
-        string16TableOffset = ::Math::Align(string16TableOffset, (uint32)sizeof(char16));
+        string16TableOffset = ::Math::Align(string16TableOffset, (uint32)sizeof(CHAR_T));
         string16Table = raw + string16TableOffset;
 
         return S_OK;
     }
 
-    const byte* ReadStringConstant(const byte* current, FunctionBody* function, _Out_ LPCWSTR * string, _Out_ uint32 * len)
+    const byte* ReadStringConstant(const byte* current, FunctionBody* function, _Out_ LPCCHAR_T * string, _Out_ uint32 * len)
     {
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
@@ -2841,7 +2841,7 @@ public:
         ENTER_PINNED_SCOPE(Js::JavascriptArray, callsite);
         callsite = scriptContext->GetLibrary()->CreateArray(arrayLength);
 
-        LPCWSTR string;
+        LPCCHAR_T string;
         uint32 len;
         uint32 rawlen = 0;
 
@@ -2962,7 +2962,7 @@ public:
             {
             case ctString16:
                 {
-                    LPCWSTR string;
+                    LPCCHAR_T string;
                     uint32 len;
                     current = ReadStringConstant(current, function, &string, &len);
 
@@ -2971,7 +2971,7 @@ public:
                 }
             case ctPropertyString16:
                 {
-                    LPCWSTR string;
+                    LPCCHAR_T string;
                     uint32 len;
                     current = ReadStringConstant(current, function, &string, &len);
 
@@ -3087,7 +3087,7 @@ public:
         current = ReadUInt32(current, &count);
 
         Js::AuxArray<uint32> * slotIdInCachedScopeToNestedIndexArray = functionBody->AllocateSlotIdInCachedScopeToNestedIndexArray(count);
-            
+
         uint32 value;
         for (uint i = 0; i < count; i++)
         {
@@ -3143,7 +3143,7 @@ public:
     {
         Assert(function);
         Assert(debuggerScopeCount != 0);
-        
+
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -3634,7 +3634,7 @@ public:
         serialization_alignment SerializedFieldList* definedFields = (serialization_alignment SerializedFieldList*) functionBytes;
 
         FunctionProxy::SetDisplayNameFlags displayNameFlags = FunctionProxy::SetDisplayNameFlags::SetDisplayNameFlagsDontCopy;
-        const char16* displayName = nullptr;
+        const CHAR_T* displayName = nullptr;
         if (bitflags & ffIsAnonymous)
         {
             displayName = Constants::AnonymousFunction;
@@ -3812,7 +3812,7 @@ public:
             (*functionBody)->m_isAsmJsFunction = (bitflags & ffIsAsmJsFunction) ? true : false;
             (*functionBody)->m_isAsmjsMode = (bitflags & ffIsAsmJsMode) ? true : false;
 #endif
-            
+
             if (definedFields->has_loopHeaderArray)
             {
                 (*functionBody)->AllocateLoopHeaders();
@@ -4269,7 +4269,7 @@ void ByteCodeCache::PopulateLookupPropertyId(ScriptContext * scriptContext, int 
         auto propertyNameLength = reader->GetString16LengthById(idInCache);
 
         const Js::PropertyRecord * propertyRecord = scriptContext->GetThreadContext()->GetOrAddPropertyRecordBind(
-            JsUtil::CharacterBuffer<char16>(propertyName, propertyNameLength));
+            JsUtil::CharacterBuffer<CHAR_T>(propertyName, propertyNameLength));
 
         propertyIds[realOffset] = propertyRecord->GetPropertyId();
     }

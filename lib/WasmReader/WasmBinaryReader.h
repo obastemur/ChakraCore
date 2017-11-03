@@ -9,7 +9,7 @@ namespace Wasm
 {
     // Language Types binary encoding with varint7
     namespace LanguageTypes
-    { 
+    {
         const int8 i32 = 0x80 - 0x1;
         const int8 i64 = 0x80 - 0x2;
         const int8 f32 = 0x80 - 0x3;
@@ -26,7 +26,7 @@ namespace Wasm
         const byte* start;
         const byte* end;
         uint32 nameLength;
-        const char16* name;
+        const CHAR_T* name;
     };
 
     struct SectionLimits
@@ -101,18 +101,18 @@ namespace Wasm
         template <typename T> T ReadConst();
         uint8 ReadVarUInt7();
         bool ReadMutableValue();
-        const char16* ReadInlineName(uint32& length, uint32& nameLength);
+        const CHAR_T* ReadInlineName(uint32& length, uint32& nameLength);
         template<typename MaxAllowedType = uint32>
         MaxAllowedType LEB128(uint32 &length, bool sgn = false);
         template<typename MaxAllowedType = int32>
         MaxAllowedType SLEB128(uint32 &length);
         WasmNode ReadInitExpr(bool isOffset = false);
-        SectionLimits ReadSectionLimits(uint32 maxInitial, uint32 maxMaximum, const char16* errorMsg);
+        SectionLimits ReadSectionLimits(uint32 maxInitial, uint32 maxMaximum, const CHAR_T* errorMsg);
 
         void CheckBytesLeft(uint32 bytesNeeded);
         bool EndOfFunc();
         bool EndOfModule();
-        DECLSPEC_NORETURN void ThrowDecodingError(const char16* msg, ...);
+        DECLSPEC_NORETURN void ThrowDecodingError(const CHAR_T* msg, ...);
         Wasm::WasmTypes::WasmType ReadWasmType(uint32& length);
 
         ArenaAllocator* m_alloc;

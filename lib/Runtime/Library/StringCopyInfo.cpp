@@ -26,7 +26,7 @@ namespace Js
     // constructor is referenced by other translation units so it needs to not be inline
     JS_DIAG_INLINE StringCopyInfo::StringCopyInfo(
         JavascriptString *const sourceString,
-        _Inout_count_(sourceString->m_charLength) char16 *const destinationBuffer)
+        _Inout_count_(sourceString->m_charLength) CHAR_T *const destinationBuffer)
         : sourceString(sourceString), destinationBuffer(destinationBuffer)
     {
         Assert(sourceString);
@@ -44,7 +44,7 @@ namespace Js
         return sourceString;
     }
 
-    JS_DIAG_INLINE char16 *StringCopyInfo::DestinationBuffer() const
+    JS_DIAG_INLINE CHAR_T *StringCopyInfo::DestinationBuffer() const
     {
         Assert(isInitialized);
         return destinationBuffer;
@@ -62,7 +62,7 @@ namespace Js
 
         StringCopyInfo copyInfo;
         JavascriptString *const string = nullptr;
-        char16 *const buffer = nullptr;
+        CHAR_T *const buffer = nullptr;
 
         (StringCopyInfo());
         (StringCopyInfo(string, buffer));

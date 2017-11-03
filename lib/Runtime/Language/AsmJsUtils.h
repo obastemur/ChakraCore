@@ -37,10 +37,10 @@ namespace Js {
 
     class AsmJsCompilationException
     {
-        char16 msg_[256];
+        CHAR_T msg_[256];
     public:
-        AsmJsCompilationException( const char16* _msg, ... );
-        inline char16* msg() { return msg_; }
+        AsmJsCompilationException( const CHAR_T* _msg, ... );
+        inline CHAR_T* msg() { return msg_; }
     };
 
     class ParserWrapper

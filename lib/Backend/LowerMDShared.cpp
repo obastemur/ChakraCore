@@ -4463,7 +4463,7 @@ LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
 
     // Now insert write barrier if necessary
 #ifdef RECYCLER_WRITE_BARRIER_JIT
-    if (isPossibleBarrieredDest 
+    if (isPossibleBarrieredDest
         && assignInstr->m_opcode == Js::OpCode::MOV // ignore SSE instructions like MOVSD
         && assignInstr->GetSrc1()->IsWriteBarrierTriggerableValue())
     {
@@ -5391,7 +5391,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
 
     this->m_lowerer->GenerateStringTest(regSrcStr, insertInstr, labelHelper, nullptr, false);
 
-    // r1 contains the value of the char16* pointer inside JavascriptString.
+    // r1 contains the value of the CHAR_T* pointer inside JavascriptString.
     // MOV r1, [regSrcStr + offset(m_pszValue)]
     IR::RegOpnd *r1 = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::IndirOpnd * indirOpnd = IR::IndirOpnd::New(regSrcStr->AsRegOpnd(), Js::JavascriptString::GetOffsetOfpszValue(), TyMachPtr, this->m_func);
@@ -5422,7 +5422,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         instr = IR::BranchInstr::New(Js::OpCode::JBE, labelHelper, this->m_func);
         insertInstr->InsertBefore(instr);
 
-        indirOpnd = IR::IndirOpnd::New(r1, Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) * sizeof(char16), TyInt16, this->m_func);
+        indirOpnd = IR::IndirOpnd::New(r1, Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) * sizeof(CHAR_T), TyInt16, this->m_func);
     }
     else
     {
@@ -7672,7 +7672,7 @@ void LowererMD::EmitSignExtend(IR::Instr * instr)
         IR::RegOpnd * eaxReg = IR::RegOpnd::New(RegEAX, TyInt32, m_func);
         IR::RegOpnd * edxReg = IR::RegOpnd::New(RegEDX, TyInt32, m_func);
 
-        instr->InsertBefore(IR::Instr::New(op, eaxReg, srcPair.low->UseWithNewType(fromType, m_func), m_func)); 
+        instr->InsertBefore(IR::Instr::New(op, eaxReg, srcPair.low->UseWithNewType(fromType, m_func), m_func));
         Legalize(instr->m_prev);
         instr->InsertBefore(IR::Instr::New(Js::OpCode::CDQ, edxReg, m_func));
         Legalize(instr->m_prev);

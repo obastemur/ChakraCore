@@ -201,7 +201,7 @@ namespace TTD
 
         for(TTEventListLink* curr = this->m_headBlock; curr != nullptr; curr = curr->Previous)
         {
-            size_t cpos = curr->StartPos; 
+            size_t cpos = curr->StartPos;
             while(cpos != curr->CurrPos)
             {
                 count++;
@@ -759,7 +759,7 @@ namespace TTD
         return fbInfo;
     }
 
-    const NSSnapValues::TopLevelNewFunctionBodyResolveInfo* EventLog::AddNewFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen)
+    const NSSnapValues::TopLevelNewFunctionBodyResolveInfo* EventLog::AddNewFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen)
     {
         NSSnapValues::TopLevelNewFunctionBodyResolveInfo* fbInfo = this->m_newFunctionTopLevelScripts.NextOpenEntry();
         uint32 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
@@ -770,7 +770,7 @@ namespace TTD
         return fbInfo;
     }
 
-    const NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* EventLog::AddEvalFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode)
+    const NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* EventLog::AddEvalFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const CHAR_T* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode)
     {
         NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* fbInfo = this->m_evalTopLevelScripts.NextOpenEntry();
         uint32 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
@@ -818,7 +818,7 @@ namespace TTD
         const NSLogEvents::TelemetryEventLogEntry* tEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::TelemetryEventLogEntry, NSLogEvents::EventKind::TelemetryLogTag>();
 
         uint32 infoStrLength = (uint32)infoStringJs->GetLength();
-        const char16* infoStr = infoStringJs->GetSz();
+        const CHAR_T* infoStr = infoStringJs->GetSz();
 
         if(tEvent->InfoString.Length != infoStrLength)
         {
@@ -1298,7 +1298,7 @@ namespace TTD
         }
 
         //Now allocate the arrays for them and do the processing
-        snapEvent->LongLivedRefRootsIdArray = nullptr; 
+        snapEvent->LongLivedRefRootsIdArray = nullptr;
         if(snapEvent->LongLivedRefRootsCount != 0)
         {
             snapEvent->LongLivedRefRootsIdArray = this->m_eventSlabAllocator.SlabAllocateArray<TTD_LOG_PTR_ID>(snapEvent->LongLivedRefRootsCount);
@@ -1913,7 +1913,7 @@ namespace TTD
         actionPopper.InitializeWithEventAndEnterWResult(evt, &(bAction->Result));
     }
 
-    void EventLog::RecordJsRTCreateString(TTDJsRTActionResultAutoRecorder& actionPopper, const char16* stringValue, size_t stringLength)
+    void EventLog::RecordJsRTCreateString(TTDJsRTActionResultAutoRecorder& actionPopper, const CHAR_T* stringValue, size_t stringLength)
     {
         NSLogEvents::JsRTStringArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTStringArgumentAction, NSLogEvents::EventKind::CreateStringActionTag>(&sAction);
@@ -2093,7 +2093,7 @@ namespace TTD
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTByteBufferAction, NSLogEvents::EventKind::AllocateExternalArrayBufferActionTag>(&cAction);
         cAction->Length = size;
 
-        cAction->Buffer = nullptr; 
+        cAction->Buffer = nullptr;
         if(cAction->Length != 0)
         {
             cAction->Buffer = this->m_eventSlabAllocator.SlabAllocateArray<byte>(cAction->Length);
@@ -2459,7 +2459,7 @@ namespace TTD
         actionPopper.InitializeWithEventAndEnterWResult(evt, &(ccAction->Result));
     }
 
-    NSLogEvents::EventLogEntry* EventLog::RecordJsRTCodeParse(TTDJsRTActionResultAutoRecorder& actionPopper, LoadScriptFlag loadFlag, bool isUft8, const byte* script, uint32 scriptByteLength, uint64 sourceContextId, const char16* sourceUri)
+    NSLogEvents::EventLogEntry* EventLog::RecordJsRTCodeParse(TTDJsRTActionResultAutoRecorder& actionPopper, LoadScriptFlag loadFlag, bool isUft8, const byte* script, uint32 scriptByteLength, uint64 sourceContextId, const CHAR_T* sourceUri)
     {
         NSLogEvents::JsRTCodeParseAction* cpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTCodeParseAction, NSLogEvents::EventKind::CodeParseActionTag>(&cpAction);

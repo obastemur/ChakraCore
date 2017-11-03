@@ -46,7 +46,7 @@ namespace Js
     }
 
     // Copy the content of items into specified buffer.
-    void ConcatStringBase::CopyImpl(_Out_writes_(m_charLength) char16 *const buffer,
+    void ConcatStringBase::CopyImpl(_Out_writes_(m_charLength) CHAR_T *const buffer,
             int itemCount, _In_reads_(itemCount) JavascriptString * const * items,
             StringCopyInfoStack &nestedStringTreeCopyInfos, const byte recursionDepth)
     {
@@ -183,9 +183,9 @@ namespace Js
         return RecyclerNew(scriptContext->GetRecycler(), ConcatStringBuilder, scriptContext, initialSlotCount);
     }
 
-    const char16 * ConcatStringBuilder::GetSz()
+    const CHAR_T * ConcatStringBuilder::GetSz()
     {
-        const char16 * sz = GetSzImpl<ConcatStringBuilder>();
+        const CHAR_T * sz = GetSzImpl<ConcatStringBuilder>();
 
         // Allow a/b to be garbage collected if no more refs.
         ConcatStringBuilder* current = this;
@@ -290,7 +290,7 @@ namespace Js
     }
 
     void ConcatStringBuilder::CopyVirtual(
-        _Out_writes_(m_charLength) char16 *const buffer,
+        _Out_writes_(m_charLength) CHAR_T *const buffer,
         StringCopyInfoStack &nestedStringTreeCopyInfos,
         const byte recursionDepth)
     {
@@ -374,11 +374,11 @@ namespace Js
         return static_cast<ConcatStringMulti *>(var);
     }
 
-    const char16 *
+    const CHAR_T *
     ConcatStringMulti::GetSz()
     {
         Assert(IsFilled());
-        const char16 * sz = GetSzImpl<ConcatStringMulti>();
+        const CHAR_T * sz = GetSzImpl<ConcatStringMulti>();
 
         // Allow slots to be garbage collected if no more refs.
         ClearArray(m_slots, slotCount);

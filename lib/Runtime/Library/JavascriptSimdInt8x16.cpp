@@ -6,7 +6,7 @@
 #ifdef ENABLE_SIMDJS
 namespace Js
 {
-    const char16 JavascriptSIMDInt8x16::TypeName[] = _u("SIMD.Int8x16");
+    const CHAR_T JavascriptSIMDInt8x16::TypeName[] = _u("SIMD.Int8x16");
 
     JavascriptSIMDInt8x16::JavascriptSIMDInt8x16(StaticType *type) : JavascriptSIMDType(type)
     {
@@ -39,7 +39,7 @@ namespace Js
     Var JavascriptSIMDInt8x16::CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue,
         const Var* args, uint numArgs, CallInfo callInfo)
     {
-        const char16 *typeString = _u("SIMD.Int8x16(");
+        const CHAR_T *typeString = _u("SIMD.Int8x16(");
         return JavascriptSIMDObject::FromVar(&obj)->ToLocaleString<int8, 16>(args, numArgs, typeString,
             simdValue.i8, &callInfo, &requestContext);
     }
@@ -49,7 +49,7 @@ namespace Js
         return JavascriptSIMDInt8x16::New(&value, requestContext);
     }
 
-    const char16* JavascriptSIMDInt8x16::GetTypeName()
+    const CHAR_T* JavascriptSIMDInt8x16::GetTypeName()
     {
         return JavascriptSIMDInt8x16::TypeName;
     }

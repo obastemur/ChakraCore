@@ -142,7 +142,7 @@ namespace Js {
 
 #ifdef GENERATE_DUMP
     CriticalSection Throw::csGenerateDump;
-    void Throw::GenerateDump(LPCWSTR filePath, bool terminate, bool needLock)
+    void Throw::GenerateDump(LPCCHAR_T filePath, bool terminate, bool needLock)
     {
         __try
         {
@@ -162,7 +162,7 @@ namespace Js {
         }
     }
 
-    void Throw::GenerateDumpForAssert(LPCWSTR filePath)
+    void Throw::GenerateDumpForAssert(LPCCHAR_T filePath)
     {
         __try
         {
@@ -174,10 +174,10 @@ namespace Js {
         }
     }
 
-    int Throw::GenerateDump(PEXCEPTION_POINTERS exceptInfo, LPCWSTR filePath, int ret, bool needLock)
+    int Throw::GenerateDump(PEXCEPTION_POINTERS exceptInfo, LPCCHAR_T filePath, int ret, bool needLock)
     {
-        WCHAR tempFilePath[MAX_PATH];
-        WCHAR tempFileName[MAX_PATH];
+        CHAR_T tempFilePath[MAX_PATH];
+        CHAR_T tempFileName[MAX_PATH];
         HANDLE hTempFile;
         DWORD retVal;
 
@@ -308,7 +308,7 @@ namespace Js {
         // the popup message box might be useful when testing in IE
         if (Js::Configuration::Global.flags.AssertPopUp && IsMessageBoxWPresent())
         {
-            char16 buff[1024];
+            CHAR_T buff[1024];
 
             swprintf_s(buff, _countof(buff), _u("%S (%u)\n%S\n%S"), fileName, lineNumber, message, error);
             buff[_countof(buff)-1] = 0;

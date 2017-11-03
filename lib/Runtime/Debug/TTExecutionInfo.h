@@ -22,16 +22,16 @@ namespace TTD
         const int64 m_optMoveMode;
 
         //An optional -- and static string message to include
-        const char16* m_staticAbortMessage;
+        const CHAR_T* m_staticAbortMessage;
 
-        TTDebuggerAbortException(uint32 abortCode, int64 optEventTime, int64 optMoveMode, const char16* staticAbortMessage);
+        TTDebuggerAbortException(uint32 abortCode, int64 optEventTime, int64 optMoveMode, const CHAR_T* staticAbortMessage);
 
     public:
         ~TTDebuggerAbortException();
 
-        static TTDebuggerAbortException CreateAbortEndOfLog(const char16* staticMessage);
-        static TTDebuggerAbortException CreateTopLevelAbortRequest(int64 targetEventTime, int64 moveMode, const char16* staticMessage);
-        static TTDebuggerAbortException CreateUncaughtExceptionAbortRequest(int64 targetEventTime, const char16* staticMessage);
+        static TTDebuggerAbortException CreateAbortEndOfLog(const CHAR_T* staticMessage);
+        static TTDebuggerAbortException CreateTopLevelAbortRequest(int64 targetEventTime, int64 moveMode, const CHAR_T* staticMessage);
+        static TTDebuggerAbortException CreateUncaughtExceptionAbortRequest(int64 targetEventTime, const CHAR_T* staticMessage);
 
         bool IsEndOfLog() const;
         bool IsEventTimeMove() const;
@@ -40,7 +40,7 @@ namespace TTD
         int64 GetTargetEventTime() const;
         int64 GetMoveMode() const;
 
-        const char16* GetStaticAbortMessage() const;
+        const CHAR_T* GetStaticAbortMessage() const;
     };
 
     //A struct for tracking time events in a single method
@@ -49,7 +49,7 @@ namespace TTD
         Js::FunctionBody* Function;
 
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
-        const char16* Name; //only added for debugging can get rid of later.
+        const CHAR_T* Name; //only added for debugging can get rid of later.
 #endif
 
         uint64 FunctionTime; //The function time when the function was called
@@ -187,9 +187,9 @@ namespace TTD
 
         //Always keep the last exception location as well -- even if it is caught
         bool m_lastExceptionPropagating;
-        TTDebuggerSourceLocation m_lastExceptionLocation; 
+        TTDebuggerSourceLocation m_lastExceptionLocation;
 
-        //A flag indicating if we want to break on the entry to the user code 
+        //A flag indicating if we want to break on the entry to the user code
         bool m_breakOnFirstUserCode;
 
         //A pending TTDBP we want to set and move to
@@ -223,7 +223,7 @@ namespace TTD
         ~ExecutionInfoManager();
 
 #if ENABLE_BASIC_TRACE || ENABLE_FULL_BC_TRACE
-        //Get the trace logger for this 
+        //Get the trace logger for this
         TraceLogger* GetTraceLogger();
 #endif
 
@@ -271,7 +271,7 @@ namespace TTD
         //Get the target event time for the pending TTD breakpoint
         int64 GetPendingTTDBPTargetEventTime() const;
 
-        //Load and restore all the breakpoints in the manager before and after we create new script contexts  
+        //Load and restore all the breakpoints in the manager before and after we create new script contexts
         void LoadPreservedBPInfo(ThreadContext* threadContext);
 
         //When we load in a top level function we need to add any breakpoints associated with it
@@ -291,7 +291,7 @@ namespace TTD
 
 #if ENABLE_OBJECT_SOURCE_TRACKING
         void GetTimeAndPositionForDiagnosticObjectTracking(DiagnosticOrigin& originInfo) const;
-#endif 
+#endif
 
         //Get the previous statement time/position for the debugger -- return false if this is the first statement of the event handler
         bool GetPreviousTimeAndPositionForDebugger(TTDebuggerSourceLocation& sourceLocation) const;

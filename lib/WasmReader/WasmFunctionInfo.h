@@ -27,8 +27,8 @@ namespace Wasm
         uint32 GetLocalCount() const;
         Js::ArgSlot GetParamCount() const;
 
-        void SetName(const char16* name, uint32 nameLength) { m_name = name; m_nameLength = nameLength; }
-        const char16* GetName() const { return m_name; }
+        void SetName(const CHAR_T* name, uint32 nameLength) { m_name = name; m_nameLength = nameLength; }
+        const CHAR_T* GetName() const { return m_name; }
         uint32 GetNameLength() const { return m_nameLength; }
 
         uint32 GetNumber() const { return m_number; }
@@ -55,7 +55,7 @@ namespace Wasm
         Field(WasmSignature*) m_signature;
         Field(Js::ByteCodeLabel) m_ExitLabel;
         Field(WasmReaderBase*) m_customReader;
-        Field(const char16*) m_name;
+        Field(const CHAR_T*) m_name;
         Field(uint32) m_nameLength;
         Field(uint32) m_number;
     };

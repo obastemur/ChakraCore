@@ -286,7 +286,7 @@ enum VTableValue {
 };
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-const char16 *GetVtableName(VTableValue value);
+const CHAR_T *GetVtableName(VTableValue value);
 #endif
 
 enum AuxArrayValue {

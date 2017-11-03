@@ -65,7 +65,7 @@ namespace Js
         DelayLoadWindowsGlobalization* GetWindowsGlobalizationLibrary(_In_ ScriptContext* scriptContext);
         DelayLoadWindowsGlobalization* GetWindowsGlobalizationLibrary(_In_ ThreadContext* threadContext);
         template <typename T>
-        HRESULT GetActivationFactory(DelayLoadWindowsGlobalization *library, LPCWSTR factoryName, T** instance);
+        HRESULT GetActivationFactory(DelayLoadWindowsGlobalization *library, LPCCHAR_T factoryName, T** instance);
 
     public:
         WindowsGlobalizationAdapter()

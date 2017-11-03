@@ -225,12 +225,12 @@ namespace Js
 
             // TODO: improve this once EntryPoint cleanup work is complete!
 #if 0
-            const char16 *const functionName = functionBody->GetDisplayName();
-            const char16 *const suffix = _u("TJ");
-            char16 functionNameArray[256];
+            const CHAR_T *const functionName = functionBody->GetDisplayName();
+            const CHAR_T *const suffix = _u("TJ");
+            CHAR_T functionNameArray[256];
             const size_t functionNameCharLength = functionBody->GetDisplayNameLength();
-            wcscpy_s(functionNameArray, 256, functionName);
-            wcscpy_s(&functionNameArray[functionNameCharLength], 256 - functionNameCharLength, suffix);
+            cstrcpy_s(functionNameArray, 256, functionName);
+            cstrcpy_s(&functionNameArray[functionNameCharLength], 256 - functionNameCharLength, suffix);
 #endif
             JS_ETW(EventWriteMethodLoad(functionBody->GetScriptContext(),
                 (void *)buffer,

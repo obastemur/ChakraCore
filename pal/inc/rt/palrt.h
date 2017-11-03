@@ -372,11 +372,17 @@ typedef SHORT VARIANT_BOOL;
 #define VARIANT_TRUE ((VARIANT_BOOL)-1)
 #define VARIANT_FALSE ((VARIANT_BOOL)0)
 
-typedef WCHAR OLECHAR;
-typedef OLECHAR* LPOLESTR;
-typedef const OLECHAR* LPCOLESTR;
-
-typedef WCHAR *BSTR;
+#ifndef ENGINE_CHAR_T_IS_CHAR
+    typedef WCHAR OLECHAR;
+    typedef OLECHAR* LPOLESTR;
+    typedef const OLECHAR* LPCOLESTR;
+    typedef WCHAR *BSTR;
+#else
+    typedef char OLECHAR;
+    typedef OLECHAR* LPOLESTR;
+    typedef const OLECHAR* LPCOLESTR;
+    typedef char *BSTR;
+#endif // ENGINE_CHAR_T_IS_CHAR
 
 STDAPI_(BSTR) SysAllocString(const OLECHAR*);
 STDAPI_(BSTR) SysAllocStringLen(const OLECHAR*, UINT);

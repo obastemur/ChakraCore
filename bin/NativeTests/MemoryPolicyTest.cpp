@@ -19,7 +19,7 @@ namespace MemoryPolicyTests
         {
             JsPropertyIdRef property = JS_INVALID_REFERENCE;
             JsValueRef value = JS_INVALID_REFERENCE;
-            LPCWSTR str = nullptr;
+            LPCCHAR_T str = nullptr;
             size_t length;
 
             REQUIRE(JsGetPropertyIdFromName(_u("message"), &property) == JsNoError);
@@ -29,7 +29,7 @@ namespace MemoryPolicyTests
         }
         else
         {
-            // If we don't have enough memory to create error object, then GetAndClearException might 
+            // If we don't have enough memory to create error object, then GetAndClearException might
             // fail and return ErrorInvalidArgument. Check if we don't get any other error code.
             CHECK(errorCode == JsErrorInvalidArgument);
         }
@@ -37,7 +37,7 @@ namespace MemoryPolicyTests
 
     void BasicTest(JsRuntimeAttributes attributes, LPCSTR fileName)
     {
-        LPCWSTR script = nullptr;
+        LPCCHAR_T script = nullptr;
         REQUIRE(FileLoadHelpers::LoadScriptFromFile(fileName, script) == S_OK);
         REQUIRE(script != nullptr);
 
@@ -99,10 +99,10 @@ namespace MemoryPolicyTests
     {
         JsPropertyIdRef property;
         JsValueRef value, exception;
-        LPCWSTR str;
+        LPCCHAR_T str;
         size_t length;
 
-        LPCWSTR script = nullptr;
+        LPCCHAR_T script = nullptr;
         REQUIRE(FileLoadHelpers::LoadScriptFromFile("oos.js", script) == S_OK);
         REQUIRE(script != nullptr);
 
@@ -185,7 +185,7 @@ namespace MemoryPolicyTests
         REQUIRE(JsSetRuntimeMemoryAllocationCallback(runtime, nullptr, nullptr) == JsNoError);
         // now we can set limit
         REQUIRE(JsSetRuntimeMemoryLimit(runtime, MemoryLimit) == JsNoError);
-        // and we can set the callback again. 
+        // and we can set the callback again.
         REQUIRE(JsSetRuntimeMemoryAllocationCallback(runtime, &memoryPolicyTest, MemoryAllocationCallback) == JsNoError);
 
         REQUIRE(JsSetRuntimeMemoryLimit(runtime, (size_t)-1) == JsNoError);

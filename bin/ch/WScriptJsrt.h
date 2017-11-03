@@ -59,7 +59,7 @@ public:
     static JsErrorCode InitializeModuleCallbacks();
     static void CALLBACK PromiseContinuationCallback(JsValueRef task, void *callbackState);
 
-    static LPCWSTR ConvertErrorCodeToMessage(JsErrorCode errorCode)
+    static LPCCHAR_T ConvertErrorCodeToMessage(JsErrorCode errorCode)
     {
         switch (errorCode)
         {

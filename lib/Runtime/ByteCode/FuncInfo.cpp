@@ -5,7 +5,7 @@
 #include "RuntimeByteCodePch.h"
 
 FuncInfo::FuncInfo(
-    const char16 *name,
+    const CHAR_T *name,
     ArenaAllocator *alloc,
     ByteCodeGenerator *byteCodeGenerator,
     Scope *paramScope,
@@ -106,7 +106,7 @@ FuncInfo::FuncInfo(
 
     if (byteCodeFunction && !byteCodeFunction->IsDeferred() && byteCodeFunction->CanBeDeferred())
     {
-        // Disable (re-)deferral of this function temporarily. Add it to the list of FuncInfo's to be processed when 
+        // Disable (re-)deferral of this function temporarily. Add it to the list of FuncInfo's to be processed when
         // byte code gen is done.
         this->originalAttributes = byteCodeFunction->GetAttributes();
         byteCodeGenerator->AddFuncInfoToFinalizationSet(this);
@@ -466,12 +466,12 @@ CapturedSymMap *FuncInfo::EnsureCapturedSymMap()
     return this->capturedSymMap;
 }
 
-void FuncInfo::SetHasMaybeEscapedNestedFunc(DebugOnly(char16 const * reason))
+void FuncInfo::SetHasMaybeEscapedNestedFunc(DebugOnly(CHAR_T const * reason))
 {
     if (PHASE_TESTTRACE(Js::StackFuncPhase, this->byteCodeFunction) && !hasEscapedUseNestedFunc)
     {
-        char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
-        char16 const * r = _u("");
+        CHAR_T debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
+        CHAR_T const * r = _u("");
 
         DebugOnly(r = reason);
         Output::Print(_u("HasMaybeEscapedNestedFunc (%s): %s (function %s)\n"),

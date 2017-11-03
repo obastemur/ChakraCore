@@ -731,7 +731,7 @@ public:
     }
 
 #if DBG_DUMP
-    char16 const * debugName;
+    CHAR_T const * debugName;
 #endif
 protected:
     void InitVirtualAllocator(TVirtualAlloc * virtualAllocator);

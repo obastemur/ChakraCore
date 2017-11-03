@@ -50,19 +50,19 @@ template <class TBlockAttributes>
 ushort ValidPointers<TBlockAttributes>::GetAddressIndex(uint index) const
 {
     Assert(index < TBlockAttributes::MaxSmallObjectCount);
-#if USE_VPM_TABLE    
+#if USE_VPM_TABLE
     return validPointers[index];
 #else
     return CalculateAddressIndex(index, indexPerObject, maxObjectIndex);
 #endif
-    
+
 }
 
 template <class TBlockAttributes>
 ushort ValidPointers<TBlockAttributes>::GetInteriorAddressIndex(uint index) const
 {
     Assert(index < TBlockAttributes::MaxSmallObjectCount);
-#if USE_VPM_TABLE    
+#if USE_VPM_TABLE
     return validPointers[index + TBlockAttributes::MaxSmallObjectCount];
 #else
     return CalculateInteriorAddressIndex(index, indexPerObject, maxObjectIndex);
@@ -134,7 +134,7 @@ void HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMap(Vali
         // Non-interior first
         ushort * validPointers = buffer;
         if (buffer)
-        {            
+        {
             buffer += TBlockAttributes::MaxSmallObjectCount;
         }
 
@@ -245,7 +245,7 @@ HRESULT HeapInfo::ValidPointersMap<SmallAllocationBlockAttributes>::GenerateVali
 
         for (unsigned j = 0; j < (*invalid)[i].wordCount; ++j)
         {
-            const char16 *format = (j < (*invalid)[i].wordCount - 1) ?
+            const CHAR_T *format = (j < (*invalid)[i].wordCount - 1) ?
 #if defined(_M_IX86_OR_ARM32)
                 _u("0x%08X, ") : _u("0x%08X")
 #elif defined(_M_X64_OR_ARM64)
@@ -279,7 +279,7 @@ HRESULT HeapInfo::ValidPointersMap<SmallAllocationBlockAttributes>::GenerateVali
         {
             IfErrorGotoCleanup(fwprintf(file, _u("        { ")));
 
-            const char16 *format = _u("0x%04hX, 0x%04hX");
+            const CHAR_T *format = _u("0x%04hX, 0x%04hX");
             IfErrorGotoCleanup(fwprintf(file, format, (*blockMap)[i][j].lastObjectIndexOnPage, (*blockMap)[i][j].pageObjectCount));
             IfErrorGotoCleanup(fwprintf(file, (j < SmallAllocationBlockAttributes::PageCount - 1 ? _u(" },\n") : _u(" }\n"))));
         }
@@ -344,7 +344,7 @@ HRESULT HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes>::GenerateVal
 
         for (unsigned j = 0; j < (*invalid)[i].wordCount; ++j)
         {
-            const char16 *format = (j < (*invalid)[i].wordCount - 1) ?
+            const CHAR_T *format = (j < (*invalid)[i].wordCount - 1) ?
 #if defined(_M_IX86_OR_ARM32)
                 _u("0x%08X, ") : _u("0x%08X")
 #elif defined(_M_X64_OR_ARM64)
@@ -378,7 +378,7 @@ HRESULT HeapInfo::ValidPointersMap<MediumAllocationBlockAttributes>::GenerateVal
         {
             IfErrorGotoCleanup(fwprintf(file, _u("        { ")));
 
-            const char16 *format = _u("0x%04hX, 0x%04hX");
+            const CHAR_T *format = _u("0x%04hX, 0x%04hX");
             IfErrorGotoCleanup(fwprintf(file, format, (*blockMap)[i][j].lastObjectIndexOnPage, (*blockMap)[i][j].pageObjectCount));
             IfErrorGotoCleanup(fwprintf(file, (j < MediumAllocationBlockAttributes::PageCount - 1 ? _u(" },\n") : _u(" }\n"))));
         }
@@ -395,7 +395,7 @@ cleanup:
 }
 
 template <class TBlockAttributes>
-HRESULT HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMapHeader(LPCWSTR vpmFullPath)
+HRESULT HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMapHeader(LPCCHAR_T vpmFullPath)
 {
     Assert(vpmFullPath != nullptr);
     HRESULT hr = E_FAIL;
@@ -403,7 +403,7 @@ HRESULT HeapInfo::ValidPointersMap<TBlockAttributes>::GenerateValidPointersMapHe
 
     if (_wfopen_s(&file, vpmFullPath, _u("w")) == 0 && file != nullptr)
     {
-        const char16 * header =
+        const CHAR_T * header =
             _u("//-------------------------------------------------------------------------------------------------------\n")
             _u("// Copyright (C) Microsoft. All rights reserved.\n")
             _u("// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.\n")
@@ -1043,7 +1043,7 @@ HeapInfo::Sweep(RecyclerSweep& recyclerSweep, bool concurrent)
     // Merge the new blocks before we sweep the finalizable object in thread
     recyclerSweep.MergePendingNewHeapBlockList<SmallFinalizableHeapBlock>();
     recyclerSweep.MergePendingNewMediumHeapBlockList<MediumFinalizableHeapBlock>();
-   
+
 #ifdef RECYCLER_WRITE_BARRIER
     recyclerSweep.MergePendingNewHeapBlockList<SmallFinalizableWithBarrierHeapBlock>();
     recyclerSweep.MergePendingNewMediumHeapBlockList<MediumFinalizableWithBarrierHeapBlock>();
@@ -1151,17 +1151,17 @@ HeapInfo::Rescan(RescanFlags flags)
 
 #ifdef DUMP_FRAGMENTATION_STATS
 template <ObjectInfoBits TBucketType>
-struct DumpBucketTypeName { static char16 name[]; };
-template<> char16 DumpBucketTypeName<NoBit>::name[] = _u("Normal ");
-template<> char16 DumpBucketTypeName<LeafBit>::name[] = _u("Leaf   ");
-template<> char16 DumpBucketTypeName<FinalizeBit>::name[] = _u("Fin    ");
-template<> char16 DumpBucketTypeName<WithBarrierBit>::name[] = _u("NormWB ");
-template<> char16 DumpBucketTypeName<FinalizableWithBarrierBit>::name[] = _u("FinWB  ");
-template<> char16 DumpBucketTypeName<RecyclerVisitedHostBit>::name[] = _u("Visited");
+struct DumpBucketTypeName { static CHAR_T name[]; };
+template<> CHAR_T DumpBucketTypeName<NoBit>::name[] = _u("Normal ");
+template<> CHAR_T DumpBucketTypeName<LeafBit>::name[] = _u("Leaf   ");
+template<> CHAR_T DumpBucketTypeName<FinalizeBit>::name[] = _u("Fin    ");
+template<> CHAR_T DumpBucketTypeName<WithBarrierBit>::name[] = _u("NormWB ");
+template<> CHAR_T DumpBucketTypeName<FinalizableWithBarrierBit>::name[] = _u("FinWB  ");
+template<> CHAR_T DumpBucketTypeName<RecyclerVisitedHostBit>::name[] = _u("Visited");
 template <typename TBlockType>
-struct DumpBlockTypeName { static char16 name[]; };
-template<> char16 DumpBlockTypeName<SmallAllocationBlockAttributes>::name[] = _u("(S)");
-template<> char16 DumpBlockTypeName<MediumAllocationBlockAttributes>::name[] = _u("(M)");
+struct DumpBlockTypeName { static CHAR_T name[]; };
+template<> CHAR_T DumpBlockTypeName<SmallAllocationBlockAttributes>::name[] = _u("(S)");
+template<> CHAR_T DumpBlockTypeName<MediumAllocationBlockAttributes>::name[] = _u("(M)");
 #endif
 
 #if ENABLE_MEM_STATS
