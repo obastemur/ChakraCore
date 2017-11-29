@@ -50,6 +50,12 @@ function runTest(numberToTestAsString)
         throw Error("1.255.toFixed(2) != 1.25 or 8.255.toFixed(2) != 8.26 ??");
     }
 
+    var _n1 = 0.0003;
+    var _n2 = _n1.toPrecision(3);
+    if (_n1 + "00" != _n2 + "") {
+        throw new Error(_n1 + " != 0.0003.toPrecision(3) => " + _n2);
+    }
+
     if (-4.223372036854776e+12 + "" != -4.223372036854776e+12.toFixed(3)) {
         // original number is;
         // -4223372036854.77587890625
