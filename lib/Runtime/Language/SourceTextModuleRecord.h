@@ -27,11 +27,12 @@ namespace Js
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) override;
         virtual bool IsSourceTextModuleRecord() override { return true; } // we don't really have other kind of modulerecord at this time.
 
-        // return false when "ambiguous". 
+        // return false when "ambiguous".
         // otherwise nullptr means "null" where we have circular reference/cannot resolve.
         bool ResolveExport(PropertyId exportName, ResolveSet* resolveSet, ModuleNameRecord** exportRecord) override;
         bool ResolveImport(PropertyId localName, ModuleNameRecord** importRecord);
-        void ModuleDeclarationInstantiation() override;
+        bool ModuleDeclarationInstantiation() override;
+        void GenerateRootFunction();
         Var ModuleEvaluation() override;
         virtual ModuleNamespace* GetNamespace();
         virtual void SetNamespace(ModuleNamespace* moduleNamespace);
@@ -114,12 +115,13 @@ namespace Js
         const static uint InvalidSlotCount = 0xffffffff;
         const static uint InvalidSlotIndex = 0xffffffff;
         // TODO: move non-GC fields out to avoid false reference?
-        // This is the parsed tree resulted from compilation. 
-        Field(bool) wasParsed;
-        Field(bool) wasDeclarationInitialized;
-        Field(bool) parentsNotified;
-        Field(bool) isRootModule;
-        Field(bool) hadNotifyHostReady;
+        // This is the parsed tree resulted from compilation.
+        bool shouldGenerateRootFunction;
+        bool wasParsed;
+        bool wasDeclarationInitialized;
+        bool parentsNotified;
+        bool isRootModule;
+        bool hadNotifyHostReady;
         Field(ParseNodePtr) parseTree;
         Field(Utf8SourceInfo*) pSourceInfo;
         Field(uint) sourceIndex;
